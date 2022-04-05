@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+	  <Version>0.1.0</Version>
+	  <Title>COMET WEB Community Edition</Title>
+	  <Description>A Blazor web application that implements ECSS-E-TM-10-25</Description>
+	  <Company>RHEA System S.A.</Company>
+	  <Copyright>Copyright 2022 RHEA System S.A.</Copyright>
+	  <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+	  <Authors>Justine, Sam, Alex, Alexander</Authors>
+	  <RepositoryType>Git</RepositoryType>
+	  <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
