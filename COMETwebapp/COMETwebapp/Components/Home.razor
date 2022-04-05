@@ -1,0 +1,13 @@
+﻿<div style="text-align:center">
+    <h1 style="color : @Color">
+        @Title
+    </h1>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Color { get; set; }
+}
