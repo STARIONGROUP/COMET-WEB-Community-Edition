@@ -20,4 +20,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.3" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="C:\Users\jvdaiguebonne\Documents\Justine\COMET-WEB-Community-Edition\COMETwebapp\COMETwebapp\.editorconfig" />
+  </ItemGroup>
+
 </Project>
