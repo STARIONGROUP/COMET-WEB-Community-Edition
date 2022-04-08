@@ -25,8 +25,16 @@
 namespace COMETwebapp.SessionManagement
 {
     using CDP4Dal;
+
+    /// <summary>
+    /// The purpose of the <see cref="SessionAnchor"/> is to provide access to
+    /// an instance of <see cref="ISession"/>
+    /// </summary>
     public class SessionAnchor : ISessionAnchor
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ISession"/>
+        /// </summary>
         public ISession? Session { get; set; }
 
     }

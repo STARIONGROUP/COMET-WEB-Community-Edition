@@ -24,15 +24,14 @@ Copyright (c) 2022 RHEA System S.A.
 @using COMETwebapp.Components
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-
 <div style="text-align:center">
     <h1 style="color: #2e7191">
         <AuthorizeView>
             <Authorized>
-               Welcome @context.User.Identity.Name !
+               Welcome @context.User.Identity.Name!
             </Authorized>
             <NotAuthorized>
-                Welcome to the COMET web application !
+                Welcome to the COMET Web Application!
             </NotAuthorized>
         </AuthorizeView>    
     </h1>

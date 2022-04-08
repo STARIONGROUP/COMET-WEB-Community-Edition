@@ -25,8 +25,15 @@
 namespace COMETwebapp.SessionManagement
 {
     using CDP4Dal;
+
+    /// <summary>
+    /// The <see cref="ISessionAnchor"/> interface provides access to an <see cref="ISession"/>
+    /// </summary>
     public interface ISessionAnchor
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ISession"/>
+        /// </summary>
         ISession? Session { get; set; }
     }
 }

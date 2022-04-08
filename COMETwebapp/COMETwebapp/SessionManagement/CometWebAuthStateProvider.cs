@@ -27,14 +27,34 @@ namespace COMETwebapp.SessionManagement
     using CDP4Common.SiteDirectoryData;
     using Microsoft.AspNetCore.Components.Authorization;
     using System.Security.Claims;
+
+    /// <summary>
+    /// Provides information about the authentication state of the current user.
+    /// </summary>
     public class CometWebAuthStateProvider : AuthenticationStateProvider
     {
+        /// <summary>
+        /// The <see cref="ISessionAnchor"/> used to get access to the <see cref="ISession"/>
+        /// </summary>
         private readonly ISessionAnchor sessionAnchor;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CometWebAuthStateProvider"/>
+        /// </summary>
+        /// <param name="sessionAnchor">
+        /// The (injected) <see cref="ISessionAnchor"/> used to get access to the <see cref="ISession"/>
+        /// </param>
         public CometWebAuthStateProvider(ISessionAnchor sessionAnchor)
         {
             this.sessionAnchor = sessionAnchor;
         }
+
+        /// <summary>
+        /// Asynchronously gets an <see cref="AuthenticationState"/> that describes the current user.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task"/> that, when resolved, gives an <see cref="AuthenticationState"/> instance that describes the current user.
+        /// </returns>
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
 
@@ -47,11 +67,22 @@ namespace COMETwebapp.SessionManagement
                 var person = this.sessionAnchor.Session.ActivePerson;
                 identity = this.CreateClaimsIdentity(person);
             }
-            
 
             return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity)));
         }
 
+        /// <summary>
+        /// Creates a <see cref="ClaimsIdentity"/> based on a <see cref="Person"/>
+        /// </summary>
+        /// <param name="person">
+        /// The <see cref="Person"/> on the basis of which the <see cref="ClaimsIdentity"/> is created
+        /// </param>
+        /// <returns>
+        /// an instance of <see cref="ClaimsIdentity"/>
+        /// </returns>
+        /// <remarks>
+        /// When the <paramref name="person"/> is null an anonymous <see cref="ClaimsIdentity"/> is returned
+        /// </remarks>
         private ClaimsIdentity CreateClaimsIdentity(Person person)
         {
             ClaimsIdentity identity;
@@ -67,12 +98,14 @@ namespace COMETwebapp.SessionManagement
                 };
 
                 identity = new ClaimsIdentity(claim, "10-25 Authenticated");
-
-
             }
 
             return identity;
         }
+
+        /// <summary>
+        /// Force the <see cref="NotifyAuthenticationStateChanged"/> event to be raised
+        /// </summary>
         public void NotifyAuthenticationStateChanged()
         {
             this.NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());

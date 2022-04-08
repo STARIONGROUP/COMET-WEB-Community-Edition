@@ -24,9 +24,29 @@
 
 namespace COMETwebapp.SessionManagement
 {
+    /// <summary>
+    /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
+    /// a E-TM-10-25 Annex C.2 data source
+    /// </summary>
     public interface IAuthenticationService
     {
+        /// <summary>
+        /// Login (authenticate) with authentication information to a data source
+        /// </summary>
+        /// <param name="authenticationDto">
+        /// The authentication information with data source, username and password
+        /// </param>
+        /// <returns>
+        /// True when the authentication is done
+        /// </returns>
         Task<Boolean> Login(AuthenticationDto authenticationDto);
+
+        /// <summary>
+        /// Logout from the data source
+        /// </summary>
+        /// <returns>
+        /// a <see cref="Task"/>
+        /// </returns>
         Task Logout();
     }
 }

@@ -24,10 +24,24 @@
 
 namespace COMETwebapp.SessionManagement
 {
+    /// <summary>
+    /// Authentication information to connect to an E-TM-10-25 data source
+    /// </summary>
     public class AuthenticationDto
     {
+        /// <summary>
+        /// Data source to connect
+        /// </summary>
         public string SourceAddress { get; set; }
+
+        /// <summary>
+        /// The username to authenticate with
+        /// </summary>
         public string UserName { get; set; }
+
+        /// <summary>
+        /// The password to authenticate with
+        /// </summary>
         public string Password { get; set; }
 
     }

@@ -29,17 +29,47 @@ namespace COMETwebapp.SessionManagement
     using CDP4Dal.DAL;
     using CDP4ServicesDal;
     using Microsoft.AspNetCore.Components.Authorization;
+
+    /// <summary>
+    /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
+    /// a E-TM-10-25 Annex C.2 data source
+    /// </summary>
     public class AuthenticationService : IAuthenticationService
     {
+        /// <summary>
+        /// The (injected) <see cref="AuthenticationStateProvider"/>
+        /// </summary>
         private readonly AuthenticationStateProvider authStateProvider;
+
+        /// <summary>
+        /// The (injected) <see cref="ISessionAnchor"/> that provides access to the <see cref="ISession"/>
+        /// </summary>
         private readonly ISessionAnchor sessionAnchor;
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthenticationService"/> class.
+        /// </summary>
+        /// <param name="sessionAnchor">
+        /// The (injected) <see cref="ISessionAnchor"/> that provides access to the <see cref="ISession"/>
+        /// </param>
+        /// <param name="authenticationStateProvider">
+        /// The (injected) <see cref="AuthenticationStateProvider"/>
+        /// </param>
         public AuthenticationService(ISessionAnchor sessionAnchor, AuthenticationStateProvider authenticationStateProvider)
         {
             this.authStateProvider = authenticationStateProvider;
             this.sessionAnchor = sessionAnchor;
         }
-        
+
+        /// <summary>
+        /// Login (authenticate) with authentication information to a data source
+        /// </summary>
+        /// <param name="authenticationDto">
+        /// The authentication information with data source, username and password
+        /// </param>
+        /// <returns>
+        /// True when the authentication is done
+        /// </returns>
         public async Task<Boolean> Login(AuthenticationDto authenticationDto)
         {
             var uri = new Uri(authenticationDto.SourceAddress);
@@ -58,7 +88,12 @@ namespace COMETwebapp.SessionManagement
             return true;
         }
 
-        
+        /// <summary>
+        /// Logout from the data source
+        /// </summary>
+        /// <returns>
+        /// a <see cref="Task"/>
+        /// </returns>
         public async Task Logout()
         {
             if (this.sessionAnchor.Session != null)
