@@ -1,4 +1,5 @@
-﻿<!------------------------------------------------------------------------------
+﻿@using COMETwebapp.Pages
+<!------------------------------------------------------------------------------
     Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -21,6 +22,7 @@
 ------------------------------------------------------------------------------->
 
 @inherits LayoutComponentBase
+@inject IModalService Modal
 
 <div class="page">
     <div class="sidebar">
@@ -29,7 +31,15 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition" target="_blank">About</a>
+            <AuthorizeView>
+                <Authorized>
+                    <a href="logout" color="#2e7191">Log out</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a color="#2e7191" @onclick="@(() => Modal.Show<Login>("Login"))" >Log In </a>
+                </NotAuthorized>
+            </AuthorizeView>
+            <a href="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition" target="_blank" color="#2e7191">About</a>
         </div>
 
         <article class="content px-4">

@@ -1,5 +1,5 @@
-<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
@@ -20,31 +20,19 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<!DOCTYPE html>
-<html lang="en">
+@page "/logout"
+@using COMETwebapp.SessionManagement
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>COMETwebapp</title>
-    <base href="/" />
-    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/app.css" rel="stylesheet" />
-    <link href="COMETwebapp.styles.css" rel="stylesheet" />
-    <link href ="_content/Blazored.Modal/blazored-modal.css" rel="stylesheet" />
+@code {
+    [Inject]
+    public IAuthenticationService AuthenticationService { get; set; }
 
-</head>
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
 
-<body>
-    <div id="app">Loading...</div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-    <script src="_framework/blazor.webassembly.js"></script>
-    <script src ="_content/Blazored.Modal/blazored.modal.js"></script>
-</body>
-
-</html>
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.Logout();
+        NavigationManager.NavigateTo("/");
+    }
+}

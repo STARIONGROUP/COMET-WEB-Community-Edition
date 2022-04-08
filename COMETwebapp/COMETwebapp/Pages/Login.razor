@@ -1,0 +1,72 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@page "/login"
+@using COMETwebapp.SessionManagement
+@using Microsoft.AspNetCore.Components;
+
+
+<EditForm Model="AuthenticationDto" OnValidSubmit="ExecuteLogin">
+    <div class="form-group row">
+        <label for="ur">Source Address:</label>
+        <div class="col-md-15">
+            <InputText id="sourceaddress" class="form-control" @bind-Value="AuthenticationDto.SourceAddress" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="username">UserName:</label>
+        <div class="col-md-15">
+            <InputText id="username" class="form-control" @bind-Value="AuthenticationDto.UserName" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="password" >Password:</label>
+        <div class="col-md-15">
+            <InputText type="password" id="password" class="form-control" @bind-Value="AuthenticationDto.Password" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <button type="submit" class="btn btn-success">Connect</button>
+        </div>
+    </div>
+
+</EditForm>
+
+@code{
+    [Inject]
+    public IAuthenticationService AuthenticationService { get; set; }
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    private AuthenticationDto AuthenticationDto = new AuthenticationDto();
+
+    public async Task ExecuteLogin()
+    {
+        var result = await AuthenticationService.Login(AuthenticationDto);
+        if (result)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Program.cs" company="RHEA System S.A.">
+// <copyright file="ISessionAnchor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -22,27 +22,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using Blazored.Modal;
-using CDP4Dal;
-using COMETwebapp;
-using COMETwebapp.SessionManagement;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
-
-builder.Services.AddBlazoredModal();
-builder.Services.AddScoped(sp => new HttpClient());
-
-builder.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
-builder.Services.AddSingleton<ISession, Session>();
-
-builder.Services.AddAuthorizationCore();
-builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
-builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
-
-
-await builder.Build().RunAsync();
+namespace COMETwebapp.SessionManagement
+{
+    using CDP4Dal;
+    public interface ISessionAnchor
+    {
+        ISession? Session { get; set; }
+    }
+}
