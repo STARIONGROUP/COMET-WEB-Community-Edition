@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Program.cs" company="RHEA System S.A.">
+// <copyright file="IAuthenticationService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -22,26 +22,31 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using Blazored.Modal;
-using CDP4Dal;
-using COMETwebapp;
-using COMETwebapp.SessionManagement;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+namespace COMETwebapp.SessionManagement
+{
+    /// <summary>
+    /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
+    /// a E-TM-10-25 Annex C.2 data source
+    /// </summary>
+    public interface IAuthenticationService
+    {
+        /// <summary>
+        /// Login (authenticate) with authentication information to a data source
+        /// </summary>
+        /// <param name="authenticationDto">
+        /// The authentication information with data source, username and password
+        /// </param>
+        /// <returns>
+        /// True when the authentication is done
+        /// </returns>
+        Task<Boolean> Login(AuthenticationDto authenticationDto);
 
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
-
-builder.Services.AddBlazoredModal();
-
-builder.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
-builder.Services.AddSingleton<ISession, Session>();
-
-builder.Services.AddAuthorizationCore();
-builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
-builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
-
-
-await builder.Build().RunAsync();
+        /// <summary>
+        /// Logout from the data source
+        /// </summary>
+        /// <returns>
+        /// a <see cref="Task"/>
+        /// </returns>
+        Task Logout();
+    }
+}

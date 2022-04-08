@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
+Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
@@ -21,8 +21,18 @@
 ------------------------------------------------------------------------------->
 
 @page "/"
-@using COMETwebapp.Components
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<Home Title="Welcome to the COMET web application !" Color="#235180"/>
-
+<div style="text-align:center">
+    <h1 style="color: #2e7191">
+        <AuthorizeView>
+            <Authorized>
+               Welcome @context.User.Identity.Name!
+            </Authorized>
+            <NotAuthorized>
+                Welcome to the COMET Web Application!
+            </NotAuthorized>
+        </AuthorizeView>    
+    </h1>
+</div>
 
