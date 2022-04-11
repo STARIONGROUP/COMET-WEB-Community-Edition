@@ -21,12 +21,17 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/logout"
-@using COMETwebapp.SessionManagement
 
 @code {
+    /// <summary>
+    /// Gets or sets the (injected) IAuthenticationService used to authenticate against the selected datasource
+    /// </summary>
     [Inject]
     public IAuthenticationService AuthenticationService { get; set; }
 
+    /// <summary>
+    /// Gets or sets the (injected) NavigationManager used to navigate between pages
+    /// </summary>
     [Inject]
     public NavigationManager NavigationManager { get; set; }
 

@@ -30,17 +30,17 @@ namespace COMETwebapp.SessionManagement
     public class AuthenticationDto
     {
         /// <summary>
-        /// Data source to connect
+        /// Gets or sets the address of the datasource to connect to
         /// </summary>
         public string SourceAddress { get; set; }
 
         /// <summary>
-        /// The username to authenticate with
+        /// Gets or sets the username to authenticate with
         /// </summary>
         public string UserName { get; set; }
 
         /// <summary>
-        /// The password to authenticate with
+        /// Gets or sets the password to authenticate with
         /// </summary>
         public string Password { get; set; }
 

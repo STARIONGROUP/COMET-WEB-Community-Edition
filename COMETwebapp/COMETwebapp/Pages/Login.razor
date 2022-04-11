@@ -21,9 +21,6 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/login"
-@using COMETwebapp.SessionManagement
-@using Microsoft.AspNetCore.Components;
-
 
 <EditForm Model="AuthenticationDto" OnValidSubmit="ExecuteLogin">
     <div class="form-group row">
@@ -53,12 +50,21 @@ Copyright (c) 2022 RHEA System S.A.
 </EditForm>
 
 @code{
+    /// <summary>
+    /// Gets or sets the (injected) IAuthenticationService used to authenticate against the selected datasource
+    /// </summary>
     [Inject]
     public IAuthenticationService AuthenticationService { get; set; }
 
+    /// <summary>
+    /// Gets or sets the (injected) NavigationManager used to navigate between pages
+    /// </summary>
     [Inject]
     public NavigationManager NavigationManager { get; set; }
 
+    /// <summary>
+    /// Initializes the AuthenticatioDto object completed with the EditForm
+    /// </summary>
     private AuthenticationDto AuthenticationDto = new AuthenticationDto();
 
     /// <summary>
