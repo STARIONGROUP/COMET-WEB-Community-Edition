@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
+Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
@@ -20,32 +20,28 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">COMET Web Application</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+@page "/{modelName}"
+@inject ISessionAnchor SessionAnchor
+@inject NavigationManager NavigationManager
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<h3>Model @modelName opened</h3>
+<h3>With domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h3>
+
+<button class="btn btn-connect " @onclick="CloseIteration"> Close</button>
 
 @code {
-    private bool collapseNavMenu = true;
+    /// <summary>
+    /// Gets or sets the modelName
+    /// </summary>
+    [Parameter]
+    public string modelName { get; set; }
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    /// <summary>
+    /// Close the opened iteration
+    /// </summary>
+    private void CloseIteration()
     {
-        collapseNavMenu = !collapseNavMenu;
+        this.SessionAnchor.CloseIteration();
+        NavigationManager.NavigateTo("/");
     }
 }

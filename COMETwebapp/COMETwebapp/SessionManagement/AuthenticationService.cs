@@ -25,10 +25,13 @@
 namespace COMETwebapp.SessionManagement
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4ServicesDal;
     using Microsoft.AspNetCore.Components.Authorization;
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
@@ -68,7 +71,7 @@ namespace COMETwebapp.SessionManagement
         /// The authentication information with data source, username and password
         /// </param>
         /// <returns>
-        /// True when the authentication is done
+        /// True when the authentication is done and the ISession opened
         /// </returns>
         public async Task<Boolean> Login(AuthenticationDto authenticationDto)
         {
@@ -76,16 +79,13 @@ namespace COMETwebapp.SessionManagement
             var dal = new CdpServicesDal();
             var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
-            var session = new Session(dal, credentials);
-            await session.Open();
-
-            this.sessionAnchor.Session = session;
-
-            Console.WriteLine($"user:{session.ActivePerson.Name}");
+            this.sessionAnchor.Session = new Session(dal, credentials);
+            await this.sessionAnchor.Session.Open();
+            this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
 
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
 
-            return true;
+            return this.sessionAnchor.IsSessionOpen;
         }
 
         /// <summary>
@@ -98,8 +98,7 @@ namespace COMETwebapp.SessionManagement
         {
             if (this.sessionAnchor.Session != null)
             {
-                await this.sessionAnchor.Session.Close();
-                this.sessionAnchor.Session = null;
+                await this.sessionAnchor.Close();
             }
      
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();

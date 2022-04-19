@@ -22,12 +22,16 @@ Copyright (c) 2022 RHEA System S.A.
 
 @page "/"
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IModalService Modal
 
 <div style="text-align:center">
     <h1 style="color: #2e7191">
         <AuthorizeView>
             <Authorized>
                Welcome @context.User.Identity.Name!
+               <div >
+                 <button class="btn-connect" color="#2e7191" @onclick="@(() => Modal.Show<OpenModel>("Model"))">Open a Model </button>
+               </div>
             </Authorized>
             <NotAuthorized>
                 Welcome to the COMET Web Application!
