@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.SessionManagement
 {
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Dal;
 
     /// <summary>
@@ -34,6 +36,39 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// Gets or sets the <see cref="ISession"/>
         /// </summary>
-        ISession? Session { get; set; }
+        ISession Session { get; set; }
+
+        /// <summary>
+        /// True if the <see cref="ISession"/> is opened
+        /// </summary>
+        bool IsSessionOpen { get; set; }
+
+        /// <summary>
+        /// The opened <see cref="Iteration"/>
+        /// </summary>
+        Iteration OpenIteration { get; set; }
+
+        /// <summary>
+        /// The <see cref="DomainOfExpertise"/> selected to open a model
+        /// </summary>
+        DomainOfExpertise CurrentDomainOfExpertise { get; set; }
+
+        /// <summary>
+        /// Retrieves the <see cref="SiteDirectory"/> that is loaded in the <see cref="ISession"/>
+        /// </summary>
+        /// <returns>The <see cref="SiteDirectory"/></returns>
+        SiteDirectory GetSiteDirectory();
+
+        /// <summary>
+        /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
+        /// </summary>
+        /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
+        /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
+        void GetIteration(EngineeringModelSetup modelSetup, IterationSetup iterationSetup);
+
+        /// <summary>
+        /// Close the <see cref="OpenIteration"/>
+        /// </summary>
+        void CloseIteration();
     }
 }

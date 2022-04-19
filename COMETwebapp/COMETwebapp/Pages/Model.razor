@@ -20,23 +20,28 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@page "/"
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IModalService Modal
+@page "/{modelName}"
+@inject ISessionAnchor SessionAnchor
+@inject NavigationManager NavigationManager
 
-<div style="text-align:center">
-    <h1 style="color: #2e7191">
-        <AuthorizeView>
-            <Authorized>
-               Welcome @context.User.Identity.Name!
-               <div >
-                 <button class="btn-connect" color="#2e7191" @onclick="@(() => Modal.Show<OpenModel>("Model"))">Open a model </button>
-               </div>
-            </Authorized>
-            <NotAuthorized>
-                Welcome to the COMET Web Application!
-            </NotAuthorized>
-        </AuthorizeView>    
-    </h1>
-</div>
+<h3>Model @modelName opened</h3>
+<h3>With domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h3>
 
+<button class="btn btn-connect " @onclick="CloseIteration"> Close</button>
+
+@code {
+    /// <summary>
+    /// Gets or sets the modelName
+    /// </summary>
+    [Parameter]
+    public string modelName { get; set; }
+
+    /// <summary>
+    /// Close the opened iteration
+    /// </summary>
+    private void CloseIteration()
+    {
+        NavigationManager.NavigateTo("/");
+        this.SessionAnchor.CloseIteration();
+    }
+}

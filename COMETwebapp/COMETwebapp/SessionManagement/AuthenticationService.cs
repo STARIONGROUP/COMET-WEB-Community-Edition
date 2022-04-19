@@ -25,10 +25,13 @@
 namespace COMETwebapp.SessionManagement
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4ServicesDal;
     using Microsoft.AspNetCore.Components.Authorization;
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
@@ -68,7 +71,7 @@ namespace COMETwebapp.SessionManagement
         /// The authentication information with data source, username and password
         /// </param>
         /// <returns>
-        /// True when the authentication is done
+        /// True when the authentication is done and the ISession opened
         /// </returns>
         public async Task<Boolean> Login(AuthenticationDto authenticationDto)
         {
@@ -80,12 +83,11 @@ namespace COMETwebapp.SessionManagement
             await session.Open();
 
             this.sessionAnchor.Session = session;
-
-            Console.WriteLine($"user:{session.ActivePerson.Name}");
+            this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
 
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
 
-            return true;
+            return this.sessionAnchor.IsSessionOpen;
         }
 
         /// <summary>
@@ -100,6 +102,7 @@ namespace COMETwebapp.SessionManagement
             {
                 await this.sessionAnchor.Session.Close();
                 this.sessionAnchor.Session = null;
+                this.sessionAnchor.IsSessionOpen = false;
             }
      
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
