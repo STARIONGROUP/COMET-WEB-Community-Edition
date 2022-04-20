@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Program.cs" company="RHEA System S.A.">
+// <copyright file="SessionAnchorTest.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -82,7 +82,6 @@ namespace COMETwebapp.Tests
                 Participant = { this.participant }
             };
 
-
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -113,7 +112,6 @@ namespace COMETwebapp.Tests
                     new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
                 }
             };
-
             this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
                {
@@ -136,7 +134,6 @@ namespace COMETwebapp.Tests
             Assert.DoesNotThrow(() => this.sessionAnchor.Close());
         }
 
-
         [Test]
         public void VerifyGetIteration()
         {
@@ -148,7 +145,6 @@ namespace COMETwebapp.Tests
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
             {
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
-
             });
 
             Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.GetIteration(this.engineeringSetup, this.iteration.IterationSetup));
