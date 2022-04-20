@@ -23,7 +23,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor 
 @inject NavigationManager NavigationManager
 
-@if (ModelSetupList.Count == 0)
+@if (ModelSetups.Count == 0)
 {
     InitializeModelList();
 }
@@ -33,7 +33,7 @@ Copyright (c) 2022 RHEA System S.A.
     <div class="col-md-15 m-top-3px">
         <select @onchange="SetNameModel">
             <option value="">--Select--</option>
-            @foreach (var model in ModelSetupList)
+            @foreach (var model in ModelSetups)
             {
                 <option value="@model.Name">@model.Name</option>
             }
@@ -41,29 +41,35 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
 </div>
 
-@if (IterationSetupList.Count != 0)
+@if (SelectedEngineeringModelSetup != null)
 {
    <div class="form-group row">
     <label>Iteration:</label>
     <div class="col-md-15 m-top-3px">
         <select @onchange="SetIteration">
             <option value="">--Select--</option>
-            @foreach(var iteration in IterationSetupList)
+            @foreach(var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
             {
-                <option value="@iteration.Description">@iteration.Description</option>
+                    @if(@iteration.FrozenOn == null)
+                    {
+                        <option value="@iteration.IterationNumber">iteration_@iteration.IterationNumber - Active</option>
+                    } else
+                    {
+                        <option value="@iteration.IterationNumber">iteration_@iteration.IterationNumber - @iteration.FrozenOn</option>
+                    }
             }
         </select>
     </div>
 </div>
 }
-@if (DomainList.Count != 0)
+@if (Domains.Count != 0)
 {
    <div class="form-group row">
     <label>Domain:</label>
     <div class="col-md-15 m-top-3px">
         <select @onchange="SetDomain">
             <option value="">--Select--</option>
-            @foreach(var domain in DomainList)
+            @foreach(var domain in Domains)
             {
                 <option value="@domain.Name">@domain.Name</option>
             }
@@ -72,7 +78,7 @@ Copyright (c) 2022 RHEA System S.A.
 </div>
 }
 
-@if (ModelSetup != null && IterationSetup != null && ISessionAnchor.CurrentDomainOfExpertise != null)
+@if (SelectedEngineeringModelSetup != null && SelectedIterationSetup != null && ISessionAnchor.CurrentDomainOfExpertise != null)
 {
     <div class="row">
         <button class="btn btn-connect " @onclick="OpenAModel"> Open</button>
@@ -84,70 +90,43 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// List of <see cref="EngineeringModelSetup"/> in the opened session
     /// </summary>
-    private List<EngineeringModelSetup> ModelSetupList { get; set; } = new List<EngineeringModelSetup>();
-
-    /// <summary>
-    /// List of <see cref="IterationSetup"/> in the selected <see cref="EngineeringModelSetup"/>
-    /// </summary>
-    private List<IterationSetup> IterationSetupList { get; set; } = new List<IterationSetup>();
+    private List<EngineeringModelSetup> ModelSetups { get; set; } = new List<EngineeringModelSetup>();
 
     /// <summary>
     /// List of <see cref="DomainOfExpertise"/> in the selected <see cref="EngineeringModelSetup"/>
     /// </summary>
-    private List<DomainOfExpertise> DomainList { get; set; } = new List<DomainOfExpertise>();
+    private List<DomainOfExpertise> Domains { get; set; } = new List<DomainOfExpertise>();
 
     /// <summary>
     /// The <see cref="EngineeringModelSetup"/> selected
     /// </summary>
-    private EngineeringModelSetup ModelSetup { get; set; }
+    private EngineeringModelSetup SelectedEngineeringModelSetup { get; set; }
 
     /// <summary>
     /// The <see cref="IterationSetup"/> selected
     /// </summary>
-    private IterationSetup IterationSetup { get; set; }
+    private IterationSetup  SelectedIterationSetup { get; set; }
 
     /// <summary>
-    /// Initialize <see cref="ModelSetupList"/> according to the opened Session and the <see cref="ActivePerson"/>
+    /// Initialize <see cref="ModelSetups"/> according to the opened Session and the <see cref="ActivePerson"/>
     /// </summary>
     private void InitializeModelList()
     {
-        foreach (var model in ISessionAnchor.Session.RetrieveSiteDirectory().Model)
-        {
-            foreach (var participant in model.Participant)
-            {
-                if (participant.Person.Name.Equals(ISessionAnchor.Session.ActivePerson.Name))
-                {
-                    this.ModelSetupList.Add(model);
-                }
-            }
-        }
+        this.ModelSetups.AddRange(this.ISessionAnchor.GetParticipantModels());
     }
 
     /// <summary>
-    /// Initialize <see cref="DomainList"/> and <see cref="IterationSetupList"/> according to the selected <see cref="ModelSetup"/>
+    /// Initialize <see cref="Domains"/> and <see cref="IterationSetupList"/> according to the selected <see cref="SelectedEngineeringModelSetup"/>
     /// </summary>
     /// <param name="e"> Event emmited when a ModelSetup is selected </param>
     private void SetNameModel(ChangeEventArgs e)
     {
-        foreach (var model in ISessionAnchor.Session.RetrieveSiteDirectory().Model)
+        foreach (var model in ISessionAnchor.GetSiteDirectory().Model)
         {
             if (model.Name.Equals(e.Value.ToString()))
             {
-                this.ModelSetup = model;
-                foreach (var participant in model.Participant)
-                {
-                    if (participant.Person.Name.Equals(ISessionAnchor.Session.ActivePerson.Name))
-                    {
-                        foreach(var domain in participant.Domain)
-                        {
-                            this.DomainList.Add(domain);
-                        }
-                    }
-                }
-                foreach(var iteration in model.IterationSetup)
-                {
-                    IterationSetupList.Add(iteration);
-                }
+                this.SelectedEngineeringModelSetup = model;
+                this.Domains.AddRange(ISessionAnchor.GetModelDomains(this.SelectedEngineeringModelSetup));
             }
         }
     }
@@ -158,7 +137,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event emitted when a domain is selected</param>
     private void SetDomain(ChangeEventArgs e)
     {
-        foreach (var domain in this.DomainList)
+        foreach (var domain in this.Domains)
         {
             if (domain.Name.Equals(e.Value.ToString()))
             {
@@ -173,22 +152,22 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event emitted when an iteration is selected</param>
     private void SetIteration(ChangeEventArgs e)
     {
-        foreach (var iteration in this.IterationSetupList)
+        foreach (var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
         {
-            if (iteration.Description.Equals(e.Value.ToString()))
+            if (iteration.IterationNumber.ToString().Equals(e.Value.ToString()))
             {
-                this.IterationSetup = iteration;
+                this.SelectedIterationSetup = iteration;
             }
         }
     }
 
     /// <summary>
-    /// Open the <see cref="EngineeringModel"/> with selected <see cref="ModelSetup"/>, <see cref="IterationSetup"/> and <see cref="CurrentDomainOfExpertise"/>
+    /// Open the <see cref="EngineeringModel"/> with selected <see cref="SelectedEngineeringModelSetup"/>, <see cref="IterationSetup"/> and <see cref="CurrentDomainOfExpertise"/>
     /// </summary>
-    public void OpenAModel()
+    public async void OpenAModel()
     {
-        this.ISessionAnchor.GetIteration(this.ModelSetup, this.IterationSetup);
+        await this.ISessionAnchor.GetIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
 
-        NavigationManager.NavigateTo(Path.Combine("/",this.ModelSetup.Name));
+        NavigationManager.NavigateTo(Path.Combine("/",this.SelectedEngineeringModelSetup.Name));
     }
 }

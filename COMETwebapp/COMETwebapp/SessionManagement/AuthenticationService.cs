@@ -79,10 +79,8 @@ namespace COMETwebapp.SessionManagement
             var dal = new CdpServicesDal();
             var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
-            var session = new Session(dal, credentials);
-            await session.Open();
-
-            this.sessionAnchor.Session = session;
+            this.sessionAnchor.Session = new Session(dal, credentials);
+            await this.sessionAnchor.Session.Open();
             this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
 
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
@@ -100,9 +98,7 @@ namespace COMETwebapp.SessionManagement
         {
             if (this.sessionAnchor.Session != null)
             {
-                await this.sessionAnchor.Session.Close();
-                this.sessionAnchor.Session = null;
-                this.sessionAnchor.IsSessionOpen = false;
+                await this.sessionAnchor.Close();
             }
      
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();

@@ -54,21 +54,50 @@ namespace COMETwebapp.SessionManagement
         DomainOfExpertise CurrentDomainOfExpertise { get; set; }
 
         /// <summary>
+        /// Close the ISession
+        /// </summary>
+        /// <returns>a <see cref="Task"/></returns>
+        Task Close();
+
+        /// <summary>
         /// Retrieves the <see cref="SiteDirectory"/> that is loaded in the <see cref="ISession"/>
         /// </summary>
         /// <returns>The <see cref="SiteDirectory"/></returns>
         SiteDirectory GetSiteDirectory();
 
         /// <summary>
+        /// Reads an <see cref="Iteration"/> and set the active <see cref="DomainOfExpertise"/> for the Iteration
+        /// </summary>
+        /// <returns>A <see cref="IReadOnlyDictionary{T,T}"/> of <see cref="Iteration"/> and <see cref="Tuple{T,T}"/> of <see cref="DomainOfExpertise"/> and <see cref="Participant"/></returns>
+        IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> GetIteration();
+        
+        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
         /// </summary>
         /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        void GetIteration(EngineeringModelSetup modelSetup, IterationSetup iterationSetup);
+        Task GetIteration(EngineeringModelSetup modelSetup, IterationSetup iterationSetup);
 
         /// <summary>
         /// Close the <see cref="OpenIteration"/>
         /// </summary>
         void CloseIteration();
+
+        /// <summary>
+        /// Get <see cref="EngineeringModelSetup"/> available for the ActivePerson
+        /// </summary>
+        /// <returns>
+        /// A container of <see cref="EngineeringModelSetup"/>
+        /// </returns>
+        IEnumerable<EngineeringModelSetup> GetParticipantModels();
+
+        /// <summary>
+        /// Get <see cref="DomainOfExpertise"/> available in the selected <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        /// <param name="modelSetup">The selected <see cref="EngineeringModelSetup"/></param>
+        /// <returns>
+        /// A container of <see cref="DomainOfExpertise"/>
+        /// </returns>
+        IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup modelSetup);
     }
 }
