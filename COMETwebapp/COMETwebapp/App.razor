@@ -1,7 +1,7 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
     Copyright (c) 2022 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Geren�, Alex Vorobiev, Alexander van Delft
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,24 +21,22 @@
 ------------------------------------------------------------------------------->
 
 <CascadingAuthenticationState>
-    <CascadingBlazoredModal>
-        <Router AppAssembly="@typeof(App).Assembly" PreferExactMatches="@true">
-            <Found Context="routeData">
-                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                    <Authorizing>
-                        <text>Please wait, we are authorizing the user.</text>
-                    </Authorizing>
-                    <NotAuthorized>
-                        <text> You are not authorized to access this page. </text>
-                    </NotAuthorized>
-                </AuthorizeRouteView>
-            </Found>
-            <NotFound>
-                <PageTitle>Not found</PageTitle>
-                <LayoutView Layout="@typeof(MainLayout)">
-                    <p role="alert">Sorry, there's nothing at this address.</p>
-                </LayoutView>
-            </NotFound>
-        </Router>
-    </CascadingBlazoredModal>
+    <Router AppAssembly="@typeof(App).Assembly" PreferExactMatches="@true">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <Authorizing>
+                    <text>Please wait, we are authorizing the user.</text>
+                </Authorizing>
+                <NotAuthorized>
+                    <text> You are not authorized to access this page. </text>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
 </CascadingAuthenticationState>

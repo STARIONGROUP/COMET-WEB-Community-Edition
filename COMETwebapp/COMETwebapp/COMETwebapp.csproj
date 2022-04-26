@@ -1,31 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-	  <Version>0.1.0</Version>
-	  <Title>COMET WEB Community Edition</Title>
-	  <Description>A Blazor web application that implements ECSS-E-TM-10-25</Description>
-	  <Company>RHEA System S.A.</Company>
-	  <Copyright>Copyright 2022 RHEA System S.A.</Copyright>
-	  <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
-	  <Authors>Justine, Sam, Alex, Alexander</Authors>
-	  <RepositoryType>Git</RepositoryType>
-	  <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Version>0.1.0</Version>
+		<Title>COMET WEB Community Edition</Title>
+		<Description>A Blazor web application that implements ECSS-E-TM-10-25</Description>
+		<Company>RHEA System S.A.</Company>
+		<Copyright>Copyright 2022 RHEA System S.A.</Copyright>
+		<PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+		<Authors>Justine, Sam, Alex, Alexander</Authors>
+		<RepositoryType>Git</RepositoryType>
+		<RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Blazored.Modal" Version="6.0.1" />
-    <PackageReference Include="CDP4Dal-CE" Version="8.1.0" />
-    <PackageReference Include="CDP4ServicesDal-CE" Version="8.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.3" PrivateAssets="all" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="CDP4Dal-CE" Version="8.1.0" />
+		<PackageReference Include="CDP4ServicesDal-CE" Version="8.1.0" />
+		<PackageReference Include="DevExpress.Blazor" Version="20.2.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.4" PrivateAssets="all" />
+	</ItemGroup>
 
 </Project>

@@ -1,0 +1,79 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
+@using DevExpress.Blazor
+@using System.Collections.ObjectModel
+
+<h3>ParameterTable</h3>
+
+<DxDataGrid Data="@Parameters" PageSize="0">
+    <DxDataGridColumn Field="@nameof(BuiltParameter.ElementName)" Width="100px" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" GroupIndex="0" />
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Domain)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Option)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.State)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Name)" Caption="Parameter" Width="50px" TextAlignment="DataGridTextAlign.Center" GroupIndex="1"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Value)" Width="50px" TextAlignment="DataGridTextAlign.Center">
+        <DisplayTemplate>
+            @{
+                var intvalue = (context as BuiltParameter).Value;
+             }
+            <a>@intvalue.First()</a>
+        </DisplayTemplate>
+    </DxDataGridColumn>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+</DxDataGrid>
+
+
+@code {
+
+    /// <summary>
+    /// List of <see cref="BuiltParameter"> in the table
+    /// </summary>
+    readonly ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
+
+    /// <summary>
+    /// Initialize the <see cref="Parameters"> list
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        foreach(var element in ISessionAnchor.OpenIteration.Element)
+        {
+            foreach(var parameter in element.Parameter)
+            {
+                foreach (var valueset in parameter.ValueSet) {
+                    Parameters.Add(new BuiltParameter()
+                        {
+                            Name = parameter.ParameterType.Name,
+                            ElementName = element.Name,
+                            Domain = parameter.Owner.Name,
+                            Option = valueset.ActualOption?.Name,
+                            State = valueset.ActualState?.Name,
+                            Scale = parameter.Scale.ShortName,
+                            Value = valueset.ActualValue
+                        });
+                }
+            }
+        }
+
+    }
+
+}

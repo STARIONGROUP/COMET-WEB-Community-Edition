@@ -1,49 +1,68 @@
-<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
-
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
-
-    This file is part of COMET WEB Community Edition
-     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-
-    The COMET WEB Community Edition is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    The COMET WEB Community Edition is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see http://www.gnu.org/licenses/.
-------------------------------------------------------------------------------->
-
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html>
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>COMETwebapp</title>
+    <title>COMET Web Application</title>
     <base href="/" />
-    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/app.css" rel="stylesheet" />
+    <link href="css/flatly/bootstrap.min.css" rel="stylesheet" />
     <link href="COMETwebapp.styles.css" rel="stylesheet" />
-    <link href ="_content/Blazored.Modal/blazored-modal.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor/dx-blazor.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <style type="text/css">
+        .splash-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-flow: column nowrap;
+            height: 100vh;
+            font-family: "Segoe UI",Roboto,"Helvetica Neue","-apple-system",BlinkMacSystemFont,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+            font-size: .88rem;
+            font-weight: 400;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .splash-screen .spinner-border {
+            border: .2em solid;
+            border-color: #5f368d #bfbfbf #bfbfbf;
+            width: 120px;
+            height: 120px;
+        }
+
+        .splash-screen-caption {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+        }
+
+        .splash-screen-text {
+            color: #a1a1a1;
+            margin-top: .5rem;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="app">Loading...</div>
+    <div id="app">
+        <script type="text/javascript">
+            if(/MSIE \d|Trident.*rv:|Edge\//.test(window.navigator.userAgent))
+                window.location.href = "browserNotSupported.html";
+        </script>
+        <div class="splash-screen">
+            <div class="spinner-border"></div>
+            <div class="splash-screen-caption">COMET Web Application</div>
+            <div class="splash-screen-text">Loading...</div>
+        </div>
+    </div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
         <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+        <a class="dismiss">��</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script src ="_content/Blazored.Modal/blazored.modal.js"></script>
 </body>
 
 </html>
