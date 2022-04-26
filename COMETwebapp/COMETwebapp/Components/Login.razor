@@ -20,8 +20,6 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@page "/login"
-
 <EditForm Model="AuthenticationDto" OnValidSubmit="ExecuteLogin">
     <div class="form-group row">
         <label for="ur">Source Address:</label>
@@ -46,7 +44,6 @@ Copyright (c) 2022 RHEA System S.A.
             <button type="submit" class="btn btn-connect ">Connect</button>
         </div>
     </div>
-
 </EditForm>
 
 @code{

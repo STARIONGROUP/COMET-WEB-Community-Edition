@@ -19,19 +19,20 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
 @page "/"
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IModalService Modal
 
 <div style="text-align:center">
-    <h1 style="color: #2e7191">
+    <h1>
         <AuthorizeView>
             <Authorized>
-               Welcome @context.User.Identity.Name!
-               <div >
-                 <button class="btn-connect" color="#2e7191" @onclick="@(() => Modal.Show<OpenModel>("Model"))">Open a Model </button>
-               </div>
+                Welcome @context.User.Identity.Name!
+                <div>
+                    <button type="submit" class="btn btn-connect" @onclick="@(() => PopupVisible = true)">Open a Model</button>
+                </div>
+                <DxPopup HeaderText="Engineering Models" @bind-Visible="@PopupVisible">
+                    <OpenModel />
+                </DxPopup>
             </Authorized>
             <NotAuthorized>
                 Welcome to the COMET Web Application!
@@ -40,3 +41,9 @@ Copyright (c) 2022 RHEA System S.A.
     </h1>
 </div>
 
+@code{
+    /// <summary>
+    /// Boolean to determine if the Popup OpenModel is visible
+    /// </summary>
+    bool PopupVisible = false;
+}

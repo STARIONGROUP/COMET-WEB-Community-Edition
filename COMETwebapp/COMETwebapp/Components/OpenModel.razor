@@ -19,73 +19,95 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
 @inject ISessionAnchor ISessionAnchor 
 @inject NavigationManager NavigationManager
 
-@if (ModelSetups.Count == 0)
-{
-    InitializeModelList();
-}
-
-<div class="form-group row">
-    <label>Model:</label>
-    <div class="col-md-15 m-top-3px">
-        <select @onchange="SetNameModel">
-            <option value="">--Select--</option>
-            @foreach (var model in ModelSetups)
-            {
-                <option value="@model.Name">@model.Name</option>
-            }
-        </select>
+<EditForm Model="SelectedModelDto" OnValidSubmit="OpenAModel">
+    <div class="form-group row">
+        <label for="model">Select a Model:</label>
+        <div class="col-md-15 m-top-3px">
+            <InputSelect id="model" class="form-control" @bind-Value="SelectedModelDto.SelectedEngineeringModelSetupName" @oninput="GetDomains">
+                <option>--Select--</option>
+                @foreach (var model in ModelSetups)
+                {
+                    <option value="@model.Name">@model.Name</option>
+                }
+            </InputSelect>
+        </div>
     </div>
-</div>
-
-@if (SelectedEngineeringModelSetup != null)
-{
-   <div class="form-group row">
-    <label>Iteration:</label>
-    <div class="col-md-15 m-top-3px">
-        <select @onchange="SetIteration">
-            <option value="">--Select--</option>
-            @foreach(var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
-            {
-                    @if(@iteration.FrozenOn == null)
+    @if (this.SelectedEngineeringModelSetup != null)
+    {
+        <div class="form-group row">
+            <label for="iteration">Select an iteration:</label>
+            <div class="col-md-15 m-top-3px">
+                <InputSelect id="iteration" class="form-control" @bind-Value="SelectedModelDto.SelectedIterationSetupNumber">
+                    <option value="">--Select--</option>
+                    @foreach (var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
                     {
-                        <option value="@iteration.IterationNumber">iteration_@iteration.IterationNumber - Active</option>
-                    } else
-                    {
-                        <option value="@iteration.IterationNumber">iteration_@iteration.IterationNumber - @iteration.FrozenOn</option>
+                         @if(@iteration.FrozenOn != null)
+                        {
+                            <option value="@iteration.IterationNumber">iteration_@iteration.IterationNumber - @iteration.FrozenOn</option>
+                        } else
+                        {
+                            <option value="@iteration.IterationNumber">iteration_@iteration.IterationNumber - Active</option>
+                        }  
                     }
-            }
-        </select>
-    </div>
-</div>
-}
-@if (Domains.Count != 0)
-{
-   <div class="form-group row">
-    <label>Domain:</label>
-    <div class="col-md-15 m-top-3px">
-        <select @onchange="SetDomain">
-            <option value="">--Select--</option>
-            @foreach(var domain in Domains)
-            {
-                <option value="@domain.Name">@domain.Name</option>
-            }
-        </select>
-    </div>
-</div>
-}
+                </InputSelect>
+            </div>
+        </div>
+    }
+    @if(this.Domains.Count != 0)
+    {
+        <div class="form-group row">
+            <label for="domain">Select a Domain:</label>
+            <div class="col-md-15 m-top-3px">
+                <InputSelect id="domnain" class="form-control" @bind-Value="SelectedModelDto.SelectedDomainOfExpertiseName">
+                    <option value="">--Select--</option>
+                    @foreach (var domain in Domains)
+                    {
+                        <option value="@domain.Name">@domain.Name</option>
+                    }
+                </InputSelect>
+            </div>
+        </div>
+    }
+    @if (this.SelectedEngineeringModelSetup != null && this.Domains.Count != 0)
+    {
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-connect">Open the Iteration</button>
+            </div>
+        </div> 
+    }
+</EditForm>
 
-@if (SelectedEngineeringModelSetup != null && SelectedIterationSetup != null && ISessionAnchor.CurrentDomainOfExpertise != null)
-{
-    <div class="row">
-        <button class="btn btn-connect " @onclick="OpenAModel"> Open</button>
-    </div>
-}
+@code{
+    /// <summary>
+    /// Class to define the object to set in EditForm
+    /// </summary>
+    public class ModelDto
+    {
+        public string SelectedEngineeringModelSetupName { get; set; }
 
-@code {
+        public string SelectedIterationSetupNumber { get; set; }
+
+        public string SelectedDomainOfExpertiseName { get; set; }
+    }
+
+    /// <summary>
+    /// The <see cref="ModelDto"/> to set in EditForm
+    /// </summary>
+    private ModelDto SelectedModelDto = new ModelDto();
+
+    /// <summary>
+    /// The selected <see cref="IterationSetup"/>
+    /// </summary>
+    private IterationSetup SelectedIterationSetup { get; set; }
+
+    /// <summary>
+    /// The selected <see cref="EngineeringModelSetup"/>
+    /// </summary>
+    private EngineeringModelSetup SelectedEngineeringModelSetup { get; set; }
 
     /// <summary>
     /// List of <see cref="EngineeringModelSetup"/> in the opened session
@@ -98,19 +120,9 @@ Copyright (c) 2022 RHEA System S.A.
     private List<DomainOfExpertise> Domains { get; set; } = new List<DomainOfExpertise>();
 
     /// <summary>
-    /// The <see cref="EngineeringModelSetup"/> selected
-    /// </summary>
-    private EngineeringModelSetup SelectedEngineeringModelSetup { get; set; }
-
-    /// <summary>
-    /// The <see cref="IterationSetup"/> selected
-    /// </summary>
-    private IterationSetup  SelectedIterationSetup { get; set; }
-
-    /// <summary>
     /// Initialize <see cref="ModelSetups"/> according to the opened Session and the <see cref="ActivePerson"/>
     /// </summary>
-    private void InitializeModelList()
+    protected override void OnInitialized()
     {
         this.ModelSetups.AddRange(this.ISessionAnchor.GetParticipantModels());
     }
@@ -119,7 +131,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// Initialize <see cref="Domains"/> and <see cref="IterationSetupList"/> according to the selected <see cref="SelectedEngineeringModelSetup"/>
     /// </summary>
     /// <param name="e"> Event emmited when a ModelSetup is selected </param>
-    private void SetNameModel(ChangeEventArgs e)
+    public void GetDomains(ChangeEventArgs e)
     {
         foreach (var model in ISessionAnchor.GetSiteDirectory().Model)
         {
@@ -132,42 +144,26 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
-    /// Set the <see cref="CurrentDomainOfExpertise"/> of the <see cref="ISessionAnchor"/>
+    /// Open the <see cref="EngineeringModel"/> with selected <see cref="EngineeringModelSetup"/>, <see cref="IterationSetup"/> and <see cref="DomainOfExpertise"/>
     /// </summary>
-    /// <param name="e">Event emitted when a domain is selected</param>
-    private void SetDomain(ChangeEventArgs e)
+    public async void OpenAModel()
     {
         foreach (var domain in this.Domains)
         {
-            if (domain.Name.Equals(e.Value.ToString()))
+            if (domain.Name.Equals(this.SelectedModelDto.SelectedDomainOfExpertiseName))
             {
                 this.ISessionAnchor.CurrentDomainOfExpertise = domain;
             }
         }
-    }
-
-    /// <summary>
-    /// Set the <see cref="IterationSetup"/>
-    /// </summary>
-    /// <param name="e">Event emitted when an iteration is selected</param>
-    private void SetIteration(ChangeEventArgs e)
-    {
-        foreach (var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
+        foreach(var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
         {
-            if (iteration.IterationNumber.ToString().Equals(e.Value.ToString()))
+            if (iteration.IterationNumber == int.Parse(this.SelectedModelDto.SelectedIterationSetupNumber))
             {
                 this.SelectedIterationSetup = iteration;
             }
         }
-    }
 
-    /// <summary>
-    /// Open the <see cref="EngineeringModel"/> with selected <see cref="SelectedEngineeringModelSetup"/>, <see cref="IterationSetup"/> and <see cref="CurrentDomainOfExpertise"/>
-    /// </summary>
-    public async void OpenAModel()
-    {
         await this.ISessionAnchor.GetIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
-
-        NavigationManager.NavigateTo(Path.Combine("/",this.SelectedEngineeringModelSetup.Name));
+        NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelDto.SelectedEngineeringModelSetupName));
     }
 }

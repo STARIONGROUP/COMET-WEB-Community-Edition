@@ -27,8 +27,6 @@ namespace COMETwebapp.Tests
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;

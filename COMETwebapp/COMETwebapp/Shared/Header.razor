@@ -1,0 +1,66 @@
+﻿<!------------------------------------------------------------------------------
+    Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+<nav class="navbar header-navbar p-0">
+    <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="header">
+        <div class="ml-3 font-weight-bold title pr-4">COMET Web Application</div>
+
+        <div class="px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <a href="logout"  @onclick="@(() => PopupVisible = false)">Log out</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="" @onclick="@(() => PopupVisible = true)">Log in</a>
+                    <DxPopup HeaderText="Login" @bind-Visible="@PopupVisible">
+                        <Login />
+                    </DxPopup>
+                </NotAuthorized>
+            </AuthorizeView>
+            <a href="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition" target="_blank" class="m-left-3px">About</a>
+        </div>
+    </div>
+
+</nav>
+
+@code {
+    [Parameter] public bool ToggleOn { get; set; }
+    [Parameter] public EventCallback<bool> ToggleOnChanged { get; set; }
+
+    async Task OnToggleClick() => await Toggle();
+
+    /// <summary>
+    /// Boolean to determine if the Popup Login is visible
+    /// </summary>
+    bool PopupVisible = false;
+
+    async Task Toggle(bool? value = null) {
+        var newValue = value ?? !ToggleOn;
+        if(ToggleOn != newValue) {
+            ToggleOn = newValue;
+            await ToggleOnChanged.InvokeAsync(ToggleOn);
+        }
+    }
+}
