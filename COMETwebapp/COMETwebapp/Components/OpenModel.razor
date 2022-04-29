@@ -22,11 +22,11 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor 
 @inject NavigationManager NavigationManager
 
-<EditForm Model="SelectedModelDto" OnValidSubmit="OpenAModel">
+<EditForm Model="SelectedModelInformation" OnValidSubmit="OpenAModel">
     <div class="form-group row">
         <label for="model">Select a Model:</label>
         <div class="col-md-15 m-top-3px">
-            <InputSelect id="model" class="form-control" @bind-Value="SelectedModelDto.SelectedEngineeringModelSetupName" @oninput="GetDomains">
+            <InputSelect id="model" class="form-control" @bind-Value="SelectedModelInformation.EngineeringModelSetupName" @oninput="GetDomains">
                 <option>--Select--</option>
                 @foreach (var model in ModelSetups)
                 {
@@ -40,7 +40,7 @@ Copyright (c) 2022 RHEA System S.A.
         <div class="form-group row">
             <label for="iteration">Select an iteration:</label>
             <div class="col-md-15 m-top-3px">
-                <InputSelect id="iteration" class="form-control" @bind-Value="SelectedModelDto.SelectedIterationSetupNumber">
+                <InputSelect id="iteration" class="form-control" @bind-Value="SelectedModelInformation.IterationSetupNumber">
                     <option value="">--Select--</option>
                     @foreach (var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
                     {
@@ -61,7 +61,7 @@ Copyright (c) 2022 RHEA System S.A.
         <div class="form-group row">
             <label for="domain">Select a Domain:</label>
             <div class="col-md-15 m-top-3px">
-                <InputSelect id="domnain" class="form-control" @bind-Value="SelectedModelDto.SelectedDomainOfExpertiseName">
+                <InputSelect id="domnain" class="form-control" @bind-Value="SelectedModelInformation.DomainOfExpertiseName">
                     <option value="">--Select--</option>
                     @foreach (var domain in Domains)
                     {
@@ -85,19 +85,19 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Class to define the object to set in EditForm
     /// </summary>
-    public class ModelDto
+    public class ModelInformation
     {
-        public string SelectedEngineeringModelSetupName { get; set; }
+        public string EngineeringModelSetupName { get; set; }
 
-        public string SelectedIterationSetupNumber { get; set; }
+        public string IterationSetupNumber { get; set; }
 
-        public string SelectedDomainOfExpertiseName { get; set; }
+        public string DomainOfExpertiseName { get; set; }
     }
 
     /// <summary>
-    /// The <see cref="ModelDto"/> to set in EditForm
+    /// The <see cref="ModelToOpenInformation"/> to set in EditForm
     /// </summary>
-    private ModelDto SelectedModelDto = new ModelDto();
+    private ModelInformation SelectedModelInformation = new ModelInformation();
 
     /// <summary>
     /// The selected <see cref="IterationSetup"/>
@@ -150,20 +150,20 @@ Copyright (c) 2022 RHEA System S.A.
     {
         foreach (var domain in this.Domains)
         {
-            if (domain.Name.Equals(this.SelectedModelDto.SelectedDomainOfExpertiseName))
+            if (domain.Name.Equals(this.SelectedModelInformation.DomainOfExpertiseName))
             {
                 this.ISessionAnchor.CurrentDomainOfExpertise = domain;
             }
         }
         foreach(var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
         {
-            if (iteration.IterationNumber == int.Parse(this.SelectedModelDto.SelectedIterationSetupNumber))
+            if (iteration.IterationNumber == int.Parse(this.SelectedModelInformation.IterationSetupNumber))
             {
                 this.SelectedIterationSetup = iteration;
             }
         }
 
         await this.ISessionAnchor.GetIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
-        NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelDto.SelectedEngineeringModelSetupName));
+        NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelInformation.EngineeringModelSetupName));
     }
 }

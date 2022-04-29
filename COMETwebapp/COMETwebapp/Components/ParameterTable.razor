@@ -26,29 +26,29 @@ Copyright (c) 2022 RHEA System S.A.
 <h3>ParameterTable</h3>
 
 <DxDataGrid Data="@Parameters" PageSize="0">
-    <DxDataGridColumn Field="@nameof(MyParameter.ElementName)" Width="100px" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" GroupIndex="0" />
-    <DxDataGridColumn Field="@nameof(MyParameter.Domain)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
-    <DxDataGridColumn Field="@nameof(MyParameter.Option)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
-    <DxDataGridColumn Field="@nameof(MyParameter.State)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
-    <DxDataGridColumn Field="@nameof(MyParameter.Name)" Caption="Parameter" Width="50px" TextAlignment="DataGridTextAlign.Center" GroupIndex="1"/>
-    <DxDataGridColumn Field="@nameof(MyParameter.Value)" Width="50px" TextAlignment="DataGridTextAlign.Center">
+    <DxDataGridColumn Field="@nameof(BuiltParameter.ElementName)" Width="100px" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" GroupIndex="0" />
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Domain)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Option)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.State)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Name)" Caption="Parameter" Width="50px" TextAlignment="DataGridTextAlign.Center" GroupIndex="1"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Value)" Width="50px" TextAlignment="DataGridTextAlign.Center">
         <DisplayTemplate>
             @{
-                var intvalue = (context as MyParameter).Value;
+                var intvalue = (context as BuiltParameter).Value;
              }
             <a>@intvalue.First()</a>
         </DisplayTemplate>
     </DxDataGridColumn>
-    <DxDataGridColumn Field="@nameof(MyParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
 </DxDataGrid>
 
 
 @code {
 
     /// <summary>
-    /// List of <see cref="MyParameter"> in the table
+    /// List of <see cref="BuiltParameter"> in the table
     /// </summary>
-    readonly ObservableCollection<MyParameter> Parameters = new ObservableCollection<MyParameter>();
+    readonly ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
 
     /// <summary>
     /// Initialize the <see cref="Parameters"> list
@@ -60,7 +60,7 @@ Copyright (c) 2022 RHEA System S.A.
             foreach(var parameter in element.Parameter)
             {
                 foreach (var valueset in parameter.ValueSet) {
-                    Parameters.Add(new MyParameter()
+                    Parameters.Add(new BuiltParameter()
                         {
                             Name = parameter.ParameterType.Name,
                             ElementName = element.Name,

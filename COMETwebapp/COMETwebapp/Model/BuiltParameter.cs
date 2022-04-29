@@ -29,7 +29,7 @@ namespace COMETwebapp.Model
     /// <summary>
     /// Parameters to add in the ParameterTable component
     /// </summary>
-    public class MyParameter
+    public class BuiltParameter
     {
         /// <summary>
         /// The parameter name
