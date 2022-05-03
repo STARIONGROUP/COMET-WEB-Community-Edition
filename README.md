@@ -18,7 +18,6 @@ The Concurrent Design method is an approach to design activities in which all de
 
 The Concurrent Design method brings many advantages to the early design phase by providing a structure for this otherwise chaotic phase. Many design concepts have been implemented in the Concurrent Design method to help a team of stakeholders perform their task. The design work is done in collocated sessions with all stakeholders involved and present, creating an integrated design and enabling good communication and exchange of information between team members.
 
-
 ## COMET-SDK
 
 The COMET-WEB Community Edition make use of the [COMET-SDK](https://github.com/RHEAGROUP/COMET-SDK-Community-Edition).
