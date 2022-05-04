@@ -20,30 +20,23 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@page "/{modelName}"
-@inject ISessionAnchor SessionAnchor
-@inject NavigationManager NavigationManager
-
-<h3>Model @modelName opened</h3>
-<h3>With domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h3>
-
-<ParameterTable />
-
-<button class="btn btn-connect " @onclick="CloseIteration"> Close</button>
+<div class="display-flex justify-content-center color-title">
+    <h3 class="font-weight-bold">@Title</h3>
+</div>
+<div>
+    @Body
+</div>
 
 @code {
     /// <summary>
-    /// Gets or sets the modelName
+    /// Title of the application
     /// </summary>
     [Parameter]
-    public string modelName { get; set; }
+    public string Title { get; set; }
 
     /// <summary>
-    /// Close the opened iteration
+    /// Body of the application
     /// </summary>
-    private void CloseIteration()
-    {
-        this.SessionAnchor.CloseIteration();
-        NavigationManager.NavigateTo("/");
-    }
+    [Parameter]
+    public RenderFragment Body { get; set; }
 }

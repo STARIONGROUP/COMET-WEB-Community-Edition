@@ -9,6 +9,7 @@
     <link href="css/flatly/bootstrap.min.css" rel="stylesheet" />
     <link href="COMETwebapp.styles.css" rel="stylesheet" />
     <link href="_content/DevExpress.Blazor/dx-blazor.css" rel="stylesheet" />
+    <link href="/open-iconic/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet" />
     <style type="text/css">
         .splash-screen {
@@ -24,12 +25,12 @@
             text-align: center;
         }
 
-        .splash-screen .spinner-border {
-            border: .2em solid;
-            border-color: #5f368d #bfbfbf #bfbfbf;
-            width: 120px;
-            height: 120px;
-        }
+            .splash-screen .spinner-border {
+                border: .2em solid;
+                border-color: #5f368d #bfbfbf #bfbfbf;
+                width: 120px;
+                height: 120px;
+            }
 
         .splash-screen-caption {
             font-size: 1.5rem;
@@ -47,7 +48,7 @@
 <body>
     <div id="app">
         <script type="text/javascript">
-            if(/MSIE \d|Trident.*rv:|Edge\//.test(window.navigator.userAgent))
+            if (/MSIE \d|Trident.*rv:|Edge\//.test(window.navigator.userAgent))
                 window.location.href = "browserNotSupported.html";
         </script>
         <div class="splash-screen">
@@ -63,6 +64,8 @@
         <a class="dismiss">��</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/BlazorStrap/popper.min.js"></script>
+    <script src="_content/BlazorStrap/blazorstrap.js"></script>
 </body>
 
 </html>
