@@ -21,15 +21,30 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/{modelName}"
+@using System.Text.RegularExpressions
 @inject ISessionAnchor SessionAnchor
 @inject NavigationManager NavigationManager
 
-<h3>Model @modelName opened</h3>
-<h3>With domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h3>
+<div class="display-flex flex-row">
+    <div class="display-flex flex-column width-100 align-items-center">
+        <h1>Model @modelName</h1>
+        <h1>Domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h1>
+    </div>
+    <div class="display-flex width-fit-content align-items-center">
+        <button class="btn btn-connect " @onclick="CloseIteration"> Close the Model</button>
+    </div>
+</div>
 
-<ParameterTable />
-
-<button class="btn btn-connect " @onclick="CloseIteration"> Close</button>
+<div class="display-flex justify-content-center height-70">
+    <div class="display-flex flex-row justify-content-around align-items-center max-width-40 flex-wrap">
+        @foreach(var name in ApplicationNames)
+        {
+            <div>
+                <button class="btn btn-connect" @onclick="() => SelectApplication(name)"> @name </button>     
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     /// <summary>
@@ -39,11 +54,35 @@ Copyright (c) 2022 RHEA System S.A.
     public string modelName { get; set; }
 
     /// <summary>
+    /// List of application Names
+    /// </summary>
+    public List<string> ApplicationNames = new List<string>
+    {
+        "Parameter Editor",
+        "Model Dashboard",
+        "Subscription Dashboard",
+        "System Representation",
+        "Report Preview",
+        "Requirement Management",
+        "Budgets Editor"
+    };
+
+    /// <summary>
     /// Close the opened iteration
     /// </summary>
     private void CloseIteration()
     {
         this.SessionAnchor.CloseIteration();
         NavigationManager.NavigateTo("/");
+    }
+
+    /// <summary>
+    /// Navigate to the selected application
+    /// </summary>
+    /// <param name="applicationName">Name of the selected application</param>
+    private void SelectApplication(string applicationName)
+    {
+        var newName = Regex.Replace(applicationName, @"\s", "");
+        NavigationManager.NavigateTo($"/{newName}");
     }
 }
