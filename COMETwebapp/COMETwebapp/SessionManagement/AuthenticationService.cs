@@ -28,6 +28,7 @@ namespace COMETwebapp.SessionManagement
     using CDP4Common.Types;
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using CDP4Dal.Exceptions;
     using CDP4ServicesDal;
     using Microsoft.AspNetCore.Components.Authorization;
     using System;
@@ -71,21 +72,37 @@ namespace COMETwebapp.SessionManagement
         /// The authentication information with data source, username and password
         /// </param>
         /// <returns>
-        /// True when the authentication is done and the ISession opened
+        /// <see cref="AuthenticationStateKind.Success"/> when the authentication is done and the ISession opened
         /// </returns>
-        public async Task<Boolean> Login(AuthenticationDto authenticationDto)
+        public async Task<AuthenticationStateKind> Login(AuthenticationDto authenticationDto)
         {
             var uri = new Uri(authenticationDto.SourceAddress);
             var dal = new CdpServicesDal();
             var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
             this.sessionAnchor.Session = new Session(dal, credentials);
-            await this.sessionAnchor.Session.Open();
-            this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
 
-            ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
+            try {
+                await this.sessionAnchor.Session.Open();
+                this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
+                ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
 
-            return this.sessionAnchor.IsSessionOpen;
+                if (this.sessionAnchor.IsSessionOpen)
+                {
+                    return AuthenticationStateKind.Success;
+                }
+                else
+                {
+                    return AuthenticationStateKind.Fail;
+                }
+            }
+            catch (DalReadException ex)
+            {
+                Console.WriteLine(ex);
+
+                this.sessionAnchor.IsSessionOpen = false;
+                return AuthenticationStateKind.Fail;
+            }
         }
 
         /// <summary>
