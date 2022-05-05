@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -20,7 +20,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="CDP4Dal-CE" Version="8.1.0" />
 		<PackageReference Include="CDP4ServicesDal-CE" Version="8.1.0" />
 		<PackageReference Include="DevExpress.Blazor" Version="20.2.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.4" />

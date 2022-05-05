@@ -25,7 +25,7 @@
 namespace COMETwebapp.SessionManagement
 {
     /// <summary>
-    /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
+    /// The purpose of the <see cref="IAuthenticationService"/> is to authenticate against
     /// a E-TM-10-25 Annex C.2 data source
     /// </summary>
     public interface IAuthenticationService
@@ -39,7 +39,7 @@ namespace COMETwebapp.SessionManagement
         /// <returns>
         /// True when the authentication is done
         /// </returns>
-        Task<Boolean> Login(AuthenticationDto authenticationDto);
+        Task<AuthenticationStateKind> Login(AuthenticationDto authenticationDto);
 
         /// <summary>
         /// Logout from the data source

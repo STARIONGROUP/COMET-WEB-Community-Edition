@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-Copyright (c) 2022 RHEA System S.A.
+    Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
@@ -39,11 +39,32 @@ Copyright (c) 2022 RHEA System S.A.
             <InputText type="password" id="password" class="form-control" @bind-Value="AuthenticationDto.Password" />
         </div>
     </div>
+    
     <div class="row">
         <div class="col-md-12 text-center">
-            <button type="submit" class="btn btn-connect ">Connect</button>
+
+            @switch(this.AuthenticationState)
+                {
+                    case AuthenticationStateKind.None:
+                        <button type="submit" class="btn btn-connect">Connect</button>            
+                        break;
+                    case AuthenticationStateKind.Authenticating:
+                        <button type="submit" class="btn btn-connect" disabled=true>Connecting</button>            
+                        break;
+                    case AuthenticationStateKind.Fail:
+                        <button type="submit" class="btn btn-connect" >Retry</button>            
+                        break;
+                }
         </div>
     </div>
+
+    @if (this.AuthenticationState == AuthenticationStateKind.Fail)
+    {
+        <div class="form-group row m-top-5px">
+            <label>Login Failed</label>
+        </div>
+    }
+
 </EditForm>
 
 @code{
@@ -60,6 +81,11 @@ Copyright (c) 2022 RHEA System S.A.
     public NavigationManager NavigationManager { get; set; }
 
     /// <summary>
+    /// Gets or sets the <see cref="AuthenticationStateKind"/>
+    /// </summary>
+    public AuthenticationStateKind AuthenticationState { get; set; }
+
+    /// <summary>
     /// Initializes the AuthenticatioDto object completed with the EditForm
     /// </summary>
     private AuthenticationDto AuthenticationDto = new AuthenticationDto();
@@ -72,8 +98,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// </returns>
     public async Task ExecuteLogin()
     {
-        var result = await AuthenticationService.Login(AuthenticationDto);
-        if (result)
+        this.AuthenticationState = AuthenticationStateKind.Authenticating;
+        StateHasChanged();
+
+        this.AuthenticationState = await AuthenticationService.Login(AuthenticationDto);
+
+        if (this.AuthenticationState == AuthenticationStateKind.Success)
         {
             NavigationManager.NavigateTo("/");
         }
