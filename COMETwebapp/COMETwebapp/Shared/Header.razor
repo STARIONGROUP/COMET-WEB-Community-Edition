@@ -25,7 +25,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="header">
-        <div class="ml-3 font-weight-bold title pr-4">COMET Web Application</div>
+        <div class="ml-3 font-weight-bold title pr-4">COMET Community Edition</div>
 
         <div class="px-4">
             <AuthorizeView>
@@ -46,9 +46,20 @@
 </nav>
 
 @code {
-    [Parameter] public bool ToggleOn { get; set; }
-    [Parameter] public EventCallback<bool> ToggleOnChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether toggle is on or off
+    /// </summary>
+    [Parameter]
+    public bool ToggleOn { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<bool> ToggleOnChanged { get; set; }
+
+    /// <summary>
+    /// Handles the 
+    /// </summary>
+    /// <returns></returns>
     async Task OnToggleClick() => await Toggle();
 
     /// <summary>
@@ -56,6 +67,11 @@
     /// </summary>
     bool PopupVisible = false;
 
+    /// <summary>
+    /// toggle the visibility of the side menu
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     async Task Toggle(bool? value = null) {
         var newValue = value ?? !ToggleOn;
         if(ToggleOn != newValue) {
