@@ -26,7 +26,8 @@ Copyright (c) 2022 RHEA System S.A.
     <h1>
         <AuthorizeView>
             <Authorized>
-                Welcome @context.User.Identity.Name!
+                <div id="welcome-user-notice">Welcome @context.User.Identity.Name!</div>
+                
                 <div>
                     <button type="submit" class="btn btn-connect" @onclick="@(() => PopupVisible = true)">Open a Model</button>
                 </div>
@@ -35,7 +36,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </DxPopup>
             </Authorized>
             <NotAuthorized>
-                Welcome to the COMET Community Edition
+                <div id="unauthorized-notice">Welcome to the COMET Web Application!</div>                
             </NotAuthorized>
         </AuthorizeView>    
     </h1>
