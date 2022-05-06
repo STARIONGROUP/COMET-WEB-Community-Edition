@@ -27,7 +27,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="display-flex flex-row">
     <div class="display-flex flex-column width-100 align-items-center">
-        <h1>Model @modelName</h1>
+        <h1>Model @ModelName</h1>
         <h1>Domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h1>
     </div>
     <div class="display-flex width-fit-content align-items-center">
@@ -35,15 +35,19 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
 </div>
 
-<div class="display-flex justify-content-center height-70">
-    <div class="display-flex flex-row justify-content-around align-items-center max-width-40 flex-wrap">
-        @foreach(var name in ApplicationNames)
-        {
-            <div>
-                <button class="btn btn-connect" @onclick="() => SelectApplication(name)"> @name </button>     
-            </div>
-        }
-    </div>
+<div class="display-flex flex-wrap" style="margin-top: 50px">
+   @foreach(var cardInfo in Cards)
+   {
+       <div class="card" style="width: 280px; height: 280px; margin: 5px">
+          <button class="card-btn" @onclick="@(() => SelectApplication(@cardInfo.Name))">
+              <span class="oi oi-@cardInfo.Icon display-flex justify-content-center" style="color: @cardInfo.Color; zoom: 3" title="@cardInfo.Icon" aria-hidden="true"></span>
+              <div class="card-body display-flex flex-column align-items-center" style="margin-top: 10px">
+                <h5 class="card-title" style="font-weight: bold">@cardInfo.Name</h5>
+                <p class="card-text text-align-center">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+          </button>
+       </div>
+    }
 </div>
 
 @code {
@@ -51,21 +55,56 @@ Copyright (c) 2022 RHEA System S.A.
     /// Gets or sets the modelName
     /// </summary>
     [Parameter]
-    public string modelName { get; set; }
+    public string ModelName { get; set; }
 
     /// <summary>
-    /// List of application Names
+    /// List of application Cards
     /// </summary>
-    public List<string> ApplicationNames = new List<string>
-    {
-        "Parameter Editor",
-        "Model Dashboard",
-        "Subscription Dashboard",
-        "System Representation",
-        "Report Preview",
-        "Requirement Management",
-        "Budgets Editor"
-    };
+    public List<Card> Cards { get; set; } = new List<Card>()
+        {
+            new Card()
+            {
+                Name = "Parameter Editor",
+                Color = "#76b8fc",
+                Icon = "spreadsheet"
+            },
+            new Card()
+            {
+                Name = "Model Dashboard",
+                Color = "#c3cffd",
+                Icon = "task"
+            },
+            new Card()
+            {
+                Name = "Subscription Dashboard",
+                Color = "#76fd98",
+                Icon = "person"
+            },
+            new Card()
+            {
+                Name = "System Representation",
+                Color = "#c3fe9f",
+                Icon = "fork"
+            },
+            new Card()
+            {
+                Name = "Report Preview",
+                Color = "#ecffa1",
+                Icon = "book"
+            },
+            new Card()
+            {
+                Name = "Requirement Management",
+                Color = "#fda966",
+                Icon = "link-intact"
+            },
+            new Card()
+            {
+                Name = "Budget Editor",
+                Color = "#ffe86a",
+                Icon = "brush"
+            }
+        };
 
     /// <summary>
     /// Close the opened iteration
