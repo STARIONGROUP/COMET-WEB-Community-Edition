@@ -41,9 +41,9 @@ Copyright (c) 2022 RHEA System S.A.
        <div class="card" style="width: 280px; height: 280px; margin: 5px">
           <button class="card-btn" @onclick="@(() => SelectApplication(@cardInfo.Name))">
               <span class="oi oi-@cardInfo.Icon display-flex justify-content-center" style="color: @cardInfo.Color; zoom: 3" title="@cardInfo.Icon" aria-hidden="true"></span>
-              <div class="card-body display-flex flex-column align-items-center" style="margin-top: 10px">
+              <div class="card-body display-flex flex-column align-items-center" style="margin-top: 30px">
                 <h5 class="card-title" style="font-weight: bold">@cardInfo.Name</h5>
-                <p class="card-text text-align-center">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <p class="card-text text-align-center" style="margin-top: 20px; font-style: italic">@cardInfo.Description</p>
               </div>
           </button>
        </div>
@@ -64,45 +64,52 @@ Copyright (c) 2022 RHEA System S.A.
         {
             new Card()
             {
-                Name = "Parameter Editor",
+                Name = "PARAMETER EDITOR",
                 Color = "#76b8fc",
-                Icon = "spreadsheet"
+                Icon = "spreadsheet",
+                Description = "Table of element usages with theur associated parameters."
             },
             new Card()
             {
-                Name = "Model Dashboard",
+                Name = "MODEL DASHBOARD",
                 Color = "#c3cffd",
-                Icon = "task"
+                Icon = "task",
+                Description = "Summarize the model progress."
             },
             new Card()
             {
-                Name = "Subscription Dashboard",
+                Name = "SUBSCRIPTION DASHBOARD",
                 Color = "#76fd98",
-                Icon = "person"
+                Icon = "person",
+                Description = "Table of subscribed values."
             },
             new Card()
             {
-                Name = "System Representation",
+                Name = "SYSTEM REPRESENTATION",
                 Color = "#c3fe9f",
-                Icon = "fork"
+                Icon = "fork",
+                Description = "Represent relations between elements."
             },
             new Card()
             {
-                Name = "Report Preview",
+                Name = "REPORT PREVIEW",
                 Color = "#ecffa1",
-                Icon = "book"
+                Icon = "book",
+                Description = "Preview of the actual report state."
             },
             new Card()
             {
-                Name = "Requirement Management",
+                Name = "REQUIREMENT MANAGEMENT",
                 Color = "#fda966",
-                Icon = "link-intact"
+                Icon = "link-intact",
+                Description = "Edit requirements in the model."
             },
             new Card()
             {
-                Name = "Budget Editor",
+                Name = "BUDGET EDITOR",
                 Color = "#ffe86a",
-                Icon = "brush"
+                Icon = "brush",
+                Description = "Create budget tables."
             }
         };
 
