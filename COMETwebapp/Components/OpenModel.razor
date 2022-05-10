@@ -75,7 +75,13 @@ Copyright (c) 2022 RHEA System S.A.
     {
         <div class="row">
             <div class="col-md-12 text-center">
-                <button type="submit" class="btn btn-connect">Open the Iteration</button>
+                @if (isOpening)
+                {
+                    <button id="connectbtn" type="submit" class="btn btn-connect" disabled=true>Opening the Iteration</button>
+                } else 
+                {
+                    <button id="connectbtn" type="submit" class="btn btn-connect">Open the Iteration</button>
+                }
             </div>
         </div> 
     }
@@ -118,6 +124,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// List of <see cref="DomainOfExpertise"/> in the selected <see cref="EngineeringModelSetup"/>
     /// </summary>
     private List<DomainOfExpertise> Domains { get; set; } = new List<DomainOfExpertise>();
+
+    private bool isOpening = false;
 
     /// <summary>
     /// Initialize <see cref="ModelSetups"/> according to the opened Session and the <see cref="ActivePerson"/>
@@ -162,6 +170,9 @@ Copyright (c) 2022 RHEA System S.A.
                 this.SelectedIterationSetup = iteration;
             }
         }
+
+        this.isOpening = true;
+        StateHasChanged();
 
         await this.ISessionAnchor.GetIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
         NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelInformation.EngineeringModelSetupName));
