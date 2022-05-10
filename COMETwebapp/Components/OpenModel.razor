@@ -125,6 +125,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private List<DomainOfExpertise> Domains { get; set; } = new List<DomainOfExpertise>();
 
+    /// <summary>
+    /// Boolean to define status during opening the iteration
+    /// </summary>
     private bool isOpening = false;
 
     /// <summary>
@@ -172,7 +175,7 @@ Copyright (c) 2022 RHEA System S.A.
         }
 
         this.isOpening = true;
-        StateHasChanged();
+        base.StateHasChanged();
 
         await this.ISessionAnchor.GetIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
         NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelInformation.EngineeringModelSetupName));
