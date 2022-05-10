@@ -21,22 +21,97 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/{modelName}"
+@using System.Text.RegularExpressions
 @inject ISessionAnchor SessionAnchor
 @inject NavigationManager NavigationManager
 
-<h3>Model @modelName opened</h3>
-<h3>With domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h3>
+<div class="display-flex flex-row">
+    <div class="display-flex flex-column width-100 align-items-center">
+        <h1>Model @ModelName</h1>
+        <h1>Domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h1>
+    </div>
+    <div class="display-flex width-fit-content align-items-center">
+        <button class="btn btn-connect " @onclick="CloseIteration"> Close the Model</button>
+    </div>
+</div>
 
-<ParameterTable />
-
-<button class="btn btn-connect " @onclick="CloseIteration"> Close</button>
+<div class="display-flex flex-wrap" style="margin-top: 50px; justify-content: center">
+   @foreach(var cardInfo in Cards)
+   {
+       <div class="card" style="width: 280px; height: 280px; margin: 5px">
+          <button class="card-btn" @onclick="@(() => SelectApplication(@cardInfo.Name))">
+              <span class="oi oi-@cardInfo.Icon display-flex justify-content-center" style="color: @cardInfo.Color; zoom: 3" title="@cardInfo.Icon" aria-hidden="true"></span>
+              <div class="card-body display-flex flex-column align-items-center" style="margin-top: 30px">
+                <h5 class="card-title" style="font-weight: bold">@cardInfo.Name</h5>
+                <p class="card-text text-align-center" style="margin-top: 20px; font-style: italic">@cardInfo.Description</p>
+              </div>
+          </button>
+       </div>
+    }
+</div>
 
 @code {
     /// <summary>
     /// Gets or sets the modelName
     /// </summary>
     [Parameter]
-    public string modelName { get; set; }
+    public string ModelName { get; set; }
+
+    /// <summary>
+    /// List of application Cards
+    /// </summary>
+    public List<Card> Cards { get; set; } = new List<Card>()
+        {
+            new Card()
+            {
+                Name = "PARAMETER EDITOR",
+                Color = "#76b8fc",
+                Icon = "spreadsheet",
+                Description = "Table of element usages with their associated parameters."
+            },
+            new Card()
+            {
+                Name = "MODEL DASHBOARD",
+                Color = "#c3cffd",
+                Icon = "task",
+                Description = "Summarize the model progress."
+            },
+            new Card()
+            {
+                Name = "SUBSCRIPTION DASHBOARD",
+                Color = "#76fd98",
+                Icon = "person",
+                Description = "Table of subscribed values."
+            },
+            new Card()
+            {
+                Name = "SYSTEM REPRESENTATION",
+                Color = "#c3fe9f",
+                Icon = "fork",
+                Description = "Represent relations between elements."
+            },
+            new Card()
+            {
+                Name = "REPORT PREVIEW",
+                Color = "#ecffa1",
+                Icon = "book",
+                Description = "Preview of the actual report state."
+            },
+            new Card()
+            {
+                Name = "REQUIREMENT MANAGEMENT",
+                Color = "#fda966",
+                Icon = "link-intact",
+                Description = "Edit requirements in the model."
+            },
+            new Card()
+            {
+                Name = "BUDGET EDITOR",
+                Color = "#ffe86a",
+                Icon = "brush",
+                Description = "Create budget tables."
+            }
+        };
 
     /// <summary>
     /// Close the opened iteration
@@ -45,5 +120,15 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.SessionAnchor.CloseIteration();
         NavigationManager.NavigateTo("/");
+    }
+
+    /// <summary>
+    /// Navigate to the selected application
+    /// </summary>
+    /// <param name="applicationName">Name of the selected application</param>
+    private void SelectApplication(string applicationName)
+    {
+        var newName = Regex.Replace(applicationName, @"\s", "");
+        NavigationManager.NavigateTo($"/{newName}");
     }
 }
