@@ -1,5 +1,5 @@
 ﻿.sidebar {
-    min-width: 300px;
+    min-width: 200px;
     max-width: 300px;
     box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.16);
     transition: transform 0.1s ease-out;
@@ -50,6 +50,14 @@
     font-size: 1rem !important;
     font-weight: 600 !important;
     padding: .25rem 1rem .25rem .125rem;
+}
+
+::deep .app-sidebar > .nav-pills > .nav-item > a > span.image{
+    margin-right:10px;
+}
+
+::deep .app-sidebar > .nav-pills > .nav-item > a > span {
+    text-align:center;
 }
 
 @media (max-width: 1199.98px) {
