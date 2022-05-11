@@ -105,3 +105,35 @@ html, body, #app {
     background-color: transparent;
     border: none;
 }
+
+.color-76b8fc {
+    color: #76b8fc;
+}
+
+.color-c3cffd {
+    color: #c3cffd;
+}
+
+.color-76fd98 {
+    color: #76fd98;
+}
+
+.color-c3fe9f {
+    color: #c3fe9f;
+}
+
+.color-ecffa1 {
+    color: #ecffa1;
+}
+
+.color-fda966 {
+    color: #fda966;
+}
+
+.color-ffe86a {
+    color: #ffe86a;
+}
+
+.zoom-1-5{
+    zoom: 1.5;
+}

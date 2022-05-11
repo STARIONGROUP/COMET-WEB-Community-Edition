@@ -24,11 +24,13 @@
 <div class="sidebar @StateCssClass">
     <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
         <Nodes>
-            <DxTreeViewNode NavigateUrl="./" Text="Home"></DxTreeViewNode>
-                @foreach(var name in ApplicationNames)
+            <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
+                @foreach(var card in Cards)
                 {
-                        var newName = "/" + Regex.Replace(name, @"\s", "");
-                        <DxTreeViewNode NavigateUrl="@newName" Text="@name"></DxTreeViewNode>   
+                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
+                    var color = Regex.Replace(card.Color, @"#", "");
+                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
                 }
             </Nodes>
     </DxTreeView>
@@ -40,15 +42,14 @@
     /// <summary>
     /// List of application names
     /// </summary>
-    public List<string> ApplicationNames = new List<string>
-    {
-        "Parameter Editor",
-        "Model Dashboard",
-        "Subscription Dashboard",
-        "System Representation",
-        "Report Preview",
-        "Requirement Management",
-        "Budget Editor",
+    public List<Card> Cards { get; set; }
 
-    };
+    /// <summary>
+    /// Get application Cards static initalization of the component
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        var application = new ApplicationCards();
+        this.Cards = application.Cards;
+    }
 }
