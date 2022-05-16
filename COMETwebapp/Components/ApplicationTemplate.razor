@@ -20,12 +20,18 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<div class="display-flex justify-content-center color-title">
-    <h3 class="font-weight-bold">@Title</h3>
+<div class="display-flex flex-row">
+    <div class="display-flex flex-column width-100 align-items-center justify-content-center">
+        <h3 class="font-weight-bold color-title">@Title</h3>
+    </div>
+    <div class="display-flex width-fit-content align-items-center">
+        <CloseModelButton/>
+    </div>
 </div>
 <div>
     @Body
 </div>
+
 
 @code {
     /// <summary>

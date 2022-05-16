@@ -31,6 +31,9 @@
         z-index: 1050;
     }
 }
+::deep .app-sidebar > .nav-pills > .nav-item {
+    margin-bottom: 5px;
+}
 
 ::deep .app-sidebar > .nav-pills > .nav-item:first-of-type {
     padding-top: 1rem;

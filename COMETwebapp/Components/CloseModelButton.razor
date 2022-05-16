@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
+Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
@@ -20,35 +20,18 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<div class="sidebar @StateCssClass">
-    <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
-        <Nodes>
-            <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
-                @foreach(var card in Cards)
-                {
-                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
-                    var color = Regex.Replace(card.Color, @"#", "");
-                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
-                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
-                }
-            </Nodes>
-    </DxTreeView>
-</div>
+@inject ISessionAnchor SessionAnchor
+@inject NavigationManager NavigationManager
+
+<button class="btn btn-connect" @onclick="CloseIteration"> Close the Model</button>
 
 @code {
-    [Parameter] public string StateCssClass { get; set; }
-
     /// <summary>
-    /// List of application names
+    /// Close the opened iteration
     /// </summary>
-    public List<Card> Cards { get; set; }
-
-    /// <summary>
-    /// Get application Cards static initalization of the component
-    /// </summary>
-    protected override void OnInitialized()
+    private void CloseIteration()
     {
-        var application = new ApplicationCards();
-        this.Cards = application.Cards;
+        this.SessionAnchor.CloseIteration();
+        NavigationManager.NavigateTo("/");
     }
 }

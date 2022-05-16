@@ -21,7 +21,6 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/{modelName}"
-@using System.Text.RegularExpressions
 @inject ISessionAnchor SessionAnchor
 @inject NavigationManager NavigationManager
 
@@ -31,7 +30,7 @@ Copyright (c) 2022 RHEA System S.A.
         <h1>Domain @SessionAnchor.CurrentDomainOfExpertise?.Name </h1>
     </div>
     <div class="display-flex width-fit-content align-items-center">
-        <button class="btn btn-connect " @onclick="CloseIteration"> Close the Model</button>
+        <CloseModelButton/>
     </div>
 </div>
 
@@ -69,15 +68,6 @@ Copyright (c) 2022 RHEA System S.A.
     {
         var application = new ApplicationCards();
         this.Cards = application.Cards;
-    }
-
-    /// <summary>
-    /// Close the opened iteration
-    /// </summary>
-    private void CloseIteration()
-    {
-        this.SessionAnchor.CloseIteration();
-        NavigationManager.NavigateTo("/");
     }
 
     /// <summary>

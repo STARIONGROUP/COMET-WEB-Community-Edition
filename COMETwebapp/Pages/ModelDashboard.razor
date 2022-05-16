@@ -1,0 +1,90 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@page "/ModelDashboard"
+
+<ApplicationTemplate Title="Model Dashboard">
+    <Body>
+        <select @oninput="UpdateChoice">
+            <option value="defaultActualValues">Actual values as default</option>
+            <option value="publishedValues" selected="selected">Published Values</option>
+            <option value="defaultPublishedValues">Published values as default</option>
+        </select>
+
+        @switch (this.Choice)
+        {
+            case DataChoice.DefaultActualValues:
+                <DefaultValues ValuesType="Actual" />
+                break;
+            case DataChoice.PublishedValues:
+                <PublishedValues />
+                break;
+            case DataChoice.DefaultPublishedValues:
+                <DefaultValues ValuesType="Published" />
+                break;    
+        }
+    </Body>
+</ApplicationTemplate>
+
+@code{
+
+    /// <summary>
+    /// Enum of possible values to represent in the graph
+    /// </summary>
+    public enum DataChoice
+    {
+        DefaultActualValues,
+        PublishedValues,
+        DefaultPublishedValues
+    }
+
+    /// <summary>
+    /// The selected type of values to represent in the graph
+    /// </summary>
+    public DataChoice Choice { get; set; } = DataChoice.PublishedValues;
+
+    /// <summary>
+    /// Update the component depending on the selected <see cref="DataChoice"/>
+    /// </summary>
+    /// <param name="e">Event raised when any change appears in the select component</param>
+    public void UpdateChoice(ChangeEventArgs e)
+    {
+        Console.WriteLine(e.Value.ToString());
+        if (e.Value.ToString().Equals("defaultActualValues"))
+        {
+            Choice = DataChoice.DefaultActualValues;
+            base.StateHasChanged();
+        } else if (e.Value.ToString().Equals("publishedValues"))
+        {
+            Choice = DataChoice.PublishedValues;
+            base.StateHasChanged();
+        } else if (e.Value.ToString().Equals("defaultPublishedValues"))
+        {
+            Choice = DataChoice.DefaultPublishedValues;
+            base.StateHasChanged();
+        }
+    }
+
+}
+
+
+

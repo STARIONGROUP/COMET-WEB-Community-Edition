@@ -1,0 +1,77 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using DevExpress.Blazor
+
+<DxChart Data="@Data">
+    <DxChartTitle Text="@Title" />
+    <DxChartTooltip Enabled="true" Position="RelativePosition.Outside">
+        @{
+            var total = 0.0;
+            this.Data.FindAll(s => s.Domain.Equals(@context.Point.Argument)).ForEach(s => total += s.Value);
+            var number = Math.Round((double) ((int) @context.Point.Value / total) * 100);
+        }
+        
+        <div style="margin: 0.75rem">
+            @if (!double.IsNaN(number))
+            {
+                <div>@number %</div>
+            }
+            else
+            {
+                <div>-</div>
+            }
+        </div>
+    </DxChartTooltip>
+    <DxChartStackedBarSeries Name="@NameSerie1" Filter="@((DataChart s) => s.Argument.Equals(NameSerie1))"
+                             ArgumentField="@(s => s.Domain)" ValueField="@(s => s.Value)"
+                             AggregationMethod="Enumerable.Sum" />
+    <DxChartStackedBarSeries Name="@NameSerie2" Filter="@((DataChart s) => s.Argument.Equals(NameSerie2))"
+                             ArgumentField="@(s => s.Domain)" ValueField="@(s => s.Value)"
+                             AggregationMethod="Enumerable.Sum" />
+    <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Right" />
+</DxChart>
+
+@code {
+    /// <summary>
+    /// Data in the graph
+    /// </summary>
+    [Parameter]
+    public List<DataChart> Data { get; set; }
+
+    /// <summary>
+    /// Title of the graph
+    /// </summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// Name of first serie in the graph
+    /// </summary>
+    [Parameter]
+    public string NameSerie1 { get; set; }
+
+    /// <summary>
+    /// Name of second serie in the graph
+    /// </summary>
+    [Parameter]
+    public string NameSerie2 { get; set; }
+}

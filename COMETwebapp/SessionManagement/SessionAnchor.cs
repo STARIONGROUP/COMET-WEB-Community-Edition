@@ -59,7 +59,7 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// The <see cref="DomainOfExpertise"/> selected to open a model
         /// </summary>
-        public DomainOfExpertise CurrentDomainOfExpertise { get; set; }
+        public DomainOfExpertise? CurrentDomainOfExpertise { get; set; }
 
         /// <summary>
         /// Retrieves the <see cref="SiteDirectory"/> that is loaded in the <see cref="ISession"/>
@@ -74,10 +74,8 @@ namespace COMETwebapp.SessionManagement
         public async Task Close()
         {
             this.Session.Close().GetAwaiter().GetResult();
-            this.Session = null;
             this.IsSessionOpen = false;
-            this.CurrentDomainOfExpertise = null;
-            this.OpenIteration = null;
+            this.CloseIteration();
         }
 
         /// <summary>
@@ -116,8 +114,8 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         public void CloseIteration()
         {
+            this.Session.CloseIterationSetup(this.OpenIteration.IterationSetup);
             this.OpenIteration = null;
-            this.CurrentDomainOfExpertise = null;
         }
 
         /// <summary>
@@ -147,18 +145,18 @@ namespace COMETwebapp.SessionManagement
         /// <returns>
         /// A container of <see cref="DomainOfExpertise"/>
         /// </returns>
-        public IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup modelSetup)
+        public IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup)
         {
-            foreach (var participant in modelSetup.Participant)
-            {
-                if (participant.Person.Name.Equals(Session.ActivePerson.Name))
-                {
-                    foreach (var domain in participant.Domain)
-                    {
-                       yield return domain;
-                    }
-                }
-            }
+            var domains = new List<DomainOfExpertise>();
+            modelSetup?.Participant.FindAll(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)).ForEach(p => p.Domain.ForEach(d => domains.Add(d)));
+            return domains.DistinctBy(d => d.Name).OrderBy(d => d.Name);
+        }
+
+        public List<ParameterValueSet> GetParameterValueSets()
+        {
+            List<ParameterValueSet> result = new List<ParameterValueSet>();
+            this.OpenIteration.Element.ForEach(e => e.Parameter.ForEach(p => result.AddRange(p.ValueSet)));
+            return result;
         }
     }
 }

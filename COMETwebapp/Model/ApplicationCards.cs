@@ -55,14 +55,14 @@ namespace COMETwebapp.Model
             new Card()
             {
                 Name = "System Representation",
-                Color = "#c3fe9f",
+                Color = "#a7f876",
                 Icon = "fork",
                 Description = "Represent relations between elements."
             },
             new Card()
             {
                 Name = "Report Preview",
-                Color = "#ecffa1",
+                Color = "#f2f240f2",
                 Icon = "book",
                 Description = "Preview of the actual report state."
             },
@@ -76,7 +76,7 @@ namespace COMETwebapp.Model
             new Card()
             {
                 Name = "Budget Editor",
-                Color = "#ffe86a",
+                Color = "#fc3a1aad",
                 Icon = "brush",
                 Description = "Create budget tables."
             }
