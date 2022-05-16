@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterTable.cs" company="RHEA System S.A.">
+// <copyright file="DataChart.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -24,47 +24,24 @@
 
 namespace COMETwebapp.Model
 {
-    using CDP4Common.Types;
-
     /// <summary>
-    /// Parameters to add in the ParameterTable component
+    /// Represent data used in chart graphs
     /// </summary>
-    public class BuiltParameter
+    public class DataChart
     {
         /// <summary>
-        /// The parameter name
+        /// The argument defining the data
         /// </summary>
-        public string? Name { get; set; }
+        public string Argument { get; set; }
 
         /// <summary>
-        /// The element name
+        /// The value of the data
         /// </summary>
-        public string? ElementName { get; set; }
+        public int Value { get; set; }
 
         /// <summary>
-        /// The <see cref="DomainOfExpertise"/> name of the parameter
+        /// The domain of expertise of the data
         /// </summary>
-        public string? Domain { get; set; }
-
-        /// <summary>
-        /// The <see cref="Option"/> name of the parameter
-        /// </summary>
-        public string? Option { get; set; }
-
-        /// <summary>
-        /// The <see cref="State"/> name of the parameter
-        /// </summary>
-        public string? State { get; set; }
-
-        /// <summary>
-        /// The <see cref="Scale"/> shortName of the parameter
-        /// </summary>
-        public string? Scale { get; set; }
-
-        /// <summary>
-        /// The parameter value 
-        /// </summary>
-        public ValueArray<string>? Value { get; set; }
-
+        public string Domain { get; set; }
     }
 }

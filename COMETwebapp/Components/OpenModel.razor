@@ -42,7 +42,7 @@ Copyright (c) 2022 RHEA System S.A.
             <div class="col-md-15 m-top-3px">
                 <InputSelect id="iteration" class="form-control" @bind-Value="SelectedModelInformation.IterationSetupNumber">
                     <option value="">--Select--</option>
-                    @foreach (var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
+                    @foreach (var iteration in this.SelectedEngineeringModelSetup.IterationSetup.OrderBy(i => i.IterationNumber))
                     {
                          @if(@iteration.FrozenOn != null)
                         {
@@ -77,10 +77,10 @@ Copyright (c) 2022 RHEA System S.A.
             <div class="col-md-12 text-center">
                 @if (isOpening)
                 {
-                    <button id="connectbtn" type="submit" class="btn btn-connect" disabled=true>Opening the Iteration</button>
+                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled=true>Opening the Iteration</button>
                 } else 
                 {
-                    <button id="connectbtn" type="submit" class="btn btn-connect">Open the Iteration</button>
+                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Open the Iteration</button>
                 }
             </div>
         </div> 
@@ -108,12 +108,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// The selected <see cref="IterationSetup"/>
     /// </summary>
-    private IterationSetup SelectedIterationSetup { get; set; }
+    private IterationSetup? SelectedIterationSetup { get; set; }
 
     /// <summary>
     /// The selected <see cref="EngineeringModelSetup"/>
     /// </summary>
-    private EngineeringModelSetup SelectedEngineeringModelSetup { get; set; }
+    private EngineeringModelSetup? SelectedEngineeringModelSetup { get; set; }
 
     /// <summary>
     /// List of <see cref="EngineeringModelSetup"/> in the opened session
@@ -144,14 +144,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e"> Event emmited when a ModelSetup is selected </param>
     public void GetDomains(ChangeEventArgs e)
     {
-        foreach (var model in ISessionAnchor.GetSiteDirectory().Model)
-        {
-            if (model.Name.Equals(e.Value.ToString()))
-            {
-                this.SelectedEngineeringModelSetup = model;
-                this.Domains.AddRange(ISessionAnchor.GetModelDomains(this.SelectedEngineeringModelSetup));
-            }
-        }
+        this.SelectedEngineeringModelSetup = ISessionAnchor.GetSiteDirectory().Model.Find(m => m.Name.Equals(e.Value?.ToString()));
+        this.Domains.Clear();
+        this.Domains.AddRange(ISessionAnchor.GetModelDomains(this.SelectedEngineeringModelSetup));
     }
 
     /// <summary>
@@ -159,20 +154,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public async void OpenAModel()
     {
-        foreach (var domain in this.Domains)
-        {
-            if (domain.Name.Equals(this.SelectedModelInformation.DomainOfExpertiseName))
-            {
-                this.ISessionAnchor.CurrentDomainOfExpertise = domain;
-            }
-        }
-        foreach(var iteration in this.SelectedEngineeringModelSetup.IterationSetup)
-        {
-            if (iteration.IterationNumber == int.Parse(this.SelectedModelInformation.IterationSetupNumber))
-            {
-                this.SelectedIterationSetup = iteration;
-            }
-        }
+        this.ISessionAnchor.CurrentDomainOfExpertise = this.Domains.Find(d => d.Name.Equals(this.SelectedModelInformation.DomainOfExpertiseName));
+        this.SelectedIterationSetup = this.SelectedEngineeringModelSetup?.IterationSetup.Find(i => i.IterationNumber == int.Parse(this.SelectedModelInformation.IterationSetupNumber));
 
         this.isOpening = true;
         base.StateHasChanged();

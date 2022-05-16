@@ -46,13 +46,13 @@
             @switch(this.AuthenticationState)
                 {
                     case AuthenticationStateKind.None:
-                        <button id="connectbtn" type="submit" class="btn btn-connect">Connect</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Connect</button>            
                         break;
                     case AuthenticationStateKind.Authenticating:
-                        <button id="connectbtn" type="submit" class="btn btn-connect" disabled=true>Connecting</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled=true>Connecting</button>            
                         break;
                     case AuthenticationStateKind.Fail:
-                        <button id="connectbtn" type="submit" class="btn btn-connect" >Retry</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" >Retry</button>            
                         break;
                 }
         </div>

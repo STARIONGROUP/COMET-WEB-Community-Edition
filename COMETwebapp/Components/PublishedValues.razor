@@ -1,0 +1,82 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
+@using DevExpress.Blazor
+
+<div class="display-flex flex-column    ">
+    <div class="display-flex flex-row">
+        <ChartDonutSeries Title="Test1" Data=Data />
+
+        <FullStackedBarSeries Title="Test2" Data=Data NameSerie1="Published values" NameSerie2="Publishable values"/>
+    </div>
+    <div class="display-flex flex-row">
+        <ChartBarSeries Title="Test3" Data=Data NameSerie1="Published values" NameSerie2="Publishable values"/>
+
+        <ChartStackedBarSeries Title="Test4" Data=Data  NameSerie1="Published values" NameSerie2="Publishable values"/>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// list of data in the graphs
+    /// </summary>
+    List<DataChart> Data = new List<DataChart>();
+
+    /// <summary>
+    /// Get all parameter values and build the list of data 
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if(ISessionAnchor.OpenIteration != null){
+            var domains = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.OpenIteration).ToList();
+            List<ParameterValueSet> parameterValueSets = ISessionAnchor.GetParameterValueSets();
+
+            domains.ForEach(d =>
+            {
+                var nbPublishedValues = 0;
+                parameterValueSets.FindAll(i => i.Owner == d).ForEach(v =>
+                   {
+                       if (v.Published.First().Equals(v.ActualValue.First()))
+                       {
+                           nbPublishedValues += 1;
+                       }
+                   });
+
+                Data.Add(new DataChart()
+                    {
+                        Value = nbPublishedValues,
+                        Argument = "Published values",
+                        Domain = d.Name
+                    });
+
+                var num = parameterValueSets.FindAll(i => i.Owner == d).Count - nbPublishedValues;
+                Data.Add(new DataChart()
+                    {
+                        Value = num,
+                        Argument = "Publishable values",
+                        Domain = d.Name
+                    });
+            });
+        }
+    }
+    
+}

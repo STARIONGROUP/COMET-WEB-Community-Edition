@@ -51,7 +51,7 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// The <see cref="DomainOfExpertise"/> selected to open a model
         /// </summary>
-        DomainOfExpertise CurrentDomainOfExpertise { get; set; }
+        DomainOfExpertise? CurrentDomainOfExpertise { get; set; }
 
         /// <summary>
         /// Close the ISession
@@ -98,6 +98,8 @@ namespace COMETwebapp.SessionManagement
         /// <returns>
         /// A container of <see cref="DomainOfExpertise"/>
         /// </returns>
-        IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup modelSetup);
+        IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup);
+
+        List<ParameterValueSet> GetParameterValueSets();
     }
 }

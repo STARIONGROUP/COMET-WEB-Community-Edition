@@ -52,25 +52,33 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        foreach(var element in ISessionAnchor.OpenIteration.Element)
+        var ListElements = ISessionAnchor.OpenIteration.Element;
+        if (ListElements.Count != 0)
         {
-            foreach(var parameter in element.Parameter)
+            foreach (var element in ListElements)
             {
-                foreach (var valueset in parameter.ValueSet) {
-                    Parameters.Add(new BuiltParameter()
+                var parameters = element.Parameter;
+                if (parameters.Count != 0)
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        foreach (var valueset in parameter.ValueSet)
                         {
-                            Name = parameter.ParameterType.Name,
-                            ElementName = element.Name,
-                            Domain = parameter.Owner.Name,
-                            Option = valueset.ActualOption?.Name,
-                            State = valueset.ActualState?.Name,
-                            Scale = parameter.Scale.ShortName,
-                            Value = valueset.ActualValue
-                        });
+                            Parameters.Add(new BuiltParameter()
+                                {
+                                    Name = parameter?.ParameterType?.Name,
+                                    ElementName = element?.Name,
+                                    Domain = parameter?.Owner?.Name,
+                                    Option = valueset?.ActualOption?.Name,
+                                    State = valueset?.ActualState?.Name,
+                                    Scale = parameter?.Scale?.ShortName,
+                                    Value = valueset?.ActualValue
+                                });
+                        }
+                    }
                 }
             }
         }
-
     }
 
 }
