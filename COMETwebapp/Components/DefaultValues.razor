@@ -53,18 +53,18 @@ Copyright (c) 2022 RHEA System S.A.
     protected override void OnInitialized()
     {
         if(ISessionAnchor.OpenIteration != null){
-            var listDomains = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.OpenIteration).ToList();
-            List<ParameterValueSet> listModelValueSet = ISessionAnchor.GetParameterValueSets();
+            var domains = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.OpenIteration).ToList();
+            List<ParameterValueSet> parameterValueSets = ISessionAnchor.GetParameterValueSets();
 
-            listDomains.ForEach(d =>
+            domains.ForEach(d =>
             {
                 var nbDefaultValues = 0;
                 if (ValuesType.Equals("Actual"))
                 {
-                    nbDefaultValues = listModelValueSet.FindAll(i => i.Owner == d && i.ActualValue.First().Equals("-")).Count;
+                    nbDefaultValues = parameterValueSets.FindAll(i => i.Owner == d && i.ActualValue.First().Equals("-")).Count;
                 } else if (ValuesType.Equals("Published"))
                 {
-                    nbDefaultValues = listModelValueSet.FindAll(i => i.Owner == d && i.Published.First().Equals("-")).Count;
+                    nbDefaultValues = parameterValueSets.FindAll(i => i.Owner == d && i.Published.First().Equals("-")).Count;
                 }
 
                 Data.Add(new DataChart()
@@ -74,7 +74,7 @@ Copyright (c) 2022 RHEA System S.A.
                         Domain = d.Name
                     });
 
-                var num = listModelValueSet.FindAll(i => i.Owner == d).Count - nbDefaultValues;
+                var num = parameterValueSets.FindAll(i => i.Owner == d).Count - nbDefaultValues;
                 Data.Add(new DataChart()
                     {
                         Value = num,

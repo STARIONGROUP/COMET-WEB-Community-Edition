@@ -139,11 +139,11 @@ namespace COMETwebapp.SessionManagement
         }
 
         /// <summary>
-        /// Get <see cref="DomainOfExpertise"/> available in the selected <see cref="EngineeringModelSetup"/>
+        /// Get <see cref="DomainOfExpertise"/> available for the active person in the selected <see cref="EngineeringModelSetup"/>
         /// </summary>
         /// <param name="modelSetup">The selected <see cref="EngineeringModelSetup"/></param>
         /// <returns>
-        /// A container of <see cref="DomainOfExpertise"/>
+        /// A container of <see cref="DomainOfExpertise"/> accessible for the active person
         /// </returns>
         public IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup)
         {
@@ -152,6 +152,10 @@ namespace COMETwebapp.SessionManagement
             return domains.DistinctBy(d => d.Name).OrderBy(d => d.Name);
         }
 
+        /// <summary>
+        /// Get all <see cref="ParameterValueSet"/> of the opened iteration
+        /// </summary>
+        /// <returns>All <see cref="ParameterValueSet"/></returns>
         public List<ParameterValueSet> GetParameterValueSets()
         {
             List<ParameterValueSet> result = new List<ParameterValueSet>();

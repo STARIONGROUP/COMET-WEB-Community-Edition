@@ -72,15 +72,15 @@ Copyright (c) 2022 RHEA System S.A.
         if (e.Value.ToString().Equals("defaultActualValues"))
         {
             Choice = DataChoice.DefaultActualValues;
-            base.StateHasChanged();
+            this.StateHasChanged();
         } else if (e.Value.ToString().Equals("publishedValues"))
         {
             Choice = DataChoice.PublishedValues;
-            base.StateHasChanged();
+            this.StateHasChanged();
         } else if (e.Value.ToString().Equals("defaultPublishedValues"))
         {
             Choice = DataChoice.DefaultPublishedValues;
-            base.StateHasChanged();
+            this.StateHasChanged();
         }
     }
 

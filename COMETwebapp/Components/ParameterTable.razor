@@ -57,10 +57,10 @@ Copyright (c) 2022 RHEA System S.A.
         {
             foreach (var element in ListElements)
             {
-                var ListParameters = element.Parameter;
-                if (ListParameters.Count != 0)
+                var parameters = element.Parameter;
+                if (parameters.Count != 0)
                 {
-                    foreach (var parameter in ListParameters)
+                    foreach (var parameter in parameters)
                     {
                         foreach (var valueset in parameter.ValueSet)
                         {
