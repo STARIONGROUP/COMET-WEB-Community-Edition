@@ -13,6 +13,8 @@
 		<RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,9 +25,9 @@
 		<PackageReference Include="CDP4ServicesDal-CE" Version="8.1.0" />
 		<PackageReference Include="DevExpress.Blazor" Version="20.2.11" />
 		<PackageReference Include="BlazorStrap" Version="5.0.105.4262022" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.4" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.5" PrivateAssets="all" />
 	</ItemGroup>
 
 </Project>
