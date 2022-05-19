@@ -22,16 +22,18 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @using DevExpress.Blazor
 
-<div class="display-flex flex-column    ">
+<h6>A parameter is published if actual value = published value </h6>
+<div class="display-flex flex-column">
     <div class="display-flex flex-row">
-        <ChartDonutSeries Title="Test1" Data=Data />
 
-        <FullStackedBarSeries Title="Test2" Data=Data NameSerie1="Published values" NameSerie2="Publishable values"/>
+        <ChartDonutSeries Title="Test1" Data=Filter(Data)/>
+
+        <FullStackedBarSeries Title="Test2" Data=Filter(Data) NameSerie1="Published parameters" NameSerie2="Publishable parameters"/>
     </div>
     <div class="display-flex flex-row">
-        <ChartBarSeries Title="Test3" Data=Data NameSerie1="Published values" NameSerie2="Publishable values"/>
+        <ChartBarSeries Title="Test3" Data=Filter(Data) NameSerie1="Published parameters" NameSerie2="Publishable parameters"/>
 
-        <ChartStackedBarSeries Title="Test4" Data=Data  NameSerie1="Published values" NameSerie2="Publishable values"/>
+        <ChartStackedBarSeries Title="Test4" Data=Filter(Data)  NameSerie1="Published parameters" NameSerie2="Publishable parameters"/>
     </div>
 </div>
 
@@ -42,41 +44,166 @@ Copyright (c) 2022 RHEA System S.A.
     List<DataChart> Data = new List<DataChart>();
 
     /// <summary>
+    /// <see cref="Guid"> of the option to filter the data 
+    /// </summary>
+    [Parameter]
+    public Guid? FilterOption { get; set; }
+
+    /// <summary>
+    /// <see cref="Guid"> of the state to filter the data 
+    /// </summary>
+    [Parameter]
+    public Guid? FilterState { get; set; }
+
+    /// <summary>
     /// Get all parameter values and build the list of data 
     /// </summary>
     protected override void OnInitialized()
     {
         if(ISessionAnchor.OpenIteration != null){
             var domains = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.OpenIteration).ToList();
-            List<ParameterValueSet> parameterValueSets = ISessionAnchor.GetParameterValueSets();
+            var options = ISessionAnchor.OpenIteration.Option.ToList();
+            var actualFiniteStateLists = ISessionAnchor.OpenIteration.ActualFiniteStateList;
+            List<ParameterValueSet> sessionParameterValueSets = ISessionAnchor.GetParameterValueSets();
 
-            domains.ForEach(d =>
+            if (actualFiniteStateLists.Any())
             {
-                var nbPublishedValues = 0;
-                parameterValueSets.FindAll(i => i.Owner == d).ForEach(v =>
-                   {
-                       if (v.Published.First().Equals(v.ActualValue.First()))
-                       {
-                           nbPublishedValues += 1;
-                       }
-                   });
-
-                Data.Add(new DataChart()
+                domains.ForEach(d =>
+                {
+                    var parameterDomains = sessionParameterValueSets.FindAll(i => i.Owner == d);
+                    options.ForEach(o =>
+                    {
+                        var parameterOptions = parameterDomains.FindAll(i => i.ActualOption == o);
+                        actualFiniteStateLists.ForEach(stateList => stateList.ActualState.ForEach(s =>
+                        {
+                            var parameterStates = parameterOptions.FindAll(i => i.ActualState == s);
+                            var parameterValueSets = parameterStates.FindAll(i => i.Published.SequenceEqual(i.ActualValue));
+                            var nbPublishedValues = parameterValueSets.Count;
+                            Data.Add(new DataChart()
+                            {
+                                Value = nbPublishedValues,
+                                Argument = "Published parameters",
+                                Domain = d.ShortName,
+                                Option = o.Iid,
+                                State = s.Iid,
+                                Parameters = parameterValueSets
+                            });
+                            Data.Add(new DataChart()
+                            {
+                                Value = parameterStates.Count - nbPublishedValues,
+                                Argument = "Publishable parameters",
+                                Domain = d.ShortName,
+                                Option = o.Iid,
+                                State = s.Iid,
+                                Parameters = parameterStates.FindAll(p => !parameterValueSets.Contains(p))
+                            });
+                            parameterOptions.RemoveAll(i => parameterStates.Contains(i));
+                        }));
+                        var parameterValueSets = parameterOptions.FindAll(i => i.Published.SequenceEqual(i.ActualValue));
+                        var nbPublishedValues = parameterValueSets.Count;
+                        Data.Add(new DataChart()
+                            {
+                                Value = nbPublishedValues,
+                                Argument = "Published parameters",
+                                Domain = d.ShortName,
+                                Option = o.Iid,
+                                Parameters = parameterValueSets
+                            });
+                        Data.Add(new DataChart()
+                        {
+                            Value = parameterOptions.Count - nbPublishedValues,
+                            Argument = "Publishable parameters",
+                            Domain = d.ShortName,
+                            Option = o.Iid,
+                            Parameters = parameterOptions.FindAll(p => !parameterValueSets.Contains(p))
+                        });
+                        parameterDomains.RemoveAll(i => parameterOptions.Contains(i));             
+                    });
+                    var parameterValueSets = parameterDomains.FindAll(i => i.Published.SequenceEqual(i.ActualValue));
+                    var nbPublishedValues = parameterValueSets.Count;
+                    Data.Add(new DataChart()
                     {
                         Value = nbPublishedValues,
-                        Argument = "Published values",
-                        Domain = d.Name
+                        Argument = "Published parameters",
+                        Domain = d.ShortName,
+                        Parameters = parameterValueSets
                     });
-
-                var num = parameterValueSets.FindAll(i => i.Owner == d).Count - nbPublishedValues;
-                Data.Add(new DataChart()
+                    Data.Add(new DataChart()
                     {
-                        Value = num,
-                        Argument = "Publishable values",
-                        Domain = d.Name
+                        Value = parameterDomains.Count - nbPublishedValues,
+                        Argument = "Publishable parameters",
+                        Domain = d.ShortName,
+                        Parameters = parameterDomains.FindAll(p => !parameterValueSets.Contains(p))
                     });
-            });
+                });
+            } else
+            {
+                domains.ForEach(d =>
+                {
+                    var parameterDomains = sessionParameterValueSets.FindAll(i => i.Owner == d);
+                    options.ForEach(o =>
+                    {
+                        var parameterOptions = parameterDomains.FindAll(i => i.ActualOption == o);
+                        var parameterValueSets = parameterOptions.FindAll(i => i.Published.SequenceEqual(i.ActualValue));
+                        var nbPublishedValues = parameterValueSets.Count;
+                        Data.Add(new DataChart()
+                            {
+                                Value = nbPublishedValues,
+                                Argument = "Published parameters",
+                                Domain = d.ShortName,
+                                Option = o.Iid,
+                                Parameters = parameterValueSets
+                            });
+                        Data.Add(new DataChart()
+                        {
+                            Value = parameterOptions.Count - nbPublishedValues,
+                            Argument = "Publishable parameters",
+                            Domain = d.ShortName,
+                            Option = o.Iid,
+                            Parameters = parameterOptions.FindAll(p => !parameterValueSets.Contains(p))
+                        });
+                        parameterDomains.RemoveAll(i => parameterOptions.Contains(i));             
+                    });
+                    var parameterValueSets = parameterDomains.FindAll(i => i.Published.SequenceEqual(i.ActualValue));
+                    var nbPublishedValues = parameterValueSets.Count;
+                    Data.Add(new DataChart()
+                    {
+                        Value = nbPublishedValues,
+                        Argument = "Published parameters",
+                        Domain = d.ShortName,
+                        Parameters = parameterValueSets
+                    });
+                    Data.Add(new DataChart()
+                    {
+                        Value = parameterDomains.Count - nbPublishedValues,
+                        Argument = "Publishable parameters",
+                        Domain = d.ShortName,
+                        Parameters = parameterDomains.FindAll(p => !parameterValueSets.Contains(p))
+                    });
+                });
+            }
         }
     }
-    
+
+    /// <summary>
+    /// Filter data to show in the graph
+    /// </summary>
+    /// <param name="data">List of all data in the project</param>
+    /// <returns>The list of filtered <see cref="DataChart"></returns>
+    public List<DataChart> Filter(List<DataChart> data)
+    {
+        List<DataChart> result = new List<DataChart>();
+        result.AddRange(data);
+        if(this.FilterOption != null)
+        {
+            result.RemoveAll(d => !d.Option.Equals(this.FilterOption));
+        }
+
+        if(this.FilterState != null)
+        {   
+            result.RemoveAll(d => d.State == null || (d.State != null && !d.State.Equals(this.FilterState)));      
+        }
+        return result;
+    }
+
 }

@@ -1,0 +1,97 @@
+﻿@using System.Collections.ObjectModel
+<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
+
+@page "/ModelDashboard/Details"
+
+<div>
+    <h5>Details</h5>
+    <DxDataGrid Data="@Parameters" PageSize="0">
+        <DxDataGridColumn Field="@nameof(BuiltParameter.ElementName)" Width="200px" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Name)" Caption="Parameter" Width="150px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Domain)" Width="100px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Option)" Width="70px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.State)" Width="70px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.ActualValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
+            <DisplayTemplate>
+                @{
+                    var intvalue = (context as BuiltParameter).ActualValue;
+                 }
+                <a>@intvalue.First()</a>
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.PublishedValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
+            <DisplayTemplate>
+                @{
+                    var intvalue = (context as BuiltParameter).PublishedValue;
+                 }
+                <a>@intvalue.First()</a>
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    </DxDataGrid>
+</div>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Iids { get; set; }
+
+    /// <summary>
+    /// List of <see cref="BuiltParameter"> in the table
+    /// </summary>
+    readonly ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
+
+    /// <summary>
+    /// Initialize the <see cref="BuiltParameter"> list showed in the table
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (Iids is not null)
+        {
+            string[] test = Iids.Split("|");
+
+            if (ISessionAnchor.OpenIteration != null)
+            {
+                ISessionAnchor.OpenIteration.Element
+                .ForEach(element => element.Parameter
+                    .ForEach(parameter => parameter.ValueSet
+                        .FindAll(value => test.Contains(value.Iid.ToString()))
+                        .ForEach(valueset =>
+                            {
+                                Parameters.Add(new BuiltParameter()
+                                    {
+                                        Name = parameter?.ParameterType?.Name,
+                                        ElementName = element?.Name,
+                                        Domain = parameter?.Owner?.Name,
+                                        Option = valueset?.ActualOption?.Name,
+                                        State = valueset?.ActualState?.Name,
+                                        Scale = parameter?.Scale?.ShortName,
+                                        ActualValue = valueset?.ActualValue,
+                                        PublishedValue = valueset?.Published
+                                    });
+                            })));
+            }
+        }
+    }
+}

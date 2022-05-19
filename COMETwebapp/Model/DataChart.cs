@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Model
 {
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Represent data used in chart graphs
     /// </summary>
@@ -40,8 +42,24 @@ namespace COMETwebapp.Model
         public int Value { get; set; }
 
         /// <summary>
-        /// The domain of expertise of the data
+        /// Name of the domain of expertise of data
+        /// This value is used as legend in graphs.
         /// </summary>
         public string Domain { get; set; }
+
+        /// <summary>
+        /// The actual option of the data
+        /// </summary>
+        public Guid Option { get; set; }
+
+        /// <summary>
+        /// The actual state of the data
+        /// </summary>
+        public Guid? State { get; set; }
+
+        /// <summary>
+        /// List of <see cref="ParameterValueSet"/> associated to the <see cref="DataChart"/>
+        /// </summary>
+        public List<ParameterValueSet>? Parameters { get; set; }
     }
 }

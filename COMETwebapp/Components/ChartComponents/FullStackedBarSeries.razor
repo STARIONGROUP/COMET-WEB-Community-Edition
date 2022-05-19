@@ -21,21 +21,18 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using DevExpress.Blazor
 
-<DxChart Data="@Data" >
+<DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
     <DxChartTitle Text="@Title" />
-    <DxChartTooltip Enabled="true" Position="RelativePosition.Outside">
-       <div style="margin: 0.75rem">
-            <div class="font-weight-bold">@context.Point.SeriesName</div>
-            <div>Domain: @context.Point.Argument</div>
-            <div>Amount: @context.Point.Value</div>
-        </div>
-    </DxChartTooltip>
     <DxChartFullStackedBarSeries Name="@NameSerie1" Filter="@((DataChart s) => s.Argument.Equals(NameSerie1))"
                                 ArgumentField="@(s => s.Domain)" ValueField="@(s => s.Value)"
-                                AggregationMethod="Enumerable.Sum"/>
+                                AggregationMethod="Enumerable.Sum">
+        <DxChartSeriesLabel Position="RelativePosition.Inside"/>
+    </DxChartFullStackedBarSeries>
     <DxChartFullStackedBarSeries Name="@NameSerie2" Filter="@((DataChart s) => s.Argument.Equals(NameSerie2))"
                                 ArgumentField="@(s => s.Domain)" ValueField="@(s => s.Value)"
-                                AggregationMethod="Enumerable.Sum" />
+                                AggregationMethod="Enumerable.Sum">
+        <DxChartSeriesLabel Position="RelativePosition.Inside"/>
+    </DxChartFullStackedBarSeries>
     <DxChartLegend Visible="false" />
 </DxChart>
 
@@ -63,4 +60,16 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public string NameSerie2 { get; set; }
+
+    /// <summary>
+    /// Set the point label on the graph
+    /// </summary>
+    /// <param name="pointSettings">The <see cref="ChartSeriesPointCustomizationSettings"> providing data of the selected point in the graph</param>
+    protected void PreparePointLabel(ChartSeriesPointCustomizationSettings pointSettings) {
+        var value = pointSettings.Point.Value;
+        if (!value.Equals(0))
+        {
+            pointSettings.PointLabel.Visible = true;
+        }
+    }
 }

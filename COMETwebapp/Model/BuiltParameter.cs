@@ -62,9 +62,14 @@ namespace COMETwebapp.Model
         public string? Scale { get; set; }
 
         /// <summary>
-        /// The parameter value 
+        /// The parameter actual value 
         /// </summary>
-        public ValueArray<string>? Value { get; set; }
+        public ValueArray<string>? ActualValue { get; set; }
+
+        /// <summary>
+        /// The parameter published value 
+        /// </summary>
+        public ValueArray<string>? PublishedValue { get; set; }
 
     }
 }
