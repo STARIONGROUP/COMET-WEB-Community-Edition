@@ -22,16 +22,16 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @using DevExpress.Blazor
 
-<div class="display-flex flex-column    ">
+<div class="display-flex flex-column">
     <div class="display-flex flex-row">
-        <ChartDonutSeries  Title="Test1" Data=Data />
+        <ChartDonutSeries  Title="Test1" Data=Filter(Data) />
 
-        <FullStackedBarSeries Title="Test2" Data=Data NameSerie1="Values as default" NameSerie2="Other values"/>
+        <FullStackedBarSeries Title="Test2" Data=Filter(Data) NameSerie1="Values as default" NameSerie2="Other values"/>
     </div>
     <div class="display-flex flex-row">
-        <ChartBarSeries Title="Test3" Data=Data NameSerie1="Values as default" NameSerie2="Other values"/>
+        <ChartBarSeries Title="Test3" Data=Filter(Data) NameSerie1="Values as default" NameSerie2="Other values"/>
     
-        <ChartStackedBarSeries Title="Test4" Data=Data  NameSerie1="Values as default" NameSerie2="Other values"/>
+        <ChartStackedBarSeries Title="Test4" Data=Filter(Data)  NameSerie1="Values as default" NameSerie2="Other values"/>
     </div>
 </div>
 
@@ -48,41 +48,210 @@ Copyright (c) 2022 RHEA System S.A.
     List<DataChart> Data = new List<DataChart>();
 
     /// <summary>
+    /// Option filter for the data 
+    /// </summary>
+    [Parameter]
+    public string? FilterOption { get; set; }
+
+    /// <summary>
+    /// State filter for the data 
+    /// </summary>
+    [Parameter]
+    public string? FilterState { get; set; }
+
+    /// <summary>
     /// Get all parameter values and build data for the graphs
     /// </summary>
     protected override void OnInitialized()
     {
         if(ISessionAnchor.OpenIteration != null){
             var domains = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.OpenIteration).ToList();
+            var options = ISessionAnchor.OpenIteration.Option.ToList();
+            var actualFiniteStateLists = ISessionAnchor.OpenIteration.ActualFiniteStateList;
             List<ParameterValueSet> parameterValueSets = ISessionAnchor.GetParameterValueSets();
 
-            domains.ForEach(d =>
+            if (actualFiniteStateLists.Any())
             {
-                var nbDefaultValues = 0;
-                if (ValuesType.Equals("Actual"))
+                domains.ForEach(d =>
                 {
-                    nbDefaultValues = parameterValueSets.FindAll(i => i.Owner == d && i.ActualValue.First().Equals("-")).Count;
-                } else if (ValuesType.Equals("Published"))
-                {
-                    nbDefaultValues = parameterValueSets.FindAll(i => i.Owner == d && i.Published.First().Equals("-")).Count;
-                }
-
-                Data.Add(new DataChart()
+                    var parameterDomains = parameterValueSets.FindAll(i => i.Owner == d);
+                    options.ForEach(o =>
                     {
-                        Value = nbDefaultValues,
-                        Argument = "Values as default",
-                        Domain = d.Name
+                        var parameterOptions = parameterDomains.FindAll(i => i.ActualOption == o);
+                        actualFiniteStateLists.ForEach(stateList => stateList.ActualState.ForEach(s =>
+                        {
+                            var parameterStates = parameterOptions.FindAll(i => i.ActualState == s);
+                            var nbDefaultValues = 0;
+                            var parameters = new List<ParameterValueSet>();
+                            if (ValuesType.Equals("Actual"))
+                            {
+                                parameters = parameterStates.FindAll(i => i.ActualValue.First().Equals("-"));
+                                nbDefaultValues = parameters.Count;
+                            } else
+                            {
+                                parameters = parameterStates.FindAll(i => i.Published.First().Equals("-"));
+                                nbDefaultValues = parameters.Count;
+                            }
+                            Data.Add(new DataChart()
+                            {
+                                Value = nbDefaultValues,
+                                Argument = "Values as default",
+                                Domain = d.Name,
+                                Option = o.Name,
+                                State = s.Name,
+                                Parameters = parameters
+                            });
+                            Data.Add(new DataChart()
+                            {
+                                Value = parameterStates.Count - nbDefaultValues,
+                                Argument = "Other values",
+                                Domain = d.Name,
+                                Option = o.Name,
+                                State = s.Name,
+                                Parameters = parameterStates.FindAll(p => !parameters.Contains(p))
+                            });
+                            parameterOptions.RemoveAll(i => parameterStates.Contains(i));
+                        }));
+                        var nbDefaultValues = 0;
+                        var parameters = new List<ParameterValueSet>();
+                        if (ValuesType.Equals("Actual"))
+                        {
+                            parameters = parameterOptions.FindAll(i => i.ActualValue.First().Equals("-"));
+                            nbDefaultValues = parameters.Count;
+                        } else
+                        {
+                            parameters = parameterOptions.FindAll(i => i.Published.First().Equals("-"));
+                            nbDefaultValues = parameters.Count;
+                        }
+                        Data.Add(new DataChart()
+                            {
+                                Value = nbDefaultValues,
+                                Argument = "Values as default",
+                                Domain = d.Name,
+                                Option = o.Name,
+                                Parameters = parameters
+                            });
+                        Data.Add(new DataChart()
+                        {
+                            Value = parameterOptions.Count - nbDefaultValues,
+                            Argument = "Other values",
+                            Domain = d.Name,
+                            Option = o.Name,
+                            Parameters = parameterOptions.FindAll(p => !parameters.Contains(p))
+                        });
+                        parameterDomains.RemoveAll(i => parameterOptions.Contains(i));             
                     });
-
-                var num = parameterValueSets.FindAll(i => i.Owner == d).Count - nbDefaultValues;
-                Data.Add(new DataChart()
+                    var nbDefaultValues = 0;
+                    var parameters = new List<ParameterValueSet>();
+                    if (ValuesType.Equals("Actual"))
                     {
-                        Value = num,
+                        parameters = parameterDomains.FindAll(i => i.ActualValue.First().Equals("-"));
+                        nbDefaultValues = parameters.Count;
+                    } else
+                    {
+                        parameters = parameterDomains.FindAll(i => i.Published.First().Equals("-"));
+                        nbDefaultValues = parameters.Count;
+                    }
+                    Data.Add(new DataChart()
+                        {
+                            Value = nbDefaultValues,
+                            Argument = "Values as default",
+                            Domain = d.Name,
+                            Parameters = parameters
+                        });
+                    Data.Add(new DataChart()
+                    {
+                        Value = parameterDomains.Count - nbDefaultValues,
                         Argument = "Other values",
-                        Domain = d.Name
+                        Domain = d.Name,
+                        Parameters = parameterDomains.FindAll(p => !parameters.Contains(p))
                     });
-            });
+                });
+            } else
+            {
+                domains.ForEach(d =>
+                {
+                    var parameterDomains = parameterValueSets.FindAll(i => i.Owner == d);
+                    options.ForEach(o =>
+                    {
+                        var parameterOptions = parameterDomains.FindAll(i => i.ActualOption == o);
+                        var nbDefaultValues = 0;
+                        var parameters = new List<ParameterValueSet>();
+                        if (ValuesType.Equals("Actual"))
+                        {
+                            parameters = parameterOptions.FindAll(i => i.ActualValue.First().Equals("-"));
+                            nbDefaultValues = parameters.Count;
+                        } else
+                        {
+                            parameters = parameterOptions.FindAll(i => i.Published.First().Equals("-"));
+                            nbDefaultValues = parameters.Count;
+                        }
+                        Data.Add(new DataChart()
+                            {
+                                Value = nbDefaultValues,
+                                Argument = "Values as default",
+                                Domain = d.Name,
+                                Option = o.Name,
+                                Parameters = parameters
+                            });
+                        Data.Add(new DataChart()
+                        {
+                            Value = parameterOptions.Count - nbDefaultValues,
+                            Argument = "Other values",
+                            Domain = d.Name,
+                            Option = o.Name,
+                            Parameters = parameterOptions.FindAll(p => !parameters.Contains(p))
+                        });
+                        parameterDomains.RemoveAll(i => parameterOptions.Contains(i));             
+                    });
+                    var nbDefaultValues = 0;
+                    var parameters = new List<ParameterValueSet>();
+                    if (ValuesType.Equals("Actual"))
+                    {
+                        parameters = parameterDomains.FindAll(i => i.ActualValue.First().Equals("-"));
+                        nbDefaultValues = parameters.Count;
+                    } else
+                    {
+                        parameters = parameterDomains.FindAll(i => i.Published.First().Equals("-"));
+                        nbDefaultValues = parameters.Count;
+                    }
+                    Data.Add(new DataChart()
+                        {
+                            Value = nbDefaultValues,
+                            Argument = "Values as default",
+                            Domain = d.Name,
+                            Parameters = parameters
+                        });
+                    Data.Add(new DataChart()
+                    {
+                        Value = parameterDomains.Count - nbDefaultValues,
+                        Argument = "Other values",
+                        Domain = d.Name,
+                        Parameters = parameterDomains.FindAll(p => !parameters.Contains(p))
+                    });
+                });
+            }
         }
+    }
+
+    /// <summary>
+    /// Filter data to show in the graph
+    /// </summary>
+    /// <param name="data">List of all data in the project</param>
+    /// <returns>The list of filtered <see cref="DataChart"></returns>
+    public List<DataChart> Filter(List<DataChart> data)
+    {
+        List<DataChart> result = new List<DataChart>();
+        result.AddRange(data);
+        if(this.FilterOption != "")
+        {
+            result.RemoveAll(d => d.Option == null || (d.Option != null && !d.Option.Equals(this.FilterOption)));
+        }
+        if(this.FilterState != "")
+        {
+           result.RemoveAll(d => d.State == null || (d.State != null && !d.State.Equals(this.FilterState)));
+        }
+        return result;
     }
     
 }

@@ -20,17 +20,20 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using DevExpress.Blazor
+@inject NavigationManager NavigationManager
 
 <DxChart Data="@Data">
     <DxChartTitle Text="@Title" />
-    <DxChartTooltip Enabled="true" Position="RelativePosition.Outside">
+    <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
         @{
             var total = 0.0;
-            this.Data.FindAll(s => s.Domain.Equals(@context.Point.Argument)).ForEach(s => total += s.Value);
+            var data = this.Data.FindAll(s => s.Domain.Equals(@context.Point.Argument));
+            data.ForEach(s => total += s.Value);
             var number = Math.Round((double) ((int) @context.Point.Value / total) * 100);
+            var criteria = @context.Point.SeriesName;
         }
         
-        <div style="margin: 0.75rem">
+        <div style="margin: 0.1rem">
             @if (!double.IsNaN(number))
             {
                 <div>@number %</div>
@@ -39,6 +42,7 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 <div>-</div>
             }
+            <a class="color-title" @onclick="() => AccessDataDetails(data.FindAll(d => d.Argument.Equals(criteria)))">More</a>
         </div>
     </DxChartTooltip>
     <DxChartStackedBarSeries Name="@NameSerie1" Filter="@((DataChart s) => s.Argument.Equals(NameSerie1))"
@@ -74,4 +78,21 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public string NameSerie2 { get; set; }
+
+    /// <summary>
+    /// Navigate to the page with details for these selected data
+    /// </summary>
+    /// <param name="data">List of the selected data</param>
+    public void AccessDataDetails(List<DataChart> data)
+    {
+        string iids = "";
+        data.ForEach(d =>
+        {
+            if (d.Parameters.Any())
+            {
+                d.Parameters.ForEach(p => iids += $"|{p.Iid.ToString()}");
+            }
+        });
+        NavigationManager.NavigateTo($"/ModelDashboard/Details?iids={iids}");
+    }
 }

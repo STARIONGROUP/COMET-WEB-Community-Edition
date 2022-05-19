@@ -21,69 +21,123 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/ModelDashboard"
+@inject ISessionAnchor ISessionAnchor
+@inject NavigationManager NavigationManager
 
 <ApplicationTemplate Title="Model Dashboard">
     <Body>
-        <select @oninput="UpdateChoice">
-            <option value="defaultActualValues">Actual values as default</option>
-            <option value="publishedValues" selected="selected">Published Values</option>
-            <option value="defaultPublishedValues">Published values as default</option>
-        </select>
+        <div class="display-flex flex-row">
+            <div>
+                <h6>Filter on values :</h6>
+                <select @oninput="UpdateFilterType">
+                    <option value="defaultActualValues">Actual values as default</option>
+                    <option value="publishedValues" selected="selected">Published Values</option>
+                    <option value="defaultPublishedValues">Published values as default</option>
+                </select>
+            </div>
+            @if(ISessionAnchor.OpenIteration.Option.ToList().Count > 1)
+            {
+                <div class="m-left-10px">
+                    <h6>Filter on options :</h6>
+                    <select @oninput="UpdateFilterOption">
+                        <option value="">--Select--</option>
+                        @foreach(var option in ISessionAnchor.OpenIteration.Option.ToList())
+                        {
+                            <option value="@option.Name">@option.Name</option>
+                        }
+                    </select>
+                </div>
+            }
+            @if (ISessionAnchor.OpenIteration.ActualFiniteStateList.Any())
+            {
+                <div class="m-left-10px">
+                    <h6>Filter on states :</h6>
+                    <select @oninput="UpdateFilterState">
+                        <option value="">--Select--</option>
+                        @foreach(var stateList in ISessionAnchor.OpenIteration.ActualFiniteStateList)
+                        {
+                            @foreach(var state in stateList.ActualState)
+                            {
+                                <option value="@state.Name">@state.Name</option>
+                            }    
+                        }
+                    </select>
+                </div>
+            }
+        </div>
 
-        @switch (this.Choice)
+        @if (this.FilterType.Equals("publishedValues"))
         {
-            case DataChoice.DefaultActualValues:
-                <DefaultValues ValuesType="Actual" />
-                break;
-            case DataChoice.PublishedValues:
-                <PublishedValues />
-                break;
-            case DataChoice.DefaultPublishedValues:
-                <DefaultValues ValuesType="Published" />
-                break;    
+            <PublishedValues FilterOption="@FilterOption" FilterState="@FilterState"/>
+        } else if (this.FilterType.Equals("defaultActualValues"))
+        {
+            <DefaultValues ValuesType="Actual" FilterOption="@FilterOption" FilterState="@FilterState" />
+        } else
+        {
+            <DefaultValues ValuesType="Published"  FilterOption="@FilterOption" FilterState="@FilterState"/>  
         }
+
     </Body>
 </ApplicationTemplate>
 
 @code{
+    /// <summary>
+    /// The filter on values type
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? FilterType { get; set; }
 
     /// <summary>
-    /// Enum of possible values to represent in the graph
+    /// The filter on option
     /// </summary>
-    public enum DataChoice
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? FilterOption { get; set; }
+
+    /// <summary>
+    /// The filter on state
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? FilterState { get; set; }
+
+    /// <summary>
+    /// Get selected filter on url page
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        DefaultActualValues,
-        PublishedValues,
-        DefaultPublishedValues
+        this.FilterType = FilterType ?? "publishedValues";
+        this.FilterOption = FilterOption ?? "";
+        this.FilterState = FilterState ?? "";
     }
 
     /// <summary>
-    /// The selected type of values to represent in the graph
-    /// </summary>
-    public DataChoice Choice { get; set; } = DataChoice.PublishedValues;
-
-    /// <summary>
-    /// Update the component depending on the selected <see cref="DataChoice"/>
+    /// Navigate to the page depending on the selected <see cref="FilterType"/>
     /// </summary>
     /// <param name="e">Event raised when any change appears in the select component</param>
-    public void UpdateChoice(ChangeEventArgs e)
+    public void UpdateFilterType(ChangeEventArgs e)
     {
-        Console.WriteLine(e.Value.ToString());
-        if (e.Value.ToString().Equals("defaultActualValues"))
-        {
-            Choice = DataChoice.DefaultActualValues;
-            this.StateHasChanged();
-        } else if (e.Value.ToString().Equals("publishedValues"))
-        {
-            Choice = DataChoice.PublishedValues;
-            this.StateHasChanged();
-        } else if (e.Value.ToString().Equals("defaultPublishedValues"))
-        {
-            Choice = DataChoice.DefaultPublishedValues;
-            this.StateHasChanged();
-        }
+        NavigationManager.NavigateTo($"/ModelDashboard?filtertype={e.Value?.ToString()}&filteroption={this.FilterOption}&filterstate={this.FilterState}");
     }
 
+    /// <summary>
+    /// Navigate to the page depending on the selected <see cref="FilterOption"/>
+    /// </summary>
+    /// <param name="e">Event raised when any change appears in the select component</param>
+    public void UpdateFilterOption(ChangeEventArgs e)
+    {
+        NavigationManager.NavigateTo($"/ModelDashboard?filtertype={this.FilterType}&filteroption={e.Value?.ToString()}&filterstate={this.FilterState}");
+    }
+
+    /// <summary>
+    /// Navigate to the page depending on the selected <see cref="FilterState"/>
+    /// </summary>
+    /// <param name="e">Event raised when any change appears in the select component</param>
+    public void UpdateFilterState(ChangeEventArgs e)
+    {
+        NavigationManager.NavigateTo($"/ModelDashboard?filtertype={this.FilterType}&filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}");
+    }
 }
 
 

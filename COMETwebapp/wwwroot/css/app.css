@@ -136,3 +136,7 @@ html, body, #app {
 .zoom-1-5{
     zoom: 1.5;
 }
+
+.m-left-10px{
+    margin-left: 10px;
+}
