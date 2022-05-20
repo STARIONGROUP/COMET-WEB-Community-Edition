@@ -29,9 +29,9 @@ Copyright (c) 2022 RHEA System S.A.
         <div class="display-flex flex-row">
             <div>
                 <h6>Filter on values :</h6>
-                <select @oninput="UpdateFilterType">
+                <select @bind="this.FilterType" @oninput="UpdateFilterType">
                     <option value="defaultActualValues">Actual values as default</option>
-                    <option value="publishedValues" selected="selected">Published Values</option>
+                    <option value="publishedValues">Published Values</option>
                     <option value="defaultPublishedValues">Published values as default</option>
                 </select>
             </div>
@@ -39,11 +39,11 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 <div class="m-left-10px">
                     <h6>Filter on options :</h6>
-                    <select @oninput="UpdateFilterOption">
+                    <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
                         <option value="">--Select--</option>
                         @foreach(var option in ISessionAnchor.OpenIteration.Option.ToList())
                         {
-                            <option value="@option.Name">@option.Name</option>
+                            <option value="@option.Iid">@option.Name</option>
                         }
                     </select>
                 </div>
@@ -52,13 +52,13 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 <div class="m-left-10px">
                     <h6>Filter on states :</h6>
-                    <select @oninput="UpdateFilterState">
+                    <select @bind="this.FilterState" @oninput="UpdateFilterState">
                         <option value="">--Select--</option>
                         @foreach(var stateList in ISessionAnchor.OpenIteration.ActualFiniteStateList)
                         {
                             @foreach(var state in stateList.ActualState)
                             {
-                                <option value="@state.Name">@state.Name</option>
+                                <option value="@state.Iid">@state.Name</option>
                             }    
                         }
                     </select>
@@ -93,14 +93,14 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     [SupplyParameterFromQuery]
-    public string? FilterOption { get; set; }
+    public Guid? FilterOption { get; set; }
 
     /// <summary>
     /// The filter on state
     /// </summary>
     [Parameter]
     [SupplyParameterFromQuery]
-    public string? FilterState { get; set; }
+    public Guid? FilterState { get; set; }
 
     /// <summary>
     /// Get selected filter on url page
@@ -108,8 +108,8 @@ Copyright (c) 2022 RHEA System S.A.
     protected override void OnParametersSet()
     {
         this.FilterType = FilterType ?? "publishedValues";
-        this.FilterOption = FilterOption ?? "";
-        this.FilterState = FilterState ?? "";
+        this.FilterOption = FilterOption ?? null;
+        this.FilterState = FilterState ?? null;
     }
 
     /// <summary>

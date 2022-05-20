@@ -42,19 +42,20 @@ namespace COMETwebapp.Model
         public int Value { get; set; }
 
         /// <summary>
-        /// The domain of expertise of the data
+        /// Name of the domain of expertise of data
+        /// This value is used as legend in graphs.
         /// </summary>
         public string Domain { get; set; }
 
         /// <summary>
         /// The actual option of the data
         /// </summary>
-        public string Option { get; set; }
+        public Guid Option { get; set; }
 
         /// <summary>
         /// The actual state of the data
         /// </summary>
-        public string? State { get; set; }
+        public Guid? State { get; set; }
 
         /// <summary>
         /// List of <see cref="ParameterValueSet"/> associated to the <see cref="DataChart"/>
