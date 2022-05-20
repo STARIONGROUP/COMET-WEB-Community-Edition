@@ -22,17 +22,18 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @using DevExpress.Blazor
 
+<h6>A parameter is published if actual value = published value </h6>
 <div class="display-flex flex-column">
     <div class="display-flex flex-row">
 
         <ChartDonutSeries Title="Test1" Data=Filter(Data)/>
 
-        <FullStackedBarSeries Title="Test2" Data=Filter(Data) NameSerie1="Published values" NameSerie2="Publishable values"/>
+        <FullStackedBarSeries Title="Test2" Data=Filter(Data) NameSerie1="Published parameters" NameSerie2="Publishable parameters"/>
     </div>
     <div class="display-flex flex-row">
-        <ChartBarSeries Title="Test3" Data=Filter(Data) NameSerie1="Published values" NameSerie2="Publishable values"/>
+        <ChartBarSeries Title="Test3" Data=Filter(Data) NameSerie1="Published parameters" NameSerie2="Publishable parameters"/>
 
-        <ChartStackedBarSeries Title="Test4" Data=Filter(Data)  NameSerie1="Published values" NameSerie2="Publishable values"/>
+        <ChartStackedBarSeries Title="Test4" Data=Filter(Data)  NameSerie1="Published parameters" NameSerie2="Publishable parameters"/>
     </div>
 </div>
 
@@ -81,7 +82,7 @@ Copyright (c) 2022 RHEA System S.A.
                             Data.Add(new DataChart()
                             {
                                 Value = nbPublishedValues,
-                                Argument = "Published values",
+                                Argument = "Published parameters",
                                 Domain = d.ShortName,
                                 Option = o.Iid,
                                 State = s.Iid,
@@ -90,7 +91,7 @@ Copyright (c) 2022 RHEA System S.A.
                             Data.Add(new DataChart()
                             {
                                 Value = parameterStates.Count - nbPublishedValues,
-                                Argument = "Publishable values",
+                                Argument = "Publishable parameters",
                                 Domain = d.ShortName,
                                 Option = o.Iid,
                                 State = s.Iid,
@@ -103,7 +104,7 @@ Copyright (c) 2022 RHEA System S.A.
                         Data.Add(new DataChart()
                             {
                                 Value = nbPublishedValues,
-                                Argument = "Published values",
+                                Argument = "Published parameters",
                                 Domain = d.ShortName,
                                 Option = o.Iid,
                                 Parameters = parameterValueSets
@@ -111,7 +112,7 @@ Copyright (c) 2022 RHEA System S.A.
                         Data.Add(new DataChart()
                         {
                             Value = parameterOptions.Count - nbPublishedValues,
-                            Argument = "Publishable values",
+                            Argument = "Publishable parameters",
                             Domain = d.ShortName,
                             Option = o.Iid,
                             Parameters = parameterOptions.FindAll(p => !parameterValueSets.Contains(p))
@@ -123,14 +124,14 @@ Copyright (c) 2022 RHEA System S.A.
                     Data.Add(new DataChart()
                     {
                         Value = nbPublishedValues,
-                        Argument = "Published values",
+                        Argument = "Published parameters",
                         Domain = d.ShortName,
                         Parameters = parameterValueSets
                     });
                     Data.Add(new DataChart()
                     {
                         Value = parameterDomains.Count - nbPublishedValues,
-                        Argument = "Publishable values",
+                        Argument = "Publishable parameters",
                         Domain = d.ShortName,
                         Parameters = parameterDomains.FindAll(p => !parameterValueSets.Contains(p))
                     });
@@ -148,7 +149,7 @@ Copyright (c) 2022 RHEA System S.A.
                         Data.Add(new DataChart()
                             {
                                 Value = nbPublishedValues,
-                                Argument = "Published values",
+                                Argument = "Published parameters",
                                 Domain = d.ShortName,
                                 Option = o.Iid,
                                 Parameters = parameterValueSets
@@ -156,7 +157,7 @@ Copyright (c) 2022 RHEA System S.A.
                         Data.Add(new DataChart()
                         {
                             Value = parameterOptions.Count - nbPublishedValues,
-                            Argument = "Publishable values",
+                            Argument = "Publishable parameters",
                             Domain = d.ShortName,
                             Option = o.Iid,
                             Parameters = parameterOptions.FindAll(p => !parameterValueSets.Contains(p))
@@ -168,14 +169,14 @@ Copyright (c) 2022 RHEA System S.A.
                     Data.Add(new DataChart()
                     {
                         Value = nbPublishedValues,
-                        Argument = "Published values",
+                        Argument = "Published parameters",
                         Domain = d.ShortName,
                         Parameters = parameterValueSets
                     });
                     Data.Add(new DataChart()
                     {
                         Value = parameterDomains.Count - nbPublishedValues,
-                        Argument = "Publishable values",
+                        Argument = "Publishable parameters",
                         Domain = d.ShortName,
                         Parameters = parameterDomains.FindAll(p => !parameterValueSets.Contains(p))
                     });

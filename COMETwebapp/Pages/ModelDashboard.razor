@@ -31,7 +31,7 @@ Copyright (c) 2022 RHEA System S.A.
                 <h6>Filter on values :</h6>
                 <select @bind="this.FilterType" @oninput="UpdateFilterType">
                     <option value="defaultActualValues">Actual values as default</option>
-                    <option value="publishedValues">Published Values</option>
+                    <option value="publishedParameters">Published Parameters</option>
                     <option value="defaultPublishedValues">Published values as default</option>
                 </select>
             </div>
@@ -66,7 +66,7 @@ Copyright (c) 2022 RHEA System S.A.
             }
         </div>
 
-        @if (this.FilterType.Equals("publishedValues"))
+        @if (this.FilterType.Equals("publishedParameters"))
         {
             <PublishedValues FilterOption="@FilterOption" FilterState="@FilterState"/>
         } else if (this.FilterType.Equals("defaultActualValues"))
@@ -107,7 +107,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnParametersSet()
     {
-        this.FilterType = FilterType ?? "publishedValues";
+        this.FilterType = FilterType ?? "publishedParameters";
         this.FilterOption = FilterOption ?? null;
         this.FilterState = FilterState ?? null;
     }
