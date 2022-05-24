@@ -27,14 +27,6 @@ Copyright (c) 2022 RHEA System S.A.
 <ApplicationTemplate Title="Model Dashboard">
     <Body>
         <div class="display-flex flex-row">
-            <div>
-                <h6>Filter on values :</h6>
-                <select @bind="this.FilterType" @oninput="UpdateFilterType">
-                    <option value="defaultActualValues">Actual values as default</option>
-                    <option value="publishedParameters">Published Parameters</option>
-                    <option value="defaultPublishedValues">Published values as default</option>
-                </select>
-            </div>
             @if(ISessionAnchor.OpenIteration.Option.ToList().Count > 1)
             {
                 <div class="m-left-10px">
@@ -65,29 +57,11 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             }
         </div>
-
-        @if (this.FilterType.Equals("publishedParameters"))
-        {
-            <PublishedValues FilterOption="@FilterOption" FilterState="@FilterState"/>
-        } else if (this.FilterType.Equals("defaultActualValues"))
-        {
-            <DefaultValues ValuesType="Actual" FilterOption="@FilterOption" FilterState="@FilterState" />
-        } else
-        {
-            <DefaultValues ValuesType="Published"  FilterOption="@FilterOption" FilterState="@FilterState"/>  
-        }
-
+        <Dashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
     </Body>
 </ApplicationTemplate>
 
 @code{
-    /// <summary>
-    /// The filter on values type
-    /// </summary>
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public string? FilterType { get; set; }
-
     /// <summary>
     /// The filter on option
     /// </summary>
@@ -107,18 +81,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnParametersSet()
     {
-        this.FilterType = FilterType ?? "publishedParameters";
         this.FilterOption = FilterOption ?? null;
         this.FilterState = FilterState ?? null;
-    }
-
-    /// <summary>
-    /// Navigate to the page depending on the selected <see cref="FilterType"/>
-    /// </summary>
-    /// <param name="e">Event raised when any change appears in the select component</param>
-    public void UpdateFilterType(ChangeEventArgs e)
-    {
-        NavigationManager.NavigateTo($"/ModelDashboard?filtertype={e.Value?.ToString()}&filteroption={this.FilterOption}&filterstate={this.FilterState}");
     }
 
     /// <summary>
@@ -127,7 +91,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event raised when any change appears in the select component</param>
     public void UpdateFilterOption(ChangeEventArgs e)
     {
-        NavigationManager.NavigateTo($"/ModelDashboard?filtertype={this.FilterType}&filteroption={e.Value?.ToString()}&filterstate={this.FilterState}");
+        NavigationManager.NavigateTo($"/ModelDashboard?filteroption={e.Value?.ToString()}&filterstate={this.FilterState}");
     }
 
     /// <summary>
@@ -136,7 +100,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event raised when any change appears in the select component</param>
     public void UpdateFilterState(ChangeEventArgs e)
     {
-        NavigationManager.NavigateTo($"/ModelDashboard?filtertype={this.FilterType}&filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}");
+        NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}");
     }
 }
 

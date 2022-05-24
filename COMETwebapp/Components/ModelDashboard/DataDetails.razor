@@ -1,0 +1,190 @@
+﻿@using System.Collections.ObjectModel
+<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
+
+@page "/ModelDashboard/Details"
+
+<div>
+    <h5>Details</h5>
+    <DxDataGrid Data="@Parameters" PageSize="0">
+        <DxDataGridColumn Field="@nameof(BuiltParameter.ElementName)" Width="200px" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Name)" Caption="Parameter" Width="150px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Domain)" Width="100px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Option)" Width="70px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.State)" Width="70px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.ActualValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
+            <DisplayTemplate>
+                @{
+                    var intvalue = (context as BuiltParameter).ActualValue;
+                 }
+                <a>@intvalue.First()</a>
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.PublishedValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
+            <DisplayTemplate>
+                @{
+                    var intvalue = (context as BuiltParameter).PublishedValue;
+                 }
+                <a>@intvalue.First()</a>
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
+    </DxDataGrid>
+</div>
+
+@code {
+    /// <summary>
+    /// <see cref="Guid"> of the option to filter the data 
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? FilterOption { get; set; }
+
+    /// <summary>
+    /// <see cref="Guid"> of the state to filter the data
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? FilterState { get; set; }
+
+    /// <summary>
+    /// The criteria to filter ParameterValueSet list
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Criteria { get; set; }
+
+    /// <summary>
+    /// ShortName Domain to filter ParameterValueSet list
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Domain { get; set; }
+
+    /// <summary>
+    /// Get selected filter on url page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        this.FilterOption = FilterOption ?? null;
+        this.FilterState = FilterState ?? null;
+        this.Criteria = Criteria ?? null;
+        this.Domain = Domain ?? null;
+    }
+
+    /// <summary>
+    /// List of <see cref="BuiltParameter"> in the table
+    /// </summary>
+    public ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
+
+    /// <summary>
+    /// Initialize the <see cref="BuiltParameter"> list showed in the table
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (Criteria is not null && Domain is not null && ISessionAnchor.OpenIteration != null)
+        {
+            List<ElementDefinition> elements = ISessionAnchor.OpenIteration.Element;
+
+            List<Parameter> parameters = new List<Parameter>();
+            elements.ForEach(element => parameters.AddRange(element.Parameter));
+
+            List<ParameterValueSet> parameterValueSets = ISessionAnchor.GetParameterValueSets();
+
+            this.FilterDomainCriteriaOptionState(parameterValueSets).ForEach(valueSet =>
+            {
+                var associatedParameter = parameters.Find(p => p.ValueSet.Contains(valueSet));
+                Parameters.Add(new BuiltParameter()
+                {
+                    Name = associatedParameter?.ParameterType?.Name,
+                    ElementName = elements.Find(element => element.Parameter.Contains(associatedParameter))?.Name,
+                    Domain = valueSet.Owner.ShortName,
+                    Option = ISessionAnchor.OpenIteration.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name,
+                    State = valueSet.ActualState?.Name,
+                    Scale = associatedParameter?.Scale?.ShortName,
+                    ActualValue = valueSet.ActualValue,
+                    PublishedValue = valueSet.Published
+                });
+            });
+        }
+    }
+
+    /// <summary>
+    /// Filter the given ParameterValueSet list with criteria, domain, option and state filters
+    /// </summary>
+    /// <param name="parameterValueSets">List of ParameterValueSet to filter</param>
+    /// <returns>The filtered list</returns>
+    private List<ParameterValueSet> FilterDomainCriteriaOptionState(List<ParameterValueSet> parameterValueSets)
+    {
+        parameterValueSets.RemoveAll(p => !p.Owner.ShortName.Equals(this.Domain));
+
+        if (this.Criteria is not null && this.Criteria.Equals("Published parameters"))
+        {
+            parameterValueSets.RemoveAll(p => !p.Published.SequenceEqual(p.ActualValue));
+
+        } else if(this.Criteria is not null && this.Criteria.Equals("Publishable parameters"))
+        {
+            parameterValueSets.RemoveAll(p => p.Published.SequenceEqual(p.ActualValue));
+
+        } else if (this.Criteria is not null && this.Criteria.Equals("Published values as default"))
+        {
+            parameterValueSets.RemoveAll(p => p.Published.Count(el => !el.Equals("-")) != 0);
+
+        } else if (this.Criteria is not null && this.Criteria.Equals("Other values"))
+        {
+            parameterValueSets.RemoveAll(p => p.Published.Count(el => !el.Equals("-")) == 0);
+        }
+
+        if (this.FilterOption != null)
+        {
+            List<NestedParameter> nestedParameters = new List<NestedParameter>();
+            ISessionAnchor.OpenIteration.Option.ToList()
+                .Find(o => o.Iid == this.FilterOption)?
+                .NestedElement.ForEach(element => nestedParameters.AddRange(element.NestedParameter));
+
+            if (nestedParameters.Count != 0)
+            {
+                nestedParameters.ForEach(nestedParameter =>
+                {
+                    parameterValueSets.ForEach(p =>
+                    {
+                        if (nestedParameter.AssociatedParameter.ValueSets.Contains(p))
+                        {
+                            parameterValueSets.Remove(p);
+                        }
+                    });
+                });
+            } else
+            {
+                parameterValueSets.Clear();
+            }
+        }
+
+        if (this.FilterState != null)
+        {
+            parameterValueSets.RemoveAll(d => d.ActualState == null || (d.ActualState != null && d.ActualState.Iid != this.FilterState));
+        }
+
+        return parameterValueSets;
+    }
+}

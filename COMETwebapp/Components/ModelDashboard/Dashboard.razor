@@ -1,0 +1,101 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
+
+<DonutDashboard Data="Filter(Data)" />
+
+<div class="display-flex flex-row">
+    <PublishedParameters Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" /> 
+
+    <DefaultValues Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" />
+</div>
+
+@code {
+    /// <summary>
+    /// <see cref="Guid"> of the option to filter the data 
+    /// </summary>
+    [Parameter]
+    public Guid? FilterOption { get; set; }
+
+    /// <summary>
+    /// <see cref="Guid"> of the state to filter the data
+    /// </summary>
+    [Parameter]
+    public Guid? FilterState { get; set; }
+
+    /// <summary>
+    /// ParameterValueSet represented in graphs
+    /// </summary>
+    public List<ParameterValueSet> Data { get; set; }
+
+    /// <summary>
+    /// Filter data to show in the graph
+    /// </summary>
+    /// <param name="data">List of all data in the project</param>
+    /// <returns>The list of filtered <see cref="DataChart"></returns>
+    public List<ParameterValueSet> Filter(List<ParameterValueSet> data)
+    {
+        List<ParameterValueSet> result = new List<ParameterValueSet>();
+        result.AddRange(data);
+        if (this.FilterOption != null)
+        {
+            List<NestedParameter> nestedParameters = new List<NestedParameter>();
+            ISessionAnchor.OpenIteration.Option.ToList()
+                .Find(o => o.Iid == this.FilterOption)?
+                .NestedElement.ForEach(element => nestedParameters.AddRange(element.NestedParameter));
+
+            if (nestedParameters.Count != 0)
+            {
+                nestedParameters.ForEach(nestedParameter =>
+                {
+                    result.ForEach(p =>
+                    {
+                        if (nestedParameter.AssociatedParameter.ValueSets.Contains(p))
+                        {
+                            result.Remove(p);
+                        }
+                    });
+                });
+            } else
+            {
+                result.Clear();
+            }
+        }
+
+        if (this.FilterState != null)
+        {
+            result.RemoveAll(d => d.ActualState == null || (d.ActualState != null && d.ActualState.Iid != this.FilterState));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Initialize data for the graphs with all ParameterValueSet from the opened iteration
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (ISessionAnchor.OpenIteration != null)
+        {
+            this.Data = ISessionAnchor.GetParameterValueSets();
+        }
+    }
+}
