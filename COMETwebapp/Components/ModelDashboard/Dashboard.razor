@@ -21,12 +21,14 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
 
-<DonutDashboard Data="Filter(Data)" />
+<div class="dashboard">
+    <DonutDashboard Data="Filter(Data)" />
 
-<div class="display-flex flex-row">
-    <PublishedParameters Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" /> 
+    <div class="dashboard-chart">
+        <PublishedParameters Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" /> 
 
-    <DefaultValues Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" />
+        <DefaultValues Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" />
+    </div>
 </div>
 
 @code {

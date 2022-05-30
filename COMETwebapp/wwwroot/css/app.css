@@ -1,4 +1,4 @@
-@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -139,4 +139,63 @@ html, body, #app {
 
 .m-left-10px{
     margin-left: 10px;
+}
+
+@media (max-width: 1199.98px) {
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dashboard-chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (min-width: 1200px) {
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dashboard-chart {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (min-width: 1500px) {
+    .dashboard {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+    .dashboard-chart {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 }

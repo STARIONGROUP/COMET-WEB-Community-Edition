@@ -23,7 +23,7 @@ Copyright (c) 2022 RHEA System S.A.
 @using DevExpress.Blazor
 @inject NavigationManager NavigationManager
 
-<div class="display-flex flex-column align-items-center">
+<div class="chart">
     <h3>Published Parameters</h3>
     <div>
     <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
@@ -48,7 +48,7 @@ Copyright (c) 2022 RHEA System S.A.
     </DxChart>
     </div>
     <div>
-    <DxChart Data="@Data">
+    <DxChart Data="@Data" CssClass="justify-content-center width-100">
         <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
             @{
                 var total = this.Data.FindAll(d => d.Owner.ShortName.Equals(@context.Point.Argument)).Count;
