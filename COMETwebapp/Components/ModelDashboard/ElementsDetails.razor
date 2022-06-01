@@ -1,0 +1,123 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
+@page "/ModelDashboard/ElementsDetails"
+
+<div>
+    <h5>Details</h5>
+    <DxDataGrid Data="@Elements" PageSize="0">
+        <DxDataGridColumn Field="@nameof(BuildElement.Name)" Width="200px" Caption="Name" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+        <DxDataGridColumn Field="@nameof(BuildElement.ShortName)" Caption="ShortName" Width="150px" TextAlignment="DataGridTextAlign.Center"/>
+        <DxDataGridColumn Field="@nameof(BuildElement.Owner)" Caption="Domain" Width="100px" TextAlignment="DataGridTextAlign.Center"/>
+    </DxDataGrid>
+</div>
+
+@code {
+    /// <summary>
+    /// The criteria to filter ElementDefinition list
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Criteria { get; set; }
+
+    /// <summary>
+    /// ShortName Domain to filter ElementDefinition list
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Domain { get; set; }
+
+    /// <summary>
+    /// Get selected filter on url page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        this.Criteria = Criteria ?? null;
+        this.Domain = Domain ?? null;
+    }
+
+    /// <summary>
+    /// The built element to show in the table
+    /// </summary>
+    public class BuildElement
+    {
+        public string Name { get; set; }
+        public string ShortName { get; set; }
+        public string Owner { get; set; }
+    }
+
+    /// <summary>
+    /// List of <see cref="BuildElement"> in the table
+    /// </summary>
+    public ObservableCollection<BuildElement> Elements = new ObservableCollection<BuildElement>();
+
+    /// <summary>
+    /// Initialize the Elements list with BuildElement to show
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        IterationService iterationService = new IterationService(ISessionAnchor.OpenIteration);
+        List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions();
+        List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements();
+
+        if (Criteria is not null && Domain is not null && ISessionAnchor.OpenIteration != null)
+        {
+            List<ElementDefinition> elements = new List<ElementDefinition>();
+            elements.AddRange(ISessionAnchor.OpenIteration.Element.FindAll(e => e.Owner.ShortName.Equals(this.Domain)));
+
+            if (this.Criteria.Equals("Unused Elements"))
+            {
+                elements.FindAll(e => unusedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
+                {
+                    Name = e.Name,
+                    ShortName = e.ShortName,
+                    Owner = e.Owner.Name
+                }));
+
+            } else if (this.Criteria.Equals("Used Elements"))
+            {
+                elements.FindAll(e => !unusedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
+                {
+                    Name = e.Name,
+                    ShortName = e.ShortName,
+                    Owner = e.Owner.Name
+                }));
+            } else if (this.Criteria.Equals("Unreferenced Elements"))
+            {
+                elements.FindAll(e => unreferencedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
+                {
+                    Name = e.Name,
+                    ShortName = e.ShortName,
+                    Owner = e.Owner.Name
+                }));
+            } else
+            {
+                elements.FindAll(e => !unreferencedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
+                {
+                    Name = e.Name,
+                    ShortName = e.ShortName,
+                    Owner = e.Owner.Name
+                }));
+            }
+        }
+    }
+}

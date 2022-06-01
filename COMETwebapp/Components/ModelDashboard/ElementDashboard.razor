@@ -19,37 +19,27 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject ISessionAnchor sessionAnchor
+@inject ISessionAnchor ISessionAnchor
 
-<div class="display-flex flex-row">
-    <div class="display-flex flex-column width-100 align-items-center justify-content-center">
-        <h3 class="font-weight-bold color-title">@Title</h3>
-    </div>
-    @if (sessionAnchor.OpenIteration is not null)
-    {
-        <div class="display-flex width-fit-content align-items-center">
-            <CloseModelButton/>
-        </div>
-    }
+<div class="dashboard-chart">
+    <UnusedElements Data="Data" />
+    <UnreferencedElements Data="Data" />
 </div>
-@if (sessionAnchor.OpenIteration is not null)
-{
-    <div>
-        @Body
-    </div>
-}
-
 
 @code {
     /// <summary>
-    /// Title of the application
+    /// ElementDefinition represented in graphs
     /// </summary>
-    [Parameter]
-    public string Title { get; set; }
+    public List<ElementDefinition> Data { get; set; }
 
     /// <summary>
-    /// Body of the application
+    /// Initialize data for the graphs with all ElementDefinition from the opened iteration
     /// </summary>
-    [Parameter]
-    public RenderFragment Body { get; set; }
+    protected override void OnInitialized()
+    {
+        if (ISessionAnchor.OpenIteration != null)
+        {
+            this.Data = ISessionAnchor.OpenIteration.Element;
+        }
+    }
 }

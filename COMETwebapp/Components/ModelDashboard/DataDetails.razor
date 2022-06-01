@@ -1,5 +1,4 @@
-﻿@using System.Collections.ObjectModel
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -22,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
 
-@page "/ModelDashboard/Details"
+@page "/ModelDashboard/ParametersDetails"
 
 <div>
     <h5>Details</h5>
@@ -109,7 +108,8 @@ Copyright (c) 2022 RHEA System S.A.
             List<Parameter> parameters = new List<Parameter>();
             elements.ForEach(element => parameters.AddRange(element.Parameter));
 
-            List<ParameterValueSet> parameterValueSets = ISessionAnchor.GetParameterValueSets();
+            IterationService iterationService = new IterationService(ISessionAnchor.OpenIteration);
+            List<ParameterValueSet> parameterValueSets = iterationService.GetParameterValueSets();
 
             this.FilterDomainCriteriaOptionState(parameterValueSets).ForEach(valueSet =>
             {

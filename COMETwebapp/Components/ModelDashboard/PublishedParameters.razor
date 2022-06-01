@@ -27,15 +27,15 @@ Copyright (c) 2022 RHEA System S.A.
     <h3>Published Parameters</h3>
     <div>
     <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.SkyBlue" Name="Published parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
-                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                    AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Position="RelativePosition.Inside" />
-        </DxChartFullStackedBarSeries>
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                     AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Position="RelativePosition.Inside"/>
+        </DxChartFullStackedBarSeries>
+        <DxChartFullStackedBarSeries Color="System.Drawing.Color.SkyBlue" Name="Published parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
+                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                    AggregationMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Position="RelativePosition.Inside" />
         </DxChartFullStackedBarSeries>
         <DxChartLegend Visible="false" />
         <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
@@ -68,10 +68,10 @@ Copyright (c) 2022 RHEA System S.A.
 
             </div>
         </DxChartTooltip>
-        <DxChartStackedBarSeries Color="System.Drawing.Color.SkyBlue" Name="Published parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
+        <DxChartStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                     AggregationMethod="Enumerable.Sum" />
-        <DxChartStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
+        <DxChartStackedBarSeries Color="System.Drawing.Color.SkyBlue" Name="Published parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                     AggregationMethod="Enumerable.Sum" />
         <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
@@ -136,16 +136,16 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if(this.FilterOption is null && this.FilterState is null)
         {
-            NavigationManager.NavigateTo($"ModelDashboard/Details?criteria={criteria}&domain={domain}");
+            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?criteria={criteria}&domain={domain}");
         } else if (this.FilterOption is null && this.FilterState is not null)
         {
-            NavigationManager.NavigateTo($"ModelDashboard/Details?filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
+            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
         } else if (this.FilterOption is not null && this.FilterState is null)
         {
-            NavigationManager.NavigateTo($"ModelDashboard/Details?filteroption={this.FilterOption}&criteria={criteria}&domain={domain}");
+            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&criteria={criteria}&domain={domain}");
         } else
         {
-            NavigationManager.NavigateTo($"ModelDashboard/Details?filteroption={this.FilterOption}&filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
+            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
         }
     }
 }

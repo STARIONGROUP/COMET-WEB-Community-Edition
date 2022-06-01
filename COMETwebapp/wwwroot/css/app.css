@@ -141,6 +141,17 @@ html, body, #app {
     margin-left: 10px;
 }
 
+::deep .dx-blazor-widget .dx-chart {
+    justify-content: center
+}
+
+.chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+
 @media (max-width: 1199.98px) {
     .dashboard {
         display: flex;
@@ -149,12 +160,6 @@ html, body, #app {
     }
 
     .dashboard-chart {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .chart {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -173,12 +178,6 @@ html, body, #app {
         flex-direction: row;
         justify-content: center;
     }
-
-    .chart {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
 }
 
 @media (min-width: 1500px) {
@@ -193,9 +192,5 @@ html, body, #app {
         justify-content: center;
     }
 
-    .chart {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+    
 }
