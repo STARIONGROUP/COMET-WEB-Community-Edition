@@ -99,7 +99,5 @@ namespace COMETwebapp.SessionManagement
         /// A container of <see cref="DomainOfExpertise"/>
         /// </returns>
         IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup);
-
-        List<ParameterValueSet> GetParameterValueSets();
     }
 }

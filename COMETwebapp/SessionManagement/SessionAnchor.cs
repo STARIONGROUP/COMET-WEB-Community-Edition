@@ -54,7 +54,7 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// The opened <see cref="Iteration"/>
         /// </summary>
-        public Iteration OpenIteration { get; set; }
+        public Iteration? OpenIteration { get; set; }
 
         /// <summary>
         /// The <see cref="DomainOfExpertise"/> selected to open a model
@@ -114,7 +114,7 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         public void CloseIteration()
         {
-            this.Session.CloseIterationSetup(this.OpenIteration.IterationSetup);
+            this.Session.CloseIterationSetup(this.OpenIteration?.IterationSetup);
             this.OpenIteration = null;
         }
 
@@ -150,17 +150,6 @@ namespace COMETwebapp.SessionManagement
             var domains = new List<DomainOfExpertise>();
             modelSetup?.Participant.FindAll(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)).ForEach(p => p.Domain.ForEach(d => domains.Add(d)));
             return domains.DistinctBy(d => d.Name).OrderBy(d => d.Name);
-        }
-
-        /// <summary>
-        /// Get all <see cref="ParameterValueSet"/> of the opened iteration
-        /// </summary>
-        /// <returns>All <see cref="ParameterValueSet"/></returns>
-        public List<ParameterValueSet> GetParameterValueSets()
-        {
-            List<ParameterValueSet> result = new List<ParameterValueSet>();
-            this.OpenIteration.Element.ForEach(e => e.Parameter.ForEach(p => result.AddRange(p.ValueSet)));
-            return result;
         }
     }
 }

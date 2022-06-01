@@ -57,8 +57,10 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             }
         </div>
-        <Dashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
-    </Body>
+        <ParameterDashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
+
+        <ElementDashboard />
+</Body>
 </ApplicationTemplate>
 
 @code{
@@ -75,6 +77,11 @@ Copyright (c) 2022 RHEA System S.A.
     [Parameter]
     [SupplyParameterFromQuery]
     public Guid? FilterState { get; set; }
+
+    /// <summary>
+    /// Index of the active widget
+    /// </summary>
+    public int ActiveTabIndex { get; set; } = 0;
 
     /// <summary>
     /// Get selected filter on url page

@@ -20,6 +20,7 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
+@inject IIterationService iterationService
 
 <div class="dashboard">
     <DonutDashboard Data="Filter(Data)" />
@@ -60,22 +61,12 @@ Copyright (c) 2022 RHEA System S.A.
         result.AddRange(data);
         if (this.FilterOption != null)
         {
-            List<NestedParameter> nestedParameters = new List<NestedParameter>();
-            ISessionAnchor.OpenIteration.Option.ToList()
-                .Find(o => o.Iid == this.FilterOption)?
-                .NestedElement.ForEach(element => nestedParameters.AddRange(element.NestedParameter));
-
+            List<NestedParameter> nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>
                 {
-                    result.ForEach(p =>
-                    {
-                        if (nestedParameter.AssociatedParameter.ValueSets.Contains(p))
-                        {
-                            result.Remove(p);
-                        }
-                    });
+                    result.RemoveAll(p => nestedParameter.AssociatedParameter.ValueSets.Contains(p));
                 });
             } else
             {
@@ -97,7 +88,7 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if (ISessionAnchor.OpenIteration != null)
         {
-            this.Data = ISessionAnchor.GetParameterValueSets();
+            this.Data = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
         }
     }
 }
