@@ -26,56 +26,41 @@ Copyright (c) 2022 RHEA System S.A.
 
 <ApplicationTemplate Title="Model Dashboard">
     <Body>
-        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
-            <DxTab Text="Parameters information"></DxTab>
-            <DxTab Text="Elements information"></DxTab>
-        </DxTabs>
-        <div class="card dxbs-border-top-0 dxbs-border-radius-top-0">
-            <div class="card-body">
-                @switch (ActiveTabIndex)
-                {
-                    case 0:
-                        <div class="display-flex flex-row">
-                            @if(ISessionAnchor.OpenIteration.Option.ToList().Count > 1)
+        <div class="display-flex flex-row">
+            @if(ISessionAnchor.OpenIteration.Option.ToList().Count > 1)
+            {
+                <div class="m-left-10px">
+                    <h6>Filter on options :</h6>
+                    <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
+                        <option value="">--Select--</option>
+                        @foreach(var option in ISessionAnchor.OpenIteration.Option.ToList())
+                        {
+                            <option value="@option.Iid">@option.Name</option>
+                        }
+                    </select>
+                </div>
+            }
+            @if (ISessionAnchor.OpenIteration.ActualFiniteStateList.Any())
+            {
+                <div class="m-left-10px">
+                    <h6>Filter on states :</h6>
+                    <select @bind="this.FilterState" @oninput="UpdateFilterState">
+                        <option value="">--Select--</option>
+                        @foreach(var stateList in ISessionAnchor.OpenIteration.ActualFiniteStateList)
+                        {
+                            @foreach(var state in stateList.ActualState)
                             {
-                                <div class="m-left-10px">
-                                    <h6>Filter on options :</h6>
-                                    <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
-                                        <option value="">--Select--</option>
-                                        @foreach(var option in ISessionAnchor.OpenIteration.Option.ToList())
-                                        {
-                                            <option value="@option.Iid">@option.Name</option>
-                                        }
-                                    </select>
-                                </div>
-                            }
-                            @if (ISessionAnchor.OpenIteration.ActualFiniteStateList.Any())
-                            {
-                                <div class="m-left-10px">
-                                    <h6>Filter on states :</h6>
-                                    <select @bind="this.FilterState" @oninput="UpdateFilterState">
-                                        <option value="">--Select--</option>
-                                        @foreach(var stateList in ISessionAnchor.OpenIteration.ActualFiniteStateList)
-                                        {
-                                            @foreach(var state in stateList.ActualState)
-                                            {
-                                                <option value="@state.Iid">@state.Name</option>
-                                            }    
-                                        }
-                                    </select>
-                                </div>
-                            }
-                        </div>
-                        <ParameterDashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
-                        break;
-
-                     case 1 :
-                        <ElementDashboard />
-                        break;
-                }
-            </div>
+                                <option value="@state.Iid">@state.Name</option>
+                            }    
+                        }
+                    </select>
+                </div>
+            }
         </div>
-    </Body>
+        <ParameterDashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
+
+        <ElementDashboard />
+</Body>
 </ApplicationTemplate>
 
 @code{
