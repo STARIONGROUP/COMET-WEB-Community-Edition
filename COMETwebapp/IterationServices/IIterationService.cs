@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IterationService.cs" company="RHEA System S.A.">
+// <copyright file="IIterationService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -25,12 +25,11 @@
 namespace COMETwebapp.IterationServices
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.Helpers;
 
     /// <summary>
     /// Service to access iteration data
     /// </summary>
-    public class IterationService : IIterationService
+    public interface IIterationService
     {
         /// <summary>
         /// Get all <see cref="ParameterValueSet"/> of the given iteration
@@ -39,12 +38,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSet"/>s list is created
         /// </param>
         /// <returns>All <see cref="ParameterValueSet"/></returns>
-        public List<ParameterValueSet> GetParameterValueSets(Iteration iteration)
-        {
-            List<ParameterValueSet> result = new List<ParameterValueSet>();
-            iteration.Element.ForEach(e => e.Parameter.ForEach(p => result.AddRange(p.ValueSet)));
-            return result;
-        }
+        List<ParameterValueSet> GetParameterValueSets(Iteration iteration);
 
         /// <summary>
         /// Get all <see cref="NestedElement"/> of the given iteration for all options
@@ -53,16 +47,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="NestedElement"/>s list is created
         /// </param>
         /// <returns>All <see cref="NestedElement"/></returns>
-        public List<NestedElement> GetNestedElements(Iteration iteration)
-        {
-            NestedElementTreeGenerator nestedElementTreeGenerator = new NestedElementTreeGenerator();
-            List<NestedElement> nestedElements = new List<NestedElement>();
-            if(iteration.TopElement != null)
-            {
-                iteration.Option.ToList().ForEach(option => nestedElements.AddRange(nestedElementTreeGenerator.Generate(option)));
-            }
-            return nestedElements;
-        }
+        List<NestedElement> GetNestedElements(Iteration iteration);
 
         /// <summary>
         /// Get the nested parameters from the given option
@@ -74,17 +59,7 @@ namespace COMETwebapp.IterationServices
         /// The Iid of the option for which the <see cref="NestedParameter"/>s list is created
         /// </param>
         /// <returns>All<see cref="NestedParameter"/> of the given option</returns>
-        public List<NestedParameter> GetNestedParameters(Iteration iteration, Guid? optionIid)
-        {
-            NestedElementTreeGenerator nestedElementTreeGenerator = new NestedElementTreeGenerator();
-            List<NestedParameter> nestedParameters = new List<NestedParameter>();
-            var option = iteration.Option.ToList().Find(o => o.Iid == optionIid);
-            if (option != null && iteration.TopElement != null)
-            {
-                nestedParameters.AddRange(nestedElementTreeGenerator.GetNestedParameters(option));
-            }
-            return nestedParameters;
-        }
+        List<NestedParameter> GetNestedParameters(Iteration iteration, Guid? optionIid);
 
         /// <summary>
         /// Get unused elements defintion of the opened iteration
@@ -94,23 +69,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="ElementDefinition"/>s list is created
         /// </param>
         /// <returns>All unused <see cref="ElementDefinition"/></returns>
-        public List<ElementDefinition> GetUnusedElementDefinitions(Iteration iteration)
-        {
-            List<NestedElement> nestedElements = this.GetNestedElements(iteration);
-
-            List<ElementDefinition> associatedElements = new List<ElementDefinition>();
-            nestedElements.ForEach(element => {
-                element.ElementUsage.ToList().ForEach(e => associatedElements.Add(e.ElementDefinition));
-             });
-            associatedElements = associatedElements.Distinct().ToList();
-
-            List<ElementDefinition> unusedElementDefinitions = new List<ElementDefinition>();
-            unusedElementDefinitions.AddRange(iteration.Element);
-
-            unusedElementDefinitions.RemoveAll(e => associatedElements.Contains(e));
-
-            return unusedElementDefinitions;
-        }
+        List<ElementDefinition> GetUnusedElementDefinitions(Iteration iteration);
 
         /// <summary>
         /// Get all the unreferenced element definitions in the opened iteration
@@ -120,20 +79,8 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="ElementDefinition"/>s list is created
         /// </param>
         /// <returns>All unreferenced <see cref="ElementDefinition"/></returns>
-        public List<ElementDefinition> GetUnreferencedElements(Iteration iteration)
-        {
-            List<ElementUsage> elementUsages = new List<ElementUsage>();
-            iteration.Element.ForEach(e => elementUsages.AddRange(e.ContainedElement));
+        List<ElementDefinition> GetUnreferencedElements(Iteration iteration);
 
-            List<ElementDefinition> associatedElementDefinitions = new List<ElementDefinition>();
-            elementUsages.ForEach(e => associatedElementDefinitions.Add(e.ElementDefinition));
 
-            List<ElementDefinition> unreferencedElementDefinitions = new List<ElementDefinition>();
-            unreferencedElementDefinitions.AddRange(iteration.Element);
-
-            unreferencedElementDefinitions.RemoveAll(e => associatedElementDefinitions.Contains(e));
-
-            return unreferencedElementDefinitions;
-        }
     }
 }

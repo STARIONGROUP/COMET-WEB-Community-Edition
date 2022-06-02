@@ -21,6 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
 @page "/ModelDashboard/ElementsDetails"
+@inject IIterationService iterationService
 
 <div>
     <h5>Details</h5>
@@ -75,9 +76,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        IterationService iterationService = new IterationService(ISessionAnchor.OpenIteration);
-        List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions();
-        List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements();
+        List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.OpenIteration);
+        List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.OpenIteration);
 
         if (Criteria is not null && Domain is not null && ISessionAnchor.OpenIteration != null)
         {

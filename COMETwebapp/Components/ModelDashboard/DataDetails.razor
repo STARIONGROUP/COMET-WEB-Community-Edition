@@ -20,7 +20,7 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
-
+@inject IIterationService iterationService
 @page "/ModelDashboard/ParametersDetails"
 
 <div>
@@ -108,8 +108,7 @@ Copyright (c) 2022 RHEA System S.A.
             List<Parameter> parameters = new List<Parameter>();
             elements.ForEach(element => parameters.AddRange(element.Parameter));
 
-            IterationService iterationService = new IterationService(ISessionAnchor.OpenIteration);
-            List<ParameterValueSet> parameterValueSets = iterationService.GetParameterValueSets();
+            List<ParameterValueSet> parameterValueSets = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
 
             this.FilterDomainCriteriaOptionState(parameterValueSets).ForEach(valueSet =>
             {

@@ -23,6 +23,7 @@ Copyright (c) 2022 RHEA System S.A.
 @using DevExpress.Blazor
 @inject NavigationManager NavigationManager
 @inject ISessionAnchor ISessionAnchor
+@inject IIterationService iterationService
 
 <div class="chart">
     <h3>Unused Elements</h3>
@@ -65,9 +66,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        IterationService iterationService = new IterationService(ISessionAnchor.OpenIteration);
-
-        this.UnUsedElements = iterationService.GetUnusedElementDefinitions();
+        this.UnUsedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.OpenIteration);
     }
 
     /// <summary>
