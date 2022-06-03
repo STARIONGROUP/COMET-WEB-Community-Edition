@@ -1,0 +1,129 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@inject ISessionAnchor ISessionAnchor
+@inject IIterationService iterationService
+
+<div>
+    @if(this.SubscribedParameters.Count == 0)
+    {
+        <div>
+            You don't have any subscriptions.
+        </div>
+    } else {
+        <DxDataGrid Data="@SubscribedParameters" PageSize="0">
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
+                <DisplayTemplate>
+                    @{
+                        var actualValue = (context as ParameterSubscriptionViewModel).ActualValue;
+                        var scalevalue = (context as ParameterSubscriptionViewModel).Scale;
+                        var switchmode = (context as ParameterSubscriptionViewModel).SwitchMode;
+                    }
+                    @if(actualValue?.Count == 1)
+                    {
+                        <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                    } else
+                    {
+                        @foreach(string value in actualValue)
+                        {
+                            <a>value</a>
+                        }
+                        <a>@scalevalue <br/> (@switchmode)</a>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
+                <DisplayTemplate>
+                    @{
+                        var actualValue = (context as ParameterSubscriptionViewModel).SubscribedActualValue;
+                        var scalevalue = (context as ParameterSubscriptionViewModel).SubscribedScale;
+                        var switchmode = (context as ParameterSubscriptionViewModel).SubscribedSwitchMode;
+                    }
+                    @if(actualValue?.Count == 1)
+                    {
+                        <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                    } else
+                    {
+                        @foreach(string value in actualValue)
+                        {
+                            <a>value</a>
+                        }
+                        <a>@scalevalue <br/> (@switchmode)</a>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center"/>
+        </DxDataGrid>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// List of subscribed <see cref="Parameter"> by the current <see cref="DomainOfExpertise">
+    /// </summary>
+    [Parameter]
+    public List<ParameterSubscription> Data { get; set; }
+
+    /// <summary>
+    /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
+    /// </summary>
+    public ObservableCollection<ParameterSubscriptionViewModel> SubscribedParameters = new ObservableCollection<ParameterSubscriptionViewModel>();
+
+    /// <summary>
+    /// Initialize the list of <see cref="ParameterSubscriptionViewModel"> with subscribed <see cref="Parameter">
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        this.Data.ForEach(subscribedparameter => {
+            subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet =>
+            {
+                var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
+
+                var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet.SubscribedValueSet.Iid);
+                var associatedElement = ISessionAnchor.OpenIteration.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
+
+                SubscribedParameters.Add(new ParameterSubscriptionViewModel()
+                {
+                    ElementName = associatedElement?.Name,
+                    ParameterType = subscribedparameter?.ParameterType?.Name,
+                    ModelCode = associatedParameter?.ModelCode(),
+                    ActualValue = parameterSubscriptionValueSet?.ActualValue,
+                    Scale = subscribedparameter?.Scale?.ShortName,
+                    SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
+                    Option = parameterSubscriptionValueSet?.ActualOption?.Name,
+                    State = parameterSubscriptionValueSet?.ActualState?.Name,
+                    SubscribedActualValue = associatedParameterValueSet?.ActualValue,
+                    SubscribedScale = associatedParameter?.Scale.ShortName,
+                    SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
+                    SubscribedOwner = associatedParameterValueSet?.Owner.ShortName
+
+                });
+            });
+        });
+    }
+}
