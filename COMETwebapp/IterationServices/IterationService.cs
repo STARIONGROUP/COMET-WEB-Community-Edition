@@ -26,6 +26,7 @@ namespace COMETwebapp.IterationServices
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
+    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// Service to access iteration data
@@ -134,6 +135,27 @@ namespace COMETwebapp.IterationServices
             unreferencedElementDefinitions.RemoveAll(e => associatedElementDefinitions.Contains(e));
 
             return unreferencedElementDefinitions;
+        }
+
+        /// <summary>
+        /// Get all subcribed <see cref="Parameter"/> by the given domain in the given iteration 
+        /// </summary>
+        /// <param name="iteration">The opened <see cref="Iteration"/></param>
+        /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
+        /// <returns>List of all subcribed <see cref="Parameter"/></returns>
+        public List<Parameter> GetParametersSubscribed(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise)
+        {
+            List<Parameter> subscribedParameters = new List<Parameter>();
+
+            iteration.Element.ForEach(element =>
+            {
+                subscribedParameters.AddRange(
+                    element.Parameter.FindAll(parameter => parameter.ParameterSubscription.Count != 0 &&
+                         parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)).Count != 0)
+                );
+            });
+
+            return subscribedParameters;
         }
     }
 }

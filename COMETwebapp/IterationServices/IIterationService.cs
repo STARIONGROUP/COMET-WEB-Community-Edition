@@ -25,6 +25,7 @@
 namespace COMETwebapp.IterationServices
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// Service to access iteration data
@@ -81,6 +82,13 @@ namespace COMETwebapp.IterationServices
         /// <returns>All unreferenced <see cref="ElementDefinition"/></returns>
         List<ElementDefinition> GetUnreferencedElements(Iteration iteration);
 
+        /// <summary>
+        /// Get all subcribed <see cref="Parameter"/> by the given domain in the given iteration 
+        /// </summary>
+        /// <param name="iteration">The opened <see cref="Iteration"/></param>
+        /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
+        /// <returns>List of all subcribed <see cref="Parameter"/></returns>
+        List<Parameter> GetParametersSubscribed(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise);
 
     }
 }
