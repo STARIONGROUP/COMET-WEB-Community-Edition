@@ -41,6 +41,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        this.SubscribedParameters = iterationService.GetParametersSubscribed(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
     }
 }

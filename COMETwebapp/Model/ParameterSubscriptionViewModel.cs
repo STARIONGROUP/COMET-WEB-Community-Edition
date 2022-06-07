@@ -29,7 +29,7 @@ namespace COMETwebapp.Model
     /// <summary>
     /// Represent information for subscribed parameters
     /// </summary>
-    public class SubscribedParameter
+    public class ParameterSubscriptionViewModel
     {
         /// <summary>
         /// Name of the associated ElementDefinition
@@ -39,7 +39,7 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Type of the ParameterSubcription
         /// </summary>
-        public string? ParameterName { get; set; }
+        public string? ParameterType { get; set; }
 
         /// <summary>
         /// ModelCode of the associated Parameter
@@ -60,6 +60,16 @@ namespace COMETwebapp.Model
         /// Switch Mode in the ParameterSubcriptionValueSet
         /// </summary>
         public string? SwitchMode { get; set; }
+
+        /// <summary>
+        /// Name of the option dependency
+        /// </summary>
+        public string? Option { get; set; }
+
+        /// <summary>
+        /// Name of the state dependency
+        /// </summary>
+        public string? State { get; set; }
 
         /// <summary>
         /// Actual value of the subscribed ParameterValueSet

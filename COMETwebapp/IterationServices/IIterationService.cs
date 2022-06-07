@@ -88,7 +88,7 @@ namespace COMETwebapp.IterationServices
         /// <param name="iteration">The opened <see cref="Iteration"/></param>
         /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
         /// <returns>List of all <see cref="ParameterSubscription"/></returns>
-        List<ParameterSubscription> GetParametersSubscribed(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise);
+        List<ParameterSubscription> GetParameterSubscriptions(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise);
 
     }
 }

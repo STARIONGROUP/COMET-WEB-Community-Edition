@@ -31,30 +31,52 @@ Copyright (c) 2022 RHEA System S.A.
         </div>
     } else {
         <DxDataGrid Data="@SubscribedParameters" PageSize="0">
-            <DxDataGridColumn Field="@nameof(SubscribedParameter.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
-            <DxDataGridColumn Field="@nameof(SubscribedParameter.ParameterName)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
-            <DxDataGridColumn Field="@nameof(SubscribedParameter.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
-            <DxDataGridColumn Field="@nameof(SubscribedParameter.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
                     @{
-                        var intvalue = (context as SubscribedParameter).ActualValue;
-                        var scalevalue = (context as SubscribedParameter).Scale;
-                        var switchmode = (context as SubscribedParameter).SwitchMode;
-                }
-                    <a>@intvalue.First() @scalevalue <br/> (@switchmode)</a>
+                        var actualValue = (context as ParameterSubscriptionViewModel).ActualValue;
+                        var scalevalue = (context as ParameterSubscriptionViewModel).Scale;
+                        var switchmode = (context as ParameterSubscriptionViewModel).SwitchMode;
+                    }
+                    @if(actualValue?.Count == 1)
+                    {
+                        <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                    } else
+                    {
+                        @foreach(string value in actualValue)
+                        {
+                            <a>value</a>
+                        }
+                        <a>@scalevalue <br/> (@switchmode)</a>
+                    }
                 </DisplayTemplate>
             </DxDataGridColumn>
-            <DxDataGridColumn Field="@nameof(SubscribedParameter.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
                     @{
-                        var intvalue = (context as SubscribedParameter).SubscribedActualValue;
-                        var scalevalue = (context as SubscribedParameter).SubscribedScale;
-                        var switchmode = (context as SubscribedParameter).SubscribedSwitchMode;
-                }
-                    <a>@intvalue.First() @scalevalue <br/> (@switchmode)</a>
+                        var actualValue = (context as ParameterSubscriptionViewModel).SubscribedActualValue;
+                        var scalevalue = (context as ParameterSubscriptionViewModel).SubscribedScale;
+                        var switchmode = (context as ParameterSubscriptionViewModel).SubscribedSwitchMode;
+                    }
+                    @if(actualValue?.Count == 1)
+                    {
+                        <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                    } else
+                    {
+                        @foreach(string value in actualValue)
+                        {
+                            <a>value</a>
+                        }
+                        <a>@scalevalue <br/> (@switchmode)</a>
+                    }
                 </DisplayTemplate>
             </DxDataGridColumn>
-            <DxDataGridColumn Field="@nameof(SubscribedParameter.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center"/>
         </DxDataGrid>
     }
 </div>
@@ -67,12 +89,12 @@ Copyright (c) 2022 RHEA System S.A.
     public List<ParameterSubscription> Data { get; set; }
 
     /// <summary>
-    /// List of <see cref="SubscribedParameter"> to show in the table
+    /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
     /// </summary>
-    public ObservableCollection<SubscribedParameter> SubscribedParameters = new ObservableCollection<SubscribedParameter>();
+    public ObservableCollection<ParameterSubscriptionViewModel> SubscribedParameters = new ObservableCollection<ParameterSubscriptionViewModel>();
 
     /// <summary>
-    /// Initialize the list of <see cref="SubscribedParameter"> with subscribed <see cref="Parameter">
+    /// Initialize the list of <see cref="ParameterSubscriptionViewModel"> with subscribed <see cref="Parameter">
     /// </summary>
     protected override void OnInitialized()
     {
@@ -85,14 +107,16 @@ Copyright (c) 2022 RHEA System S.A.
                 var associatedElement = ISessionAnchor.OpenIteration.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
 
-                SubscribedParameters.Add(new SubscribedParameter()
+                SubscribedParameters.Add(new ParameterSubscriptionViewModel()
                 {
                     ElementName = associatedElement?.Name,
-                    ParameterName = subscribedparameter?.ParameterType?.Name,
+                    ParameterType = subscribedparameter?.ParameterType?.Name,
                     ModelCode = associatedParameter?.ModelCode(),
                     ActualValue = parameterSubscriptionValueSet?.ActualValue,
                     Scale = subscribedparameter?.Scale?.ShortName,
                     SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
+                    Option = parameterSubscriptionValueSet?.ActualOption?.Name,
+                    State = parameterSubscriptionValueSet?.ActualState?.Name,
                     SubscribedActualValue = associatedParameterValueSet?.ActualValue,
                     SubscribedScale = associatedParameter?.Scale.ShortName,
                     SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
