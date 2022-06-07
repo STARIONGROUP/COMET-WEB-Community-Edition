@@ -21,27 +21,40 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
+@inject IIterationService iterationService
 
 <div>
-    @if(this.Parameters.Count == 0)
+    @if(this.SubscribedParameters.Count == 0)
     {
         <div>
-            You have no subscription.
+            You don't have any subscriptions.
         </div>
     } else {
-        <DxDataGrid Data="@Parameters" PageSize="0">
-            <DxDataGridColumn Field="@nameof(BuiltParameter.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
-            <DxDataGridColumn Field="@nameof(BuiltParameter.Name)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
-            <DxDataGridColumn Field="@nameof(BuiltParameter.Domain)" Caption="Owner" TextAlignment="DataGridTextAlign.Center" />
-            <DxDataGridColumn Field="@nameof(BuiltParameter.ActualValue)" TextAlignment="DataGridTextAlign.Center">
+        <DxDataGrid Data="@SubscribedParameters" PageSize="0">
+            <DxDataGridColumn Field="@nameof(SubscribedParameter.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+            <DxDataGridColumn Field="@nameof(SubscribedParameter.ParameterName)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(SubscribedParameter.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(SubscribedParameter.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
                     @{
-                        var intvalue = (context as BuiltParameter).ActualValue;
-                     }
-                    <a>@intvalue.First()</a>
+                        var intvalue = (context as SubscribedParameter).ActualValue;
+                        var scalevalue = (context as SubscribedParameter).Scale;
+                        var switchmode = (context as SubscribedParameter).SwitchMode;
+                }
+                    <a>@intvalue.First() @scalevalue <br/> (@switchmode)</a>
                 </DisplayTemplate>
             </DxDataGridColumn>
-            <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(SubscribedParameter.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
+                <DisplayTemplate>
+                    @{
+                        var intvalue = (context as SubscribedParameter).SubscribedActualValue;
+                        var scalevalue = (context as SubscribedParameter).SubscribedScale;
+                        var switchmode = (context as SubscribedParameter).SubscribedSwitchMode;
+                }
+                    <a>@intvalue.First() @scalevalue <br/> (@switchmode)</a>
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(SubscribedParameter.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
         </DxDataGrid>
     }
 </div>
@@ -51,28 +64,40 @@ Copyright (c) 2022 RHEA System S.A.
     /// List of subscribed <see cref="Parameter"> by the current <see cref="DomainOfExpertise">
     /// </summary>
     [Parameter]
-    public List<Parameter> Data { get; set; }
+    public List<ParameterSubscription> Data { get; set; }
 
     /// <summary>
-    /// List of <see cref="BuiltParameter"> to show in the table
+    /// List of <see cref="SubscribedParameter"> to show in the table
     /// </summary>
-    public ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
+    public ObservableCollection<SubscribedParameter> SubscribedParameters = new ObservableCollection<SubscribedParameter>();
 
     /// <summary>
-    /// Initialize the list of <see cref="BuiltParameter"> with subscribed <see cref="Parameter">
+    /// Initialize the list of <see cref="SubscribedParameter"> with subscribed <see cref="Parameter">
     /// </summary>
     protected override void OnInitialized()
     {
-        this.Data.ForEach(parameter => {
-            parameter.ValueSet.ForEach(parameterValueSet =>
+        this.Data.ForEach(subscribedparameter => {
+            subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet =>
             {
-                Parameters.Add(new BuiltParameter()
+                var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
+
+                var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet.SubscribedValueSet.Iid);
+                var associatedElement = ISessionAnchor.OpenIteration.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
+
+                SubscribedParameters.Add(new SubscribedParameter()
                 {
-                    ElementName = ISessionAnchor.OpenIteration.Element.Find(element => element.Parameter.Contains(parameter))?.Name,
-                    Name = parameter?.ParameterType?.Name,
-                    ActualValue = parameterValueSet?.ActualValue,
-                    Scale = parameter?.Scale?.ShortName,
-                    Domain = parameterValueSet?.Owner.ShortName
+                    ElementName = associatedElement?.Name,
+                    ParameterName = subscribedparameter?.ParameterType?.Name,
+                    ModelCode = associatedParameter?.ModelCode(),
+                    ActualValue = parameterSubscriptionValueSet?.ActualValue,
+                    Scale = subscribedparameter?.Scale?.ShortName,
+                    SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
+                    SubscribedActualValue = associatedParameterValueSet?.ActualValue,
+                    SubscribedScale = associatedParameter?.Scale.ShortName,
+                    SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
+                    SubscribedOwner = associatedParameterValueSet?.Owner.ShortName
+
                 });
             });
         });

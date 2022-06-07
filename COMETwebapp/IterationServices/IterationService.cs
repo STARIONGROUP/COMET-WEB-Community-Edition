@@ -138,20 +138,19 @@ namespace COMETwebapp.IterationServices
         }
 
         /// <summary>
-        /// Get all subcribed <see cref="Parameter"/> by the given domain in the given iteration 
+        /// Get all <see cref="ParameterSubscription"/> by the given domain in the given iteration 
         /// </summary>
         /// <param name="iteration">The opened <see cref="Iteration"/></param>
         /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
-        /// <returns>List of all subcribed <see cref="Parameter"/></returns>
-        public List<Parameter> GetParametersSubscribed(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise)
+        /// <returns>List of all <see cref="ParameterSubscription"/></returns>
+        public List<ParameterSubscription> GetParametersSubscribed(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise)
         {
-            List<Parameter> subscribedParameters = new List<Parameter>();
+            List<ParameterSubscription> subscribedParameters = new List<ParameterSubscription>();
 
             iteration.Element.ForEach(element =>
             {
-                subscribedParameters.AddRange(
-                    element.Parameter.FindAll(parameter => parameter.ParameterSubscription.Count != 0 &&
-                         parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)).Count != 0)
+                element.Parameter.ForEach(parameter =>
+                         subscribedParameters.AddRange(parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)))
                 );
             });
 

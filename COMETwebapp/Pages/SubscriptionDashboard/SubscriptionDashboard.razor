@@ -26,7 +26,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <ApplicationTemplate Title="Subscription Dashboard">
     <Body>
-        <SubscribedTable Data="Parameters" />
+        <SubscribedTable Data="SubscribedParameters" />
     </Body>
 </ApplicationTemplate>
 
@@ -34,13 +34,13 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// List of subscribed <see cref="Parameter"> by the current <see cref="DomainOfExpertise"> in the opened <see cref"Iteration">
     /// </summary>
-    public List<Parameter> Parameters { get; set; } = new List<Parameter>();
+    public List<ParameterSubscription> SubscribedParameters { get; set; } = new List<ParameterSubscription>();
 
     /// <summary>
     /// Initialize the list of subscribed <see cref="Parameter">
     /// </summary>
     protected override void OnInitialized()
     {
-        this.Parameters = iterationService.GetParametersSubscribed(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = iterationService.GetParametersSubscribed(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
     }
 }
