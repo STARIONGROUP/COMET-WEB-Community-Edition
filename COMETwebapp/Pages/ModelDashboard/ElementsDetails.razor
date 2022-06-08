@@ -72,9 +72,22 @@ Copyright (c) 2022 RHEA System S.A.
     public ObservableCollection<BuildElement> Elements = new ObservableCollection<BuildElement>();
 
     /// <summary>
-    /// Initialize the Elements list with BuildElement to show
+    /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
+    {
+        this.InitializeElements();
+
+        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+            this.InitializeElements();
+            this.StateHasChanged();
+        });
+    }
+
+    /// <summary>
+    /// Initialize the Elements list with BuildElement to show
+    /// </summary>
+    private void InitializeElements()
     {
         List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.OpenIteration);
         List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.OpenIteration);

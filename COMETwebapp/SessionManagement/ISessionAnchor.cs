@@ -76,7 +76,7 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        Task GetIteration(EngineeringModelSetup modelSetup, IterationSetup iterationSetup);
+        Task GetIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup);
 
         /// <summary>
         /// Close the <see cref="OpenIteration"/>
@@ -99,5 +99,10 @@ namespace COMETwebapp.SessionManagement
         /// A container of <see cref="DomainOfExpertise"/>
         /// </returns>
         IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup);
+
+        /// <summary>
+        /// Refresh the ISession object
+        /// </summary>
+        Task RefreshSession();
     }
 }

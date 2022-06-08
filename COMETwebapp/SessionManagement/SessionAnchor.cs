@@ -89,23 +89,26 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        public async Task GetIteration(EngineeringModelSetup modelSetup, IterationSetup iterationSetup)
+        public async Task GetIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup)
         {
-            var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-            var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-            iteration.Container = model;
+            if (modelSetup != null && iterationSetup != null)
+            {
+                var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
+                var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
+                iteration.Container = model;
 
-            try
-            {
-                await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
-            }
-            catch (Exception exception)
-            {
-                this.logger.Error($"During read operation an error has occured: {exception.Message}");
-            }
-            if (this.GetIteration() != null)
-            {
-                this.OpenIteration = this.GetIteration().First().Key;
+                try
+                {
+                    await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
+                }
+                catch (Exception exception)
+                {
+                    this.logger.Error($"During read operation an error has occured: {exception.Message}");
+                }
+                if (this.GetIteration() != null)
+                {
+                    this.OpenIteration = this.GetIteration().First().Key;
+                }
             }
         }
 
@@ -150,6 +153,18 @@ namespace COMETwebapp.SessionManagement
             var domains = new List<DomainOfExpertise>();
             modelSetup?.Participant.FindAll(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)).ForEach(p => p.Domain.ForEach(d => domains.Add(d)));
             return domains.DistinctBy(d => d.Name).OrderBy(d => d.Name);
+        }
+
+        /// <summary>
+        /// Refresh the ISession object
+        /// </summary>
+        public async Task RefreshSession()
+        {
+            var actualIterationSetup = this.OpenIteration?.IterationSetup;
+            var actualEngineeringModelSetup = this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
+            await this.Session.Refresh();
+            await this.GetIteration(actualEngineeringModelSetup, actualIterationSetup);
+            Console.WriteLine("Session refreshed !");
         }
     }
 }
