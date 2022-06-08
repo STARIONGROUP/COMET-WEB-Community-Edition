@@ -97,9 +97,22 @@ Copyright (c) 2022 RHEA System S.A.
     public ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
 
     /// <summary>
-    /// Initialize the <see cref="BuiltParameter"> list showed in the table
+    /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
+    {  
+        this.InitializeParameters();
+
+        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+            this.InitializeParameters();
+            this.StateHasChanged();
+        });
+    }
+
+    /// <summary>
+    /// Initialize the <see cref="BuiltParameter"> list showed in the table
+    /// </summary>
+    private void InitializeParameters()
     {
         if (Criteria is not null && Domain is not null && ISessionAnchor.OpenIteration != null)
         {
@@ -127,7 +140,6 @@ Copyright (c) 2022 RHEA System S.A.
             });
         }
     }
-
     /// <summary>
     /// Filter the given ParameterValueSet list with criteria, domain, option and state filters
     /// </summary>

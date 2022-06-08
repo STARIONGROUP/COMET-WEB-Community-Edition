@@ -84,6 +84,18 @@ Copyright (c) 2022 RHEA System S.A.
     public int ActiveTabIndex { get; set; } = 0;
 
     /// <summary>
+    /// Force component to rerender when the session is updated
+    /// </summary>
+    /// <param name="firstRender">Boolean defining first render</param>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x =>
+        {
+            this.StateHasChanged();
+        });
+    }
+
+    /// <summary>
     /// Get selected filter on url page
     /// </summary>
     protected override void OnParametersSet()

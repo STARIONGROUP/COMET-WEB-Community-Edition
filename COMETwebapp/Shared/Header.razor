@@ -19,6 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@inject ISessionAnchor ISessionAnchor
 
 <nav class="navbar header-navbar p-0">
     <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
@@ -34,6 +35,7 @@
         <div class="px-4">
             <AuthorizeView>
                 <Authorized>
+                    <button class="btn" @onclick="() => ISessionAnchor.RefreshSession()"> Refresh Session</button>
                     <a href="logout"  @onclick="@(() => PopupVisible = false)">Log out</a>
                 </Authorized>
                 <NotAuthorized>

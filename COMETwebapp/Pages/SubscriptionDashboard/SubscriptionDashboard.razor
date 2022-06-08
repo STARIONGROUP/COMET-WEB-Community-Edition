@@ -21,26 +21,9 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/SubscriptionDashboard"
-@inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
 
 <ApplicationTemplate Title="Subscription Dashboard">
     <Body>
-        <SubscribedTable Data="SubscribedParameters" />
+        <SubscribedTable />
     </Body>
 </ApplicationTemplate>
-
-@code {
-    /// <summary>
-    /// List of subscribed <see cref="Parameter"> by the current <see cref="DomainOfExpertise"> in the opened <see cref"Iteration">
-    /// </summary>
-    public List<ParameterSubscription> SubscribedParameters { get; set; } = new List<ParameterSubscription>();
-
-    /// <summary>
-    /// Initialize the list of subscribed <see cref="Parameter">
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
-    }
-}

@@ -82,9 +82,22 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
-    /// Initialize data for the graphs with all ParameterValueSet from the opened iteration
+    /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
+    {
+        this.InitializeData();
+
+        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+            this.InitializeData();
+            this.StateHasChanged();
+        });
+    }
+
+    /// <summary>
+    /// Initialize data for the graphs with all ParameterValueSet from the opened iteration 
+    /// </summary>
+    private void InitializeData()
     {
         if (ISessionAnchor.OpenIteration != null)
         {

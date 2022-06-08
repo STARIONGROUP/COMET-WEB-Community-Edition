@@ -48,37 +48,47 @@ Copyright (c) 2022 RHEA System S.A.
     readonly ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
 
     /// <summary>
-    /// Initialize the <see cref="Parameters"> list
+    /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {
+        this.InitializeParameters();
+
+        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+            this.Parameters.Clear();
+            this.InitializeParameters();
+        });
+    }
+
+    /// <summary>
+    /// Initialize the <see cref="Parameters"> list
+    /// </summary>
+    private void InitializeParameters()
+    {
         var ListElements = ISessionAnchor.OpenIteration.Element;
-        if (ListElements.Count != 0)
+        ListElements.ForEach(element =>
         {
-            foreach (var element in ListElements)
+            var parameters = element.Parameter;
+            if (parameters.Count != 0)
             {
-                var parameters = element.Parameter;
-                if (parameters.Count != 0)
+                foreach (var parameter in parameters)
                 {
-                    foreach (var parameter in parameters)
+                    foreach (var valueset in parameter.ValueSet)
                     {
-                        foreach (var valueset in parameter.ValueSet)
-                        {
-                            Parameters.Add(new BuiltParameter()
-                                {
-                                    Name = parameter?.ParameterType?.Name,
-                                    ElementName = element?.Name,
-                                    Domain = parameter?.Owner?.Name,
-                                    Option = valueset?.ActualOption?.Name,
-                                    State = valueset?.ActualState?.Name,
-                                    Scale = parameter?.Scale?.ShortName,
-                                    ActualValue = valueset?.ActualValue
-                                });
-                        }
+                        Parameters.Add(new BuiltParameter()
+                            {
+                                Name = parameter?.ParameterType?.Name,
+                                ElementName = element?.Name,
+                                Domain = parameter?.Owner?.Name,
+                                Option = valueset?.ActualOption?.Name,
+                                State = valueset?.ActualState?.Name,
+                                Scale = parameter?.Scale?.ShortName,
+                                ActualValue = valueset?.ActualValue
+                            });
                     }
                 }
             }
-        }
+        });
     }
 
 }
