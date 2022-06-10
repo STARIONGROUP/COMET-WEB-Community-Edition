@@ -100,6 +100,9 @@ namespace COMETwebapp.SessionManagement
         /// </returns>
         IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup);
 
+        /// <summary>
+        /// Refresh the ISession object
+        /// </summary>
         Task RefreshSession();
     }
 }

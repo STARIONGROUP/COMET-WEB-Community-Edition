@@ -155,14 +155,16 @@ namespace COMETwebapp.SessionManagement
             return domains.DistinctBy(d => d.Name).OrderBy(d => d.Name);
         }
 
-
+        /// <summary>
+        /// Refresh the ISession object
+        /// </summary>
         public async Task RefreshSession()
         {
             var actualIterationSetup = this.OpenIteration?.IterationSetup;
             var actualEngineeringModelSetup = this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
             await this.Session.Refresh();
             await this.GetIteration(actualEngineeringModelSetup, actualIterationSetup);
-            Console.WriteLine("session refreshed !");
+            Console.WriteLine("Session refreshed !");
         }
     }
 }
