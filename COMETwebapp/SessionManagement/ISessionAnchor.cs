@@ -39,6 +39,11 @@ namespace COMETwebapp.SessionManagement
         ISession Session { get; set; }
 
         /// <summary>
+        /// Define the interval in sec to auto-refresh the session
+        /// </summary>
+        uint AutoRefreshInterval { get; set; }
+
+        /// <summary>
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         bool IsSessionOpen { get; set; }

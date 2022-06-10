@@ -20,10 +20,15 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@inject ISessionAnchor ISessionAnchor
+
 <div class="sidebar @StateCssClass">
-    <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
-        <Nodes>
-            <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
+    @if(ISessionAnchor.IsSessionOpen)
+    {
+        <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
+            <Nodes>
+                <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
+                <DxTreeViewNode IconCssClass="oi oi-wrench zoom-1-5" NavigateUrl="./settings" Text="Settings"></DxTreeViewNode>
                 @foreach(var card in Cards)
                 {
                     var url = "/" + Regex.Replace(card.Name, @"\s", "");
@@ -32,7 +37,37 @@
                     <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
                 }
             </Nodes>
-    </DxTreeView>
+        </DxTreeView>
+    } else if (ISessionAnchor.IsSessionOpen && ISessionAnchor.OpenIteration != null)
+    {
+        <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
+            <Nodes>
+                <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="@GetModelName()" Text="Home"></DxTreeViewNode>
+                <DxTreeViewNode IconCssClass="oi oi-wrench zoom-1-5" NavigateUrl="./settings" Text="Settings"></DxTreeViewNode>
+                @foreach(var card in Cards)
+                {
+                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
+                    var color = Regex.Replace(card.Color, @"#", "");
+                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
+                }
+            </Nodes>
+        </DxTreeView>
+    } else
+    {
+        <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
+            <Nodes>
+                <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
+                @foreach(var card in Cards)
+                {
+                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
+                    var color = Regex.Replace(card.Color, @"#", "");
+                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
+                }
+            </Nodes>
+        </DxTreeView>
+    }
 </div>
 
 @code {
@@ -50,5 +85,16 @@
     {
         var application = new ApplicationCards();
         this.Cards = application.Cards;
+    }
+
+    /// <summary>
+    /// Get name of the opened EngineeringModel
+    /// </summary>
+    /// <returns>Url to home page of the opened EngineeringModel</returns>
+    private string? GetModelName()
+    {
+        var actualIterationSetup = this.ISessionAnchor.OpenIteration?.IterationSetup;
+        var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
+        return "./" + actualEngineeringModelSetup?.Name;
     }
 }

@@ -47,6 +47,12 @@ namespace COMETwebapp.SessionManagement
         public ISession Session { get; set; }
 
         /// <summary>
+        /// Define the interval in sec to auto-refresh the session
+        /// Set to 60s by default
+        /// </summary>
+        public uint AutoRefreshInterval { get; set; } = 60;
+
+        /// <summary>
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         public bool IsSessionOpen { get; set; }
@@ -160,10 +166,12 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         public async Task RefreshSession()
         {
+            CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.Refreshing);
             var actualIterationSetup = this.OpenIteration?.IterationSetup;
             var actualEngineeringModelSetup = this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
             await this.Session.Refresh();
             await this.GetIteration(actualEngineeringModelSetup, actualIterationSetup);
+            CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpToDate);
             Console.WriteLine("Session refreshed !");
         }
     }

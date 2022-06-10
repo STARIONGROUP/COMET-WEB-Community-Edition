@@ -1,0 +1,120 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@page "/settings"
+@inject ISessionAnchor ISessionAnchor
+
+<div class="display-flex flex-row">
+    <div class="display-flex flex-column width-100 align-items-center justify-content-center">
+        <h3 class="font-weight-bold color-title">Settings Page</h3>
+    </div>
+</div>
+<div class="display-flex flex-row align-items-center m-top-5px" >
+    <input type="checkbox" id="refreshSession" @onchange="@OnChoiceChange">
+    <label class="m-left-3px" for="refreshSession">Auto-refresh every</label>
+
+    <input class="m-left-3px" type="number" id="value" value="@ISessionAnchor.AutoRefreshInterval" @onchange="@OnIntervalChange">
+    <div class="m-left-3px">
+        sec
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Enable / disable auto-refresh for the ISession
+    /// </summary>
+    public bool IsAutoRefreshEnabled { get; set; }
+
+    /// <summary>
+    /// Backing field for <see cref="AutoRefreshSecondsLeft"/>
+    /// </summary>
+    private uint AutoRefreshSecondsLeft;
+
+    /// <summary>
+    /// The timer
+    /// </summary>
+    public System.Timers.Timer? timer { get; set; }
+    
+    /// <summary>
+    /// Enable/disable auto-refresh for the ISession
+    /// </summary>
+    /// <param name="e">The <see cref="ChangeEventArgs"> from the checkbox input</param>
+    public void OnChoiceChange(ChangeEventArgs e)
+    {
+        this.IsAutoRefreshEnabled = (bool) e.Value;
+        this.SetTimer();
+    }
+
+    /// <summary>
+    /// Set interval to automatically refresh the ISession
+    /// </summary>
+    /// <param name="e">The <see cref="ChangeEventArgs"> from the number input </param>
+    public void OnIntervalChange(ChangeEventArgs e)
+    {
+        ISessionAnchor.AutoRefreshInterval = Convert.ToUInt32((string) e.Value);
+        this.SetTimer();
+    }
+
+    /// <summary>
+    /// Sets the timer according to the appropriate setting
+    /// </summary>
+    public void SetTimer()
+    {
+        if (this.IsAutoRefreshEnabled)
+        {
+            //dispose of previous timer
+            if (this.timer != null)
+            {
+                this.timer.Stop();
+            } else {
+                this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
+
+                this.timer = new System.Timers.Timer(1000);
+                this.timer.Elapsed += this.OntTimerElapsed;
+                this.timer.Start();
+            }
+        }
+        else
+        {
+            this.timer?.Stop();
+        }
+    }
+
+    /// <summary>
+    /// The eventhandler to handle elapse of one second.
+    /// </summary>
+    /// <param name="sender">The sender</param>
+    /// <param name="e">The event arguments.</param>
+    private async void OntTimerElapsed(object sender, EventArgs e)
+    {
+        this.AutoRefreshSecondsLeft -= 1;
+
+        if (this.AutoRefreshSecondsLeft == 0)
+        {
+            this.timer?.Stop();
+            await ISessionAnchor.RefreshSession();
+
+            this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
+            this.timer?.Start();
+        }
+    }
+}
