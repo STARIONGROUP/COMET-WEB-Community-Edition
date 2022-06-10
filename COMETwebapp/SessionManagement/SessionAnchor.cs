@@ -29,6 +29,7 @@ namespace COMETwebapp.SessionManagement
     using CDP4Dal;
     using System.Collections.Generic;
     using NLog;
+    using System.Diagnostics;
 
     /// <summary>
     /// The purpose of the <see cref="SessionAnchor"/> is to provide access to
@@ -45,6 +46,12 @@ namespace COMETwebapp.SessionManagement
         /// Gets or sets the <see cref="ISession"/>
         /// </summary>
         public ISession Session { get; set; }
+
+        /// <summary>
+        /// Define the interval in sec to auto-refresh the session
+        /// Set to 60s by default
+        /// </summary>
+        public int AutoRefreshInterval { get; set; } = 60;
 
         /// <summary>
         /// True if the <see cref="ISession"/> is opened
@@ -89,7 +96,7 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        public async Task GetIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup)
+        public async Task SetOpenIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup)
         {
             if (modelSetup != null && iterationSetup != null)
             {
@@ -160,11 +167,13 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         public async Task RefreshSession()
         {
-            var actualIterationSetup = this.OpenIteration?.IterationSetup;
-            var actualEngineeringModelSetup = this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
+            var sw = Stopwatch.StartNew();
+            CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.Refreshing);
+
             await this.Session.Refresh();
-            await this.GetIteration(actualEngineeringModelSetup, actualIterationSetup);
-            Console.WriteLine("Session refreshed !");
+
+            CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpToDate);
+            Console.WriteLine($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
         }
     }
 }

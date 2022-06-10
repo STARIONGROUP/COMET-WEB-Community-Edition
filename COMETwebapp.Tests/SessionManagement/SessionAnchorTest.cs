@@ -145,7 +145,7 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
 
-            Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.GetIteration(this.engineeringSetup, this.iteration.IterationSetup));
+            Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.SetOpenIteration(this.engineeringSetup, this.iteration.IterationSetup));
         }
     }
 }

@@ -35,7 +35,12 @@
         <div class="px-4">
             <AuthorizeView>
                 <Authorized>
-                    <button class="btn" @onclick="() => ISessionAnchor.RefreshSession()"> Refresh Session</button>
+                    @if (IsRefreshing)
+                    {
+                        <button class="btn" disabled=true>Refreshing</button>
+                    } else {
+                        <button class="btn" @onclick="() => ISessionAnchor.RefreshSession()"> Refresh Session</button>
+                    }
                     <a href="logout"  @onclick="@(() => PopupVisible = false)">Log out</a>
                 </Authorized>
                 <NotAuthorized>
@@ -63,6 +68,11 @@
     public EventCallback<bool> ToggleOnChanged { get; set; }
 
     /// <summary>
+    /// Status for ISession refresh
+    /// </summary>
+    public bool IsRefreshing { get; set; } = false;
+
+    /// <summary>
     /// Handles the 
     /// </summary>
     /// <returns></returns>
@@ -84,5 +94,24 @@
             ToggleOn = newValue;
             await ToggleOnChanged.InvokeAsync(ToggleOn);
         }
+    }
+
+    /// <summary>
+    /// Update state of refresh button
+    /// If ISession is refreshing, button is disabled
+    /// </summary>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
+        {
+            IsRefreshing = true;
+            this.StateHasChanged();
+        });
+
+        CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+        {
+            IsRefreshing = false;
+            this.StateHasChanged();
+        });
     }
 }

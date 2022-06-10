@@ -39,6 +39,11 @@ namespace COMETwebapp.SessionManagement
         ISession Session { get; set; }
 
         /// <summary>
+        /// Define the interval in sec to auto-refresh the session
+        /// </summary>
+        int AutoRefreshInterval { get; set; }
+
+        /// <summary>
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         bool IsSessionOpen { get; set; }
@@ -76,7 +81,7 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        Task GetIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup);
+        Task SetOpenIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup);
 
         /// <summary>
         /// Close the <see cref="OpenIteration"/>
