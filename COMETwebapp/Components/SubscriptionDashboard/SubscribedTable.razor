@@ -110,16 +110,16 @@ Copyright (c) 2022 RHEA System S.A.
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (Listeners.TryGetValue("UpToDate", out var listener))
+        if (this.Listeners.TryGetValue("UpToDate", out var listener))
         {
-            Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            this.Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
                 this.OnInitialized();
                 this.StateHasChanged();
             }));
         }
-        if (Listeners.TryGetValue("DomainChangedEvent", out listener)){
-            Listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+        if (this.Listeners.TryGetValue("DomainChangedEvent", out listener)){
+            this.Listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
             {
                 this.OnInitialized();
                 this.StateHasChanged();
@@ -132,8 +132,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void Dispose()
     {
-        Listeners.Values.ToList().ForEach(l => l.Dispose());
-        Listeners.Clear();
+        this.Listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.Listeners.Clear();
     }
 
     /// <summary>
