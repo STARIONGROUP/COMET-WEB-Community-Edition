@@ -109,9 +109,9 @@ Copyright (c) 2022 RHEA System S.A.
     {  
         this.InitializeParameters();
 
-        if (!Listeners.Keys.Contains("SessionEvent"))
+        if (this.Listeners.TryGetValue("UpToDate", out var listener))
         {
-            Listeners.Add("SessionEvent", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+            this.Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
                 this.InitializeParameters();
                 this.StateHasChanged();
             }));
@@ -123,8 +123,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void Dispose()
     {
-        Listeners.Values.ToList().ForEach(l => l.Dispose());
-        Listeners.Clear();
+        this.Listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.Listeners.Clear();
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void InitializeParameters()
     {
         var iteration = ISessionAnchor.GetIteration();
-        if (Criteria is not null && Domain is not null && iteration != null)
+        if (this.Criteria is not null && this.Domain is not null && iteration != null)
         {
             List<ElementDefinition> elements = iteration.Element;
 
@@ -159,6 +159,7 @@ Copyright (c) 2022 RHEA System S.A.
             });
         }
     }
+
     /// <summary>
     /// Filter the given ParameterValueSet list with criteria, domain, option and state filters
     /// </summary>

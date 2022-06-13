@@ -80,7 +80,7 @@ namespace COMETwebapp.SessionManagement
         /// <returns>a <see cref="Task"/></returns>
         public async Task Close()
         {
-            this.Session.Close().GetAwaiter().GetResult();
+            await this.Session.Close();
             this.IsSessionOpen = false;
             this.CloseIteration();
         }

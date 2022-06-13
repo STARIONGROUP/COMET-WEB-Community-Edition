@@ -60,9 +60,9 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.InitializeParameters();
 
-        if (!Listeners.Keys.Contains("SessionEvent"))
+        if (Listeners.TryGetValue("UpToDate", out var listener))
         {
-            Listeners.Add("SessionEvent", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x =>
+            Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
                 this.Parameters.Clear();
                 this.InitializeParameters();
@@ -84,8 +84,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeParameters()
     {
-        var ListElements = ISessionAnchor.GetIteration()?.Element;
-        ListElements?.ForEach(element =>
+        var elementDefinitions = ISessionAnchor.GetIteration()?.Element;
+        elementDefinitions?.ForEach(element =>
         {
             var parameters = element.Parameter;
             if (parameters.Count != 0)

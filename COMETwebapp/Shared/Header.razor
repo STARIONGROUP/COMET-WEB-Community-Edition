@@ -123,7 +123,7 @@
     /// </summary>
     protected override void OnAfterRender(bool firstRender)
     {
-        if (!Listeners.Keys.Contains("Refreshing"))
+        if (Listeners.TryGetValue("Refreshing", out var listener))
         {
             Listeners.Add("Refreshing", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
             {
@@ -131,7 +131,7 @@
                 this.StateHasChanged();
             }));
         }
-        if (!Listeners.Keys.Contains("UpToDate"))
+        if (Listeners.TryGetValue("UpToDate", out listener))
         {
             Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {

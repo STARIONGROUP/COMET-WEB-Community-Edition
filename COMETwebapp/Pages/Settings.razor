@@ -80,19 +80,11 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if (ISessionAnchor.IsAutoRefreshEnabled)
         {
-            //dispose of previous timer
-            if (this.Timer != null)
-            {
-                this.Timer.Stop();
-            } 
-            else 
-            {
-                this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
+            this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
 
-                this.Timer = new Timer(1000);
-                this.Timer.Elapsed += this.OntTimerElapsed;
-                this.Timer.Start();
-            }
+            this.Timer = new Timer(1000);
+            this.Timer.Elapsed += this.OntTimerElapsed;
+            this.Timer.Start();
         }
         else
         {
