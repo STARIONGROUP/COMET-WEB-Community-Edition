@@ -20,6 +20,7 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
+@implements IDisposable
 
 <div class="dashboard-chart">
     <UnusedElements Data="Data" />
@@ -33,13 +34,45 @@ Copyright (c) 2022 RHEA System S.A.
     public List<ElementDefinition> Data { get; set; }
 
     /// <summary>
-    /// Initialize data for the graphs with all ElementDefinition from the opened iteration
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initializes data for the graphs and creates a listener for session update
     /// </summary>
     protected override void OnInitialized()
     {
-        if (ISessionAnchor.OpenIteration != null)
+        this.InitializeData();
+
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
-            this.Data = ISessionAnchor.OpenIteration.Element;
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.InitializeData();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+
+    /// <summary>
+    /// Initialize data for the graphs with all elements from the opened iteration 
+    /// </summary>
+    private void InitializeData()
+    {
+        var iteration = ISessionAnchor.GetIteration();
+        if (iteration != null)
+        {
+            this.Data = iteration.Element;
         }
     }
 }

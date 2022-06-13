@@ -25,14 +25,14 @@ Copyright (c) 2022 RHEA System S.A.
     <div class="display-flex flex-column width-100 align-items-center justify-content-center">
         <h3 class="font-weight-bold color-title">@Title</h3>
     </div>
-    @if (sessionAnchor.OpenIteration is not null)
+    @if (sessionAnchor.GetIteration() is not null)
     {
         <div class="display-flex width-fit-content align-items-center">
             <CloseModelButton/>
         </div>
     }
 </div>
-@if (sessionAnchor.OpenIteration is not null)
+@if (sessionAnchor.GetIteration() is not null)
 {
     <div>
         @Body
@@ -45,11 +45,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// Title of the application
     /// </summary>
     [Parameter]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     /// Body of the application
     /// </summary>
     [Parameter]
-    public RenderFragment Body { get; set; }
+    public RenderFragment? Body { get; set; }
 }

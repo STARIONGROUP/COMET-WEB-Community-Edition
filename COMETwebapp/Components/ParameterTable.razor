@@ -22,6 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @using DevExpress.Blazor
 @using System.Collections.ObjectModel
+@implements IDisposable
 
 <DxDataGrid Data="@Parameters" PageSize="0">
     <DxDataGridColumn Field="@nameof(BuiltParameter.ElementName)" Width="100px" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" GroupIndex="0" />
@@ -48,16 +49,35 @@ Copyright (c) 2022 RHEA System S.A.
     readonly ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {
         this.InitializeParameters();
 
-        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
-            this.Parameters.Clear();
-            this.InitializeParameters();
-        });
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.Parameters.Clear();
+                this.InitializeParameters();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
     }
 
     /// <summary>
@@ -65,8 +85,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeParameters()
     {
-        var ListElements = ISessionAnchor.OpenIteration.Element;
-        ListElements.ForEach(element =>
+        var elementDefinitions = ISessionAnchor.GetIteration()?.Element;
+        elementDefinitions?.ForEach(element =>
         {
             var parameters = element.Parameter;
             if (parameters.Count != 0)

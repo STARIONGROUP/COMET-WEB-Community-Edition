@@ -24,6 +24,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject NavigationManager NavigationManager
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService iterationService
+@implements IDisposable
 
 <div class="chart">
     <h3>Unused Elements</h3>
@@ -62,11 +63,42 @@ Copyright (c) 2022 RHEA System S.A.
     private List<ElementDefinition> UnUsedElements { get; set; }
 
     /// <summary>
-    /// Initialize the UnUsedElements list
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initializes the component and creates a listener for session update
     /// </summary>
     protected override void OnInitialized()
     {
-        this.UnUsedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.OpenIteration);
+        this.InitializeUnusedElements();
+
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.InitializeUnusedElements();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+
+    /// <summary>
+    /// Initialize the UnUsedElements list
+    /// </summary>
+    private void InitializeUnusedElements()
+    {
+        this.UnUsedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.GetIteration());
     }
 
     /// <summary>

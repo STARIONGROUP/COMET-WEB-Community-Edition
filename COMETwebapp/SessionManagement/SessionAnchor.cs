@@ -48,6 +48,11 @@ namespace COMETwebapp.SessionManagement
         public ISession Session { get; set; }
 
         /// <summary>
+        /// Enable / disable auto-refresh for the ISession
+        /// </summary>
+        public bool IsAutoRefreshEnabled { get; set; }
+
+        /// <summary>
         /// Define the interval in sec to auto-refresh the session
         /// Set to 60s by default
         /// </summary>
@@ -57,11 +62,6 @@ namespace COMETwebapp.SessionManagement
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         public bool IsSessionOpen { get; set; }
-
-        /// <summary>
-        /// The opened <see cref="Iteration"/>
-        /// </summary>
-        public Iteration? OpenIteration { get; set; }
 
         /// <summary>
         /// The <see cref="DomainOfExpertise"/> selected to open a model
@@ -80,16 +80,26 @@ namespace COMETwebapp.SessionManagement
         /// <returns>a <see cref="Task"/></returns>
         public async Task Close()
         {
-            this.Session.Close().GetAwaiter().GetResult();
+            await this.Session.Close();
             this.IsSessionOpen = false;
             this.CloseIteration();
         }
 
         /// <summary>
-        /// Reads an <see cref="Iteration"/> and set the active <see cref="DomainOfExpertise"/> for the Iteration
+        /// Returns the opened <see cref="Iteration"/> in the Session
         /// </summary>
-        /// <returns>A <see cref="IReadOnlyDictionary{T,T}"/> of <see cref="Iteration"/> and <see cref="Tuple{T,T}"/> of <see cref="DomainOfExpertise"/> and <see cref="Participant"/></returns>
-        public IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> GetIteration() => this.Session.OpenIterations;
+        /// <returns>An <see cref="Iteration"/></returns>
+        public Iteration? GetIteration()
+        {
+            if (this.IsSessionOpen && this.Session.OpenIterations.Any())
+            {
+                return this.Session.OpenIterations.First().Key;
+            } else
+            {
+                return null;
+            }
+            
+        }
 
         /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
@@ -112,10 +122,6 @@ namespace COMETwebapp.SessionManagement
                 {
                     this.logger.Error($"During read operation an error has occured: {exception.Message}");
                 }
-                if (this.GetIteration() != null)
-                {
-                    this.OpenIteration = this.GetIteration().First().Key;
-                }
             }
         }
 
@@ -124,8 +130,7 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         public void CloseIteration()
         {
-            this.Session.CloseIterationSetup(this.OpenIteration?.IterationSetup);
-            this.OpenIteration = null;
+            this.Session.CloseIterationSetup(this.GetIteration()?.IterationSetup);
         }
 
         /// <summary>
@@ -174,6 +179,19 @@ namespace COMETwebapp.SessionManagement
 
             CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpToDate);
             Console.WriteLine($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
+        }
+
+        /// <summary>
+        /// Switches the current domain for the opened iteration
+        /// </summary>
+        /// <param name="DomainOfExpertise">The domain</param>
+        public void SwitchDomain(DomainOfExpertise? DomainOfExpertise)
+        {
+            if(this.GetIteration() != null)
+            {
+                this.CurrentDomainOfExpertise = DomainOfExpertise;
+                this.Session.SwitchDomain(this.GetIteration().Iid, DomainOfExpertise);
+            }
         }
     }
 }

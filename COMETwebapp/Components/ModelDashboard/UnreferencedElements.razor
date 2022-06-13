@@ -24,6 +24,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject NavigationManager NavigationManager
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService iterationService
+@implements IDisposable
 
 <div class="chart">
     <h3>Unreferenced Elements</h3>
@@ -54,19 +55,50 @@ Copyright (c) 2022 RHEA System S.A.
     /// Data in the graph
     /// </summary>
     [Parameter]
-    public List<ElementDefinition> Data { get; set; }
+    public List<ElementDefinition>? Data { get; set; }
 
     /// <summary>
     /// List of unreferenced element defintion from the opened iteration
     /// </summary>
-    private List<ElementDefinition> UnReferencedElements { get; set; }
+    private List<ElementDefinition>? UnReferencedElements { get; set; }
 
     /// <summary>
-    /// Initialize the UnReferencedElements list
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initializes the component and creates a listener for session update
     /// </summary>
     protected override void OnInitialized()
     {
-        this.UnReferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.OpenIteration);
+        this.InitializeUnreferencedElements();
+
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.InitializeUnreferencedElements();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+
+    /// <summary>
+    /// Get unreferenced Elements of the opened iteration
+    /// </summary>
+    private void InitializeUnreferencedElements()
+    {
+        this.UnReferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.GetIteration());
     }
 
     /// <summary>
