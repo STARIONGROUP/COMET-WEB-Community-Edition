@@ -29,7 +29,11 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
 </div>
 <div class="display-flex flex-row align-items-center m-top-5px" >
-    <input type="checkbox" id="refreshSession" @onchange="@OnChoiceChange">
+    @if(ISessionAnchor.IsAutoRefreshEnabled){
+         <input type="checkbox" id="refreshSession" checked @onchange="@OnChoiceChange">
+    } else {
+         <input type="checkbox" id="refreshSession" @onchange="@OnChoiceChange">
+    }
     <label class="m-left-3px" for="refreshSession">Auto-refresh every</label>
 
     <input class="m-left-3px" type="number" id="value" value="@ISessionAnchor.AutoRefreshInterval" @onchange="@OnIntervalChange">
@@ -40,11 +44,6 @@ Copyright (c) 2022 RHEA System S.A.
 
 @code {
     /// <summary>
-    /// Enable / disable auto-refresh for the ISession
-    /// </summary>
-    public bool IsAutoRefreshEnabled { get; set; }
-
-    /// <summary>
     /// Backing field for <see cref="AutoRefreshSecondsLeft"/>
     /// </summary>
     private int AutoRefreshSecondsLeft;
@@ -53,14 +52,14 @@ Copyright (c) 2022 RHEA System S.A.
     /// The timer
     /// </summary>
     public Timer? Timer { get; set; }
-    
+
     /// <summary>
     /// Enable/disable auto-refresh for the ISession
     /// </summary>
     /// <param name="e">The <see cref="ChangeEventArgs"> from the checkbox input</param>
     public void OnChoiceChange(ChangeEventArgs e)
     {
-        this.IsAutoRefreshEnabled = (bool) e.Value;
+        ISessionAnchor.IsAutoRefreshEnabled = (bool) e.Value;
         this.SetTimer();
     }
 
@@ -79,7 +78,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void SetTimer()
     {
-        if (this.IsAutoRefreshEnabled)
+        if (ISessionAnchor.IsAutoRefreshEnabled)
         {
             //dispose of previous timer
             if (this.Timer != null)
@@ -98,6 +97,7 @@ Copyright (c) 2022 RHEA System S.A.
         else
         {
             this.Timer?.Stop();
+            this.Timer?.Dispose();
         }
     }
 

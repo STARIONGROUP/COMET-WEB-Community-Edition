@@ -39,7 +39,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSet"/>s list is created
         /// </param>
         /// <returns>All <see cref="ParameterValueSet"/></returns>
-        List<ParameterValueSet> GetParameterValueSets(Iteration iteration);
+        List<ParameterValueSet> GetParameterValueSets(Iteration? iteration);
 
         /// <summary>
         /// Get all <see cref="NestedElement"/> of the given iteration for all options
@@ -48,7 +48,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="NestedElement"/>s list is created
         /// </param>
         /// <returns>All <see cref="NestedElement"/></returns>
-        List<NestedElement> GetNestedElements(Iteration iteration);
+        List<NestedElement> GetNestedElements(Iteration? iteration);
 
         /// <summary>
         /// Get the nested parameters from the given option
@@ -60,7 +60,7 @@ namespace COMETwebapp.IterationServices
         /// The Iid of the option for which the <see cref="NestedParameter"/>s list is created
         /// </param>
         /// <returns>All<see cref="NestedParameter"/> of the given option</returns>
-        List<NestedParameter> GetNestedParameters(Iteration iteration, Guid? optionIid);
+        List<NestedParameter> GetNestedParameters(Iteration? iteration, Guid? optionIid);
 
         /// <summary>
         /// Get unused elements defintion of the opened iteration
@@ -70,7 +70,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="ElementDefinition"/>s list is created
         /// </param>
         /// <returns>All unused <see cref="ElementDefinition"/></returns>
-        List<ElementDefinition> GetUnusedElementDefinitions(Iteration iteration);
+        List<ElementDefinition> GetUnusedElementDefinitions(Iteration? iteration);
 
         /// <summary>
         /// Get all the unreferenced element definitions in the opened iteration
@@ -80,7 +80,7 @@ namespace COMETwebapp.IterationServices
         /// The <see cref="Iteration"/> for which the <see cref="ElementDefinition"/>s list is created
         /// </param>
         /// <returns>All unreferenced <see cref="ElementDefinition"/></returns>
-        List<ElementDefinition> GetUnreferencedElements(Iteration iteration);
+        List<ElementDefinition> GetUnreferencedElements(Iteration? iteration);
 
         /// <summary>
         /// Get all <see cref="ParameterSubscription"/> by the given domain in the given iteration 
@@ -88,7 +88,7 @@ namespace COMETwebapp.IterationServices
         /// <param name="iteration">The opened <see cref="Iteration"/></param>
         /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
         /// <returns>List of all <see cref="ParameterSubscription"/></returns>
-        List<ParameterSubscription> GetParameterSubscriptions(Iteration iteration, DomainOfExpertise? currentDomainOfExpertise);
+        List<ParameterSubscription> GetParameterSubscriptions(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise);
 
     }
 }

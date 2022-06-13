@@ -39,6 +39,11 @@ namespace COMETwebapp.SessionManagement
         ISession Session { get; set; }
 
         /// <summary>
+        /// Enable / disable auto-refresh for the ISession
+        /// </summary>
+        bool IsAutoRefreshEnabled { get; set; }
+
+        /// <summary>
         /// Define the interval in sec to auto-refresh the session
         /// </summary>
         int AutoRefreshInterval { get; set; }
@@ -47,11 +52,6 @@ namespace COMETwebapp.SessionManagement
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         bool IsSessionOpen { get; set; }
-
-        /// <summary>
-        /// The opened <see cref="Iteration"/>
-        /// </summary>
-        Iteration OpenIteration { get; set; }
 
         /// <summary>
         /// The <see cref="DomainOfExpertise"/> selected to open a model
@@ -71,11 +71,11 @@ namespace COMETwebapp.SessionManagement
         SiteDirectory GetSiteDirectory();
 
         /// <summary>
-        /// Reads an <see cref="Iteration"/> and set the active <see cref="DomainOfExpertise"/> for the Iteration
+        /// Returns the opened <see cref="Iteration"/> in the Session
         /// </summary>
-        /// <returns>A <see cref="IReadOnlyDictionary{T,T}"/> of <see cref="Iteration"/> and <see cref="Tuple{T,T}"/> of <see cref="DomainOfExpertise"/> and <see cref="Participant"/></returns>
-        IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> GetIteration();
-        
+        /// <returns>An <see cref="Iteration"/></returns>
+        Iteration? GetIteration();
+
         /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
         /// </summary>
@@ -109,5 +109,11 @@ namespace COMETwebapp.SessionManagement
         /// Refresh the ISession object
         /// </summary>
         Task RefreshSession();
+
+        /// <summary>
+        /// Switches the current domain for the opened iteration
+        /// </summary>
+        /// <param name="DomainOfExpertise">The domain</param>
+        void SwitchDomain(DomainOfExpertise? DomainOfExpertise);
     }
 }

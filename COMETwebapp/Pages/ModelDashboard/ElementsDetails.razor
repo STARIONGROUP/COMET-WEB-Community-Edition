@@ -22,6 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @page "/ModelDashboard/ElementsDetails"
 @inject IIterationService iterationService
+@implements IDisposable
 
 <div>
     <h5>Details</h5>
@@ -72,16 +73,34 @@ Copyright (c) 2022 RHEA System S.A.
     public ObservableCollection<BuildElement> Elements = new ObservableCollection<BuildElement>();
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {
         this.InitializeElements();
 
-        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
-            this.InitializeElements();
-            this.StateHasChanged();
-        });
+        if (!Listeners.Keys.Contains("Refreshing"))
+        {
+            Listeners.Add("SessionEvent", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x =>
+            {
+                this.InitializeElements();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        Listeners.Values.ToList().ForEach(l => l.Dispose());
+        Listeners.Clear();
     }
 
     /// <summary>
@@ -89,13 +108,14 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.OpenIteration);
-        List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.OpenIteration);
+        List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.GetIteration());
+        List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.GetIteration());
 
-        if (Criteria is not null && Domain is not null && ISessionAnchor.OpenIteration != null)
+        var iteration = ISessionAnchor.GetIteration();
+        if (Criteria is not null && Domain is not null && iteration != null)
         {
             List<ElementDefinition> elements = new List<ElementDefinition>();
-            elements.AddRange(ISessionAnchor.OpenIteration.Element.FindAll(e => e.Owner.ShortName.Equals(this.Domain)));
+            elements.AddRange(iteration.Element.FindAll(e => e.Owner.ShortName.Equals(this.Domain)));
 
             if (this.Criteria.Equals("Unused Elements"))
             {

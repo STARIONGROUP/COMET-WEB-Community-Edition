@@ -21,6 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService iterationService
+@implements IDisposable
 
 <div class="dashboard">
     <DonutDashboard Data="Filter(Data)" />
@@ -51,6 +52,11 @@ Copyright (c) 2022 RHEA System S.A.
     public List<ParameterValueSet> Data { get; set; }
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Filter data to show in the graph
     /// </summary>
     /// <param name="data">List of all data in the project</param>
@@ -61,7 +67,7 @@ Copyright (c) 2022 RHEA System S.A.
         result.AddRange(data);
         if (this.FilterOption != null)
         {
-            List<NestedParameter> nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.OpenIteration, this.FilterOption);
+            List<NestedParameter> nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.GetIteration(), this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>
@@ -88,10 +94,22 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.InitializeData();
 
-        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
-            this.InitializeData();
-            this.StateHasChanged();
-        });
+        if (!Listeners.Keys.Contains("SessionEvent"))
+        {
+            Listeners.Add("SessionEvent", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+                this.InitializeData();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        Listeners.Values.ToList().ForEach(l => l.Dispose());
+        Listeners.Clear();
     }
 
     /// <summary>
@@ -99,9 +117,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        if (ISessionAnchor.OpenIteration != null)
-        {
-            this.Data = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
-        }
+        this.Data = iterationService.GetParameterValueSets(ISessionAnchor.GetIteration());
     }
 }

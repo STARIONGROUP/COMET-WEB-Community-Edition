@@ -20,6 +20,7 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
+@implements IDisposable
 
 <nav class="navbar header-navbar p-0">
     <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
@@ -35,6 +36,21 @@
         <div class="px-4">
             <AuthorizeView>
                 <Authorized>
+                    @if(ISessionAnchor.GetIteration() is not null)
+                    {
+                        <select id="domnain" @onchange="OnSwitchDomain">
+                            @foreach (var domain in ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.GetIteration()).OrderBy(i => i.Name))
+                            {
+                                @if(domain == ISessionAnchor.CurrentDomainOfExpertise)
+                                {
+                                    <option value="@domain.Name" selected>@domain.Name</option>
+                                } else
+                                {
+                                        <option value="@domain.Name">@domain.Name</option>
+                                }
+                            }
+                        </select>
+                    }
                     @if (IsRefreshing)
                     {
                         <button class="btn" disabled=true>Refreshing</button>
@@ -79,6 +95,11 @@
     async Task OnToggleClick() => await Toggle();
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Boolean to determine if the Popup Login is visible
     /// </summary>
     bool PopupVisible = false;
@@ -102,16 +123,40 @@
     /// </summary>
     protected override void OnAfterRender(bool firstRender)
     {
-        CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
+        if (!Listeners.Keys.Contains("Refreshing"))
         {
-            IsRefreshing = true;
-            this.StateHasChanged();
-        });
+            Listeners.Add("Refreshing", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
+            {
+                IsRefreshing = true;
+                this.StateHasChanged();
+            }));
+        }
+        if (!Listeners.Keys.Contains("UpToDate"))
+        {
+            Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                IsRefreshing = false;
+                this.StateHasChanged();
+            }));
+        }
+    }
 
-        CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-        {
-            IsRefreshing = false;
-            this.StateHasChanged();
-        });
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        Listeners.Values.ToList().ForEach(l => l.Dispose());
+        Listeners.Clear();
+    }
+
+    /// <summary>
+    /// Gets the selected <see cref="DomainOfExpertise"> and switchs ISession active domain 
+    /// </summary>
+    /// <param name="e"><see cref="ChangeEventArgs"> from selector</param>
+    public void OnSwitchDomain(ChangeEventArgs e)
+    {
+        var selectedDomainOFExpertise = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.GetIteration()).ToList().Find(domain => domain.Name.Equals(e.Value));
+        ISessionAnchor.SwitchDomain(selectedDomainOFExpertise);
     }
 }

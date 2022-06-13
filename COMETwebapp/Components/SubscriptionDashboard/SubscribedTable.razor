@@ -22,6 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService iterationService
+@implements IDisposable
 
 <div>
     @if(this.SubscribedParameters.Count == 0)
@@ -93,19 +94,46 @@ Copyright (c) 2022 RHEA System S.A.
     public ObservableCollection<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new ObservableCollection<ParameterSubscriptionViewModel>();
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {
-        this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
+        this.ViewModelSubscribedParameters.Clear();
+        this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
+    }
 
-        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
-            this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.OpenIteration, ISessionAnchor.CurrentDomainOfExpertise);
-            this.ViewModelSubscribedParameters.Clear();
-            this.GetViewModelSubscribedParameters();
-            this.StateHasChanged();
-        });
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!Listeners.Keys.Contains("SessionEvent"))
+        {
+            Listeners.Add("SessionEvent", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.OnInitialized();
+                this.StateHasChanged();
+            }));
+        }
+        if (!Listeners.Keys.Contains("DomainChangedEvent")){
+            Listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            {
+                this.OnInitialized();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        Listeners.Values.ToList().ForEach(l => l.Dispose());
+        Listeners.Clear();
     }
 
     /// <summary>
@@ -116,10 +144,10 @@ Copyright (c) 2022 RHEA System S.A.
         this.SubscribedParameters.ForEach(subscribedparameter => {
             subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet =>
             {
-                var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
+                var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.GetIteration());
 
                 var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet.SubscribedValueSet.Iid);
-                var associatedElement = ISessionAnchor.OpenIteration.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
 
                 ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()

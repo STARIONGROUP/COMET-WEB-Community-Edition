@@ -38,7 +38,7 @@
                 }
             </Nodes>
         </DxTreeView>
-    } else if (ISessionAnchor.IsSessionOpen && ISessionAnchor.OpenIteration != null)
+    } else if (ISessionAnchor.IsSessionOpen && ISessionAnchor.GetIteration() != null)
     {
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
             <Nodes>
@@ -93,7 +93,7 @@
     /// <returns>Url to home page of the opened EngineeringModel</returns>
     private string? GetModelName()
     {
-        var actualIterationSetup = this.ISessionAnchor.OpenIteration?.IterationSetup;
+        var actualIterationSetup = this.ISessionAnchor.GetIteration()?.IterationSetup;
         var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
         return "./" + actualEngineeringModelSetup?.Name;
     }

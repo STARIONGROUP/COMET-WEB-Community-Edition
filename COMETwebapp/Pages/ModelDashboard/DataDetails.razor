@@ -22,6 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService iterationService
 @page "/ModelDashboard/ParametersDetails"
+@implements IDisposable
 
 <div>
     <h5>Details</h5>
@@ -97,16 +98,33 @@ Copyright (c) 2022 RHEA System S.A.
     public ObservableCollection<BuiltParameter> Parameters = new ObservableCollection<BuiltParameter>();
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {  
         this.InitializeParameters();
 
-        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
-            this.InitializeParameters();
-            this.StateHasChanged();
-        });
+        if (!Listeners.Keys.Contains("SessionEvent"))
+        {
+            Listeners.Add("SessionEvent", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x => {
+                this.InitializeParameters();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        Listeners.Values.ToList().ForEach(l => l.Dispose());
+        Listeners.Clear();
     }
 
     /// <summary>
@@ -114,14 +132,15 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeParameters()
     {
-        if (Criteria is not null && Domain is not null && ISessionAnchor.OpenIteration != null)
+        var iteration = ISessionAnchor.GetIteration();
+        if (Criteria is not null && Domain is not null && iteration != null)
         {
-            List<ElementDefinition> elements = ISessionAnchor.OpenIteration.Element;
+            List<ElementDefinition> elements = iteration.Element;
 
             List<Parameter> parameters = new List<Parameter>();
             elements.ForEach(element => parameters.AddRange(element.Parameter));
 
-            List<ParameterValueSet> parameterValueSets = iterationService.GetParameterValueSets(ISessionAnchor.OpenIteration);
+            List<ParameterValueSet> parameterValueSets = iterationService.GetParameterValueSets(iteration);
 
             this.FilterDomainCriteriaOptionState(parameterValueSets).ForEach(valueSet =>
             {
@@ -131,7 +150,7 @@ Copyright (c) 2022 RHEA System S.A.
                     Name = associatedParameter?.ParameterType?.Name,
                     ElementName = elements.Find(element => element.Parameter.Contains(associatedParameter))?.Name,
                     Domain = valueSet.Owner.ShortName,
-                    Option = ISessionAnchor.OpenIteration.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name,
+                    Option = iteration.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name,
                     State = valueSet.ActualState?.Name,
                     Scale = associatedParameter?.Scale?.ShortName,
                     ActualValue = valueSet.ActualValue,
@@ -169,7 +188,7 @@ Copyright (c) 2022 RHEA System S.A.
         if (this.FilterOption != null)
         {
             List<NestedParameter> nestedParameters = new List<NestedParameter>();
-            ISessionAnchor.OpenIteration.Option.ToList()
+            ISessionAnchor.GetIteration()?.Option.ToList()
                 .Find(o => o.Iid == this.FilterOption)?
                 .NestedElement.ForEach(element => nestedParameters.AddRange(element.NestedParameter));
 

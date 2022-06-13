@@ -23,30 +23,31 @@ Copyright (c) 2022 RHEA System S.A.
 @page "/ModelDashboard"
 @inject ISessionAnchor ISessionAnchor
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <ApplicationTemplate Title="Model Dashboard">
     <Body>
         <div class="display-flex flex-row">
-            @if(ISessionAnchor.OpenIteration.Option.ToList().Count > 1)
+            @if(ISessionAnchor.GetIteration()?.Option.ToList().Count > 1)
             {
                 <div class="m-left-10px">
                     <h6>Filter on options :</h6>
                     <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
                         <option value="">--Select--</option>
-                        @foreach(var option in ISessionAnchor.OpenIteration.Option.ToList())
+                        @foreach(var option in ISessionAnchor.GetIteration().Option.ToList())
                         {
                             <option value="@option.Iid">@option.Name</option>
                         }
                     </select>
                 </div>
             }
-            @if (ISessionAnchor.OpenIteration.ActualFiniteStateList.Any())
+            @if (ISessionAnchor.GetIteration().ActualFiniteStateList.Any())
             {
                 <div class="m-left-10px">
                     <h6>Filter on states :</h6>
                     <select @bind="this.FilterState" @oninput="UpdateFilterState">
                         <option value="">--Select--</option>
-                        @foreach(var stateList in ISessionAnchor.OpenIteration.ActualFiniteStateList)
+                        @foreach(var stateList in ISessionAnchor.GetIteration().ActualFiniteStateList)
                         {
                             @foreach(var state in stateList.ActualState)
                             {
@@ -84,15 +85,32 @@ Copyright (c) 2022 RHEA System S.A.
     public int ActiveTabIndex { get; set; } = 0;
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Force component to rerender when the session is updated
     /// </summary>
     /// <param name="firstRender">Boolean defining first render</param>
     protected override void OnAfterRender(bool firstRender)
     {
-        CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x =>
+        if (!Listeners.Keys.Contains("Refreshing"))
         {
-            this.StateHasChanged();
-        });
+            Listeners.Add("Refreshing", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        Listeners.Values.ToList().ForEach(l => l.Dispose());
+        Listeners.Clear();
     }
 
     /// <summary>

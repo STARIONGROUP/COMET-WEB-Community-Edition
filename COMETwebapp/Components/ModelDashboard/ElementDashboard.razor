@@ -37,9 +37,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        if (ISessionAnchor.OpenIteration != null)
+        var iteration = ISessionAnchor.GetIteration();
+        if (iteration != null)
         {
-            this.Data = ISessionAnchor.OpenIteration.Element;
+            this.Data = iteration.Element;
         }
     }
 }
