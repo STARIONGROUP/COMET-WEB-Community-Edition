@@ -127,7 +127,7 @@
         {
             this.Listeners.Add("Refreshing", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
             {
-                IsRefreshing = true;
+                this.IsRefreshing = true;
                 this.StateHasChanged();
             }));
         }
@@ -135,7 +135,7 @@
         {
             this.Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
-                IsRefreshing = false;
+                this.IsRefreshing = false;
                 this.StateHasChanged();
             }));
         }
