@@ -47,12 +47,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Backing field for <see cref="AutoRefreshSecondsLeft"/>
     /// </summary>
-    private uint AutoRefreshSecondsLeft;
+    private int AutoRefreshSecondsLeft;
 
     /// <summary>
     /// The timer
     /// </summary>
-    public System.Timers.Timer? timer { get; set; }
+    public Timer? Timer { get; set; }
     
     /// <summary>
     /// Enable/disable auto-refresh for the ISession
@@ -70,7 +70,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">The <see cref="ChangeEventArgs"> from the number input </param>
     public void OnIntervalChange(ChangeEventArgs e)
     {
-        ISessionAnchor.AutoRefreshInterval = Convert.ToUInt32((string) e.Value);
+        ISessionAnchor.AutoRefreshInterval = int.Parse((string) e.Value);
         this.SetTimer();
     }
 
@@ -82,20 +82,22 @@ Copyright (c) 2022 RHEA System S.A.
         if (this.IsAutoRefreshEnabled)
         {
             //dispose of previous timer
-            if (this.timer != null)
+            if (this.Timer != null)
             {
-                this.timer.Stop();
-            } else {
+                this.Timer.Stop();
+            } 
+            else 
+            {
                 this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
 
-                this.timer = new System.Timers.Timer(1000);
-                this.timer.Elapsed += this.OntTimerElapsed;
-                this.timer.Start();
+                this.Timer = new Timer(1000);
+                this.Timer.Elapsed += this.OntTimerElapsed;
+                this.Timer.Start();
             }
         }
         else
         {
-            this.timer?.Stop();
+            this.Timer?.Stop();
         }
     }
 
@@ -110,11 +112,11 @@ Copyright (c) 2022 RHEA System S.A.
 
         if (this.AutoRefreshSecondsLeft == 0)
         {
-            this.timer?.Stop();
+            this.Timer?.Stop();
             await ISessionAnchor.RefreshSession();
 
             this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
-            this.timer?.Start();
+            this.Timer?.Start();
         }
     }
 }
