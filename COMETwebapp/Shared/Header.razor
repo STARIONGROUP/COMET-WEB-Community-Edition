@@ -28,7 +28,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <a class="navbar-brand"><img src="images/COMET-Logo.png" title="COMET Community Edition" /></a>
+    <a class="navbar-brand"><img src="images/COMET-Logo.png" title="COMET Community Edition" alt="COMET Community Edition"/></a>
 
     <div class="header">
         
@@ -67,7 +67,15 @@
 			        </DxPopup>
 		        </NotAuthorized>
 	        </AuthorizeView>
-	        <a href="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition" target="_blank" class="m-left-3px">About</a>
+	        
+			<a href="" @onclick="@(() => this.isAboutPopupVisible = true)" class="m-left-3px">About</a> 
+	        <DxPopup @bind-Visible="@this.isAboutPopupVisible" HeaderText="COMET-WEB CE">
+		        <About/>
+		        <div class="text-center">
+					<DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.isAboutPopupVisible = false)"/>
+                </div>
+	        </DxPopup>
+	        
         </div>
     </div>
 
@@ -104,6 +112,11 @@
     /// Boolean to determine if the Popup Login is visible
     /// </summary>
     private bool loginPopupVisible = false;
+
+	/// <summary>
+	/// A value indicating whether the About popup window is visible or not.
+	/// </summary>
+	private bool isAboutPopupVisible = false;
 
     /// <summary>
     /// toggle the visibility of the side menu
