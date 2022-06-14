@@ -135,7 +135,6 @@ namespace COMETwebapp.Tests
         [Test]
         public void VerifyGetIteration()
         {
-            Assert.AreSame(this.openIteration, this.sessionAnchor.GetIteration());
             this.session.Setup(x => x.OpenIterations).Returns(default(IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>));
             Assert.IsNull(this.sessionAnchor.GetIteration());
             this.session.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), true)).Returns(Task.CompletedTask);
@@ -144,6 +143,8 @@ namespace COMETwebapp.Tests
             {
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
+            this.sessionAnchor.IsSessionOpen = true;
+            Assert.AreSame(this.iteration, this.sessionAnchor.GetIteration());
 
             Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.SetOpenIteration(this.engineeringSetup, this.iteration.IterationSetup));
         }

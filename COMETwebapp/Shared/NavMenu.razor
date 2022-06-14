@@ -24,7 +24,7 @@
 @implements IDisposable
 
 <div class="sidebar @StateCssClass">
-    @if(ISessionAnchor.GetSiteDirectory() != null)
+    @if(ISessionAnchor.Session != null && ISessionAnchor.GetSiteDirectory() != null)
     {
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
             <Nodes>
