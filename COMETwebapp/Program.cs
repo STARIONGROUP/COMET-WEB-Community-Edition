@@ -40,6 +40,8 @@ namespace COMETwebapp
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
+            builder.Services.AddScoped(sp => new HttpClient());
+
             builder.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
             builder.Services.AddSingleton<ISession, Session>();
 
