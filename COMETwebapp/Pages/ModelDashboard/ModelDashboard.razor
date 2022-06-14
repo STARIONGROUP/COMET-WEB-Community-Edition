@@ -87,7 +87,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Listeners for the components to update it with ISession
     /// </summary>
-    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
 
     /// <summary>
     /// Force component to rerender when the session is updated
@@ -95,9 +95,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="firstRender">Boolean defining first render</param>
     protected override void OnAfterRender(bool firstRender)
     {
-        if (this.Listeners.TryGetValue("UpToDate", out var listener))
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
-            this.Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
                 this.StateHasChanged();
             }));
@@ -109,8 +109,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void Dispose()
     {
-        this.Listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.Listeners.Clear();
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
     }
 
     /// <summary>

@@ -96,35 +96,40 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Listeners for the components to update it with ISession
     /// </summary>
-    private Dictionary<string, IDisposable> Listeners = new Dictionary<string, IDisposable>();
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
 
     /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {
+        this.LoadData();
+
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.LoadData();
+                this.StateHasChanged();
+            }));
+        }
+        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)){
+            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            {
+                this.LoadData();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Load all data to create the table
+    /// </summary>
+    private void LoadData()
+    {
         this.ViewModelSubscribedParameters.Clear();
         this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (this.Listeners.TryGetValue("UpToDate", out var listener))
-        {
-            this.Listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                this.OnInitialized();
-                this.StateHasChanged();
-            }));
-        }
-        if (this.Listeners.TryGetValue("DomainChangedEvent", out listener)){
-            this.Listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
-            {
-                this.OnInitialized();
-                this.StateHasChanged();
-            }));
-        }
     }
 
     /// <summary>
@@ -132,8 +137,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void Dispose()
     {
-        this.Listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.Listeners.Clear();
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
     }
 
     /// <summary>

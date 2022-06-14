@@ -21,25 +21,10 @@
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
+@implements IDisposable
 
 <div class="sidebar @StateCssClass">
-    @if(ISessionAnchor.IsSessionOpen)
-    {
-        <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
-            <Nodes>
-                <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
-                <DxTreeViewNode IconCssClass="oi oi-wrench zoom-1-5" NavigateUrl="./settings" Text="Settings"></DxTreeViewNode>
-                @foreach(var card in Cards)
-                {
-                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
-                    var color = Regex.Replace(card.Color, @"#", "");
-                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
-                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
-                }
-            </Nodes>
-        </DxTreeView>
-    } 
-    else if (ISessionAnchor.IsSessionOpen && ISessionAnchor.GetIteration() != null)
+    @if(ISessionAnchor.GetSiteDirectory() != null)
     {
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
             <Nodes>
@@ -54,7 +39,7 @@
                 }
             </Nodes>
         </DxTreeView>
-    } 
+    }  
     else
     {
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
@@ -81,12 +66,50 @@
     public List<Card> Cards { get; set; }
 
     /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
     /// Get application Cards static initalization of the component
     /// </summary>
     protected override void OnInitialized()
     {
         var application = new ApplicationCards();
         this.Cards = application.Cards;
+
+        if (!this.listeners.TryGetValue("Closed", out var listener))
+        {
+            this.listeners.Add("Closed", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.Closed).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("Open", out listener))
+        {
+            this.listeners.Add("Open", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.Open).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("Update", out listener))
+        {
+            this.listeners.Add("Update", CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
     }
 
     /// <summary>
@@ -95,8 +118,16 @@
     /// <returns>Url to home page of the opened EngineeringModel</returns>
     private string? GetModelName()
     {
-        var actualIterationSetup = this.ISessionAnchor.GetIteration()?.IterationSetup;
-        var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
-        return "./" + actualEngineeringModelSetup?.Name;
+        if(ISessionAnchor.GetIteration() != null)
+        {
+            var actualIterationSetup = this.ISessionAnchor.GetIteration()?.IterationSetup;
+            var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
+            Console.WriteLine(actualEngineeringModelSetup?.Name);
+            return "./" + actualEngineeringModelSetup?.Name; 
+        } else
+        {
+            return "./";
+        }
+
     }
 }
