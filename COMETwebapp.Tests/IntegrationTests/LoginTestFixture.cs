@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Integration_Tests
+namespace COMETwebapp.Tests.IntegrationTests
 {
     using System;
 
@@ -37,7 +37,7 @@ namespace COMETwebapp.Tests.Integration_Tests
     /// <summary>
     /// Integration test suite that verifies the login feature
     /// </summary>
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class LoginTestFixture
     {
         private string appURL;
