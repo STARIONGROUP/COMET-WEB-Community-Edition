@@ -25,6 +25,7 @@
 namespace COMETwebapp.Model
 {
     using CDP4Common.Types;
+    using CDP4Common.EngineeringModelData;
 
     /// <summary>
     /// Represent information for subscribed parameters
@@ -47,19 +48,19 @@ namespace COMETwebapp.Model
         public string? ModelCode { get; set; }
 
         /// <summary>
-        /// Tells if the associated Parameter is option dependent
+        /// Gets or sets a value indicating whether the associated <see cref="Parameter"/> is option dependent
         /// </summary>
         public bool? IsOptionDependent { get; set; }
 
         /// <summary>
-        /// Tells if the associated Parameter is state dependent
+        /// Gets or sets a value indicating whether the associated <see cref="Parameter"/> is state dependent
         /// </summary>
         public bool? IsStateDependent { get; set; }
 
         /// <summary>
-        /// Tells if the associated Parameter has any default ParameterValueSet
+        /// Gets or sets a value indicating whether the associated<see cref="Parameter"/> has any<see cref="ParameterValueSet"/> where the actual value is equal to the default value "-"
         /// </summary>
-        public bool? IsIncompleted { get; set; }
+        public bool? IsIncomplete { get; set; }
 
         /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet

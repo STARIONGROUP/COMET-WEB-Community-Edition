@@ -22,7 +22,6 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService iterationService
 @inject ISessionAnchor ISessionAnchor
 
-
 <div>
     @if(this.SubscribedParameters.Count == 0)
     {
@@ -35,7 +34,7 @@ Copyright (c) 2022 RHEA System S.A.
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
-                    @if((context as ParameterSubscriptionViewModel).IsIncompleted == true)
+                    @if((context as ParameterSubscriptionViewModel).IsIncomplete == true)
                     {
                     <span class="badge rounded-pill bg-info">@((context as ParameterSubscriptionViewModel).ParameterType)</span>
                     } else
@@ -111,7 +110,7 @@ Copyright (c) 2022 RHEA System S.A.
         {
             var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Contains(subscribedParameter));
 
-            var isIncompleted = subscribedParameter.ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;
+            var isIncomplete = subscribedParameter.ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;
 
             this.ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
                 {
@@ -120,7 +119,7 @@ Copyright (c) 2022 RHEA System S.A.
                     ModelCode = subscribedParameter.ModelCode(),
                     IsOptionDependent = subscribedParameter.IsOptionDependent,
                     IsStateDependent = subscribedParameter.StateDependence != null,
-                    IsIncompleted = isIncompleted
+                    IsIncomplete = isIncomplete
                 });
         });
     }
