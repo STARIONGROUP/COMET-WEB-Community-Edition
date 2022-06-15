@@ -23,14 +23,14 @@ Copyright (c) 2022 RHEA System S.A.
 @using DevExpress.Blazor
 
 <DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
-    <DxChartDonutSeries Filter="@((DataChart d) => d.Argument.Equals("Published values as default") || d.Argument.Equals("Other values"))"
+    <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published values as default") || d.Argument.Equals("Other values")))"
                     ValueField="@(d => d.Value)"
                     ArgumentField="@(d => d.Argument)"
                     AggregationMethod="Enumerable.Sum">
         <DxChartSeriesLabel Visible="true" />
     </DxChartDonutSeries>
     <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
-    <DxChartDonutSeries Filter="@((DataChart d) => d.Argument.Equals("Published parameters") || d.Argument.Equals("Publishable parameters"))"
+    <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published parameters") || d.Argument.Equals("Publishable parameters")))"
                       ValueField="@(d => d.Value)"
                       ArgumentField="@(d => d.Argument)"
                       AggregationMethod="Enumerable.Sum">
@@ -50,15 +50,16 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="settings">Settings associated with the series point</param>
     protected void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings) {
-        if (settings.Point.Argument.ToString().Equals("Published parameters")){
+        var argument = settings.Point.Argument.ToString();
+        if (argument != null && argument.Equals("Published parameters")){
             settings.PointAppearance.Color = System.Drawing.Color.SkyBlue;
-        }else if (settings.Point.Argument.ToString().Equals("Publishable parameters"))
+        }else if (argument != null && argument.Equals("Publishable parameters"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.LightCoral;
-        } else if (settings.Point.Argument.ToString().Equals("Published values as default"))
+        } else if (argument != null && argument.Equals("Published values as default"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.DarkSeaGreen;
-        } else if (settings.Point.Argument.ToString().Equals("Other values"))
+        } else if (argument != null && argument.Equals("Other values"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.LightSlateGray;
         }

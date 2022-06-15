@@ -54,12 +54,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// Gets or sets the modelName
     /// </summary>
     [Parameter]
-    public string ModelName { get; set; }
+    public string? ModelName { get; set; }
 
     /// <summary>
     /// List of application Cards
     /// </summary>
-    public List<Card> Cards { get; set; }
+    public List<Card> Cards { get; set; } = new List<Card>();
 
     /// <summary>
     /// Get application Cards static initalization of the component
@@ -74,9 +74,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// Navigate to the selected application
     /// </summary>
     /// <param name="applicationName">Name of the selected application</param>
-    private void SelectApplication(string applicationName)
+    private void SelectApplication(string? applicationName)
     {
-        var newName = Regex.Replace(applicationName, @"\s", "");
-        NavigationManager.NavigateTo($"/{newName}");
+        if (applicationName is not null)
+        {
+            var newName = Regex.Replace(applicationName, @"\s", "");
+            NavigationManager.NavigateTo($"/{newName}");
+        }
     }
 }

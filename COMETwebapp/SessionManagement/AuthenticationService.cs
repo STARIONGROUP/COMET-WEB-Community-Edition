@@ -82,7 +82,8 @@ namespace COMETwebapp.SessionManagement
 
             this.sessionAnchor.Session = new Session(dal, credentials);
 
-            try {
+            try
+            {
                 await this.sessionAnchor.Session.Open();
                 this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
                 ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
