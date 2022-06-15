@@ -122,7 +122,6 @@
         {
             var actualIterationSetup = this.ISessionAnchor.GetIteration()?.IterationSetup;
             var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
-            Console.WriteLine(actualEngineeringModelSetup?.Name);
             return "./" + actualEngineeringModelSetup?.Name; 
         } else
         {

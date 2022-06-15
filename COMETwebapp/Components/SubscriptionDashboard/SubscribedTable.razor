@@ -42,16 +42,37 @@ Copyright (c) 2022 RHEA System S.A.
                         var scalevalue = (context as ParameterSubscriptionViewModel).Scale;
                         var switchmode = (context as ParameterSubscriptionViewModel).SwitchMode;
                     }
-                    @if(actualValue?.Count == 1)
+                    @if ((context as ParameterSubscriptionViewModel).IsUpdated)
                     {
-                        <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                        <span class="badge rounded-pill bg-success">
+                            @if (actualValue?.Count == 1)
+                            {
+                                <a>@actualValue.First() @scalevalue </a>
+                            }
+                            else
+                            {
+                                @foreach (string value in actualValue)
+                                {
+                                    <a>value</a>
+                                }
+                                <a>@scalevalue </a>
+                            }
+                        </span>
+                        <a><br/> (@switchmode)</a>
                     } else
                     {
-                        @foreach(string value in actualValue)
+                        @if (actualValue?.Count == 1)
                         {
-                            <a>value</a>
+                            <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
                         }
-                        <a>@scalevalue <br/> (@switchmode)</a>
+                        else
+                        {
+                            @foreach (string value in actualValue)
+                            {
+                                <a>value</a>
+                            }
+                            <a>@scalevalue <br/> (@switchmode)</a>
+                        }
                     }
                 </DisplayTemplate>
             </DxDataGridColumn>
@@ -62,18 +83,37 @@ Copyright (c) 2022 RHEA System S.A.
                         var scalevalue = (context as ParameterSubscriptionViewModel).SubscribedScale;
                         var switchmode = (context as ParameterSubscriptionViewModel).SubscribedSwitchMode;
                     }
-                    @if(actualValue?.Count == 1)
+                    @if ((context as ParameterSubscriptionViewModel).IsSubscribedUpdated)
                     {
-                        <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                        <span class="badge rounded-pill bg-success">
+                            @if(actualValue?.Count == 1)
+                            {
+                                <a>@actualValue.First() @scalevalue </a>
+                            } else
+                            {
+                                @foreach(string value in actualValue)
+                                {
+                                    <a>value</a>
+                                }
+                                <a>@scalevalue </a>
+                            }
+                        </span>
+                        <a><br/> (@switchmode)</a>
                     } else
                     {
-                        @foreach(string value in actualValue)
+                        @if(actualValue?.Count == 1)
                         {
-                            <a>value</a>
+                            <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
+                        } else
+                        {
+                            @foreach(string value in actualValue)
+                            {
+                                <a>value</a>
+                            }
+                            <a>@scalevalue <br/> (@switchmode)</a>
                         }
-                        <a>@scalevalue <br/> (@switchmode)</a>
                     }
-                </DisplayTemplate>
+            </DisplayTemplate>
             </DxDataGridColumn>
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center"/>
@@ -113,7 +153,7 @@ Copyright (c) 2022 RHEA System S.A.
                 this.StateHasChanged();
             }));
         }
-        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)){
+        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)) {
             this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
             {
                 this.LoadData();
@@ -149,11 +189,34 @@ Copyright (c) 2022 RHEA System S.A.
         this.SubscribedParameters.ForEach(subscribedparameter => {
             subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet =>
             {
+                var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet.Revisions;
+                var isParameterSubscriptionValueUpdated = false;
+
+                //if change in manual or reference value, revisionNumber changes
+                if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
+                {
+                    isParameterSubscriptionValueUpdated = true;
+                }
+
                 var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.GetIteration());
 
-                var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet.SubscribedValueSet.Iid);
+                var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
                 var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
+
+                var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
+                var isAssociatedParameterValueUpdated = false;
+
+                //if any change, revisionNumber changes
+                if (associatedParameterValueSetRevisions?.LongCount() != (long)0 && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
+                {
+                    isAssociatedParameterValueUpdated = true;
+                }
+                
+                if(isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
+                {
+                    isParameterSubscriptionValueUpdated = true;
+                }
 
                 ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
                 {
@@ -165,11 +228,12 @@ Copyright (c) 2022 RHEA System S.A.
                     SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
                     Option = parameterSubscriptionValueSet?.ActualOption?.Name,
                     State = parameterSubscriptionValueSet?.ActualState?.Name,
+                    IsUpdated = isParameterSubscriptionValueUpdated,
                     SubscribedActualValue = associatedParameterValueSet?.ActualValue,
                     SubscribedScale = associatedParameter?.Scale.ShortName,
                     SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
-                    SubscribedOwner = associatedParameterValueSet?.Owner.ShortName
-
+                    SubscribedOwner = associatedParameterValueSet?.Owner.ShortName,
+                    IsSubscribedUpdated = isAssociatedParameterValueUpdated
                 });
             });
         });
