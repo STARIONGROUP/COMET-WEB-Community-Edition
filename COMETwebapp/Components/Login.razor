@@ -49,7 +49,7 @@
                         <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Connect</button>            
                         break;
                     case AuthenticationStateKind.Authenticating:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled=true>Connecting</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled>Connecting</button>            
                         break;
                     case AuthenticationStateKind.Fail:
                         <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" >Retry</button>            
@@ -72,13 +72,13 @@
     /// Gets or sets the (injected) IAuthenticationService used to authenticate against the selected datasource
     /// </summary>
     [Inject]
-    public IAuthenticationService AuthenticationService { get; set; }
+    public IAuthenticationService? AuthenticationService { get; set; }
 
     /// <summary>
     /// Gets or sets the (injected) NavigationManager used to navigate between pages
     /// </summary>
     [Inject]
-    public NavigationManager NavigationManager { get; set; }
+    public NavigationManager? NavigationManager { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="AuthenticationStateKind"/>
@@ -101,9 +101,12 @@
         this.AuthenticationState = AuthenticationStateKind.Authenticating;
         StateHasChanged();
 
-        this.AuthenticationState = await AuthenticationService.Login(AuthenticationDto);
+        if (AuthenticationService != null)
+        {
+            this.AuthenticationState = await AuthenticationService.Login(AuthenticationDto);
+        }
 
-        if (this.AuthenticationState == AuthenticationStateKind.Success)
+        if (NavigationManager != null && this.AuthenticationState == AuthenticationStateKind.Success)
         {
             NavigationManager.NavigateTo("/");
         }

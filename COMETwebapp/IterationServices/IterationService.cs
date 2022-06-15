@@ -42,7 +42,7 @@ namespace COMETwebapp.IterationServices
         /// <returns>All <see cref="ParameterValueSet"/></returns>
         public List<ParameterValueSet> GetParameterValueSets(Iteration? iteration)
         {
-            List<ParameterValueSet> result = new List<ParameterValueSet>();
+            var result = new List<ParameterValueSet>();
             iteration?.Element.ForEach(e => e.Parameter.ForEach(p => result.AddRange(p.ValueSet)));
             return result;
         }
@@ -56,8 +56,8 @@ namespace COMETwebapp.IterationServices
         /// <returns>All <see cref="NestedElement"/></returns>
         public List<NestedElement> GetNestedElements(Iteration? iteration)
         {
-            NestedElementTreeGenerator nestedElementTreeGenerator = new NestedElementTreeGenerator();
-            List<NestedElement> nestedElements = new List<NestedElement>();
+            var nestedElementTreeGenerator = new NestedElementTreeGenerator();
+            var nestedElements = new List<NestedElement>();
             if(iteration?.TopElement != null)
             {
                 iteration.Option.ToList().ForEach(option => nestedElements.AddRange(nestedElementTreeGenerator.Generate(option)));
@@ -77,8 +77,8 @@ namespace COMETwebapp.IterationServices
         /// <returns>All<see cref="NestedParameter"/> of the given option</returns>
         public List<NestedParameter> GetNestedParameters(Iteration? iteration, Guid? optionIid)
         {
-            NestedElementTreeGenerator nestedElementTreeGenerator = new NestedElementTreeGenerator();
-            List<NestedParameter> nestedParameters = new List<NestedParameter>();
+            var nestedElementTreeGenerator = new NestedElementTreeGenerator();
+            var nestedParameters = new List<NestedParameter>();
             var option = iteration?.Option.ToList().Find(o => o.Iid == optionIid);
             if (option != null && iteration?.TopElement != null)
             {
@@ -97,15 +97,14 @@ namespace COMETwebapp.IterationServices
         /// <returns>All unused <see cref="ElementDefinition"/></returns>
         public List<ElementDefinition> GetUnusedElementDefinitions(Iteration? iteration)
         {
-            List<NestedElement> nestedElements = this.GetNestedElements(iteration);
-
-            List<ElementDefinition> associatedElements = new List<ElementDefinition>();
+            var nestedElements = this.GetNestedElements(iteration);
+            var associatedElements = new List<ElementDefinition>();
             nestedElements.ForEach(element => {
                 element.ElementUsage.ToList().ForEach(e => associatedElements.Add(e.ElementDefinition));
              });
             associatedElements = associatedElements.Distinct().ToList();
 
-            List<ElementDefinition> unusedElementDefinitions = new List<ElementDefinition>();
+            var unusedElementDefinitions = new List<ElementDefinition>();
             if (iteration is not null)
             {
                 unusedElementDefinitions.AddRange(iteration.Element);
@@ -125,13 +124,13 @@ namespace COMETwebapp.IterationServices
         /// <returns>All unreferenced <see cref="ElementDefinition"/></returns>
         public List<ElementDefinition> GetUnreferencedElements(Iteration? iteration)
         {
-            List<ElementUsage> elementUsages = new List<ElementUsage>();
+            var elementUsages = new List<ElementUsage>();
             iteration?.Element.ForEach(e => elementUsages.AddRange(e.ContainedElement));
 
-            List<ElementDefinition> associatedElementDefinitions = new List<ElementDefinition>();
+            var associatedElementDefinitions = new List<ElementDefinition>();
             elementUsages.ForEach(e => associatedElementDefinitions.Add(e.ElementDefinition));
 
-            List<ElementDefinition> unreferencedElementDefinitions = new List<ElementDefinition>();
+            var unreferencedElementDefinitions = new List<ElementDefinition>();
             if(iteration is not null)
             {
                 unreferencedElementDefinitions.AddRange(iteration.Element);
@@ -149,15 +148,29 @@ namespace COMETwebapp.IterationServices
         /// <returns>List of all <see cref="ParameterSubscription"/></returns>
         public List<ParameterSubscription> GetParameterSubscriptions(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
         {
-            List<ParameterSubscription> subscribedParameters = new List<ParameterSubscription>();
-
+            var subscribedParameters = new List<ParameterSubscription>();
             iteration?.Element.ForEach(element =>
             {
                 element.Parameter.ForEach(parameter =>
                          subscribedParameters.AddRange(parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)))
                 );
             });
+            return subscribedParameters;
+        }
 
+        /// <summary>
+        /// Gets all <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/> and subscribed by other <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> to get <see cref="Parameter"/></param>
+        /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
+        /// <returns>Subscribed <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/></returns>
+        public List<Parameter> GetCurrentDomainSubscribedParameters(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
+        {
+            var subscribedParameters = new List<Parameter>();
+            iteration?.Element.FindAll(element => element.Owner == currentDomainOfExpertise).ForEach(element =>
+            {
+                subscribedParameters.AddRange(element.Parameter.FindAll(parameter => parameter.ParameterSubscription.Count != 0));
+            });
             return subscribedParameters;
         }
     }

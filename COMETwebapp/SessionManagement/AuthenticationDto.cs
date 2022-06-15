@@ -32,17 +32,17 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// Gets or sets the address of the datasource to connect to
         /// </summary>
-        public string SourceAddress { get; set; }
+        public string? SourceAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the username to authenticate with
         /// </summary>
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password to authenticate with
         /// </summary>
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
     }
 }

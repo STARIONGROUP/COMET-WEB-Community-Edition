@@ -24,6 +24,27 @@ Copyright (c) 2022 RHEA System S.A.
 
 <ApplicationTemplate Title="Subscription Dashboard">
     <Body>
-        <SubscribedTable />
+        <DxTreeView CssClass="m-top-10px">
+            <Nodes>
+                <DxTreeViewNode Name="SubscribedTableView" Text="Parameters I subscribed to" Expanded CssClass="color-title">
+                    <Nodes>
+                        <DxTreeViewNode >
+                            <Template>
+                                <SubscribedTable />
+                            </Template>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeViewNode>
+                <DxTreeViewNode Name="DomainOfExpertiseSubscriptionTableView" Text="My Parameters subscribed to by others" Expanded CssClass="color-title">
+                    <Nodes>
+                        <DxTreeViewNode >
+                            <Template>
+                                <DomainOfExpertiseSubscriptionTable />
+                            </Template>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeViewNode>
+            </Nodes>
+        </DxTreeView>
     </Body>
 </ApplicationTemplate>

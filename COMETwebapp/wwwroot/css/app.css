@@ -54,6 +54,10 @@ html, body, #app {
     margin-top: 5px;
 }
 
+.m-top-10px {
+    margin-top: 10px;
+}
+
 .m-left-3px {
     margin-left: 3px;
 }

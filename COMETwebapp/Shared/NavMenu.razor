@@ -32,10 +32,13 @@
                 <DxTreeViewNode IconCssClass="oi oi-wrench zoom-1-5" NavigateUrl="./settings" Text="Settings"></DxTreeViewNode>
                 @foreach(var card in Cards)
                 {
-                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
-                    var color = Regex.Replace(card.Color, @"#", "");
-                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
-                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
+                    @if(card.Name is not null && card.Color is not null)
+                    {
+                        var url = "/" + Regex.Replace(card.Name, @"\s", "");
+                        var color = Regex.Replace(card.Color, @"#", "");
+                        var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                        <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
+                    }
                 }
             </Nodes>
         </DxTreeView>
@@ -47,10 +50,13 @@
                 <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="./" Text="Home"></DxTreeViewNode>
                 @foreach(var card in Cards)
                 {
-                    var url = "/" + Regex.Replace(card.Name, @"\s", "");
-                    var color = Regex.Replace(card.Color, @"#", "");
-                    var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
-                    <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
+                    @if (card.Name is not null && card.Color is not null)
+                    {
+                        var url = "/" + Regex.Replace(card.Name, @"\s", "");
+                        var color = Regex.Replace(card.Color, @"#", "");
+                        var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                        <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>
+                    }
                 }
             </Nodes>
         </DxTreeView>
@@ -58,12 +64,12 @@
 </div>
 
 @code {
-    [Parameter] public string StateCssClass { get; set; }
+    [Parameter] public string? StateCssClass { get; set; }
 
     /// <summary>
     /// List of application names
     /// </summary>
-    public List<Card> Cards { get; set; }
+    public List<Card> Cards { get; set; } = new List<Card>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession

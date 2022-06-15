@@ -44,7 +44,7 @@ Copyright (c) 2022 RHEA System S.A.
                     }
                     @if ((context as ParameterSubscriptionViewModel).IsUpdated)
                     {
-                        <span class="badge rounded-pill bg-success">
+                        <span class="badge rounded-pill bg-info">
                             @if (actualValue?.Count == 1)
                             {
                                 <a>@actualValue.First() @scalevalue </a>
@@ -85,7 +85,7 @@ Copyright (c) 2022 RHEA System S.A.
                     }
                     @if ((context as ParameterSubscriptionViewModel).IsSubscribedUpdated)
                     {
-                        <span class="badge rounded-pill bg-success">
+                        <span class="badge rounded-pill bg-info">
                             @if(actualValue?.Count == 1)
                             {
                                 <a>@actualValue.First() @scalevalue </a>

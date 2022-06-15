@@ -59,7 +59,7 @@ namespace COMETwebapp.SessionManagement
         {
 
             ClaimsIdentity identity;
-            if (this.sessionAnchor.IsSessionOpen == false)
+            if (!this.sessionAnchor.IsSessionOpen)
             {
                 identity = new ClaimsIdentity();
             } else
