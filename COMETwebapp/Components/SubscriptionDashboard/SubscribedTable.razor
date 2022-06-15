@@ -191,6 +191,7 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet.Revisions;
                 var isParameterSubscriptionValueUpdated = false;
+
                 //if change in manual or reference value, revisionNumber changes
                 if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
                 {
@@ -205,6 +206,7 @@ Copyright (c) 2022 RHEA System S.A.
 
                 var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
                 var isAssociatedParameterValueUpdated = false;
+
                 //if any change, revisionNumber changes
                 if (associatedParameterValueSetRevisions?.LongCount() != (long)0 && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
                 {
