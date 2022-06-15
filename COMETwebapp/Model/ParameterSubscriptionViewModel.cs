@@ -47,6 +47,21 @@ namespace COMETwebapp.Model
         public string? ModelCode { get; set; }
 
         /// <summary>
+        /// Tells if the associated Parameter is option dependent
+        /// </summary>
+        public bool? IsOptionDependent { get; set; }
+
+        /// <summary>
+        /// Tells if the associated Parameter is state dependent
+        /// </summary>
+        public bool? IsStateDependent { get; set; }
+
+        /// <summary>
+        /// Tells if the associated Parameter has any default ParameterValueSet
+        /// </summary>
+        public bool? IsIncompleted { get; set; }
+
+        /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet
         /// </summary>
         public ValueArray<string>? ActualValue { get; set; }

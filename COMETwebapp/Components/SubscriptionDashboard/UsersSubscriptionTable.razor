@@ -1,0 +1,127 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inject IIterationService iterationService
+@inject ISessionAnchor ISessionAnchor
+
+
+<div>
+    @if(this.SubscribedParameters.Count == 0)
+    {
+        <div>
+            You don't have any subscribed Parameters.
+        </div>
+    } else
+    {
+        <DxDataGrid Data="@ViewModelSubscribedParameters" PageSize="0">
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center">
+                <DisplayTemplate>
+                    @if((context as ParameterSubscriptionViewModel).IsIncompleted == true)
+                    {
+                    <span class="badge rounded-pill bg-info">@((context as ParameterSubscriptionViewModel).ParameterType)</span>
+                    } else
+                    {
+                    <div>@((context as ParameterSubscriptionViewModel).ParameterType)</div>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
+
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.IsOptionDependent)" TextAlignment="DataGridTextAlign.Center"/>
+            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.IsStateDependent)" TextAlignment="DataGridTextAlign.Center"/>
+        </DxDataGrid>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// List of <see cref="Parameter">, owned by the current <see cref="DomainOfExpertise">, subscribed by other <see cref="DomainOfExpertise">
+    /// </summary>
+    public List<Parameter> SubscribedParameters { get; set; } = new List<Parameter>();
+
+    /// <summary>
+    /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
+    /// </summary>
+    public ObservableCollection<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new ObservableCollection<ParameterSubscriptionViewModel>();
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        this.LoadData();
+
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.LoadData();
+                this.StateHasChanged();
+            }));
+        }
+        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)) {
+            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            {
+                this.LoadData();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Load all data to create the table
+    /// </summary>
+    private void LoadData()
+    {
+        this.ViewModelSubscribedParameters.Clear();
+        this.SubscribedParameters = iterationService.GetCurrentDomainSubscribedParameters(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise);
+        this.GetViewModelSubscribedParameters();
+    }
+
+    /// <summary>
+    /// Initialize the list of <see cref="ParameterSubscriptionViewModel"> with subscribed <see cref="Parameter">
+    /// </summary>
+    private void GetViewModelSubscribedParameters()
+    {
+        this.SubscribedParameters.ForEach(subscribedParameter =>
+        {
+            var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Contains(subscribedParameter));
+
+            var isIncompleted = subscribedParameter.ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;
+
+            this.ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
+                {
+                    ElementName = associatedElement?.Name,
+                    ParameterType = subscribedParameter.ParameterType.Name,
+                    ModelCode = subscribedParameter.ModelCode(),
+                    IsOptionDependent = subscribedParameter.IsOptionDependent,
+                    IsStateDependent = subscribedParameter.StateDependence != null,
+                    IsIncompleted = isIncompleted
+                });
+        });
+    }
+}

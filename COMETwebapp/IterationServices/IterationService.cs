@@ -160,5 +160,22 @@ namespace COMETwebapp.IterationServices
 
             return subscribedParameters;
         }
+
+        /// <summary>
+        /// Gets all <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/> and subscribed by other <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> to get <see cref="Parameter"/></param>
+        /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
+        /// <returns>Subscribed <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/></returns>
+        public List<Parameter> GetCurrentDomainSubscribedParameters(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
+        {
+            List<Parameter> subscribedParameters = new List<Parameter>();
+
+            iteration?.Element.FindAll(element => element.Owner == currentDomainOfExpertise).ForEach(element =>
+            {
+                subscribedParameters.AddRange(element.Parameter.FindAll(parameter => parameter.ParameterSubscription.Count != 0));
+            });
+            return subscribedParameters;
+        }
     }
 }
