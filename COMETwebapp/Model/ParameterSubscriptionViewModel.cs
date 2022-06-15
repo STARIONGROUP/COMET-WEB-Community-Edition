@@ -72,6 +72,11 @@ namespace COMETwebapp.Model
         public string? State { get; set; }
 
         /// <summary>
+        /// Defines if the ParameterSubcriptionValueSet is updated
+        /// </summary>
+        public bool IsUpdated { get; set; } = false;
+
+        /// <summary>
         /// Actual value of the subscribed ParameterValueSet
         /// </summary>
         public ValueArray<string>? SubscribedActualValue { get; set; }
@@ -90,6 +95,11 @@ namespace COMETwebapp.Model
         /// ShortName of the subscribed ParameterValueSet owner
         /// </summary>
         public string? SubscribedOwner { get; set; }
+
+        /// <summary>
+        /// Defines if the subscribed ParameterValueSet is updated
+        /// </summary>
+        public bool IsSubscribedUpdated { get; set; } = false;
 
     }
 }
