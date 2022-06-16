@@ -24,30 +24,51 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService iterationService
 @implements IDisposable
 
-<div>
-    @if(this.SubscribedParameters.Count == 0)
+<div class="display-flex flex-row">
+    @if (ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
     {
-        <div>
-            You don't have any subscriptions.
-        </div>
-    } else {
-        <DxDataGrid @ref="@grid" Data="@ViewModelSubscribedParameters" PageSize="0" RowClick="@OnRowClick">
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
-                <DisplayTemplate>
-                    @{
-                        var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
-                        var scalevalue = (context as ParameterSubscriptionViewModel)?.Scale;
-                        var switchmode = (context as ParameterSubscriptionViewModel)?.SwitchMode;
-                    }
-                    @if ((context as ParameterSubscriptionViewModel)?.IsUpdated == true && actualValue != null)
-                    {
-                        <span class="badge rounded-pill bg-light">
+        <button class="btn height-70 btn-outline-dark m-top-10px" @onclick="() => ValidateAllChanges()"><i class="oi oi-check"></i></button>
+    }
+    <div class="m-left-3px">
+        @if(this.SubscribedParameters.Count == 0)
+        {
+            <div>
+                You don't have any subscriptions.
+            </div>
+        } else {
+            <DxDataGrid @ref="@grid" Data="@ViewModelSubscribedParameters" PageSize="0" RowClick="@OnRowClick">
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
+                    <DisplayTemplate>
+                        @{
+                            var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
+                            var scalevalue = (context as ParameterSubscriptionViewModel)?.Scale;
+                            var switchmode = (context as ParameterSubscriptionViewModel)?.SwitchMode;
+                        }
+                        @if ((context as ParameterSubscriptionViewModel)?.IsUpdated == true && actualValue != null)
+                        {
+                            <span class="badge rounded-pill bg-light">
+                                @if (actualValue.Count == 1)
+                                {
+                                    <a>@actualValue.First() @scalevalue </a>
+                                }
+                                else
+                                {
+                                    @foreach(string value in actualValue)
+                                    {
+                                        <a>value</a>
+                                    }
+                                    <a>@scalevalue </a>
+                                }
+                            </span>
+                            <a><br/> (@switchmode)</a>
+                        } else if (actualValue != null)
+                        {
                             @if (actualValue.Count == 1)
                             {
-                                <a>@actualValue.First() @scalevalue </a>
+                                <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
                             }
                             else
                             {
@@ -55,71 +76,56 @@ Copyright (c) 2022 RHEA System S.A.
                                 {
                                     <a>value</a>
                                 }
-                                <a>@scalevalue </a>
+                                <a>@scalevalue <br/> (@switchmode)</a>
                             }
-                        </span>
-                        <a><br/> (@switchmode)</a>
-                    } else if (actualValue != null)
-                    {
-                        @if (actualValue.Count == 1)
-                        {
-                            <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
                         }
-                        else
-                        {
-                            @foreach(string value in actualValue)
-                            {
-                                <a>value</a>
-                            }
-                            <a>@scalevalue <br/> (@switchmode)</a>
+                    </DisplayTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
+                    <DisplayTemplate>
+                        @{
+                            var actualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
+                            var scalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
+                            var switchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
                         }
-                    }
-                </DisplayTemplate>
-            </DxDataGridColumn>
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
-                <DisplayTemplate>
-                    @{
-                        var actualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
-                        var scalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                        var switchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
-                    }
-                    @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && actualValue != null)
-                    {
-                        <span class="badge rounded-pill bg-light">
+                        @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && actualValue != null)
+                        {
+                            <span class="badge rounded-pill bg-light">
+                                @if (actualValue.Count == 1)
+                                {
+                                    <a>@actualValue.First() @scalevalue </a>
+                                } else
+                                {
+                                    @foreach(string value in actualValue)
+                                    {
+                                        <a>value</a>
+                                    }
+                                    <a>@scalevalue </a>
+                                }
+                            </span>
+                            <a><br/> (@switchmode)</a>
+                        } else if (actualValue != null)
+                        {
                             @if (actualValue.Count == 1)
                             {
-                                <a>@actualValue.First() @scalevalue </a>
+                                <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
                             } else
                             {
                                 @foreach(string value in actualValue)
                                 {
                                     <a>value</a>
                                 }
-                                <a>@scalevalue </a>
+                                <a>@scalevalue <br/> (@switchmode)</a>
                             }
-                        </span>
-                        <a><br/> (@switchmode)</a>
-                    } else if (actualValue != null)
-                    {
-                        @if (actualValue.Count == 1)
-                        {
-                            <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
-                        } else
-                        {
-                            @foreach(string value in actualValue)
-                            {
-                                <a>value</a>
-                            }
-                            <a>@scalevalue <br/> (@switchmode)</a>
                         }
-                    }
-            </DisplayTemplate>
-            </DxDataGridColumn>
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center"/>
-            <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center"/>
-        </DxDataGrid>
-    }
+                </DisplayTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center"/>
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center"/>
+            </DxDataGrid>
+        }
+    </div>
 </div>
 
 @code {
@@ -242,6 +248,25 @@ Copyright (c) 2022 RHEA System S.A.
                 });
             });
         });
+    }
+
+    /// <summary>
+    /// Validates all changes highlights in the table
+    /// </summary>
+    private void ValidateAllChanges()
+    {
+        ViewModelSubscribedParameters.ToList().ForEach(parameter =>
+        {
+            if (parameter.IsSubscribedUpdated)
+            {
+                parameter.IsSubscribedUpdated = false;
+            }
+            if (parameter.IsUpdated)
+            {
+                parameter.IsUpdated = false;
+            }
+        });
+        this.StateHasChanged();
     }
 
     /// <summary>
