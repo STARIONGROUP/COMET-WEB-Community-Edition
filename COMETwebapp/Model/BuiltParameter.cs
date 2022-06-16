@@ -71,5 +71,25 @@ namespace COMETwebapp.Model
         /// </summary>
         public ValueArray<string>? PublishedValue { get; set; }
 
+        /// <summary>
+        /// The parameter manual value 
+        /// </summary>
+        public ValueArray<string>? ManualValue { get; set; }
+
+        /// <summary>
+        /// The parameter computed value 
+        /// </summary>
+        public ValueArray<string>? ComputedValue { get; set; }
+
+        /// <summary>
+        /// The parameter reference value 
+        /// </summary>
+        public ValueArray<string>? ReferenceValue { get; set; }
+
+        /// <summary>
+        /// Switch Mode of the ParameterValueSet
+        /// </summary>
+        public string? SwitchMode { get; set; }
+
     }
 }

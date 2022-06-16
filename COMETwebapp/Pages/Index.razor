@@ -19,6 +19,7 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+
 @page "/"
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -26,7 +27,7 @@ Copyright (c) 2022 RHEA System S.A.
     <h1>
         <AuthorizeView>
             <Authorized>
-                <div id="welcome-user-notice">Welcome @context.User.Identity.Name!</div>
+                <div id="welcome-user-notice">Welcome @context.User.Identity?.Name!</div>
                 
                 <div>
                     <button type="submit" class="btn btn-connect" @onclick="@(() => PopupVisible = true)">Open a Model</button>
