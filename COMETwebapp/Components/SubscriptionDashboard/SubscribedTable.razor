@@ -24,12 +24,17 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService iterationService
 @implements IDisposable
 
-<div class="display-flex flex-row">
+<div class="display-flex flex-column">
     @if (ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
     {
-        <button class="btn height-70 btn-outline-dark m-top-10px" @onclick="() => ValidateAllChanges()"><i class="oi oi-check"></i></button>
+        <div class="display-flex flex-column align-items-end">
+            <button class="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" @onclick="() => ValidateAllChanges()">
+                <i class="oi oi-check m-right-3px"></i>
+                Validate all changes
+            </button>
+        </div>
     }
-    <div class="m-left-3px">
+    <div>
         @if(this.SubscribedParameters.Count == 0)
         {
             <div>
@@ -49,7 +54,7 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                         @if ((context as ParameterSubscriptionViewModel)?.IsUpdated == true && actualValue != null)
                         {
-                            <span class="badge rounded-pill bg-light">
+                            <span class="badge rounded-pill bg-dark">
                                 @if (actualValue.Count == 1)
                                 {
                                     <a>@actualValue.First() @scalevalue </a>
@@ -90,7 +95,7 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                         @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && actualValue != null)
                         {
-                            <span class="badge rounded-pill bg-light">
+                            <span class="badge rounded-pill bg-dark">
                                 @if (actualValue.Count == 1)
                                 {
                                     <a>@actualValue.First() @scalevalue </a>
