@@ -30,16 +30,16 @@ Copyright (c) 2022 RHEA System S.A.
         </div>
     } else
     {
-        <DxDataGrid Data="@ViewModelSubscribedParameters" PageSize="0">
+        <DxDataGrid @ref="@grid" Data="@ViewModelSubscribedParameters" PageSize="0" RowClick="@OnRowClick">
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
-                    @if((context as ParameterSubscriptionViewModel).IsIncomplete == true)
+                    @if ((context as ParameterSubscriptionViewModel)?.IsIncomplete == true)
                     {
-                    <span class="badge rounded-pill bg-info">@((context as ParameterSubscriptionViewModel).ParameterType)</span>
+                    <span class="badge rounded-pill bg-info">@((context as ParameterSubscriptionViewModel)?.ParameterType)</span>
                     } else
                     {
-                    <div>@((context as ParameterSubscriptionViewModel).ParameterType)</div>
+                    <div>@((context as ParameterSubscriptionViewModel)?.ParameterType)</div>
                     }
                 </DisplayTemplate>
             </DxDataGridColumn>
@@ -61,6 +61,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
     /// </summary>
     public ObservableCollection<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new ObservableCollection<ParameterSubscriptionViewModel>();
+
+    /// <summary>
+    /// Defines grid for the component to be able to define actions on it
+    /// </summary>
+    private DxDataGrid<ParameterSubscriptionViewModel>? grid;
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -122,5 +127,14 @@ Copyright (c) 2022 RHEA System S.A.
                     IsIncomplete = isIncomplete
                 });
         });
+    }
+
+    /// <summary>
+    /// Deletes row selection when you click on the table
+    /// </summary>
+    /// <param name="args"><see cref="DataGridRowClickEventArgs"> from the table</param>
+    private void OnRowClick(DataGridRowClickEventArgs<ParameterSubscriptionViewModel> args) {
+        grid?.SetDataRowSelected(args.DataItem, false);
+        args.Handled = true;
     }
 }
