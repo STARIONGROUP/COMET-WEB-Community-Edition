@@ -21,15 +21,24 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inject IIterationService iterationService
 @inject ISessionAnchor ISessionAnchor
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
 <div>
-    @if(this.SubscribedParameters.Count == 0)
+    @if (this.SubscribedParameters.Count == 0)
     {
         <div>
             You don't have any subscribed Parameters.
         </div>
     } else
     {
+        @if (ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsIncomplete == true))
+        {
+            <div class="display-flex flex-row justify-content-end text-black">
+                <span class="badge rounded-pill bg-info m-right-3px"> mass </span>
+                = To Complete
+            </div>
+        }
         <DxDataGrid @ref="@grid" Data="@ViewModelSubscribedParameters" PageSize="0" RowClick="@OnRowClick">
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center">
@@ -97,6 +106,15 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+
+    /// <summary>
     /// Load all data to create the table
     /// </summary>
     private void LoadData()
@@ -134,6 +152,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="args"><see cref="DataGridRowClickEventArgs"> from the table</param>
     private void OnRowClick(DataGridRowClickEventArgs<ParameterSubscriptionViewModel> args) {
+        if (args.DataItem.IsIncomplete == true)
+        {
+            NavigationManager.NavigateTo($"SubscriptionDashboard/Details?modelCode={args.DataItem.ModelCode}");
+        }
         grid?.SetDataRowSelected(args.DataItem, false);
         args.Handled = true;
     }

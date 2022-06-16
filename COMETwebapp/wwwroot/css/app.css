@@ -212,3 +212,7 @@ html, body, #app {
 .padding-bottom-1 {
     padding-bottom: 1px;
 }
+
+.font-size-20 {
+    font-size: 20px;
+}
