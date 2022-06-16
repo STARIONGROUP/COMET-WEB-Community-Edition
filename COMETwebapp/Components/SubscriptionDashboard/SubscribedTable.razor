@@ -31,27 +31,27 @@ Copyright (c) 2022 RHEA System S.A.
             You don't have any subscriptions.
         </div>
     } else {
-        <DxDataGrid Data="@ViewModelSubscribedParameters" PageSize="0">
+        <DxDataGrid @ref="@grid" Data="@ViewModelSubscribedParameters" PageSize="0" RowClick="@OnRowClick">
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
                     @{
-                        var actualValue = (context as ParameterSubscriptionViewModel).ActualValue;
-                        var scalevalue = (context as ParameterSubscriptionViewModel).Scale;
-                        var switchmode = (context as ParameterSubscriptionViewModel).SwitchMode;
+                        var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
+                        var scalevalue = (context as ParameterSubscriptionViewModel)?.Scale;
+                        var switchmode = (context as ParameterSubscriptionViewModel)?.SwitchMode;
                     }
-                    @if ((context as ParameterSubscriptionViewModel).IsUpdated)
+                    @if ((context as ParameterSubscriptionViewModel)?.IsUpdated == true && actualValue != null)
                     {
-                        <span class="badge rounded-pill bg-info">
-                            @if (actualValue?.Count == 1)
+                        <span class="badge rounded-pill bg-light">
+                            @if (actualValue.Count == 1)
                             {
                                 <a>@actualValue.First() @scalevalue </a>
                             }
                             else
                             {
-                                @foreach (string value in actualValue)
+                                @foreach(string value in actualValue)
                                 {
                                     <a>value</a>
                                 }
@@ -59,15 +59,15 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                         </span>
                         <a><br/> (@switchmode)</a>
-                    } else
+                    } else if (actualValue != null)
                     {
-                        @if (actualValue?.Count == 1)
+                        @if (actualValue.Count == 1)
                         {
                             <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
                         }
                         else
                         {
-                            @foreach (string value in actualValue)
+                            @foreach(string value in actualValue)
                             {
                                 <a>value</a>
                             }
@@ -79,14 +79,14 @@ Copyright (c) 2022 RHEA System S.A.
             <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
                 <DisplayTemplate>
                     @{
-                        var actualValue = (context as ParameterSubscriptionViewModel).SubscribedActualValue;
-                        var scalevalue = (context as ParameterSubscriptionViewModel).SubscribedScale;
-                        var switchmode = (context as ParameterSubscriptionViewModel).SubscribedSwitchMode;
+                        var actualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
+                        var scalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
+                        var switchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
                     }
-                    @if ((context as ParameterSubscriptionViewModel).IsSubscribedUpdated)
+                    @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && actualValue != null)
                     {
-                        <span class="badge rounded-pill bg-info">
-                            @if(actualValue?.Count == 1)
+                        <span class="badge rounded-pill bg-light">
+                            @if (actualValue.Count == 1)
                             {
                                 <a>@actualValue.First() @scalevalue </a>
                             } else
@@ -99,9 +99,9 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                         </span>
                         <a><br/> (@switchmode)</a>
-                    } else
+                    } else if (actualValue != null)
                     {
-                        @if(actualValue?.Count == 1)
+                        @if (actualValue.Count == 1)
                         {
                             <a>@actualValue.First() @scalevalue <br/> (@switchmode)</a>
                         } else
@@ -127,6 +127,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// List of subscribed <see cref="Parameter"> by the current <see cref="DomainOfExpertise">
     /// </summary>
     public List<ParameterSubscription> SubscribedParameters { get; set; } = new List<ParameterSubscription>();
+
+    /// <summary>
+    /// Defines grid for the component to be able to define actions on it
+    /// </summary>
+    private DxDataGrid<ParameterSubscriptionViewModel>? grid;
 
     /// <summary>
     /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
@@ -192,7 +197,7 @@ Copyright (c) 2022 RHEA System S.A.
                 var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet.Revisions;
                 var isParameterSubscriptionValueUpdated = false;
 
-                //if change in manual or reference value, revisionNumber changes
+            //if change in manual or reference value, revisionNumber changes
                 if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
                 {
                     isParameterSubscriptionValueUpdated = true;
@@ -207,12 +212,12 @@ Copyright (c) 2022 RHEA System S.A.
                 var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
                 var isAssociatedParameterValueUpdated = false;
 
-                //if any change, revisionNumber changes
+            //if any change, revisionNumber changes
                 if (associatedParameterValueSetRevisions?.LongCount() != (long)0 && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
                 {
                     isAssociatedParameterValueUpdated = true;
                 }
-                
+
                 if(isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
                 {
                     isParameterSubscriptionValueUpdated = true;
@@ -237,5 +242,19 @@ Copyright (c) 2022 RHEA System S.A.
                 });
             });
         });
+    }
+
+    /// <summary>
+    /// Unhighlights changes and deletes row selection when you click on the table
+    /// </summary>
+    /// <param name="args"><see cref="DataGridRowClickEventArgs"> from the table</param>
+    private void OnRowClick(DataGridRowClickEventArgs<ParameterSubscriptionViewModel> args) {
+        if(args.MouseEventArgs.Detail == 1 && (args.DataItem.IsUpdated || args.DataItem.IsSubscribedUpdated)) {
+            args.DataItem.IsUpdated = false;
+            args.DataItem.IsSubscribedUpdated = false;
+            this.StateHasChanged();
+        }
+        grid?.SetDataRowSelected(args.DataItem, false);
+        args.Handled = true;
     }
 }
