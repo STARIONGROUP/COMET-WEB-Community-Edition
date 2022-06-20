@@ -27,12 +27,19 @@ namespace COMETwebapp.IterationServices
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.Model;
 
     /// <summary>
     /// Service to access iteration data
     /// </summary>
     public class IterationService : IIterationService
     {
+        /// <summary>
+        /// Save updates changes to avoid highlights after validation
+        /// Save changes for each domain available in the opened session 
+        /// </summary>
+        public Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>> ValidatedUpdates { get; set; } = new Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>>();
+
         /// <summary>
         /// Get all <see cref="ParameterValueSet"/> of the given iteration
         /// </summary>

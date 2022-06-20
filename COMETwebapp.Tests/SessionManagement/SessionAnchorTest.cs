@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Reactive.Linq;
     using System.Threading.Tasks;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -147,6 +148,25 @@ namespace COMETwebapp.Tests
             Assert.AreSame(this.iteration, this.sessionAnchor.GetIteration());
 
             Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.SetOpenIteration(this.engineeringSetup, this.iteration.IterationSetup));
+        }
+
+        [Test]
+        public void VerifyRefreshSession()
+        {
+            var beginRefreshReceived = false;
+            var endRefreshReceived = false;
+            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
+            {
+                beginRefreshReceived = true;
+            });
+            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                endRefreshReceived = true;
+            });
+            this.sessionAnchor.RefreshSession();
+
+            Assert.That(beginRefreshReceived, Is.True);
+            Assert.That(endRefreshReceived, Is.True);
         }
     }
 }

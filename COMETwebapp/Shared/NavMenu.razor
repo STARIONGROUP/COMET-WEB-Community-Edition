@@ -24,7 +24,7 @@
 @implements IDisposable
 
 <div class="sidebar @StateCssClass">
-    @if(ISessionAnchor.Session != null && ISessionAnchor.GetSiteDirectory() != null)
+    @if(this.ISessionAnchor.Session != null && this.ISessionAnchor.GetSiteDirectory() != null)
     {
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
             <Nodes>
@@ -124,7 +124,7 @@
     /// <returns>Url to home page of the opened EngineeringModel</returns>
     private string? GetModelName()
     {
-        if(ISessionAnchor.GetIteration() != null)
+        if(this.ISessionAnchor.GetIteration() != null)
         {
             var actualIterationSetup = this.ISessionAnchor.GetIteration()?.IterationSetup;
             var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));

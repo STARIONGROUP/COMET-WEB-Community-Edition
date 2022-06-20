@@ -22,7 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @page "/ModelDashboard/ParametersDetails"
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <div>
@@ -36,17 +36,17 @@ Copyright (c) 2022 RHEA System S.A.
         <DxDataGridColumn Field="@nameof(BuiltParameter.ActualValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
             <DisplayTemplate>
                 @{
-                    var intvalue = (context as BuiltParameter).ActualValue;
+                    var intvalue = (context as BuiltParameter)?.ActualValue;
                  }
-                <a>@intvalue.First()</a>
+                <a>@intvalue?.First()</a>
             </DisplayTemplate>
         </DxDataGridColumn>
         <DxDataGridColumn Field="@nameof(BuiltParameter.PublishedValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
             <DisplayTemplate>
                 @{
-                    var intvalue = (context as BuiltParameter).PublishedValue;
+                    var intvalue = (context as BuiltParameter)?.PublishedValue;
                  }
-                <a>@intvalue.First()</a>
+                <a>@intvalue?.First()</a>
             </DisplayTemplate>
         </DxDataGridColumn>
         <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
@@ -135,7 +135,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeParameters()
     {
-        var iteration = ISessionAnchor.GetIteration();
+        var iteration = this.ISessionAnchor.GetIteration();
         if (this.Criteria is not null && this.Domain is not null && iteration != null)
         {
             List<ElementDefinition> elements = iteration.Element;
@@ -143,7 +143,7 @@ Copyright (c) 2022 RHEA System S.A.
             List<Parameter> parameters = new List<Parameter>();
             elements.ForEach(element => parameters.AddRange(element.Parameter));
 
-            List<ParameterValueSet> parameterValueSets = iterationService.GetParameterValueSets(iteration);
+            List<ParameterValueSet> parameterValueSets = this.IterationService.GetParameterValueSets(iteration);
 
             this.FilterDomainCriteriaOptionState(parameterValueSets).ForEach(valueSet =>
             {
@@ -191,22 +191,13 @@ Copyright (c) 2022 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            List<NestedParameter> nestedParameters = new List<NestedParameter>();
-            ISessionAnchor.GetIteration()?.Option.ToList()
-                .Find(o => o.Iid == this.FilterOption)?
-                .NestedElement.ForEach(element => nestedParameters.AddRange(element.NestedParameter));
+            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.GetIteration(), this.FilterOption);
 
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>
                 {
-                    parameterValueSets.ForEach(p =>
-                    {
-                        if (nestedParameter.AssociatedParameter.ValueSets.Contains(p))
-                        {
-                            parameterValueSets.Remove(p);
-                        }
-                    });
+                    parameterValueSets.RemoveAll(p => nestedParameter.AssociatedParameter.ValueSets.Contains(p));
                 });
             } else
             {

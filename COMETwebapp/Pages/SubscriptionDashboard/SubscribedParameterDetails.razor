@@ -22,7 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @page "/SubscriptionDashboard/Details"
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <ApplicationTemplate Title="Subscription Dashboard">
@@ -216,7 +216,7 @@ Copyright (c) 2022 RHEA System S.A.
 
     private void LoadData()
     {
-        this.Parameter = iterationService.GetCurrentDomainSubscribedParameters(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise)
+        this.Parameter = this.IterationService.GetCurrentDomainSubscribedParameters(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise)
             .Find(parameter => parameter.ModelCode().Equals(this.ModelCode));
 
         this.Parameter?.ValueSet.ForEach(parameterValueSet =>

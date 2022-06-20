@@ -52,6 +52,25 @@ namespace COMETwebapp.Utilities
         }
 
         /// <summary>
+        /// converts a <see cref="Guid"/> to its base64 encoded short form
+        /// </summary>
+        /// <param name="guid">
+        /// an instance of <see cref="Guid"/>
+        /// </param>
+        /// <returns>
+        /// a shortGuid representation of the provided <see cref="Guid"/>
+        /// </returns>
+        /// <remarks>
+        /// A ShortGuid is a base64 encoded guid-string representation where any "/" has been replaced with a "_"
+        /// and any "+" has been replaced with a "-" (to make the string representation <see cref="Uri"/> friendly)
+        /// </remarks>
+        public static string ToShortGuid(this Guid guid)
+        {
+            var enc = Convert.ToBase64String(guid.ToByteArray());
+            return enc.Replace("/", "_").Replace("+", "-").Substring(0, 22);
+        }
+
+        /// <summary>
         /// Converts a <see cref="IEnumerable{String}"/> <see cref="Guid"/> string representation to a ShortGuid
         /// </summary>
         /// <param name="values">
@@ -71,25 +90,6 @@ namespace COMETwebapp.Utilities
                 var guid = new Guid(value);
                 yield return ToShortGuid(guid);
             }
-        }
-
-        /// <summary>
-        /// converts a <see cref="Guid"/> to its base64 encoded short form
-        /// </summary>
-        /// <param name="guid">
-        /// an instance of <see cref="Guid"/>
-        /// </param>
-        /// <returns>
-        /// a shortGuid representation of the provided <see cref="Guid"/>
-        /// </returns>
-        /// <remarks>
-        /// A ShortGuid is a base64 encoded guid-string representation where any "/" has been replaced with a "_"
-        /// and any "+" has been replaced with a "-" (to make the string representation <see cref="Uri"/> friendly)
-        /// </remarks>
-        public static string ToShortGuid(this Guid guid)
-        {
-            var enc = Convert.ToBase64String(guid.ToByteArray());
-            return enc.Replace("/", "_").Replace("+", "-").Substring(0, 22);
         }
 
         /// <summary>

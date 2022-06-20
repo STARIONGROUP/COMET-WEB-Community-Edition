@@ -21,20 +21,11 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/logout"
+@inject IIterationService IterationService
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
 
 @code {
-    /// <summary>
-    /// Gets or sets the (injected) IAuthenticationService used to authenticate against the selected datasource
-    /// </summary>
-    [Inject]
-    public IAuthenticationService AuthenticationService { get; set; }
-
-    /// <summary>
-    /// Gets or sets the (injected) NavigationManager used to navigate between pages
-    /// </summary>
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
-
     /// <summary>
     /// Close the <see cref="ISession" /> and update the <see cref="ISessionAnchor" />
     /// </summary>
@@ -44,6 +35,7 @@ Copyright (c) 2022 RHEA System S.A.
     protected override async Task OnInitializedAsync()
     {
         await AuthenticationService.Logout();
-        NavigationManager.NavigateTo("/");
+        this.IterationService.ValidatedUpdates.Clear();
+        this.NavigationManager.NavigateTo("/");
     }
 }

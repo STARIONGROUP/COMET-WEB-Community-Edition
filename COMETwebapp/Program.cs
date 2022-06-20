@@ -49,6 +49,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             builder.Services.AddSingleton<IIterationService, IterationService>();
+            builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();

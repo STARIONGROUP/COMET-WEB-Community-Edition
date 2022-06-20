@@ -21,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <div class="display-flex flex-column">
@@ -31,7 +31,7 @@ Copyright (c) 2022 RHEA System S.A.
             You don't have any subscriptions.
         </div>
     } else {
-        @if (ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
+        @if (this.ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
         {
             <div class="display-flex flex-column align-items-end">
                 <button class="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" @onclick="() => ValidateAllChanges()">
@@ -184,7 +184,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void LoadData()
     {
         this.ViewModelSubscribedParameters.Clear();
-        this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
     }
 
@@ -209,24 +209,40 @@ Copyright (c) 2022 RHEA System S.A.
                 var isParameterSubscriptionValueUpdated = false;
 
             //if change in manual or reference value, revisionNumber changes
-                if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
+                if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 
+                    && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
                 {
                     isParameterSubscriptionValueUpdated = true;
                 }
 
-                var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.GetIteration());
+                var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
 
                 var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
-                var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                var associatedElement = this.ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
 
                 var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
                 var isAssociatedParameterValueUpdated = false;
 
             //if any change, revisionNumber changes
-                if (associatedParameterValueSetRevisions?.LongCount() != (long)0 && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
+                if (associatedParameterValueSetRevisions?.LongCount() != (long)0 
+                    && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
                 {
                     isAssociatedParameterValueUpdated = true;
+                }
+
+            //check if changes already validated
+                if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
+                {
+                    var existingValidatedParameter = list.Find(element => element.Iid == parameterSubscriptionValueSet?.Iid);
+                    if(existingValidatedParameter != null && parameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber)
+                    {
+                        isParameterSubscriptionValueUpdated = false;
+                    }
+                    if(existingValidatedParameter != null && associatedParameterValueSet?.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
+                    {
+                        isAssociatedParameterValueUpdated = false;
+                    }
                 }
 
                 if(isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
@@ -234,17 +250,20 @@ Copyright (c) 2022 RHEA System S.A.
                     isParameterSubscriptionValueUpdated = true;
                 }
 
-                ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
+                this.ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
                 {
                     ElementName = associatedElement?.Name,
                     ParameterType = subscribedparameter?.ParameterType?.Name,
                     ModelCode = associatedParameter?.ModelCode(),
+                    Iid = parameterSubscriptionValueSet?.Iid,
+                    RevisionNumber = parameterSubscriptionValueSet?.RevisionNumber,
                     ActualValue = parameterSubscriptionValueSet?.ActualValue,
                     Scale = subscribedparameter?.Scale?.ShortName,
                     SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
                     Option = parameterSubscriptionValueSet?.ActualOption?.Name,
                     State = parameterSubscriptionValueSet?.ActualState?.Name,
                     IsUpdated = isParameterSubscriptionValueUpdated,
+                    SubscribedRevisionNumber = associatedParameterValueSet?.RevisionNumber,
                     SubscribedActualValue = associatedParameterValueSet?.ActualValue,
                     SubscribedScale = associatedParameter?.Scale.ShortName,
                     SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
@@ -260,18 +279,54 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void ValidateAllChanges()
     {
-        ViewModelSubscribedParameters.ToList().ForEach(parameter =>
+        this.ViewModelSubscribedParameters.ToList().ForEach(parameter =>
         {
-            if (parameter.IsSubscribedUpdated)
+            if (parameter.IsSubscribedUpdated || parameter.IsUpdated)
             {
                 parameter.IsSubscribedUpdated = false;
-            }
-            if (parameter.IsUpdated)
-            {
                 parameter.IsUpdated = false;
+                this.UpdateValidation(parameter);
             }
         });
         this.StateHasChanged();
+    }
+
+    /// <summary>
+    /// Save validation to not highlight changes a second time
+    /// </summary>
+    /// <param name="parameter">The <see cref="ParameterSubscriptionViewModel"> change to save </param>
+    private void UpdateValidation(ParameterSubscriptionViewModel parameter)
+    {
+        if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
+        {
+            var previousVersion = this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameter.Iid);
+            if(previousVersion != null)
+            {
+                previousVersion.RevisionNumber = parameter.RevisionNumber;
+                previousVersion.SubscribedRevisionNumber = parameter.SubscribedRevisionNumber;
+
+            } else
+            {
+                this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
+                {
+                    Iid = parameter.Iid,
+                    RevisionNumber = parameter.RevisionNumber,
+                    SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
+                });
+            }
+        } else if (this.ISessionAnchor.CurrentDomainOfExpertise != null)
+        {
+            this.IterationService.ValidatedUpdates.Add(this.ISessionAnchor.CurrentDomainOfExpertise, new List<ParameterSubscriptionViewModel>()
+            {
+                new ParameterSubscriptionViewModel()
+                {
+                    Iid = parameter.Iid,
+                    RevisionNumber = parameter.RevisionNumber,
+                    SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
+                }
+            });
+        }
+
     }
 
     /// <summary>
@@ -282,6 +337,7 @@ Copyright (c) 2022 RHEA System S.A.
         if(args.MouseEventArgs.Detail == 1 && (args.DataItem.IsUpdated || args.DataItem.IsSubscribedUpdated)) {
             args.DataItem.IsUpdated = false;
             args.DataItem.IsSubscribedUpdated = false;
+            this.UpdateValidation(args.DataItem);
             this.StateHasChanged();
         }
         grid?.SetDataRowSelected(args.DataItem, false);

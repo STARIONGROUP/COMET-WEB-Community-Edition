@@ -33,9 +33,9 @@ Copyright (c) 2022 RHEA System S.A.
     <DxDataGridColumn Field="@nameof(BuiltParameter.ActualValue)" Width="50px" TextAlignment="DataGridTextAlign.Center">
         <DisplayTemplate>
             @{
-                var intvalue = (context as BuiltParameter).ActualValue;
+                var intvalue = (context as BuiltParameter)?.ActualValue;
              }
-            <a>@intvalue.First()</a>
+            <a>@intvalue?.First()</a>
         </DisplayTemplate>
     </DxDataGridColumn>
     <DxDataGridColumn Field="@nameof(BuiltParameter.Scale)" Width="50px" TextAlignment="DataGridTextAlign.Center"/>
@@ -85,7 +85,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeParameters()
     {
-        var elementDefinitions = ISessionAnchor.GetIteration()?.Element;
+        var elementDefinitions = this.ISessionAnchor.GetIteration()?.Element;
         elementDefinitions?.ForEach(element =>
         {
             var parameters = element.Parameter;
