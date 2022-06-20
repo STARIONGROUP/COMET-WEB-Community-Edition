@@ -139,10 +139,10 @@ Copyright (c) 2022 RHEA System S.A.
             NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?criteria={criteria}&domain={domain}");
         } else if (this.FilterOption is null && this.FilterState is not null)
         {
-            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filterstate={this.FilterState}&criteria={criteria.Replace(" ","")}&domain={domain}");
+            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
         } else if (this.FilterOption is not null && this.FilterState is null)
         {
-            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&criteria={criteria.Replace(" ","")}&domain={domain}");
+            NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&criteria={criteria}&domain={domain}");
         } else
         {
             NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&filterstate={this.FilterState}&criteria={criteria}&domain={domain}");

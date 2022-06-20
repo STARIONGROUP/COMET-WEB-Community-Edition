@@ -21,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/settings"
-@inject ISessionAnchor ISessionAnchor
+@inject IAutoRefreshService autoRefreshService
 
 <div class="display-flex flex-row">
     <div class="display-flex flex-column width-100 align-items-center justify-content-center">
@@ -29,14 +29,14 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
 </div>
 <div class="display-flex flex-row align-items-center m-top-5px" >
-    @if(ISessionAnchor.IsAutoRefreshEnabled){
+    @if(autoRefreshService.IsAutoRefreshEnabled){
          <input type="checkbox" id="refreshSession" checked @onchange="@OnChoiceChange">
     } else {
          <input type="checkbox" id="refreshSession" @onchange="@OnChoiceChange">
     }
     <label class="m-left-3px" for="refreshSession">Auto-refresh every</label>
 
-    <input class="m-left-3px" type="number" id="value" value="@ISessionAnchor.AutoRefreshInterval" @onchange="@OnIntervalChange">
+    <input class="m-left-3px" type="number" id="value" value="@autoRefreshService.AutoRefreshInterval" @onchange="@OnIntervalChange">
     <div class="m-left-3px">
         sec
     </div>
@@ -44,23 +44,17 @@ Copyright (c) 2022 RHEA System S.A.
 
 @code {
     /// <summary>
-    /// Backing field for <see cref="AutoRefreshSecondsLeft"/>
-    /// </summary>
-    private int AutoRefreshSecondsLeft;
-
-    /// <summary>
-    /// The timer
-    /// </summary>
-    public Timer? Timer { get; set; }
-
-    /// <summary>
     /// Enable/disable auto-refresh for the ISession
     /// </summary>
     /// <param name="e">The <see cref="ChangeEventArgs"> from the checkbox input</param>
     public void OnChoiceChange(ChangeEventArgs e)
     {
-        ISessionAnchor.IsAutoRefreshEnabled = (bool) e.Value;
-        this.SetTimer();
+        var value = e.Value;
+        if(value != null)
+        {
+            autoRefreshService.IsAutoRefreshEnabled = (bool) value;
+            autoRefreshService.SetTimer();
+        }
     }
 
     /// <summary>
@@ -69,46 +63,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">The <see cref="ChangeEventArgs"> from the number input </param>
     public void OnIntervalChange(ChangeEventArgs e)
     {
-        ISessionAnchor.AutoRefreshInterval = int.Parse((string) e.Value);
-        this.SetTimer();
-    }
-
-    /// <summary>
-    /// Sets the timer according to the appropriate setting
-    /// </summary>
-    public void SetTimer()
-    {
-        if (ISessionAnchor.IsAutoRefreshEnabled)
+        var value = e.Value;
+        if (value != null)
         {
-            this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
-
-            this.Timer = new Timer(1000);
-            this.Timer.Elapsed += this.OntTimerElapsed;
-            this.Timer.Start();
-        }
-        else
-        {
-            this.Timer?.Stop();
-            this.Timer?.Dispose();
-        }
-    }
-
-    /// <summary>
-    /// The eventhandler to handle elapse of one second.
-    /// </summary>
-    /// <param name="sender">The sender</param>
-    /// <param name="e">The event arguments.</param>
-    private async void OntTimerElapsed(object sender, EventArgs e)
-    {
-        this.AutoRefreshSecondsLeft -= 1;
-
-        if (this.AutoRefreshSecondsLeft == 0)
-        {
-            this.Timer?.Stop();
-            await ISessionAnchor.RefreshSession();
-
-            this.AutoRefreshSecondsLeft = ISessionAnchor.AutoRefreshInterval;
-            this.Timer?.Start();
+            autoRefreshService.AutoRefreshInterval = int.Parse((string) value);
+            autoRefreshService.SetTimer();
         }
     }
 }

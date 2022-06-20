@@ -191,22 +191,13 @@ Copyright (c) 2022 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            List<NestedParameter> nestedParameters = new List<NestedParameter>();
-            ISessionAnchor.GetIteration()?.Option.ToList()
-                .Find(o => o.Iid == this.FilterOption)?
-                .NestedElement.ForEach(element => nestedParameters.AddRange(element.NestedParameter));
+            var nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.GetIteration(), this.FilterOption);
 
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>
                 {
-                    parameterValueSets.ForEach(p =>
-                    {
-                        if (nestedParameter.AssociatedParameter.ValueSets.Contains(p))
-                        {
-                            parameterValueSets.Remove(p);
-                        }
-                    });
+                    parameterValueSets.RemoveAll(p => nestedParameter.AssociatedParameter.ValueSets.Contains(p));
                 });
             } else
             {

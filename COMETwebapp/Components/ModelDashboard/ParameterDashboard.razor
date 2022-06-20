@@ -63,11 +63,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// <returns>The list of filtered <see cref="DataChart"></returns>
     public List<ParameterValueSet> Filter(List<ParameterValueSet> data)
     {
-        List<ParameterValueSet> result = new List<ParameterValueSet>();
+        var result = new List<ParameterValueSet>();
         result.AddRange(data);
         if (this.FilterOption != null)
         {
-            List<NestedParameter> nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.GetIteration(), this.FilterOption);
+            var nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.GetIteration(), this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>

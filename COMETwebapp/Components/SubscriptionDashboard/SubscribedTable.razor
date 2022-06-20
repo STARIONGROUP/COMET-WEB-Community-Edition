@@ -209,7 +209,8 @@ Copyright (c) 2022 RHEA System S.A.
                 var isParameterSubscriptionValueUpdated = false;
 
             //if change in manual or reference value, revisionNumber changes
-                if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
+                if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 
+                    && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
                 {
                     isParameterSubscriptionValueUpdated = true;
                 }
@@ -224,9 +225,24 @@ Copyright (c) 2022 RHEA System S.A.
                 var isAssociatedParameterValueUpdated = false;
 
             //if any change, revisionNumber changes
-                if (associatedParameterValueSetRevisions?.LongCount() != (long)0 && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
+                if (associatedParameterValueSetRevisions?.LongCount() != (long)0 
+                    && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
                 {
                     isAssociatedParameterValueUpdated = true;
+                }
+
+            //check if changes already validated
+                if(ISessionAnchor.CurrentDomainOfExpertise != null && iterationService.ValidatedUpdates.TryGetValue(ISessionAnchor.CurrentDomainOfExpertise, out var list))
+                {
+                    var existingValidatedParameter = list.Find(element => element.Iid == parameterSubscriptionValueSet?.Iid);
+                    if(existingValidatedParameter != null && parameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber)
+                    {
+                        isParameterSubscriptionValueUpdated = false;
+                    }
+                    if(existingValidatedParameter != null && associatedParameterValueSet?.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
+                    {
+                        isAssociatedParameterValueUpdated = false;
+                    }
                 }
 
                 if(isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
@@ -239,12 +255,15 @@ Copyright (c) 2022 RHEA System S.A.
                     ElementName = associatedElement?.Name,
                     ParameterType = subscribedparameter?.ParameterType?.Name,
                     ModelCode = associatedParameter?.ModelCode(),
+                    Iid = parameterSubscriptionValueSet?.Iid,
+                    RevisionNumber = parameterSubscriptionValueSet?.RevisionNumber,
                     ActualValue = parameterSubscriptionValueSet?.ActualValue,
                     Scale = subscribedparameter?.Scale?.ShortName,
                     SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
                     Option = parameterSubscriptionValueSet?.ActualOption?.Name,
                     State = parameterSubscriptionValueSet?.ActualState?.Name,
                     IsUpdated = isParameterSubscriptionValueUpdated,
+                    SubscribedRevisionNumber = associatedParameterValueSet?.RevisionNumber,
                     SubscribedActualValue = associatedParameterValueSet?.ActualValue,
                     SubscribedScale = associatedParameter?.Scale.ShortName,
                     SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
@@ -260,18 +279,54 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void ValidateAllChanges()
     {
-        ViewModelSubscribedParameters.ToList().ForEach(parameter =>
+        this.ViewModelSubscribedParameters.ToList().ForEach(parameter =>
         {
-            if (parameter.IsSubscribedUpdated)
+            if (parameter.IsSubscribedUpdated || parameter.IsUpdated)
             {
                 parameter.IsSubscribedUpdated = false;
-            }
-            if (parameter.IsUpdated)
-            {
                 parameter.IsUpdated = false;
+                this.UpdateValidation(parameter);
             }
         });
         this.StateHasChanged();
+    }
+
+    /// <summary>
+    /// Save validation to not highlight changes a second time
+    /// </summary>
+    /// <param name="parameter">The <see cref="ParameterSubscriptionViewModel"> change to save </param>
+    private void UpdateValidation(ParameterSubscriptionViewModel parameter)
+    {
+        if(ISessionAnchor.CurrentDomainOfExpertise != null && iterationService.ValidatedUpdates.TryGetValue(ISessionAnchor.CurrentDomainOfExpertise, out var list))
+        {
+            var previousVersion = iterationService.ValidatedUpdates[ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameter.Iid);
+            if(previousVersion != null)
+            {
+                previousVersion.RevisionNumber = parameter.RevisionNumber;
+                previousVersion.SubscribedRevisionNumber = parameter.SubscribedRevisionNumber;
+
+            } else
+            {
+                iterationService.ValidatedUpdates[ISessionAnchor.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
+                {
+                    Iid = parameter.Iid,
+                    RevisionNumber = parameter.RevisionNumber,
+                    SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
+                });
+            }
+        } else if (ISessionAnchor.CurrentDomainOfExpertise != null)
+        {
+            iterationService.ValidatedUpdates.Add(ISessionAnchor.CurrentDomainOfExpertise, new List<ParameterSubscriptionViewModel>()
+            {
+                new ParameterSubscriptionViewModel()
+                {
+                    Iid = parameter.Iid,
+                    RevisionNumber = parameter.RevisionNumber,
+                    SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
+                }
+            });
+        }
+
     }
 
     /// <summary>
@@ -282,6 +337,7 @@ Copyright (c) 2022 RHEA System S.A.
         if(args.MouseEventArgs.Detail == 1 && (args.DataItem.IsUpdated || args.DataItem.IsSubscribedUpdated)) {
             args.DataItem.IsUpdated = false;
             args.DataItem.IsSubscribedUpdated = false;
+            this.UpdateValidation(args.DataItem);
             this.StateHasChanged();
         }
         grid?.SetDataRowSelected(args.DataItem, false);

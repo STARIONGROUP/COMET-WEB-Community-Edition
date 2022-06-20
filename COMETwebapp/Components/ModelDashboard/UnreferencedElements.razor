@@ -34,7 +34,7 @@ Copyright (c) 2022 RHEA System S.A.
                                     AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Position="RelativePosition.Inside"/>
         </DxChartFullStackedBarSeries>
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.Thistle" Name="Unreferenced Elements" Filter="@((ElementDefinition e) => this.UnReferencedElements.Contains(e))"
+        <DxChartFullStackedBarSeries Color="System.Drawing.Color.Orchid" Name="Unreferenced Elements" Filter="@((ElementDefinition e) => this.UnReferencedElements.Contains(e))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                             AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Position="RelativePosition.Inside" />
@@ -110,7 +110,7 @@ Copyright (c) 2022 RHEA System S.A.
         if (!value.Equals(0))
         {
             pointSettings.PointLabel.Visible = true;
-        }        
+        }
     }
 
     /// Navigate to details page for the selected data

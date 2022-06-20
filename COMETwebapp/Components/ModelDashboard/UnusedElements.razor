@@ -29,12 +29,12 @@ Copyright (c) 2022 RHEA System S.A.
 <div class="chart">
     <h3>Unused Elements</h3>
     <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="Used Elements" Filter="@((ElementDefinition e) => !this.UnUsedElements.Contains(e))"
+        <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="Used Elements" Filter="@((ElementDefinition e) => !this.UnUsedElements.Contains(e))"
                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                     AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Position="RelativePosition.Inside"/>
         </DxChartFullStackedBarSeries>
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.PeachPuff" Name="Unused Elements" Filter="@((ElementDefinition e) => this.UnUsedElements.Contains(e))"
+        <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="Unused Elements" Filter="@((ElementDefinition e) => this.UnUsedElements.Contains(e))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                             AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Position="RelativePosition.Inside" />

@@ -63,6 +63,16 @@ namespace COMETwebapp.Model
         public bool? IsIncomplete { get; set; }
 
         /// <summary>
+        /// Iid of the ParameterSubcriptionValueSet
+        /// </summary>
+        public Guid? Iid { get; set; }
+
+        /// <summary>
+        /// Revision number of the ParameterSubcriptionValueSet
+        /// </summary>
+        public int? RevisionNumber { get; set; }
+
+        /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet
         /// </summary>
         public ValueArray<string>? ActualValue { get; set; }
@@ -93,6 +103,11 @@ namespace COMETwebapp.Model
         public bool IsUpdated { get; set; } = false;
 
         /// <summary>
+        /// Revision number of the subscribed ParameterValueSet
+        /// </summary>
+        public int? SubscribedRevisionNumber { get; set; }
+
+        /// <summary>
         /// Actual value of the subscribed ParameterValueSet
         /// </summary>
         public ValueArray<string>? SubscribedActualValue { get; set; }
@@ -116,6 +131,5 @@ namespace COMETwebapp.Model
         /// Defines if the subscribed ParameterValueSet is updated
         /// </summary>
         public bool IsSubscribedUpdated { get; set; } = false;
-
     }
 }

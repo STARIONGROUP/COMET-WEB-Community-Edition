@@ -48,17 +48,6 @@ namespace COMETwebapp.SessionManagement
         public ISession Session { get; set; }
 
         /// <summary>
-        /// Enable / disable auto-refresh for the ISession
-        /// </summary>
-        public bool IsAutoRefreshEnabled { get; set; }
-
-        /// <summary>
-        /// Define the interval in sec to auto-refresh the session
-        /// Set to 60s by default
-        /// </summary>
-        public int AutoRefreshInterval { get; set; } = 60;
-
-        /// <summary>
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         public bool IsSessionOpen { get; set; }
