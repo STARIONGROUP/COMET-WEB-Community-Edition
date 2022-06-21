@@ -146,7 +146,7 @@ namespace COMETwebapp.Tests
         public void VerifyGetIteration()
         {
             this.session.Setup(x => x.OpenIterations).Returns(default(IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>));
-            Assert.IsNull(this.sessionAnchor.GetIteration());
+            Assert.That(this.sessionAnchor.GetIteration(), Is.Null);
             this.session.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), true)).Returns(Task.CompletedTask);
 
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
@@ -154,7 +154,7 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
-            Assert.AreSame(this.iteration, this.sessionAnchor.GetIteration());
+            Assert.That(this.sessionAnchor.GetIteration(), Is.EqualTo(this.iteration));
 
             Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.SetOpenIteration(this.engineeringSetup, this.iteration.IterationSetup));
         }
@@ -174,13 +174,13 @@ namespace COMETwebapp.Tests
         [Test]
         public void VerifyGetParticipantModels()
         {
-            Assert.IsNotNull(this.sessionAnchor.GetParticipantModels());
+            Assert.That(this.sessionAnchor.GetParticipantModels(), Is.Not.Null);
         }
 
         [Test]
         public void VerifyGetModelDomains()
         {
-            Assert.IsNotNull(this.sessionAnchor.GetModelDomains(this.engineeringSetup));
+            Assert.That(this.sessionAnchor.GetModelDomains(this.engineeringSetup), Is.Not.Null);
         }
 
         [Test]
@@ -212,10 +212,10 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
-            Assert.IsNull(this.sessionAnchor.CurrentDomainOfExpertise);
+            Assert.That(this.sessionAnchor.CurrentDomainOfExpertise, Is.Null);
             
             this.sessionAnchor.SwitchDomain(this.domain);
-            Assert.AreEqual(this.domain, this.sessionAnchor.CurrentDomainOfExpertise);
+            Assert.That(this.sessionAnchor.CurrentDomainOfExpertise, Is.EqualTo(this.domain));
         }
     }
 }
