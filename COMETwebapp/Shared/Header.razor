@@ -52,12 +52,16 @@
 					        }
 				        </select>
 			        }
+
 			        @if (IsRefreshing)
 			        {
-				        <button class="btn" disabled>Refreshing</button>
-			        } else {
-				        <button class="btn" @onclick="() => this.ISessionAnchor.RefreshSession()"> Refresh Session</button>
+				        <button id="refresh-button" class="btn" disabled>Refreshing</button>
+			        } 
+			        else 
+			        {
+				        <button id="refresh-button" class="btn" @onclick="() => this.ISessionAnchor.RefreshSession()"> Refresh Session</button>
 			        }
+
 			        <a href="logout"  @onclick="@(() => this.loginPopupVisible = false)">Log out</a>
 		        </Authorized>
 		        <NotAuthorized>
