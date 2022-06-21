@@ -28,26 +28,29 @@ Copyright (c) 2022 RHEA System S.A.
 <ApplicationTemplate Title="Model Dashboard">
     <Body>
         <div class="display-flex flex-row">
-            @if(ISessionAnchor.GetIteration()?.Option.ToList().Count > 1)
+            @{
+                var iteration = this.ISessionAnchor.GetIteration();
+            }
+            @if(iteration != null && iteration.Option.ToList().Count > 1)
             {
                 <div class="m-left-10px">
                     <h6>Filter on options :</h6>
                     <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
                         <option value="">--Select--</option>
-                        @foreach(var option in ISessionAnchor.GetIteration().Option.ToList())
+                        @foreach(var option in iteration.Option.ToList())
                         {
                             <option value="@option.Iid">@option.Name</option>
                         }
                     </select>
                 </div>
             }
-            @if (ISessionAnchor.GetIteration().ActualFiniteStateList.Any())
+            @if (iteration != null && iteration.ActualFiniteStateList.Any())
             {
                 <div class="m-left-10px">
                     <h6>Filter on states :</h6>
                     <select @bind="this.FilterState" @oninput="UpdateFilterState">
                         <option value="">--Select--</option>
-                        @foreach(var stateList in ISessionAnchor.GetIteration().ActualFiniteStateList)
+                        @foreach(var stateList in iteration.ActualFiniteStateList)
                         {
                             @foreach(var state in stateList.ActualState)
                             {
@@ -128,7 +131,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event raised when any change appears in the select component</param>
     public void UpdateFilterOption(ChangeEventArgs e)
     {
-        NavigationManager.NavigateTo($"/ModelDashboard?filteroption={e.Value?.ToString()}&filterstate={this.FilterState}");
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={e.Value?.ToString()}&filterstate={this.FilterState}");
     }
 
     /// <summary>
@@ -137,7 +140,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event raised when any change appears in the select component</param>
     public void UpdateFilterState(ChangeEventArgs e)
     {
-        NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}");
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}");
     }
 }
 

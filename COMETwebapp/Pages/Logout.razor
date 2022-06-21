@@ -21,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/logout"
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
 
@@ -35,7 +35,7 @@ Copyright (c) 2022 RHEA System S.A.
     protected override async Task OnInitializedAsync()
     {
         await AuthenticationService.Logout();
-        iterationService.ValidatedUpdates.Clear();
-        NavigationManager.NavigateTo("/");
+        this.IterationService.ValidatedUpdates.Clear();
+        this.NavigationManager.NavigateTo("/");
     }
 }

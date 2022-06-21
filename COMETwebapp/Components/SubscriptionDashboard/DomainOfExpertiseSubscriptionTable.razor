@@ -19,7 +19,7 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @inject ISessionAnchor ISessionAnchor
 @inject NavigationManager NavigationManager
 @implements IDisposable
@@ -32,7 +32,7 @@ Copyright (c) 2022 RHEA System S.A.
         </div>
     } else
     {
-        @if (ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsIncomplete == true))
+        @if (this.ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsIncomplete == true))
         {
             <div class="display-flex flex-row justify-content-end text-black">
                 <span class="badge rounded-pill bg-info m-right-3px"> mass </span>
@@ -120,7 +120,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void LoadData()
     {
         this.ViewModelSubscribedParameters.Clear();
-        this.SubscribedParameters = iterationService.GetCurrentDomainSubscribedParameters(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = this.IterationService.GetCurrentDomainSubscribedParameters(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
     }
 
@@ -131,7 +131,7 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.SubscribedParameters.ForEach(subscribedParameter =>
         {
-            var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Contains(subscribedParameter));
+            var associatedElement = this.ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Contains(subscribedParameter));
 
             var isIncomplete = subscribedParameter.ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;
 
@@ -154,7 +154,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void OnRowClick(DataGridRowClickEventArgs<ParameterSubscriptionViewModel> args) {
         if (args.DataItem.IsIncomplete == true)
         {
-            NavigationManager.NavigateTo($"SubscriptionDashboard/Details?modelCode={args.DataItem.ModelCode}");
+            this.NavigationManager.NavigateTo($"SubscriptionDashboard/Details?modelCode={args.DataItem.ModelCode}");
         }
         grid?.SetDataRowSelected(args.DataItem, false);
         args.Handled = true;

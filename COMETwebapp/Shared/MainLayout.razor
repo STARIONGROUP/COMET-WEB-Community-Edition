@@ -92,7 +92,7 @@
     }
 
     protected override void OnInitialized() {
-        NavigationManager.LocationChanged += OnLocationChanged;
+        this.NavigationManager.LocationChanged += OnLocationChanged;
         IsSidebarExpanded = false;
     }
 
@@ -104,6 +104,6 @@
     }
 
     public void Dispose() {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        this.NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

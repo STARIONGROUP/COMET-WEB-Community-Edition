@@ -21,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/settings"
-@inject IAutoRefreshService autoRefreshService
+@inject IAutoRefreshService AutoRefreshService
 
 <div class="display-flex flex-row">
     <div class="display-flex flex-column width-100 align-items-center justify-content-center">
@@ -29,14 +29,14 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
 </div>
 <div class="display-flex flex-row align-items-center m-top-5px" >
-    @if(autoRefreshService.IsAutoRefreshEnabled){
+    @if(this.AutoRefreshService.IsAutoRefreshEnabled){
          <input type="checkbox" id="refreshSession" checked @onchange="@OnChoiceChange">
     } else {
          <input type="checkbox" id="refreshSession" @onchange="@OnChoiceChange">
     }
     <label class="m-left-3px" for="refreshSession">Auto-refresh every</label>
 
-    <input class="m-left-3px" type="number" id="value" value="@autoRefreshService.AutoRefreshInterval" @onchange="@OnIntervalChange">
+    <input class="m-left-3px" type="number" id="value" value="@AutoRefreshService.AutoRefreshInterval" @onchange="@OnIntervalChange">
     <div class="m-left-3px">
         sec
     </div>
@@ -52,8 +52,8 @@ Copyright (c) 2022 RHEA System S.A.
         var value = e.Value;
         if(value != null)
         {
-            autoRefreshService.IsAutoRefreshEnabled = (bool) value;
-            autoRefreshService.SetTimer();
+            this.AutoRefreshService.IsAutoRefreshEnabled = (bool) value;
+            this.AutoRefreshService.SetTimer();
         }
     }
 
@@ -66,8 +66,8 @@ Copyright (c) 2022 RHEA System S.A.
         var value = e.Value;
         if (value != null)
         {
-            autoRefreshService.AutoRefreshInterval = int.Parse((string) value);
-            autoRefreshService.SetTimer();
+            this.AutoRefreshService.AutoRefreshInterval = int.Parse((string) value);
+            this.AutoRefreshService.SetTimer();
         }
     }
 }

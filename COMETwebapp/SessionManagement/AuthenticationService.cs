@@ -76,11 +76,17 @@ namespace COMETwebapp.SessionManagement
         /// </returns>
         public async Task<AuthenticationStateKind> Login(AuthenticationDto authenticationDto)
         {
-            var uri = new Uri(authenticationDto.SourceAddress);
-            var dal = new CdpServicesDal();
-            var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
+            if(authenticationDto.SourceAddress != null)
+            {
+                var uri = new Uri(authenticationDto.SourceAddress);
+                var dal = new CdpServicesDal();
+                var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
-            this.sessionAnchor.Session = new Session(dal, credentials);
+                this.sessionAnchor.Session = new Session(dal, credentials);
+            } else
+            {
+                return AuthenticationStateKind.Fail;
+            }
 
             try
             {

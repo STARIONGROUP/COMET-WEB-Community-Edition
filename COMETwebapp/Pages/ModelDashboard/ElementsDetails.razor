@@ -22,7 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @page "/ModelDashboard/ElementsDetails"
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <div>
@@ -110,10 +110,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        List<ElementDefinition> unusedElements = iterationService.GetUnusedElementDefinitions(ISessionAnchor.GetIteration());
-        List<ElementDefinition> unreferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.GetIteration());
+        List<ElementDefinition> unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.GetIteration());
+        List<ElementDefinition> unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.GetIteration());
 
-        var iteration = ISessionAnchor.GetIteration();
+        var iteration = this.ISessionAnchor.GetIteration();
         if (Criteria is not null && Domain is not null && iteration != null)
         {
             List<ElementDefinition> elements = new List<ElementDefinition>();

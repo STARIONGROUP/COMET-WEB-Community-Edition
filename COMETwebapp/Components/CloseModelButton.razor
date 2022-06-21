@@ -22,7 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @inject ISessionAnchor SessionAnchor
 @inject NavigationManager NavigationManager
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 
 <button class="btn btn-connect" @onclick="CloseIteration"> Close the Model</button>
 
@@ -33,7 +33,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void CloseIteration()
     {
         this.SessionAnchor.CloseIteration();
-        iterationService.ValidatedUpdates.Clear();
-        NavigationManager.NavigateTo("/");
+        this.IterationService.ValidatedUpdates.Clear();
+        this.NavigationManager.NavigateTo("/");
     }
 }

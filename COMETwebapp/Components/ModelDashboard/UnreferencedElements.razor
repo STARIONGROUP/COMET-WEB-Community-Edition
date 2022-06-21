@@ -23,7 +23,7 @@ Copyright (c) 2022 RHEA System S.A.
 @using DevExpress.Blazor
 @inject NavigationManager NavigationManager
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <div class="chart">
@@ -98,7 +98,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeUnreferencedElements()
     {
-        this.UnReferencedElements = iterationService.GetUnreferencedElements(ISessionAnchor.GetIteration());
+        this.UnReferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.GetIteration());
     }
 
     /// <summary>
@@ -119,6 +119,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="domain">The associated domain of the selected area</param>
     public void AccessData(string criteria, object domain)
     {
-        NavigationManager.NavigateTo($"ModelDashboard/ElementsDetails?criteria={criteria}&domain={domain}");      
+        this.NavigationManager.NavigateTo($"ModelDashboard/ElementsDetails?criteria={criteria}&domain={domain}");      
     }
 }

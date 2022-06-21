@@ -79,7 +79,7 @@ Copyright (c) 2022 RHEA System S.A.
         if (applicationName is not null)
         {
             var newName = Regex.Replace(applicationName, @"\s", "");
-            NavigationManager.NavigateTo($"/{newName}");
+            this.NavigationManager.NavigateTo($"/{newName}");
         }
     }
 }

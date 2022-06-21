@@ -65,7 +65,7 @@ namespace COMETwebapp.SessionManagement
             } else
             {
                 var person = this.sessionAnchor.Session.ActivePerson;
-                identity = this.CreateClaimsIdentity(person);
+                identity = CreateClaimsIdentity(person);
             }
 
             return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity)));
@@ -83,7 +83,7 @@ namespace COMETwebapp.SessionManagement
         /// <remarks>
         /// When the <paramref name="person"/> is null an anonymous <see cref="ClaimsIdentity"/> is returned
         /// </remarks>
-        private ClaimsIdentity CreateClaimsIdentity(Person person)
+        private static ClaimsIdentity CreateClaimsIdentity(Person person)
         {
             ClaimsIdentity identity;
 

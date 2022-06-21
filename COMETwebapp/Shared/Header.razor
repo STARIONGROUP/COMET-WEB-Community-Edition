@@ -37,12 +37,12 @@
         <div class="px-4">
 	        <AuthorizeView>
 		        <Authorized>
-			        @if(ISessionAnchor.GetIteration() is not null)
+			        @if(this.ISessionAnchor.GetIteration() is not null)
 			        {
 				        <select id="domnain" @onchange="OnSwitchDomain">
-					        @foreach (var domain in ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.GetIteration()).OrderBy(i => i.Name))
+					        @foreach (var domain in this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).OrderBy(i => i.Name))
 					        {
-						        @if(domain == ISessionAnchor.CurrentDomainOfExpertise)
+						        @if(domain == this.ISessionAnchor.CurrentDomainOfExpertise)
 						        {
 							        <option value="@domain.Name" selected>@domain.Name</option>
 						        } else
@@ -56,7 +56,7 @@
 			        {
 				        <button class="btn" disabled>Refreshing</button>
 			        } else {
-				        <button class="btn" @onclick="() => ISessionAnchor.RefreshSession()"> Refresh Session</button>
+				        <button class="btn" @onclick="() => this.ISessionAnchor.RefreshSession()"> Refresh Session</button>
 			        }
 			        <a href="logout"  @onclick="@(() => this.loginPopupVisible = false)">Log out</a>
 		        </Authorized>
@@ -172,7 +172,7 @@
     /// <param name="e"><see cref="ChangeEventArgs"/> from selector</param>
     public void OnSwitchDomain(ChangeEventArgs e)
     {
-        var selectedDomainOfExpertise = ISessionAnchor.Session.QueryDomainOfExpertise(ISessionAnchor.GetIteration()).ToList().Find(domain => domain.Name.Equals(e.Value));
-        ISessionAnchor.SwitchDomain(selectedDomainOfExpertise);
+        var selectedDomainOfExpertise = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).ToList().Find(domain => domain.Name.Equals(e.Value));
+        this.ISessionAnchor.SwitchDomain(selectedDomainOfExpertise);
     }
 }

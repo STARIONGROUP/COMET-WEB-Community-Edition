@@ -20,7 +20,7 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <div class="dashboard">
@@ -67,7 +67,7 @@ Copyright (c) 2022 RHEA System S.A.
         result.AddRange(data);
         if (this.FilterOption != null)
         {
-            var nestedParameters = iterationService.GetNestedParameters(ISessionAnchor.GetIteration(), this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.GetIteration(), this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>
@@ -118,6 +118,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        this.Data = iterationService.GetParameterValueSets(ISessionAnchor.GetIteration());
+        this.Data = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
     }
 }

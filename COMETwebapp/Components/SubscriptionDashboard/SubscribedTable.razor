@@ -21,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@inject IIterationService iterationService
+@inject IIterationService IterationService
 @implements IDisposable
 
 <div class="display-flex flex-column">
@@ -31,7 +31,7 @@ Copyright (c) 2022 RHEA System S.A.
             You don't have any subscriptions.
         </div>
     } else {
-        @if (ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
+        @if (this.ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
         {
             <div class="display-flex flex-column align-items-end">
                 <button class="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" @onclick="() => ValidateAllChanges()">
@@ -184,7 +184,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void LoadData()
     {
         this.ViewModelSubscribedParameters.Clear();
-        this.SubscribedParameters = iterationService.GetParameterSubscriptions(ISessionAnchor.GetIteration(), ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
     }
 
@@ -215,10 +215,10 @@ Copyright (c) 2022 RHEA System S.A.
                     isParameterSubscriptionValueUpdated = true;
                 }
 
-                var paramererValueSets = iterationService.GetParameterValueSets(ISessionAnchor.GetIteration());
+                var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
 
                 var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
-                var associatedElement = ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                var associatedElement = this.ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
 
                 var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
@@ -232,7 +232,7 @@ Copyright (c) 2022 RHEA System S.A.
                 }
 
             //check if changes already validated
-                if(ISessionAnchor.CurrentDomainOfExpertise != null && iterationService.ValidatedUpdates.TryGetValue(ISessionAnchor.CurrentDomainOfExpertise, out var list))
+                if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
                 {
                     var existingValidatedParameter = list.Find(element => element.Iid == parameterSubscriptionValueSet?.Iid);
                     if(existingValidatedParameter != null && parameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber)
@@ -250,7 +250,7 @@ Copyright (c) 2022 RHEA System S.A.
                     isParameterSubscriptionValueUpdated = true;
                 }
 
-                ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
+                this.ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
                 {
                     ElementName = associatedElement?.Name,
                     ParameterType = subscribedparameter?.ParameterType?.Name,
@@ -297,9 +297,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="parameter">The <see cref="ParameterSubscriptionViewModel"> change to save </param>
     private void UpdateValidation(ParameterSubscriptionViewModel parameter)
     {
-        if(ISessionAnchor.CurrentDomainOfExpertise != null && iterationService.ValidatedUpdates.TryGetValue(ISessionAnchor.CurrentDomainOfExpertise, out var list))
+        if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
         {
-            var previousVersion = iterationService.ValidatedUpdates[ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameter.Iid);
+            var previousVersion = this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameter.Iid);
             if(previousVersion != null)
             {
                 previousVersion.RevisionNumber = parameter.RevisionNumber;
@@ -307,16 +307,16 @@ Copyright (c) 2022 RHEA System S.A.
 
             } else
             {
-                iterationService.ValidatedUpdates[ISessionAnchor.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
+                this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
                 {
                     Iid = parameter.Iid,
                     RevisionNumber = parameter.RevisionNumber,
                     SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
                 });
             }
-        } else if (ISessionAnchor.CurrentDomainOfExpertise != null)
+        } else if (this.ISessionAnchor.CurrentDomainOfExpertise != null)
         {
-            iterationService.ValidatedUpdates.Add(ISessionAnchor.CurrentDomainOfExpertise, new List<ParameterSubscriptionViewModel>()
+            this.IterationService.ValidatedUpdates.Add(this.ISessionAnchor.CurrentDomainOfExpertise, new List<ParameterSubscriptionViewModel>()
             {
                 new ParameterSubscriptionViewModel()
                 {

@@ -77,7 +77,7 @@ Copyright (c) 2022 RHEA System S.A.
             <div class="col-md-12 text-center">
                 @if (isOpening)
                 {
-                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled=true>Opening the Iteration</button>
+                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled>Opening the Iteration</button>
                 } else 
                 {
                     <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Open the Iteration</button>
@@ -144,9 +144,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e"> Event emmited when a ModelSetup is selected </param>
     public void GetDomains(ChangeEventArgs e)
     {
-        this.SelectedEngineeringModelSetup = ISessionAnchor.GetSiteDirectory().Model.Find(m => m.Name.Equals(e.Value?.ToString()));
+        this.SelectedEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.Name.Equals(e.Value?.ToString()));
         this.Domains.Clear();
-        this.Domains.AddRange(ISessionAnchor.GetModelDomains(this.SelectedEngineeringModelSetup));
+        this.Domains.AddRange(this.ISessionAnchor.GetModelDomains(this.SelectedEngineeringModelSetup));
     }
 
     /// <summary>
@@ -161,6 +161,6 @@ Copyright (c) 2022 RHEA System S.A.
         base.StateHasChanged();
 
         await this.ISessionAnchor.SetOpenIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
-        NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelInformation.EngineeringModelSetupName));
+        this.NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelInformation.EngineeringModelSetupName));
     }
 }

@@ -39,7 +39,7 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// Define seconds left in the timer before the next refresh
         /// </summary>
-        private int AutoRefreshSecondsLeft;
+        private int autoRefreshSecondsLeft;
 
         /// <summary>
         /// The timer
@@ -75,16 +75,17 @@ namespace COMETwebapp.SessionManagement
         {
             if (this.IsAutoRefreshEnabled)
             {
-                this.AutoRefreshSecondsLeft = this.AutoRefreshInterval;
+                this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
 
                 this.Timer = new Timer(1000);
                 this.Timer.Elapsed += this.OntTimerElapsed;
                 this.Timer.Start();
             }
-            else
+            else if (this.Timer != null)
             {
-                this.Timer?.Stop();
-                this.Timer?.Dispose();
+                this.Timer.Elapsed -= this.OntTimerElapsed;
+                this.Timer.Stop();
+                this.Timer.Dispose();
             }
         }
 
@@ -95,14 +96,14 @@ namespace COMETwebapp.SessionManagement
         /// <param name="e">The event arguments.</param>
         public async void OntTimerElapsed(object? sender, EventArgs? e)
         {
-            this.AutoRefreshSecondsLeft -= 1;
+            this.autoRefreshSecondsLeft -= 1;
 
-            if (this.AutoRefreshSecondsLeft == 0)
+            if (this.autoRefreshSecondsLeft == 0)
             {
                 this.Timer?.Stop();
                 await this.sessionAnchor.RefreshSession();
 
-                this.AutoRefreshSecondsLeft = this.AutoRefreshInterval;
+                this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
                 this.Timer?.Start();
             }
         }

@@ -176,10 +176,11 @@ namespace COMETwebapp.SessionManagement
         /// <param name="DomainOfExpertise">The domain</param>
         public void SwitchDomain(DomainOfExpertise? DomainOfExpertise)
         {
-            if(this.GetIteration() != null)
+            var iteration = this.GetIteration();
+            if(iteration != null)
             {
                 this.CurrentDomainOfExpertise = DomainOfExpertise;
-                this.Session.SwitchDomain(this.GetIteration().Iid, DomainOfExpertise);
+                this.Session.SwitchDomain(iteration.Iid, DomainOfExpertise);
             }
         }
     }
