@@ -165,8 +165,8 @@ namespace COMETwebapp.Tests
             });
             this.sessionAnchor.RefreshSession();
 
-            Assert.IsTrue(beginRefreshReceived);
-            Assert.IsTrue(endRefreshReceived);
+            Assert.That(beginRefreshReceived, Is.True);
+            Assert.That(endRefreshReceived, Is.True);
         }
     }
 }

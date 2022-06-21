@@ -79,8 +79,8 @@ namespace COMETwebapp.Tests.SessionManagement
             this.autoRefreshService.SetTimer();
             Thread.Sleep(5000);
 
-            Assert.IsTrue(beginRefreshReceived);
-            Assert.IsTrue(endRefreshReceived);
+            Assert.That(beginRefreshReceived, Is.True);
+            Assert.That(endRefreshReceived, Is.True);
         }
     }
 }
