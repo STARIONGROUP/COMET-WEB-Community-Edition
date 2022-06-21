@@ -24,16 +24,15 @@
 
 namespace COMETwebapp.SessionManagement
 {
-    using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
+    using System;
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4Dal.Exceptions;
-    using CDP4ServicesDal;
-    using Microsoft.AspNetCore.Components.Authorization;
-    using System;
-    using System.Collections.Generic;
 
+    using CDP4ServicesDal;
+
+    using Microsoft.AspNetCore.Components.Authorization;
+    
     /// <summary>
     /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
     /// a E-TM-10-25 Annex C.2 data source
@@ -83,7 +82,8 @@ namespace COMETwebapp.SessionManagement
                 var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
                 this.sessionAnchor.Session = new Session(dal, credentials);
-            } else
+            }
+            else
             {
                 return AuthenticationStateKind.Fail;
             }
@@ -127,6 +127,5 @@ namespace COMETwebapp.SessionManagement
      
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
         }
-        
     }
 }

@@ -24,10 +24,12 @@
 
 namespace COMETwebapp.SessionManagement
 {
-    using CDP4Common.SiteDirectoryData;
-    using Microsoft.AspNetCore.Components.Authorization;
     using System.Security.Claims;
 
+    using CDP4Common.SiteDirectoryData;
+
+    using Microsoft.AspNetCore.Components.Authorization;
+    
     /// <summary>
     /// Provides information about the authentication state of the current user.
     /// </summary>
@@ -57,12 +59,12 @@ namespace COMETwebapp.SessionManagement
         /// </returns>
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-
             ClaimsIdentity identity;
             if (!this.sessionAnchor.IsSessionOpen)
             {
                 identity = new ClaimsIdentity();
-            } else
+            }
+            else
             {
                 var person = this.sessionAnchor.Session.ActivePerson;
                 identity = CreateClaimsIdentity(person);
