@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests
     using System.Threading.Tasks;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
     using CDP4Dal;
     using CDP4Dal.DAL;
     using COMETwebapp.SessionManagement;
@@ -51,6 +52,7 @@ namespace COMETwebapp.Tests
         private readonly Uri uri = new Uri("http://test.com");
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
+        private SiteDirectory siteDirectory;
 
         [SetUp]
         public void Setup()
@@ -116,9 +118,16 @@ namespace COMETwebapp.Tests
                {
                     new KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
                });
+
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri);
+            this.siteDirectory.Person.Add(this.person);
+            this.siteDirectory.Domain.Add(this.domain);
+
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
             this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);
             this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
+            this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
         [Test]
@@ -137,7 +146,7 @@ namespace COMETwebapp.Tests
         public void VerifyGetIteration()
         {
             this.session.Setup(x => x.OpenIterations).Returns(default(IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>));
-            Assert.IsNull(this.sessionAnchor.GetIteration());
+            Assert.That(this.sessionAnchor.GetIteration(), Is.Null);
             this.session.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), true)).Returns(Task.CompletedTask);
 
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
@@ -145,9 +154,33 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
-            Assert.AreSame(this.iteration, this.sessionAnchor.GetIteration());
+            Assert.That(this.sessionAnchor.GetIteration(), Is.EqualTo(this.iteration));
 
             Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.SetOpenIteration(this.engineeringSetup, this.iteration.IterationSetup));
+        }
+
+        [Test]
+        public void VerifyCloseIteration()
+        {
+            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
+            {
+                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
+            });
+            this.sessionAnchor.IsSessionOpen = true;
+            this.session.Setup(x => x.CloseIterationSetup(this.sessionAnchor.GetIteration().IterationSetup)).Returns(Task.CompletedTask);
+            Assert.DoesNotThrow(() => this.sessionAnchor.CloseIteration());
+        }
+
+        [Test]
+        public void VerifyGetParticipantModels()
+        {
+            Assert.That(this.sessionAnchor.GetParticipantModels(), Is.Not.Null);
+        }
+
+        [Test]
+        public void VerifyGetModelDomains()
+        {
+            Assert.That(this.sessionAnchor.GetModelDomains(this.engineeringSetup), Is.Not.Null);
         }
 
         [Test]
@@ -167,6 +200,22 @@ namespace COMETwebapp.Tests
 
             Assert.That(beginRefreshReceived, Is.True);
             Assert.That(endRefreshReceived, Is.True);
+        }
+
+        [Test]
+        public void VerifySwitchDomain()
+        {
+            Assert.DoesNotThrow(() => this.sessionAnchor.SwitchDomain(this.domain));
+
+            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
+            {
+                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
+            });
+            this.sessionAnchor.IsSessionOpen = true;
+            Assert.That(this.sessionAnchor.CurrentDomainOfExpertise, Is.Null);
+            
+            this.sessionAnchor.SwitchDomain(this.domain);
+            Assert.That(this.sessionAnchor.CurrentDomainOfExpertise, Is.EqualTo(this.domain));
         }
     }
 }
