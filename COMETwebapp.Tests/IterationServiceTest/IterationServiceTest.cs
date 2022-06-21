@@ -38,7 +38,12 @@ namespace COMETwebapp.Tests.IterationServiceTest
     public class IterationServiceTest
     {
         private Iteration iteration;
-        private IIterationService iterationService;
+        private IIterationService iterationService = new IterationService();
+        private List<ParameterValueSet> parameterValueSets;
+        private List<ElementDefinition> unReferencedElements;
+        private List<ElementDefinition> unUsedElements;
+        private DomainOfExpertise currentDomainOfExpertise;
+        private DomainOfExpertise domainOfExpertise;
 
         [SetUp]
         public void SetUp()
@@ -46,10 +51,16 @@ namespace COMETwebapp.Tests.IterationServiceTest
             var uri = new Uri("http://www.rheagroup.com");
             var cache = new ConcurrentDictionary<CDP4Common.Types.CacheKey, Lazy<Thing>>();
 
-            var domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
+            this.domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
             {
                 ShortName = "SYS",
                 Name = "System"
+            };
+
+            this.currentDomainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
+            {
+                ShortName = "AOCS",
+                Name = "Attitude and orbit control system"
             };
 
             this.iteration = new Iteration(Guid.NewGuid(), cache, uri);
@@ -62,12 +73,14 @@ namespace COMETwebapp.Tests.IterationServiceTest
 
             var elementDefinition_1 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
+                Owner = this.domainOfExpertise,
                 ShortName = "Sat",
                 Name = "Satellite"
             };
 
             var elementDefinition_2 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
+                Owner = this.domainOfExpertise,
                 ShortName = "Bat",
                 Name = "Battery"
             };
@@ -98,13 +111,13 @@ namespace COMETwebapp.Tests.IterationServiceTest
 
             var parameter = new Parameter(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ParameterType = simpleQuantityKind
             };
 
             var parameter2 = new Parameter(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ParameterType = simpleQuantityKind2
             };
 
@@ -156,13 +169,35 @@ namespace COMETwebapp.Tests.IterationServiceTest
             this.iteration.Element.Add(elementDefinition_2);
             this.iteration.TopElement = elementDefinition_1;
 
-            iterationService = new IterationService();
+
+            parameter.ParameterSubscription.Add(new ParameterSubscription()
+            {
+                Owner = this.currentDomainOfExpertise
+            });
+           
+            this.parameterValueSets = new List<ParameterValueSet>()
+            {
+                parameterValueset_1,
+                parameterValueset_2,
+                parameterValueset_1,
+                parameterValueset_2
+            };
+
+            this.unReferencedElements = new List<ElementDefinition>()
+            {
+                elementDefinition_1
+            };
+            this.unUsedElements = new List<ElementDefinition>()
+            {
+                elementDefinition_1
+            };
         }
 
         [Test]
         public void VerifyGetParameterValueSets()
         {
             Assert.That(iterationService.GetParameterValueSets(this.iteration), Is.Not.Empty);
+            Assert.That(iterationService.GetParameterValueSets(this.iteration), Is.EqualTo(this.parameterValueSets));   
         }
 
         [Test]
@@ -181,12 +216,28 @@ namespace COMETwebapp.Tests.IterationServiceTest
         public void VerifyGetUnusedElementDefinitions()
         {
             Assert.That(iterationService.GetUnusedElementDefinitions(this.iteration), Is.Not.Empty);
+            Assert.That(iterationService.GetUnusedElementDefinitions(this.iteration), Is.EqualTo(this.unUsedElements));
         }
 
         [Test]
         public void VerifyGetUnreferencedElements()
         {
             Assert.That(iterationService.GetUnreferencedElements(this.iteration), Is.Not.Empty);
+            Assert.That(iterationService.GetUnreferencedElements(this.iteration), Is.EqualTo(this.unReferencedElements));
+        }
+
+        [Test]
+        public void VerifyGetParameterSubscriptions()
+        {
+            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise), Is.Not.Empty);
+            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise).Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void VerifyGetCurrentDomainSubscribedParameters()
+        {
+            Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise), Is.Not.Empty);
+            Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise).Count, Is.EqualTo(2));
         }
     }
 }

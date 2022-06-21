@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests
     using System.Threading.Tasks;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
     using CDP4Dal;
     using CDP4Dal.DAL;
     using COMETwebapp.SessionManagement;
@@ -51,6 +52,7 @@ namespace COMETwebapp.Tests
         private readonly Uri uri = new Uri("http://test.com");
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
+        private SiteDirectory siteDirectory;
 
         [SetUp]
         public void Setup()
@@ -116,9 +118,16 @@ namespace COMETwebapp.Tests
                {
                     new KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
                });
+
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri);
+            this.siteDirectory.Person.Add(this.person);
+            this.siteDirectory.Domain.Add(this.domain);
+
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
             this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);
             this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
+            this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
         [Test]
@@ -151,6 +160,30 @@ namespace COMETwebapp.Tests
         }
 
         [Test]
+        public void VerifyCloseIteration()
+        {
+            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
+            {
+                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
+            });
+            this.sessionAnchor.IsSessionOpen = true;
+            this.session.Setup(x => x.CloseIterationSetup(this.sessionAnchor.GetIteration().IterationSetup)).Returns(Task.CompletedTask);
+            Assert.DoesNotThrow(() => this.sessionAnchor.CloseIteration());
+        }
+
+        [Test]
+        public void VerifyGetParticipantModels()
+        {
+            Assert.IsNotNull(this.sessionAnchor.GetParticipantModels());
+        }
+
+        [Test]
+        public void VerifyGetModelDomains()
+        {
+            Assert.IsNotNull(this.sessionAnchor.GetModelDomains(this.engineeringSetup));
+        }
+
+        [Test]
         public void VerifyRefreshSession()
         {
             var beginRefreshReceived = false;
@@ -167,6 +200,22 @@ namespace COMETwebapp.Tests
 
             Assert.That(beginRefreshReceived, Is.True);
             Assert.That(endRefreshReceived, Is.True);
+        }
+
+        [Test]
+        public void VerifySwitchDomain()
+        {
+            Assert.DoesNotThrow(() => this.sessionAnchor.SwitchDomain(this.domain));
+
+            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
+            {
+                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
+            });
+            this.sessionAnchor.IsSessionOpen = true;
+            Assert.IsNull(this.sessionAnchor.CurrentDomainOfExpertise);
+            
+            this.sessionAnchor.SwitchDomain(this.domain);
+            Assert.AreEqual(this.domain, this.sessionAnchor.CurrentDomainOfExpertise);
         }
     }
 }

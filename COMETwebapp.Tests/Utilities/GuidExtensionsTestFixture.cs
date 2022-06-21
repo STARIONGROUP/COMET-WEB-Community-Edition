@@ -25,7 +25,7 @@
 namespace COMETwebapp.Tests.Utilities
 {
     using System;
-    
+    using System.Collections.Generic;
     using COMETwebapp.Utilities;
 
     using NUnit.Framework;
@@ -60,6 +60,33 @@ namespace COMETwebapp.Tests.Utilities
             var guid = Guid.Parse(guidString);
 
             Assert.That(shortGuid.FromShortGuid(), Is.EqualTo(guid));
+        }
+
+        [Test]
+        public void Verify_ToShortGuids_from_string()
+        {
+            var guids = new List<string>() { guidString, guidString };
+            var result = new List<string>() { shortGuid, shortGuid };
+
+            Assert.That(guids.ToShortGuids(), Is.EquivalentTo(result));
+        }
+
+        [Test]
+        public void Verify_ToShortGuids_from_guid()
+        {
+            var guids = new List<Guid>() { Guid.Parse(guidString), Guid.Parse(guidString) };
+            var result = new List<string>() { shortGuid, shortGuid };
+
+            Assert.That(guids.ToShortGuids(), Is.EquivalentTo(result));
+        }
+
+        [Test]
+        public void Verify_Short_Guid_Array()
+        {
+            var guids = new List<Guid>() { Guid.Parse(guidString), Guid.Parse(guidString) };
+            var shortGuidArray = "[" + shortGuid + ";" + shortGuid + "]";
+            Assert.That(guids.ToShortGuidArray(), Is.EqualTo(shortGuidArray));
+            Assert.That(shortGuidArray.FromShortGuidArray(), Is.EqualTo(guids));
         }
     }
 }
