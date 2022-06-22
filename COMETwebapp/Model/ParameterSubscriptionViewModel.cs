@@ -103,6 +103,11 @@ namespace COMETwebapp.Model
         public bool IsUpdated { get; set; } = false;
 
         /// <summary>
+        /// Iid of the subscribed ParameterValueSet
+        /// </summary>
+        public Guid? SubscribedIid { get; set; }
+
+        /// <summary>
         /// Revision number of the subscribed ParameterValueSet
         /// </summary>
         public int? SubscribedRevisionNumber { get; set; }
