@@ -41,11 +41,11 @@ Copyright (c) 2022 RHEA System S.A.
             </div>
         }
         <div>
-            <DxDataGrid @ref="@grid" Data="@ViewModelSubscribedParameters" PageSize="0" RowClick="@OnRowClick">
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
+            <DxDataGrid @ref="@grid" Data="@SortOrder(this.ViewModelSubscribedParameters)" PageSize="0" RowClick="@OnRowClick">
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" />
                 <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
                 <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription"TextAlignment="DataGridTextAlign.Center">
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription" TextAlignment="DataGridTextAlign.Center">
                     <DisplayTemplate>
                         @{
                             var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
@@ -147,7 +147,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
     /// </summary>
-    public ObservableCollection<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new ObservableCollection<ParameterSubscriptionViewModel>();
+    public List<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new List<ParameterSubscriptionViewModel>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -342,5 +342,19 @@ Copyright (c) 2022 RHEA System S.A.
         }
         grid?.SetDataRowSelected(args.DataItem, false);
         args.Handled = true;
+    }
+
+    /// <summary>
+    /// Sorts elements in the table alphabetically by ElementName
+    /// When there are updates, puts updated elements at the top of the table
+    /// </summary>
+    /// <param name="viewModelSubscribedParameters">The list of <see cref ="ParameterSubscriptionViewModel"> to show in the table</param>
+    /// <returns>An <see cref="ObservableCollection"> with sorted elements</returns>
+    private ObservableCollection<ParameterSubscriptionViewModel> SortOrder(List<ParameterSubscriptionViewModel> viewModelSubscribedParameters)
+    {
+        var updatedParameters = viewModelSubscribedParameters.ToList().FindAll(i => i.IsUpdated || i.IsSubscribedUpdated).OrderBy(i => i.ElementName);
+        var otherParameters = viewModelSubscribedParameters.ToList().FindAll(i => !i.IsUpdated || !i.IsSubscribedUpdated).OrderBy(i => i.ElementName);
+
+        return new ObservableCollection<ParameterSubscriptionViewModel>(updatedParameters.Concat(otherParameters));;
     }
 }
