@@ -34,19 +34,24 @@ Copyright (c) 2022 RHEA System S.A.
     } else {
         @if (this.ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
         {
-            <div class="display-flex flex-column align-items-end">
+            <div class="display-flex flex-row-reverse align-items-end justify-content-between">
                 <button class="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" @onclick="() => ValidateAllChanges()">
                     <i class="oi oi-check m-right-3px"></i>
                     Validate all changes
                 </button>
+                
+                <div>
+                    <input type="checkbox" id="filterUpdates" @onchange="@OnFilterUpdates" >
+                    <label class="m-left-3px" for="filterUpdates">Filter only changes</label>
+                </div>
             </div>
         }
         <div>
-            <DxDataGrid @ref="@grid" Data="@SortOrder(this.ViewModelSubscribedParameters)" PageSize="0" RowClick="@OnRowClick">
+            <DxDataGrid @ref="@grid" Data="@SortOrder(this.ViewModelSubscribedParameters)" PageSize="0" RowClick="@OnRowClick" ShowFilterRow="true">
                 <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" />
                 <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" />
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription" TextAlignment="DataGridTextAlign.Center">
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" AllowFilter="false" />
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
                     <DisplayTemplate>
                         @{
                             var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
@@ -87,7 +92,7 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                     </DisplayTemplate>
                 </DxDataGridColumn>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center">
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
                     <DisplayTemplate>
                         @{
                             var actualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
@@ -126,10 +131,10 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                 </DisplayTemplate>
                 </DxDataGridColumn>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center"/>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center"/>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center"/>
-                <DxDataGridColumn Caption="History" TextAlignment="DataGridTextAlign.Center">
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center" AllowFilter="false"/>
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center" AllowFilter="false"/>
+                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center" AllowFilter="false"/>
+                <DxDataGridColumn Caption="History" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
                     <DisplayTemplate>
                         @{
                             var iid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
@@ -164,6 +169,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
     /// </summary>
     public List<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new List<ParameterSubscriptionViewModel>();
+
+    /// <summary>
+    /// Set if only changes will appear in the table
+    /// </summary>
+    public bool IsFilterChangesSelected { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -372,11 +382,34 @@ Copyright (c) 2022 RHEA System S.A.
         var updatedParameters = viewModelSubscribedParameters.ToList().FindAll(i => i.IsUpdated || i.IsSubscribedUpdated).OrderBy(i => i.ElementName);
         var otherParameters = viewModelSubscribedParameters.ToList().FindAll(i => !i.IsUpdated || !i.IsSubscribedUpdated).OrderBy(i => i.ElementName);
 
-        return new ObservableCollection<ParameterSubscriptionViewModel>(updatedParameters.Concat(otherParameters));;
+        if (this.IsFilterChangesSelected)
+        {
+            return new ObservableCollection<ParameterSubscriptionViewModel>(updatedParameters);
+        } else
+        {
+            return new ObservableCollection<ParameterSubscriptionViewModel>(updatedParameters.Concat(otherParameters)); 
+        }
     }
 
+    /// <summary>
+    /// Access to historic graph for the selected parameterValueSet
+    /// </summary>
+    /// <param name="parameterIid">Guid of the selected parameterValueSet</param>
     public void AccessData(Guid? parameterIid)
     {
         this.NavigationManager.NavigateTo($"/SubscriptionDashboard/More?parameterIid={parameterIid?.ToString().ToShortGuid()}");
+    }
+
+    /// <summary>
+    /// Enable/disable filter changes in the table
+    /// </summary>
+    /// <param name="e">The <see cref="ChangeEventArgs"> from the checkbox input</param>
+    public void OnFilterUpdates(ChangeEventArgs e)
+    {
+        var value = e.Value;
+        if(value != null)
+        {
+            this.IsFilterChangesSelected = (bool) value;
+        }
     }
 }
