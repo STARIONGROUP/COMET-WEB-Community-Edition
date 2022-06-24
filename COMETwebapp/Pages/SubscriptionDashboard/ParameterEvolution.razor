@@ -27,29 +27,64 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="display-flex flex-column justify-content-center">
     <div class="font-weight-bold">@ElementName - @ParameterName</div>
-    <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-        <DxChartLineSeries
-            ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
-            ValueField="@(p => p.ActualValue)"
-            AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Position="RelativePosition.Outside">
-                <DxChartSeriesLabelConnector Visible="true" Width="3" />
-            </DxChartSeriesLabel>
-        </DxChartLineSeries>
-        <DxChartLegend Visible="false"/>
-    </DxChart>
+    @if(this.Data.Count != 0)
+    {
+        <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
+            <DxChartLineSeries
+                ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                ValueField="@(p => p.ActualValue)"
+                AggregationMethod="Enumerable.Sum">
+                <DxChartSeriesLabel Position="RelativePosition.Outside">
+                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                </DxChartSeriesLabel>
+            </DxChartLineSeries>
+            <DxChartLegend Visible="false"/>
+        </DxChart>
+        <div class="display-flex flex-column align-items-center">
+            <div>Actual values of the subscribed Parameter</div>
+        </div>
+    }
+    @if(this.SubscriptionData.Count != 0)
+    {
+        <DxChart Data="@SubscriptionData" CustomizeSeriesPoint="@PreparePointLabel">
+            <DxChartLineSeries
+                ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                ValueField="@(p => p.ActualValue)"
+                AggregationMethod="Enumerable.Sum">
+                <DxChartSeriesLabel Position="RelativePosition.Outside">
+                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                </DxChartSeriesLabel>
+            </DxChartLineSeries>
+            <DxChartLegend Visible="false"/>
+        </DxChart>
+        <div class="display-flex flex-column align-items-center">
+            <div >Actual values of the ParameterSubscription</div>
+        </div>
+    }
 </div>
 
 @code {
     /// <summary>
-    /// The iid of the parameter to present in the graph
+    /// The iid of the parameterSubscriptionValueSet to present in the graph
     /// </summary>
     [Parameter]
     [SupplyParameterFromQuery]
-    public string? ParameterIid { get; set; }
+    public string? ParameterSubscriptionValueSetIid { get; set; }
 
     /// <summary>
-    /// Data showed in the graph
+    /// The iid of the parameterValueSet to present in the graph
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? ParameterValueSetIid { get; set; }
+
+    /// <summary>
+    /// Data for ParameterSubscriptionValueSet to show in the graph
+    /// </summary>
+    public ObservableCollection<RevisionHistory> SubscriptionData { get; set; } = new ObservableCollection<RevisionHistory>();
+
+    /// <summary>
+    /// Data for ParameterValueSet to show in the graph
     /// </summary>
     public ObservableCollection<RevisionHistory> Data { get; set; } = new ObservableCollection<RevisionHistory>();
 
@@ -73,7 +108,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnParametersSet()
     {
-        this.ParameterIid = ParameterIid ?? null;
+        this.ParameterValueSetIid = ParameterValueSetIid ?? null;
+        this.ParameterSubscriptionValueSetIid = ParameterSubscriptionValueSetIid ?? null;
     }
 
     /// <summary>
@@ -107,28 +143,69 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void LoadData()
     {
-        var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
-        var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == ParameterIid?.FromShortGuid());
-        associatedParameterValueSet?.Revisions.Values.ToList().ForEach(revision =>
+        if (this.ParameterValueSetIid != null)
         {
-            var value = (ParameterValueSet)revision;
-            this.Data.Add(new RevisionHistory()
+            var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
+            var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid.FromShortGuid());
+            associatedParameterValueSet?.Revisions.Values.ToList().ForEach(revision =>
+            {
+                var value = (ParameterValueSet)revision;
+                this.Data.Add(new RevisionHistory()
+                    {
+                        RevisionNumber = value.RevisionNumber.ToString(),
+                        ActualValue = Double.Parse(value.ActualValue.First())
+                    });
+            });
+            if (associatedParameterValueSet != null)
+            {
+                var parameter = (Parameter)associatedParameterValueSet.Container;
+                this.ParameterName = parameter.ParameterType.Name;
+                var element = (ElementDefinition)parameter.Container;
+                this.ElementName = element.Name;
+
+                if(associatedParameterValueSet.Revisions.Count != 0)
                 {
-                    RevisionNumber = value.RevisionNumber.ToString(),
-                    ActualValue = Double.Parse(value.ActualValue.First())
-                });
-        });    
-        if (associatedParameterValueSet != null)
+                    this.Data.Add(new RevisionHistory()
+                    {
+                        RevisionNumber = associatedParameterValueSet.RevisionNumber.ToString(),
+                        ActualValue = Double.Parse(associatedParameterValueSet.ActualValue.First())
+                    });
+                }
+            }
+        }
+
+        if(this.ParameterSubscriptionValueSetIid != null)
         {
-            var parameter = (Parameter) associatedParameterValueSet.Container;
-            this.ParameterName = parameter.ParameterType.Name;
-            this.Data.Add(new RevisionHistory()
+            var parameterSubscriptionValueSets = new List<ParameterSubscriptionValueSet>();
+            this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise).ForEach(p => parameterSubscriptionValueSets.AddRange(p.ValueSet));
+            var associatedParameterSubscriptionValueSet = parameterSubscriptionValueSets.Find(p => p.Iid == this.ParameterSubscriptionValueSetIid.FromShortGuid());
+            associatedParameterSubscriptionValueSet?.Revisions.Values.ToList().ForEach(revision =>
+            {
+                var value = (ParameterSubscriptionValueSet)revision;
+                this.SubscriptionData.Add(new RevisionHistory()
+                    {
+                        RevisionNumber = value.RevisionNumber.ToString(),
+                        ActualValue = Double.Parse(value.ActualValue.First())
+                    });
+            });
+            if (associatedParameterSubscriptionValueSet != null)
+            {
+                if(associatedParameterSubscriptionValueSet.Revisions.Count != 0)
                 {
-                    RevisionNumber = associatedParameterValueSet.RevisionNumber.ToString(),
-                    ActualValue = Double.Parse(associatedParameterValueSet.ActualValue.First())
-                });
-            var element = (ElementDefinition)parameter.Container;
-            this.ElementName = element.Name;
+                    this.SubscriptionData.Add(new RevisionHistory()
+                    {
+                        RevisionNumber = associatedParameterSubscriptionValueSet.RevisionNumber.ToString(),
+                        ActualValue = Double.Parse(associatedParameterSubscriptionValueSet.ActualValue.First())
+                    });
+                }
+                if(this.ParameterValueSetIid == null)
+                {
+                    var parameter = (ParameterSubscription)associatedParameterSubscriptionValueSet.Container;
+                    this.ParameterName = parameter.ParameterType.Name;
+                    var element = (ElementDefinition)parameter.Container;
+                    this.ElementName = element.Name;
+                }
+            }
         }
     }
 

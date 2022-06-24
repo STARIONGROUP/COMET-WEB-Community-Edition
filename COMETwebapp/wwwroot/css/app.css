@@ -62,6 +62,10 @@ html, body, #app {
     margin-left: 3px;
 }
 
+.m-left-5px {
+    margin-left: 5px;
+}
+
 .text-align-center {
     text-align: center;
 }
@@ -107,6 +111,14 @@ html, body, #app {
     height: 100%;
     background-color: transparent;
     border: none;
+}
+
+.color-cd4c4c {
+    color: #cd4c4c;
+}
+
+.color-7b8a8b {
+    color: #7b8a8b;
 }
 
 .color-76b8fc {
@@ -215,4 +227,12 @@ html, body, #app {
 
 .font-size-20 {
     font-size: 20px;
+}
+
+.font-weight-100{
+    font-weight: 100;
+}
+
+.font-size-bs-body {
+    font-size: 1rem;
 }
