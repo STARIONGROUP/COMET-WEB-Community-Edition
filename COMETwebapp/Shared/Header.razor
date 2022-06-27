@@ -21,68 +21,53 @@
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@implements IDisposable
 
 <nav class="navbar header-navbar p-0">
     <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <a class="navbar-brand"><img src="images/COMET-Logo.png" title="COMET Community Edition" alt="COMET Community Edition"/></a>
-
     <div class="header">
-        
-        <div class="ml-3 font-weight-bold title pr-4">COMET Community Edition</div>
 
-        <div class="px-4">
-	        <AuthorizeView>
-		        <Authorized>
-			        @if(this.ISessionAnchor.GetIteration() is not null)
-			        {
-				        <select id="domnain" @onchange="OnSwitchDomain">
-					        @foreach (var domain in this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).OrderBy(i => i.Name))
-					        {
-						        @if(domain == this.ISessionAnchor.CurrentDomainOfExpertise)
-						        {
-							        <option value="@domain.Name" selected>@domain.Name</option>
-						        } else
-						        {
-							        <option value="@domain.Name">@domain.Name</option>
-						        }
-					        }
-				        </select>
-			        }
-
-			        @if (IsRefreshing)
-			        {
-				        <button id="refresh-button" class="btn" disabled>Refreshing</button>
-			        } 
-			        else 
-			        {
-				        <button id="refresh-button" class="btn" @onclick="() => this.ISessionAnchor.RefreshSession()"> Refresh Session</button>
-			        }
-
-			        <a href="logout"  @onclick="@(() => this.loginPopupVisible = false)">Log out</a>
-		        </Authorized>
-		        <NotAuthorized>
-			        <a @onclick="@(() => this.loginPopupVisible = true)" class="m-left-3px">Log in</a>
-			        <DxPopup HeaderText="Login" @bind-Visible="@loginPopupVisible">
-				        <Login />
-			        </DxPopup>
-		        </NotAuthorized>
-	        </AuthorizeView>
-	        
-			<a @onclick="@(() => this.isAboutPopupVisible = true)" class="m-left-3px">About</a> 
-	        <DxPopup @bind-Visible="@this.isAboutPopupVisible" HeaderText="COMET-WEB CE">
-		        <About/>
-		        <div class="text-center">
-					<DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.isAboutPopupVisible = false)"/>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="display-flex align-items-center">
+                        <img src="images/COMET-Symbol.png" class="logo-size p-1" title="COMET Community Edition" alt="COMET Community Edition"/>
+                        <div class="font-weight-bold title title-item">COMET Community Edition</div>
+                    </div>
                 </div>
-	        </DxPopup>
-	        
+                <div class="col">
+                    <div class="display-flex justify-content-end align-items-center height-100 m-right-3px">
+                        <AuthorizeView>
+		                    <Authorized>
+                                @if(this.ISessionAnchor.CurrentEngineeringModelName != null)
+                                {
+                                    <div class="m-right-10px user-info">
+                                        @ISessionAnchor.CurrentEngineeringModelName - @context.User.Identity?.Name
+                                    </div>
+                                } else
+                                {
+                                     <div class="m-right-10px user-info">
+                                        @context.User.Identity?.Name
+                                    </div>   
+                                }
+                                
+                                <UserPreferences Username="@context.User.Identity?.Name"/>
+
+                                <div class="refresh-button">
+                                    <RefreshButton />
+                                </div>
+		                    </Authorized>
+	                    </AuthorizeView>
+                        <div class="about-button-header">
+                            <AboutButton />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 </nav>
 
 @code {
@@ -97,30 +82,10 @@
     public EventCallback<bool> ToggleOnChanged { get; set; }
 
     /// <summary>
-    /// Status for <see cref="ISession"/> refresh
-    /// </summary>
-    public bool IsRefreshing { get; set; } = false;
-
-    /// <summary>
     /// Handles the 
     /// </summary>
     /// <returns></returns>
     async Task OnToggleClick() => await Toggle();
-
-    /// <summary>
-    /// Listeners for the components to update it with ISession
-    /// </summary>
-    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
-
-    /// <summary>
-    /// Boolean to determine if the Popup Login is visible
-    /// </summary>
-    private bool loginPopupVisible = false;
-
-	/// <summary>
-	/// A value indicating whether the About popup window is visible or not.
-	/// </summary>
-	private bool isAboutPopupVisible = false;
 
     /// <summary>
     /// toggle the visibility of the side menu
@@ -135,48 +100,5 @@
             ToggleOn = newValue;
             await ToggleOnChanged.InvokeAsync(ToggleOn);
         }
-    }
-
-    /// <summary>
-    /// Update state of refresh button
-    /// If ISession is refreshing, button is disabled
-    /// </summary>
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (!this.listeners.TryGetValue("Refreshing", out var listener))
-        {
-            this.listeners.Add("Refreshing", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
-            {
-                this.IsRefreshing = true;
-                this.StateHasChanged();
-            }));
-        }
-        if (!this.listeners.TryGetValue("UpToDate", out listener))
-        {
-            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                this.IsRefreshing = false;
-                this.StateHasChanged();
-            }));
-        }
-    }
-
-    /// <summary>
-    /// Stop and clear listeners of the component
-    /// </summary>
-    public void Dispose()
-    {
-        this.listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.listeners.Clear();
-    }
-
-    /// <summary>
-    /// Gets the selected <see cref="DomainOfExpertise"/> and switchs ISession active domain 
-    /// </summary>
-    /// <param name="e"><see cref="ChangeEventArgs"/> from selector</param>
-    public void OnSwitchDomain(ChangeEventArgs e)
-    {
-        var selectedDomainOfExpertise = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).ToList().Find(domain => domain.Name.Equals(e.Value));
-        this.ISessionAnchor.SwitchDomain(selectedDomainOfExpertise);
     }
 }

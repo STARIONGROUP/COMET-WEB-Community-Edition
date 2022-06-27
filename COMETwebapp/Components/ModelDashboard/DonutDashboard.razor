@@ -22,21 +22,23 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 @using DevExpress.Blazor
 
-<DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
-    <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published values as default") || d.Argument.Equals("Other values")))"
-                    ValueField="@(d => d.Value)"
-                    ArgumentField="@(d => d.Argument)"
-                    AggregationMethod="Enumerable.Sum">
-        <DxChartSeriesLabel Visible="true" />
-    </DxChartDonutSeries>
-    <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
-    <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published parameters") || d.Argument.Equals("Publishable parameters")))"
-                      ValueField="@(d => d.Value)"
-                      ArgumentField="@(d => d.Argument)"
-                      AggregationMethod="Enumerable.Sum">
-        <DxChartSeriesLabel Visible="true" />
-    </DxChartDonutSeries>
-</DxChart>
+<div class="col col-xxl-8">
+    <DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
+        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published values as default") || d.Argument.Equals("Other values")))"
+                        ValueField="@(d => d.Value)"
+                        ArgumentField="@(d => d.Argument)"
+                        AggregationMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Visible="true" />
+        </DxChartDonutSeries>
+        <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
+        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published parameters") || d.Argument.Equals("Publishable parameters")))"
+                          ValueField="@(d => d.Value)"
+                          ArgumentField="@(d => d.Argument)"
+                          AggregationMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Visible="true" />
+        </DxChartDonutSeries>
+    </DxChart>
+</div>
 
 @code {
     /// <summary>

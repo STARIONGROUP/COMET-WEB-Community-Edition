@@ -20,21 +20,20 @@
   along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@using System.Reflection
-
-@inject HttpClient HttpClient;
+@inject HttpClient HttpClient
+@inject IVersionService VersionService
 
 <div class="row">
 	<div class="col-md-12">
 		<div class="text-center">
 			<a href="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition" target="_blank">
-				<img src="images/COMET-Logo.png" alt="COMET-WEB CE"/>
+				<img src="images/COMET-Logo-small.png" alt="COMET-WEB CE"/>
 			</a>
 		</div>
 	</div>
 </div>
 
-<div class="row my-4">
+<div class="row my-4 text-align-center">
 	<div class="col-md-12">
 		<div class="card">
 			<div class="card-body">
@@ -44,7 +43,7 @@
 	</div>
 </div>
 
-<div class="row my-4">
+<div class="row my-4 text-align-center">
 	<div class="col-md-12">
 		<div class="card">
 			<div class="card-body">
@@ -54,11 +53,11 @@
 	</div>
 </div>
 
-<div class="row my-4">
+<div class="row my-4 text-align-center">
 	<div class="col-md-12">
 		<DxMemo @bind-Text="@license"
 			        CssClass="cw-480"
-			        Rows="5"/>
+			        Rows="6"/>
 	</div>
 </div>
 
@@ -73,7 +72,7 @@
 	/// <summary>
 	/// The Version of the COMET-WEB CE application
 	/// </summary>
-	private string cometWebVersion = string.Empty;
+	private string? cometWebVersion;
 	
 	/// <summary>
 	/// The license text as retrieved from the GitHub repository
@@ -85,7 +84,7 @@
 	/// </summary>
 	protected override async Task OnInitializedAsync()
 	{
-		this.cometWebVersion = typeof(Program).Assembly.GetName().Version.ToString();
+		this.cometWebVersion = this.VersionService.GetVersion();
 		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
 	}
 }

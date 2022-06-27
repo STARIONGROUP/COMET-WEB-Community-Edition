@@ -26,16 +26,16 @@ namespace COMETwebapp.Tests.Shared
 {
     using Bunit;
     using Bunit.TestDoubles;
-
+    using COMETwebapp.Components;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
 
     using DevExpress.Blazor.Internal;
 
     using Microsoft.Extensions.DependencyInjection;
-    
+
     using Moq;
-    
+
     using NUnit.Framework;
 
     /// <summary>
@@ -80,7 +80,7 @@ namespace COMETwebapp.Tests.Shared
             var authContext = ctx.AddTestAuthorization();
             authContext.SetAuthorized("TEST USER");
 
-            var renderComponent = ctx.RenderComponent<Header>();
+            var renderComponent = ctx.RenderComponent<RefreshButton>();
             
             var refreshButton = renderComponent.Find("#refresh-button");
 

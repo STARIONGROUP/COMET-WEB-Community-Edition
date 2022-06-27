@@ -20,22 +20,10 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@page "/logout"
-@inject IIterationService IterationService
-@inject IAuthenticationService AuthenticationService
-@inject NavigationManager NavigationManager
+@page "/ReportPreview"
 
-@code {
-    /// <summary>
-    /// Close the <see cref="ISession" /> and update the <see cref="ISessionAnchor" />
-    /// </summary>
-    /// <returns>
-    /// an awaitable task
-    /// </returns>
-    protected override async Task OnInitializedAsync()
-    {
-        await AuthenticationService.Logout();
-        this.IterationService.ValidatedUpdates.Clear();
-        this.NavigationManager.NavigateTo("/");
-    }
-}
+<ApplicationTemplate Title="Report Preview">
+    <Body>
+        Application in development.
+    </Body>
+</ApplicationTemplate>

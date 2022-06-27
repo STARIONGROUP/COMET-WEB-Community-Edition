@@ -21,24 +21,32 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
 
-<div class="display-flex flex-row">
-    <div class="display-flex flex-column width-100 align-items-center justify-content-center">
-        <h3 class="font-weight-bold color-title">@Title</h3>
-    </div>
-    @if (this.ISessionAnchor.GetIteration() is not null)
-    {
-        <div class="display-flex width-fit-content align-items-center">
-            <CloseModelButton/>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col text-align-center">
+            <h1 class="font-weight-bold color-title">@Title</h1>
         </div>
-    }
-</div>
-@if (this.ISessionAnchor.GetIteration() is not null)
-{
-    <div>
-        @Body
+        @*@if (this.ISessionAnchor.GetIteration() is not null)
+        {
+            <div class="col width-fit-content">
+                <CloseModelButton/>
+            </div>
+        }*@
     </div>
-}
-
+    <div class="row m-top-10px">
+        @if (this.ISessionAnchor.GetIteration() is not null)
+        {
+            <div>
+                @Body
+            </div>
+        } else
+        {
+            <div>
+                You have to open a model first.
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     /// <summary>

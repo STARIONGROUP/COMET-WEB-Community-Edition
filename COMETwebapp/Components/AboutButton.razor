@@ -20,20 +20,17 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@inject ISessionAnchor SessionAnchor
-@inject NavigationManager NavigationManager
-@inject IIterationService IterationService
-
-<button class="btn btn-connect" @onclick="CloseIteration"> Close Model</button>
+<a @onclick="@(() => this.isAboutPopupVisible = true)" class="width-fit-content m-left-10px about-button">About</a> 
+<DxPopup @bind-Visible="@this.isAboutPopupVisible" HeaderText="COMET-WEB CE">
+	<About/>
+	<div class="text-center">
+		<DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.isAboutPopupVisible = false)"/>
+    </div>
+</DxPopup>
 
 @code {
     /// <summary>
-    /// Close the opened iteration
+    /// A value indicating whether the About popup window is visible or not.
     /// </summary>
-    private void CloseIteration()
-    {
-        this.SessionAnchor.CloseIteration();
-        this.IterationService.ValidatedUpdates.Clear();
-        this.NavigationManager.NavigateTo("/");
-    }
+    private bool isAboutPopupVisible = false;
 }

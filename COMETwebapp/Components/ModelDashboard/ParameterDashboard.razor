@@ -23,13 +23,17 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @implements IDisposable
 
-<div class="dashboard">
-    <DonutDashboard Data="Filter(Data)" />
-
-    <div class="dashboard-chart">
-        <PublishedParameters Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" /> 
-
-        <DefaultValues Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" />
+<div class="container-fluid">
+    <div class="row align-items-center justify-content-center">
+        <DonutDashboard Data="Filter(Data)" />
+    </div>
+    <div class="row m-top-10px">
+        <div class="col text-align-center">
+            <PublishedParameters Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" /> 
+        </div>
+        <div class="col text-align-center">
+            <DefaultValues Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" />
+        </div>
     </div>
 </div>
 

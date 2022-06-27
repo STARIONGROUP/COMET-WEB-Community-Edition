@@ -24,7 +24,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <EditForm Model="SelectedModelInformation" OnValidSubmit="OpenAModel">
     <div class="form-group row">
-        <label for="model">Select a Model:</label>
+        <label for="model" class="text-align-start">Model:</label>
         <div class="col-md-15 m-top-3px">
             <InputSelect id="model" class="form-control" @bind-Value="SelectedModelInformation.EngineeringModelSetupName" @oninput="GetDomains">
                 <option>--Select--</option>
@@ -37,8 +37,8 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
     @if (this.SelectedEngineeringModelSetup != null)
     {
-        <div class="form-group row">
-            <label for="iteration">Select an iteration:</label>
+        <div class="form-group row m-top-10px">
+            <label for="iteration" class="text-align-start">Iteration:</label>
             <div class="col-md-15 m-top-3px">
                 <InputSelect id="iteration" class="form-control" @bind-Value="SelectedModelInformation.IterationSetupNumber">
                     <option value="">--Select--</option>
@@ -58,8 +58,8 @@ Copyright (c) 2022 RHEA System S.A.
     }
     @if(this.Domains.Count != 0)
     {
-        <div class="form-group row">
-            <label for="domain">Select a Domain:</label>
+        <div class="form-group row m-top-10px">
+            <label for="domain" class="text-align-start">Domain:</label>
             <div class="col-md-15 m-top-3px">
                 <InputSelect id="domnain" class="form-control" @bind-Value="SelectedModelInformation.DomainOfExpertiseName">
                     <option value="">--Select--</option>
@@ -73,14 +73,14 @@ Copyright (c) 2022 RHEA System S.A.
     }
     @if (this.SelectedEngineeringModelSetup != null && this.Domains.Count != 0)
     {
-        <div class="row">
+        <div class="row m-top-10px">
             <div class="col-md-12 text-center">
                 @if (isOpening)
                 {
-                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled>Opening the Iteration</button>
+                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled>Opening</button>
                 } else 
                 {
-                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Open the Iteration</button>
+                    <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Open</button>
                 }
             </div>
         </div> 
@@ -154,6 +154,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public async void OpenAModel()
     {
+        this.ISessionAnchor.CurrentEngineeringModelName = this.SelectedModelInformation.EngineeringModelSetupName;
         this.ISessionAnchor.CurrentDomainOfExpertise = this.Domains.Find(d => d.Name.Equals(this.SelectedModelInformation.DomainOfExpertiseName));
         this.SelectedIterationSetup = this.SelectedEngineeringModelSetup?.IterationSetup.Find(i => i.IterationNumber == int.Parse(this.SelectedModelInformation.IterationSetupNumber));
 

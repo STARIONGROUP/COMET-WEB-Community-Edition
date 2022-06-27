@@ -23,9 +23,8 @@ Copyright (c) 2022 RHEA System S.A.
 @using DevExpress.Blazor
 @inject NavigationManager NavigationManager
 
-<div class="chart">
+<div class="width-100">
     <h3>Published Parameters</h3>
-    <div>
     <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
@@ -46,8 +45,7 @@ Copyright (c) 2022 RHEA System S.A.
             </div>
         </DxChartTooltip>
     </DxChart>
-    </div>
-    <div>
+
     <DxChart Data="@Data" CssClass="justify-content-center width-100">
         <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
             @{
@@ -76,7 +74,6 @@ Copyright (c) 2022 RHEA System S.A.
                                     AggregationMethod="Enumerable.Sum" />
         <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
     </DxChart>
-    </div>
 </div>
 
 @code {

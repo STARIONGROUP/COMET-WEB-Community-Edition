@@ -49,6 +49,11 @@ namespace COMETwebapp.SessionManagement
         DomainOfExpertise? CurrentDomainOfExpertise { get; set; }
 
         /// <summary>
+        /// Name of the opened Engineering Model
+        /// </summary>
+        string? CurrentEngineeringModelName { get; set; }
+
+        /// <summary>
         /// Close the ISession
         /// </summary>
         /// <returns>a <see cref="Task"/></returns>

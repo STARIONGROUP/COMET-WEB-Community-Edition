@@ -26,7 +26,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @implements IDisposable
 
-<div class="chart">
+<div>
     <h3>Unreferenced Elements</h3>
     <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.MediumPurple" Name="Referenced Elements" Filter="@((ElementDefinition e) => !this.UnReferencedElements.Contains(e))"
