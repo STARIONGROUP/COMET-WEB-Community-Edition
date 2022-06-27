@@ -22,30 +22,98 @@ Copyright (c) 2022 RHEA System S.A.
 
 @page "/"
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISessionAnchor ISessionAnchor
+@inject HttpClient HttpClient;
 
-<div style="text-align:center">
-    <h1>
+
+<div class="container height-90">
+    <div class="row m-top-10px justify-content-center">
+        <img src="images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
+    </div>
+    <div class="comet-info row text-align-center justify-content-center">
+		<div class="card width-70">
+			<div class="card-body font-weight-bold comet-info-text">
+				<p class="no-margin"></p>  
+			</div>
+            <div class="font-size-smaller">
+                <div>COMET-CE Version: <b>@this.cometWebVersion</b></div>
+                <p>Copyright &copy; <a href="https://www.rheagroup.com/" title="RHEA" target="_blank" class="mx-3">RHEA System S.A.</a> 2022.</p>
+            </div>
+		</div>
+    </div>
+    <div class="row text-align-start m-top-50px align-items-center justify-content-md-center">
+        <div class="width-70">
+        
         <AuthorizeView>
             <Authorized>
-                <div id="welcome-user-notice">Welcome @context.User.Identity?.Name!</div>
-                
-                <div>
-                    <button type="submit" class="btn btn-connect" @onclick="@(() => PopupVisible = true)">Open a Model</button>
+                <div class="container text-align-center font-weight-bold">
+                    <div class="row">
+                        <div class="col col-10">
+                            @context.User.Identity?.Name - @ISessionAnchor.Session.DataSourceUri
+                        </div>
+                        <div class="col">
+                            <a href="logout" class="m-left-10px">Log out</a>
+                        </div>
+                    </div>
                 </div>
-                <DxPopup HeaderText="Engineering Models" @bind-Visible="@PopupVisible">
-                    <OpenModel />
-                </DxPopup>
+                <DxTreeView CssClass="m-top-10px">
+                    <Nodes>
+                        <DxTreeViewNode Name="ModelView" Text="Open a Model" Expanded CssClass="color-title font-weight-bold">
+                            <Nodes>
+                                <DxTreeViewNode CssClass="font-weight-100">
+                                    <Template Context="second_context">
+                                        <OpenModel />
+                                    </Template>
+                                </DxTreeViewNode>
+                            </Nodes>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeView>
             </Authorized>
             <NotAuthorized>
-                <div id="unauthorized-notice">Welcome to the COMET Web Application!</div>                
+                <div class="text-align-center font-weight-bold">Connect and Open a model.</div>
+                <DxTreeView CssClass="m-top-10px">
+                    <Nodes>
+                        <DxTreeViewNode Name="ConnectView" Text="Connect" Expanded CssClass="color-title font-weight-bold">
+                            <Nodes>
+                                <DxTreeViewNode CssClass="font-weight-100">
+                                    <Template Context="second_context">
+                                        <Login />
+                                    </Template>
+                                </DxTreeViewNode>
+                            </Nodes>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeView>              
             </NotAuthorized>
-        </AuthorizeView>    
-    </h1>
+        </AuthorizeView>
+        </div>
+    </div>
 </div>
+    
 
 @code{
     /// <summary>
     /// Boolean to determine if the Popup OpenModel is visible
     /// </summary>
-    bool PopupVisible = false;
+    bool modelPopupVisible = false;
+
+    /// <summary>
+	/// The Version of the COMET-WEB CE application
+	/// </summary>
+	private string cometWebVersion = string.Empty;
+	
+	/// <summary>
+	/// The license text as retrieved from the GitHub repository
+	/// </summary>
+	private string license = string.Empty;
+
+	/// <summary>
+	/// Initializes the component
+	/// </summary>
+	protected override async Task OnInitializedAsync()
+	{
+		this.cometWebVersion = typeof(Program).Assembly.GetName().Version.ToString();
+		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
+	}
 }

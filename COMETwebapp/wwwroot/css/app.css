@@ -90,6 +90,10 @@ html, body, #app {
     width: fit-content;
 }
 
+.width-70{
+    width: 70%;
+}
+
 .max-width-40 {
     max-width: 40%;
 }
@@ -235,4 +239,46 @@ html, body, #app {
 
 .font-size-bs-body {
     font-size: 1rem;
+}
+
+.logo-size{
+    max-width: 95px;
+    height: auto;
+}
+
+.no-margin{
+    margin: 0px 0px;
+}
+
+.m-top-50px{
+    margin-top: 50px;
+}
+
+.height-90{
+    height: 90%;
+}
+
+.large-logo{
+    max-height: 400px;
+    width: auto;
+}
+
+.text-align-start{
+    text-align: start;
+}
+
+@media (max-width: 500px) {
+    .comet-info-text p:after {
+        content: 'COMET WEB Community Editition (CE)';
+    }
+}
+
+@media (min-width: 501px) {
+    .comet-info-text p:after {
+        content: 'COMET WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C.';
+    }
+}
+
+.font-size-smaller {
+    font-size: smaller;
 }

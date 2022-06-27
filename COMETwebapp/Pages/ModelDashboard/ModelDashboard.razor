@@ -27,43 +27,48 @@ Copyright (c) 2022 RHEA System S.A.
 
 <ApplicationTemplate Title="Model Dashboard">
     <Body>
-        <div class="display-flex flex-row">
-            @{
-                var iteration = this.ISessionAnchor.GetIteration();
-            }
-            @if(iteration != null && iteration.Option.ToList().Count > 1)
-            {
-                <div class="m-left-10px">
-                    <h6>Filter on options :</h6>
-                    <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
-                        <option value="">--Select--</option>
-                        @foreach(var option in iteration.Option.ToList())
-                        {
-                            <option value="@option.Iid">@option.Name</option>
-                        }
-                    </select>
-                </div>
-            }
-            @if (iteration != null && iteration.ActualFiniteStateList.Any())
-            {
-                <div class="m-left-10px">
-                    <h6>Filter on states :</h6>
-                    <select @bind="this.FilterState" @oninput="UpdateFilterState">
-                        <option value="">--Select--</option>
-                        @foreach(var stateList in iteration.ActualFiniteStateList)
-                        {
-                            @foreach(var state in stateList.ActualState)
+        <div class="container-fluid">
+            <div class="row">
+                @{
+                    var iteration = this.ISessionAnchor.GetIteration();
+                }
+                @if(iteration != null && iteration.Option.ToList().Count > 1)
+                {
+                    <div class="m-left-10px">
+                        <h6>Filter on options :</h6>
+                        <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
+                            <option value="">--Select--</option>
+                            @foreach(var option in iteration.Option.ToList())
                             {
-                                <option value="@state.Iid">@state.Name</option>
-                            }    
-                        }
-                    </select>
-                </div>
-            }
+                                <option value="@option.Iid">@option.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+                @if (iteration != null && iteration.ActualFiniteStateList.Any())
+                {
+                    <div class="m-left-10px">
+                        <h6>Filter on states :</h6>
+                        <select @bind="this.FilterState" @oninput="UpdateFilterState">
+                            <option value="">--Select--</option>
+                            @foreach(var stateList in iteration.ActualFiniteStateList)
+                            {
+                                @foreach(var state in stateList.ActualState)
+                                {
+                                    <option value="@state.Iid">@state.Name</option>
+                                }    
+                            }
+                        </select>
+                    </div>
+                }
+            </div>
+            <div class="row">
+                <ParameterDashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
+            </div>
+            <div class="row">
+                <ElementDashboard />
+            </div>
         </div>
-        <ParameterDashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
-
-        <ElementDashboard />
     </Body>
 </ApplicationTemplate>
 

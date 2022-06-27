@@ -22,19 +22,19 @@
 
 <EditForm Model="AuthenticationDto" OnValidSubmit="ExecuteLogin">
     <div class="form-group row">
-        <label for="ur">Source Address:</label>
+        <label for="ur" class="text-align-start">Source Address:</label>
         <div class="col-md-15 m-top-3px">
             <InputText id="sourceaddress" class="form-control" @bind-Value="AuthenticationDto.SourceAddress" />
         </div>
     </div>
-    <div class="form-group row m-top-5px">
-        <label for="username">UserName:</label>
+    <div class="form-group row m-top-10px">
+        <label for="username" class="text-align-start">Username:</label>
         <div class="col-md-15 m-top-3px">
             <InputText id="username" class="form-control" @bind-Value="AuthenticationDto.UserName" />
         </div>
     </div>
-    <div class="form-group row m-top-5px">
-        <label for="password" >Password:</label>
+    <div class="form-group row m-top-10px">
+        <label for="password" class="text-align-start">Password:</label>
         <div class="col-md-15 m-top-3px">
             <InputText type="password" id="password" class="form-control" @bind-Value="AuthenticationDto.Password" />
         </div>
@@ -46,13 +46,13 @@
             @switch(this.AuthenticationState)
                 {
                     case AuthenticationStateKind.None:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px">Connect</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px">Connect</button>            
                         break;
                     case AuthenticationStateKind.Authenticating:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" disabled>Connecting</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px" disabled>Connecting</button>            
                         break;
                     case AuthenticationStateKind.Fail:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-5px" >Retry</button>            
+                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px" >Retry</button>            
                         break;
                 }
         </div>

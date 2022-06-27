@@ -19,42 +19,15 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject ISessionAnchor ISessionAnchor
 
-<div class="display-flex flex-row">
-    <div class="display-flex flex-column width-100 align-items-center justify-content-center">
-        <h3 class="font-weight-bold color-title">@Title</h3>
-    </div>
-    @if (this.ISessionAnchor.GetIteration() is not null)
-    {
-        <div class="display-flex width-fit-content align-items-center">
-            <CloseModelButton/>
-        </div>
-    }
-</div>
-@if (this.ISessionAnchor.GetIteration() is not null)
-{
-    <div>
-        @Body
-    </div>
-} else
-{
-    <div>
-        You have to open a model first.
-    </div>
-}
+@page "/BudgetEditor"
+
+<ApplicationTemplate Title="Budget Editor">
+    <Body>
+        Application in development.
+    </Body>
+</ApplicationTemplate>
 
 
-@code {
-    /// <summary>
-    /// Title of the application
-    /// </summary>
-    [Parameter]
-    public string? Title { get; set; }
 
-    /// <summary>
-    /// Body of the application
-    /// </summary>
-    [Parameter]
-    public RenderFragment? Body { get; set; }
-}
+
