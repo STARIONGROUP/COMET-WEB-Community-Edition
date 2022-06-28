@@ -169,54 +169,6 @@ html, body, #app {
     justify-content: center
 }
 
-.chart {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 50%;
-}
-
-@media (max-width: 1199.98px) {
-    .dashboard {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .dashboard-chart {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
-@media (min-width: 1200px) {
-    .dashboard {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .dashboard-chart {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-    }
-}
-
-@media (min-width: 1500px) {
-    .dashboard {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-    }
-    .dashboard-chart {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-    }
-}
-
 .width-200{
     width: 200px;
 }
@@ -281,4 +233,38 @@ html, body, #app {
 
 .font-size-smaller {
     font-size: smaller;
+}
+
+.width-50px {
+    width: 50px;
+}
+
+.m-top-35px {
+    margin-top: 35px;
+}
+
+.font-size-small{
+    font-size: small;
+}
+
+.m-right-10px{
+    margin-right: 10px;
+}
+
+@media (min-width: 607px) {
+    .refresh-button-popover {
+        display: none;
+    }
+}
+
+@media (min-width: 301px) {
+    .about-button-popover{
+        display: none;
+    }
+}
+
+@media(min-width: 1200px) {
+    .model-name-popover {
+        display: none;
+    }
 }

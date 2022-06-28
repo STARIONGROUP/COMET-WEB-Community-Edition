@@ -23,60 +23,57 @@ Copyright (c) 2022 RHEA System S.A.
 @using DevExpress.Blazor
 @inject NavigationManager NavigationManager
 
-<div class="chart">
+<div class="width-100">
     <h3>Published values as Default</h3>
-    <div>
-        <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
-                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                        AggregationMethod="Enumerable.Sum">
-                <DxChartSeriesLabel Position="RelativePosition.Inside"/>
-            </DxChartFullStackedBarSeries>
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published values as default" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) == 0)"
-                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                        AggregationMethod="Enumerable.Sum">
-                <DxChartSeriesLabel Position="RelativePosition.Inside" />
-            </DxChartFullStackedBarSeries>
-            <DxChartLegend Visible="false" />
-            <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-                <div style="margin: 0.1rem">
+    <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
+        <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                    AggregationMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Position="RelativePosition.Inside"/>
+        </DxChartFullStackedBarSeries>
+        <DxChartFullStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published values as default" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                    AggregationMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Position="RelativePosition.Inside" />
+        </DxChartFullStackedBarSeries>
+        <DxChartLegend Visible="false" />
+        <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
+            <div style="margin: 0.1rem">
+                <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
+                    More
+                </button>
+            </div>
+        </DxChartTooltip>
+    </DxChart>
+   
+    <DxChart Data="@Data" CssClass="justify-content-center">
+        <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
+            @{
+                var total = this.Data.FindAll(d => d.Owner.ShortName.Equals(@context.Point.Argument)).Count;
+                var number = Math.Round((double)NumberData(@context.Point.SeriesName, @context.Point.Argument) / total * 100);
+            }
+            <div style="margin: 0.1rem">
+                @if (!double.IsNaN(number))
+                {
                     <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
-                        More
+                        <div>@number %</div>
                     </button>
-                </div>
-            </DxChartTooltip>
-        </DxChart>
-    </div>
-    <div>
-        <DxChart Data="@Data" CssClass="justify-content-center">
-            <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-                @{
-                    var total = this.Data.FindAll(d => d.Owner.ShortName.Equals(@context.Point.Argument)).Count;
-                    var number = Math.Round((double)NumberData(@context.Point.SeriesName, @context.Point.Argument) / total * 100);
                 }
-                <div style="margin: 0.1rem">
-                    @if (!double.IsNaN(number))
-                    {
-                        <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
-                            <div>@number %</div>
-                        </button>
-                    }
-                    else
-                    {
-                        <div>-</div>
-                    }
+                else
+                {
+                    <div>-</div>
+                }
 
-                </div>
-            </DxChartTooltip>
-            <DxChartStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
-                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                        AggregationMethod="Enumerable.Sum" />
-            <DxChartStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published values as default" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) == 0)"
-                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                        AggregationMethod="Enumerable.Sum" />
-            <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
-        </DxChart>
-    </div>
+            </div>
+        </DxChartTooltip>
+        <DxChartStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                    AggregationMethod="Enumerable.Sum" />
+        <DxChartStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published values as default" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                    AggregationMethod="Enumerable.Sum" />
+        <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
+    </DxChart>
 </div>
 
 @code {

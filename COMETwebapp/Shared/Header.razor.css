@@ -77,3 +77,21 @@
         display: none;
     }
 }
+
+@media(max-width: 1200px){
+    .user-info{
+        display: none;
+    }
+}
+
+@media (max-width: 607px) {
+    .refresh-button {
+        display: none;
+    }
+}
+
+@media (max-width: 300px){
+    .about-button-header{
+        display: none;
+    }
+}

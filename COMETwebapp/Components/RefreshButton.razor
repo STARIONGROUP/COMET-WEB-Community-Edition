@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-Copyright (c) 2022 RHEA System S.A.
+    Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
@@ -19,40 +19,49 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject ISessionAnchor ISessionAnchor
+
 @implements IDisposable
+@inject ISessionAnchor ISessionAnchor
 
-<div class="col width-100 text-align-center">
-    <UnusedElements Data="Data" />
-</div>
-<div class="col width-100 text-align-center">
-    <UnreferencedElements Data="Data" />
-</div>
-
+@if (IsRefreshing)
+{
+	<button id="refresh-button" class="btn btn-connect m-left-10px" disabled>Refreshing</button>
+} 
+else 
+{
+	<button id="refresh-button" class="btn btn-connect m-left-10px" @onclick="() => this.ISessionAnchor.RefreshSession()"> Refresh Session</button>
+}
 
 @code {
-    /// <summary>
-    /// ElementDefinition represented in graphs
+	 /// <summary>
+    /// Status for <see cref="ISession"/> refresh
     /// </summary>
-    public List<ElementDefinition> Data { get; set; }
+    public bool IsRefreshing { get; set; } = false;
 
-    /// <summary>
+     /// <summary>
     /// Listeners for the components to update it with ISession
     /// </summary>
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
 
     /// <summary>
-    /// Initializes data for the graphs and creates a listener for session update
+    /// Update state of refresh button
+    /// If ISession is refreshing, button is disabled
     /// </summary>
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        this.InitializeData();
-
-        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        if (!this.listeners.TryGetValue("Refreshing", out var listener))
+        {
+            this.listeners.Add("Refreshing", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
+            {
+                this.IsRefreshing = true;
+                this.StateHasChanged();
+            }));
+        }
+        if (!this.listeners.TryGetValue("UpToDate", out listener))
         {
             this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
-                this.InitializeData();
+                this.IsRefreshing = false;
                 this.StateHasChanged();
             }));
         }
@@ -65,17 +74,5 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.listeners.Values.ToList().ForEach(l => l.Dispose());
         this.listeners.Clear();
-    }
-
-    /// <summary>
-    /// Initialize data for the graphs with all elements from the opened iteration 
-    /// </summary>
-    private void InitializeData()
-    {
-        var iteration = this.ISessionAnchor.GetIteration();
-        if (iteration != null)
-        {
-            this.Data = iteration.Element;
-        }
     }
 }

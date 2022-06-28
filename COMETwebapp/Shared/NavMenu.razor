@@ -29,7 +29,6 @@
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
             <Nodes>
                 <DxTreeViewNode IconCssClass="oi oi-home zoom-1-5" NavigateUrl="@GetModelName()" Text="Home"></DxTreeViewNode>
-                <DxTreeViewNode IconCssClass="oi oi-wrench zoom-1-5" NavigateUrl="./settings" Text="Settings"></DxTreeViewNode>
                 @foreach(var card in Cards)
                 {
                     @if(card.Name is not null && card.Color is not null)

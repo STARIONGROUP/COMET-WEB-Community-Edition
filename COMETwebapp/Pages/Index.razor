@@ -21,7 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/"
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IVersionService VersionService
 @inject ISessionAnchor ISessionAnchor
 @inject HttpClient HttpClient;
 
@@ -46,12 +46,12 @@ Copyright (c) 2022 RHEA System S.A.
         
         <AuthorizeView>
             <Authorized>
-                <div class="container text-align-center font-weight-bold">
+                <div class="container-fluid text-align-center">
                     <div class="row">
-                        <div class="col col-10">
+                        <div class="col p-0 col-10 font-weight-bold">
                             @context.User.Identity?.Name - @ISessionAnchor.Session.DataSourceUri
                         </div>
-                        <div class="col">
+                        <div class="col p-0 align-self-center">
                             <a href="logout" class="m-left-10px">Log out</a>
                         </div>
                     </div>
@@ -101,7 +101,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
 	/// The Version of the COMET-WEB CE application
 	/// </summary>
-	private string cometWebVersion = string.Empty;
+	private string? cometWebVersion;
 	
 	/// <summary>
 	/// The license text as retrieved from the GitHub repository
@@ -113,7 +113,7 @@ Copyright (c) 2022 RHEA System S.A.
 	/// </summary>
 	protected override async Task OnInitializedAsync()
 	{
-		this.cometWebVersion = typeof(Program).Assembly.GetName().Version.ToString();
+		this.cometWebVersion = this.VersionService.GetVersion();
 		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
 	}
 }

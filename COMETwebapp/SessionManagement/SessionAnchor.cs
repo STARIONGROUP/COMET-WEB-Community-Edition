@@ -58,6 +58,11 @@ namespace COMETwebapp.SessionManagement
         public DomainOfExpertise? CurrentDomainOfExpertise { get; set; }
 
         /// <summary>
+        /// Name of the opened Engineering Model
+        /// </summary>
+        public string? CurrentEngineeringModelName { get; set; }
+
+        /// <summary>
         /// Retrieves the <see cref="SiteDirectory"/> that is loaded in the <see cref="ISession"/>
         /// </summary>
         /// <returns>The <see cref="SiteDirectory"/></returns>
@@ -102,7 +107,7 @@ namespace COMETwebapp.SessionManagement
                 var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
                 var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
                 iteration.Container = model;
-
+                
                 try
                 {
                     await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
@@ -120,6 +125,8 @@ namespace COMETwebapp.SessionManagement
         public void CloseIteration()
         {
             this.Session.CloseIterationSetup(this.GetIteration()?.IterationSetup);
+            this.CurrentDomainOfExpertise = null;
+            this.CurrentEngineeringModelName = null;
         }
 
         /// <summary>

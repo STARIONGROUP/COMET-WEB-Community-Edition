@@ -24,28 +24,27 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor SessionAnchor
 @inject NavigationManager NavigationManager
 
-<div class="display-flex flex-row">
-    <div class="display-flex flex-column width-100 align-items-center">
-        <h1>@ModelName</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col text-align-center">
+            <h1>@ModelName</h1>
+        </div>
     </div>
-    @*<div class="display-flex width-fit-content align-items-center">
-        <CloseModelButton/>
-    </div>*@
-</div>
 
-<div class="display-flex flex-wrap" style="margin-top: 50px; justify-content: center">
-   @foreach(var cardInfo in Cards)
-   {
-       <div class="card" style="width: 280px; height: 280px; margin: 5px">
-          <button class="card-btn" @onclick="@(() => SelectApplication(@cardInfo.Name))">
-              <span class="oi oi-@cardInfo.Icon display-flex justify-content-center" style="color: @cardInfo.Color; zoom: 3" title="@cardInfo.Icon" aria-hidden="true"></span>
-              <div class="card-body display-flex flex-column align-items-center" style="margin-top: 30px">
-                <h5 class="card-title" style="font-weight: bold">@cardInfo.Name</h5>
-                <p class="card-text text-align-center" style="margin-top: 20px; font-style: italic">@cardInfo.Description</p>
-              </div>
-          </button>
-       </div>
-    }
+    <div class="row justify-content-center" style="margin-top: 50px;">
+       @foreach(var cardInfo in Cards)
+       {
+           <div class="card" style="width: 280px; height: 280px; margin: 5px">
+              <button class="card-btn" @onclick="@(() => SelectApplication(@cardInfo.Name))">
+                  <span class="oi oi-@cardInfo.Icon display-flex justify-content-center" style="color: @cardInfo.Color; zoom: 3" title="@cardInfo.Icon" aria-hidden="true"></span>
+                  <div class="card-body display-flex flex-column align-items-center" style="margin-top: 30px">
+                    <h5 class="card-title" style="font-weight: bold">@cardInfo.Name</h5>
+                    <p class="card-text text-align-center" style="margin-top: 20px; font-style: italic">@cardInfo.Description</p>
+                  </div>
+              </button>
+           </div>
+        }
+    </div>
 </div>
 
 @code {
