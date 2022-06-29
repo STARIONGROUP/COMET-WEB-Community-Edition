@@ -24,11 +24,13 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IVersionService VersionService
 @inject ISessionAnchor ISessionAnchor
 @inject HttpClient HttpClient;
-
+@inject IIterationService IterationService
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
 
 <div class="container height-90">
     <div class="row m-top-10px justify-content-center">
-        <img src="images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
+        <img id="comet-logo" src="images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
     </div>
     <div class="comet-info row text-align-center justify-content-center">
 		<div class="card width-70">
@@ -52,7 +54,7 @@ Copyright (c) 2022 RHEA System S.A.
                             @context.User.Identity?.Name - @ISessionAnchor.Session.DataSourceUri
                         </div>
                         <div class="col p-0 align-self-center">
-                            <a href="logout" class="m-left-10px">Log out</a>
+                            <a class="m-left-10px" @onclick="@(() => Logout())">Log out</a>
                         </div>
                     </div>
                 </div>
@@ -116,4 +118,14 @@ Copyright (c) 2022 RHEA System S.A.
 		this.cometWebVersion = this.VersionService.GetVersion();
 		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
 	}
+
+    /// <summary>
+    /// Close the <see cref="ISession" /> and update the <see cref="ISessionAnchor" />
+    /// </summary>
+    public async void Logout()
+    {
+        await AuthenticationService.Logout();
+        this.IterationService.ValidatedUpdates.Clear();
+        this.NavigationManager.NavigateTo("/");
+    }
 }

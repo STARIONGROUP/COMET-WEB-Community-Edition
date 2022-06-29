@@ -73,12 +73,13 @@ namespace COMETwebapp.Tests.IntegrationTests
             wait.Until(ExpectedConditions.ElementExists(By.Id("unauthorized-notice")));
 
             Assert.That(driver.Title, Is.EqualTo("COMET Community Edition"));
+            Assert.That(driver.FindElement(By.Id("comet-logo")), Is.Not.Null);
 
             var unauthorizedNotice = driver.FindElement(By.Id("unauthorized-notice"));
-            Assert.That(unauthorizedNotice.Text, Is.EqualTo("Welcome to the COMET Web Application!"));
+            Assert.That(unauthorizedNotice.Text, Is.EqualTo("Connect and Open a model."));
+
 
             // login
-            driver.FindElement(By.LinkText("Log in")).Click();
             driver.FindElement(By.Id("sourceaddress")).SendKeys("https://cdp4services-public.cdp4.org");
             driver.FindElement(By.Id("username")).SendKeys("admin");
             driver.FindElement(By.Id("password")).SendKeys("pass");
@@ -87,7 +88,7 @@ namespace COMETwebapp.Tests.IntegrationTests
             wait.Until(ExpectedConditions.ElementExists(By.Id("welcome-user-notice")));
             var welcomeUserNotice = driver.FindElement(By.Id("welcome-user-notice"));
 
-            Assert.That(welcomeUserNotice.Text, Is.EqualTo("Welcome The Administrator!"));            
+            Assert.That(welcomeUserNotice.Text, Is.EqualTo("The Administrator - https://cdp4services-public.cdp4.org/"));            
         }
     }
 }
