@@ -23,15 +23,18 @@
 @inject ISessionAnchor ISessionAnchor
 
 <nav class="navbar header-navbar p-0">
-    <button class="navbar-toggler bg-primary d-block" @onclick="OpenCanvas">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <BSOffCanvas @ref="_offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
-        <Content>
-            <NavMenu />
-        </Content>
-    </BSOffCanvas>
+    @if(this.renderCanvas)
+    {
+        <button class="navbar-toggler bg-primary d-block" @onclick="OpenCanvas">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <BSOffCanvas @ref="_offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
+            <Content>
+                <NavMenu />
+            </Content>
+        </BSOffCanvas>
+    }
 
     <div class="header">
 
@@ -77,6 +80,12 @@
 </nav>
 
 @code {
+    /// <summary>
+    /// Disable menu render for testing
+    /// </summary>
+    [Parameter]
+    public bool renderCanvas { get; set; } = true;
+
     /// <summary>
     /// <see cref="BSOffCanvas"> for the application menu
     /// </summary>

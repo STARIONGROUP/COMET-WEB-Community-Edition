@@ -65,7 +65,7 @@ namespace COMETwebapp.Tests.Shared
             var authContext = ctx.AddTestAuthorization();
             authContext.SetNotAuthorized();
             
-            var renderComponent = ctx.RenderComponent<Header>();
+            var renderComponent = ctx.RenderComponent<Header>(parameters => parameters.Add(p => p.renderCanvas, false));
 
             Assert.Throws<ElementNotFoundException>(() => renderComponent.Find("#refresh-button"));
         }
