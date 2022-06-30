@@ -104,5 +104,13 @@ namespace COMETwebapp.IterationServices
         /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
         /// <returns>Subscribed <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/></returns>
         List<Parameter> GetCurrentDomainSubscribedParameters(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise);
+
+        /// <summary>
+        /// Gets number of updates in the iteration after a session refresh
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> to get number of updates</param>
+        /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
+        /// <returns></returns>
+        int GetNumberUpdates(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise);
     }
 }

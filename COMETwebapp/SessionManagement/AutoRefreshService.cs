@@ -85,7 +85,6 @@ namespace COMETwebapp.SessionManagement
             {
                 this.Timer.Elapsed -= this.OntTimerElapsed;
                 this.Timer.Stop();
-                this.Timer.Dispose();
             }
         }
 

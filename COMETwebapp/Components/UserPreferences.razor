@@ -25,16 +25,23 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 
-<BSButton IsOutlined="true" Color="BSColor.Primary" DataId="popoverTop"><span class="oi oi-person"></span></BSButton>
+<BSButton Class="notification" IsOutlined="true" Color="BSColor.Primary" DataId="popoverTop">
+    <span class="oi oi-person"></span>
+    @if (this.numberUpdates != 0)
+    {
+        <span class="badge">@numberUpdates</span>
+    }
+</BSButton>
 <BSPopover Placement="Placement.Bottom" Target="popoverTop">
     <Header>
         <div class="container-fluid">
             <div class="row justify-content-center">
                 @Username
             </div>
-            @if(@ISessionAnchor.CurrentEngineeringModelName != null)
+            @if(ISessionAnchor.CurrentEngineeringModelName != null)
             {
                 <div class="row justify-content-center model-name-popover">
                     @ISessionAnchor.CurrentEngineeringModelName
@@ -64,6 +71,17 @@ Copyright (c) 2022 RHEA System S.A.
 				    </select>
 			    }
             </div>
+
+            @if(this.numberUpdates != 0)
+            {
+                <div class="row text-align-center m-top-10px">
+                    <div class="col">
+                        Number Updates:
+                        <button type="button" class="btn btn-outline-danger m-left-5px" style="padding: 0.2rem 0.4rem;" @onclick="() => AccessUpdates()">@numberUpdates</button>
+                    </div>
+                </div>
+            }
+
             <div class="row text-align-center m-top-10px refresh-button-popover">
                 <div class="col">
                     <RefreshButton />
@@ -105,6 +123,48 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public string? Username { get; set; }
+
+    /// <summary>
+    /// Number of updates after an session refresh
+    /// </summary>
+    private int numberUpdates { get; set; } = 0;
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (!this.listeners.TryGetValue("IterationChanges", out var listener))
+        {
+            this.listeners.Add("IterationChanges", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.IterationOpened || x == SessionStateKind.IterationClosed).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("UpToDate", out listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("UpdatesAreValidated", out listener))
+        {
+            this.listeners.Add("UpdatesAreValidated", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpdatesAreValidated).Subscribe(x =>
+            {
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.StateHasChanged();
+            }));
+        }
+    }
 
     /// <summary>
     /// Enable/disable auto-refresh for the ISession
@@ -152,5 +212,22 @@ Copyright (c) 2022 RHEA System S.A.
         await AuthenticationService.Logout();
         this.IterationService.ValidatedUpdates.Clear();
         this.NavigationManager.NavigateTo("/");
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+
+    /// <summary>
+    /// Access to subscription application to see updates
+    /// </summary>
+    public void AccessUpdates()
+    {
+        this.NavigationManager.NavigateTo("/SubscriptionDashboard");
     }
 }

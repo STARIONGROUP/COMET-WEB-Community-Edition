@@ -30,6 +30,16 @@ namespace COMETwebapp.SessionManagement
     public enum SessionStateKind
     {
         /// <summary>
+        /// When an iteration is opened
+        /// </summary>
+        IterationOpened,
+
+        /// <summary>
+        /// When an iteration is closed
+        /// </summary>
+        IterationClosed,
+
+        /// <summary>
         /// When refresh is in progress
         /// </summary>
         Refreshing,
@@ -37,6 +47,11 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// When action is done
         /// </summary>
-        UpToDate
+        UpToDate,
+
+        /// <summary>
+        /// When some updates are validated
+        /// </summary>
+        UpdatesAreValidated
     }
 }

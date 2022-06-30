@@ -33,6 +33,8 @@ namespace COMETwebapp.Tests.IterationServiceTest
     using System.Collections.Concurrent;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.CommonData;
+    using System.Reflection;
+    using CDP4Common.Types;
 
     [TestFixture]
     public class IterationServiceTest
@@ -40,16 +42,68 @@ namespace COMETwebapp.Tests.IterationServiceTest
         private Iteration iteration;
         private IIterationService iterationService = new IterationService();
         private List<ParameterValueSet> parameterValueSets;
+        private List<ParameterSubscription> parameterSubscriptions;
         private List<ElementDefinition> unReferencedElements;
         private List<ElementDefinition> unUsedElements;
         private DomainOfExpertise currentDomainOfExpertise;
         private DomainOfExpertise domainOfExpertise;
+        private SiteDirectory siteDirectory;
 
         [SetUp]
         public void SetUp()
         {
             var uri = new Uri("http://www.rheagroup.com");
             var cache = new ConcurrentDictionary<CDP4Common.Types.CacheKey, Lazy<Thing>>();
+            var person = new Person(Guid.NewGuid(), cache, uri);
+
+            var referenceDataLibrary = new ModelReferenceDataLibrary(Guid.NewGuid(), cache, uri)
+            {
+                ShortName = "ARDL"
+            };
+
+            var participant = new Participant(Guid.NewGuid(), cache, uri)
+            {
+                Person = person
+            };
+            var engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), cache, uri)
+            {
+                RequiredRdl =
+                {
+                    referenceDataLibrary
+                },
+                Participant = { participant }
+            };
+
+            this.iteration = new Iteration(Guid.NewGuid(), cache, uri)
+            {
+                Container = new EngineeringModel(Guid.NewGuid(), cache, uri)
+                {
+                    EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), cache, uri)
+                    {
+                        RequiredRdl =
+                        {
+                            new ModelReferenceDataLibrary(Guid.NewGuid(), cache, uri)
+                            {
+                                FileType =
+                                {
+                                    new FileType(Guid.NewGuid(), cache, uri) { Extension = "tar" },
+                                    new FileType(Guid.NewGuid(), cache, uri) { Extension = "gz" },
+                                    new FileType(Guid.NewGuid(), cache, uri) { Extension = "zip" }
+                                }
+                            }
+                        },
+                        Participant = { participant }
+                    }
+                },
+                IterationSetup = new IterationSetup(Guid.NewGuid(), cache, uri)
+                {
+                    Container = engineeringSetup
+                },
+                DomainFileStore =
+                {
+                    new DomainFileStore(Guid.NewGuid(), cache, uri) { Owner = this.domainOfExpertise }
+                }
+            };
 
             this.domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
             {
@@ -63,7 +117,10 @@ namespace COMETwebapp.Tests.IterationServiceTest
                 Name = "Attitude and orbit control system"
             };
 
-            this.iteration = new Iteration(Guid.NewGuid(), cache, uri);
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), cache, uri);
+            this.siteDirectory.Person.Add(person);
+            this.siteDirectory.Domain.Add(this.domainOfExpertise);
+            this.siteDirectory.Domain.Add(this.currentDomainOfExpertise);
 
             var option_A = new Option(Guid.NewGuid(), cache, uri)
             {
@@ -154,6 +211,17 @@ namespace COMETwebapp.Tests.IterationServiceTest
             parameterValueset_2.Published = new CDP4Common.Types.ValueArray<string>(publishedValues);
             parameterValueset_2.ValueSwitch = ParameterSwitchKind.MANUAL;
 
+            var oldParameterValueset_1 = new ParameterValueSet()
+            {
+                ActualOption = option_A,
+                Iid = parameterValueset_1.Iid
+            };
+            oldParameterValueset_1.Manual = new CDP4Common.Types.ValueArray<string>(new List<string> { "3" });
+            oldParameterValueset_1.Reference = new CDP4Common.Types.ValueArray<string>(values_1);
+            oldParameterValueset_1.Computed = new CDP4Common.Types.ValueArray<string>(values_1);
+            oldParameterValueset_1.Formula = new CDP4Common.Types.ValueArray<string>(values_1);
+            oldParameterValueset_1.Published = new CDP4Common.Types.ValueArray<string>(publishedValues);
+            oldParameterValueset_1.ValueSwitch = ParameterSwitchKind.MANUAL;
 
             parameter.ValueSet.Add(parameterValueset_1);
             parameter.ValueSet.Add(parameterValueset_2);
@@ -162,7 +230,6 @@ namespace COMETwebapp.Tests.IterationServiceTest
             elementDefinition_1.ContainedElement.Add(elementUsage_1);
             elementDefinition_1.ContainedElement.Add(elementUsage_2);
 
-            elementDefinition_2.Parameter.Add(parameter);
             elementDefinition_2.Parameter.Add(parameter2);
 
             this.iteration.Element.Add(elementDefinition_1);
@@ -170,15 +237,29 @@ namespace COMETwebapp.Tests.IterationServiceTest
             this.iteration.TopElement = elementDefinition_1;
 
 
-            parameter.ParameterSubscription.Add(new ParameterSubscription()
+            var parameterSubscriptionValueSet = new ParameterSubscriptionValueSet()
             {
-                Owner = this.currentDomainOfExpertise
-            });
+                Iid = Guid.NewGuid()
+            };
+            parameterSubscriptionValueSet.Manual = new CDP4Common.Types.ValueArray<string>(new List<string> { "1" });
+            parameterSubscriptionValueSet.ValueSwitch = ParameterSwitchKind.MANUAL;
+
+
+            var oldParameterSubscriptionValueSet = new ParameterSubscriptionValueSet()
+            {
+                Iid = parameterSubscriptionValueSet.Iid
+            };
+            oldParameterSubscriptionValueSet.Manual = new CDP4Common.Types.ValueArray<string>(new List<string> { "1" });
+            oldParameterSubscriptionValueSet.ValueSwitch = ParameterSwitchKind.MANUAL;
+
+            var parameterSubscription = new ParameterSubscription();
+            parameterSubscription.Owner = this.currentDomainOfExpertise;
+            parameterSubscription.ValueSet.Add(parameterSubscriptionValueSet);
+
+            parameter.ParameterSubscription.Add(parameterSubscription);
            
             this.parameterValueSets = new List<ParameterValueSet>()
             {
-                parameterValueset_1,
-                parameterValueset_2,
                 parameterValueset_1,
                 parameterValueset_2
             };
@@ -191,6 +272,25 @@ namespace COMETwebapp.Tests.IterationServiceTest
             {
                 elementDefinition_1
             };
+
+            PropertyInfo nameProperty = typeof(ParameterValueSet).GetProperty("RevisionNumber");
+            nameProperty.SetValue(parameterValueset_1, 2);
+            nameProperty.SetValue(oldParameterValueset_1, 1);
+
+            nameProperty = typeof(ParameterSubscriptionValueSet).GetProperty("RevisionNumber");
+            nameProperty.SetValue(parameterSubscriptionValueSet, 2);
+            nameProperty.SetValue(oldParameterSubscriptionValueSet, 1);
+
+            parameterValueset_1.Revisions.Clear();
+            parameterValueset_1.Revisions.Add(1, oldParameterValueset_1);
+
+            parameterSubscriptionValueSet.Revisions.Clear();
+            parameterSubscriptionValueSet.Revisions.Add(1, oldParameterSubscriptionValueSet);
+
+            parameterSubscriptionValueSet.SubscribedValueSet = parameterValueset_1;
+
+            this.parameterSubscriptions = new List<ParameterSubscription>();
+            this.parameterSubscriptions.Add(parameterSubscription);
         }
 
         [Test]
@@ -230,14 +330,22 @@ namespace COMETwebapp.Tests.IterationServiceTest
         public void VerifyGetParameterSubscriptions()
         {
             Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise), Is.Not.Empty);
-            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise).Count, Is.EqualTo(2));
+            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise).Count, Is.EqualTo(1));
+            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise).Contains(this.parameterSubscriptions.First()), Is.True);
         }
 
         [Test]
         public void VerifyGetCurrentDomainSubscribedParameters()
         {
             Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise), Is.Not.Empty);
-            Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise).Count, Is.EqualTo(2));
+            Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise).Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyGetNumberUpdates()
+        {
+            Assert.AreEqual(1, iterationService.GetNumberUpdates(this.iteration, this.currentDomainOfExpertise));
+            Assert.AreEqual(0, iterationService.GetNumberUpdates(this.iteration, this.domainOfExpertise));
         }
     }
 }

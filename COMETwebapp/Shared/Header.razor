@@ -21,6 +21,7 @@
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
+@implements IDisposable
 
 <nav class="navbar header-navbar p-0">
     @if(this.renderCanvas)
@@ -29,7 +30,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
     
-        <BSOffCanvas @ref="_offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
+        <BSOffCanvas @ref="offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
             <Content>
                 <NavMenu />
             </Content>
@@ -89,14 +90,42 @@
     /// <summary>
     /// <see cref="BSOffCanvas"> for the application menu
     /// </summary>
-    private BSOffCanvas? _offCanvas;
+    private BSOffCanvas? offCanvas;
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (!this.listeners.TryGetValue("IterationChanges", out var listener))
+        {
+            this.listeners.Add("IterationChanges", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.IterationOpened || x == SessionStateKind.IterationClosed).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+    }
 
     /// <summary>
     /// Opens the menu
     /// </summary>
     private async Task OpenCanvas()
     {
-        if (_offCanvas != null)
-            await _offCanvas.ToggleAsync();
+        if (offCanvas != null)
+            await offCanvas.ToggleAsync();
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
     }
 }

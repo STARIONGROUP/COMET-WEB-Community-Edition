@@ -465,6 +465,7 @@ Copyright (c) 2022 RHEA System S.A.
                 this.UpdateValidation(parameter);
             }
         });
+        CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpdatesAreValidated);
         this.StateHasChanged();
     }
 
@@ -503,7 +504,7 @@ Copyright (c) 2022 RHEA System S.A.
                 }
             });
         }
-
+        CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpdatesAreValidated);
     }
 
     /// <summary>
