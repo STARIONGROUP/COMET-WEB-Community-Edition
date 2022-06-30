@@ -180,5 +180,75 @@ namespace COMETwebapp.IterationServices
             });
             return subscribedParameters;
         }
+
+        /// <summary>
+        /// Gets number of updates in the iteration after a session refresh
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> to get number of updates</param>
+        /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
+        /// <returns></returns>
+        public int GetNumberUpdates(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
+        {
+            var subscribedParameters = this.GetParameterSubscriptions(iteration, currentDomainOfExpertise);
+            var numberUpdates = 0;
+
+            subscribedParameters.ForEach(subscribedparameter =>
+            {
+                subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet => 
+                {
+                    var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet?.Revisions;
+                    var isParameterSubscriptionValueUpdated = false;
+
+                    //if change in manual or reference value, revisionNumber changes
+                    if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0
+                        && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
+                    {
+                        isParameterSubscriptionValueUpdated = true;
+                    }
+
+                    var paramererValueSets = this.GetParameterValueSets(iteration);
+
+                    var associatedParameterValueSet = paramererValueSets?.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
+                    var associatedElement = iteration?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                    var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
+
+                    var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
+                    var isAssociatedParameterValueUpdated = false;
+
+                    //if any change, revisionNumber changes
+                    if (associatedParameterValueSetRevisions?.LongCount() != (long)0
+                        && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
+                    {
+                        isAssociatedParameterValueUpdated = true;
+                    }
+
+                    //check if changes already validated
+                    if (currentDomainOfExpertise != null && this.ValidatedUpdates.TryGetValue(currentDomainOfExpertise, out var list))
+                    {
+                        var existingValidatedParameter = list.Find(element => element.Iid == parameterSubscriptionValueSet?.Iid);
+                        if (existingValidatedParameter != null && parameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber)
+                        {
+                            isParameterSubscriptionValueUpdated = false;
+                        }
+                        if (existingValidatedParameter != null && associatedParameterValueSet?.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
+                        {
+                            isAssociatedParameterValueUpdated = false;
+                        }
+                    }
+
+                    if (isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
+                    {
+                        isParameterSubscriptionValueUpdated = true;
+                    }
+
+                    if(isAssociatedParameterValueUpdated || isParameterSubscriptionValueUpdated)
+                    {
+                        numberUpdates += 1;
+                    }
+                });
+            });
+
+            return numberUpdates;
+        }
     }
 }

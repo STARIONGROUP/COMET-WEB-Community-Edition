@@ -116,6 +116,8 @@ namespace COMETwebapp.SessionManagement
                 {
                     this.logger.Error($"During read operation an error has occured: {exception.Message}");
                 }
+
+                CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.IterationOpened);
             }
         }
 
@@ -127,6 +129,8 @@ namespace COMETwebapp.SessionManagement
             this.Session.CloseIterationSetup(this.GetIteration()?.IterationSetup);
             this.CurrentDomainOfExpertise = null;
             this.CurrentEngineeringModelName = null;
+
+            CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.IterationClosed);
         }
 
         /// <summary>
