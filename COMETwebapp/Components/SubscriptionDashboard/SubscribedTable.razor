@@ -381,7 +381,7 @@ Copyright (c) 2022 RHEA System S.A.
         this.SubscribedParameters.ForEach(subscribedparameter => {
             subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet =>
             {
-                var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet.Revisions;
+                var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet?.Revisions;
                 var isParameterSubscriptionValueUpdated = false;
 
             //if change in manual or reference value, revisionNumber changes
@@ -393,7 +393,7 @@ Copyright (c) 2022 RHEA System S.A.
 
                 var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
 
-                var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
+                var associatedParameterValueSet = paramererValueSets?.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
                 var associatedElement = this.ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
 

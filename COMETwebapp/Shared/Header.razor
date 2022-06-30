@@ -23,9 +23,18 @@
 @inject ISessionAnchor ISessionAnchor
 
 <nav class="navbar header-navbar p-0">
-    <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+    @if(this.renderCanvas)
+    {
+        <button class="navbar-toggler bg-primary d-block" @onclick="OpenCanvas">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <BSOffCanvas @ref="_offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
+            <Content>
+                <NavMenu />
+            </Content>
+        </BSOffCanvas>
+    }
 
     <div class="header">
 
@@ -71,34 +80,23 @@
 </nav>
 
 @code {
-
     /// <summary>
-    /// Gets or sets a value indicating whether toggle is on or off
+    /// Disable menu render for testing
     /// </summary>
     [Parameter]
-    public bool ToggleOn { get; set; } = false;
-
-    [Parameter]
-    public EventCallback<bool> ToggleOnChanged { get; set; }
+    public bool renderCanvas { get; set; } = true;
 
     /// <summary>
-    /// Handles the 
+    /// <see cref="BSOffCanvas"> for the application menu
     /// </summary>
-    /// <returns></returns>
-    async Task OnToggleClick() => await Toggle();
+    private BSOffCanvas? _offCanvas;
 
     /// <summary>
-    /// toggle the visibility of the side menu
+    /// Opens the menu
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns>
-    /// an awaitable <see cref="Task"/>
-    /// </returns>
-    async Task Toggle(bool? value = null) {
-        var newValue = value ?? !ToggleOn;
-        if(ToggleOn != newValue) {
-            ToggleOn = newValue;
-            await ToggleOnChanged.InvokeAsync(ToggleOn);
-        }
+    private async Task OpenCanvas()
+    {
+        if (_offCanvas != null)
+            await _offCanvas.ToggleAsync();
     }
 }

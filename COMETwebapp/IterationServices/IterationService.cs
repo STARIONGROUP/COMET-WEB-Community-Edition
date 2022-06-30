@@ -158,8 +158,8 @@ namespace COMETwebapp.IterationServices
             var subscribedParameters = new List<ParameterSubscription>();
             iteration?.Element.ForEach(element =>
             {
-                element.Parameter.ForEach(parameter =>
-                         subscribedParameters.AddRange(parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)))
+                element?.Parameter.ForEach(parameter =>
+                            subscribedParameters.AddRange(parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)))
                 );
             });
             return subscribedParameters;

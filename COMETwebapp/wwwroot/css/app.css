@@ -268,3 +268,9 @@ html, body, #app {
         display: none;
     }
 }
+
+.canvas {
+    top: 3.5rem;
+    max-width: 230px;
+}
+

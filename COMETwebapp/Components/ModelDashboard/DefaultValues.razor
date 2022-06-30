@@ -25,6 +25,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="width-100">
     <h3>Published values as Default</h3>
+    <h6 class="font-size-small">(Default value = "-")</h6>
     <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"

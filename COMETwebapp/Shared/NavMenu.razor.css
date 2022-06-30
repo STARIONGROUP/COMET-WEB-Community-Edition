@@ -35,10 +35,6 @@
     margin-bottom: 5px;
 }
 
-::deep .app-sidebar > .nav-pills > .nav-item:first-of-type {
-    padding-top: 1rem;
-}
-
 ::deep .app-sidebar > .nav-pills > .nav-item:last-of-type {
     padding-bottom: 1rem;
 }
