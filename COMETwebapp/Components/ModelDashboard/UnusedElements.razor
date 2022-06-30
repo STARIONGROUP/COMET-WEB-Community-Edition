@@ -28,6 +28,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div>
     <h3>Unused Elements</h3>
+    <h6 class="font-size-small">(Elements not used in an option)</h6>
     <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="Used Elements" Filter="@((ElementDefinition e) => !this.UnUsedElements.Contains(e))"
                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"

@@ -25,6 +25,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="width-100">
     <h3>Published Parameters</h3>
+    <h6 class="font-size-small">(Publishable parameter : actual value != published value)</h6>
     <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"

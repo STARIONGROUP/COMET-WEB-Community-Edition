@@ -23,7 +23,7 @@
 @inject ISessionAnchor ISessionAnchor
 @implements IDisposable
 
-<div class="sidebar @StateCssClass">
+<div>
     @if(this.ISessionAnchor.Session != null && this.ISessionAnchor.GetSiteDirectory() != null)
     {
         <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
@@ -34,8 +34,7 @@
                     @if(card.Name is not null && card.Color is not null)
                     {
                         var url = "/" + Regex.Replace(card.Name, @"\s", "");
-                        var color = Regex.Replace(card.Color, @"#", "");
-                        var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                        var iconCssClass = $"oi oi-{card.Icon} zoom-1-5";
                         <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>   
                     }
                 }
@@ -52,8 +51,7 @@
                     @if (card.Name is not null && card.Color is not null)
                     {
                         var url = "/" + Regex.Replace(card.Name, @"\s", "");
-                        var color = Regex.Replace(card.Color, @"#", "");
-                        var iconCssClass = $"oi oi-{card.Icon} color-{color} zoom-1-5";
+                        var iconCssClass = $"oi oi-{card.Icon} zoom-1-5";
                         <DxTreeViewNode IconCssClass="@iconCssClass" NavigateUrl="@url" Text="@card.Name"></DxTreeViewNode>
                     }
                 }
@@ -63,8 +61,6 @@
 </div>
 
 @code {
-    [Parameter] public string? StateCssClass { get; set; }
-
     /// <summary>
     /// List of application names
     /// </summary>
