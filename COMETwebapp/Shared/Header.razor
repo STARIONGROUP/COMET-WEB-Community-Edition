@@ -30,7 +30,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
     
-        <BSOffCanvas @ref="_offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
+        <BSOffCanvas @ref="offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
             <Content>
                 <NavMenu />
             </Content>
@@ -90,7 +90,7 @@
     /// <summary>
     /// <see cref="BSOffCanvas"> for the application menu
     /// </summary>
-    private BSOffCanvas? _offCanvas;
+    private BSOffCanvas? offCanvas;
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -116,8 +116,8 @@
     /// </summary>
     private async Task OpenCanvas()
     {
-        if (_offCanvas != null)
-            await _offCanvas.ToggleAsync();
+        if (offCanvas != null)
+            await offCanvas.ToggleAsync();
     }
 
     /// <summary>
