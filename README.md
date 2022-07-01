@@ -2,15 +2,32 @@
 
 The COMET WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C.
 
-## Build status
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=coverage)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
 
-GitHub actions are used to build and test the application
+## Build Status
 
-> More information coming soon
+GitHub actions are used to build and test the libraries
 
-## SonarQube Status
+Branch | Build Status
+------- | :------------
+Master | ![Build Status](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=master)
+Development | ![Build Status](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=development)
 
-> More information coming soon
+# CodeCov - Code Coverage
+
+Branch      | Build Status
+----------- | ------------
+Master      | [![codecov](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition/branch/master/graph/badge.svg?token=2kfZrIOUtI)](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition)
+Development | [![codecov](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition/branch/development/graph/badge.svg?token=2kfZrIOUtI)](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition)
 
 ## Concurrent Design
 
