@@ -34,7 +34,7 @@ namespace COMETwebapp.Utilities
         /// </summary>
         public string? GetVersion()
         {
-            return typeof(Program).Assembly.GetName().Version?.ToString(); ;
+            return typeof(Program).Assembly.GetName().Version?.ToString();
         }
     }
 }
