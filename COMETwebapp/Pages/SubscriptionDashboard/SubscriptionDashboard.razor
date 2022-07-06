@@ -21,12 +21,14 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/SubscriptionDashboard"
+@inject ISessionAnchor ISessionAnchor
+@implements IDisposable
 
 <ApplicationTemplate Title="Subscription Dashboard">
     <Body>
         <DxTreeView CssClass="m-top-10px">
             <Nodes>
-                <DxTreeViewNode Name="SubscribedTableView" Text="Parameters I subscribed to" Expanded CssClass="color-title">
+                <DxTreeViewNode Name="SubscribedTableView" Text=@SubscribedTableViewTitle Expanded CssClass="color-title">
                     <Nodes>
                         <DxTreeViewNode >
                             <Template>
@@ -35,7 +37,7 @@ Copyright (c) 2022 RHEA System S.A.
                         </DxTreeViewNode>
                     </Nodes>
                 </DxTreeViewNode>
-                <DxTreeViewNode Name="DomainOfExpertiseSubscriptionTableView" Text="My Parameters subscribed to by others" Expanded CssClass="color-title">
+                <DxTreeViewNode Name="DomainOfExpertiseSubscriptionTableView" Text=@DomainOfExpertiseSubscriptionTableViewTitle Expanded CssClass="color-title">
                     <Nodes>
                         <DxTreeViewNode >
                             <Template>
@@ -48,3 +50,54 @@ Copyright (c) 2022 RHEA System S.A.
         </DxTreeView>
     </Body>
 </ApplicationTemplate>
+
+
+@code{
+    /// <summary>
+    /// Title for SubscribedTableView table
+    /// </summary>
+    public string? SubscribedTableViewTitle { get; set; }
+
+    /// <summary>
+    /// Title for DomainOfExpertiseSubscriptionTableView table
+    /// </summary>
+    public string? DomainOfExpertiseSubscriptionTableViewTitle { get; set; }
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        this.LoadTitles();
+        if (!this.listeners.TryGetValue("DomainChangedEvent", out var listener)) {
+            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            {
+                this.LoadTitles();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Load titles with current domain
+    /// </summary>
+    public void LoadTitles()
+    {
+        this.SubscribedTableViewTitle = $"Parameters {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain subscribed to";
+        this.DomainOfExpertiseSubscriptionTableViewTitle = $"Parameters owned by {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain, subscribed to by other domains";
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+}

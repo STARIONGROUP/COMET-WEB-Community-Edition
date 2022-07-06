@@ -136,5 +136,10 @@ namespace COMETwebapp.Model
         /// Defines if the subscribed ParameterValueSet is updated
         /// </summary>
         public bool IsSubscribedUpdated { get; set; } = false;
+
+        /// <summary>
+        /// List of domains who subscribed to parameters
+        /// </summary>
+        public string? SubscriptionOwners { get; set; }
     }
 }

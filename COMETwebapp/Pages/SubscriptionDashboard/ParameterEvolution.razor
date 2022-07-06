@@ -29,36 +29,50 @@ Copyright (c) 2022 RHEA System S.A.
     <div class="font-weight-bold">@ElementName - @ParameterName</div>
     @if(this.Data.Count != 0)
     {
-        <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartLineSeries
-                ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
-                ValueField="@(p => p.ActualValue)"
-                AggregationMethod="Enumerable.Sum">
-                <DxChartSeriesLabel Position="RelativePosition.Outside">
-                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
-                </DxChartSeriesLabel>
-            </DxChartLineSeries>
-            <DxChartLegend Visible="false"/>
-        </DxChart>
-        <div class="display-flex flex-column align-items-center">
-            <div>Actual values of the subscribed Parameter</div>
+        <div class="row p-1 m-top-5px">
+            <div class="col-1 text-align-center align-self-center width-fit-content">
+                <p style="transform: rotate(-90deg);">@ParameterUnit</p>
+            </div>
+            <div class="col">
+                <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
+                    <DxChartLineSeries
+                        ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                        ValueField="@(p => p.ActualValue)"
+                        AggregationMethod="Enumerable.Sum">
+                        <DxChartSeriesLabel Position="RelativePosition.Outside">
+                            <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                        </DxChartSeriesLabel>
+                    </DxChartLineSeries>
+                    <DxChartLegend Visible="false"/>
+                </DxChart>
+            </div>
+        </div>
+        <div class="row p-1">
+            <div class="col text-align-center">Actual values of the subscribed Parameter</div>
         </div>
     }
     @if(this.SubscriptionData.Count != 0)
     {
-        <DxChart Data="@SubscriptionData" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartLineSeries
-                ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
-                ValueField="@(p => p.ActualValue)"
-                AggregationMethod="Enumerable.Sum">
-                <DxChartSeriesLabel Position="RelativePosition.Outside">
-                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
-                </DxChartSeriesLabel>
-            </DxChartLineSeries>
-            <DxChartLegend Visible="false"/>
-        </DxChart>
-        <div class="display-flex flex-column align-items-center">
-            <div >Actual values of the ParameterSubscription</div>
+        <div class="row p-1 m-top-5px">
+            <div class="col-1 text-align-center align-self-center width-fit-content">
+                <p style="transform: rotate(-90deg);">@ParameterUnit</p>
+            </div>
+            <div class="col">
+                <DxChart Data="@SubscriptionData" CustomizeSeriesPoint="@PreparePointLabel">
+                    <DxChartLineSeries
+                        ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                        ValueField="@(p => p.ActualValue)"
+                        AggregationMethod="Enumerable.Sum">
+                        <DxChartSeriesLabel Position="RelativePosition.Outside">
+                            <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                        </DxChartSeriesLabel>
+                    </DxChartLineSeries>
+                    <DxChartLegend Visible="false"/>
+                </DxChart>
+            </div>
+        </div>
+        <div class="row p-1">
+            <div class="col text-align-center">Actual values of the ParameterSubscription</div>
         </div>
     }
 </div>
@@ -97,6 +111,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// Element which contains the parameter represented in the graph
     /// </summary>
     public string? ElementName { get; set; }
+
+    public string? ParameterUnit { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -160,6 +176,7 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 var parameter = (Parameter)associatedParameterValueSet.Container;
                 this.ParameterName = parameter.ParameterType.Name;
+                this.ParameterUnit = parameter.Scale.ShortName;
                 var element = (ElementDefinition)parameter.Container;
                 this.ElementName = element.Name;
 
@@ -202,6 +219,7 @@ Copyright (c) 2022 RHEA System S.A.
                 {
                     var parameter = (ParameterSubscription)associatedParameterSubscriptionValueSet.Container;
                     this.ParameterName = parameter.ParameterType.Name;
+                    this.ParameterUnit = parameter.Scale.ShortName;
                     var element = (ElementDefinition)parameter.Container;
                     this.ElementName = element.Name;
                 }

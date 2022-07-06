@@ -24,8 +24,16 @@ Copyright (c) 2022 RHEA System S.A.
 @inject NavigationManager NavigationManager
 
 <div class="width-100">
-    <h3>Published Parameters</h3>
-    <h6 class="font-size-small">(Publishable parameter : actual value != published value)</h6>
+    <div class="row">
+        <div class="col-9">
+            <h3 class="text-align-end">Published Parameters</h3>
+        </div>
+        <div class="col text-align-start p-0">
+            <Tooltip MarginBottom="bottom-60" Text="Publishable parameter : actual value not equal to published value">
+                <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
+            </Tooltip>
+        </div>
+    </div>
     <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
                                     ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
