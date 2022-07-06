@@ -27,8 +27,16 @@ Copyright (c) 2022 RHEA System S.A.
 @implements IDisposable
 
 <div>
-    <h3>Unreferenced Elements</h3>
-    <h6 class="font-size-small">(Elements without associated Element Usage)</h6>
+    <div class="row">
+        <div class="col-9">
+            <h3 class="text-align-end">Unreferenced Elements</h3>
+        </div>
+        <div class="col text-align-start p-0">
+            <Tooltip MarginBottom="bottom-60" Text="Elements without associated element usage">
+                <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
+            </Tooltip>
+        </div>
+    </div>
     <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
         <DxChartFullStackedBarSeries Color="System.Drawing.Color.MediumPurple" Name="Referenced Elements" Filter="@((ElementDefinition e) => !this.UnReferencedElements.Contains(e))"
                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"

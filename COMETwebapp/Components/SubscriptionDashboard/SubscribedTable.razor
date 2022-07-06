@@ -62,7 +62,7 @@ Copyright (c) 2022 RHEA System S.A.
                             if(associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
                             {
                                 var lastParameter = (ParameterSubscriptionValueSet)associatedParameterSubscriptionValueSet.Revisions.Last().Value;
-                                lastActualValue = lastParameter.ActualValue;
+                                lastActualValue = lastParameter?.ActualValue;
                             }
                             var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
                             var scalevalue = (context as ParameterSubscriptionViewModel)?.Scale;
@@ -77,6 +77,12 @@ Copyright (c) 2022 RHEA System S.A.
                             {
                                 var lastParameter = (ParameterValueSet)associatedParameterValueSet.Revisions.Last().Value;
                                 subscribedLastActualValue = lastParameter.ActualValue;
+                            }
+
+                            var evolution = (double)0;
+                            if(actualValue?.Count == 1 && lastActualValue?.Count == 1 && !actualValue.First().Equals("-") && !lastActualValue.First().Equals("-") && !lastActualValue.First().Equals("0"))
+                            {
+                                evolution = Math.Round(((double.Parse(actualValue.First()) - double.Parse(lastActualValue.First())) / double.Parse(lastActualValue.First())) * 100);
                             }
                         }
                         @if ((context as ParameterSubscriptionViewModel)?.IsUpdated == true && actualValue != null)
@@ -95,20 +101,26 @@ Copyright (c) 2022 RHEA System S.A.
                                         }
                                         <a>@scalevalue </a>
                                     }
-                                    @if(actualValue?.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 
+                                    @if(actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 
+                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-")
                                         && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
                                     {
                                         <i class="oi oi-caret-bottom m-left-5px"></i>
-                                    } else if (actualValue?.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
+                                        <div class="m-left-5px font-size-small"> (@evolution %) </div>
+                                    } else if (actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0
+                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-"))
                                     {
                                         <i class="oi oi-caret-top m-left-5px"></i>
+                                        <div class="m-left-5px font-size-small"> (+@evolution %) </div>
                                     } else if (switchmode != null && switchmode.Equals("COMPUTED")) {
-                                        if(subscribedActualValue?.Count == 1 && associatedParameterValueSet != null 
-                                            && associatedParameterValueSet.Revisions.Count != 0 && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
+                                        if(subscribedActualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0 
+                                            && !subscribedActualValue.First().Equals("-")  && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
+                                            && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
                                         {
                                             <i class="oi oi-caret-bottom m-left-5px"></i>
-                                        } else if(subscribedActualValue?.Count == 1 && associatedParameterValueSet != null 
-                                            && associatedParameterValueSet.Revisions.Count != 0 && double.Parse(subscribedLastActualValue.First()) < double.Parse(subscribedActualValue.First()))
+                                        } else if(subscribedActualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
+                                            && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
+                                            && double.Parse(subscribedLastActualValue.First()) < double.Parse(subscribedActualValue.First()))
                                         {
                                             <i class="oi oi-caret-top m-left-5px"></i>
                                         }
@@ -119,91 +131,202 @@ Copyright (c) 2022 RHEA System S.A.
                             <a><br/> (@switchmode)</a>
                         } else if (actualValue != null)
                         {
-                            @if (actualValue.Count == 1)
-                            {
-                                <a>@actualValue.First() @scalevalue</a>
-                            }
-                            else
-                            {
-                                @foreach(string value in actualValue)
-                                {
-                                    <a>value</a>
-                                }
-                                <a>@scalevalue</a>
-                            }
-                            @if(actualValue?.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
-                            {
-                                <i class="oi oi-caret-bottom m-left-5px"></i>
-                            } else if (actualValue?.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
-                            {
-                                <i class="oi oi-caret-top m-left-5px"></i>
-                            }
-                            <a><br/> (@switchmode)</a>
+                            <div class="container-fluid p-0">
+                                <div class="row m-0">
+                                    @if(actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 
+                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-") && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
+                                    {
+                                        <div class="col p-0 text-align-end">
+                                            @if (actualValue.Count == 1)
+                                            {
+                                                <a>@actualValue.First() @scalevalue</a>
+                                            }
+                                            else
+                                            {
+                                                @foreach(string value in actualValue)
+                                                {
+                                                    <a>value</a>
+                                                }
+                                                <a>@scalevalue</a>
+                                            }
+                                        </div>
+                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
+                                            <i class="oi oi-caret-bottom"></i>
+                                        </div>
+                                        <div class="col p-0 text-align-start">
+                                            <div class="font-size-small"> (@evolution %) </div>
+                                        </div>
+                                    } else if (actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0
+                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-"))
+                                    {
+                                        <div class="col p-0 text-align-end">
+                                            @if (actualValue.Count == 1)
+                                            {
+                                                <a>@actualValue.First() @scalevalue</a>
+                                            }
+                                            else
+                                            {
+                                                @foreach(string value in actualValue)
+                                                {
+                                                    <a>value</a>
+                                                }
+                                                <a>@scalevalue</a>
+                                            }
+                                        </div>
+                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
+                                            <i class="oi oi-caret-top"></i>
+                                        </div>
+                                        <div class="col p-0 text-align-start">
+                                            <div class="font-size-small"> (+@evolution %) </div>
+                                        </div>
+                                    } else
+                                    {
+                                        <div class="col p-0 text-align-center">
+                                            @if (actualValue.Count == 1)
+                                            {
+                                                <a>@actualValue.First() @scalevalue</a>
+                                            }
+                                            else
+                                            {
+                                                @foreach(string value in actualValue)
+                                                {
+                                                    <a>value</a>
+                                                }
+                                                <a>@scalevalue</a>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row m-0">
+                                    <a>(@switchmode)</a>
+                                </div>
+                            </div>
                         }
                     </DisplayTemplate>
                 </DxDataGridColumn>
                 <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
                     <DisplayTemplate>
                         @{
-                            var actualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
-                            var scalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                            var switchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
+                            var subscribedActualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
+                            var subscribedScalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
+                            var subscribedSwitchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
 
-                            var iid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()).Find(p => p.Iid == iid);
-                            var lastActualValue = new ValueArray<string>();
+                            var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
+                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()).Find(p => p.Iid == subscribedIid);
+                            var subscribedLastActualValue = new ValueArray<string>();
                             if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
                             {
                                 var lastParameter = (ParameterValueSet)associatedParameterValueSet.Revisions.Last().Value;
-                                lastActualValue = lastParameter.ActualValue;
+                                subscribedLastActualValue = lastParameter.ActualValue;
+                            }
+
+                            var evolution = (double)0;
+                            if(subscribedActualValue?.Count == 1 && subscribedLastActualValue?.Count == 1 && !subscribedActualValue.First().Equals("-") && !subscribedLastActualValue.First().Equals("-") && !subscribedActualValue.First().Equals("0"))
+                            {
+                                evolution = Math.Round(((double.Parse(subscribedActualValue.First()) - double.Parse(subscribedLastActualValue.First())) / double.Parse(subscribedLastActualValue.First())) * 100);
                             }
                         }
-                        @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && actualValue != null)
+                        @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && subscribedActualValue != null)
                         {
                             <span class="badge rounded-pill bg-dark font-weight-100">
                                 <div class="display-flex flex-row">
-                                    @if (actualValue.Count == 1)
+                                    @if (subscribedActualValue.Count == 1)
                                     {
-                                         <div class="font-size-bs-body">@actualValue.First() @scalevalue </div>
+                                         <div class="font-size-bs-body">@subscribedActualValue.First() @subscribedScalevalue </div>
                                     } else
                                     {
-                                        @foreach(string value in actualValue)
+                                        @foreach(string value in subscribedActualValue)
                                         {
                                             <a>value</a>
                                         }
-                                        <a>@scalevalue </a>
+                                        <a>@subscribedScalevalue </a>
                                     }
-                                    @if(actualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0 && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
+                                    @if(subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
+                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
+                                        && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
                                     {
                                         <i class="oi oi-caret-bottom m-left-5px"></i>
-                                    } else if (actualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
+                                        <div class="m-left-5px font-size-small"> (@evolution %) </div>
+                                    } else if (subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
+                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-"))
                                     {
                                         <i class="oi oi-caret-top m-left-5px"></i>
+                                        <div class="m-left-5px font-size-small"> (+@evolution %) </div>
                                     }
                                 </div>
                             </span>
-                            <a><br/> (@switchmode)</a>
-                        } else if (actualValue != null)
+                            <a><br/> (@subscribedSwitchmode)</a>
+                        } else if (subscribedActualValue != null)
                         {
-                            @if (actualValue.Count == 1)
-                            {
-                                <a>@actualValue.First() @scalevalue</a>
-                            } else
-                            {
-                                @foreach(string value in actualValue)
-                                {
-                                    <a>value</a>
-                                }
-                                <a>@scalevalue</a>
-                            }
-                            @if(actualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0 && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
-                            {
-                                <i class="oi oi-caret-bottom m-left-5px"></i>
-                            } else if (actualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
-                            {
-                                <i class="oi oi-caret-top m-left-5px"></i>
-                            }
-                            <a><br/> (@switchmode)</a>
+                            <div class="container-fluid p-0">
+                                <div class="row m-0">
+                                    @if(subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0 
+                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
+                                        && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
+                                    {
+                                        <div class="col p-0 text-align-end">
+                                            @if (subscribedActualValue.Count == 1)
+                                            {
+                                                <a>@subscribedActualValue.First() @subscribedScalevalue</a>
+                                            } else
+                                            {
+                                                @foreach(string value in subscribedActualValue)
+                                                {
+                                                    <a>value</a>
+                                                }
+                                                <a>@subscribedScalevalue</a>
+                                            }
+                                        </div>
+                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
+                                            <i class="oi oi-caret-bottom"></i>
+                                        </div>
+                                        <div class="col p-0 text-align-start">
+                                            <div class="font-size-small"> (@evolution %) </div>
+                                        </div>
+                                    } else if (subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
+                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-"))
+                                    {
+                                        <div class="col p-0 text-align-end">
+                                            @if (subscribedActualValue.Count == 1)
+                                            {
+                                                <a>@subscribedActualValue.First() @subscribedScalevalue</a>
+                                            } else
+                                            {
+                                                @foreach(string value in subscribedActualValue)
+                                                {
+                                                    <a>value</a>
+                                                }
+                                                <a>@subscribedScalevalue</a>
+                                            }
+                                        </div>
+                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
+                                            <i class="oi oi-caret-top"></i>
+                                        </div>
+                                        <div class="col p-0 text-align-start">
+                                            <div class="font-size-small"> (+@evolution %) </div>
+                                    </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col p-0 text-align-center">
+                                            @if (subscribedActualValue.Count == 1)
+                                            {
+                                                <a>@subscribedActualValue.First() @subscribedScalevalue</a>
+                                            } else
+                                            {
+                                                @foreach(string value in subscribedActualValue)
+                                                {
+                                                    <a>value</a>
+                                                }
+                                                <a>@subscribedScalevalue</a>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row m-0">
+                                    <a>(@subscribedSwitchmode)</a>
+                                </div>
+                            </div>
                         }
                 </DisplayTemplate>
                 </DxDataGridColumn>
@@ -241,7 +364,7 @@ Copyright (c) 2022 RHEA System S.A.
                         <div class="display-flex flex-row justify-content-center">
                             @if (associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
                             {
-                                <div>
+                                <div class="font-size-small">
                                     @if (lastActualValue.Count == 1)
                                     {
                                     <a>@lastActualValue.First() @scalevalue</a>
@@ -255,7 +378,7 @@ Copyright (c) 2022 RHEA System S.A.
                                     }
                                 </div>
                             } else if (switchmode != null && switchmode.Equals("COMPUTED") && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0){
-                                <div>
+                                <div class="font-size-small">
                                     @if (subscribedLastActualValue.Count == 1)
                                     {
                                         <a>@subscribedLastActualValue.First() @subscribedScalevalue</a>
@@ -275,7 +398,7 @@ Copyright (c) 2022 RHEA System S.A.
                         <div class="m-left-3px m-right-3px"> / </div>
                             @if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
                             {
-                                <div>
+                                <div class="font-size-small">
                                     @if (subscribedLastActualValue.Count == 1)
                                     {
                                         <a>@subscribedLastActualValue.First() @subscribedScalevalue</a>

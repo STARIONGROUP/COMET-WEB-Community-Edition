@@ -29,7 +29,7 @@ Copyright (c) 2022 RHEA System S.A.
 @inject NavigationManager NavigationManager
 
 <div class="container height-90">
-    <div class="row m-top-10px justify-content-center">
+    <div class="row justify-content-center">
         <img id="comet-logo" src="images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
     </div>
     <div class="comet-info row text-align-center justify-content-center">
@@ -38,12 +38,12 @@ Copyright (c) 2022 RHEA System S.A.
 				<p class="no-margin"></p>  
 			</div>
             <div class="font-size-smaller">
-                <div>COMET-CE Version: <b>@this.cometWebVersion</b></div>
-                <p>Copyright &copy; <a href="https://www.rheagroup.com/" title="RHEA" target="_blank" class="mx-3">RHEA System S.A.</a> 2022.</p>
+                <div>Version: <b>@this.cometWebVersion</b></div>
+                <p>Copyright &copy; <text class="mx-3">2022.</text> <a href="https://www.rheagroup.com/" title="RHEA" target="_blank">RHEA System S.A.</a></p>
             </div>
 		</div>
     </div>
-    <div class="row text-align-start m-top-50px align-items-center justify-content-md-center">
+    <div class="row text-align-start m-top-20px align-items-center justify-content-md-center">
         <div class="width-70">
         
         <AuthorizeView>
@@ -53,8 +53,8 @@ Copyright (c) 2022 RHEA System S.A.
                         <div class="col p-0 col-10 font-weight-bold">
                             @context.User.Identity?.Name - @ISessionAnchor.Session.DataSourceUri
                         </div>
-                        <div class="col p-0 align-self-center">
-                            <a class="m-left-10px" @onclick="@(() => Logout())">Log out</a>
+                        <div class="col p-0">
+                            <a class="m-left-10px" @onclick="@(() => Logout())">Log Out</a>
                         </div>
                     </div>
                 </div>

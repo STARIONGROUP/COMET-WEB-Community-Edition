@@ -41,9 +41,9 @@ html, body, #app {
     }
 
 .btn-connect {
-    color: #080707;
-    background-color: #18bc9c;
-    border-color: #12a98c;
+    color: white;
+    background-color: #008bd2;
+    border-color: rgb(44 62 80);
 }
 
 .m-top-3px {
@@ -107,7 +107,7 @@ html, body, #app {
 }
 
 .color-title {
-    color: #18bc9c;
+    color: #008bd2;
 }
 
 .card-btn {
@@ -211,7 +211,7 @@ html, body, #app {
 }
 
 .large-logo{
-    max-height: 400px;
+    max-height: 150px;
     width: auto;
 }
 
@@ -279,4 +279,18 @@ html, body, #app {
     border-radius: 50%;
     background: red;
     color: white;
+}
+
+.m-top-20px{
+    margin-top: 20px;
+}
+
+.text-align-end {
+    text-align: end;
+}
+
+.btn-tooltip {
+    border-radius: 14rem;
+    font-size: 0.7rem;
+    padding: 4px 4px;
 }
