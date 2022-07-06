@@ -79,8 +79,11 @@ Copyright (c) 2022 RHEA System S.A.
                                 subscribedLastActualValue = lastParameter.ActualValue;
                             }
 
-                            var evolution = (double)0;
-                            if(actualValue?.Count == 1 && lastActualValue?.Count == 1 && !actualValue.First().Equals("-") && !lastActualValue.First().Equals("-") && !lastActualValue.First().Equals("0"))
+                            var evolution = 0D;
+                            if(actualValue != null 
+                                && lastActualValue != null 
+                                && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue) 
+                                && !lastActualValue.First().Equals("0"))
                             {
                                 evolution = Math.Round(((double.Parse(actualValue.First()) - double.Parse(lastActualValue.First())) / double.Parse(lastActualValue.First())) * 100);
                             }
@@ -101,40 +104,48 @@ Copyright (c) 2022 RHEA System S.A.
                                         }
                                         <a>@scalevalue </a>
                                     }
-                                    @if(actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 
-                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-")
-                                        && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
+
+                                    @if(lastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue) 
+                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
+                                        && checkIfLastActualValueIsHigherThanActualValue(actualValue.First(), lastActualValue.First()))
                                     {
                                         <i class="oi oi-caret-bottom m-left-5px"></i>
                                         <div class="m-left-5px font-size-small"> (@evolution %) </div>
-                                    } else if (actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0
-                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-"))
+
+                                    } else if (lastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue) 
+                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
+                                        && checkIfLastActualValueIsLowerThanActualValue(actualValue.First(), lastActualValue.First()))
                                     {
                                         <i class="oi oi-caret-top m-left-5px"></i>
                                         <div class="m-left-5px font-size-small"> (+@evolution %) </div>
-                                    } else if (switchmode != null && switchmode.Equals("COMPUTED")) {
-                                        if(subscribedActualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0 
-                                            && !subscribedActualValue.First().Equals("-")  && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
-                                            && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
+
+                                    } else if (switchmode != null && switchmode.Equals("COMPUTED")
+                                        && subscribedActualValue != null
+                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue)
+                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)) {
+
+                                        if(checkIfLastActualValueIsHigherThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
                                         {
                                             <i class="oi oi-caret-bottom m-left-5px"></i>
-                                        } else if(subscribedActualValue?.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
-                                            && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
-                                            && double.Parse(subscribedLastActualValue.First()) < double.Parse(subscribedActualValue.First()))
+                                        
+                                        } else if(checkIfLastActualValueIsLowerThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
                                         {
                                             <i class="oi oi-caret-top m-left-5px"></i>
                                         }
                                     }
                                 </div>
                             </span>
-                           
                             <a><br/> (@switchmode)</a>
                         } else if (actualValue != null)
                         {
                             <div class="container-fluid p-0">
                                 <div class="row m-0">
-                                    @if(actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 
-                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-") && double.Parse(lastActualValue.First()) > double.Parse(actualValue.First()))
+                                    @if(lastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue)
+                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
+                                        && checkIfLastActualValueIsHigherThanActualValue(actualValue.First(), lastActualValue.First()))
                                     {
                                         <div class="col p-0 text-align-end">
                                             @if (actualValue.Count == 1)
@@ -156,8 +167,11 @@ Copyright (c) 2022 RHEA System S.A.
                                         <div class="col p-0 text-align-start">
                                             <div class="font-size-small"> (@evolution %) </div>
                                         </div>
-                                    } else if (actualValue.Count == 1 && associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0
-                                        && !actualValue.First().Equals("-") && lastActualValue?.Count == 1 && !lastActualValue.First().Equals("-"))
+
+                                    } else if (lastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue)
+                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
+                                        && checkIfLastActualValueIsLowerThanActualValue(actualValue.First(), lastActualValue.First()))
                                     {
                                         <div class="col p-0 text-align-end">
                                             @if (actualValue.Count == 1)
@@ -220,8 +234,12 @@ Copyright (c) 2022 RHEA System S.A.
                                 subscribedLastActualValue = lastParameter.ActualValue;
                             }
 
-                            var evolution = (double)0;
-                            if(subscribedActualValue?.Count == 1 && subscribedLastActualValue?.Count == 1 && !subscribedActualValue.First().Equals("-") && !subscribedLastActualValue.First().Equals("-") && !subscribedActualValue.First().Equals("0"))
+                            var evolution = 0D;
+
+                            if(subscribedActualValue != null 
+                                && subscribedLastActualValue != null 
+                                && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
+                                && !subscribedLastActualValue.First().Equals("0"))
                             {
                                 evolution = Math.Round(((double.Parse(subscribedActualValue.First()) - double.Parse(subscribedLastActualValue.First())) / double.Parse(subscribedLastActualValue.First())) * 100);
                             }
@@ -241,14 +259,19 @@ Copyright (c) 2022 RHEA System S.A.
                                         }
                                         <a>@subscribedScalevalue </a>
                                     }
-                                    @if(subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
-                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
-                                        && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
+                                    @if(subscribedLastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
+                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
+                                        && checkIfLastActualValueIsHigherThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
                                     {
                                         <i class="oi oi-caret-bottom m-left-5px"></i>
                                         <div class="m-left-5px font-size-small"> (@evolution %) </div>
-                                    } else if (subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
-                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-"))
+
+                                        
+                                    } else if (subscribedLastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
+                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
+                                        && checkIfLastActualValueIsLowerThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
                                     {
                                         <i class="oi oi-caret-top m-left-5px"></i>
                                         <div class="m-left-5px font-size-small"> (+@evolution %) </div>
@@ -260,9 +283,11 @@ Copyright (c) 2022 RHEA System S.A.
                         {
                             <div class="container-fluid p-0">
                                 <div class="row m-0">
-                                    @if(subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0 
-                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-")
-                                        && double.Parse(subscribedLastActualValue.First()) > double.Parse(subscribedActualValue.First()))
+                                    
+                                    @if(subscribedLastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
+                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
+                                        && checkIfLastActualValueIsHigherThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
                                     {
                                         <div class="col p-0 text-align-end">
                                             @if (subscribedActualValue.Count == 1)
@@ -283,8 +308,11 @@ Copyright (c) 2022 RHEA System S.A.
                                         <div class="col p-0 text-align-start">
                                             <div class="font-size-small"> (@evolution %) </div>
                                         </div>
-                                    } else if (subscribedActualValue.Count == 1 && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0
-                                        && !subscribedActualValue.First().Equals("-") && subscribedLastActualValue?.Count == 1 && !subscribedLastActualValue.First().Equals("-"))
+
+                                    } else if (subscribedLastActualValue != null 
+                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
+                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
+                                        && checkIfLastActualValueIsLowerThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
                                     {
                                         <div class="col p-0 text-align-end">
                                             @if (subscribedActualValue.Count == 1)
@@ -362,7 +390,7 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                         }
                         <div class="display-flex flex-row justify-content-center">
-                            @if (associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
+                            @if (checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet))
                             {
                                 <div class="font-size-small">
                                     @if (lastActualValue.Count == 1)
@@ -377,7 +405,8 @@ Copyright (c) 2022 RHEA System S.A.
                                         <a>@scalevalue </a>
                                     }
                                 </div>
-                            } else if (switchmode != null && switchmode.Equals("COMPUTED") && associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0){
+                            } else if (switchmode != null && switchmode.Equals("COMPUTED") 
+                                && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)){
                                 <div class="font-size-small">
                                     @if (subscribedLastActualValue.Count == 1)
                                     {
@@ -396,7 +425,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 <div>-</div>
                             }
                         <div class="m-left-3px m-right-3px"> / </div>
-                            @if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
+                            @if(checkIfParameterRevisionsExist(associatedParameterValueSet))
                             {
                                 <div class="font-size-small">
                                     @if (subscribedLastActualValue.Count == 1)
@@ -416,7 +445,8 @@ Copyright (c) 2022 RHEA System S.A.
                                 <div>-</div>
                             }
                         </div>
-                        @if(associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0 || associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
+                        @if(checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet) 
+                            || checkIfParameterRevisionsExist(associatedParameterValueSet))
                         {
                             <a @onclick="@(() => AccessData(iid, subscribedIid))" class="m-left-3px">More</a>
                         }
@@ -687,4 +717,58 @@ Copyright (c) 2022 RHEA System S.A.
             this.IsFilterChangesSelected = (bool) value;
         }
     }
+
+    /// <summary>
+    /// Checks if pourcentage of evolution of actualValue can be calculated
+    /// </summary>
+    /// <param name="actualValue"></param>
+    /// <param name="lastActualValue"></param>
+    private bool checkIfEvolutionCanBeCalculated(ValueArray<string>? actualValue, ValueArray<string>? lastActualValue)
+    {
+        return actualValue?.Count == 1
+            && lastActualValue?.Count == 1
+            && !actualValue.First().Equals("-")
+            && !lastActualValue.First().Equals("-");
+    }
+
+    /// <summary>
+    /// Checks if the previous value is higher than the actual value
+    /// </summary>
+    /// <param name="actualValue"></param>
+    /// <param name="lastActualValue"></param>
+    private bool checkIfLastActualValueIsHigherThanActualValue(string actualValue, string lastActualValue)
+    {
+        return double.Parse(lastActualValue) > double.Parse(actualValue);
+    }
+
+    /// <summary>
+    /// Checks if the previous value is lower than the actual value
+    /// </summary>
+    /// <param name="actualValue"></param>
+    /// <param name="lastActualValue"></param>
+    private bool checkIfLastActualValueIsLowerThanActualValue(string actualValue, string lastActualValue)
+    {
+        return double.Parse(lastActualValue) < double.Parse(actualValue);
+    }
+
+    /// <summary>
+    /// Checks if the <see cref="ParameterSubscriptionValueSet"> has Revisions
+    /// </summary>
+    /// <param name="associatedParameterSubscriptionValueSet"></param>
+    private bool checkIfParameterSubscriptionRevisionsExist(ParameterSubscriptionValueSet? associatedParameterSubscriptionValueSet)
+    {
+        return associatedParameterSubscriptionValueSet != null 
+            && associatedParameterSubscriptionValueSet.Revisions.Count != 0;
+    }
+
+    /// <summary>
+    /// Checks if the <see cref="ParameterValueSet"> has Revisions
+    /// </summary>
+    /// <param name="associatedParameterValueSet"></param>
+    private bool checkIfParameterRevisionsExist(ParameterValueSet? associatedParameterValueSet)
+    {
+        return associatedParameterValueSet != null 
+            && associatedParameterValueSet.Revisions.Count != 0;
+    }
+
 }

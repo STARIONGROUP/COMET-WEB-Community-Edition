@@ -28,7 +28,7 @@ Copyright (c) 2022 RHEA System S.A.
     <Body>
         <DxTreeView CssClass="m-top-10px">
             <Nodes>
-                <DxTreeViewNode Name="SubscribedTableView" Text=@TitleTable1 Expanded CssClass="color-title">
+                <DxTreeViewNode Name="SubscribedTableView" Text=@SubscribedTableViewTitle Expanded CssClass="color-title">
                     <Nodes>
                         <DxTreeViewNode >
                             <Template>
@@ -37,7 +37,7 @@ Copyright (c) 2022 RHEA System S.A.
                         </DxTreeViewNode>
                     </Nodes>
                 </DxTreeViewNode>
-                <DxTreeViewNode Name="DomainOfExpertiseSubscriptionTableView" Text=@TitleTable2 Expanded CssClass="color-title">
+                <DxTreeViewNode Name="DomainOfExpertiseSubscriptionTableView" Text=@DomainOfExpertiseSubscriptionTableViewTitle Expanded CssClass="color-title">
                     <Nodes>
                         <DxTreeViewNode >
                             <Template>
@@ -56,12 +56,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Title for SubscribedTableView table
     /// </summary>
-    public string? TitleTable1 { get; set; }
+    public string? SubscribedTableViewTitle { get; set; }
 
     /// <summary>
     /// Title for DomainOfExpertiseSubscriptionTableView table
     /// </summary>
-    public string? TitleTable2 { get; set; }
+    public string? DomainOfExpertiseSubscriptionTableViewTitle { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -88,8 +88,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public void LoadTitles()
     {
-        TitleTable1 = $"Parameters {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain subscribed to";
-        TitleTable2 = $"Parameters owned by {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain, subscribed to by other domains";
+        this.SubscribedTableViewTitle = $"Parameters {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain subscribed to";
+        this.DomainOfExpertiseSubscriptionTableViewTitle = $"Parameters owned by {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain, subscribed to by other domains";
     }
 
     /// <summary>
