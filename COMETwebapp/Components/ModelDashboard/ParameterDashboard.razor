@@ -29,10 +29,10 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
     <div class="row m-top-10px">
         <div class="col text-align-center">
-            <PublishedParameters Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" /> 
+            <PublishedParameters Data="Filter(Data)" FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType" /> 
         </div>
         <div class="col text-align-center">
-            <DefaultValues Data="Filter(Data)" FilterOption="this.FilterOption" FilterState="this.FilterState" />
+            <DefaultValues Data="Filter(Data)" FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType"/>
         </div>
     </div>
 </div>
@@ -51,9 +51,15 @@ Copyright (c) 2022 RHEA System S.A.
     public Guid? FilterState { get; set; }
 
     /// <summary>
+    /// <see cref="Guid"> of the state to filter the data
+    /// </summary>
+    [Parameter]
+    public string? FilterParameterType { get; set; }
+
+    /// <summary>
     /// ParameterValueSet represented in graphs
     /// </summary>
-    public List<ParameterValueSet> Data { get; set; }
+    public List<ParameterValueSet>? Data { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -65,10 +71,13 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="data">List of all data in the project</param>
     /// <returns>The list of filtered <see cref="DataChart"></returns>
-    public List<ParameterValueSet> Filter(List<ParameterValueSet> data)
+    public List<ParameterValueSet> Filter(List<ParameterValueSet>? data)
     {
         var result = new List<ParameterValueSet>();
-        result.AddRange(data);
+        if(data != null)
+        {
+            result.AddRange(data);
+        }
         if (this.FilterOption != null)
         {
             var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.GetIteration(), this.FilterOption);
@@ -88,6 +97,14 @@ Copyright (c) 2022 RHEA System S.A.
         {
             result.RemoveAll(d => d.ActualState == null || (d.ActualState != null && d.ActualState.Iid != this.FilterState));
         }
+
+
+        if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
+        {
+            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.GetIteration(), this.FilterParameterType);
+            result.RemoveAll(d => !parameterValueSets.Contains(d));
+        }
+
         return result;
     }
 
@@ -122,6 +139,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        this.Data = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
+        this.Data = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()); 
     }
 }

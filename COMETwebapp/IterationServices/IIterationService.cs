@@ -112,5 +112,22 @@ namespace COMETwebapp.IterationServices
         /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
         /// <returns></returns>
         int GetNumberUpdates(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise);
+
+        /// <summary>
+        /// Gets list of parameter types used in the given iteration
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> for which the <see cref="ParameterType"/>s list is created</param>
+        /// <returns>All <see cref="ParameterType"/>s used in the iteration</returns>
+        List<ParameterType> GetParameterTypes(Iteration? iteration);
+
+        /// </summary>
+        /// <param name="iteration">
+        /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSet"/>s list is created
+        /// </param>
+        /// <param name="parameterType">
+        /// The name of <see cref="ParameterType"/> for which the <see cref="ParameterValueSet"/>s list is created
+        /// </param>
+        /// <returns>All <see cref="ParameterValueSet" for the given parameter type/></returns>
+        List<ParameterValueSet> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName);
     }
 }

@@ -250,5 +250,42 @@ namespace COMETwebapp.IterationServices
 
             return numberUpdates;
         }
+
+        /// <summary>
+        /// Gets list of parameter types used in the given iteration
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> for which the <see cref="ParameterType"/>s list is created</param>
+        /// <returns>All <see cref="ParameterType"/>s used in the iteration</returns>
+        public List<ParameterType> GetParameterTypes(Iteration? iteration)
+        {
+            var parameterTypes = new List<ParameterType>();
+            iteration?.Element.ForEach(element =>
+            {
+                element.Parameter.ForEach(parameter =>
+                {
+                    parameterTypes.Add(parameter.ParameterType);
+                });
+            });
+            return parameterTypes.Distinct().ToList();
+        }
+
+        /// Get all <see cref="ParameterValueSet"/> of the given iteration for one given parameter type
+        /// </summary>
+        /// <param name="iteration">
+        /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSet"/>s list is created
+        /// </param>
+        /// <param name="parameterType">
+        /// The name of <see cref="ParameterType"/> for which the <see cref="ParameterValueSet"/>s list is created
+        /// </param>
+        /// <returns>All <see cref="ParameterValueSet" for the given parameter type/></returns>
+        public List<ParameterValueSet> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName)
+        {
+            var result = new List<ParameterValueSet>();
+            if (parameterTypeName != null && iteration != null)
+            {
+                iteration.Element.ForEach(e => e.Parameter.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => result.AddRange(p.ValueSet)));
+            }
+            return result;
+        }
     }
 }

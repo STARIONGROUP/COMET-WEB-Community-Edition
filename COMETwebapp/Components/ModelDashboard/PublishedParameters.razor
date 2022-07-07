@@ -34,55 +34,58 @@ Copyright (c) 2022 RHEA System S.A.
             </Tooltip>
         </div>
     </div>
-    <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
-                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                    AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Position="RelativePosition.Inside"/>
-        </DxChartFullStackedBarSeries>
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="Published parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
-                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                    AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Position="RelativePosition.Inside" />
-        </DxChartFullStackedBarSeries>
-        <DxChartLegend Visible="false" />
-        <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-            <div style="margin: 0.1rem">
-                <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
-                    More
-                </button>
-            </div>
-        </DxChartTooltip>
-    </DxChart>
-
-    <DxChart Data="@Data" CssClass="justify-content-center width-100">
-        <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-            @{
-                var total = this.Data.FindAll(d => d.Owner.ShortName.Equals(@context.Point.Argument)).Count;
-                var number = Math.Round((double)NumberData(@context.Point.SeriesName, @context.Point.Argument) / total * 100);
-            }
-            <div style="margin: 0.1rem">
-                @if (!double.IsNaN(number))
-                {
+    @if(this.Data != null)
+    {
+        <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable Parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
+                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                        AggregationMethod="Enumerable.Sum">
+                <DxChartSeriesLabel Position="RelativePosition.Inside"/>
+            </DxChartFullStackedBarSeries>
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="Published Parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
+                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                        AggregationMethod="Enumerable.Sum">
+                <DxChartSeriesLabel Position="RelativePosition.Inside" />
+            </DxChartFullStackedBarSeries>
+            <DxChartLegend Visible="false" />
+            <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
+                <div style="margin: 0.1rem">
                     <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
-                        <div>@number %</div>
+                        More
                     </button>
-                }
-                else
-                {
-                    <div>-</div>
-                }
+                </div>
+            </DxChartTooltip>
+        </DxChart>
 
-            </div>
-        </DxChartTooltip>
-        <DxChartStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
-                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                    AggregationMethod="Enumerable.Sum" />
-        <DxChartStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="Published parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
-                                    ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-                                    AggregationMethod="Enumerable.Sum" />
-        <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
-    </DxChart>
+        <DxChart Data="@Data" CssClass="justify-content-center width-100">
+            <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
+                @{
+                    var total = this.Data.FindAll(d => d.Owner.ShortName.Equals(@context.Point.Argument)).Count;
+                    var number = Math.Round((double)NumberData(@context.Point.SeriesName, @context.Point.Argument) / total * 100);
+                }
+                <div style="margin: 0.1rem">
+                    @if (!double.IsNaN(number))
+                    {
+                        <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
+                            <div>@number %</div>
+                        </button>
+                    }
+                    else
+                    {
+                        <div>-</div>
+                    }
+
+                </div>
+            </DxChartTooltip>
+            <DxChartStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable Parameters" Filter="@((ParameterValueSet p) => !p.Published.SequenceEqual(p.ActualValue))"
+                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                        AggregationMethod="Enumerable.Sum" />
+            <DxChartStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="Published Parameters" Filter="@((ParameterValueSet p) => p.Published.SequenceEqual(p.ActualValue))"
+                                        ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
+                                        AggregationMethod="Enumerable.Sum" />
+            <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
+        </DxChart>   
+    }
 </div>
 
 @code {
@@ -99,10 +102,16 @@ Copyright (c) 2022 RHEA System S.A.
     public Guid? FilterState { get; set; }
 
     /// <summary>
+    /// Name of the parameterType to filter the data
+    /// </summary>
+    [Parameter]
+    public string? FilterParameterType { get; set; }
+
+    /// <summary>
     /// <see cref="ParameterValueSet"> for the graph
     /// </summary>
     [Parameter]
-    public List<ParameterValueSet> Data { get; set; }
+    public List<ParameterValueSet>? Data { get; set; }
 
     /// <summary>
     /// Set the point label on the graph
@@ -124,12 +133,15 @@ Copyright (c) 2022 RHEA System S.A.
     /// <returns>The number of <see cref="ParameterValueSet"> represented in the selected area</returns>
     public int NumberData(string criteria, object domain)
     {
-        if(criteria.Equals("Published parameters"))
+        if(this.Data != null && criteria.Equals("Published Parameters"))
         {
             return this.Data.FindAll(d => d.Owner.ShortName.Equals(domain) && d.Published.SequenceEqual(d.ActualValue)).Count;
-        } else
+        } else if(this.Data != null)
         {
             return this.Data.FindAll(d => d.Owner.ShortName.Equals(domain) && !d.Published.SequenceEqual(d.ActualValue)).Count;
+        } else
+        {
+            return 0;
         }
     }
 
@@ -140,18 +152,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="domain">The associated domain of the selected area</param>
     public void AccessData(string criteria, object domain)
     {
-        if(this.FilterOption is null && this.FilterState is null)
-        {
-            this.NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?criteria={criteria}&domain={domain}");
-        } else if (this.FilterOption is null && this.FilterState is not null)
-        {
-            this.NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
-        } else if (this.FilterOption is not null && this.FilterState is null)
-        {
-            this.NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&criteria={criteria}&domain={domain}");
-        } else
-        {
-            this.NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&filterstate={this.FilterState}&criteria={criteria}&domain={domain}");
-        }
+        this.NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={this.FilterParameterType}&criteria={criteria}&domain={domain}");  
     }
 }
