@@ -22,6 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @page "/ModelDashboard"
 @inject ISessionAnchor ISessionAnchor
+@inject IIterationService IterationService
 @inject NavigationManager NavigationManager
 @implements IDisposable
 
@@ -34,8 +35,8 @@ Copyright (c) 2022 RHEA System S.A.
                 }
                 @if(iteration != null && iteration.Option.ToList().Count > 1)
                 {
-                    <div>
-                        <h6>Filter on options :</h6>
+                    <div class="col-2 width-fit-content">
+                        <h6>Filter on Option:</h6>
                         <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
                             <option value="">--Select--</option>
                             @foreach(var option in iteration.Option.ToList())
@@ -47,8 +48,8 @@ Copyright (c) 2022 RHEA System S.A.
                 }
                 @if (iteration != null && iteration.ActualFiniteStateList.Any())
                 {
-                    <div class="m-left-10px">
-                        <h6>Filter on states :</h6>
+                    <div class="col-2 width-fit-content">
+                        <h6>Filter on State:</h6>
                         <select @bind="this.FilterState" @oninput="UpdateFilterState">
                             <option value="">--Select--</option>
                             @foreach(var stateList in iteration.ActualFiniteStateList)
@@ -61,9 +62,22 @@ Copyright (c) 2022 RHEA System S.A.
                         </select>
                     </div>
                 }
+                @if(iteration != null && this.ParameterTypes.Count != 0){
+                    <div class="col-2 width-fit-content">
+                        <h6>Filter on Parameter Type:</h6>
+                        <select @bind="this.FilterParameterType" @oninput="UpdateFilterParameterType">
+                            <option value="">--Select--</option>
+                            @foreach(var parameterType in this.ParameterTypes)
+                            {
+                                <option value="@parameterType.Name">@parameterType.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+                <div class="col"></div>
             </div>
             <div class="row">
-                <ParameterDashboard FilterOption="this.FilterOption" FilterState="this.FilterState" />
+                <ParameterDashboard FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType"/>
             </div>
             <div class="row">
                 <ElementDashboard />
@@ -88,9 +102,18 @@ Copyright (c) 2022 RHEA System S.A.
     public Guid? FilterState { get; set; }
 
     /// <summary>
+    /// The filter on parameter type
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? FilterParameterType { get; set; }
+
+    /// <summary>
     /// Index of the active widget
     /// </summary>
     public int ActiveTabIndex { get; set; } = 0;
+
+    public List<ParameterType> ParameterTypes = new List<ParameterType>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -98,11 +121,12 @@ Copyright (c) 2022 RHEA System S.A.
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
 
     /// <summary>
-    /// Force component to rerender when the session is updated
+    /// Add listener for session update
     /// </summary>
-    /// <param name="firstRender">Boolean defining first render</param>
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnInitialized()
     {
+        this.ParameterTypes = this.IterationService.GetParameterTypes(this.ISessionAnchor.GetIteration());
+
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
             this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
@@ -128,6 +152,7 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.FilterOption = FilterOption ?? null;
         this.FilterState = FilterState ?? null;
+        this.FilterParameterType = FilterParameterType ?? null;
     }
 
     /// <summary>
@@ -136,7 +161,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event raised when any change appears in the select component</param>
     public void UpdateFilterOption(ChangeEventArgs e)
     {
-        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={e.Value?.ToString()}&filterstate={this.FilterState}");
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={e.Value?.ToString()}&filterstate={this.FilterState}&filterparametertype={this.FilterParameterType}");
     }
 
     /// <summary>
@@ -145,7 +170,16 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Event raised when any change appears in the select component</param>
     public void UpdateFilterState(ChangeEventArgs e)
     {
-        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}");
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}&filterparametertype={this.FilterParameterType}");
+    }
+
+    /// <summary>
+    /// Navigate to the page depending on the selected <see cref="FilterState"/>
+    /// </summary>
+    /// <param name="e">Event raised when any change appears in the select component</param>
+    public void UpdateFilterParameterType(ChangeEventArgs e)
+    {
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={e.Value?.ToString()}");
     }
 }
 

@@ -24,14 +24,14 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="col col-xxl-8">
     <DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
-        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published values as default") || d.Argument.Equals("Other values")))"
+        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Values as Default") || d.Argument.Equals("Other Values")))"
                         ValueField="@(d => d.Value)"
                         ArgumentField="@(d => d.Argument)"
                         AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true" />
         </DxChartDonutSeries>
         <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
-        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published parameters") || d.Argument.Equals("Publishable parameters")))"
+        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
                           ValueField="@(d => d.Value)"
                           ArgumentField="@(d => d.Argument)"
                           AggregationMethod="Enumerable.Sum">
@@ -45,7 +45,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// Data in the graph
     /// </summary>
     [Parameter]
-    public List<ParameterValueSet> Data { get; set; }
+    public List<ParameterValueSet>? Data { get; set; }
 
     /// <summary>
     /// Set the color appearence for the donut chart
@@ -53,15 +53,15 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="settings">Settings associated with the series point</param>
     protected void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings) {
         var argument = settings.Point.Argument.ToString();
-        if (argument != null && argument.Equals("Published parameters")){
+        if (argument != null && argument.Equals("Published Parameters")){
             settings.PointAppearance.Color = System.Drawing.Color.SteelBlue;
-        }else if (argument != null && argument.Equals("Publishable parameters"))
+        }else if (argument != null && argument.Equals("Publishable Parameters"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.LightCoral;
-        } else if (argument != null && argument.Equals("Published values as default"))
+        } else if (argument != null && argument.Equals("Published Values as Default"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.DarkSeaGreen;
-        } else if (argument != null && argument.Equals("Other values"))
+        } else if (argument != null && argument.Equals("Other Values"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.LightSlateGray;
         }
@@ -72,11 +72,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="data">List of <see cref="ParameterValueSet"> to represent in the graph </param>
     /// <returns>List of <see cref="DataChart"> used in the graph</returns>
-    private List<DataChart> GetChartData(List<ParameterValueSet> data)
+    private List<DataChart> GetChartData(List<ParameterValueSet>? data)
     {
         List<DataChart> donutData = new List<DataChart>();
         var iteration = this.ISessionAnchor.GetIteration();
-        if (iteration != null)
+        if (iteration != null && data != null)
         {
             var domains = this.ISessionAnchor.Session.QueryDomainOfExpertise(iteration).ToList();
             domains.ForEach(d =>
@@ -87,13 +87,13 @@ Copyright (c) 2022 RHEA System S.A.
                 donutData.Add(new DataChart()
                 {
                     Value = nbDefaultValues,
-                    Argument = "Published values as default",
+                    Argument = "Published Values as Default",
                     Domain = d.ShortName
                 });
                 donutData.Add(new DataChart()
                 {
                     Value = domainParameterValueSets.Count - nbDefaultValues,
-                    Argument = "Other values",
+                    Argument = "Other Values",
                     Domain = d.ShortName
                 });
 
@@ -101,13 +101,13 @@ Copyright (c) 2022 RHEA System S.A.
                 donutData.Add(new DataChart()
                 {
                     Value = publishedParameters,
-                    Argument = "Published parameters",
+                    Argument = "Published Parameters",
                     Domain = d.ShortName
                 });
                 donutData.Add(new DataChart()
                 {
                     Value = domainParameterValueSets.Count - publishedParameters,
-                    Argument = "Publishable parameters",
+                    Argument = "Publishable Parameters",
                     Domain = d.ShortName
                 });
             });

@@ -158,12 +158,14 @@ namespace COMETwebapp.Tests.IterationServiceTest
 
             var simpleQuantityKind = new SimpleQuantityKind(Guid.NewGuid(), null, null)
             {
-                ShortName = "m"
+                ShortName = "m",
+                Name = "mass"
             };
 
             var simpleQuantityKind2 = new SimpleQuantityKind(Guid.NewGuid(), null, null)
             {
-                ShortName = "v"
+                ShortName = "v",
+                Name = "volume"
             };
 
             var parameter = new Parameter(Guid.NewGuid(), cache, uri)
@@ -346,6 +348,25 @@ namespace COMETwebapp.Tests.IterationServiceTest
         {
             Assert.AreEqual(1, iterationService.GetNumberUpdates(this.iteration, this.currentDomainOfExpertise));
             Assert.AreEqual(0, iterationService.GetNumberUpdates(this.iteration, this.domainOfExpertise));
+        }
+
+        [Test]
+        public void VerifyGetParameterTypes()
+        {
+            var parameterTypes = iterationService.GetParameterTypes(this.iteration);
+            Assert.That(parameterTypes.Count, Is.EqualTo(2));
+
+            var parameterTypeNames = new List<string>();
+            parameterTypes.ForEach(p => parameterTypeNames.Add(p.Name));
+            Assert.That(parameterTypeNames.Contains("mass"), Is.True);
+            Assert.That(parameterTypeNames.Contains("volume"), Is.True);
+        }
+
+        [Test]
+        public void VerifyGetParameterValueSetsByParameterType()
+        {
+            Assert.That(iterationService.GetParameterValueSetsByParameterType(this.iteration, "mass").Count, Is.EqualTo(2));
+            Assert.That(iterationService.GetParameterValueSetsByParameterType(this.iteration, "volume").Count, Is.EqualTo(0));
         }
     }
 }

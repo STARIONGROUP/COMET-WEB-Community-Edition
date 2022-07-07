@@ -69,6 +69,13 @@ Copyright (c) 2022 RHEA System S.A.
     public Guid? FilterState { get; set; }
 
     /// <summary>
+    /// Name of parameter type to filter the data
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? FilterParameterType { get; set; }
+
+    /// <summary>
     /// The criteria to filter ParameterValueSet list
     /// </summary>
     [Parameter]
@@ -89,6 +96,7 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.FilterOption = FilterOption ?? null;
         this.FilterState = FilterState ?? null;
+        this.FilterParameterType = FilterParameterType ?? null;
         this.Criteria = Criteria ?? null;
         this.Domain = Domain ?? null;
     }
@@ -145,7 +153,7 @@ Copyright (c) 2022 RHEA System S.A.
 
             List<ParameterValueSet> parameterValueSets = this.IterationService.GetParameterValueSets(iteration);
 
-            this.FilterDomainCriteriaOptionState(parameterValueSets).ForEach(valueSet =>
+            this.FilterDomainCriteriaOptionStateParameterType(parameterValueSets).ForEach(valueSet =>
             {
                 var associatedParameter = parameters.Find(p => p.ValueSet.Contains(valueSet));
                 Parameters.Add(new BuiltParameter()
@@ -168,23 +176,23 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="parameterValueSets">List of ParameterValueSet to filter</param>
     /// <returns>The filtered list</returns>
-    private List<ParameterValueSet> FilterDomainCriteriaOptionState(List<ParameterValueSet> parameterValueSets)
+    private List<ParameterValueSet> FilterDomainCriteriaOptionStateParameterType(List<ParameterValueSet> parameterValueSets)
     {
         parameterValueSets.RemoveAll(p => !p.Owner.ShortName.Equals(this.Domain));
 
-        if (this.Criteria is not null && this.Criteria.Equals("Published parameters"))
+        if (this.Criteria is not null && this.Criteria.Equals("Published Parameters"))
         {
             parameterValueSets.RemoveAll(p => !p.Published.SequenceEqual(p.ActualValue));
 
-        } else if(this.Criteria is not null && this.Criteria.Equals("Publishable parameters"))
+        } else if(this.Criteria is not null && this.Criteria.Equals("Publishable Parameters"))
         {
             parameterValueSets.RemoveAll(p => p.Published.SequenceEqual(p.ActualValue));
 
-        } else if (this.Criteria is not null && this.Criteria.Equals("Published values as default"))
+        } else if (this.Criteria is not null && this.Criteria.Equals("Published Values as Default"))
         {
             parameterValueSets.RemoveAll(p => p.Published.Count(el => !el.Equals("-")) != 0);
 
-        } else if (this.Criteria is not null && this.Criteria.Equals("Other values"))
+        } else if (this.Criteria is not null && this.Criteria.Equals("Other Values"))
         {
             parameterValueSets.RemoveAll(p => p.Published.Count(el => !el.Equals("-")) == 0);
         }
@@ -208,6 +216,13 @@ Copyright (c) 2022 RHEA System S.A.
         if (this.FilterState != null)
         {
             parameterValueSets.RemoveAll(d => d.ActualState == null || (d.ActualState != null && d.ActualState.Iid != this.FilterState));
+        }
+
+        Console.WriteLine(this.FilterParameterType);
+        if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
+        {
+            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.GetIteration(), this.FilterParameterType);
+            parameterValueSets.RemoveAll(d => !parameterValueSetsByParameterType.Contains(d));
         }
 
         return parameterValueSets;
