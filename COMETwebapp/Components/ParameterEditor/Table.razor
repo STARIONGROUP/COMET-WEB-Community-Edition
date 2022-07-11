@@ -1,0 +1,180 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@if(this.Parameter != null && this.ParameterValueSet != null)
+{
+    var modelCode = this.ParameterValueSet.ModelCode().Split("\\");
+    <BSTR AlignRow="AlignRow.Middle">
+        <BSTD>@Parameter.ParameterType.Name</BSTD>
+        @if(modelCode.Count() == 1)
+        {
+            <BSTD>@modelCode[0]</BSTD>
+        } else if(modelCode.Count()  == 2)
+        {
+            <BSTD>
+                @modelCode[0]
+                <div>
+                    Option: @modelCode[1]
+                </div>
+            </BSTD>
+        } else if(modelCode.Count() > 2)
+        {
+            <BSTD>
+                @modelCode[0]
+                <div>
+                    Option: @modelCode[1]
+                </div>
+                <div>
+                    State: @modelCode[2]
+                </div>
+            </BSTD>
+        }
+        @if(this.Parameter.ParameterType.NumberOfValues == 1)
+        {
+            <BSTD>
+                <ScalarParameter Value="@ParameterValueSet.Published.First()" Scale="@Parameter.Scale?.ShortName" />
+            </BSTD>
+            <BSTD>
+                <ScalarParameter Value="@ParameterValueSet.ActualValue.First()" Scale="@Parameter.Scale?.ShortName" />
+            </BSTD>
+            <BSTD>
+                <ScalarParameter Value="@ParameterValueSet.Computed.First()" Scale="@Parameter.Scale?.ShortName" />
+            </BSTD>
+            <BSTD>
+                <ScalarParameter Value="@ParameterValueSet.Manual.First()" Scale="@Parameter.Scale?.ShortName" />
+            </BSTD>
+            <BSTD>
+                <ScalarParameter Value="@ParameterValueSet.Reference.First()" Scale="@Parameter.Scale?.ShortName" />
+            </BSTD>
+        } else if(this.Parameter.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
+        {
+            <BSTD>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Published"/>
+            </BSTD>
+            <BSTD>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.ActualValue"/>
+            </BSTD>
+            <BSTD>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Computed"/>
+            </BSTD>
+            <BSTD>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Manual"/>
+            </BSTD>
+            <BSTD>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Reference"/>
+            </BSTD>
+        } else
+        {
+            var compoundParameterType = (CompoundParameterType)this.Parameter.ParameterType;
+            var components = compoundParameterType?.Component.ToList();
+            if(components != null && compoundParameterType != null)
+            {
+                <BSTD>
+                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                        @foreach(var component in components)
+                        {
+                            var indexStart = 0;
+                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            {
+                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+
+                            }
+                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Published" Component="component"/>
+                        }
+                    </div>                                                
+                </BSTD>
+                <BSTD>
+                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                        @foreach(var component in components)
+                        {
+                            var indexStart = 0;
+                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            {
+                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+
+                            }
+                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.ActualValue" Component="component"/>
+                        }
+                    </div>                                               
+                </BSTD>
+                <BSTD>
+                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                        @foreach(var component in components)
+                        {
+                            var indexStart = 0;
+                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            {
+                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+
+                            }
+                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Computed" Component="component"/>
+                        }
+                    </div>                                                    
+                </BSTD>
+                <BSTD>
+                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                        @foreach(var component in components)
+                        {
+                            var indexStart = 0;
+                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            {
+                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+
+                            }
+                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Manual" Component="component"/>
+                        }
+                    </div>                                               
+                </BSTD>
+                <BSTD>
+                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                        @foreach(var component in components)
+                        {
+                            var indexStart = 0;
+                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            {
+                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+
+                            }
+                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Reference" Component="component"/>
+                        }
+                    </div>
+                </BSTD>
+            }
+        }
+        <BSTD>@ParameterValueSet.ValueSwitch.ToString()</BSTD>
+        <BSTD>@Parameter.Owner.ShortName</BSTD>
+    </BSTR>
+}
+
+@code {
+    /// <summary>
+    /// The ParameterValueSet to show in the table
+    /// </summary>
+    [Parameter]
+    public ParameterValueSetBase? ParameterValueSet { get; set; }
+
+    /// <summary>
+    /// The associated Parameter to show
+    /// </summary>
+    [Parameter]
+    public ParameterOrOverrideBase? Parameter { get; set; }
+}
