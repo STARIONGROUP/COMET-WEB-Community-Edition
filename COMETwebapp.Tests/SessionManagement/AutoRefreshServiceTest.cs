@@ -62,6 +62,8 @@ namespace COMETwebapp.Tests.SessionManagement
             this.autoRefreshService.SetTimer();
             Thread.Sleep(5000);
             this.sessionAnchor.Verify(x => x.RefreshSession(), Times.Never);
+
+            this.autoRefreshService.Dispose();
         }
     }
 }
