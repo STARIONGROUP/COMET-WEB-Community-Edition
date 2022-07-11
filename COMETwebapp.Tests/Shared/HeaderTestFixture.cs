@@ -29,7 +29,7 @@ namespace COMETwebapp.Tests.Shared
     using COMETwebapp.Components;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
-
+    using COMETwebapp.Utilities;
     using DevExpress.Blazor.Internal;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -48,11 +48,14 @@ namespace COMETwebapp.Tests.Shared
 
         private Mock<IEnvironmentInfo> environmentInfo;
 
+        private Mock<IVersionService> versionService;
+
         [SetUp]
         public void SetUp()
         {
             this.sessionAnchor = new Mock<ISessionAnchor>();
             this.environmentInfo = new Mock<IEnvironmentInfo>();
+            this.versionService = new Mock<IVersionService>();
         }
 
         [Test]
@@ -61,6 +64,7 @@ namespace COMETwebapp.Tests.Shared
             using var ctx = new Bunit.TestContext();
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
+            ctx.Services.AddSingleton<IVersionService>(this.versionService.Object);
 
             var authContext = ctx.AddTestAuthorization();
             authContext.SetNotAuthorized();
@@ -76,6 +80,7 @@ namespace COMETwebapp.Tests.Shared
             using var ctx = new Bunit.TestContext();
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
+            ctx.Services.AddSingleton<IVersionService>(this.versionService.Object);
 
             var authContext = ctx.AddTestAuthorization();
             authContext.SetAuthorized("TEST USER");
