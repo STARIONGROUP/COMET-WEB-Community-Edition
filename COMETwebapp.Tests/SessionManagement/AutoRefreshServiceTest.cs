@@ -29,58 +29,39 @@ namespace COMETwebapp.Tests.SessionManagement
     using Moq;
     using NUnit.Framework;
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Reactive.Linq;
     using System.Threading;
-    using System.Threading.Tasks;
 
     [TestFixture]
     internal class AutoRefreshServiceTest
     {
-        private Mock<ISession> session;
-        private ISessionAnchor sessionAnchor;
+        private Mock<ISessionAnchor> sessionAnchor;
         private AutoRefreshService autoRefreshService;
 
         [SetUp]
         public void Setup()
         {
-            this.session = new Mock<ISession>();
-            this.sessionAnchor = new SessionAnchor() { Session = this.session.Object };
-            this.autoRefreshService = new AutoRefreshService(this.sessionAnchor);
+            
+            this.sessionAnchor = new Mock<ISessionAnchor>();
+            
+            this.autoRefreshService = new AutoRefreshService(this.sessionAnchor.Object);
         }
 
         [Test]
         public void VerifySetTimer()
         {
             this.autoRefreshService.IsAutoRefreshEnabled = true;
+            this.autoRefreshService.AutoRefreshInterval = 1;
             this.autoRefreshService.SetTimer();
-            Assert.That(this.autoRefreshService.Timer, Is.Not.Null);
-            Assert.That(this.autoRefreshService.Timer.Enabled, Is.True);
+            Thread.Sleep(5000);
+            this.sessionAnchor.Verify(x => x.RefreshSession(), Times.AtLeastOnce);
+
+            this.sessionAnchor.Invocations.Clear();
 
             this.autoRefreshService.IsAutoRefreshEnabled = false;
             this.autoRefreshService.SetTimer();
-            Assert.That(this.autoRefreshService.Timer.Enabled, Is.False);
-
-
-            var beginRefreshReceived = false;
-            var endRefreshReceived = false;
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
-            {
-                beginRefreshReceived = true;
-            });
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                endRefreshReceived = true;
-            });
-
-            this.autoRefreshService.IsAutoRefreshEnabled = true;
-            this.autoRefreshService.AutoRefreshInterval = 3;
-            this.autoRefreshService.SetTimer();
             Thread.Sleep(5000);
-
-            Assert.That(beginRefreshReceived, Is.True);
-            Assert.That(endRefreshReceived, Is.True);
+            this.sessionAnchor.Verify(x => x.RefreshSession(), Times.Never);
         }
     }
 }

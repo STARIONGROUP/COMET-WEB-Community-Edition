@@ -32,11 +32,6 @@ namespace COMETwebapp.SessionManagement
     public interface IAutoRefreshService
     {
         /// <summary>
-        /// The timer
-        /// </summary>
-        Timer? Timer { get; set; }
-
-        /// <summary>
         /// Enable / disable auto-refresh for the ISession
         /// </summary>
         bool IsAutoRefreshEnabled { get; set; }
@@ -51,12 +46,5 @@ namespace COMETwebapp.SessionManagement
         /// Sets the timer according to the appropriate setting
         /// </summary>
         void SetTimer();
-
-        /// <summary>
-        /// The eventhandler to handle elapse of one second.
-        /// </summary>
-        /// <param name="sender">The sender</param>
-        /// <param name="e">The event arguments.</param>
-        void OntTimerElapsed(object? sender, EventArgs? e);
     }
 }

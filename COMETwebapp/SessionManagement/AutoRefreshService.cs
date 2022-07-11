@@ -29,7 +29,7 @@ namespace COMETwebapp.SessionManagement
     /// <summary>
     /// Service to enable auto-refresh of the opened session
     /// </summary>
-    public class AutoRefreshService : IAutoRefreshService
+    public class AutoRefreshService : IAutoRefreshService, IDisposable
     {
         /// <summary>
         /// The <see cref="ISessionAnchor"/> used to get access to the <see cref="ISession"/>
@@ -44,7 +44,7 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// The timer
         /// </summary>
-        public Timer? Timer { get; set; }
+        private Timer timer { get; set; }
 
         /// <summary>
         /// Enable / disable auto-refresh for the ISession
@@ -66,6 +66,8 @@ namespace COMETwebapp.SessionManagement
         public AutoRefreshService(ISessionAnchor sessionAnchor)
         {
             this.sessionAnchor = sessionAnchor;
+            this.timer = new Timer(1000);
+            this.timer.Elapsed += this.OntTimerElapsed;
         }
 
         /// <summary>
@@ -76,15 +78,11 @@ namespace COMETwebapp.SessionManagement
             if (this.IsAutoRefreshEnabled)
             {
                 this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
-
-                this.Timer = new Timer(1000);
-                this.Timer.Elapsed += this.OntTimerElapsed;
-                this.Timer.Start();
+                this.timer.Start();
             }
-            else if (this.Timer != null)
+            else 
             {
-                this.Timer.Elapsed -= this.OntTimerElapsed;
-                this.Timer.Stop();
+                this.timer.Stop();
             }
         }
 
@@ -93,17 +91,30 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="sender">The sender</param>
         /// <param name="e">The event arguments.</param>
-        public async void OntTimerElapsed(object? sender, EventArgs? e)
+        private async void OntTimerElapsed(object? sender, EventArgs? e)
         {
             this.autoRefreshSecondsLeft -= 1;
 
             if (this.autoRefreshSecondsLeft == 0)
             {
-                this.Timer?.Stop();
+                this.timer.Stop();
                 await this.sessionAnchor.RefreshSession();
 
                 this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
-                this.Timer?.Start();
+                this.timer.Start();
+            }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                this.timer.Elapsed -= this.OntTimerElapsed;
+                this.timer.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }
