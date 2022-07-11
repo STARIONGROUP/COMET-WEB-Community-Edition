@@ -20,13 +20,9 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inject ISessionAnchor ISessionAnchor
+@inject IVersionService VersionService
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col text-align-center">
-            <h1 class="font-weight-bold color-title">@Title</h1>
-        </div>
-    </div>
     <div class="row m-top-10px">
         @if (this.ISessionAnchor.GetIteration() is not null)
         {
@@ -54,4 +50,13 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public RenderFragment? Body { get; set; }
+
+    /// <summary>
+    /// Sets the active application
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        this.VersionService.ActiveApplication = this.Title;
+        CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.ApplicationOpened);
+    }
 }

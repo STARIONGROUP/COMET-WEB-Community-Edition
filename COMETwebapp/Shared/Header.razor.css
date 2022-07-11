@@ -96,3 +96,9 @@
         display: none;
     }
 }
+
+@media(max-width: 480px){
+    .app-title{
+        display: none ;
+    }
+}

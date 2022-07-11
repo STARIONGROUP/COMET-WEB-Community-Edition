@@ -21,6 +21,7 @@
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
+@inject IVersionService VersionService
 @implements IDisposable
 
 <nav class="navbar header-navbar p-0">
@@ -41,13 +42,26 @@
 
         <div class="container-fluid">
             <div class="row">
-                <div class="col">
+                <div class="col-3">
                     <div class="display-flex align-items-center">
                         <img src="images/COMET-Symbol.png" class="logo-size p-1" title="COMET Community Edition" alt="COMET Community Edition"/>
                         <div class="font-weight-bold title title-item">COMET Community Edition</div>
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-4 text-align-center align-self-center app-title">
+                    <AuthorizeView>
+		                <Authorized>
+                            @if(VersionService.ActiveApplication != null)
+                            {
+                                
+                                    <h3 class="m-0 font-weight-bold color-title">
+                                        @VersionService.ActiveApplication
+                                    </h3> 
+                            }
+                        </Authorized>
+	                </AuthorizeView>
+                </div>
+                <div class="col-5">
                     <div class="display-flex justify-content-end align-items-center height-100 m-right-3px">
                         <AuthorizeView>
 		                    <Authorized>
@@ -58,11 +72,10 @@
                                     </div>
                                 } else
                                 {
-                                     <div class="m-right-10px user-info">
+                                    <div class="m-right-10px user-info">
                                         @context.User.Identity?.Name
                                     </div>   
                                 }
-                                
                                 <UserPreferences Username="@context.User.Identity?.Name"/>
 
                                 <div class="refresh-button">
@@ -105,6 +118,14 @@
         if (!this.listeners.TryGetValue("IterationChanges", out var listener))
         {
             this.listeners.Add("IterationChanges", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.IterationOpened || x == SessionStateKind.IterationClosed).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("ApplicationChanges", out listener))
+        {
+            this.listeners.Add("ApplicationChanges", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.ApplicationOpened || x == SessionStateKind.ApplicationClosed).Subscribe(x =>
             {
                 this.StateHasChanged();
             }));
