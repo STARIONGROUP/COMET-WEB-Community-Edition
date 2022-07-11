@@ -29,7 +29,7 @@ namespace COMETwebapp.Tests.Shared
     using COMETwebapp.Components;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
-
+    using COMETwebapp.Utilities;
     using DevExpress.Blazor.Internal;
 
     using Microsoft.Extensions.DependencyInjection;

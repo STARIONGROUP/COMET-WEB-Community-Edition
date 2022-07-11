@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SessionStateKind.cs" company="RHEA System S.A.">
+// <copyright file="ApplicationEvent.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -22,46 +22,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.SessionManagement
+namespace COMETwebapp.Utilities
 {
     /// <summary>
-    /// Define state of the ISession
+    /// Event when active application changes
     /// </summary>
-    public enum SessionStateKind
+    public class ApplicationEvent
     {
         /// <summary>
-        /// When a different application is opened
+        /// Initializes a new instance of the <see cref="ApplicationEvent"/> class.
         /// </summary>
-        ApplicationOpened,
+        /// <param name="applicationName">Name of the active application</param>
+        public ApplicationEvent(string? applicationName)
+        {
+            this.ApplicationName = applicationName;
+        }
 
         /// <summary>
-        /// When the active application is closed
+        /// Name of the active application
         /// </summary>
-        ApplicationClosed,
-
-        /// <summary>
-        /// When an iteration is opened
-        /// </summary>
-        IterationOpened,
-
-        /// <summary>
-        /// When an iteration is closed
-        /// </summary>
-        IterationClosed,
-
-        /// <summary>
-        /// When refresh is in progress
-        /// </summary>
-        Refreshing,
-
-        /// <summary>
-        /// When action is done
-        /// </summary>
-        UpToDate,
-
-        /// <summary>
-        /// When some updates are validated
-        /// </summary>
-        UpdatesAreValidated
+        public string? ApplicationName { get; set; }
     }
 }

@@ -64,6 +64,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
+        CDPMessageBus.Current.SendMessage<ApplicationEvent>(new ApplicationEvent(null));
         var application = new ApplicationCards();
         this.Cards = application.Cards;
     }

@@ -25,12 +25,12 @@
 namespace COMETwebapp.Utilities
 {
     /// <summary>
-    /// Service to get version of the running application
+    /// Service to get version of the running COMET Web application
     /// </summary>
     public class VersionService : IVersionService
     {
         /// <summary>
-        /// Ge version of the running application
+        /// Gets version of the running COMET Web application
         /// </summary>
         public string? GetVersion()
         {

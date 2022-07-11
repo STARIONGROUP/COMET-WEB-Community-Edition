@@ -22,11 +22,6 @@ Copyright (c) 2022 RHEA System S.A.
 @inject ISessionAnchor ISessionAnchor
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col text-align-center">
-            <h1 class="font-weight-bold color-title">@Title</h1>
-        </div>
-    </div>
     <div class="row m-top-10px">
         @if (this.ISessionAnchor.GetIteration() is not null)
         {
@@ -54,4 +49,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public RenderFragment? Body { get; set; }
+
+    /// <summary>
+    /// Sets the active application
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        CDPMessageBus.Current.SendMessage<ApplicationEvent>(new ApplicationEvent(this.Title));
+    }
 }

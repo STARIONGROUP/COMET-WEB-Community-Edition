@@ -110,6 +110,7 @@ Copyright (c) 2022 RHEA System S.A.
 	/// </summary>
 	protected override async Task OnInitializedAsync()
 	{
+        CDPMessageBus.Current.SendMessage<ApplicationEvent>(new ApplicationEvent(null));
 		this.cometWebVersion = this.VersionService.GetVersion();
 		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
 	}
