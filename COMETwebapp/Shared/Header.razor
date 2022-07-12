@@ -21,7 +21,7 @@
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@inject IVersionService VersionService
+@inject IActiveApplicationService IActiveApplicationService
 @implements IDisposable
 
 <nav class="navbar header-navbar p-0">
@@ -51,11 +51,11 @@
                 <div class="col-4 text-align-center align-self-center app-title">
                     <AuthorizeView>
 		                <Authorized>
-                            @if(VersionService.ActiveApplication != null)
+                            @if(this.IActiveApplicationService.ActiveApplication != null)
                             {
                                 
                                     <h3 class="m-0 font-weight-bold color-title">
-                                        @VersionService.ActiveApplication
+                                        @IActiveApplicationService.ActiveApplication
                                     </h3> 
                             }
                         </Authorized>

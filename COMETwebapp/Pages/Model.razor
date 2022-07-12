@@ -23,7 +23,7 @@ Copyright (c) 2022 RHEA System S.A.
 @page "/{modelName}"
 @inject ISessionAnchor SessionAnchor
 @inject NavigationManager NavigationManager
-@inject IVersionService VersionService
+@inject IActiveApplicationService IActiveApplicationService
 
 <div class="container-fluid">
     <div class="row">
@@ -65,7 +65,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        this.VersionService.ActiveApplication = null;
+        this.IActiveApplicationService.ActiveApplication = null;
         CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.ApplicationOpened);
         var application = new ApplicationCards();
         this.Cards = application.Cards;

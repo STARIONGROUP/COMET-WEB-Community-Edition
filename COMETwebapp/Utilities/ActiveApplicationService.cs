@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VersionService.cs" company="RHEA System S.A.">
+// <copyright file="ActiveApplicationService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -25,16 +25,13 @@
 namespace COMETwebapp.Utilities
 {
     /// <summary>
-    /// Service to get version of the running COMET Web application
+    /// Service to get the name of the active application
     /// </summary>
-    public class VersionService : IVersionService
+    public class ActiveApplicationService : IActiveApplicationService
     {
         /// <summary>
-        /// Gets version of the running COMET Web application
+        /// Name of the active application
         /// </summary>
-        public string? GetVersion()
-        {
-            return typeof(Program).Assembly.GetName().Version?.ToString();
-        }
+        public string? ActiveApplication { get; set; }
     }
 }
