@@ -21,7 +21,6 @@
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@inject IActiveApplicationService IActiveApplicationService
 @implements IDisposable
 
 <nav class="navbar header-navbar p-0">
@@ -51,11 +50,11 @@
                 <div class="col-4 text-align-center align-self-center app-title">
                     <AuthorizeView>
 		                <Authorized>
-                            @if(this.IActiveApplicationService.ActiveApplication != null)
+                            @if(this.applicationTitle != null)
                             {
                                 
                                     <h3 class="m-0 font-weight-bold color-title">
-                                        @IActiveApplicationService.ActiveApplication
+                                        @applicationTitle
                                     </h3> 
                             }
                         </Authorized>
@@ -101,6 +100,11 @@
     public bool renderCanvas { get; set; } = true;
 
     /// <summary>
+    /// Title of the active application
+    /// </summary>
+    private string? applicationTitle { get; set; }
+
+    /// <summary>
     /// <see cref="BSOffCanvas"> for the application menu
     /// </summary>
     private BSOffCanvas? offCanvas;
@@ -123,10 +127,11 @@
             }));
         }
 
-        if (!this.listeners.TryGetValue("ApplicationChanges", out listener))
+        if (!this.listeners.TryGetValue("ApplicationName", out listener))
         {
-            this.listeners.Add("ApplicationChanges", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.ApplicationOpened || x == SessionStateKind.ApplicationClosed).Subscribe(x =>
+            this.listeners.Add("ApplicationName", CDPMessageBus.Current.Listen<ApplicationEvent>().Subscribe(x =>
             {
+                this.applicationTitle = x.ApplicationName;
                 this.StateHasChanged();
             }));
         }

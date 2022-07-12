@@ -48,14 +48,11 @@ namespace COMETwebapp.Tests.Shared
 
         private Mock<IEnvironmentInfo> environmentInfo;
 
-        private Mock<IActiveApplicationService> activeApplicationService;
-
         [SetUp]
         public void SetUp()
         {
             this.sessionAnchor = new Mock<ISessionAnchor>();
             this.environmentInfo = new Mock<IEnvironmentInfo>();
-            this.activeApplicationService = new Mock<IActiveApplicationService>();
         }
 
         [Test]
@@ -64,7 +61,6 @@ namespace COMETwebapp.Tests.Shared
             using var ctx = new Bunit.TestContext();
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
-            ctx.Services.AddSingleton<IActiveApplicationService>(this.activeApplicationService.Object);
 
             var authContext = ctx.AddTestAuthorization();
             authContext.SetNotAuthorized();
@@ -80,7 +76,6 @@ namespace COMETwebapp.Tests.Shared
             using var ctx = new Bunit.TestContext();
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
-            ctx.Services.AddSingleton<IActiveApplicationService>(this.activeApplicationService.Object);
 
             var authContext = ctx.AddTestAuthorization();
             authContext.SetAuthorized("TEST USER");

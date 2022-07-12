@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IActiveApplicationService.cs" company="RHEA System S.A.">
+// <copyright file="ApplicationEvent.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -25,13 +25,22 @@
 namespace COMETwebapp.Utilities
 {
     /// <summary>
-    /// Service to get the name of the active application
+    /// Event when active application changes
     /// </summary>
-    public interface IActiveApplicationService
+    public class ApplicationEvent
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplicationEvent"/> class.
+        /// </summary>
+        /// <param name="applicationName">Name of the active application</param>
+        public ApplicationEvent(string? applicationName)
+        {
+            this.ApplicationName = applicationName;
+        }
+
         /// <summary>
         /// Name of the active application
         /// </summary>
-        string? ActiveApplication { get; set; }
+        public string? ApplicationName { get; set; }
     }
 }

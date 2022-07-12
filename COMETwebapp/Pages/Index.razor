@@ -27,7 +27,6 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
-@inject IActiveApplicationService IActiveApplicationService
 
 <div class="container height-90">
     <div class="row justify-content-center">
@@ -111,8 +110,7 @@ Copyright (c) 2022 RHEA System S.A.
 	/// </summary>
 	protected override async Task OnInitializedAsync()
 	{
-        this.IActiveApplicationService.ActiveApplication = null;
-        CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.ApplicationOpened);
+        CDPMessageBus.Current.SendMessage<ApplicationEvent>(new ApplicationEvent(null));
 		this.cometWebVersion = this.VersionService.GetVersion();
 		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
 	}

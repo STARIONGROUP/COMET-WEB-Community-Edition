@@ -52,7 +52,6 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IIterationService, IterationService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
-            builder.Services.AddSingleton<IActiveApplicationService, ActiveApplicationService>();
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();
