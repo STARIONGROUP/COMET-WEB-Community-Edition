@@ -142,6 +142,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
+        this.Elements.Clear();
         this.InitializeElements();
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
@@ -168,7 +169,6 @@ Copyright (c) 2022 RHEA System S.A.
     public void InitializeElements()
     {
         this.TopElement = this.ISessionAnchor.GetIteration()?.TopElement;
-
         var allElementsUsages = new List<ElementUsage>();
         var newElementUsages = new List<ElementUsage>();
         if(this.TopElement != null)
@@ -187,6 +187,6 @@ Copyright (c) 2022 RHEA System S.A.
             allElementsUsages.AddRange(newElementUsages);
             newElementUsages.Clear();
         }
-        this.Elements.AddRange(allElementsUsages);
+        this.Elements.AddRange(allElementsUsages.DistinctBy(e => e.Iid));
     }
 }
