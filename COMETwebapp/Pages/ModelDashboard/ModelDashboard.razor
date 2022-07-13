@@ -35,43 +35,52 @@ Copyright (c) 2022 RHEA System S.A.
                 }
                 @if(iteration != null && iteration.Option.ToList().Count > 1)
                 {
+                    var optionNames = new List<string>();
+                    iteration.Option.OrderBy(o => o.Name).ToList().ForEach(o => optionNames.Add(o.Name));
+                    
                     <div class="col-2 width-fit-content">
                         <h6>Filter on Option:</h6>
-                        <select @bind="this.FilterOption" @oninput="UpdateFilterOption">
-                            <option value="">--Select--</option>
-                            @foreach(var option in iteration.Option.ToList())
-                            {
-                                <option value="@option.Iid">@option.Name</option>
-                            }
-                        </select>
+                        <DxComboBox Data="@optionNames"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.optionSelected"
+                            ValueChanged="@((string option) => UpdateFilterOption(option))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
                 }
                 @if (iteration != null && iteration.ActualFiniteStateList.Any())
                 {
+                    var actualStates = new List<string>();
+                    iteration.ActualFiniteStateList.ForEach(l =>
+                    {
+                        l.ActualState.ForEach(s =>
+                        {
+                            actualStates.Add(s.Name);
+                        });
+                    });
+
                     <div class="col-2 width-fit-content">
                         <h6>Filter on State:</h6>
-                        <select @bind="this.FilterState" @oninput="UpdateFilterState">
-                            <option value="">--Select--</option>
-                            @foreach(var stateList in iteration.ActualFiniteStateList)
-                            {
-                                @foreach(var state in stateList.ActualState)
-                                {
-                                    <option value="@state.Iid">@state.Name</option>
-                                }    
-                            }
-                        </select>
+                        <DxComboBox Data="@actualStates.OrderBy(e => e)"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.stateSelected"
+                            ValueChanged="@((string actualState) => UpdateFilterState(actualState))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
                 }
-                @if(iteration != null && this.ParameterTypes.Count != 0){
+                @if(iteration != null && this.ParameterTypeNames.Count != 0){
                     <div class="col-2 width-fit-content">
                         <h6>Filter on Parameter Type:</h6>
-                        <select @bind="this.FilterParameterType" @oninput="UpdateFilterParameterType">
-                            <option value="">--Select--</option>
-                            @foreach(var parameterType in this.ParameterTypes)
-                            {
-                                <option value="@parameterType.Name">@parameterType.Name</option>
-                            }
-                        </select>
+                        <DxComboBox Data="@ParameterTypeNames"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.FilterParameterType"
+                            ValueChanged="@((string parameterTypeName) => UpdateFilterParameterType(parameterTypeName))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
                 }
                 <div class="col"></div>
@@ -109,11 +118,24 @@ Copyright (c) 2022 RHEA System S.A.
     public string? FilterParameterType { get; set; }
 
     /// <summary>
+    /// Name of the option selected in the select
+    /// </summary>
+    private string? optionSelected { get; set; }
+
+    /// <summary>
+    /// Name of the state selected in the select
+    /// </summary>
+    private string? stateSelected { get; set; }
+
+    /// <summary>
     /// Index of the active widget
     /// </summary>
     public int ActiveTabIndex { get; set; } = 0;
 
-    public List<ParameterType> ParameterTypes = new List<ParameterType>();
+    /// <summary>
+    /// All ParameterType names in the model
+    /// </summary>
+    public List<string> ParameterTypeNames = new List<string>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -125,7 +147,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        this.ParameterTypes = this.IterationService.GetParameterTypes(this.ISessionAnchor.GetIteration());
+        this.ParameterTypeNames = new List<string>();
+        this.IterationService.GetParameterTypes(this.ISessionAnchor.GetIteration()).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
@@ -153,33 +176,70 @@ Copyright (c) 2022 RHEA System S.A.
         this.FilterOption = FilterOption ?? null;
         this.FilterState = FilterState ?? null;
         this.FilterParameterType = FilterParameterType ?? null;
+
+        var iteration = this.ISessionAnchor.GetIteration();
+        if(this.FilterOption != null)
+        {
+            this.optionSelected = iteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
+        }
+        if (this.FilterState != null)
+        {
+            iteration?.ActualFiniteStateList.ForEach(l =>
+            {
+                this.stateSelected = l.ActualState.Find(s => s.Iid == this.FilterState)?.Name;
+
+            });
+        }
     }
 
     /// <summary>
     /// Navigate to the page depending on the selected <see cref="FilterOption"/>
     /// </summary>
     /// <param name="e">Event raised when any change appears in the select component</param>
-    public void UpdateFilterOption(ChangeEventArgs e)
+    public void UpdateFilterOption(string? optionName)
     {
-        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={e.Value?.ToString()}&filterstate={this.FilterState}&filterparametertype={this.FilterParameterType}");
+        this.optionSelected = optionName;
+        if(this.optionSelected != null)
+        {
+            this.FilterOption = this.ISessionAnchor.GetIteration()?.Option.ToList().Find(o => o.Name == this.optionSelected)?.Iid;
+        } else
+        {
+            this.FilterOption = null;
+        }
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={this.FilterParameterType}");
     }
 
     /// <summary>
     /// Navigate to the page depending on the selected <see cref="FilterState"/>
     /// </summary>
     /// <param name="e">Event raised when any change appears in the select component</param>
-    public void UpdateFilterState(ChangeEventArgs e)
+    public void UpdateFilterState(string? state)
     {
-        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={e.Value?.ToString()}&filterparametertype={this.FilterParameterType}");
+        this.stateSelected = state;
+        if (this.stateSelected != null)
+        {
+            var actualStates = new List<ActualFiniteState>();
+            this.ISessionAnchor.GetIteration()?.ActualFiniteStateList.ForEach(l =>
+            {
+                actualStates.AddRange(l.ActualState);
+
+            });
+            this.FilterState = actualStates.Find(s => s.Name == this.stateSelected)?.Iid;
+        } else
+        {
+            this.FilterState = null;
+        }
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={this.FilterParameterType}");
     }
 
     /// <summary>
     /// Navigate to the page depending on the selected <see cref="FilterState"/>
     /// </summary>
     /// <param name="e">Event raised when any change appears in the select component</param>
-    public void UpdateFilterParameterType(ChangeEventArgs e)
+    public void UpdateFilterParameterType(string? parameterTypeName)
     {
-        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={e.Value?.ToString()}");
+        this.FilterParameterType = parameterTypeName;
+        this.NavigationManager.NavigateTo($"/ModelDashboard?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={parameterTypeName}");
     }
 }
 
