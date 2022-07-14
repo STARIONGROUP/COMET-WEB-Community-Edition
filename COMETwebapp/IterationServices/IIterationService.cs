@@ -129,5 +129,11 @@ namespace COMETwebapp.IterationServices
         /// </param>
         /// <returns>All <see cref="ParameterValueSet" for the given parameter type/></returns>
         List<ParameterValueSet> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName);
+
+        /// <summary>
+        /// Gets all <see cref="ElementUsage"/> in the given iteration
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> for which the <see cref="ElementUsage"/>s list is created</param>
+        IEnumerable<ElementUsage> GetElementUsages(Iteration? iteration);
     }
 }

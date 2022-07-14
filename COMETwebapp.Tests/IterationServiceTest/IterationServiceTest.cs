@@ -45,6 +45,7 @@ namespace COMETwebapp.Tests.IterationServiceTest
         private List<ParameterSubscription> parameterSubscriptions;
         private List<ElementDefinition> unReferencedElements;
         private List<ElementDefinition> unUsedElements;
+        private List<ElementBase> elementUsages;
         private DomainOfExpertise currentDomainOfExpertise;
         private DomainOfExpertise domainOfExpertise;
         private SiteDirectory siteDirectory;
@@ -274,6 +275,11 @@ namespace COMETwebapp.Tests.IterationServiceTest
             {
                 elementDefinition_1
             };
+            this.elementUsages = new List<ElementBase>()
+            {
+                elementUsage_1,
+                elementUsage_2
+            };
 
             PropertyInfo nameProperty = typeof(ParameterValueSet).GetProperty("RevisionNumber");
             nameProperty.SetValue(parameterValueset_1, 2);
@@ -367,6 +373,13 @@ namespace COMETwebapp.Tests.IterationServiceTest
         {
             Assert.That(iterationService.GetParameterValueSetsByParameterType(this.iteration, "mass").Count, Is.EqualTo(2));
             Assert.That(iterationService.GetParameterValueSetsByParameterType(this.iteration, "volume").Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void VerifyFetElementUsages()
+        {
+            Assert.That(iterationService.GetElementUsages(this.iteration).Count, Is.EqualTo(2));
+            Assert.That(iterationService.GetElementUsages(this.iteration), Is.EqualTo(this.elementUsages));
         }
     }
 }
