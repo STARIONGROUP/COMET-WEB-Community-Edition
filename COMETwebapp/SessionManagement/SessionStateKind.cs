@@ -30,16 +30,6 @@ namespace COMETwebapp.SessionManagement
     public enum SessionStateKind
     {
         /// <summary>
-        /// When a different application is opened
-        /// </summary>
-        ApplicationOpened,
-
-        /// <summary>
-        /// When the active application is closed
-        /// </summary>
-        ApplicationClosed,
-
-        /// <summary>
         /// When an iteration is opened
         /// </summary>
         IterationOpened,

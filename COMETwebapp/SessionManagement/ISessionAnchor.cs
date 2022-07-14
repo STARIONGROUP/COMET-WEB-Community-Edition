@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.SessionManagement
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Dal;
@@ -110,5 +111,17 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="DomainOfExpertise">The domain</param>
         void SwitchDomain(DomainOfExpertise? DomainOfExpertise);
+
+        /// <summary>
+        /// Write new Things in the session
+        /// </summary>
+        /// <param name="thingsToCreate">List of Things to create in the session</param>
+        Task CreateThings(IEnumerable<Thing> thingsToCreate);
+
+        /// <summary>
+        /// Write updated Things in the session
+        /// </summary>
+        /// <param name="thingsToCreate">List of Things to update in the session</param>
+        Task UpdateThings(IEnumerable<Thing> thingsToUpdate);
     }
 }
