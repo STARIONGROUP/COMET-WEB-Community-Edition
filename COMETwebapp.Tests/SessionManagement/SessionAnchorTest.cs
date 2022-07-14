@@ -221,11 +221,8 @@ namespace COMETwebapp.Tests
         [Test]
         public void VerifyCreateThings()
         {
-            this.sessionAnchor.IsSessionOpen = false;
-            var thingsToCreate = new List<ElementDefinition>();
-            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThings(thingsToCreate));
             this.sessionAnchor.IsSessionOpen = true;
-            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThings(null));
+            var thingsToCreate = new List<ElementDefinition>();
             var element = new ElementDefinition();
             element.Name = "Battery";
             element.Owner = this.sessionAnchor.CurrentDomainOfExpertise;
@@ -236,11 +233,8 @@ namespace COMETwebapp.Tests
         [Test]
         public void VerifyUpdateThings()
         {
-            this.sessionAnchor.IsSessionOpen = false;
             var thingsToUpdate = new List<ElementDefinition>();
-            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThings(thingsToUpdate));
             this.sessionAnchor.IsSessionOpen = true;
-            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThings(null));
             var element = new ElementDefinition();
             element.Name = "Battery";
             element.Owner = this.sessionAnchor.CurrentDomainOfExpertise;

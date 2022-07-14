@@ -209,13 +209,11 @@ namespace COMETwebapp.SessionManagement
             var openedIteration = this.GetIteration();
             if (openedIteration == null)
             {
-                Console.WriteLine("At first an iteration should be opened");
-                return;
+                throw new InvalidOperationException("At first an iteration should be opened");
             }
             if (thingsToCreate == null)
             {
-                Console.WriteLine("Please add at least one Thing to be created");
-                return;
+                throw new ArgumentException("Please add at least one Thing to be created");
             }
 
             // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
@@ -254,13 +252,11 @@ namespace COMETwebapp.SessionManagement
             var openedIteration = this.GetIteration();
             if (openedIteration == null)
             {
-                Console.WriteLine("At first an iteration should be opened");
-                return;
+                throw new InvalidOperationException("At first an iteration should be opened");
             }
             if (thingsToUpdate == null)
             {
-                Console.WriteLine("Please select at least one Thing to be updated");
-                return;
+                throw new ArgumentException("Please add at least one Thing to be updated");
             }
 
             // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
