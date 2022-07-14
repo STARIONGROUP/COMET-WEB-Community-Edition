@@ -217,5 +217,38 @@ namespace COMETwebapp.Tests
             this.sessionAnchor.SwitchDomain(this.domain);
             Assert.That(this.sessionAnchor.CurrentDomainOfExpertise, Is.EqualTo(this.domain));
         }
+
+        [Test]
+        public void VerifyCreateThings()
+        {
+            this.sessionAnchor.IsSessionOpen = false;
+            var thingsToCreate = new List<ElementDefinition>();
+            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThings(thingsToCreate));
+            this.sessionAnchor.IsSessionOpen = true;
+            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThings(null));
+            var element = new ElementDefinition();
+            element.Name = "Battery";
+            element.Owner = this.sessionAnchor.CurrentDomainOfExpertise;
+            thingsToCreate.Add(element.Clone(false));
+            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThings(thingsToCreate));
+        }
+
+        [Test]
+        public void VerifyUpdateThings()
+        {
+            this.sessionAnchor.IsSessionOpen = false;
+            var thingsToUpdate = new List<ElementDefinition>();
+            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThings(thingsToUpdate));
+            this.sessionAnchor.IsSessionOpen = true;
+            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThings(null));
+            var element = new ElementDefinition();
+            element.Name = "Battery";
+            element.Owner = this.sessionAnchor.CurrentDomainOfExpertise;
+
+            var clone = element.Clone(false);
+            clone.Name = "Satellite";
+            thingsToUpdate.Add(clone);
+            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThings(thingsToUpdate));
+        }
     }
 }

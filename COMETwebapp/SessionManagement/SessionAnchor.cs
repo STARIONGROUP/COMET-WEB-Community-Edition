@@ -30,6 +30,10 @@ namespace COMETwebapp.SessionManagement
     using System.Collections.Generic;
     using NLog;
     using System.Diagnostics;
+    using CDP4Common.CommonData;
+    using CDP4Common.Types;
+    using CDP4Dal.Operations;
+    using CDP4Dal.Exceptions;
 
     /// <summary>
     /// The purpose of the <see cref="SessionAnchor"/> is to provide access to
@@ -88,11 +92,12 @@ namespace COMETwebapp.SessionManagement
             if (this.IsSessionOpen && this.Session.OpenIterations.Any())
             {
                 return this.Session.OpenIterations.First().Key;
-            } else
+            }
+            else
             {
                 return null;
             }
-            
+
         }
 
         /// <summary>
@@ -107,7 +112,7 @@ namespace COMETwebapp.SessionManagement
                 var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
                 var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
                 iteration.Container = model;
-                
+
                 try
                 {
                     await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
@@ -188,10 +193,100 @@ namespace COMETwebapp.SessionManagement
         public void SwitchDomain(DomainOfExpertise? DomainOfExpertise)
         {
             var iteration = this.GetIteration();
-            if(iteration != null)
+            if (iteration != null)
             {
                 this.CurrentDomainOfExpertise = DomainOfExpertise;
                 this.Session.SwitchDomain(iteration.Iid, DomainOfExpertise);
+            }
+        }
+
+        /// <summary>
+        /// Write new Things in the session
+        /// </summary>
+        /// <param name="thingsToCreate">List of Things to create in the session</param>
+        public async Task CreateThings(IEnumerable<Thing> thingsToCreate)
+        {
+            var openedIteration = this.GetIteration();
+            if (openedIteration == null)
+            {
+                Console.WriteLine("At first an iteration should be opened");
+                return;
+            }
+            if (thingsToCreate == null)
+            {
+                Console.WriteLine("Please add at least one Thing to be created");
+                return;
+            }
+
+            // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
+            var iterationClone = openedIteration.Clone(false);
+
+            // set the context of the transaction to the iteration changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(iterationClone);
+            var transaction = new ThingTransaction(context);
+
+            // register new Things and the container Iteration (clone) with the transaction.
+            thingsToCreate.ToList().ForEach(thing =>
+            {
+                transaction.Create(thing, iterationClone);
+            });
+
+            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
+            // to the Iteration object (the list of contained elements is updated) and and the new ElementDefinition.
+            var operationContainer = transaction.FinalizeTransaction();
+            try
+            {
+                await this.Session.Write(operationContainer);
+                Console.WriteLine("Writing done !");
+            }
+            catch (DalWriteException ex)
+            {
+                Console.WriteLine($"The create operation failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Write updated Things in the session
+        /// </summary>
+        /// <param name="thingsToCreate">List of Things to update in the session</param>
+        public async Task UpdateThings(IEnumerable<Thing> thingsToUpdate)
+        {
+            var openedIteration = this.GetIteration();
+            if (openedIteration == null)
+            {
+                Console.WriteLine("At first an iteration should be opened");
+                return;
+            }
+            if (thingsToUpdate == null)
+            {
+                Console.WriteLine("Please select at least one Thing to be updated");
+                return;
+            }
+
+            // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
+            var iterationClone = openedIteration.Clone(false);
+
+            // set the context of the transaction to the iteration changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(iterationClone);
+            var transaction = new ThingTransaction(context);
+
+            // register all updates with the transaction.
+            thingsToUpdate.ToList().ForEach(thing =>
+            {
+                transaction.CreateOrUpdate(thing);
+            });
+
+            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
+            // to the Iteration object (the list of contained elements is updated) and and the new ElementDefinition.
+            var operationContainer = transaction.FinalizeTransaction();
+            try
+            {
+                await this.Session.Write(operationContainer);
+                Console.WriteLine("Update writing done !");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"The update operation failed: {ex.Message}");
             }
         }
     }
