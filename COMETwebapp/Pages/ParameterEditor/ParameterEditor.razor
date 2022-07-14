@@ -21,13 +21,107 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/ParameterEditor"
+@inject NavigationManager NavigationManager
+@inject IIterationService IterationService
+@inject ISessionAnchor ISessionAnchor
+@implements IDisposable
 
 <ApplicationTemplate Title="Parameter Editor">
     <Body>
-        <ParameterTable />
+        <div class="container-fluid">
+            <div class="row ">
+                <h6>Filter on Element Usage Name:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="@Elements"
+                        TextFieldName="@nameof(ElementBase.Name)"
+                        AllowUserInput="true"
+                        NullText="--Select an Element--"
+                        Value="this.selectedElement"
+                        ValueChanged="@((ElementBase element) => this.selectedElement = element)"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        FilteringMode="DataGridFilteringMode.Contains"/>
+                </div>
+            </div>
+            <div class="row">
+                <ParameterTree Elements="@Filter(Elements)" SelectedElement="@selectedElement"/>
+            </div>
+        </div>
     </Body>
 </ApplicationTemplate>
 
 
+@code{
+    /// <summary>
+    /// The selected <see cref="ElementBase"> to filter
+    /// </summary>
+    private ElementBase? selectedElement { get; set; }
 
+    /// <summary>
+    /// All <see cref="ElementBase"> of the iteration
+    /// </summary>
+    public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        this.Elements.Clear();
+        this.InitializeElements();
+
+        if (!this.listeners.TryGetValue("UpToDate", out var listener))
+        {
+            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.Elements.Clear();
+                this.InitializeElements();
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Initialize <see cref="ElementBase"> list
+    /// </summary>
+    private void InitializeElements()
+    {
+        var iteration = this.ISessionAnchor.GetIteration();
+        if(iteration != null)
+        {
+            var elementUsages = this.IterationService.GetElementUsages(this.ISessionAnchor.GetIteration());
+            this.Elements.Add(iteration.TopElement);
+            elementUsages.OrderBy(e => e.Name).ToList().ForEach(e => this.Elements.Add(e));
+        }
+    }
+
+    /// <summary>
+    /// Filter <see cref="ElementBase"> to show in the tree
+    /// </summary>
+    /// <param name="elements"></param>
+    /// <returns></returns>
+    public List<ElementBase> Filter(List<ElementBase> elements)
+    {
+        if(this.selectedElement != null)
+        {
+            return elements.FindAll(e => e.Iid == this.selectedElement?.Iid);
+        } else
+        {
+            return elements;
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+}
 

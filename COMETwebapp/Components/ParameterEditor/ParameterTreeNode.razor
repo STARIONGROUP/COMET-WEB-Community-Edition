@@ -1,0 +1,115 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@if(this.ToDisplay == true && this.Element != null)
+{
+    var title = "";
+    var iid = $"{this.Element.Iid}";
+    @if (this.Element.GetType().Equals(typeof(ElementDefinition)))
+    {
+        var elementDefinition = (ElementDefinition)this.Element;
+        title = $"{elementDefinition.Name} ({elementDefinition?.ModelCode()}) - {elementDefinition?.Owner.ShortName}";
+    } 
+    else if (this.Element.GetType().Equals(typeof(ElementUsage)))
+    {
+        var elementUsage = (ElementUsage)this.Element;
+        title = $"{elementUsage.Name} ({elementUsage?.ModelCode()}) - {elementUsage?.Owner.ShortName}";
+    }
+    <DxTreeViewNode Name="@iid" Text=@title Expanded CssClass="color-title">
+        <Nodes>
+            <DxTreeViewNode >
+                <Template>
+                    <div style="border: 1px solid #008bd2; border-radius: 10px;">
+                        <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
+                            <BSTHead>
+                                <BSTR>
+                                    <BSTD Class="width-15">Parameter</BSTD>
+                                    <BSTD Class="width-15">Model Code</BSTD>
+                                    <BSTD Class="width-12">Published Value</BSTD>
+                                    <BSTD Class="width-12">Actual Value</BSTD>
+                                    <BSTD Class="width-12">Computed Value</BSTD>
+                                    <BSTD Class="width-12">Manual Value</BSTD>
+                                    <BSTD Class="width-12">Reference Value</BSTD>
+                                    <BSTD Class="width-5">Switch</BSTD>
+                                    <BSTD Class="width-5">Owner</BSTD>
+                                </BSTR>
+                            </BSTHead>
+                            <BSTBody>
+                                @if (this.Element.GetType().Equals(typeof(ElementDefinition)))
+                                {
+                                    var elementDefinition = (ElementDefinition)this.Element;
+                                    @if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
+                                    {
+                                        foreach (var parameter in elementDefinition.Parameter.OrderBy(p => p.ParameterType.Name))
+                                        {
+                                            foreach (var parameterValueSet in parameter.ValueSet.OrderBy(p => p.ModelCode()))
+                                            {
+                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                            }
+                                        }
+                                    }
+                                } 
+                                else if (this.Element.GetType().Equals(typeof(ElementUsage)))
+                                {
+                                    var elementUsage = (ElementUsage)this.Element;
+                                    @if(elementUsage.ParameterOverride.Count == 0)
+                                    {
+                                        foreach(var parameter in elementUsage.ElementDefinition.Parameter)
+                                        {
+                                            foreach(var parameterValueSet in parameter.ValueSet)
+                                            {
+                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                            }
+                                        }
+                                    } else
+                                    {
+                                        foreach(var parameter in elementUsage.ParameterOverride)
+                                        {
+                                            foreach(var parameterValueSet in parameter.ValueSet)
+                                            {
+                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                            }
+                                        }
+                                    }
+                                }
+                            </BSTBody>
+                        </BSTable>
+                    </div>
+                </Template>
+            </DxTreeViewNode>
+        </Nodes>
+    </DxTreeViewNode>
+}
+
+@code {
+    /// <summary>
+    /// Set if the node is display
+    /// </summary>
+    [Parameter]
+    public bool? ToDisplay { get; set; }
+
+    /// <summary>
+    /// The element associated to the node
+    /// </summary>
+    [Parameter]
+    public ElementBase? Element { get; set; }
+}

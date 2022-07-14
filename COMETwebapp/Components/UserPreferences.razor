@@ -57,18 +57,13 @@ Copyright (c) 2022 RHEA System S.A.
             <div class="row justify-content-center p-2">
                 @if(this.ISessionAnchor.GetIteration() is not null)
 			    {
-				    <select class="width-fit-content" id="domnain" @onchange="OnSwitchDomain">
-					    @foreach (var domain in this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).OrderBy(i => i.Name))
-					    {
-						    @if(domain == this.ISessionAnchor.CurrentDomainOfExpertise)
-						    {
-							    <option value="@domain.Name" selected>@domain.Name</option>
-						    } else
-						    {
-							    <option value="@domain.Name">@domain.Name</option>
-						    }
-					    }
-				    </select>
+                    var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).OrderBy(i => i.Name);
+                    <DxComboBox Data="@IterationDomains"
+                            TextFieldName="@nameof(DomainOfExpertise.Name)"
+                            AllowUserInput="true"
+                            Value="this.ISessionAnchor.CurrentDomainOfExpertise"
+                            ValueChanged="@((DomainOfExpertise domain) => this.OnSwitchDomain(domain))"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
 			    }
             </div>
 
@@ -198,10 +193,13 @@ Copyright (c) 2022 RHEA System S.A.
     /// Gets the selected <see cref="DomainOfExpertise"/> and switchs ISession active domain 
     /// </summary>
     /// <param name="e"><see cref="ChangeEventArgs"/> from selector</param>
-    public void OnSwitchDomain(ChangeEventArgs e)
+    public void OnSwitchDomain(DomainOfExpertise? domain)
     {
-        var selectedDomainOfExpertise = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).ToList().Find(domain => domain.Name.Equals(e.Value));
-        this.ISessionAnchor.SwitchDomain(selectedDomainOfExpertise);
+        if(domain == null)
+        {
+            return;
+        }
+        this.ISessionAnchor.SwitchDomain(domain);
     }
 
     /// <summary>
