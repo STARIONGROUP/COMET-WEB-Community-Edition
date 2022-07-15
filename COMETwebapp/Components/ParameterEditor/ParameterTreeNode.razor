@@ -28,7 +28,8 @@ Copyright (c) 2022 RHEA System S.A.
     {
         var elementDefinition = (ElementDefinition)this.Element;
         title = $"{elementDefinition.Name} ({elementDefinition?.ModelCode()}) - {elementDefinition?.Owner.ShortName}";
-    } else if (this.Element.GetType().Equals(typeof(ElementUsage)))
+    } 
+    else if (this.Element.GetType().Equals(typeof(ElementUsage)))
     {
         var elementUsage = (ElementUsage)this.Element;
         title = $"{elementUsage.Name} ({elementUsage?.ModelCode()}) - {elementUsage?.Owner.ShortName}";
@@ -66,7 +67,8 @@ Copyright (c) 2022 RHEA System S.A.
                                             }
                                         }
                                     }
-                                } else if (this.Element.GetType().Equals(typeof(ElementUsage)))
+                                } 
+                                else if (this.Element.GetType().Equals(typeof(ElementUsage)))
                                 {
                                     var elementUsage = (ElementUsage)this.Element;
                                     @if(elementUsage.ParameterOverride.Count == 0)

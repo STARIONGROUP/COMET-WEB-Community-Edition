@@ -28,9 +28,9 @@ Copyright (c) 2022 RHEA System S.A.
                 @foreach(var element in this.Elements)
                 {
                     var toDisplay = true;
-                    if(this.ElementSelected != null)
+                    if(this.SelectedElement != null)
                     {
-                        toDisplay = element.Iid == this.ElementSelected.Iid;
+                        toDisplay = element.Iid == this.SelectedElement.Iid;
                     }
                     <ParameterTreeNode ToDisplay="@toDisplay" Element="element" />
                 }
@@ -50,5 +50,5 @@ Copyright (c) 2022 RHEA System S.A.
     /// The selected <see cref="ElementBase"> to show
     /// </summary>
     [Parameter]
-    public ElementBase? ElementSelected { get; set; } 
+    public ElementBase? SelectedElement { get; set; } 
 }
