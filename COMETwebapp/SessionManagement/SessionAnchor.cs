@@ -52,6 +52,11 @@ namespace COMETwebapp.SessionManagement
         public ISession Session { get; set; }
 
         /// <summary>
+        /// The opened <see cref="Iteration"/>
+        /// </summary>
+        public Iteration? OpenIteration { get; private set; }
+
+        /// <summary>
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         public bool IsSessionOpen { get; set; }
@@ -84,54 +89,47 @@ namespace COMETwebapp.SessionManagement
         }
 
         /// <summary>
-        /// Returns the opened <see cref="Iteration"/> in the Session
-        /// </summary>
-        /// <returns>An <see cref="Iteration"/></returns>
-        public Iteration? GetIteration()
-        {
-            if (this.IsSessionOpen && this.Session.OpenIterations.Any())
-            {
-                return this.Session.OpenIterations.First().Key;
-            }
-            else
-            {
-                return null;
-            }
-
-        }
-
-        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
         /// </summary>
         /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        public async Task SetOpenIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup)
+        public async Task ReadIteration(IterationSetup? iterationSetup)
         {
-            if (modelSetup != null && iterationSetup != null)
+            if(iterationSetup == null)
             {
-                var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-                var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-                iteration.Container = model;
+                throw new ArgumentNullException(nameof(iterationSetup));
+            }
 
-                try
+            var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
+
+            var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
+            var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
+            iteration.Container = model;
+
+            try
+            {
+                await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
+                if (!this.Session.OpenIterations.Any())
                 {
-                    await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
+                    throw new InvalidOperationException("At first an Iteration should be opened");
                 }
-                catch (Exception exception)
-                {
-                    this.logger.Error($"During read operation an error has occured: {exception.Message}");
-                }
+                this.OpenIteration = this.Session.OpenIterations.FirstOrDefault().Key;
 
                 CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.IterationOpened);
+            }
+            catch (Exception exception)
+            {
+                this.logger.Error($"During read operation an error has occured: {exception.Message}");
+                throw;
             }
         }
 
         /// <summary>
-        /// Close the <see cref="OpenIteration"/>
+        /// Close the ReadIteration
         /// </summary>
         public void CloseIteration()
         {
-            this.Session.CloseIterationSetup(this.GetIteration()?.IterationSetup);
+            this.Session.CloseIterationSetup(this.OpenIteration?.IterationSetup);
             this.CurrentDomainOfExpertise = null;
             this.CurrentEngineeringModelName = null;
 
@@ -192,7 +190,7 @@ namespace COMETwebapp.SessionManagement
         /// <param name="DomainOfExpertise">The domain</param>
         public void SwitchDomain(DomainOfExpertise? DomainOfExpertise)
         {
-            var iteration = this.GetIteration();
+            var iteration = this.OpenIteration;
             if (iteration != null)
             {
                 this.CurrentDomainOfExpertise = DomainOfExpertise;
@@ -206,7 +204,7 @@ namespace COMETwebapp.SessionManagement
         /// <param name="thingsToCreate">List of Things to create in the session</param>
         public async Task CreateThings(IEnumerable<Thing> thingsToCreate)
         {
-            var openedIteration = this.GetIteration();
+            var openedIteration = this.OpenIteration;
             if (openedIteration == null)
             {
                 throw new InvalidOperationException("At first an iteration should be opened");
@@ -249,7 +247,8 @@ namespace COMETwebapp.SessionManagement
         /// <param name="thingsToCreate">List of Things to update in the session</param>
         public async Task UpdateThings(IEnumerable<Thing> thingsToUpdate)
         {
-            var openedIteration = this.GetIteration();
+            var sw = Stopwatch.StartNew();
+            var openedIteration = this.OpenIteration;
             if (openedIteration == null)
             {
                 throw new InvalidOperationException("At first an iteration should be opened");
@@ -278,7 +277,7 @@ namespace COMETwebapp.SessionManagement
             try
             {
                 await this.Session.Write(operationContainer);
-                Console.WriteLine("Update writing done !");
+                Console.WriteLine($"Update writing done in {sw.ElapsedMilliseconds} [ms]");
             }
             catch (Exception ex)
             {

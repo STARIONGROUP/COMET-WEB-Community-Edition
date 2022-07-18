@@ -30,20 +30,29 @@ Copyright (c) 2022 RHEA System S.A.
     <Body>
         <div class="container-fluid">
             <div class="row ">
-                <h6>Filter on Element Usage Name:</h6>
-                <div class="width-fit-content">
-                    <DxComboBox Data="@Elements"
-                        TextFieldName="@nameof(ElementBase.Name)"
-                        AllowUserInput="true"
-                        NullText="--Select an Element--"
-                        Value="this.selectedElement"
-                        ValueChanged="@((ElementBase element) => this.selectedElement = element)"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        FilteringMode="DataGridFilteringMode.Contains"/>
+                <div class="col">
+                    <h6>Filter on Element Usage Name:</h6>
+                    <div class="width-fit-content">
+                        <DxComboBox Data="@Elements.OrderBy(e => e.Name)"
+                            TextFieldName="@nameof(ElementBase.Name)"
+                            AllowUserInput="true"
+                            NullText="--Select an Element--"
+                            Value="this.selectedElement"
+                            ValueChanged="@((ElementBase element) => this.selectedElement = element)"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+                    </div>
+                    <div class="@BS.Form_Check @BS.Form_Switch">
+                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsEditionMode"/>
+                        <BSLabel IsCheckLabel="true">Edition Mode</BSLabel>
+                    </div>
+                </div>
+                <div class="col">
+                    
                 </div>
             </div>
             <div class="row">
-                <ParameterTree Elements="@Filter(Elements)" SelectedElement="@selectedElement"/>
+                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" IsEditionMode="@IsEditionMode" />
             </div>
         </div>
     </Body>
@@ -60,6 +69,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// All <see cref="ElementBase"> of the iteration
     /// </summary>
     public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
+
+    /// <summary>
+    /// Sets edition mode activate
+    /// </summary>
+    private bool IsEditionMode { get; set; } = true;
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -90,12 +104,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        var iteration = this.ISessionAnchor.GetIteration();
+        var iteration = this.ISessionAnchor.OpenIteration;
         if(iteration != null)
         {
-            var elementUsages = this.IterationService.GetElementUsages(this.ISessionAnchor.GetIteration());
             this.Elements.Add(iteration.TopElement);
-            elementUsages.OrderBy(e => e.Name).ToList().ForEach(e => this.Elements.Add(e));
+            iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
         }
     }
 
@@ -104,14 +117,14 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="elements"></param>
     /// <returns></returns>
-    public List<ElementBase> Filter(List<ElementBase> elements)
+    public List<ElementBase> Filter(IEnumerable<ElementBase> elements)
     {
         if(this.selectedElement != null)
         {
-            return elements.FindAll(e => e.Iid == this.selectedElement?.Iid);
+            return elements.ToList().FindAll(e => e.Iid == this.selectedElement?.Iid);
         } else
         {
-            return elements;
+            return elements.ToList();
         }
     }
 

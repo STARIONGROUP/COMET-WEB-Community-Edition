@@ -29,7 +29,7 @@ Copyright (c) 2022 RHEA System S.A.
     <Body>
         <div class="display-flex flex-column">
             <div class="font-weight-bold font-size-20 m-top-10px">
-                @ISessionAnchor.GetIteration()?.Element?.Find(element => element.Parameter.Contains(this.Parameter))?.Name - @this.Parameter?.ParameterType.Name
+                @ISessionAnchor.OpenIteration?.Element?.Find(element => element.Parameter.Contains(this.Parameter))?.Name - @this.Parameter?.ParameterType.Name
             </div>
 
             <DxDataGrid Data="@ParameterValueSets" PageSize="0">
@@ -216,7 +216,7 @@ Copyright (c) 2022 RHEA System S.A.
 
     private void LoadData()
     {
-        this.Parameter = this.IterationService.GetCurrentDomainSubscribedParameters(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise)
+        this.Parameter = this.IterationService.GetCurrentDomainSubscribedParameters(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise)
             .Find(parameter => parameter.ModelCode().Equals(this.ModelCode));
 
         this.Parameter?.ValueSet.ForEach(parameterValueSet =>

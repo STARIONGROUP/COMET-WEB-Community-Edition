@@ -55,9 +55,9 @@ Copyright (c) 2022 RHEA System S.A.
     <Content>
         <div class="container-fluid p-0">
             <div class="row justify-content-center p-2">
-                @if(this.ISessionAnchor.GetIteration() is not null)
+                @if(this.ISessionAnchor.OpenIteration is not null)
 			    {
-                    var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.GetIteration()).OrderBy(i => i.Name);
+                    var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.OpenIteration).OrderBy(i => i.Name);
                     <DxComboBox Data="@IterationDomains"
                             TextFieldName="@nameof(DomainOfExpertise.Name)"
                             AllowUserInput="true"
@@ -95,7 +95,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             </div>
             <div class="row text-align-center m-top-35px">
-                @if (this.ISessionAnchor.GetIteration() is not null)
+                @if (this.ISessionAnchor.OpenIteration is not null)
                 {
                     <div class="col-7">
                         <CloseModelButton/>
@@ -146,7 +146,7 @@ Copyright (c) 2022 RHEA System S.A.
         {
             this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
-                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
                 this.StateHasChanged();
             }));
         }
@@ -155,7 +155,7 @@ Copyright (c) 2022 RHEA System S.A.
         {
             this.listeners.Add("UpdatesAreValidated", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpdatesAreValidated).Subscribe(x =>
             {
-                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
                 this.StateHasChanged();
             }));
         }

@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.IterationServices
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
@@ -39,6 +40,8 @@ namespace COMETwebapp.IterationServices
         /// Save changes for each domain available in the opened session 
         /// </summary>
         public Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>> ValidatedUpdates { get; set; } = new Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>>();
+
+        public Dictionary<Guid, Thing> NewUpdates { get; set; } = new Dictionary<Guid, Thing>();
 
         /// <summary>
         /// Get all <see cref="ParameterValueSet"/> of the given iteration
@@ -286,36 +289,6 @@ namespace COMETwebapp.IterationServices
                 iteration.Element.ForEach(e => e.Parameter.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => result.AddRange(p.ValueSet)));
             }
             return result;
-        }
-
-        /// <summary>
-        /// Gets all <see cref="ElementUsage"/> in the given iteration
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/> for which the <see cref="ElementUsage"/>s list is created</param>
-        public IEnumerable<ElementUsage> GetElementUsages(Iteration? iteration)
-        {
-            var topElement = iteration?.TopElement;
-            var allElementsUsages = new List<ElementUsage>();
-            var newElementUsages = new List<ElementUsage>();
-            if (topElement != null)
-            {
-                allElementsUsages.AddRange(topElement.ContainedElement);
-            }
-            var IsNextLevel = topElement?.ContainedElement.Count != 0;
-
-            while (IsNextLevel)
-            {
-                allElementsUsages.ForEach(e =>
-                {
-                    newElementUsages.AddRange(e.ElementDefinition.ContainedElement.FindAll(newElementUsage => !allElementsUsages.Contains(newElementUsage)));
-                }
-            );
-
-                IsNextLevel = newElementUsages.Count != 0;
-                allElementsUsages.AddRange(newElementUsages.DistinctBy(e => e.Iid));
-                newElementUsages.Clear();
-            }
-            return allElementsUsages.DistinctBy(e => e.Iid);
         }
     }
 }

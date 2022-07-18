@@ -20,9 +20,16 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@inject ISessionAnchor ISessionAnchor
+
 @if(this.Parameter != null && this.ParameterValueSet != null)
 {
     var modelCode = this.ParameterValueSet.ModelCode().Split("\\");
+    var isEditable = false;
+    @if(this.ParameterValueSet.Owner == this.ISessionAnchor.CurrentDomainOfExpertise)
+    {
+        isEditable = true;
+    }
     <BSTR AlignRow="AlignRow.Middle">
         <BSTD>@Parameter.ParameterType.Name</BSTD>
         @if(modelCode.Count() == 1)
@@ -60,15 +67,15 @@ Copyright (c) 2022 RHEA System S.A.
                 <ScalarParameter Value="@ParameterValueSet.Computed.First()" Scale="@Parameter.Scale?.ShortName" />
             </BSTD>
             <BSTD>
-                <ScalarParameter Value="@ParameterValueSet.Manual.First()" Scale="@Parameter.Scale?.ShortName" />
+                <ScalarParameter Value="@ParameterValueSet.Manual.First()" Scale="@Parameter.Scale?.ShortName" ParameterValueSet="@ParameterValueSet" IndexInValueSet="0" IsManualEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
             </BSTD>
             <BSTD>
-                <ScalarParameter Value="@ParameterValueSet.Reference.First()" Scale="@Parameter.Scale?.ShortName" />
+                <ScalarParameter Value="@ParameterValueSet.Reference.First()" Scale="@Parameter.Scale?.ShortName" ParameterValueSet="@ParameterValueSet" IndexInValueSet="0" IsReferenceEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
             </BSTD>
         } else if(this.Parameter.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
         {
             <BSTD>
-                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Published"/>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Published" />
             </BSTD>
             <BSTD>
                 <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.ActualValue"/>
@@ -77,10 +84,10 @@ Copyright (c) 2022 RHEA System S.A.
                 <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Computed"/>
             </BSTD>
             <BSTD>
-                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Manual"/>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Manual" ParameterValueSet="@ParameterValueSet" IndexStartInValueSet="0" IsManualEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
             </BSTD>
             <BSTD>
-                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Reference"/>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Reference" ParameterValueSet="@ParameterValueSet" IndexStartInValueSet="0" IsReferenceEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
             </BSTD>
         } else
         {
@@ -98,7 +105,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Published" Component="component"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Published" Component="component"/>
                         }
                     </div>                                                
                 </BSTD>
@@ -112,7 +119,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.ActualValue" Component="component"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.ActualValue" Component="component"/>
                         }
                     </div>                                               
                 </BSTD>
@@ -126,7 +133,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Computed" Component="component"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Computed" Component="component"/>
                         }
                     </div>                                                    
                 </BSTD>
@@ -140,7 +147,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Manual" Component="component"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Manual" Component="component" ParameterValueSet="@ParameterValueSet" IsManualEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
                         }
                     </div>                                               
                 </BSTD>
@@ -154,7 +161,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter CompoundParameterType="@compoundParameterType" IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Reference" Component="component"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Reference" Component="component" ParameterValueSet="@ParameterValueSet" IsReferenceEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
                         }
                     </div>
                 </BSTD>
@@ -177,4 +184,28 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public ParameterOrOverrideBase? Parameter { get; set; }
+
+    /// <summary>
+    /// Sets edition mode activate
+    /// </summary>
+    [Parameter]
+    public bool? IsEditionMode { get; set; }
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (!this.listeners.TryGetValue("DomainChangedEvent", out var listener)) {
+            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+    }
 }

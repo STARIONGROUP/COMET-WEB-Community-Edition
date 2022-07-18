@@ -121,7 +121,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void LoadData()
     {
         this.ViewModelSubscribedParameters.Clear();
-        this.SubscribedParameters = this.IterationService.GetCurrentDomainSubscribedParameters(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = this.IterationService.GetCurrentDomainSubscribedParameters(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
     }
 
@@ -132,7 +132,7 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.SubscribedParameters.ForEach(subscribedParameter =>
         {
-            var associatedElement = this.ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Contains(subscribedParameter));
+            var associatedElement = this.ISessionAnchor.OpenIteration?.Element.Find(element => element.Parameter.Contains(subscribedParameter));
 
             var isIncomplete = subscribedParameter.ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;
 

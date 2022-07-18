@@ -71,7 +71,7 @@ Copyright (c) 2022 RHEA System S.A.
                             var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
                             var subscribedActualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
                             var subscribedScalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()).Find(p => p.Iid == subscribedIid);
+                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration).Find(p => p.Iid == subscribedIid);
                             var subscribedLastActualValue = new ValueArray<string>();
                             if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
                             {
@@ -226,7 +226,7 @@ Copyright (c) 2022 RHEA System S.A.
                             var subscribedSwitchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
 
                             var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()).Find(p => p.Iid == subscribedIid);
+                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration).Find(p => p.Iid == subscribedIid);
                             var subscribedLastActualValue = new ValueArray<string>();
                             if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
                             {
@@ -381,7 +381,7 @@ Copyright (c) 2022 RHEA System S.A.
                             var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
                             var subscribedActualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
                             var subscribedScalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()).Find(p => p.Iid == subscribedIid);
+                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration).Find(p => p.Iid == subscribedIid);
                             var subscribedLastActualValue = new ValueArray<string>();
                             if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
                             {
@@ -513,7 +513,7 @@ Copyright (c) 2022 RHEA System S.A.
     private void LoadData()
     {
         this.ViewModelSubscribedParameters.Clear();
-        this.SubscribedParameters = this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise);
+        this.SubscribedParameters = this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
         this.GetViewModelSubscribedParameters();
     }
 
@@ -544,10 +544,10 @@ Copyright (c) 2022 RHEA System S.A.
                     isParameterSubscriptionValueUpdated = true;
                 }
 
-                var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
+                var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration);
 
                 var associatedParameterValueSet = paramererValueSets?.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
-                var associatedElement = this.ISessionAnchor.GetIteration()?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
+                var associatedElement = this.ISessionAnchor.OpenIteration?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
                 var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
 
                 var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;

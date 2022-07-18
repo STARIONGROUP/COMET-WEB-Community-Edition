@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.IterationServices
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using COMETwebapp.Model;
@@ -38,6 +39,8 @@ namespace COMETwebapp.IterationServices
         /// Save changes for each domain available in the opened session 
         /// </summary>
         Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>> ValidatedUpdates { get; set; }
+
+        Dictionary<Guid, Thing> NewUpdates { get; set; }
 
         /// <summary>
         /// Get all <see cref="ParameterValueSet"/> of the given iteration
@@ -129,11 +132,5 @@ namespace COMETwebapp.IterationServices
         /// </param>
         /// <returns>All <see cref="ParameterValueSet" for the given parameter type/></returns>
         List<ParameterValueSet> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName);
-
-        /// <summary>
-        /// Gets all <see cref="ElementUsage"/> in the given iteration
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/> for which the <see cref="ElementUsage"/>s list is created</param>
-        IEnumerable<ElementUsage> GetElementUsages(Iteration? iteration);
     }
 }

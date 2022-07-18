@@ -143,7 +143,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeParameters()
     {
-        var iteration = this.ISessionAnchor.GetIteration();
+        var iteration = this.ISessionAnchor.OpenIteration;
         if (this.Criteria is not null && this.Domain is not null && iteration != null)
         {
             List<ElementDefinition> elements = iteration.Element;
@@ -199,7 +199,7 @@ Copyright (c) 2022 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.GetIteration(), this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
 
             if (nestedParameters.Count != 0)
             {
@@ -221,7 +221,7 @@ Copyright (c) 2022 RHEA System S.A.
         Console.WriteLine(this.FilterParameterType);
         if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
         {
-            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.GetIteration(), this.FilterParameterType);
+            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.OpenIteration, this.FilterParameterType);
             parameterValueSets.RemoveAll(d => !parameterValueSetsByParameterType.Contains(d));
         }
 

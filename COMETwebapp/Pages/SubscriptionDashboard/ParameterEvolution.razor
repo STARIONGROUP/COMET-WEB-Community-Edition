@@ -161,7 +161,7 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if (this.ParameterValueSetIid != null)
         {
-            var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration());
+            var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration);
             var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid.FromShortGuid());
             associatedParameterValueSet?.Revisions.Values.ToList().ForEach(revision =>
             {
@@ -194,7 +194,7 @@ Copyright (c) 2022 RHEA System S.A.
         if(this.ParameterSubscriptionValueSetIid != null)
         {
             var parameterSubscriptionValueSets = new List<ParameterSubscriptionValueSet>();
-            this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.GetIteration(), this.ISessionAnchor.CurrentDomainOfExpertise).ForEach(p => parameterSubscriptionValueSets.AddRange(p.ValueSet));
+            this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise).ForEach(p => parameterSubscriptionValueSets.AddRange(p.ValueSet));
             var associatedParameterSubscriptionValueSet = parameterSubscriptionValueSets.Find(p => p.Iid == this.ParameterSubscriptionValueSetIid.FromShortGuid());
             associatedParameterSubscriptionValueSet?.Revisions.Values.ToList().ForEach(revision =>
             {

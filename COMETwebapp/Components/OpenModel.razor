@@ -93,11 +93,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public class ModelInformation
     {
-        public string EngineeringModelSetupName { get; set; }
+        public string? EngineeringModelSetupName { get; set; }
 
-        public string IterationSetupNumber { get; set; }
+        public string? IterationSetupNumber { get; set; }
 
-        public string DomainOfExpertiseName { get; set; }
+        public string? DomainOfExpertiseName { get; set; }
     }
 
     /// <summary>
@@ -156,12 +156,24 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.ISessionAnchor.CurrentEngineeringModelName = this.SelectedModelInformation.EngineeringModelSetupName;
         this.ISessionAnchor.CurrentDomainOfExpertise = this.Domains.Find(d => d.Name.Equals(this.SelectedModelInformation.DomainOfExpertiseName));
-        this.SelectedIterationSetup = this.SelectedEngineeringModelSetup?.IterationSetup.Find(i => i.IterationNumber == int.Parse(this.SelectedModelInformation.IterationSetupNumber));
+        if(this.SelectedModelInformation.IterationSetupNumber != null)
+        {
+            this.SelectedIterationSetup = this.SelectedEngineeringModelSetup?.IterationSetup.Find(i => i.IterationNumber == int.Parse(this.SelectedModelInformation.IterationSetupNumber));
+        }
 
         this.isOpening = true;
-        base.StateHasChanged();
+        this.StateHasChanged();
 
-        await this.ISessionAnchor.SetOpenIteration(this.SelectedEngineeringModelSetup, this.SelectedIterationSetup);
-        this.NavigationManager.NavigateTo(Path.Combine("/",this.SelectedModelInformation.EngineeringModelSetupName));
+        try{
+            await this.ISessionAnchor.ReadIteration(this.SelectedIterationSetup);
+            if (this.SelectedModelInformation.EngineeringModelSetupName != null)
+            {
+                this.NavigationManager.NavigateTo(Path.Combine("/", this.SelectedModelInformation.EngineeringModelSetupName));
+            }
+        }
+        catch(Exception ex)
+        {
+            
+        }
     }
 }

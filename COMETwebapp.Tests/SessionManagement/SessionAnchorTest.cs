@@ -146,7 +146,7 @@ namespace COMETwebapp.Tests
         public void VerifyGetIteration()
         {
             this.session.Setup(x => x.OpenIterations).Returns(default(IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>));
-            Assert.That(this.sessionAnchor.GetIteration(), Is.Null);
+            Assert.That(this.sessionAnchor.QueryIteration(), Is.Null);
             this.session.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), true)).Returns(Task.CompletedTask);
 
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
@@ -154,9 +154,9 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
-            Assert.That(this.sessionAnchor.GetIteration(), Is.EqualTo(this.iteration));
+            Assert.That(this.sessionAnchor.QueryIteration(), Is.EqualTo(this.iteration));
 
-            Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.SetOpenIteration(this.engineeringSetup, this.iteration.IterationSetup));
+            Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.ReadIteration(this.engineeringSetup, this.iteration.IterationSetup));
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
-            this.session.Setup(x => x.CloseIterationSetup(this.sessionAnchor.GetIteration().IterationSetup)).Returns(Task.CompletedTask);
+            this.session.Setup(x => x.CloseIterationSetup(this.sessionAnchor.QueryIteration().IterationSetup)).Returns(Task.CompletedTask);
             Assert.DoesNotThrow(() => this.sessionAnchor.CloseIteration());
         }
 

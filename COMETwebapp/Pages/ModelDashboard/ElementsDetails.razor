@@ -110,10 +110,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        List<ElementDefinition> unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.GetIteration());
-        List<ElementDefinition> unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.GetIteration());
+        List<ElementDefinition> unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.OpenIteration);
+        List<ElementDefinition> unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
 
-        var iteration = this.ISessionAnchor.GetIteration();
+        var iteration = this.ISessionAnchor.OpenIteration;
         if (Criteria is not null && Domain is not null && iteration != null)
         {
             List<ElementDefinition> elements = new List<ElementDefinition>();
