@@ -48,11 +48,14 @@ Copyright (c) 2022 RHEA System S.A.
                     </div>
                 </div>
                 <div class="col">
-                    
+                    <div class="@BS.Form_Check @BS.Form_Switch">
+                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
+                        <BSLabel IsCheckLabel="true">Only Parameters owned by @ISessionAnchor.CurrentDomainOfExpertise?.Name domain</BSLabel>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" IsEditionMode="@IsEditionMode" />
+                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" IsEditionMode="@IsEditionMode" IsOwnedParameters="@IsOwnedParameters"/>
             </div>
         </div>
     </Body>
@@ -76,6 +79,11 @@ Copyright (c) 2022 RHEA System S.A.
     private bool IsEditionMode { get; set; } = true;
 
     /// <summary>
+    /// Sets if only parameters owned by the active domain are shown
+    /// </summary>
+    private bool IsOwnedParameters { get; set; } = true;
+
+    /// <summary>
     /// Listeners for the components to update it with ISession
     /// </summary>
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
@@ -97,6 +105,15 @@ Copyright (c) 2022 RHEA System S.A.
                 this.StateHasChanged();
             }));
         }
+
+        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)) {
+            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            {
+                this.Elements.Clear();
+                this.InitializeElements();
+                this.StateHasChanged();
+            }));
+        }
     }
 
     /// <summary>
@@ -107,8 +124,33 @@ Copyright (c) 2022 RHEA System S.A.
         var iteration = this.ISessionAnchor.OpenIteration;
         if(iteration != null)
         {
-            this.Elements.Add(iteration.TopElement);
-            iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
+            if(this.IsOwnedParameters == true)
+            {
+                if(iteration.TopElement.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                {
+                    this.Elements.Add(iteration.TopElement);
+                }
+                iteration.Element.ForEach(e =>
+                {
+                    e.ContainedElement.ForEach(containedElement =>
+                    {
+                        if(containedElement.ParameterOverride.Count == 0)
+                        {
+                            if(containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            {
+                                this.Elements.Add(containedElement);
+                            }
+                        } else if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                        {
+                            this.Elements.Add(containedElement);
+                        }
+                    });
+                });
+            } else
+            {
+                this.Elements.Add(iteration.TopElement);
+                iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
+            }
         }
     }
 
@@ -135,6 +177,16 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.listeners.Values.ToList().ForEach(l => l.Dispose());
         this.listeners.Clear();
+    }
+
+    /// <summary>
+    /// Updates Elements list when a filter for owner is selected
+    /// </summary>
+    /// <param name="e"></param>
+    public void OnOwnerFilterChange(ChangeEventArgs e)
+    {
+        this.Elements.Clear();
+        this.InitializeElements();
     }
 }
 

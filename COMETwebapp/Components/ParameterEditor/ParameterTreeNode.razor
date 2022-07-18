@@ -20,6 +20,8 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@inject ISessionAnchor ISessionAnchor
+
 @if(this.Element != null)
 {
     var title = "";
@@ -73,7 +75,15 @@ Copyright (c) 2022 RHEA System S.A.
                                     var elementUsage = (ElementUsage)this.Element;
                                     @if(elementUsage.ParameterOverride.Count == 0)
                                     {
-                                        foreach(var parameter in elementUsage.ElementDefinition.Parameter)
+                                        var parameters = new List<Parameter>();
+                                        if(this.IsOwnedParameters == true)
+                                        {
+                                            parameters.AddRange(elementUsage.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+                                        } else
+                                        {
+                                            parameters.AddRange(elementUsage.ElementDefinition.Parameter);
+                                        }
+                                        foreach(var parameter in parameters)
                                         {
                                             foreach(var parameterValueSet in parameter.ValueSet)
                                             {
@@ -82,7 +92,15 @@ Copyright (c) 2022 RHEA System S.A.
                                         }
                                     } else
                                     {
-                                        foreach(var parameter in elementUsage.ParameterOverride)
+                                        var parameterOverrides = new List<ParameterOverride>();
+                                        if(this.IsOwnedParameters == true)
+                                        {
+                                            parameterOverrides.AddRange(elementUsage.ParameterOverride.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+                                        } else
+                                        {
+                                            parameterOverrides.AddRange(elementUsage.ParameterOverride);
+                                        }
+                                        foreach(var parameter in parameterOverrides)
                                         {
                                             foreach(var parameterValueSet in parameter.ValueSet)
                                             {
@@ -112,4 +130,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public bool IsEditionMode { get; set; }
+
+    /// <summary>
+    /// Sets if only parameters owned by the active domain are shown
+    /// </summary>
+    [Parameter]
+    public bool? IsOwnedParameters { get; set; }
 }

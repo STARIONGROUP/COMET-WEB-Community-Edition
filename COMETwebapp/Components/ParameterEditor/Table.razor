@@ -195,17 +195,4 @@ Copyright (c) 2022 RHEA System S.A.
     /// Listeners for the components to update it with ISession
     /// </summary>
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
-
-    /// <summary>
-    /// Initialize component at first render and after session update
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        if (!this.listeners.TryGetValue("DomainChangedEvent", out var listener)) {
-            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
-            {
-                this.StateHasChanged();
-            }));
-        }
-    }
 }
