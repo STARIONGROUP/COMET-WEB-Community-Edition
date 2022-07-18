@@ -143,23 +143,6 @@ namespace COMETwebapp.Tests
         }
 
         [Test]
-        public void VerifyGetIteration()
-        {
-            this.session.Setup(x => x.OpenIterations).Returns(default(IReadOnlyDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>));
-            Assert.That(this.sessionAnchor.QueryIteration(), Is.Null);
-            this.session.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), true)).Returns(Task.CompletedTask);
-
-            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
-            {
-                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
-            });
-            this.sessionAnchor.IsSessionOpen = true;
-            Assert.That(this.sessionAnchor.QueryIteration(), Is.EqualTo(this.iteration));
-
-            Assert.DoesNotThrowAsync(async () => await this.sessionAnchor.ReadIteration(this.engineeringSetup, this.iteration.IterationSetup));
-        }
-
-        [Test]
         public void VerifyCloseIteration()
         {
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
@@ -167,7 +150,8 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
-            this.session.Setup(x => x.CloseIterationSetup(this.sessionAnchor.QueryIteration().IterationSetup)).Returns(Task.CompletedTask);
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            this.session.Setup(x => x.CloseIterationSetup(this.sessionAnchor.OpenIteration.IterationSetup)).Returns(Task.CompletedTask);
             Assert.DoesNotThrow(() => this.sessionAnchor.CloseIteration());
         }
 
@@ -212,6 +196,7 @@ namespace COMETwebapp.Tests
                 { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
             });
             this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
             Assert.That(this.sessionAnchor.CurrentDomainOfExpertise, Is.Null);
             
             this.sessionAnchor.SwitchDomain(this.domain);
