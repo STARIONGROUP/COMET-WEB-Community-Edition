@@ -27,12 +27,7 @@ Copyright (c) 2022 RHEA System S.A.
             <Nodes>
                 @foreach(var element in this.Elements)
                 {
-                    var toDisplay = true;
-                    if(this.SelectedElement != null)
-                    {
-                        toDisplay = element.Iid == this.SelectedElement.Iid;
-                    }
-                    <ParameterTreeNode ToDisplay="@toDisplay" Element="element" />
+                    <ParameterTreeNode Element="element" IsEditionMode="@IsEditionMode" />
                 }
             </Nodes>
         </DxTreeView>
@@ -47,8 +42,8 @@ Copyright (c) 2022 RHEA System S.A.
     public List<ElementBase>? Elements { get; set; }
 
     /// <summary>
-    /// The selected <see cref="ElementBase"> to show
+    /// Sets edition mode activate
     /// </summary>
     [Parameter]
-    public ElementBase? SelectedElement { get; set; } 
+    public bool IsEditionMode { get; set; }
 }

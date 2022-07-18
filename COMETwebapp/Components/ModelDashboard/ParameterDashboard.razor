@@ -80,7 +80,7 @@ Copyright (c) 2022 RHEA System S.A.
         }
         if (this.FilterOption != null)
         {
-            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.GetIteration(), this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 nestedParameters.ForEach(nestedParameter =>
@@ -101,7 +101,7 @@ Copyright (c) 2022 RHEA System S.A.
 
         if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
         {
-            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.GetIteration(), this.FilterParameterType);
+            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.OpenIteration, this.FilterParameterType);
             result.RemoveAll(d => !parameterValueSets.Contains(d));
         }
 
@@ -139,6 +139,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        this.Data = this.IterationService.GetParameterValueSets(this.ISessionAnchor.GetIteration()); 
+        this.Data = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration); 
     }
 }

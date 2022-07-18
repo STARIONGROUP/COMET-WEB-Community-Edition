@@ -1,4 +1,5 @@
-﻿<!------------------------------------------------------------------------------
+﻿@using CDP4Common.CommonData
+<!------------------------------------------------------------------------------
 Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -20,13 +21,32 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@inject ISessionAnchor ISessionAnchor
+
 @if(this.Scale != null && this.Value != null)
 {
-    <div>@Value [@Scale]</div>
+    @if(this.IsEditionMode == true && (this.IsManualEditable == true || this.IsReferenceEditable == true))
+    {
+        <div class="col p-0">
+            <BSInput InputSize="Size.Small" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+            [@Scale]
+        </div>
+    } else
+    {
+        <div class="col p-0"> @Value [@Scale] </div>
+    }  
 }
 else
 {
-    <div>@Value</div>
+    @if(this.IsEditionMode == true && (this.IsManualEditable == true || this.IsReferenceEditable == true))
+    {
+        <div class="col p-0">
+            <BSInput InputSize="Size.Small" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+        </div>
+    } else
+    {
+        <div class="col p-0">@Value</div>
+    }
 }
 
 @code {
@@ -41,4 +61,58 @@ else
     /// </summary>
     [Parameter]
     public string? Scale { get; set; }
+
+    /// <summary>
+    /// <see cref="ParameterValueSet"> to show
+    /// </summary>
+    [Parameter]
+    public ParameterValueSetBase? ParameterValueSet { get; set; } 
+
+    /// <summary>
+    /// Index of the displayed value in <see cref="ParameterValueSet">
+    /// </summary>
+    [Parameter]
+    public int IndexInValueSet { get; set; }
+
+    /// <summary>
+    /// Tells if the Manual Value can be editable by the user
+    /// </summary>
+    [Parameter]
+    public bool? IsManualEditable { get; set; }
+
+    /// <summary>
+    /// Tells if the Reference Value can be editable by the user
+    /// </summary>
+    [Parameter]
+    public bool? IsReferenceEditable { get; set; }
+
+    /// <summary>
+    /// Tells if the edition mode is activated
+    /// </summary>
+    [Parameter]
+    public bool? IsEditionMode { get; set; }
+
+    /// <summary>
+    /// Update value of <see cref="ParameterValueSet"> when a change appears 
+    /// </summary>
+    /// <param name="e"><see cref="ChangeEventArgs"> from input</param>
+    public void OnChangeValue(ChangeEventArgs e)
+    {
+        if (this.ParameterValueSet != null)
+        {
+            var clone = this.ParameterValueSet.Clone(false);
+            if (this.IsManualEditable == true)
+            {
+                clone.Manual[this.IndexInValueSet] = e.Value?.ToString();
+            }
+            else if (this.IsReferenceEditable == true)
+            {
+                clone.Reference[this.IndexInValueSet] = e.Value?.ToString();
+            }
+            this.ISessionAnchor.UpdateThings(new List<Thing>()
+            {
+                clone
+            });
+        }
+    }
 }

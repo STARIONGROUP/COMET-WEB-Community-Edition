@@ -40,6 +40,11 @@ namespace COMETwebapp.SessionManagement
         ISession Session { get; set; }
 
         /// <summary>
+        /// The opened <see cref="Iteration"/>
+        /// </summary>
+        Iteration? OpenIteration { get; }
+
+        /// <summary>
         /// True if the <see cref="ISession"/> is opened
         /// </summary>
         bool IsSessionOpen { get; set; }
@@ -67,20 +72,13 @@ namespace COMETwebapp.SessionManagement
         SiteDirectory GetSiteDirectory();
 
         /// <summary>
-        /// Returns the opened <see cref="Iteration"/> in the Session
-        /// </summary>
-        /// <returns>An <see cref="Iteration"/></returns>
-        Iteration? GetIteration();
-
-        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
         /// </summary>
-        /// <param name="modelSetup"> The selected <see cref="EngineeringModelSetup"/> </param>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
-        Task SetOpenIteration(EngineeringModelSetup? modelSetup, IterationSetup? iterationSetup);
+        Task ReadIteration(IterationSetup? iterationSetup);
 
         /// <summary>
-        /// Close the <see cref="OpenIteration"/>
+        /// Close the <see cref="ReadIteration"/>
         /// </summary>
         void CloseIteration();
 

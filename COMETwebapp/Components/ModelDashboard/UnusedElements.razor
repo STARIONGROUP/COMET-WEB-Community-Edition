@@ -107,7 +107,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeUnusedElements()
     {
-        this.UnUsedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.GetIteration());
+        this.UnUsedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.OpenIteration);
     }
 
     /// <summary>

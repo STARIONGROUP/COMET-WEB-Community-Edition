@@ -20,7 +20,7 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@if(this.ToDisplay == true && this.Element != null)
+@if(this.Element != null)
 {
     var title = "";
     var iid = $"{this.Element.Iid}";
@@ -63,7 +63,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             foreach (var parameterValueSet in parameter.ValueSet.OrderBy(p => p.ModelCode()))
                                             {
-                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
                                         }
                                     }
@@ -77,7 +77,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             foreach(var parameterValueSet in parameter.ValueSet)
                                             {
-                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
                                         }
                                     } else
@@ -86,7 +86,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             foreach(var parameterValueSet in parameter.ValueSet)
                                             {
-                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
                                         }
                                     }
@@ -102,14 +102,14 @@ Copyright (c) 2022 RHEA System S.A.
 
 @code {
     /// <summary>
-    /// Set if the node is display
-    /// </summary>
-    [Parameter]
-    public bool? ToDisplay { get; set; }
-
-    /// <summary>
     /// The element associated to the node
     /// </summary>
     [Parameter]
     public ElementBase? Element { get; set; }
+
+    /// <summary>
+    /// Sets edition mode activate
+    /// </summary>
+    [Parameter]
+    public bool IsEditionMode { get; set; }
 }
