@@ -27,7 +27,7 @@ Copyright (c) 2022 RHEA System S.A.
             <Nodes>
                 @foreach(var element in this.Elements)
                 {
-                    <ParameterTreeNode Element="element" IsEditionMode="@IsEditionMode" />
+                    <ParameterTreeNode Element="element" IsEditionMode="@IsEditionMode" IsOwnedParameters="@IsOwnedParameters" />
                 }
             </Nodes>
         </DxTreeView>
@@ -46,4 +46,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public bool IsEditionMode { get; set; }
+
+    /// <summary>
+    /// Sets if only parameters owned by the active domain are shown
+    /// </summary>
+    [Parameter]
+    public bool? IsOwnedParameters { get; set; }
 }
