@@ -61,7 +61,19 @@ Copyright (c) 2022 RHEA System S.A.
                                     var elementDefinition = (ElementDefinition)this.Element;
                                     @if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
                                     {
-                                        foreach (var parameter in elementDefinition.Parameter.OrderBy(p => p.ParameterType.Name))
+                                        var parameters = new List<Parameter>();
+                                        if(this.IsOwnedParameters == true)
+                                        {
+                                            parameters.AddRange(elementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+                                        } else
+                                        {
+                                            parameters.AddRange(elementDefinition.Parameter);
+                                        }
+                                        if(this.SelectedParameterType != null)
+                                        {
+                                            parameters.RemoveAll(p => p.ParameterType.Name != this.SelectedParameterType);
+                                        }
+                                        foreach (var parameter in parameters.OrderBy(p => p.ParameterType.Name))
                                         {
                                             foreach (var parameterValueSet in parameter.ValueSet.OrderBy(p => p.ModelCode()))
                                             {
@@ -83,7 +95,11 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             parameters.AddRange(elementUsage.ElementDefinition.Parameter);
                                         }
-                                        foreach(var parameter in parameters)
+                                        if(this.SelectedParameterType != null)
+                                        {
+                                            parameters.RemoveAll(p => p.ParameterType.Name != this.SelectedParameterType);
+                                        }
+                                        foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name))
                                         {
                                             foreach(var parameterValueSet in parameter.ValueSet)
                                             {
@@ -100,7 +116,11 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             parameterOverrides.AddRange(elementUsage.ParameterOverride);
                                         }
-                                        foreach(var parameter in parameterOverrides)
+                                        if(this.SelectedParameterType != null)
+                                        {
+                                            parameterOverrides.RemoveAll(p => p.ParameterType.Name != this.SelectedParameterType);
+                                        }
+                                        foreach(var parameter in parameterOverrides.OrderBy(p => p.ParameterType.Name))
                                         {
                                             foreach(var parameterValueSet in parameter.ValueSet)
                                             {
@@ -136,4 +156,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public bool? IsOwnedParameters { get; set; }
+
+    /// <summary>
+    /// Name of the parameter type selected
+    /// </summary>
+    [Parameter]
+    public string? SelectedParameterType { get; set; }
 }

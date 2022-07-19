@@ -42,6 +42,22 @@ Copyright (c) 2022 RHEA System S.A.
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
+                </div>
+                <div class="col">
+                    <h6>Filter on Parameter Type:</h6>
+                    <div class="width-fit-content">
+                        <DxComboBox Data="@ParameterTypeNames"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.selectedParameterType"
+                            ValueChanged="@((string parameterTypeName) => this.OnParameterFilterChange(parameterTypeName))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <div class="@BS.Form_Check @BS.Form_Switch">
                         <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsEditionMode"/>
                         <BSLabel IsCheckLabel="true">Edition Mode</BSLabel>
@@ -55,7 +71,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             </div>
             <div class="row">
-                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" IsEditionMode="@IsEditionMode" IsOwnedParameters="@IsOwnedParameters"/>
+                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" IsEditionMode="@IsEditionMode" IsOwnedParameters="@IsOwnedParameters" SelectedParameterType="@selectedParameterType" />
             </div>
         </div>
     </Body>
@@ -84,9 +100,19 @@ Copyright (c) 2022 RHEA System S.A.
     private bool IsOwnedParameters { get; set; } = true;
 
     /// <summary>
+    /// Name of the parameter type selected
+    /// </summary>
+    private string? selectedParameterType { get; set; }
+
+    /// <summary>
     /// Listeners for the components to update it with ISession
     /// </summary>
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// All ParameterType names in the model
+    /// </summary>
+    public List<string> ParameterTypeNames = new List<string>();
 
     /// <summary>
     /// Initialize component at first render and after session update
@@ -95,6 +121,9 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.Elements.Clear();
         this.InitializeElements();
+
+        this.ParameterTypeNames = new List<string>();
+        this.IterationService.GetParameterTypes(this.ISessionAnchor.OpenIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
@@ -151,6 +180,33 @@ Copyright (c) 2022 RHEA System S.A.
                 this.Elements.Add(iteration.TopElement);
                 iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
             }
+
+            if(this.selectedParameterType != null)
+            {
+                var elementsToRemove = new List<ElementBase>();
+                this.Elements.ForEach(e =>
+                {
+                    if (e.GetType().Equals(typeof(ElementDefinition)))
+                    {
+                        var elementDefinition = (ElementDefinition)e;
+                        if(elementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.selectedParameterType)).Count == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        }
+                    } else if (e.GetType().Equals(typeof(ElementUsage)))
+                    {
+                        var elementUsage = (ElementUsage)e;
+                        if(elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.selectedParameterType)).Count == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        } else if (elementUsage.ParameterOverride.Count != 0 && elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.selectedParameterType)).Count == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        }
+                    }
+                });
+                this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
+            }
         }
     }
 
@@ -182,9 +238,20 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Updates Elements list when a filter for owner is selected
     /// </summary>
-    /// <param name="e"></param>
+    /// <param name="e"><see cref="ChangeEventArgs"> from the selector</param>
     public void OnOwnerFilterChange(ChangeEventArgs e)
     {
+        this.Elements.Clear();
+        this.InitializeElements();
+    }
+
+    /// <summary>
+    /// Updates Elements list when a filter for parameter type is selected
+    /// </summary>
+    /// <param name="e">Name of the ParameterType selected</param>
+    public void OnParameterFilterChange(string? parameterType)
+    {
+        this.selectedParameterType = parameterType;
         this.Elements.Clear();
         this.InitializeElements();
     }
