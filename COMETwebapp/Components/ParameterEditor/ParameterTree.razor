@@ -27,7 +27,12 @@ Copyright (c) 2022 RHEA System S.A.
             <Nodes>
                 @foreach(var element in this.Elements)
                 {
-                    <ParameterTreeNode Element="element" IsEditionMode="@IsEditionMode" IsOwnedParameters="@IsOwnedParameters" SelectedParameterType="@SelectedParameterType" />
+                    <ParameterTreeNode Element="element" 
+                        IsEditionMode="@IsEditionMode" 
+                        IsOwnedParameters="@IsOwnedParameters" 
+                        ParameterTypeSelected="@ParameterTypeSelected" 
+                        OptionSelected="@OptionSelected" 
+                        StateSelected="@StateSelected" />
                 }
             </Nodes>
         </DxTreeView>
@@ -57,5 +62,17 @@ Copyright (c) 2022 RHEA System S.A.
     /// Name of the parameter type selected
     /// </summary>
     [Parameter]
-    public string? SelectedParameterType { get; set; }
+    public string? ParameterTypeSelected { get; set; }
+
+    /// <summary>
+    /// Name of the option selected
+    /// </summary>
+    [Parameter]
+    public string? OptionSelected { get; set; }
+
+    /// <summary>
+    /// Name of the state selected
+    /// </summary>
+    [Parameter]
+    public string? StateSelected { get; set; }
 }

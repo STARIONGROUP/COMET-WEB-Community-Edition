@@ -76,6 +76,28 @@ namespace COMETwebapp.IterationServices
         }
 
         /// <summary>
+        /// Get <see cref="NestedElement"/> of the given iteration and for a given option
+        /// </summary>
+        /// <param name="iteration">
+        /// The <see cref="Iteration"/> for which the <see cref="NestedElement"/>s list is created
+        /// </param>
+        /// <param name="optionIid">
+        /// Name of the <see cref="Option"/> for which the <see cref="NestedElement"/>s list is created
+        /// </param>
+        /// <returns>All <see cref="NestedElement"/> of the given option</returns>
+        public List<NestedElement> GetNestedElementsByOption(Iteration? iteration, Guid? optionIid)
+        {
+            var nestedElementTreeGenerator = new NestedElementTreeGenerator();
+            var nestedElements = new List<NestedElement>();
+            if (iteration?.TopElement != null)
+            {
+                var option = iteration.Option.ToList().Find(option => option.Iid == optionIid);
+                nestedElements.AddRange(nestedElementTreeGenerator.Generate(option));
+            }
+            return nestedElements;
+        }
+
+        /// <summary>
         /// Get the nested parameters from the given option
         /// </summary>
         /// <param name="iteration">

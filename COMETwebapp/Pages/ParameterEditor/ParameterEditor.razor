@@ -49,12 +49,53 @@ Copyright (c) 2022 RHEA System S.A.
                         <DxComboBox Data="@ParameterTypeNames"
                             AllowUserInput="true"
                             NullText="--Select--"
-                            Value="this.selectedParameterType"
+                            Value="this.parameterTypeSelected"
                             ValueChanged="@((string parameterTypeName) => this.OnParameterFilterChange(parameterTypeName))"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
-                </div>
+                </div>  
+                @{
+                    var iteration = this.ISessionAnchor.OpenIteration;
+                }
+                @if (iteration != null && iteration.Option.ToList().Count > 1)
+                {
+                    var optionNames = new List<string>();
+                    iteration.Option.OrderBy(o => o.Name).ToList().ForEach(o => optionNames.Add(o.Name));
+                    <div class="col">
+                        <h6>Filter on Option:</h6>
+                        <div class="width-fit-content">
+                            <DxComboBox Data="@optionNames"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.optionSelected"
+                                ValueChanged="@((string option) => OnOptionFilterChange(option))"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                FilteringMode="DataGridFilteringMode.Contains"/>
+                        </div>
+                    </div>
+                }
+                @if (iteration != null && iteration.Option.ToList().Count > 1)
+                {
+                    var actualStates = new List<string>();
+                    iteration.ActualFiniteStateList.ForEach(l =>
+                    {
+                        l.ActualState.ForEach(s =>
+                        {
+                            actualStates.Add(s.Name);
+                        });
+                    });
+                    <div class="col">
+                        <h6>Filter on State:</h6>
+                        <DxComboBox Data="@actualStates.OrderBy(e => e)"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.stateSelected"
+                            ValueChanged="@((string actualState) => OnStateFilterChange(actualState))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+                    </div>
+                }
             </div>
             <div class="row">
                 <div class="col">
@@ -71,7 +112,12 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             </div>
             <div class="row">
-                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" IsEditionMode="@IsEditionMode" IsOwnedParameters="@IsOwnedParameters" SelectedParameterType="@selectedParameterType" />
+                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" 
+                    IsEditionMode="@IsEditionMode" 
+                    IsOwnedParameters="@IsOwnedParameters"
+                    ParameterTypeSelected="@parameterTypeSelected" 
+                    OptionSelected="@optionSelected"
+                    StateSelected="@stateSelected" />
             </div>
         </div>
     </Body>
@@ -102,7 +148,17 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Name of the parameter type selected
     /// </summary>
-    private string? selectedParameterType { get; set; }
+    private string? parameterTypeSelected { get; set; }
+
+    /// <summary>
+    /// Name of the option selected
+    /// </summary>
+    private string? optionSelected { get; set; }
+
+    /// <summary>
+    /// Name of the state selected
+    /// </summary>
+    private string? stateSelected { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -155,7 +211,7 @@ Copyright (c) 2022 RHEA System S.A.
         {
             if(this.IsOwnedParameters == true)
             {
-                if(iteration.TopElement.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                if(iteration.TopElement != null && iteration.TopElement.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
                 {
                     this.Elements.Add(iteration.TopElement);
                 }
@@ -177,11 +233,14 @@ Copyright (c) 2022 RHEA System S.A.
                 });
             } else
             {
-                this.Elements.Add(iteration.TopElement);
+                if(iteration.TopElement != null)
+                {
+                    this.Elements.Add(iteration.TopElement);
+                }
                 iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
             }
 
-            if(this.selectedParameterType != null)
+            if(this.parameterTypeSelected != null)
             {
                 var elementsToRemove = new List<ElementBase>();
                 this.Elements.ForEach(e =>
@@ -189,19 +248,112 @@ Copyright (c) 2022 RHEA System S.A.
                     if (e.GetType().Equals(typeof(ElementDefinition)))
                     {
                         var elementDefinition = (ElementDefinition)e;
-                        if(elementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.selectedParameterType)).Count == 0)
+                        if(elementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
                         {
                             elementsToRemove.Add(e);
                         }
                     } else if (e.GetType().Equals(typeof(ElementUsage)))
                     {
                         var elementUsage = (ElementUsage)e;
-                        if(elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.selectedParameterType)).Count == 0)
+                        if(elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
                         {
                             elementsToRemove.Add(e);
-                        } else if (elementUsage.ParameterOverride.Count != 0 && elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.selectedParameterType)).Count == 0)
+                        } else if (elementUsage.ParameterOverride.Count != 0 && elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
                         {
                             elementsToRemove.Add(e);
+                        }
+                    }
+                });
+                this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
+            }
+
+            if(this.optionSelected != null)
+            {
+                var option = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(option => option.Name.Equals(this.optionSelected))?.Iid;
+                var nestedElements = this.IterationService.GetNestedElementsByOption(this.ISessionAnchor.OpenIteration, option);
+
+                var associatedElements = new List<ElementUsage>();
+                nestedElements.ForEach(element =>
+                {
+                    associatedElements.AddRange(element.ElementUsage);
+                });
+                associatedElements = associatedElements.Distinct().ToList();
+
+                var elementsToRemove = new List<ElementBase>();
+                this.Elements.ForEach(e =>
+                {
+                    if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
+                    {
+                        elementsToRemove.Add(e);
+                    }
+                });
+                this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
+            }
+
+            if(this.stateSelected != null)
+            {
+                Console.WriteLine($"nb e {this.stateSelected}");
+                var elementsToRemove = new List<ElementBase>();
+                Console.WriteLine($"nb e {this.Elements.Count}");
+                this.Elements.ForEach(e =>
+                {
+                    Console.WriteLine($"type {e.GetType()}");
+                    if (e.GetType().Equals(typeof(ElementDefinition)))
+                    {
+                        var elementDefinition = (ElementDefinition)e;
+                        var actualStates = new List<ActualFiniteState>();
+                        elementDefinition.Parameter.ForEach(p => {
+                            p.ValueSet.ForEach(v =>
+                            {
+                                if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                {
+                                    actualStates.Add(v.ActualState);
+                                }
+                            });
+                        });
+                        if(actualStates.Count == 0)
+                        {
+                            Console.WriteLine("je passe ici2");
+                            elementsToRemove.Add(e);
+                        }
+                    } else if (e.GetType().Equals(typeof(ElementUsage)))
+                    {
+                        var elementUsage = (ElementUsage)e;
+                        var actualStates = new List<ActualFiniteState>();
+                        if(elementUsage.ParameterOverride.Count == 0)
+                        {
+                            Console.WriteLine("je passe ici");
+                            elementUsage.ElementDefinition.Parameter.ForEach(p => {
+                                p.ValueSet.ForEach(v =>
+                                {
+                                    if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                    {
+                                        actualStates.Add(v.ActualState);
+                                    }
+                                });
+                            });
+                            if(actualStates.Count == 0)
+                            {
+                                Console.WriteLine("je passe ici2");
+                                elementsToRemove.Add(e);
+                            }
+                        } else if (elementUsage.ParameterOverride.Count != 0)
+                        {
+                            Console.WriteLine("je passe la");
+                            elementUsage.ParameterOverride.ForEach(p => {
+                                p.ValueSet.ForEach(v =>
+                                {
+                                    if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                    {
+                                        actualStates.Add(v.ActualState);
+                                    }
+                                });
+                            });
+                            if(actualStates.Count == 0)
+                            {
+                                Console.WriteLine("je passe la2");
+                                elementsToRemove.Add(e);
+                            }
                         }
                     }
                 });
@@ -251,7 +403,29 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Name of the ParameterType selected</param>
     public void OnParameterFilterChange(string? parameterType)
     {
-        this.selectedParameterType = parameterType;
+        this.parameterTypeSelected = parameterType;
+        this.Elements.Clear();
+        this.InitializeElements();
+    }
+
+    /// <summary>
+    /// Updates Elements list when a filter for option is selected
+    /// </summary>
+    /// <param name="e">Name of the Option selected</param>
+    public void OnOptionFilterChange(string? option)
+    {
+        this.optionSelected = option;
+        this.Elements.Clear();
+        this.InitializeElements();
+    }
+
+    /// <summary>
+    /// Updates Elements list when a filter for parameter typestate is selected
+    /// </summary>
+    /// <param name="e">Name of the State selected</param>
+    public void OnStateFilterChange(string? state)
+    {
+        this.stateSelected = state;
         this.Elements.Clear();
         this.InitializeElements();
     }
