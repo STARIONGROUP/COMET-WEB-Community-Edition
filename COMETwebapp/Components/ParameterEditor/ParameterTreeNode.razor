@@ -69,13 +69,33 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             parameters.AddRange(elementDefinition.Parameter);
                                         }
-                                        if(this.SelectedParameterType != null)
+                                        if(this.ParameterTypeSelected != null)
                                         {
-                                            parameters.RemoveAll(p => p.ParameterType.Name != this.SelectedParameterType);
+                                            parameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
                                         }
                                         foreach (var parameter in parameters.OrderBy(p => p.ParameterType.Name))
                                         {
-                                            foreach (var parameterValueSet in parameter.ValueSet.OrderBy(p => p.ModelCode()))
+                                            var parameterValueSets = new List<ParameterValueSet>();
+                                            if(this.OptionSelected != null && parameter.IsOptionDependent)
+                                            {
+                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()).ToList().FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+                                            } else
+                                            {
+                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()));
+                                            }
+                                            if(this.StateSelected != null)
+                                            {
+                                                var parameterValueSetsToRemove = new List<ParameterValueSet>();
+                                                parameterValueSets.ForEach(p =>
+                                                {
+                                                    if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
+                                                    {
+                                                        parameterValueSetsToRemove.Add(p);
+                                                    }
+                                                });
+                                                parameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
+                                            }
+                                            foreach (var parameterValueSet in parameterValueSets)
                                             {
                                                 <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
@@ -95,13 +115,33 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             parameters.AddRange(elementUsage.ElementDefinition.Parameter);
                                         }
-                                        if(this.SelectedParameterType != null)
+                                        if(this.ParameterTypeSelected != null)
                                         {
-                                            parameters.RemoveAll(p => p.ParameterType.Name != this.SelectedParameterType);
+                                            parameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
                                         }
                                         foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name))
                                         {
-                                            foreach(var parameterValueSet in parameter.ValueSet)
+                                            var parameterValueSets = new List<ParameterValueSet>();
+                                            if(this.OptionSelected != null && parameter.IsOptionDependent)
+                                            {
+                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()).ToList().FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+                                            } else
+                                            {
+                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()));
+                                            }
+                                            if(this.StateSelected != null)
+                                            {
+                                                var parameterValueSetsToRemove = new List<ParameterValueSet>();
+                                                parameterValueSets.ForEach(p =>
+                                                {
+                                                    if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
+                                                    {
+                                                        parameterValueSetsToRemove.Add(p);
+                                                    }
+                                                });
+                                                parameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
+                                            }
+                                            foreach(var parameterValueSet in parameterValueSets)
                                             {
                                                 <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
@@ -116,13 +156,33 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             parameterOverrides.AddRange(elementUsage.ParameterOverride);
                                         }
-                                        if(this.SelectedParameterType != null)
+                                        if(this.ParameterTypeSelected != null)
                                         {
-                                            parameterOverrides.RemoveAll(p => p.ParameterType.Name != this.SelectedParameterType);
+                                            parameterOverrides.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
                                         }
                                         foreach(var parameter in parameterOverrides.OrderBy(p => p.ParameterType.Name))
                                         {
-                                            foreach(var parameterValueSet in parameter.ValueSet)
+                                            var parameterValueSets = new List<ParameterOverrideValueSet>();
+                                            if(this.OptionSelected != null && parameter.IsOptionDependent)
+                                            {
+                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()).ToList().FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+                                            } else
+                                            {
+                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()));
+                                            }
+                                            if(this.StateSelected != null)
+                                            {
+                                                var parameterValueSetsToRemove = new List<ParameterOverrideValueSet>();
+                                                parameterValueSets.ForEach(p =>
+                                                {
+                                                    if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
+                                                    {
+                                                        parameterValueSetsToRemove.Add(p);
+                                                    }
+                                                });
+                                                parameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
+                                            }
+                                            foreach(var parameterValueSet in parameterValueSets)
                                             {
                                                 <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
@@ -161,5 +221,17 @@ Copyright (c) 2022 RHEA System S.A.
     /// Name of the parameter type selected
     /// </summary>
     [Parameter]
-    public string? SelectedParameterType { get; set; }
+    public string? ParameterTypeSelected { get; set; }
+
+    /// <summary>
+    /// Name of the option selected
+    /// </summary>
+    [Parameter]
+    public string? OptionSelected { get; set; }
+
+    /// <summary>
+    /// Name of the state selected
+    /// </summary>
+    [Parameter]
+    public string? StateSelected { get; set; }
 }

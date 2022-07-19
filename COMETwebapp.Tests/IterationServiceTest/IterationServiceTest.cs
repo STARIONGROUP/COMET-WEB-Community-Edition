@@ -309,6 +309,14 @@ namespace COMETwebapp.Tests.IterationServiceTest
         }
 
         [Test]
+        public void VerifyGetNestedElementsByOption()
+        {
+            var option = this.iteration.Option.First();
+            Assert.That(iterationService.GetNestedElementsByOption(this.iteration, option.Iid), Is.Not.Empty);
+            Assert.That(iterationService.GetNestedElementsByOption(this.iteration, option.Iid).Count, Is.EqualTo(iterationService.GetNestedElements(this.iteration).Count));
+        }
+
+        [Test]
         public void VerifyGetNestedParameters()
         {
             Assert.That(iterationService.GetNestedParameters(this.iteration ,this.iteration.Option.First().Iid), Is.Not.Empty);

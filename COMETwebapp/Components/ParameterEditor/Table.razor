@@ -37,12 +37,24 @@ Copyright (c) 2022 RHEA System S.A.
             <BSTD>@modelCode[0]</BSTD>
         } else if(modelCode.Count()  == 2)
         {
-            <BSTD>
-                @modelCode[0]
-                <div>
-                    Option: @modelCode[1]
-                </div>
-            </BSTD>
+            if (this.Parameter.IsOptionDependent)
+            {
+                <BSTD>
+                    @modelCode[0]
+                    <div>
+                        Option: @modelCode[1]
+                    </div>
+                </BSTD>
+            } else if (this.Parameter.StateDependence != null)
+            {
+                <BSTD>
+                    @modelCode[0]
+                    <div>
+                        State: @modelCode[1]
+                    </div>
+                </BSTD>
+            }
+
         } else if(modelCode.Count() > 2)
         {
             <BSTD>
