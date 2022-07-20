@@ -36,7 +36,14 @@ Copyright (c) 2022 RHEA System S.A.
                     {
                         var scale = this.ArrayParameterType.Component.ElementAt(i * nbRows + j).Scale?.ShortName;
                         var index = this.IndexStartInValueSet + i * nbRows + j;
-                        <ScalarParameter Value="@Values.ElementAt(i*nbRows + j)" Scale="@scale" ParameterValueSet="@ParameterValueSet" IndexInValueSet="@index" IsManualEditable="@IsManualEditable" IsReferenceEditable="@IsReferenceEditable" />
+                        <ScalarParameter 
+                            Value="@Values.ElementAt(i*nbRows + j)" 
+                            Scale="@scale" 
+                            ParameterValueSet="@ParameterValueSet" 
+                            IndexInValueSet="@index" 
+                            IsManualEditable="@IsManualEditable" 
+                            IsReferenceEditable="@IsReferenceEditable" 
+                            IsParameterValueSetEdited="@IsParameterValueSetEdited" />
                     }
                 </div>
             }
@@ -60,7 +67,14 @@ Copyright (c) 2022 RHEA System S.A.
                         @for(int j = 0; j < nbColumns; j++)
                         {
                             var scale = this.ArrayParameterType.Component.ElementAt(i * nbRows + j).Scale?.ShortName;
-                            <ScalarParameter Value="@Values.ElementAt(i*nbRows + j)" Scale="@scale" ParameterValueSet="@ParameterValueSet" IndexInValueSet="@(i*nbRows + j)" IsManualEditable="@IsManualEditable" IsReferenceEditable="@IsReferenceEditable" />
+                            <ScalarParameter 
+                                Value="@Values.ElementAt(i*nbRows + j)" 
+                                Scale="@scale" 
+                                ParameterValueSet="@ParameterValueSet" 
+                                IndexInValueSet="@(i*nbRows + j)" 
+                                IsManualEditable="@IsManualEditable" 
+                                IsReferenceEditable="@IsReferenceEditable" 
+                                IsParameterValueSetEdited="@IsParameterValueSetEdited"/>
                         }
                     </div>
                 }
@@ -105,4 +119,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public int IndexStartInValueSet { get; set; }
+
+    /// <summary>
+    /// Sets if ParameterValueSet was edited
+    /// </summary>
+    [Parameter]
+    public bool? IsParameterValueSetEdited { get; set; }
 }

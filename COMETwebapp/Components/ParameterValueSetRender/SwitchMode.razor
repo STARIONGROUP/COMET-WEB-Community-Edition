@@ -21,14 +21,21 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
+@inject IIterationService IterationService
 
 @if(this.ParameterValueSet != null)
 {
+    var colorToApply = string.Empty;
+    if (this.IsParameterValueSetEdited == true)
+    {
+        colorToApply = "color-title";
+    }
     @if(this.IsSwitchEditable == true)
     {
         <div class="p-0">
             <div class="row m-0">
                 <DxComboBox Data="@switchModeValues"
+                    InputCssClass="@colorToApply"
                     Value="@ParameterValueSet.ValueSwitch"
                     ValueChanged="@((ParameterSwitchKind switchMode) => OnSwitchModeChange(switchMode))" />
             </div>
@@ -36,7 +43,7 @@ Copyright (c) 2022 RHEA System S.A.
     }
     else
     {
-        <div>@ParameterValueSet.ValueSwitch.ToString()</div>
+        <div class="@colorToApply">@ParameterValueSet.ValueSwitch.ToString()</div>
     }
 
 }
@@ -55,6 +62,12 @@ Copyright (c) 2022 RHEA System S.A.
     public bool? IsSwitchEditable { get; set; }
 
     /// <summary>
+    /// Sets if ParameterValueSet was edited
+    /// </summary>
+    [Parameter]
+    public bool? IsParameterValueSetEdited { get; set; }
+
+    /// <summary>
     /// List of Switch Mode possibilities
     /// </summary>
     private List<ParameterSwitchKind>? switchModeValues { get; set; } = new List<ParameterSwitchKind>(){
@@ -71,6 +84,12 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if (this.ParameterValueSet != null)
         {
+            if(this.IsSwitchEditable == true && !this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid))
+            {
+                this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
+                CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
+            }
+
             this.ParameterValueSet.ValueSwitch = switchMode;
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
