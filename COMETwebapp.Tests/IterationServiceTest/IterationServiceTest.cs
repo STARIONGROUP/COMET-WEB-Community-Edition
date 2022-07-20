@@ -142,6 +142,13 @@ namespace COMETwebapp.Tests.IterationServiceTest
                 Name = "Battery"
             };
 
+            var elementDefinition_3 = new ElementDefinition(Guid.NewGuid(), cache, uri)
+            {
+                Owner = this.domainOfExpertise,
+                ShortName = "solar_panel",
+                Name = "Solar Panel"
+            };
+
             var elementUsage_1 = new ElementUsage(Guid.NewGuid(), cache, uri)
             {
                 ElementDefinition = elementDefinition_2,
@@ -236,6 +243,7 @@ namespace COMETwebapp.Tests.IterationServiceTest
 
             this.iteration.Element.Add(elementDefinition_1);
             this.iteration.Element.Add(elementDefinition_2);
+            this.iteration.Element.Add(elementDefinition_3);
             this.iteration.TopElement = elementDefinition_1;
 
 
@@ -268,11 +276,11 @@ namespace COMETwebapp.Tests.IterationServiceTest
 
             this.unReferencedElements = new List<ElementDefinition>()
             {
-                elementDefinition_1
+                elementDefinition_3
             };
             this.unUsedElements = new List<ElementDefinition>()
             {
-                elementDefinition_1
+                elementDefinition_3
             };
 
             PropertyInfo nameProperty = typeof(ParameterValueSet).GetProperty("RevisionNumber");

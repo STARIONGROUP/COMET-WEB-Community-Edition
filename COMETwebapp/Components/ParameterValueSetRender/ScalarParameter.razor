@@ -21,11 +21,10 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@using CDP4Common.CommonData
 
 @if(this.Scale != null && this.Value != null)
 {
-    @if(this.IsEditionMode == true && (this.IsManualEditable == true || this.IsReferenceEditable == true))
+    @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
         <div class="col p-0">
             <BSInput InputSize="Size.Small" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
@@ -38,7 +37,7 @@ Copyright (c) 2022 RHEA System S.A.
 }
 else
 {
-    @if(this.IsEditionMode == true && (this.IsManualEditable == true || this.IsReferenceEditable == true))
+    @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
         <div class="col p-0">
             <BSInput InputSize="Size.Small" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
@@ -85,12 +84,6 @@ else
     /// </summary>
     [Parameter]
     public bool? IsReferenceEditable { get; set; }
-
-    /// <summary>
-    /// Tells if the edition mode is activated
-    /// </summary>
-    [Parameter]
-    public bool? IsEditionMode { get; set; }
 
     /// <summary>
     /// Update value of <see cref="ParameterValueSet"> when a change appears 

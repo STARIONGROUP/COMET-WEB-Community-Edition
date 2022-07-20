@@ -143,6 +143,11 @@ namespace COMETwebapp.IterationServices
             }
             unusedElementDefinitions.RemoveAll(e => associatedElements.Contains(e));
 
+            if(iteration is not null && iteration.TopElement is not null)
+            {
+                unusedElementDefinitions.Remove(iteration.TopElement);
+            }
+
             return unusedElementDefinitions;
         }
 
@@ -168,6 +173,11 @@ namespace COMETwebapp.IterationServices
                 unreferencedElementDefinitions.AddRange(iteration.Element);
             }
             unreferencedElementDefinitions.RemoveAll(e => associatedElementDefinitions.Contains(e));
+
+            if (iteration is not null && iteration.TopElement is not null)
+            {
+                unreferencedElementDefinitions.Remove(iteration.TopElement);
+            }
 
             return unreferencedElementDefinitions;
         }
