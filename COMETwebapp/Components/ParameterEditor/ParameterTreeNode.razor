@@ -24,7 +24,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @if(this.Element != null)
 {
-    var title = "";
+    var title = string.Empty;
     var iid = $"{this.Element.Iid}";
     @if (this.Element.GetType().Equals(typeof(ElementDefinition)))
     {
@@ -61,43 +61,11 @@ Copyright (c) 2022 RHEA System S.A.
                                     var elementDefinition = (ElementDefinition)this.Element;
                                     @if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
                                     {
-                                        var parameters = new List<Parameter>();
-                                        if(this.IsOwnedParameters == true)
+                                        foreach (var parameter in FilterParameters(elementDefinition.Parameter))
                                         {
-                                            parameters.AddRange(elementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
-                                        } else
-                                        {
-                                            parameters.AddRange(elementDefinition.Parameter);
-                                        }
-                                        if(this.ParameterTypeSelected != null)
-                                        {
-                                            parameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-                                        }
-                                        foreach (var parameter in parameters.OrderBy(p => p.ParameterType.Name))
-                                        {
-                                            var parameterValueSets = new List<ParameterValueSet>();
-                                            if(this.OptionSelected != null && parameter.IsOptionDependent)
+                                            foreach (var parameterValueSet in FilterParameterValueSets(parameter.IsOptionDependent, parameter.ValueSet))
                                             {
-                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()).ToList().FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-                                            } else
-                                            {
-                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()));
-                                            }
-                                            if(this.StateSelected != null)
-                                            {
-                                                var parameterValueSetsToRemove = new List<ParameterValueSet>();
-                                                parameterValueSets.ForEach(p =>
-                                                {
-                                                    if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                                                    {
-                                                        parameterValueSetsToRemove.Add(p);
-                                                    }
-                                                });
-                                                parameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-                                            }
-                                            foreach (var parameterValueSet in parameterValueSets)
-                                            {
-                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
                                         }
                                     }
@@ -107,84 +75,20 @@ Copyright (c) 2022 RHEA System S.A.
                                     var elementUsage = (ElementUsage)this.Element;
                                     @if(elementUsage.ParameterOverride.Count == 0)
                                     {
-                                        var parameters = new List<Parameter>();
-                                        if(this.IsOwnedParameters == true)
+                                        foreach(var parameter in FilterParameters(elementUsage.ElementDefinition.Parameter))
                                         {
-                                            parameters.AddRange(elementUsage.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
-                                        } else
-                                        {
-                                            parameters.AddRange(elementUsage.ElementDefinition.Parameter);
-                                        }
-                                        if(this.ParameterTypeSelected != null)
-                                        {
-                                            parameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-                                        }
-                                        foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name))
-                                        {
-                                            var parameterValueSets = new List<ParameterValueSet>();
-                                            if(this.OptionSelected != null && parameter.IsOptionDependent)
+                                            foreach(var parameterValueSet in  FilterParameterValueSets(parameter.IsOptionDependent, parameter.ValueSet))
                                             {
-                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()).ToList().FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-                                            } else
-                                            {
-                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()));
-                                            }
-                                            if(this.StateSelected != null)
-                                            {
-                                                var parameterValueSetsToRemove = new List<ParameterValueSet>();
-                                                parameterValueSets.ForEach(p =>
-                                                {
-                                                    if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                                                    {
-                                                        parameterValueSetsToRemove.Add(p);
-                                                    }
-                                                });
-                                                parameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-                                            }
-                                            foreach(var parameterValueSet in parameterValueSets)
-                                            {
-                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
                                         }
                                     } else
                                     {
-                                        var parameterOverrides = new List<ParameterOverride>();
-                                        if(this.IsOwnedParameters == true)
+                                        foreach(var parameter in FilterParameterOverrides(elementUsage.ParameterOverride))
                                         {
-                                            parameterOverrides.AddRange(elementUsage.ParameterOverride.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
-                                        } else
-                                        {
-                                            parameterOverrides.AddRange(elementUsage.ParameterOverride);
-                                        }
-                                        if(this.ParameterTypeSelected != null)
-                                        {
-                                            parameterOverrides.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-                                        }
-                                        foreach(var parameter in parameterOverrides.OrderBy(p => p.ParameterType.Name))
-                                        {
-                                            var parameterValueSets = new List<ParameterOverrideValueSet>();
-                                            if(this.OptionSelected != null && parameter.IsOptionDependent)
+                                            foreach(var parameterValueSet in FilterParameterOverrideValueSets(parameter.IsOptionDependent, parameter.ValueSet))
                                             {
-                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()).ToList().FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-                                            } else
-                                            {
-                                                parameterValueSets.AddRange(parameter.ValueSet.OrderBy(p => p.ModelCode()));
-                                            }
-                                            if(this.StateSelected != null)
-                                            {
-                                                var parameterValueSetsToRemove = new List<ParameterOverrideValueSet>();
-                                                parameterValueSets.ForEach(p =>
-                                                {
-                                                    if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                                                    {
-                                                        parameterValueSetsToRemove.Add(p);
-                                                    }
-                                                });
-                                                parameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-                                            }
-                                            foreach(var parameterValueSet in parameterValueSets)
-                                            {
-                                                <Table Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
                                             }
                                         }
                                     }
@@ -234,4 +138,108 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public string? StateSelected { get; set; }
+
+    /// <summary>
+    /// Filters <see cref="Parameter">s for the selected owner and the selected type
+    /// </summary>
+    /// <param name="parameters"><see cref="Parameter">s to filter</param>
+    public IEnumerable<Parameter> FilterParameters(List<Parameter> parameters)
+    {
+        var filteredParameters = new List<Parameter>();
+        if(this.IsOwnedParameters == true)
+        {
+            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+        } else
+        {
+            filteredParameters.AddRange(parameters);
+        }
+        if(this.ParameterTypeSelected != null)
+        {
+            filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
+        }
+
+        return filteredParameters.OrderBy(p => p.ParameterType.Name);
+    }
+
+    /// <summary>
+    /// Filters <see cref="ParameterOverride">s for the selected owner and the selected type
+    /// </summary>
+    /// <param name="parameters"><see cref="ParameterOverride">s to filter</param>
+    public IEnumerable<ParameterOverride> FilterParameterOverrides(List<ParameterOverride> parameters)
+    {
+        var filteredParameters = new List<ParameterOverride>();
+        if(this.IsOwnedParameters == true)
+        {
+            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+        } else
+        {
+            filteredParameters.AddRange(parameters);
+        }
+        if(this.ParameterTypeSelected != null)
+        {
+            filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
+        }
+
+        return filteredParameters.OrderBy(p => p.ParameterType.Name);
+    }
+
+    /// <summary>
+    /// Filters <see cref="ParameterValueSet">s for the selected option and the selected state
+    /// </summary>
+    /// <param name="parameterValueSets"><see cref="ParameterValueSet">s to filter</param>
+    public IEnumerable<ParameterValueSet> FilterParameterValueSets(bool isOptionDependent, List<ParameterValueSet> parameterValueSets)
+    {
+        var filteredParameterValueSets = new List<ParameterValueSet>();
+        if(this.OptionSelected != null && isOptionDependent)
+        {
+            filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+        } else
+        {
+            filteredParameterValueSets.AddRange(parameterValueSets);
+        }
+        if(this.StateSelected != null)
+        {
+            var parameterValueSetsToRemove = new List<ParameterValueSet>();
+            filteredParameterValueSets.ForEach(p =>
+            {
+                if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
+                {
+                    parameterValueSetsToRemove.Add(p);
+                }
+            });
+            filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
+        }
+
+        return filteredParameterValueSets.OrderBy(p => p.ModelCode());
+    }
+
+    /// <summary>
+    /// Filters <see cref="ParameterOverrideValueSet">s for the selected option and the selected state
+    /// </summary>
+    /// <param name="parameterValueSets"><see cref="ParameterOverrideValueSet">s to filter</param>
+    public IEnumerable<ParameterOverrideValueSet> FilterParameterOverrideValueSets(bool isOptionDependent, List<ParameterOverrideValueSet> parameterValueSets)
+    {
+        var filteredParameterValueSets = new List<ParameterOverrideValueSet>();
+        if(this.OptionSelected != null && isOptionDependent)
+        {
+            filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+        } else
+        {
+            filteredParameterValueSets.AddRange(parameterValueSets);
+        }
+        if(this.StateSelected != null)
+        {
+            var parameterValueSetsToRemove = new List<ParameterOverrideValueSet>();
+            filteredParameterValueSets.ForEach(p =>
+            {
+                if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
+                {
+                    parameterValueSetsToRemove.Add(p);
+                }
+            });
+            filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
+        }
+
+        return filteredParameterValueSets.OrderBy(p => p.ModelCode());
+    }
 }

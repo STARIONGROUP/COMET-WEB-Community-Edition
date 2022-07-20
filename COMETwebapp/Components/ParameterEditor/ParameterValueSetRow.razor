@@ -25,11 +25,7 @@ Copyright (c) 2022 RHEA System S.A.
 @if(this.Parameter != null && this.ParameterValueSet != null)
 {
     var modelCode = this.ParameterValueSet.ModelCode().Split("\\");
-    var isEditable = false;
-    @if(this.ParameterValueSet.Owner == this.ISessionAnchor.CurrentDomainOfExpertise)
-    {
-        isEditable = true;
-    }
+    
     <BSTR AlignRow="AlignRow.Middle">
         <BSTD>@Parameter.ParameterType.Name</BSTD>
         @if(modelCode.Count() == 1)
@@ -73,16 +69,16 @@ Copyright (c) 2022 RHEA System S.A.
                 <ScalarParameter Value="@ParameterValueSet.Published.First()" Scale="@Parameter.Scale?.ShortName" />
             </BSTD>
             <BSTD>
-                <ScalarParameter Value="@ParameterValueSet.ActualValue.First()" Scale="@Parameter.Scale?.ShortName" />
+                <ScalarParameter Value="@GetActualValue().First()" Scale="@Parameter.Scale?.ShortName" />
             </BSTD>
             <BSTD>
                 <ScalarParameter Value="@ParameterValueSet.Computed.First()" Scale="@Parameter.Scale?.ShortName" />
             </BSTD>
             <BSTD>
-                <ScalarParameter Value="@ParameterValueSet.Manual.First()" Scale="@Parameter.Scale?.ShortName" ParameterValueSet="@ParameterValueSet" IndexInValueSet="0" IsManualEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
+                <ScalarParameter Value="@GetManualValue().First()" Scale="@Parameter.Scale?.ShortName" ParameterValueSet="@GetParameterValueSetBase()" IndexInValueSet="0" IsManualEditable="@IsEditable()" IsEditionMode="@IsEditionMode"/>
             </BSTD>
             <BSTD>
-                <ScalarParameter Value="@ParameterValueSet.Reference.First()" Scale="@Parameter.Scale?.ShortName" ParameterValueSet="@ParameterValueSet" IndexInValueSet="0" IsReferenceEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
+                <ScalarParameter Value="@GetReferenceValue().First()" Scale="@Parameter.Scale?.ShortName" ParameterValueSet="@GetParameterValueSetBase()" IndexInValueSet="0" IsReferenceEditable="@IsEditable()" IsEditionMode="@IsEditionMode"/>
             </BSTD>
         } else if(this.Parameter.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
         {
@@ -90,16 +86,16 @@ Copyright (c) 2022 RHEA System S.A.
                 <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Published" />
             </BSTD>
             <BSTD>
-                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.ActualValue"/>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@GetActualValue()"/>
             </BSTD>
             <BSTD>
                 <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Computed"/>
             </BSTD>
             <BSTD>
-                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Manual" ParameterValueSet="@ParameterValueSet" IndexStartInValueSet="0" IsManualEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@GetManualValue()" ParameterValueSet="@GetParameterValueSetBase()" IndexStartInValueSet="0" IsManualEditable="@IsEditable()" IsEditionMode="@IsEditionMode"/>
             </BSTD>
             <BSTD>
-                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@ParameterValueSet.Reference" ParameterValueSet="@ParameterValueSet" IndexStartInValueSet="0" IsReferenceEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
+                <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" Values="@GetReferenceValue()" ParameterValueSet="@GetParameterValueSetBase()" IndexStartInValueSet="0" IsReferenceEditable="@IsEditable()" IsEditionMode="@IsEditionMode"/>
             </BSTD>
         } else
         {
@@ -131,7 +127,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.ActualValue" Component="component"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@GetActualValue()" Component="component"/>
                         }
                     </div>                                               
                 </BSTD>
@@ -159,7 +155,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Manual" Component="component" ParameterValueSet="@ParameterValueSet" IsManualEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@GetManualValue()" Component="component" ParameterValueSet="@GetParameterValueSetBase()" IsManualEditable="@IsEditable()" IsEditionMode="@IsEditionMode"/>
                         }
                     </div>                                               
                 </BSTD>
@@ -173,7 +169,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
-                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@ParameterValueSet.Reference" Component="component" ParameterValueSet="@ParameterValueSet" IsReferenceEditable="@isEditable" IsEditionMode="@IsEditionMode"/>
+                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@GetReferenceValue()" Component="component" ParameterValueSet="@GetParameterValueSetBase()" IsReferenceEditable="@IsEditable()" IsEditionMode="@IsEditionMode"/>
                         }
                     </div>
                 </BSTD>
@@ -204,7 +200,93 @@ Copyright (c) 2022 RHEA System S.A.
     public bool? IsEditionMode { get; set; }
 
     /// <summary>
-    /// Listeners for the components to update it with ISession
+    /// The cloned <see cref="ParameterValueSetBase">
     /// </summary>
-    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+    public ParameterValueSetBase? ClonedParameterValueSet { get; set; }
+
+    /// <summary>
+    /// Initialize ClonedParameterValueSet 
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (this.ParameterValueSet != null && this.IsEditable())
+        {
+            this.ClonedParameterValueSet = this.ParameterValueSet.Clone(false);
+        }
+    }
+
+    /// <summary>
+    /// Tells if ParameterValueSet is editable
+    /// A <see cref="ParameterValueSetBase"> is editable if it is owned by the active <see cref="DomainOfExpertise">
+    /// </summary>
+    private bool IsEditable()
+    {
+        if(this.ParameterValueSet.Owner == this.ISessionAnchor.CurrentDomainOfExpertise)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the ParameterValueSetBase to edit
+    /// </summary>
+    /// <returns>The associated clone if ParameterValueSetBase is editable</returns>
+    private ParameterValueSetBase GetParameterValueSetBase()
+    {
+        if (IsEditable())
+        {
+            return this.ClonedParameterValueSet;
+        } else
+        {
+            return this.ParameterValueSet;
+        }
+    }
+
+    /// <summary>
+    /// Gets the ParameterValueSetBase actual value
+    /// </summary>
+    /// <returns>The associated clone actual value if ParameterValueSetBase is editable</returns>
+    private ValueArray<string> GetActualValue()
+    {
+        if (IsEditable())
+        {
+            return this.ClonedParameterValueSet?.ActualValue;
+        } else
+        {
+            return this.ParameterValueSet?.ActualValue;
+        }
+    }
+
+    /// <summary>
+    /// Gets the ParameterValueSetBase manual value
+    /// </summary>
+    /// <returns>The associated clone manual value if ParameterValueSetBase is editable</returns>
+    private ValueArray<string> GetManualValue()
+    {
+        if (IsEditable())
+        {
+            return this.ClonedParameterValueSet?.Manual;
+        } else
+        {
+            return this.ParameterValueSet?.Manual;
+        }
+    }
+
+    /// <summary>
+    /// Gets the ParameterValueSetBase reference value
+    /// </summary>
+    /// <returns>The associated clone reference value if ParameterValueSetBase is editable</returns>
+    private ValueArray<string> GetReferenceValue()
+    {
+        if (IsEditable())
+        {
+            return this.ClonedParameterValueSet?.Reference;
+        } else
+        {
+            return this.ParameterValueSet?.Reference;
+        }
+    }
 }

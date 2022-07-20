@@ -1,5 +1,4 @@
-﻿@using CDP4Common.CommonData
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 Copyright (c) 2022 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -22,6 +21,7 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
+@using CDP4Common.CommonData
 
 @if(this.Scale != null && this.Value != null)
 {
@@ -100,18 +100,17 @@ else
     {
         if (this.ParameterValueSet != null)
         {
-            var clone = this.ParameterValueSet.Clone(false);
             if (this.IsManualEditable == true)
             {
-                clone.Manual[this.IndexInValueSet] = e.Value?.ToString();
+                this.ParameterValueSet.Manual[this.IndexInValueSet] = e.Value?.ToString();
             }
             else if (this.IsReferenceEditable == true)
             {
-                clone.Reference[this.IndexInValueSet] = e.Value?.ToString();
+                this.ParameterValueSet.Reference[this.IndexInValueSet] = e.Value?.ToString();
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
-                clone
+                this.ParameterValueSet
             });
         }
     }
