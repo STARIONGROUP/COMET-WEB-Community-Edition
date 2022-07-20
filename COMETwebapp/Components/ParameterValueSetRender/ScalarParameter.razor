@@ -21,31 +21,38 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @inject ISessionAnchor ISessionAnchor
-@using CDP4Common.CommonData
+@inject IIterationService IterationService
 
+@{
+    var colorToApply = string.Empty;
+    if (this.IsParameterValueSetEdited == true)
+    {
+        colorToApply = "color-title";
+    }
+}
 @if(this.Scale != null && this.Value != null)
 {
-    @if(this.IsEditionMode == true && (this.IsManualEditable == true || this.IsReferenceEditable == true))
+    @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
-        <div class="col p-0">
-            <BSInput InputSize="Size.Small" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+        <div class="col p-0 @colorToApply">
+            <BSInput InputSize="Size.Small" Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
             [@Scale]
         </div>
     } else
     {
-        <div class="col p-0"> @Value [@Scale] </div>
+        <div class="col p-0 @colorToApply"> @Value [@Scale] </div>
     }  
 }
 else
 {
-    @if(this.IsEditionMode == true && (this.IsManualEditable == true || this.IsReferenceEditable == true))
+    @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
-        <div class="col p-0">
-            <BSInput InputSize="Size.Small" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+        <div class="col p-0 @colorToApply">
+            <BSInput InputSize="Size.Small" Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
         </div>
     } else
     {
-        <div class="col p-0">@Value</div>
+        <div class="col p-0 @colorToApply">@Value</div>
     }
 }
 
@@ -75,6 +82,12 @@ else
     public int IndexInValueSet { get; set; }
 
     /// <summary>
+    /// Sets if ParameterValueSet was edited
+    /// </summary>
+    [Parameter]
+    public bool? IsParameterValueSetEdited { get; set; }
+
+    /// <summary>
     /// Tells if the Manual Value can be editable by the user
     /// </summary>
     [Parameter]
@@ -87,12 +100,6 @@ else
     public bool? IsReferenceEditable { get; set; }
 
     /// <summary>
-    /// Tells if the edition mode is activated
-    /// </summary>
-    [Parameter]
-    public bool? IsEditionMode { get; set; }
-
-    /// <summary>
     /// Update value of <see cref="ParameterValueSet"> when a change appears 
     /// </summary>
     /// <param name="e"><see cref="ChangeEventArgs"> from input</param>
@@ -100,6 +107,12 @@ else
     {
         if (this.ParameterValueSet != null)
         {
+            if((this.IsManualEditable == true || this.IsReferenceEditable == true) && !this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid))
+            {
+                this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
+                CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
+            }
+
             if (this.IsManualEditable == true)
             {
                 this.ParameterValueSet.Manual[this.IndexInValueSet] = e.Value?.ToString();

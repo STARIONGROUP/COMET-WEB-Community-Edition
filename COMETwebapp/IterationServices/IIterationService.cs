@@ -40,7 +40,10 @@ namespace COMETwebapp.IterationServices
         /// </summary>
         Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>> ValidatedUpdates { get; set; }
 
-        Dictionary<Guid, Thing> NewUpdates { get; set; }
+        /// <summary>
+        /// Save Thing Iid with edit changes in the web application
+        /// </summary>
+        List<Guid> NewUpdates { get; set; }
 
         /// <summary>
         /// Get all <see cref="ParameterValueSet"/> of the given iteration

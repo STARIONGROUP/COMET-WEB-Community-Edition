@@ -30,10 +30,24 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 @if(this.Component.ParameterType.NumberOfValues == 1)
                 {
-                    <ScalarParameter Value="@GetScalarValue()" Scale="@Component.Scale?.ShortName" ParameterValueSet="@ParameterValueSet" IndexInValueSet="@IndexStartInParameterTypeComponent" IsManualEditable="@IsManualEditable" IsReferenceEditable="@IsReferenceEditable" IsEditionMode="@IsEditionMode"/>
+                    <ScalarParameter 
+                        Value="@GetScalarValue()" 
+                        Scale="@Component.Scale?.ShortName" 
+                        ParameterValueSet="@ParameterValueSet" 
+                        IndexInValueSet="@IndexStartInParameterTypeComponent" 
+                        IsManualEditable="@IsManualEditable" 
+                        IsReferenceEditable="@IsReferenceEditable" 
+                        IsParameterValueSetEdited="@IsParameterValueSetEdited" />
                 } else if (this.Component.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
                 {
-                    <ArrayParameter ArrayParameterType="(ArrayParameterType)this.Component.ParameterType" Values="@GetCompoundOrArrayValues()" ParameterValueSet="@ParameterValueSet" IndexStartInValueSet="@IndexStartInParameterTypeComponent" IsManualEditable="@IsManualEditable" IsReferenceEditable="@IsReferenceEditable" IsEditionMode="@IsEditionMode"/>
+                    <ArrayParameter 
+                        ArrayParameterType="(ArrayParameterType)this.Component.ParameterType" 
+                        Values="@GetCompoundOrArrayValues()" 
+                        ParameterValueSet="@ParameterValueSet" 
+                        IndexStartInValueSet="@IndexStartInParameterTypeComponent" 
+                        IsManualEditable="@IsManualEditable" 
+                        IsReferenceEditable="@IsReferenceEditable" 
+                        IsParameterValueSetEdited="@IsParameterValueSetEdited" />
                 } else
                 {
                     var compoundParameterType = (CompoundParameterType)this.Component.ParameterType;
@@ -49,7 +63,14 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                             var indexStart = this.IndexStartInParameterTypeComponent + index;
 
-                            <CompoundParameter IndexStartInParameterTypeComponent="indexStart" Values="@GetCompoundOrArrayValues()" Component="component" ParameterValueSet="@ParameterValueSet" IsManualEditable="@IsManualEditable" IsReferenceEditable="@IsReferenceEditable" IsEditionMode="@IsEditionMode" />
+                            <CompoundParameter 
+                                IndexStartInParameterTypeComponent="indexStart" 
+                                Values="@GetCompoundOrArrayValues()" 
+                                Component="component" 
+                                ParameterValueSet="@ParameterValueSet" 
+                                IsManualEditable="@IsManualEditable" 
+                                IsReferenceEditable="@IsReferenceEditable" 
+                                IsParameterValueSetEdited="@IsParameterValueSetEdited" />
                         }
                     }
                 }
@@ -96,10 +117,10 @@ Copyright (c) 2022 RHEA System S.A.
     public bool? IsReferenceEditable { get; set; }
 
     /// <summary>
-    /// Sets edition mode activate
+    /// Sets if ParameterValueSet was edited
     /// </summary>
     [Parameter]
-    public bool? IsEditionMode { get; set; }
+    public bool? IsParameterValueSetEdited { get; set; }
 
     /// <summary>
     /// Gets value to show when <see cref="ParameterTypeComponent"> is a Scalar 
