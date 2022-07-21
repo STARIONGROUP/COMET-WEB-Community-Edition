@@ -52,6 +52,6 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// Indicates that the authentication failed
         /// </summary>
-        AuthenticationFail
+        Fail
     }
 }

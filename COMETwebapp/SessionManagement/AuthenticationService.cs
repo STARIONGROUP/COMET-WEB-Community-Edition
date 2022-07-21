@@ -83,7 +83,7 @@ namespace COMETwebapp.SessionManagement
             }
             else
             {
-                return AuthenticationStateKind.AuthenticationFail;
+                return AuthenticationStateKind.Fail;
             }
 
             try
@@ -98,15 +98,16 @@ namespace COMETwebapp.SessionManagement
                 }
                 else
                 {
-                    return AuthenticationStateKind.AuthenticationFail;
+                    return AuthenticationStateKind.Fail;
                 }
             }
             catch (DalReadException)
             {
                 this.sessionAnchor.IsSessionOpen = false;
-                return AuthenticationStateKind.AuthenticationFail;
+                return AuthenticationStateKind.Fail;
             } catch(HttpRequestException)
             {
+                this.sessionAnchor.IsSessionOpen = false;
                 return AuthenticationStateKind.ServerFail;
             }
         }

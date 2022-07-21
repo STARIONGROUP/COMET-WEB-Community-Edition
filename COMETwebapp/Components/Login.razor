@@ -44,7 +44,7 @@
     
     <ValidationSummary />
 
-    @if (this.AuthenticationState == AuthenticationStateKind.AuthenticationFail)
+    @if (this.AuthenticationState == AuthenticationStateKind.Fail)
     {
         <div class="form-group row m-top-10px">
             <label class="text-danger">Login Failed.</label>
@@ -69,7 +69,7 @@
                     case AuthenticationStateKind.Authenticating:
                         <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px" disabled>Connecting</button>            
                         break;
-                    case AuthenticationStateKind.AuthenticationFail:
+                    case AuthenticationStateKind.Fail:
                         <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px" >Retry</button>            
                         break;
                     case AuthenticationStateKind.ServerFail:

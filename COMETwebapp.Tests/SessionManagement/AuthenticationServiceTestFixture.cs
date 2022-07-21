@@ -115,6 +115,23 @@ namespace COMETwebapp.Tests.SessionManagement
         }
 
         [Test]
+        public async Task Verify_that_when_the_server_cannot_be_reached_the_login_fails()
+        {
+            this.session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
+
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider);
+            var authenticationDto = new AuthenticationDto
+            {
+                SourceAddress = "https://www.rheagroup",
+                UserName = "John Doe",
+                Password = "secret"
+            };
+            var loginResult = await authenticationService.Login(authenticationDto);
+
+            Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
+        }
+
+        [Test]
         public async Task Verify_that_a_nonauthorized_user_cannot_login()
         {
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
