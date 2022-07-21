@@ -35,7 +35,7 @@ Copyright (c) 2022 RHEA System S.A.
         <span class="badge">@numberUpdates</span>
     }
 </BSButton>
-<BSPopover Placement="Placement.Bottom" Target="popoverTop">
+<BSPopover @ref="bSPopover" Placement="Placement.Bottom" Target="popoverTop" @onmouseleave="@ClosePopover">
     <Header>
         <div class="container-fluid">
             <div class="row justify-content-center">
@@ -54,18 +54,21 @@ Copyright (c) 2022 RHEA System S.A.
     </Header>
     <Content>
         <div class="container-fluid p-0">
-            <div class="row justify-content-center p-2">
-                @if(this.ISessionAnchor.OpenIteration is not null)
-			    {
-                    var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.OpenIteration).OrderBy(i => i.Name);
-                    <DxComboBox Data="@IterationDomains"
-                            TextFieldName="@nameof(DomainOfExpertise.Name)"
-                            AllowUserInput="true"
-                            Value="this.ISessionAnchor.CurrentDomainOfExpertise"
-                            ValueChanged="@((DomainOfExpertise domain) => this.OnSwitchDomain(domain))"
-                            FilteringMode="DataGridFilteringMode.Contains"/>
-			    }
-            </div>
+            @if(this.ISessionAnchor.GetParticipant()?.Domain.Count > 1)
+            {
+                <div class="row justify-content-center p-2">
+                    @if(this.ISessionAnchor.OpenIteration is not null)
+			        {
+                        var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.OpenIteration).OrderBy(i => i.Name);
+                        <DxComboBox Data="@IterationDomains"
+                                TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                AllowUserInput="true"
+                                Value="this.ISessionAnchor.CurrentDomainOfExpertise"
+                                ValueChanged="@((DomainOfExpertise domain) => this.OnSwitchDomain(domain))"
+                                FilteringMode="DataGridFilteringMode.Contains"/>
+			        }
+                </div>
+            }
 
             @if(this.numberUpdates != 0)
             {
@@ -123,6 +126,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// Number of updates after an session refresh
     /// </summary>
     private int numberUpdates { get; set; } = 0;
+
+    /// <summary>
+    /// <see cref="BSPopover"> for user preferences
+    /// </summary>
+    private BSPopover? bSPopover;
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -227,5 +235,15 @@ Copyright (c) 2022 RHEA System S.A.
     public void AccessUpdates()
     {
         this.NavigationManager.NavigateTo("/SubscriptionDashboard");
+    }
+
+    /// <summary>
+    /// Close Popover component when the mouse leaves the area
+    /// </summary>
+    /// <param name="e"><see cref="MouseEventArgs"> from onmouseleave event</param>
+    private async Task ClosePopover(MouseEventArgs e)
+    {
+        if (bSPopover != null)
+            await bSPopover.ToggleAsync();
     }
 }

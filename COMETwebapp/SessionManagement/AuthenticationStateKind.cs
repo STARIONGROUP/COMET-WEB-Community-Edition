@@ -35,6 +35,11 @@ namespace COMETwebapp.SessionManagement
         None,
 
         /// <summary>
+        /// Indicates that the given source address is impossible to fetch
+        /// </summary>
+        ServerFail,
+
+        /// <summary>
         /// Indicates that authentication is in progress
         /// </summary>
         Authenticating,

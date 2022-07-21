@@ -1,0 +1,57 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@if (this.Data != null)
+{
+    var identifiedElements = Math.Round((double)this.IdentifiedElements.Count * 100 / this.Data.Count);
+    var otherElements = 100 - identifiedElements;
+    <div class="container-fluid p-0">
+        <div class="row m-0">
+            <BSProgress Class="height-30px">
+                <BSProgressBar IsStriped="true" Class="taskdone" Value="otherElements">
+                    @otherElements %
+                </BSProgressBar>
+                <BSProgressBar IsStriped="true" Color="BSColor.Danger" Value="identifiedElements">
+                    @identifiedElements %
+                </BSProgressBar>
+            </BSProgress>
+        </div>
+
+        <ElementTable Elements="@IdentifiedElements"/>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// <see cref="ElementDefinition">s owned by the active domain 
+    /// </summary>
+    [Parameter]
+    public List<ElementDefinition>? Data { get; set; }
+
+
+    /// <summary>
+    /// <see cref="ElementDefinition">s identified as unused or unreferenced
+    /// </summary>
+    [Parameter]
+    public List<ElementDefinition> IdentifiedElements { get; set; }
+
+}

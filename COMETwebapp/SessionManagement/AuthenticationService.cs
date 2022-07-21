@@ -28,9 +28,7 @@ namespace COMETwebapp.SessionManagement
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4Dal.Exceptions;
-
     using CDP4ServicesDal;
-
     using Microsoft.AspNetCore.Components.Authorization;
     
     /// <summary>
@@ -103,12 +101,14 @@ namespace COMETwebapp.SessionManagement
                     return AuthenticationStateKind.Fail;
                 }
             }
-            catch (DalReadException ex)
+            catch (DalReadException)
             {
-                Console.WriteLine(ex);
-
                 this.sessionAnchor.IsSessionOpen = false;
                 return AuthenticationStateKind.Fail;
+            } catch(HttpRequestException)
+            {
+                this.sessionAnchor.IsSessionOpen = false;
+                return AuthenticationStateKind.ServerFail;
             }
         }
 
