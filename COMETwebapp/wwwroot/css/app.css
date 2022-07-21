@@ -314,3 +314,7 @@ html, body, #app {
 .width-9 {
     width: 9%;
 }
+
+.width-inherit {
+    width: inherit;
+}

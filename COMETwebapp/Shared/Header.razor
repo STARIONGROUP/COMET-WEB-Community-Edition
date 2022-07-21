@@ -30,7 +30,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
     
-        <BSOffCanvas @ref="offCanvas" ShowBackdrop="true" AllowScroll="true" Class="canvas">
+        <BSOffCanvas @ref="offCanvas" ShowBackdrop="false" Class="canvas" @onmouseleave="@CloseCanvas">
             <Content>
                 <NavMenu />
             </Content>
@@ -141,6 +141,16 @@
     /// Opens the menu
     /// </summary>
     private async Task OpenCanvas()
+    {
+        if (offCanvas != null)
+            await offCanvas.ToggleAsync();
+    }
+
+    /// <summary>
+    /// Close Canvas component when the mouse leaves the area
+    /// </summary>
+    /// <param name="e"><see cref="MouseEventArgs"> from onmouseleave event</param>
+    private async Task CloseCanvas(MouseEventArgs e)
     {
         if (offCanvas != null)
             await offCanvas.ToggleAsync();

@@ -34,9 +34,13 @@ Copyright (c) 2022 RHEA System S.A.
 {
     @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
-        <div class="col p-0 @colorToApply">
-            <BSInput InputSize="Size.Small" Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
-            [@Scale]
+            <div class="row m-0">
+                <div class="col-7 p-0 @colorToApply">
+                <BSInput Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+            </div>
+            <div class="col-5 align-self-center">
+                [@Scale]
+            </div>
         </div>
     } else
     {
