@@ -23,19 +23,31 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @implements IDisposable
 
-<div class="container-fluid">
-    <div class="row align-items-center justify-content-center">
-        <DonutDashboard Data="Filter(Data)" />
-    </div>
-    <div class="row m-top-10px">
-        <div class="col text-align-center">
-            <PublishedParameters Data="Filter(Data)" FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType" /> 
+@{
+    var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
+}
+@if(participantRole != null && participantRole.Name.Equals("Model Administrator"))
+{
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-center">
+            <DonutDashboard Data="Filter(Data)" />
         </div>
-        <div class="col text-align-center">
-            <DefaultValues Data="Filter(Data)" FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType"/>
+        <div class="row m-top-10px">
+            <div class="col text-align-center">
+                <PublishedParameters Data="Filter(this.Data)" FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType" /> 
+            </div>
+            <div class="col text-align-center">
+                <DefaultValues Data="Filter(this.Data)" FilterOption="@FilterOption" FilterState="@FilterState" FilterParameterType="@FilterParameterType"/>
+            </div>
         </div>
     </div>
-</div>
+} else if(participantRole != null && participantRole.Name.Equals("Domain Expert"))
+{
+    <div class="container-fluid p-0 m-top-20px m-bottom-20px">
+            <ParameterDomainProgress Data="FilterDomain(this.Data)" />
+    </div>
+}
+
 
 @code {
     /// <summary>
@@ -70,7 +82,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// Filter data to show in the graph
     /// </summary>
     /// <param name="data">List of all data in the project</param>
-    /// <returns>The list of filtered <see cref="DataChart"></returns>
+    /// <returns>The list of filtered <see cref="ParameterValueSet"></returns>
     public List<ParameterValueSet> Filter(List<ParameterValueSet>? data)
     {
         var result = new List<ParameterValueSet>();
@@ -109,6 +121,16 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
+    /// Filter data for the active domain to show in the graph
+    /// </summary>
+    /// <param name="data">List of all data in the iteration</param>
+    /// <returns>The list of filtered <see cref="ParameterValueSet"></returns>
+    public List<ParameterValueSet> FilterDomain(List<ParameterValueSet>? data)
+    {
+        return this.Filter(data?.FindAll(d => d.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+    }
+
+    /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
@@ -118,6 +140,15 @@ Copyright (c) 2022 RHEA System S.A.
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
             this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
+            {
+                this.InitializeData();
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("DomainChanged", out listener))
+        {
+            this.listeners.Add("DomainChanged", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
             {
                 this.InitializeData();
                 this.StateHasChanged();

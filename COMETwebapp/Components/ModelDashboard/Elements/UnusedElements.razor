@@ -26,50 +26,63 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @implements IDisposable
 
-<div>
-    <div class="row">
-        <div class="col-9">
-            <h3 class="text-align-end">Unused Elements</h3>
+@if(this.Data != null && this.UnUsedElements != null)
+{
+    <div>
+        <div class="row">
+            <div class="col-9">
+                <h3 class="text-align-end">Unused Elements</h3>
+            </div>
+            <div class="col text-align-start p-0">
+                <Tooltip MarginBottom="bottom-25" Text="Elements not used in an option">
+                    <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
+                </Tooltip>
+            </div>
         </div>
-        <div class="col text-align-start p-0">
-            <Tooltip MarginBottom="bottom-25" Text="Elements not used in an option">
-                <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
-            </Tooltip>
-        </div>
-    </div>
-    <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="Used Elements" Filter="@((ElementDefinition e) => !this.UnUsedElements.Contains(e))"
-                                    ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
-                                    AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Position="RelativePosition.Inside"/>
-        </DxChartFullStackedBarSeries>
-        <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="Unused Elements" Filter="@((ElementDefinition e) => this.UnUsedElements.Contains(e))"
+        @{
+            var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
+        }
+        @if(participantRole != null && participantRole.Name.Equals("Model Administrator"))
+        {
+            <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
+                <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="Used Elements" Filter="@((ElementDefinition e) => !this.UnUsedElements.Contains(e))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                             AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Position="RelativePosition.Inside" />
-        </DxChartFullStackedBarSeries>
-        <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-                    <div style="margin: 0.1rem">
-                        <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
-                            More
-                        </button>
-                    </div>
-        </DxChartTooltip>
-        <DxChartLegend Visible="true" Position="RelativePosition.Outside" VerticalAlignment="VerticalEdge.Bottom"/>
-    </DxChart>
-</div>
+                    <DxChartSeriesLabel Position="RelativePosition.Inside"/>
+                </DxChartFullStackedBarSeries>
+                <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="Unused Elements" Filter="@((ElementDefinition e) => this.UnUsedElements.Contains(e))"
+                                                    ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
+                                                    AggregationMethod="Enumerable.Sum">
+                    <DxChartSeriesLabel Position="RelativePosition.Inside" />
+                </DxChartFullStackedBarSeries>
+                <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
+                            <div style="margin: 0.1rem">
+                                <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
+                                    More
+                                </button>
+                            </div>
+                </DxChartTooltip>
+                <DxChartLegend Visible="true" Position="RelativePosition.Outside" VerticalAlignment="VerticalEdge.Bottom"/>
+            </DxChart>
+        } 
+        else if(participantRole != null && participantRole.Name.Equals("Domain Expert"))
+        {
+            <ElementDomainProgress Data="FilterDomain(this.Data)" IdentifiedElements="FilterDomain(this.UnUsedElements)"/>
+        }
+    </div>   
+}
 
 @code {
     /// <summary>
     /// Data in the graph
     /// </summary>
     [Parameter]
-    public List<ElementDefinition> Data { get; set; }
+    public List<ElementDefinition>? Data { get; set; }
 
     /// <summary>
     /// List of unused element defintion from the opened definition
     /// </summary>
-    private List<ElementDefinition> UnUsedElements { get; set; }
+    private List<ElementDefinition>? UnUsedElements { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -129,5 +142,14 @@ Copyright (c) 2022 RHEA System S.A.
     public void AccessData(string criteria, object domain)
     {
         this.NavigationManager.NavigateTo($"ModelDashboard/ElementsDetails?criteria={criteria}&domain={domain}");
+    }
+
+    /// <summary>
+    /// Gets <see cref="ElementDefinition"> owned by the current domain
+    /// </summary>
+    /// <param name="elements"><see cref="ElementDefinition">s to filter</param>
+    public List<ElementDefinition>? FilterDomain(List<ElementDefinition>? elements)
+    {
+        return elements?.FindAll(e => e.Owner == this.ISessionAnchor.CurrentDomainOfExpertise);
     }
 }

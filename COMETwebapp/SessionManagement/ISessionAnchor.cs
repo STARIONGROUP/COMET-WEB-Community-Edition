@@ -121,5 +121,10 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="thingsToCreate">List of Things to update in the session</param>
         Task UpdateThings(IEnumerable<Thing> thingsToUpdate);
+
+        /// <summary>
+        /// Gets ths <see cref="Participant"/> in the opened iteration
+        /// </summary>
+        Participant? GetParticipant();
     }
 }

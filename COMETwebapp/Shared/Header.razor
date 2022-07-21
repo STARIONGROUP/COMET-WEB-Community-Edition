@@ -26,15 +26,17 @@
 <nav class="navbar header-navbar p-0">
     @if(this.renderCanvas)
     {
-        <button class="navbar-toggler bg-primary d-block" @onclick="OpenCanvas">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="height-100" @onmouseleave="@CloseCanvas">
+            <button class="navbar-toggler bg-primary d-block height-100" style="box-shadow: 0 0 0 0px;" @onclick="OpenCanvas">
+                <span class="navbar-toggler-icon"></span>
+            </button>
     
-        <BSOffCanvas @ref="offCanvas" ShowBackdrop="false" Class="canvas" @onmouseleave="@CloseCanvas">
-            <Content>
-                <NavMenu />
-            </Content>
-        </BSOffCanvas>
+            <BSOffCanvas @ref="offCanvas" ShowBackdrop="false" Class="canvas">
+                <Content>
+                    <NavMenu />
+                </Content>
+            </BSOffCanvas>
+        </div>
     }
 
     <div class="header">
@@ -152,7 +154,7 @@
     /// <param name="e"><see cref="MouseEventArgs"> from onmouseleave event</param>
     private async Task CloseCanvas(MouseEventArgs e)
     {
-        if (offCanvas != null)
+        if (offCanvas != null && offCanvas.Shown)
             await offCanvas.ToggleAsync();
     }
 

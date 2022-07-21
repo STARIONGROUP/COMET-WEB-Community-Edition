@@ -166,7 +166,7 @@ namespace COMETwebapp.SessionManagement
         public IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup? modelSetup)
         {
             var domains = new List<DomainOfExpertise>();
-            modelSetup?.Participant.FindAll(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)).ForEach(p => p.Domain.ForEach(d => domains.Add(d)));
+            modelSetup?.Participant.FindAll(p => p.Person.Iid.Equals(this.Session.ActivePerson.Iid)).ForEach(p => p.Domain.ForEach(d => domains.Add(d)));
             return domains.DistinctBy(d => d.Name).OrderBy(d => d.Name);
         }
 
@@ -283,6 +283,15 @@ namespace COMETwebapp.SessionManagement
             {
                 Console.WriteLine($"The update operation failed: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ParticipantRole"/> in the opened iteration
+        /// </summary>
+        public Participant? GetParticipant()
+        {
+            return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(this.OpenIteration?.IterationSetup))?
+                .Participant.Find(p => p.Person.Iid == this.Session.ActivePerson.Iid);
         }
     }
 }

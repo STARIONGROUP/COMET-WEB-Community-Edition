@@ -29,12 +29,11 @@ Copyright (c) 2022 RHEA System S.A.
     <UnreferencedElements Data="Data" />
 </div>
 
-
 @code {
     /// <summary>
     /// ElementDefinition represented in graphs
     /// </summary>
-    public List<ElementDefinition> Data { get; set; }
+    public List<ElementDefinition>? Data { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with ISession

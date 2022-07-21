@@ -318,3 +318,16 @@ html, body, #app {
 .width-inherit {
     width: inherit;
 }
+
+.height-30px {
+    height: 30px;
+}
+
+.taskdone {
+    background-color: #0078b5;
+    --bs-bg-opacity: 1;
+}
+
+.m-bottom-20px{
+    margin-bottom: 20px;
+}

@@ -71,17 +71,24 @@ Copyright (c) 2022 RHEA System S.A.
                             FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
                 }
-                @if(iteration != null && this.ParameterTypeNames.Count != 0){
-                    <div class="col-2 width-fit-content">
-                        <h6>Filter on Parameter Type:</h6>
-                        <DxComboBox Data="@ParameterTypeNames"
+                @{
+                    var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
+                }
+                @if (participantRole != null && participantRole.Name.Equals("Model Administrator"))
+                {
+                    @if (iteration != null && this.ParameterTypeNames.Count != 0)
+                    {
+                        <div class="col-2 width-fit-content">
+                            <h6>Filter on Parameter Type:</h6>
+                            <DxComboBox Data="@ParameterTypeNames"
                             AllowUserInput="true"
                             NullText="--Select--"
                             Value="this.FilterParameterType"
                             ValueChanged="@((string parameterTypeName) => UpdateFilterParameterType(parameterTypeName))"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
-                    </div>
+                        </div>
+                    }
                 }
                 <div class="col"></div>
             </div>

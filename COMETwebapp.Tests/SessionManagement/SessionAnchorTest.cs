@@ -113,13 +113,17 @@ namespace COMETwebapp.Tests
                     new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
                 }
             };
+            this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
             this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
                {
                     new KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
                });
 
-            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri);
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Model = { this.engineeringSetup }
+            };
             this.siteDirectory.Person.Add(this.person);
             this.siteDirectory.Domain.Add(this.domain);
 
@@ -228,6 +232,14 @@ namespace COMETwebapp.Tests
             clone.Name = "Satellite";
             thingsToUpdate.Add(clone);
             Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThings(thingsToUpdate));
+        }
+
+        [Test]
+        public void VerifyGetParticipant()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.GetParticipant(), Is.EqualTo(this.participant));
         }
     }
 }

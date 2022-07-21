@@ -54,18 +54,21 @@ Copyright (c) 2022 RHEA System S.A.
     </Header>
     <Content>
         <div class="container-fluid p-0">
-            <div class="row justify-content-center p-2">
-                @if(this.ISessionAnchor.OpenIteration is not null)
-			    {
-                    var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.OpenIteration).OrderBy(i => i.Name);
-                    <DxComboBox Data="@IterationDomains"
-                            TextFieldName="@nameof(DomainOfExpertise.Name)"
-                            AllowUserInput="true"
-                            Value="this.ISessionAnchor.CurrentDomainOfExpertise"
-                            ValueChanged="@((DomainOfExpertise domain) => this.OnSwitchDomain(domain))"
-                            FilteringMode="DataGridFilteringMode.Contains"/>
-			    }
-            </div>
+            @if(this.ISessionAnchor.GetParticipant()?.Domain.Count > 1)
+            {
+                <div class="row justify-content-center p-2">
+                    @if(this.ISessionAnchor.OpenIteration is not null)
+			        {
+                        var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.OpenIteration).OrderBy(i => i.Name);
+                        <DxComboBox Data="@IterationDomains"
+                                TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                AllowUserInput="true"
+                                Value="this.ISessionAnchor.CurrentDomainOfExpertise"
+                                ValueChanged="@((DomainOfExpertise domain) => this.OnSwitchDomain(domain))"
+                                FilteringMode="DataGridFilteringMode.Contains"/>
+			        }
+                </div>
+            }
 
             @if(this.numberUpdates != 0)
             {
