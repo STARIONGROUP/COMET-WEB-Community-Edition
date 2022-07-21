@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.SessionManagement
 {
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
     /// Authentication information to connect to an E-TM-10-25 data source
     /// </summary>
@@ -32,16 +34,20 @@ namespace COMETwebapp.SessionManagement
         /// <summary>
         /// Gets or sets the address of the datasource to connect to
         /// </summary>
+        [Required]
+        [Url]
         public string? SourceAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the username to authenticate with
         /// </summary>
+        [Required]
         public string? UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password to authenticate with
         /// </summary>
+        [Required]
         public string? Password { get; set; }
 
     }
