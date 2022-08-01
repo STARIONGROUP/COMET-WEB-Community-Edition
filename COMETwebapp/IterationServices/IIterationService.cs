@@ -55,6 +55,15 @@ namespace COMETwebapp.IterationServices
         List<ParameterValueSet> GetParameterValueSets(Iteration? iteration);
 
         /// <summary>
+        /// Get all <see cref="ParameterValueSetBase"/> of the given iteration
+        /// </summary>
+        /// <param name="iteration">
+        /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSetBase"/>s list is created
+        /// </param>
+        /// <returns>All <see cref="ParameterValueSetBase"/></returns>
+        List<ParameterValueSetBase> GetParameterValueSetBase(Iteration? iteration);
+
+        /// <summary>
         /// Get all <see cref="NestedElement"/> of the given iteration for all options
         /// </summary>
         /// <param name="iteration">
@@ -146,6 +155,6 @@ namespace COMETwebapp.IterationServices
         /// The name of <see cref="ParameterType"/> for which the <see cref="ParameterValueSet"/>s list is created
         /// </param>
         /// <returns>All <see cref="ParameterValueSet" for the given parameter type/></returns>
-        List<ParameterValueSet> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName);
+        List<ParameterValueSetBase> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName);
     }
 }

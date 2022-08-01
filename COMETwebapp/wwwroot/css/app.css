@@ -299,6 +299,14 @@ html, body, #app {
     width: 10%;
 }
 
+.width-20 {
+    width: 20%;
+}
+
+.width-40 {
+    width: 40%;
+}
+
 .width-15{
     width: 15%;
 }
@@ -330,4 +338,10 @@ html, body, #app {
 
 .m-bottom-20px{
     margin-bottom: 20px;
+}
+
+.todo-btn {
+    width: 100%;
+    background-color: transparent;
+    border: none;
 }

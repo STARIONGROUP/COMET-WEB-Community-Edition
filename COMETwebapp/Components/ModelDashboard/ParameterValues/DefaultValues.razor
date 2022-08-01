@@ -36,12 +36,12 @@ Copyright (c) 2022 RHEA System S.A.
     </div>
     @if(this.Data != null){
         <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other Values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other Values" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside"/>
             </DxChartFullStackedBarSeries>
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published Values as Default" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published Values as Default" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside" />
@@ -76,10 +76,10 @@ Copyright (c) 2022 RHEA System S.A.
 
                 </div>
             </DxChartTooltip>
-            <DxChartStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other Values" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+            <DxChartStackedBarSeries Color="System.Drawing.Color.LightSlateGray" Name="Other Values" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum" />
-            <DxChartStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published Values as Default" Filter="@((ParameterValueSet p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+            <DxChartStackedBarSeries Color="System.Drawing.Color.DarkSeaGreen" Name="Published Values as Default" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum" />
             <DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center" />
@@ -110,7 +110,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// Data in the graph
     /// </summary>
     [Parameter]
-    public List<ParameterValueSet>? Data { get; set; }
+    public List<ParameterValueSetBase>? Data { get; set; }
 
     /// <summary>
     /// Set the point label on the graph
@@ -125,11 +125,11 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
-    /// Get the number of <see cref="ParameterValueSet"> represented in the selected area depending on criteria and domain
+    /// Get the number of <see cref="ParameterValueSetBase"> represented in the selected area depending on criteria and domain
     /// </summary>
     /// <param name="criteria">The criteria represented in the selected area</param>
     /// <param name="domain">The associated domain of the selected area</param>
-    /// <returns>The number of <see cref="ParameterValueSet"> represented in the selected area</returns>
+    /// <returns>The number of <see cref="ParameterValueSetBase"> represented in the selected area</returns>
     public int NumberData(string criteria, object domain)
     {
         if(this.Data != null && criteria.Equals("Published Values as Default"))

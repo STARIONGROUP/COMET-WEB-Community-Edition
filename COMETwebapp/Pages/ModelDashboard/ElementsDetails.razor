@@ -27,11 +27,26 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div>
     <h5>Details</h5>
-    <DxDataGrid Data="@Elements" PageSize="0">
-        <DxDataGridColumn Field="@nameof(BuildElement.Name)" Width="200px" Caption="Name" TextAlignment="DataGridTextAlign.Center" SortOrder="DataGridColumnSortOrder.Ascending" />
-        <DxDataGridColumn Field="@nameof(BuildElement.ShortName)" Caption="ShortName" Width="150px" TextAlignment="DataGridTextAlign.Center"/>
-        <DxDataGridColumn Field="@nameof(BuildElement.Owner)" Caption="Domain" Width="100px" TextAlignment="DataGridTextAlign.Center"/>
-    </DxDataGrid>
+
+    <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
+        <BSTHead>
+            <BSTR>
+                <BSTD Class="width-40">Element</BSTD>
+                <BSTD Class="width-40">Model Code</BSTD>
+                <BSTD Class="width-20">Owner</BSTD>
+            </BSTR>
+        </BSTHead>
+        <BSTBody>
+            @foreach(var element in this.Elements)
+            {
+                <BSTR AlignRow="AlignRow.Middle">
+                    <BSTD>@element.Name</BSTD>
+                    <BSTD>@element.ModelCode()</BSTD>
+                    <BSTD>@element.Owner.ShortName</BSTD>
+                </BSTR>
+            }
+        </BSTBody>
+    </BSTable>
 </div>
 
 @code {
@@ -59,19 +74,9 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
-    /// The built element to show in the table
+    /// List of <see cref="ElementDefinition"> in the table
     /// </summary>
-    public class BuildElement
-    {
-        public string Name { get; set; }
-        public string ShortName { get; set; }
-        public string Owner { get; set; }
-    }
-
-    /// <summary>
-    /// List of <see cref="BuildElement"> in the table
-    /// </summary>
-    public ObservableCollection<BuildElement> Elements = new ObservableCollection<BuildElement>();
+    public List<ElementDefinition> Elements = new List<ElementDefinition>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -110,48 +115,30 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        List<ElementDefinition> unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.OpenIteration);
-        List<ElementDefinition> unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
+        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.OpenIteration);
+        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
 
         var iteration = this.ISessionAnchor.OpenIteration;
         if (Criteria is not null && Domain is not null && iteration != null)
         {
-            List<ElementDefinition> elements = new List<ElementDefinition>();
+            var elements = new List<ElementDefinition>();
             elements.AddRange(iteration.Element.FindAll(e => e.Owner.ShortName.Equals(this.Domain)));
 
             if (this.Criteria.Equals("Unused Elements"))
             {
-                elements.FindAll(e => unusedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
-                {
-                    Name = e.Name,
-                    ShortName = e.ShortName,
-                    Owner = e.Owner.Name
-                }));
+                this.Elements = elements.FindAll(e => unusedElements.Contains(e)).OrderBy(e => e.Name).ToList();
 
             } else if (this.Criteria.Equals("Used Elements"))
             {
-                elements.FindAll(e => !unusedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
-                {
-                    Name = e.Name,
-                    ShortName = e.ShortName,
-                    Owner = e.Owner.Name
-                }));
+                this.Elements = elements.FindAll(e => !unusedElements.Contains(e)).OrderBy(e => e.Name).ToList();
+
             } else if (this.Criteria.Equals("Unreferenced Elements"))
             {
-                elements.FindAll(e => unreferencedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
-                {
-                    Name = e.Name,
-                    ShortName = e.ShortName,
-                    Owner = e.Owner.Name
-                }));
+                this.Elements = elements.FindAll(e => unreferencedElements.Contains(e)).OrderBy(e => e.Name).ToList();
+
             } else
             {
-                elements.FindAll(e => !unreferencedElements.Contains(e)).ForEach(e => Elements.Add(new BuildElement()
-                {
-                    Name = e.Name,
-                    ShortName = e.ShortName,
-                    Owner = e.Owner.Name
-                }));
+                this.Elements = elements.FindAll(e => !unreferencedElements.Contains(e)).OrderBy(e => e.Name).ToList();
             }
         }
     }

@@ -61,6 +61,43 @@ namespace COMETwebapp.IterationServices
         }
 
         /// <summary>
+        /// Get all <see cref="ParameterValueSetBase"/> of the given iteration
+        /// </summary>
+        /// <param name="iteration">
+        /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSetBase"/>s list is created
+        /// </param>
+        /// <returns>All <see cref="ParameterValueSetBase"/></returns>
+        public List<ParameterValueSetBase> GetParameterValueSetBase(Iteration? iteration)
+        {
+            var result = new List<ParameterValueSetBase>();
+            if (iteration?.TopElement != null)
+            {
+                iteration?.TopElement.Parameter.ForEach(p => result.AddRange(p.ValueSet));
+            }
+            iteration?.Element.ForEach(e =>
+            {
+                e.ContainedElement.ForEach(containedElement =>
+                {
+                    if(containedElement.ParameterOverride.Count == 0)
+                    {
+                        containedElement.ElementDefinition.Parameter.ForEach(p => result.AddRange(p.ValueSet));
+                    } else
+                    {
+                        var associatedParameterValueSet = new List<ParameterValueSet>();
+                        containedElement.ParameterOverride.ForEach(p => {
+                            result.AddRange(p.ValueSet);
+                            p.ValueSet.ForEach(povs => associatedParameterValueSet.Add(povs.ParameterValueSet));
+                        });
+                        containedElement.ElementDefinition.Parameter.ForEach(p => {
+                            result.AddRange(p.ValueSet.FindAll(pvs => !associatedParameterValueSet.Contains(pvs)));
+                        });
+                    }
+                });
+            });
+            return result.DistinctBy(p => p.Iid).ToList();
+        }
+
+        /// <summary>
         /// Get all <see cref="NestedElement"/> of the given iteration for all options
         /// </summary>
         /// <param name="iteration">
@@ -316,14 +353,35 @@ namespace COMETwebapp.IterationServices
         /// The name of <see cref="ParameterType"/> for which the <see cref="ParameterValueSet"/>s list is created
         /// </param>
         /// <returns>All <see cref="ParameterValueSet" for the given parameter type/></returns>
-        public List<ParameterValueSet> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName)
+        public List<ParameterValueSetBase> GetParameterValueSetsByParameterType(Iteration? iteration, string? parameterTypeName)
         {
-            var result = new List<ParameterValueSet>();
-            if (parameterTypeName != null && iteration != null)
+            var result = new List<ParameterValueSetBase>();
+            if (iteration?.TopElement != null)
             {
-                iteration.Element.ForEach(e => e.Parameter.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => result.AddRange(p.ValueSet)));
+                iteration?.TopElement.Parameter.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => result.AddRange(p.ValueSet));
             }
-            return result;
+            iteration?.Element.ForEach(e =>
+            {
+                e.ContainedElement.ForEach(containedElement =>
+                {
+                    if (containedElement.ParameterOverride.Count == 0)
+                    {
+                        containedElement.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => result.AddRange(p.ValueSet));
+                    }
+                    else
+                    {
+                        var associatedParameterValueSet = new List<ParameterValueSet>();
+                        containedElement.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => {
+                            result.AddRange(p.ValueSet);
+                            p.ValueSet.ForEach(povs => associatedParameterValueSet.Add(povs.ParameterValueSet));
+                        });
+                        containedElement.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(parameterTypeName)).ForEach(p => {
+                            result.AddRange(p.ValueSet.FindAll(pvs => !associatedParameterValueSet.Contains(pvs)));
+                        });
+                    }
+                });
+            });
+            return result.DistinctBy(p => p.Iid).ToList();
         }
     }
 }

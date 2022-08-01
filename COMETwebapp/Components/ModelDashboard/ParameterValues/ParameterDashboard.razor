@@ -30,7 +30,7 @@ Copyright (c) 2022 RHEA System S.A.
 {
     <div class="container-fluid">
         <div class="row align-items-center justify-content-center">
-            <DonutDashboard Data="Filter(Data)" />
+            <DonutDashboard Data="Filter(this.Data)" />
         </div>
         <div class="row m-top-10px">
             <div class="col text-align-center">
@@ -71,7 +71,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// ParameterValueSet represented in graphs
     /// </summary>
-    public List<ParameterValueSet>? Data { get; set; }
+    public List<ParameterValueSetBase> Data { get; set; } = new List<ParameterValueSetBase>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession
@@ -82,10 +82,10 @@ Copyright (c) 2022 RHEA System S.A.
     /// Filter data to show in the graph
     /// </summary>
     /// <param name="data">List of all data in the project</param>
-    /// <returns>The list of filtered <see cref="ParameterValueSet"></returns>
-    public List<ParameterValueSet> Filter(List<ParameterValueSet>? data)
+    /// <returns>The list of filtered <see cref="ParameterValueSetBase"></returns>
+    public List<ParameterValueSetBase> Filter(List<ParameterValueSetBase>? data)
     {
-        var result = new List<ParameterValueSet>();
+        var result = new List<ParameterValueSetBase>();
         if(data != null)
         {
             result.AddRange(data);
@@ -95,10 +95,18 @@ Copyright (c) 2022 RHEA System S.A.
             var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
-                nestedParameters.ForEach(nestedParameter =>
+                var listToRemove = new List<ParameterValueSetBase>();
+                var associatedParameters = new List<ParameterBase>();
+                nestedParameters.ForEach(p => associatedParameters.Add(p.AssociatedParameter));
+                result.ForEach(p =>
                 {
-                    result.RemoveAll(p => nestedParameter.AssociatedParameter.ValueSets.Contains(p));
+                    var parameter = (ParameterBase)p.Container;
+                    if (!associatedParameters.Contains(parameter))
+                    {
+                        listToRemove.Add(p);
+                    }
                 });
+                result.RemoveAll(e => listToRemove.Contains(e));
             } else
             {
                 result.Clear();
@@ -125,7 +133,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="data">List of all data in the iteration</param>
     /// <returns>The list of filtered <see cref="ParameterValueSet"></returns>
-    public List<ParameterValueSet> FilterDomain(List<ParameterValueSet>? data)
+    public List<ParameterValueSetBase> FilterDomain(List<ParameterValueSetBase>? data)
     {
         return this.Filter(data?.FindAll(d => d.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
     }
@@ -170,6 +178,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        this.Data = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration); 
+        this.Data = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration); 
     }
 }
