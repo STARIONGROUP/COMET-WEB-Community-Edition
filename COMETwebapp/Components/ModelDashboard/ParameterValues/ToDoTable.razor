@@ -35,8 +35,8 @@ Copyright (c) 2022 RHEA System S.A.
             <BSTBody>
                 @foreach(var parameterValueSet in this.ParameterValueSets)
                 {
-                    var parameter = (Parameter)parameterValueSet.Container;
-                    var element = (ElementDefinition)parameter.Container;
+                    var parameter = (ParameterBase)parameterValueSet.Container;
+                    var element = (ElementBase)parameter.Container;
                     <BSTR AlignRow="AlignRow.Middle">
                         <BSTD>@element.Name</BSTD>
                         <BSTD>@parameter.ParameterType.Name</BSTD>
@@ -69,8 +69,8 @@ Copyright (c) 2022 RHEA System S.A.
 
 @code {
     /// <summary>
-    /// All <see cref="ParameterValueSet"> to complete
+    /// All <see cref="ParameterValueSetBase"> to complete
     /// </summary>
     [Parameter]
-    public List<ParameterValueSet>? ParameterValueSets { get; set; }
+    public List<ParameterValueSetBase>? ParameterValueSets { get; set; }
 }

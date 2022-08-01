@@ -45,7 +45,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// Data in the graph
     /// </summary>
     [Parameter]
-    public List<ParameterValueSet>? Data { get; set; }
+    public List<ParameterValueSetBase>? Data { get; set; }
 
     /// <summary>
     /// Set the color appearence for the donut chart
@@ -70,9 +70,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// <summary>
     /// Initialize <see cref="DataChart"> list from data to represent in the grpah
     /// </summary>
-    /// <param name="data">List of <see cref="ParameterValueSet"> to represent in the graph </param>
+    /// <param name="data">List of <see cref="ParameterValueSetBase"> to represent in the graph </param>
     /// <returns>List of <see cref="DataChart"> used in the graph</returns>
-    private List<DataChart> GetChartData(List<ParameterValueSet>? data)
+    private List<DataChart> GetChartData(List<ParameterValueSetBase>? data)
     {
         List<DataChart> donutData = new List<DataChart>();
         var iteration = this.ISessionAnchor.OpenIteration;
