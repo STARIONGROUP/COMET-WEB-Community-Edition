@@ -151,7 +151,8 @@ namespace COMETwebapp.IterationServices
         {
             var nestedElementTreeGenerator = new NestedElementTreeGenerator();
             var nestedParameters = new List<NestedParameter>();
-            var option = iteration?.Option.ToList().Find(o => o.Iid == optionIid);
+            var option = iteration?.Option.FirstOrDefault(x => x.Iid == optionIid);
+
             if (option != null && iteration?.TopElement != null)
             {
                 nestedParameters.AddRange(nestedElementTreeGenerator.GetNestedParameters(option));

@@ -272,18 +272,8 @@ Copyright (c) 2022 RHEA System S.A.
             var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
-                var listToRemove = new List<ParameterValueSetBase>();
-                var associatedParameter = new List<ParameterBase>();
-                nestedParameters.ForEach(p => associatedParameter.Add(p.AssociatedParameter));
-                parameterValueSets.ForEach(p =>
-                {
-                    var parameter = (ParameterBase)p.Container;
-                    if (!associatedParameter.Contains(parameter))
-                    {
-                        listToRemove.Add(p);
-                    }
-                });
-                parameterValueSets.RemoveAll(e => listToRemove.Contains(e));
+                var valueSets = nestedParameters.Select(x => x.ValueSet).ToList();
+                parameterValueSets = parameterValueSets.Where(x => valueSets.Contains(x)).ToList();
             } else
             {
                 parameterValueSets.Clear();

@@ -85,28 +85,21 @@ Copyright (c) 2022 RHEA System S.A.
     /// <returns>The list of filtered <see cref="ParameterValueSetBase"></returns>
     public List<ParameterValueSetBase> Filter(List<ParameterValueSetBase>? data)
     {
-        var result = new List<ParameterValueSetBase>();
-        if(data != null)
+        if(data == null)
         {
-            result.AddRange(data);
+            return new List<ParameterValueSetBase>();
         }
+
+        var result = data.ToList();
+
         if (this.FilterOption != null)
         {
             var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
-                var listToRemove = new List<ParameterValueSetBase>();
-                var associatedParameters = new List<ParameterBase>();
-                nestedParameters.ForEach(p => associatedParameters.Add(p.AssociatedParameter));
-                result.ForEach(p =>
-                {
-                    var parameter = (ParameterBase)p.Container;
-                    if (!associatedParameters.Contains(parameter))
-                    {
-                        listToRemove.Add(p);
-                    }
-                });
-                result.RemoveAll(e => listToRemove.Contains(e));
+                var valueSets = nestedParameters.Select(x => x.ValueSet).ToList();
+                result = result.Where(x => valueSets.Contains(x)).ToList();
+
             } else
             {
                 result.Clear();

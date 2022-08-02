@@ -42,10 +42,8 @@ Copyright (c) 2022 RHEA System S.A.
                         <h6>Filter on Option:</h6>
                         <DxComboBox Data="@optionNames"
                             AllowUserInput="true"
-                            NullText="--Select--"
                             Value="this.optionSelected"
                             ValueChanged="@((string option) => UpdateFilterOption(option))"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
                 }
@@ -180,7 +178,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnParametersSet()
     {
-        this.FilterOption = FilterOption ?? null;
+        var option = this.ISessionAnchor.OpenIteration?.Option.First();
+        this.FilterOption = FilterOption ?? option?.Iid;
         this.FilterState = FilterState ?? null;
         this.FilterParameterType = FilterParameterType ?? null;
 
