@@ -42,6 +42,7 @@ namespace COMETwebapp.Tests.IterationServiceTest
         private Iteration iteration;
         private IIterationService iterationService = new IterationService();
         private List<ParameterValueSet> parameterValueSets;
+        private List<ParameterValueSetBase> parameterValueSetBase;
         private List<ParameterSubscription> parameterSubscriptions;
         private List<ElementDefinition> unReferencedElements;
         private List<ElementDefinition> unUsedElements;
@@ -274,6 +275,12 @@ namespace COMETwebapp.Tests.IterationServiceTest
                 parameterValueset_2
             };
 
+            this.parameterValueSetBase = new List<ParameterValueSetBase>()
+            {
+                parameterValueset_1,
+                parameterValueset_2
+            };
+
             this.unReferencedElements = new List<ElementDefinition>()
             {
                 elementDefinition_3
@@ -308,6 +315,13 @@ namespace COMETwebapp.Tests.IterationServiceTest
         {
             Assert.That(iterationService.GetParameterValueSets(this.iteration), Is.Not.Empty);
             Assert.That(iterationService.GetParameterValueSets(this.iteration), Is.EqualTo(this.parameterValueSets));   
+        }
+
+        [Test]
+        public void VerifyGetParameterValueSetBase()
+        {
+            Assert.That(iterationService.GetParameterValueSetBase(this.iteration), Is.Not.Empty);
+            Assert.That(iterationService.GetParameterValueSetBase(this.iteration), Is.EqualTo(this.parameterValueSetBase));
         }
 
         [Test]
