@@ -89,12 +89,13 @@ Copyright (c) 2022 RHEA System S.A.
                 this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
                 CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
             }
-
-            this.ParameterValueSet.ValueSwitch = switchMode;
+            var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
+            clonedParameterValueSet.ValueSwitch = switchMode;
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
-                this.ParameterValueSet
+                clonedParameterValueSet
             });
+            this.ParameterValueSet.ValueSwitch = switchMode;
         }
     }
 }

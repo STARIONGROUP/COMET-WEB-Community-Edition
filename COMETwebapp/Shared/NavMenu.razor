@@ -119,11 +119,10 @@
     /// <returns>Url to home page of the opened EngineeringModel</returns>
     private string? GetModelName()
     {
-        if(this.ISessionAnchor.OpenIteration != null)
+        if(this.ISessionAnchor.CurrentEngineeringModelName != null)
         {
-            var actualIterationSetup = this.ISessionAnchor.OpenIteration?.IterationSetup;
-            var actualEngineeringModelSetup = this.ISessionAnchor.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(actualIterationSetup));
-            return "./" + actualEngineeringModelSetup?.Name; 
+            var currentEngineeringModelName = this.ISessionAnchor.CurrentEngineeringModelName;
+            return "./" + currentEngineeringModelName; 
         } else
         {
             return "./";

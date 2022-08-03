@@ -38,7 +38,7 @@ Copyright (c) 2022 RHEA System S.A.
                 <div class="col-7 p-0 @colorToApply">
                 <BSInput Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
             </div>
-            <div class="col-5 align-self-center">
+            <div class="col-5 align-self-center @colorToApply">
                 [@Scale]
             </div>
         </div>
@@ -116,18 +116,18 @@ else
                 this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
                 CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
             }
-
+            var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
             if (this.IsManualEditable == true)
             {
-                this.ParameterValueSet.Manual[this.IndexInValueSet] = e.Value?.ToString();
+                clonedParameterValueSet.Manual[this.IndexInValueSet] = e.Value?.ToString();
             }
             else if (this.IsReferenceEditable == true)
             {
-                this.ParameterValueSet.Reference[this.IndexInValueSet] = e.Value?.ToString();
+                clonedParameterValueSet.Reference[this.IndexInValueSet] = e.Value?.ToString();
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
-                this.ParameterValueSet
+                clonedParameterValueSet
             });
         }
     }

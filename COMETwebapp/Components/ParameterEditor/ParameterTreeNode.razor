@@ -44,15 +44,14 @@ Copyright (c) 2022 RHEA System S.A.
                         <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
                             <BSTHead>
                                 <BSTR>
-                                    <BSTD Class="width-9">Parameter</BSTD>
+                                    <BSTD Class="width-15">Parameter</BSTD>
                                     <BSTD Class="width-12">Model Code</BSTD>
                                     <BSTD Class="width-12">Published Value</BSTD>
-                                    <BSTD Class="width-12">Actual Value</BSTD>
                                     <BSTD Class="width-12">Computed Value</BSTD>
                                     <BSTD Class="width-12">Manual Value</BSTD>
                                     <BSTD Class="width-12">Reference Value</BSTD>
-                                    <BSTD Class="width-10">Switch</BSTD>
-                                    <BSTD Class="width-5">Owner</BSTD>
+                                    <BSTD Class="width-15">Switch</BSTD>
+                                    <BSTD Class="width-10">Owner</BSTD>
                                 </BSTR>
                             </BSTHead>
                             <BSTBody>
@@ -65,7 +64,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             foreach (var parameterValueSet in FilterParameterValueSets(parameter.IsOptionDependent, parameter.ValueSet))
                                             {
-                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
                                             }
                                         }
                                     }
@@ -79,7 +78,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             foreach(var parameterValueSet in  FilterParameterValueSets(parameter.IsOptionDependent, parameter.ValueSet))
                                             {
-                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
                                             }
                                         }
                                     } else
@@ -88,7 +87,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         {
                                             foreach(var parameterValueSet in FilterParameterOverrideValueSets(parameter.IsOptionDependent, parameter.ValueSet))
                                             {
-                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
                                             }
                                         }
                                     }
@@ -108,12 +107,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public ElementBase? Element { get; set; }
-
-    /// <summary>
-    /// Sets edition mode activate
-    /// </summary>
-    [Parameter]
-    public bool IsEditionMode { get; set; }
 
     /// <summary>
     /// Sets if only parameters owned by the active domain are shown

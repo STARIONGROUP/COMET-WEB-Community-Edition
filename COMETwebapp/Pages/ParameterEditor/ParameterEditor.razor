@@ -67,10 +67,8 @@ Copyright (c) 2022 RHEA System S.A.
                         <div class="width-fit-content">
                             <DxComboBox Data="@optionNames"
                                 AllowUserInput="true"
-                                NullText="--Select--"
                                 Value="this.optionSelected"
                                 ValueChanged="@((string option) => OnOptionFilterChange(option))"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 FilteringMode="DataGridFilteringMode.Contains"/>
                         </div>
                     </div>
@@ -100,12 +98,6 @@ Copyright (c) 2022 RHEA System S.A.
             <div class="row m-4">
                 <div class="col">
                     <div class="@BS.Form_Check @BS.Form_Switch">
-                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsEditionMode"/>
-                        <BSLabel IsCheckLabel="true">Edit Mode</BSLabel>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="@BS.Form_Check @BS.Form_Switch">
                         <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
                         <BSLabel IsCheckLabel="true">Only Parameters owned by @ISessionAnchor.CurrentDomainOfExpertise?.Name domain</BSLabel>
                     </div>
@@ -113,7 +105,6 @@ Copyright (c) 2022 RHEA System S.A.
             </div>
             <div class="row">
                 <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" 
-                    IsEditionMode="@IsEditionMode" 
                     IsOwnedParameters="@IsOwnedParameters"
                     ParameterTypeSelected="@parameterTypeSelected" 
                     OptionSelected="@optionSelected"
@@ -134,11 +125,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// All <see cref="ElementBase"> of the iteration
     /// </summary>
     public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
-
-    /// <summary>
-    /// Sets edition mode activate
-    /// </summary>
-    private bool IsEditionMode { get; set; } = true;
 
     /// <summary>
     /// Sets if only parameters owned by the active domain are shown
@@ -175,6 +161,8 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
+        this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
+
         this.Elements.Clear();
         this.InitializeElements();
 
@@ -292,12 +280,9 @@ Copyright (c) 2022 RHEA System S.A.
 
             if(this.stateSelected != null)
             {
-                Console.WriteLine($"nb e {this.stateSelected}");
                 var elementsToRemove = new List<ElementBase>();
-                Console.WriteLine($"nb e {this.Elements.Count}");
                 this.Elements.ForEach(e =>
                 {
-                    Console.WriteLine($"type {e.GetType()}");
                     if (e.GetType().Equals(typeof(ElementDefinition)))
                     {
                         var elementDefinition = (ElementDefinition)e;
@@ -313,7 +298,6 @@ Copyright (c) 2022 RHEA System S.A.
                         });
                         if(actualStates.Count == 0)
                         {
-                            Console.WriteLine("je passe ici2");
                             elementsToRemove.Add(e);
                         }
                     } else if (e.GetType().Equals(typeof(ElementUsage)))
@@ -322,7 +306,6 @@ Copyright (c) 2022 RHEA System S.A.
                         var actualStates = new List<ActualFiniteState>();
                         if(elementUsage.ParameterOverride.Count == 0)
                         {
-                            Console.WriteLine("je passe ici");
                             elementUsage.ElementDefinition.Parameter.ForEach(p => {
                                 p.ValueSet.ForEach(v =>
                                 {
@@ -334,12 +317,10 @@ Copyright (c) 2022 RHEA System S.A.
                             });
                             if(actualStates.Count == 0)
                             {
-                                Console.WriteLine("je passe ici2");
                                 elementsToRemove.Add(e);
                             }
                         } else if (elementUsage.ParameterOverride.Count != 0)
                         {
-                            Console.WriteLine("je passe la");
                             elementUsage.ParameterOverride.ForEach(p => {
                                 p.ValueSet.ForEach(v =>
                                 {
@@ -351,7 +332,6 @@ Copyright (c) 2022 RHEA System S.A.
                             });
                             if(actualStates.Count == 0)
                             {
-                                Console.WriteLine("je passe la2");
                                 elementsToRemove.Add(e);
                             }
                         }
