@@ -92,29 +92,23 @@ Copyright (c) 2022 RHEA System S.A.
             </BSTD>
             <BSTD>
                 <ScalarParameter 
-                    Value="@GetActualValue()?.First()" 
-                    Scale="@Parameter.Scale?.ShortName" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
-            </BSTD>
-            <BSTD>
-                <ScalarParameter 
                     Value="@ParameterValueSet.Computed.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
             <BSTD>
                 <ScalarParameter 
-                    Value="@GetManualValue()?.First()" 
+                    Value="@ParameterValueSet.Manual.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
-                    ParameterValueSet="@GetParameterValueSetBase()" 
+                    ParameterValueSet="@ParameterValueSet" 
                     IndexInValueSet="0" IsManualEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
             <BSTD>
                 <ScalarParameter 
-                    Value="@GetReferenceValue()?.First()" 
+                    Value="@ParameterValueSet.Reference.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
-                    ParameterValueSet="@GetParameterValueSetBase()" 
+                    ParameterValueSet="@ParameterValueSet" 
                     IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
@@ -129,20 +123,14 @@ Copyright (c) 2022 RHEA System S.A.
             <BSTD>
                 <ArrayParameter 
                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@GetActualValue()" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
-            </BSTD>
-            <BSTD>
-                <ArrayParameter 
-                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
                     Values="@ParameterValueSet.Computed" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
             <BSTD>
                 <ArrayParameter 
                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@GetManualValue()" 
-                    ParameterValueSet="@GetParameterValueSetBase()" 
+                    Values="@ParameterValueSet.Manual" 
+                    ParameterValueSet="@ParameterValueSet" 
                     IndexStartInValueSet="0" 
                     IsManualEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited"/>
@@ -150,8 +138,8 @@ Copyright (c) 2022 RHEA System S.A.
             <BSTD>
                 <ArrayParameter 
                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@GetReferenceValue()" 
-                    ParameterValueSet="@GetParameterValueSetBase()" 
+                    Values="@ParameterValueSet.Reference" 
+                    ParameterValueSet="@ParameterValueSet" 
                     IndexStartInValueSet="0" 
                     IsReferenceEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited"/>
@@ -160,14 +148,14 @@ Copyright (c) 2022 RHEA System S.A.
         {
             var compoundParameterType = (CompoundParameterType)this.Parameter.ParameterType;
             var components = compoundParameterType?.Component.ToList();
-            if(components != null && compoundParameterType != null)
+            if (components != null && compoundParameterType != null)
             {
                 <BSTD>
                     <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
-                        @foreach(var component in components)
+                        @foreach (var component in components)
                         {
                             var indexStart = 0;
-                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            for (int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
                             {
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
@@ -182,28 +170,10 @@ Copyright (c) 2022 RHEA System S.A.
                 </BSTD>
                 <BSTD>
                     <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
-                        @foreach(var component in components)
+                        @foreach (var component in components)
                         {
                             var indexStart = 0;
-                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
-                            {
-                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
-
-                            }
-                            <CompoundParameter 
-                                IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@GetActualValue()" 
-                                Component="component" 
-                                IsParameterValueSetEdited="@isParameterValueSetEdited"/>
-                        }
-                    </div>                                               
-                </BSTD>
-                <BSTD>
-                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
-                        @foreach(var component in components)
-                        {
-                            var indexStart = 0;
-                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            for (int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
                             {
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
@@ -228,9 +198,9 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                             <CompoundParameter 
                                 IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@GetManualValue()" 
+                                Values="@ParameterValueSet.Manual" 
                                 Component="component" 
-                                ParameterValueSet="@GetParameterValueSetBase()" 
+                                ParameterValueSet="@ParameterValueSet" 
                                 IsManualEditable="@IsEditable()" 
                                 IsParameterValueSetEdited="@isParameterValueSetEdited" />
                         }
@@ -248,8 +218,9 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                             <CompoundParameter 
                                 IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@GetReferenceValue()" Component="component" 
-                                ParameterValueSet="@GetParameterValueSetBase()" 
+                                Values="@ParameterValueSet.Reference" 
+                                Component="component" 
+                                ParameterValueSet="@ParameterValueSet" 
                                 IsReferenceEditable="@IsEditable()" 
                                 IsParameterValueSetEdited="@isParameterValueSetEdited" />
                         }
@@ -259,7 +230,7 @@ Copyright (c) 2022 RHEA System S.A.
         }
         <BSTD>
             <SwitchMode 
-                ParameterValueSet="@GetParameterValueSetBase()"  
+                ParameterValueSet="@ParameterValueSet"  
                 IsSwitchEditable="@IsEditable()" 
                 IsParameterValueSetEdited="@isParameterValueSetEdited" />
         </BSTD>
@@ -285,20 +256,9 @@ Copyright (c) 2022 RHEA System S.A.
     public ParameterOrOverrideBase? Parameter { get; set; }
 
     /// <summary>
-    /// Sets edition mode activate
-    /// </summary>
-    [Parameter]
-    public bool? IsEditionMode { get; set; }
-
-    /// <summary>
     /// Sets if ParameterValueSet was edited
     /// </summary>
     private bool? isParameterValueSetEdited { get; set; }
-
-    /// <summary>
-    /// The cloned <see cref="ParameterValueSetBase">
-    /// </summary>
-    public ParameterValueSetBase? ClonedParameterValueSet { get; set; }
 
     /// <summary>
     /// Listeners for the components to update it with edit changes
@@ -312,7 +272,6 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if (this.ParameterValueSet != null && this.IsEditable())
         {
-            this.ClonedParameterValueSet = this.ParameterValueSet.Clone(false);
             this.isParameterValueSetEdited = this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid);
         }
 
@@ -334,72 +293,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private bool IsEditable()
     {
-        if(this.IsEditionMode == true && this.ParameterValueSet?.Owner == this.ISessionAnchor.CurrentDomainOfExpertise)
+        if(this.ParameterValueSet?.Owner == this.ISessionAnchor.CurrentDomainOfExpertise)
         {
             return true;
         } else
         {
             return false;
-        }
-    }
-
-    /// <summary>
-    /// Gets the ParameterValueSetBase to edit
-    /// </summary>
-    /// <returns>The associated clone if ParameterValueSetBase is editable</returns>
-    private ParameterValueSetBase? GetParameterValueSetBase()
-    {
-        if (IsEditable())
-        {
-            return this.ClonedParameterValueSet;
-        } else
-        {
-            return this.ParameterValueSet;
-        }
-    }
-
-    /// <summary>
-    /// Gets the ParameterValueSetBase actual value
-    /// </summary>
-    /// <returns>The associated clone actual value if ParameterValueSetBase is editable</returns>
-    private ValueArray<string>? GetActualValue()
-    {
-        if (IsEditable())
-        {
-            return this.ClonedParameterValueSet?.ActualValue;
-        } else
-        {
-            return this.ParameterValueSet?.ActualValue;
-        }
-    }
-
-    /// <summary>
-    /// Gets the ParameterValueSetBase manual value
-    /// </summary>
-    /// <returns>The associated clone manual value if ParameterValueSetBase is editable</returns>
-    private ValueArray<string>? GetManualValue()
-    {
-        if (IsEditable())
-        {
-            return this.ClonedParameterValueSet?.Manual;
-        } else
-        {
-            return this.ParameterValueSet?.Manual;
-        }
-    }
-
-    /// <summary>
-    /// Gets the ParameterValueSetBase reference value
-    /// </summary>
-    /// <returns>The associated clone reference value if ParameterValueSetBase is editable</returns>
-    private ValueArray<string>? GetReferenceValue()
-    {
-        if (IsEditable())
-        {
-            return this.ClonedParameterValueSet?.Reference;
-        } else
-        {
-            return this.ParameterValueSet?.Reference;
         }
     }
 }

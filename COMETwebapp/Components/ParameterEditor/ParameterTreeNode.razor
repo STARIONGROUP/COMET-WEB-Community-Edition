@@ -44,15 +44,14 @@ Copyright (c) 2022 RHEA System S.A.
                         <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
                             <BSTHead>
                                 <BSTR>
-                                    <BSTD Class="width-9">Parameter</BSTD>
+                                    <BSTD Class="width-15">Parameter</BSTD>
                                     <BSTD Class="width-12">Model Code</BSTD>
                                     <BSTD Class="width-12">Published Value</BSTD>
-                                    <BSTD Class="width-12">Actual Value</BSTD>
                                     <BSTD Class="width-12">Computed Value</BSTD>
                                     <BSTD Class="width-12">Manual Value</BSTD>
                                     <BSTD Class="width-12">Reference Value</BSTD>
-                                    <BSTD Class="width-10">Switch</BSTD>
-                                    <BSTD Class="width-5">Owner</BSTD>
+                                    <BSTD Class="width-15">Switch</BSTD>
+                                    <BSTD Class="width-10">Owner</BSTD>
                                 </BSTR>
                             </BSTHead>
                             <BSTBody>
@@ -63,9 +62,11 @@ Copyright (c) 2022 RHEA System S.A.
                                     {
                                         foreach (var parameter in FilterParameters(elementDefinition.Parameter))
                                         {
-                                            foreach (var parameterValueSet in FilterParameterValueSets(parameter.IsOptionDependent, parameter.ValueSet))
+                                            var valueSet = new List<ParameterValueSetBase>();
+                                            valueSet.AddRange(parameter.ValueSet);
+                                            foreach (var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
                                             {
-                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
                                             }
                                         }
                                     }
@@ -77,18 +78,36 @@ Copyright (c) 2022 RHEA System S.A.
                                     {
                                         foreach(var parameter in FilterParameters(elementUsage.ElementDefinition.Parameter))
                                         {
-                                            foreach(var parameterValueSet in  FilterParameterValueSets(parameter.IsOptionDependent, parameter.ValueSet))
+                                            var valueSet = new List<ParameterValueSetBase>();
+                                            valueSet.AddRange(parameter.ValueSet);
+                                            foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
                                             {
-                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
                                             }
                                         }
                                     } else
                                     {
-                                        foreach(var parameter in FilterParameterOverrides(elementUsage.ParameterOverride))
+                                        var parameters = new List<ParameterOrOverrideBase>();
+                                        parameters.AddRange(FilterParameterOverrides(elementUsage.ParameterOverride));
+                                        var associatedParameters = new List<Parameter>();
+                                        associatedParameters.AddRange(elementUsage.ParameterOverride.Select(p => p.Parameter).ToList());
+                                        parameters.AddRange(FilterParameters(elementUsage.ElementDefinition.Parameter.FindAll(p => !associatedParameters.Contains(p))));
+                                        foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name).ToList())
                                         {
-                                            foreach(var parameterValueSet in FilterParameterOverrideValueSets(parameter.IsOptionDependent, parameter.ValueSet))
+                                            var valueSet = new List<ParameterValueSetBase>();
+                                            if(parameter is Parameter)
                                             {
-                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" IsEditionMode="@IsEditionMode" />
+                                                var p = (Parameter)parameter;
+                                                valueSet.AddRange(p.ValueSet);
+                                            } else if (parameter is ParameterOverride)
+                                            {
+                                                var p = (ParameterOverride)parameter;
+                                                valueSet.AddRange(p.ValueSet);
+                                            }
+
+                                            foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
+                                            {
+                                                <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
                                             }
                                         }
                                     }
@@ -108,12 +127,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public ElementBase? Element { get; set; }
-
-    /// <summary>
-    /// Sets edition mode activate
-    /// </summary>
-    [Parameter]
-    public bool IsEditionMode { get; set; }
 
     /// <summary>
     /// Sets if only parameters owned by the active domain are shown
@@ -184,12 +197,12 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     /// <summary>
-    /// Filters <see cref="ParameterValueSet">s for the selected option and the selected state
+    /// Filters <see cref="ParameterValueSetBase">s for the selected option and the selected state
     /// </summary>
-    /// <param name="parameterValueSets"><see cref="ParameterValueSet">s to filter</param>
-    public IEnumerable<ParameterValueSet> FilterParameterValueSets(bool isOptionDependent, List<ParameterValueSet> parameterValueSets)
+    /// <param name="parameterValueSets"><see cref="ParameterValueSetBase">s to filter</param>
+    public IEnumerable<ParameterValueSetBase> FilterParameterValueSetBase(bool isOptionDependent, List<ParameterValueSetBase> parameterValueSets)
     {
-        var filteredParameterValueSets = new List<ParameterValueSet>();
+        var filteredParameterValueSets = new List<ParameterValueSetBase>();
         if(this.OptionSelected != null && isOptionDependent)
         {
             filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
@@ -199,37 +212,7 @@ Copyright (c) 2022 RHEA System S.A.
         }
         if(this.StateSelected != null)
         {
-            var parameterValueSetsToRemove = new List<ParameterValueSet>();
-            filteredParameterValueSets.ForEach(p =>
-            {
-                if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                {
-                    parameterValueSetsToRemove.Add(p);
-                }
-            });
-            filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-        }
-
-        return filteredParameterValueSets.OrderBy(p => p.ModelCode());
-    }
-
-    /// <summary>
-    /// Filters <see cref="ParameterOverrideValueSet">s for the selected option and the selected state
-    /// </summary>
-    /// <param name="parameterValueSets"><see cref="ParameterOverrideValueSet">s to filter</param>
-    public IEnumerable<ParameterOverrideValueSet> FilterParameterOverrideValueSets(bool isOptionDependent, List<ParameterOverrideValueSet> parameterValueSets)
-    {
-        var filteredParameterValueSets = new List<ParameterOverrideValueSet>();
-        if(this.OptionSelected != null && isOptionDependent)
-        {
-            filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-        } else
-        {
-            filteredParameterValueSets.AddRange(parameterValueSets);
-        }
-        if(this.StateSelected != null)
-        {
-            var parameterValueSetsToRemove = new List<ParameterOverrideValueSet>();
+            var parameterValueSetsToRemove = new List<ParameterValueSetBase>();
             filteredParameterValueSets.ForEach(p =>
             {
                 if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
