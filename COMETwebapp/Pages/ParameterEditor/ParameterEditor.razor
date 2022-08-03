@@ -207,15 +207,23 @@ Copyright (c) 2022 RHEA System S.A.
                 {
                     e.ContainedElement.ForEach(containedElement =>
                     {
-                        if(containedElement.ParameterOverride.Count == 0)
+                        if (containedElement.ParameterOverride.Count == 0)
                         {
-                            if(containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            if (containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
                             {
                                 this.Elements.Add(containedElement);
                             }
-                        } else if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                        }
+                        else
                         {
-                            this.Elements.Add(containedElement);
+                            if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            {
+                                this.Elements.Add(containedElement);
+                            }
+                            if(!this.Elements.Contains(containedElement) && containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            {
+                                this.Elements.Add(containedElement);
+                            }
                         }
                     });
                 });
@@ -243,12 +251,19 @@ Copyright (c) 2022 RHEA System S.A.
                     } else if (e.GetType().Equals(typeof(ElementUsage)))
                     {
                         var elementUsage = (ElementUsage)e;
-                        if(elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                        if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
                         {
                             elementsToRemove.Add(e);
-                        } else if (elementUsage.ParameterOverride.Count != 0 && elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                        }
+                        else if (elementUsage.ParameterOverride.Count != 0)
                         {
-                            elementsToRemove.Add(e);
+                            if (elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                            {
+                                elementsToRemove.Add(e);
+                            } else if (elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                            {
+                                elementsToRemove.Add(e);
+                            }
                         }
                     }
                 });
@@ -322,6 +337,15 @@ Copyright (c) 2022 RHEA System S.A.
                         } else if (elementUsage.ParameterOverride.Count != 0)
                         {
                             elementUsage.ParameterOverride.ForEach(p => {
+                                p.ValueSet.ForEach(v =>
+                                {
+                                    if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                    {
+                                        actualStates.Add(v.ActualState);
+                                    }
+                                });
+                            });
+                            elementUsage.ElementDefinition.Parameter.ForEach(p => {
                                 p.ValueSet.ForEach(v =>
                                 {
                                     if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
