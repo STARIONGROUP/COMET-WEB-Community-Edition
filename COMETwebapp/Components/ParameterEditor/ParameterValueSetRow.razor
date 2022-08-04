@@ -32,14 +32,14 @@ Copyright (c) 2022 RHEA System S.A.
         colorToApply = "color-title";
     }
     <BSTR AlignRow="AlignRow.Middle">
-        <BSTD>
+        <BSTD Class="width-10">
             <div class="@colorToApply">
                 @Parameter.ParameterType.Name
             </div>
         </BSTD>
         @if(modelCode.Count() == 1)
         {
-            <BSTD>
+            <BSTD Class="width-15">
                 <div class="@colorToApply">
                     @modelCode[0]
                 </div>
@@ -84,19 +84,19 @@ Copyright (c) 2022 RHEA System S.A.
         }
         @if(this.Parameter.ParameterType.NumberOfValues == 1)
         {
-            <BSTD>
+            <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Published.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
-            <BSTD>
+            <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Computed.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
-            <BSTD>
+            <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Manual.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
@@ -104,7 +104,7 @@ Copyright (c) 2022 RHEA System S.A.
                     IndexInValueSet="0" IsManualEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
-            <BSTD>
+            <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Reference.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
@@ -228,13 +228,13 @@ Copyright (c) 2022 RHEA System S.A.
                 </BSTD>
             }
         }
-        <BSTD>
+        <BSTD Class="width-12">
             <SwitchMode 
                 ParameterValueSet="@ParameterValueSet"  
                 IsSwitchEditable="@IsEditable()" 
                 IsParameterValueSetEdited="@isParameterValueSetEdited" />
         </BSTD>
-        <BSTD>
+        <BSTD Class="width-5">
             <div class="@colorToApply">
                 @Parameter.Owner.ShortName
             </div>

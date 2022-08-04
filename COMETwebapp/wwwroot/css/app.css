@@ -77,7 +77,9 @@ html, body, #app {
 .width-100 {
     width: 100%;
 }
-
+.width-1400 {
+    width: 1400px;
+}
 .height-70 {
     height: 70%;
 }
@@ -307,6 +309,10 @@ html, body, #app {
     width: 40%;
 }
 
+.width-90 {
+    width: 90%;
+}
+
 .width-15{
     width: 15%;
 }
@@ -344,4 +350,8 @@ html, body, #app {
     width: 100%;
     background-color: transparent;
     border: none;
+}
+
+.margin-bottom-0 {
+    margin-bottom: 0px;
 }

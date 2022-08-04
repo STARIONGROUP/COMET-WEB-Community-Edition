@@ -104,7 +104,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             </div>
             <div class="row">
-                <ParameterTree Elements="@Filter(this.Elements.OrderBy(e => e.Name))" 
+                <ParameterTable Elements="@Filter(this.Elements.OrderBy(e => e.Name))" 
                     IsOwnedParameters="@IsOwnedParameters"
                     ParameterTypeSelected="@parameterTypeSelected" 
                     OptionSelected="@optionSelected"
@@ -257,10 +257,8 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                         else if (elementUsage.ParameterOverride.Count != 0)
                         {
-                            if (elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                            {
-                                elementsToRemove.Add(e);
-                            } else if (elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                            if (elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0 &&
+                                elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
                             {
                                 elementsToRemove.Add(e);
                             }
