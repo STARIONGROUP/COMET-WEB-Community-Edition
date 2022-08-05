@@ -33,7 +33,7 @@ Copyright (c) 2022 RHEA System S.A.
                 <div class="col">
                     <h6>Filter on Element Usage Name:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@Elements.OrderBy(e => e.Name)"
+                        <DxComboBox Data="@Filter(Elements.OrderBy(e => e.Name).ToList())"
                             TextFieldName="@nameof(ElementBase.Name)"
                             AllowUserInput="true"
                             NullText="--Select an Element--"
@@ -104,7 +104,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             </div>
             <div class="row">
-                <ParameterTable Elements="@Filter(this.Elements.OrderBy(e => e.Name))" 
+                <ParameterTable Elements="@Filter(this.Elements.OrderBy(e => e.Name).ToList())" 
                     IsOwnedParameters="@IsOwnedParameters"
                     ParameterTypeSelected="@parameterTypeSelected" 
                     OptionSelected="@optionSelected"
@@ -116,6 +116,13 @@ Copyright (c) 2022 RHEA System S.A.
 
 
 @code{
+    /// <summary>
+    /// The filter on option
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? FilterOption { get; set; }
+
     /// <summary>
     /// The selected <see cref="ElementBase"> to filter
     /// </summary>
@@ -161,8 +168,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
-
         this.Elements.Clear();
         this.InitializeElements();
 
@@ -186,6 +191,22 @@ Copyright (c) 2022 RHEA System S.A.
                 this.InitializeElements();
                 this.StateHasChanged();
             }));
+        }
+    }
+
+    /// <summary>
+    /// Get selected filter on url page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        this.FilterOption = FilterOption ?? null;
+        Console.WriteLine(this.FilterOption);
+        if(this.FilterOption != null)
+        {
+            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
+        } else
+        {
+            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
         }
     }
 
@@ -235,132 +256,6 @@ Copyright (c) 2022 RHEA System S.A.
                 }
                 iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
             }
-
-            if(this.parameterTypeSelected != null)
-            {
-                var elementsToRemove = new List<ElementBase>();
-                this.Elements.ForEach(e =>
-                {
-                    if (e.GetType().Equals(typeof(ElementDefinition)))
-                    {
-                        var elementDefinition = (ElementDefinition)e;
-                        if(elementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                    } else if (e.GetType().Equals(typeof(ElementUsage)))
-                    {
-                        var elementUsage = (ElementUsage)e;
-                        if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                        else if (elementUsage.ParameterOverride.Count != 0)
-                        {
-                            if (elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0 &&
-                                elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                            {
-                                elementsToRemove.Add(e);
-                            }
-                        }
-                    }
-                });
-                this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
-            }
-
-            if(this.optionSelected != null)
-            {
-                var option = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(option => option.Name.Equals(this.optionSelected))?.Iid;
-                var nestedElements = this.IterationService.GetNestedElementsByOption(this.ISessionAnchor.OpenIteration, option);
-
-                var associatedElements = new List<ElementUsage>();
-                nestedElements.ForEach(element =>
-                {
-                    associatedElements.AddRange(element.ElementUsage);
-                });
-                associatedElements = associatedElements.Distinct().ToList();
-
-                var elementsToRemove = new List<ElementBase>();
-                this.Elements.ForEach(e =>
-                {
-                    if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
-                    {
-                        elementsToRemove.Add(e);
-                    }
-                });
-                this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
-            }
-
-            if(this.stateSelected != null)
-            {
-                var elementsToRemove = new List<ElementBase>();
-                this.Elements.ForEach(e =>
-                {
-                    if (e.GetType().Equals(typeof(ElementDefinition)))
-                    {
-                        var elementDefinition = (ElementDefinition)e;
-                        var actualStates = new List<ActualFiniteState>();
-                        elementDefinition.Parameter.ForEach(p => {
-                            p.ValueSet.ForEach(v =>
-                            {
-                                if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                {
-                                    actualStates.Add(v.ActualState);
-                                }
-                            });
-                        });
-                        if(actualStates.Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                    } else if (e.GetType().Equals(typeof(ElementUsage)))
-                    {
-                        var elementUsage = (ElementUsage)e;
-                        var actualStates = new List<ActualFiniteState>();
-                        if(elementUsage.ParameterOverride.Count == 0)
-                        {
-                            elementUsage.ElementDefinition.Parameter.ForEach(p => {
-                                p.ValueSet.ForEach(v =>
-                                {
-                                    if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                    {
-                                        actualStates.Add(v.ActualState);
-                                    }
-                                });
-                            });
-                            if(actualStates.Count == 0)
-                            {
-                                elementsToRemove.Add(e);
-                            }
-                        } else if (elementUsage.ParameterOverride.Count != 0)
-                        {
-                            elementUsage.ParameterOverride.ForEach(p => {
-                                p.ValueSet.ForEach(v =>
-                                {
-                                    if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                    {
-                                        actualStates.Add(v.ActualState);
-                                    }
-                                });
-                            });
-                            elementUsage.ElementDefinition.Parameter.ForEach(p => {
-                                p.ValueSet.ForEach(v =>
-                                {
-                                    if(v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                    {
-                                        actualStates.Add(v.ActualState);
-                                    }
-                                });
-                            });
-                            if(actualStates.Count == 0)
-                            {
-                                elementsToRemove.Add(e);
-                            }
-                        }
-                    }
-                });
-                this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
-            }
         }
     }
 
@@ -369,14 +264,146 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="elements"></param>
     /// <returns></returns>
-    public List<ElementBase> Filter(IEnumerable<ElementBase> elements)
+    public List<ElementBase> Filter(List<ElementBase> elements)
     {
+        if(this.parameterTypeSelected != null)
+        {
+            var elementsToRemove = new List<ElementBase>();
+            elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementDefinition)))
+                {
+                    var elementDefinition = (ElementDefinition)e;
+                    if(elementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                    {
+                        elementsToRemove.Add(e);
+                    }
+                } else if (e.GetType().Equals(typeof(ElementUsage)))
+                {
+                    var elementUsage = (ElementUsage)e;
+                    if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                    {
+                        elementsToRemove.Add(e);
+                    }
+                    else if (elementUsage.ParameterOverride.Count != 0)
+                    {
+                        if (elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0 &&
+                            elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        }
+                    }
+                }
+            });
+            elements.RemoveAll(e => elementsToRemove.Contains(e));
+        }
+
+        if(this.optionSelected != null)
+        {
+            var option = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(option => option.Name == this.optionSelected)?.Iid;
+            var nestedElements = this.IterationService.GetNestedElementsByOption(this.ISessionAnchor.OpenIteration, option);
+
+            var associatedElements = new List<ElementUsage>();
+            nestedElements.ForEach(element =>
+            {
+                associatedElements.AddRange(element.ElementUsage);
+            });
+            associatedElements = associatedElements.Distinct().ToList();
+
+            var elementsToRemove = new List<ElementBase>();
+            elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
+                {
+                    elementsToRemove.Add(e);
+                }
+            });
+            elements.RemoveAll(e => elementsToRemove.Contains(e));
+        }
+
+        if (this.stateSelected != null)
+        {
+            var elementsToRemove = new List<ElementBase>();
+            elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementDefinition)))
+                {
+                    var elementDefinition = (ElementDefinition)e;
+                    var actualStates = new List<ActualFiniteState>();
+                    elementDefinition.Parameter.ForEach(p =>
+                    {
+                        p.ValueSet.ForEach(v =>
+                        {
+                            if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                            {
+                                actualStates.Add(v.ActualState);
+                            }
+                        });
+                    });
+                    if (actualStates.Count == 0)
+                    {
+                        elementsToRemove.Add(e);
+                    }
+                }
+                else if (e.GetType().Equals(typeof(ElementUsage)))
+                {
+                    var elementUsage = (ElementUsage)e;
+                    var actualStates = new List<ActualFiniteState>();
+                    if (elementUsage.ParameterOverride.Count == 0)
+                    {
+                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
+                        {
+                            p.ValueSet.ForEach(v =>
+                            {
+                                if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                {
+                                    actualStates.Add(v.ActualState);
+                                }
+                            });
+                        });
+                        if (actualStates.Count == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        }
+                    }
+                    else if (elementUsage.ParameterOverride.Count != 0)
+                    {
+                        elementUsage.ParameterOverride.ForEach(p =>
+                        {
+                            p.ValueSet.ForEach(v =>
+                            {
+                                if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                {
+                                    actualStates.Add(v.ActualState);
+                                }
+                            });
+                        });
+                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
+                        {
+                            p.ValueSet.ForEach(v =>
+                            {
+                                if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
+                                {
+                                    actualStates.Add(v.ActualState);
+                                }
+                            });
+                        });
+                        if (actualStates.Count == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        }
+                    }
+                }
+            });
+            elements.RemoveAll(e => elementsToRemove.Contains(e));
+        }
+
         if(this.selectedElement != null)
         {
-            return elements.ToList().FindAll(e => e.Iid == this.selectedElement?.Iid);
+            return elements.FindAll(e => e.Iid == this.selectedElement?.Iid);
         } else
         {
-            return elements.ToList();
+            return elements;
         }
     }
 
@@ -416,9 +443,15 @@ Copyright (c) 2022 RHEA System S.A.
     /// <param name="e">Name of the Option selected</param>
     public void OnOptionFilterChange(string? option)
     {
-        this.optionSelected = option;
-        this.Elements.Clear();
-        this.InitializeElements();
+        this.optionSelected =   option;
+        if(this.optionSelected != null)
+        {
+            this.FilterOption = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid;
+        } else
+        {
+            this.FilterOption = null;
+        }
+        this.NavigationManager.NavigateTo($"/ParameterEditor?filteroption={this.FilterOption}");
     }
 
     /// <summary>

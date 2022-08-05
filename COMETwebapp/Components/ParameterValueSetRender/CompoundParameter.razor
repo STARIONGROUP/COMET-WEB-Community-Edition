@@ -30,9 +30,11 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 @if(this.Component.ParameterType.NumberOfValues == 1)
                 {
+                    var valueType = this.Component.ParameterType.GetType();
                     <ScalarParameter 
                         Value="@GetScalarValue()" 
                         Scale="@Component.Scale?.ShortName" 
+                        ValueType="@valueType"
                         ParameterValueSet="@ParameterValueSet" 
                         IndexInValueSet="@IndexStartInParameterTypeComponent" 
                         IsManualEditable="@IsManualEditable" 

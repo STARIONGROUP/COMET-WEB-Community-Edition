@@ -80,7 +80,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </BSProgress>
             </div>
             
-            <button class="todo-btn" @onclick="@(() => this.NavigationManager.NavigateTo("/ParameterEditor"))">
+            <button class="todo-btn" @onclick="@(() => this.NavigationManager.NavigateTo($"/ParameterEditor?filteroption={this.FilterOption}"))">
                 <ToDoTable ParameterValueSets="@parameterValueSets"/>
             </button>
         }
@@ -93,5 +93,11 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public List<ParameterValueSetBase>? Data { get; set; }
+
+    /// <summary>
+    /// <see cref="Guid"> of the option to filter the data 
+    /// </summary>
+    [Parameter]
+    public Guid? FilterOption { get; set; }
 
 }

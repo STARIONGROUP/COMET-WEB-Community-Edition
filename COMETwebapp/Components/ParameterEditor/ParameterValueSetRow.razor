@@ -84,22 +84,35 @@ Copyright (c) 2022 RHEA System S.A.
         }
         @if(this.Parameter.ParameterType.NumberOfValues == 1)
         {
+            var enumerationValueDefinitions = new List<EnumerationValueDefinition>();
+            if(this.Parameter.ParameterType is EnumerationParameterType)
+            {
+                var parameterType = (EnumerationParameterType)this.Parameter.ParameterType;
+                enumerationValueDefinitions.AddRange(parameterType.ValueDefinition);
+            } else
+            {
+                enumerationValueDefinitions = null;
+            }
             <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Published.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
+                    ValueType="@Parameter.ParameterType.GetType()"
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
             <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Computed.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
+                    ValueType="@Parameter.ParameterType.GetType()"
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
             <BSTD Class="width-15">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Manual.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
+                    ValueType="@Parameter.ParameterType.GetType()"
+                    EnumerationValueDefinitions="@enumerationValueDefinitions"
                     ParameterValueSet="@ParameterValueSet" 
                     IndexInValueSet="0" IsManualEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
@@ -108,7 +121,9 @@ Copyright (c) 2022 RHEA System S.A.
                 <ScalarParameter 
                     Value="@ParameterValueSet.Reference.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
-                    ParameterValueSet="@ParameterValueSet" 
+                    ParameterValueSet="@ParameterValueSet"
+                    ValueType="@Parameter.ParameterType.GetType()"
+                    EnumerationValueDefinitions="@enumerationValueDefinitions"
                     IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
