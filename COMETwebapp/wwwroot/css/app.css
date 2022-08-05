@@ -355,3 +355,7 @@ html, body, #app {
 .margin-bottom-0 {
     margin-bottom: 0px;
 }
+
+.width-30{
+    width: 30%;
+}

@@ -36,10 +36,22 @@ Copyright (c) 2022 RHEA System S.A.
                     {
                         var scale = this.ArrayParameterType.Component.ElementAt(i * nbRows + j).Scale?.ShortName;
                         var index = this.IndexStartInValueSet + i * nbRows + j;
+                        var valueType = this.ArrayParameterType.Component.ElementAt(i * nbRows + j).ParameterType.GetType();
+                        var enumerationValueDefinitions = new List<EnumerationValueDefinition>();
+                        if(valueType != null && valueType.Equals(typeof(EnumerationParameterType)))
+                        {
+                            var parameterType = (EnumerationParameterType)this.ArrayParameterType.Component.ElementAt(i * nbRows + j).ParameterType;
+                            enumerationValueDefinitions.AddRange(parameterType.ValueDefinition);
+                        } else
+                        {
+                            enumerationValueDefinitions = null;
+                        }
                         <ScalarParameter 
                             Value="@Values.ElementAt(i*nbRows + j)" 
                             Scale="@scale" 
+                            ValueType="@valueType"
                             ParameterValueSet="@ParameterValueSet" 
+                            EnumerationValueDefinitions="@enumerationValueDefinitions"
                             IndexInValueSet="@index" 
                             IsManualEditable="@IsManualEditable" 
                             IsReferenceEditable="@IsReferenceEditable" 
@@ -67,10 +79,22 @@ Copyright (c) 2022 RHEA System S.A.
                         @for(int j = 0; j < nbColumns; j++)
                         {
                             var scale = this.ArrayParameterType.Component.ElementAt(i * nbRows + j).Scale?.ShortName;
+                            var valueType = this.ArrayParameterType.Component.ElementAt(i * nbRows + j).ParameterType.GetType();
+                            var enumerationValueDefinitions = new List<EnumerationValueDefinition>();
+                            if(valueType != null && valueType.Equals(typeof(EnumerationParameterType)))
+                            {
+                                var parameterType = (EnumerationParameterType)this.ArrayParameterType.Component.ElementAt(i * nbRows + j).ParameterType;
+                                enumerationValueDefinitions.AddRange(parameterType.ValueDefinition);
+                            } else
+                            {
+                                enumerationValueDefinitions = null;
+                            }
                             <ScalarParameter 
                                 Value="@Values.ElementAt(i*nbRows + j)" 
                                 Scale="@scale" 
+                                ValueType="@valueType"
                                 ParameterValueSet="@ParameterValueSet" 
+                                EnumerationValueDefinitions="@enumerationValueDefinitions"
                                 IndexInValueSet="@(i*nbRows + j)" 
                                 IsManualEditable="@IsManualEditable" 
                                 IsReferenceEditable="@IsReferenceEditable" 

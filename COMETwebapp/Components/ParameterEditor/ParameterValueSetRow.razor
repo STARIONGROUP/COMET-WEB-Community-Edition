@@ -31,6 +31,11 @@ Copyright (c) 2022 RHEA System S.A.
     {
         colorToApply = "color-title";
     }
+    var valueSwitchToShow = this.ParameterValueSet.ValueSwitch;
+    if(this.selectedSwitchKind != null)
+    {
+        valueSwitchToShow = (ParameterSwitchKind) Enum.Parse(typeof(ParameterSwitchKind), this.selectedSwitchKind);
+    }
     <BSTR AlignRow="AlignRow.Middle">
         <BSTD Class="width-10">
             <div class="@colorToApply">
@@ -39,7 +44,7 @@ Copyright (c) 2022 RHEA System S.A.
         </BSTD>
         @if(modelCode.Count() == 1)
         {
-            <BSTD Class="width-15">
+            <BSTD Class="width-20">
                 <div class="@colorToApply">
                     @modelCode[0]
                 </div>
@@ -84,73 +89,192 @@ Copyright (c) 2022 RHEA System S.A.
         }
         @if(this.Parameter.ParameterType.NumberOfValues == 1)
         {
-            <BSTD Class="width-15">
+            var enumerationValueDefinitions = new List<EnumerationValueDefinition>();
+            if(this.Parameter.ParameterType is EnumerationParameterType)
+            {
+                var parameterType = (EnumerationParameterType)this.Parameter.ParameterType;
+                enumerationValueDefinitions.AddRange(parameterType.ValueDefinition);
+            } else
+            {
+                enumerationValueDefinitions = null;
+            }
+            <BSTD Class="width-20">
                 <ScalarParameter 
                     Value="@ParameterValueSet.Published.First()" 
                     Scale="@Parameter.Scale?.ShortName" 
+                    ValueType="@Parameter.ParameterType.GetType()"
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
-            <BSTD Class="width-15">
-                <ScalarParameter 
-                    Value="@ParameterValueSet.Computed.First()" 
-                    Scale="@Parameter.Scale?.ShortName" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
-            </BSTD>
-            <BSTD Class="width-15">
-                <ScalarParameter 
-                    Value="@ParameterValueSet.Manual.First()" 
-                    Scale="@Parameter.Scale?.ShortName" 
-                    ParameterValueSet="@ParameterValueSet" 
-                    IndexInValueSet="0" IsManualEditable="@IsEditable()" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
-            </BSTD>
-            <BSTD Class="width-15">
-                <ScalarParameter 
-                    Value="@ParameterValueSet.Reference.First()" 
-                    Scale="@Parameter.Scale?.ShortName" 
-                    ParameterValueSet="@ParameterValueSet" 
-                    IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
-            </BSTD>
+            @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
+            {
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                <ScalarParameter 
+                                    Value="@ParameterValueSet.Computed.First()" 
+                                    Scale="@Parameter.Scale?.ShortName" 
+                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">C</button>
+                                </SwitchTooltip>
+                            </div>
+                        </div>
+                    </div>
+                </BSTD>
+            } else if(valueSwitchToShow == ParameterSwitchKind.MANUAL)
+            {
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                <ScalarParameter 
+                                    Value="@ParameterValueSet.Manual.First()" 
+                                    Scale="@Parameter.Scale?.ShortName" 
+                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    EnumerationValueDefinitions="@enumerationValueDefinitions"
+                                    ParameterValueSet="@ParameterValueSet" 
+                                    IndexInValueSet="0" IsManualEditable="@IsEditable()" 
+                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">M</button>
+                                </SwitchTooltip>
+                            </div>
+                        </div>
+                    </div>
+                </BSTD>
+            } else
+            {
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                <ScalarParameter 
+                                    Value="@ParameterValueSet.Reference.First()" 
+                                    Scale="@Parameter.Scale?.ShortName" 
+                                    ParameterValueSet="@ParameterValueSet"
+                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    EnumerationValueDefinitions="@enumerationValueDefinitions"
+                                    IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
+                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    SwitchValue="valueSwitchToShow"
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">R</button>
+                                </SwitchTooltip>
+                            </div>
+                        </div>
+                    </div>
+                </BSTD>
+            }
         } else if(this.Parameter.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
         {
-            <BSTD>
+            <BSTD Class="width-20">
                 <ArrayParameter 
                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
                     Values="@ParameterValueSet.Published" 
                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
             </BSTD>
-            <BSTD>
-                <ArrayParameter 
-                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@ParameterValueSet.Computed" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
-            </BSTD>
-            <BSTD>
-                <ArrayParameter 
-                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@ParameterValueSet.Manual" 
-                    ParameterValueSet="@ParameterValueSet" 
-                    IndexStartInValueSet="0" 
-                    IsManualEditable="@IsEditable()" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited"/>
-            </BSTD>
-            <BSTD>
-                <ArrayParameter 
-                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@ParameterValueSet.Reference" 
-                    ParameterValueSet="@ParameterValueSet" 
-                    IndexStartInValueSet="0" 
-                    IsReferenceEditable="@IsEditable()" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited"/>
-            </BSTD>
+            @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
+            {
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                <ArrayParameter 
+                                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
+                                    Values="@ParameterValueSet.Computed" 
+                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">C</button>
+                                </SwitchTooltip>
+                            </div>
+                        </div>
+                    </div>
+                </BSTD>
+            } else if(valueSwitchToShow == ParameterSwitchKind.MANUAL)
+            {
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                    <ArrayParameter 
+                                        ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
+                                        Values="@ParameterValueSet.Manual" 
+                                        ParameterValueSet="@ParameterValueSet" 
+                                        IndexStartInValueSet="0" 
+                                        IsManualEditable="@IsEditable()" 
+                                        IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip 
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">M</button>
+                                </SwitchTooltip>
+                            </div>
+                        </div>
+                    </div>
+                </BSTD>
+            } else
+            {
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                <ArrayParameter 
+                                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
+                                    Values="@ParameterValueSet.Reference" 
+                                    ParameterValueSet="@ParameterValueSet" 
+                                    IndexStartInValueSet="0" 
+                                    IsReferenceEditable="@IsEditable()" 
+                                    IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip 
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">R</button>
+                                </SwitchTooltip>
+                            </div>
+                        </div>
+                    </div>
+                </BSTD>
+            }
         } else
         {
             var compoundParameterType = (CompoundParameterType)this.Parameter.ParameterType;
             var components = compoundParameterType?.Component.ToList();
             if (components != null && compoundParameterType != null)
             {
-                <BSTD>
+                <BSTD Class="width-20">
                     <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
                         @foreach (var component in components)
                         {
@@ -168,73 +292,119 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                     </div>                                                
                 </BSTD>
-                <BSTD>
-                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
-                        @foreach (var component in components)
-                        {
-                            var indexStart = 0;
-                            for (int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
-                            {
-                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+                @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
+                {
+                    <BSTD Class="width-30">
+                        <div class="container-fluid p-0">
+                            <div class="row m-0">
+                                <div class="col p-0">
+                                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                                        @foreach (var component in components)
+                                        {
+                                            var indexStart = 0;
+                                            for (int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                                            {
+                                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
-                            }
-                            <CompoundParameter 
-                                IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@ParameterValueSet.Computed" 
-                                Component="component" 
-                                IsParameterValueSetEdited="@isParameterValueSetEdited"/>
-                        }
-                    </div>                                                    
-                </BSTD>
-                <BSTD>
-                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
-                        @foreach(var component in components)
-                        {
-                            var indexStart = 0;
-                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
-                            {
-                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+                                            }
+                                            <CompoundParameter 
+                                                IndexStartInParameterTypeComponent="indexStart" 
+                                                Values="@ParameterValueSet.Computed" 
+                                                Component="component" 
+                                                IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                                        }
+                                    </div>     
+                                </div>
+                                <div class="col-2 align-self-center">
+                                    <SwitchTooltip 
+                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        SwitchValue="valueSwitchToShow" 
+                                        IsEditable="@IsEditable()">
+                                        <button type="button" class="btn btn-secondary btn-tooltip">C</button>
+                                    </SwitchTooltip>
+                                </div>
+                            </div>
+                        </div>
+                    </BSTD>
+                } else if(valueSwitchToShow == ParameterSwitchKind.MANUAL)
+                {
+                    <BSTD Class="width-30">
+                        <div class="container-fluid p-0">
+                            <div class="row m-0">
+                                <div class="col p-0">
+                                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                                        @foreach(var component in components)
+                                        {
+                                            var indexStart = 0;
+                                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                                            {
+                                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
-                            }
-                            <CompoundParameter 
-                                IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@ParameterValueSet.Manual" 
-                                Component="component" 
-                                ParameterValueSet="@ParameterValueSet" 
-                                IsManualEditable="@IsEditable()" 
-                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
-                        }
-                    </div>                                               
-                </BSTD>
-                <BSTD>
-                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
-                        @foreach(var component in components)
-                        {
-                            var indexStart = 0;
-                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
-                            {
-                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+                                            }
+                                            <CompoundParameter 
+                                                IndexStartInParameterTypeComponent="indexStart" 
+                                                Values="@ParameterValueSet.Manual" 
+                                                Component="component" 
+                                                ParameterValueSet="@ParameterValueSet" 
+                                                IsManualEditable="@IsEditable()" 
+                                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                        }
+                                    </div>                                               
+                                </div>
+                                <div class="col-2 align-self-center">
+                                    <SwitchTooltip 
+                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        SwitchValue="valueSwitchToShow" 
+                                        IsEditable="@IsEditable()">
+                                        <button type="button" class="btn btn-secondary btn-tooltip">M</button>
+                                    </SwitchTooltip>
+                                </div>
+                            </div>
+                        </div>
+                    </BSTD>
+                } else
+                {
+                    <BSTD Class="width-30">
+                        <div class="container-fluid p-0">
+                            <div class="row m-0">
+                                <div class="col p-0">
+                                    <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
+                                        @foreach(var component in components)
+                                        {
+                                            var indexStart = 0;
+                                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                                            {
+                                                indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
-                            }
-                            <CompoundParameter 
-                                IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@ParameterValueSet.Reference" 
-                                Component="component" 
-                                ParameterValueSet="@ParameterValueSet" 
-                                IsReferenceEditable="@IsEditable()" 
-                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
-                        }
-                    </div>
-                </BSTD>
+                                            }
+                                            <CompoundParameter 
+                                                IndexStartInParameterTypeComponent="indexStart" 
+                                                Values="@ParameterValueSet.Reference" 
+                                                Component="component" 
+                                                ParameterValueSet="@ParameterValueSet" 
+                                                IsReferenceEditable="@IsEditable()" 
+                                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-2 align-self-center">
+                                    <SwitchTooltip 
+                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        SwitchValue="valueSwitchToShow" 
+                                        IsEditable="@IsEditable()">
+                                        <button type="button" class="btn btn-secondary btn-tooltip">R</button>
+                                    </SwitchTooltip>
+                                </div>
+                            </div>
+                        </div>
+                    </BSTD>
+                }
             }
         }
-        <BSTD Class="width-12">
-            <SwitchMode 
-                ParameterValueSet="@ParameterValueSet"  
-                IsSwitchEditable="@IsEditable()" 
-                IsParameterValueSetEdited="@isParameterValueSetEdited" />
-        </BSTD>
-        <BSTD Class="width-5">
+        <BSTD Class="width-10">
             <div class="@colorToApply">
                 @Parameter.Owner.ShortName
             </div>
@@ -261,6 +431,11 @@ Copyright (c) 2022 RHEA System S.A.
     private bool? isParameterValueSetEdited { get; set; }
 
     /// <summary>
+    /// ParameterSwitchKind to show
+    /// </summary>
+    private string? selectedSwitchKind { get; set; }
+
+    /// <summary>
     /// Listeners for the components to update it with edit changes
     /// </summary>
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
@@ -276,13 +451,23 @@ Copyright (c) 2022 RHEA System S.A.
         }
 
         if (!this.listeners.TryGetValue("NewUpdate", out var listener)) {
-            this.listeners.Add("NewUpdate", CDPMessageBus.Current.Listen<NewUpdateEvent>().Subscribe(x =>
+            this.listeners.Add("NewUpdate", CDPMessageBus.Current.Listen<NewUpdateEvent>().Where(x => x.UpdatedThingIid == this.ParameterValueSet?.Iid).Subscribe(x =>
             {
-                if(x.UpdatedThingIid == this.ParameterValueSet?.Iid)
-                {
-                    this.isParameterValueSetEdited = true;
-                }
+                this.isParameterValueSetEdited = true;
                 this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("SwitchMode", out listener)) {
+            this.listeners.Add("SwitchMode", CDPMessageBus.Current.Listen<SwitchEvent>().Where(x => x.ParameterValuSetIid == this.ParameterValueSet?.Iid).Subscribe(x =>
+            {
+                if (x.SubmitChange == null)
+                {
+                    this.selectedSwitchKind = x.SelectedSwitch.ToString();
+                    this.StateHasChanged();
+                } else if (x.SubmitChange == true) {
+                    this.UpdateChange(x.SelectedSwitch);
+                }
             }));
         }
     }
@@ -299,6 +484,27 @@ Copyright (c) 2022 RHEA System S.A.
         } else
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Update value of <see cref="ParameterValueSet"> when a change appears 
+    /// </summary>
+    private void UpdateChange(ParameterSwitchKind newValue)
+    {
+        if (this.ParameterValueSet != null)
+        {
+            if(this.IsEditable() && !this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid))
+            {
+                this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
+                CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
+            }
+            var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
+            clonedParameterValueSet.ValueSwitch = newValue;
+            this.ISessionAnchor.UpdateThings(new List<Thing>()
+            {
+                clonedParameterValueSet
+            });
         }
     }
 }

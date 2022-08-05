@@ -31,14 +31,11 @@ Copyright (c) 2022 RHEA System S.A.
                     <BSTD>
                         <div class="row">
                             <div class="width-10">Element</div>
-                            <div class="width-9">Parameter</div>
-                            <div style="width: 12%;">Model Code</div>
-                            <div style="width: 13.5%;">Published Value</div>
-                            <div style="width: 13.5%;">Computed Value</div>
-                            <div style="width: 13.5%;">Manual Value</div>
-                            <div style="width: 13.5%;">Reference Value</div>
-                            <div class="p-0" style="width: 10%;">Switch</div>
-                            <div style="width: 5%;">Owner</div>
+                            <div class="width-10">Parameter</div>
+                            <div style="width: 20%;">Model Code</div>
+                            <div style="width: 20%;">Published Value</div>
+                            <div style="width: 25%;">Value</div>
+                            <div style="width: 15%; padding: 0px 92px;">Owner</div>
                         </div>
                     </BSTD>
                 </BSTR>
@@ -48,72 +45,72 @@ Copyright (c) 2022 RHEA System S.A.
                     @foreach (var element in this.Elements)
                     {
                         <div style="padding-right: 0px; border-bottom-color: black; border-bottom-style: double;">
-                        <BSTR AlignRow="AlignRow.Middle">
-                            <BSTD Class="width-10">@element.Name</BSTD>
-                            <BSTD Class="width-1400">
-                                <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
-                                    <BSTBody>
-                                        @if (element.GetType().Equals(typeof(ElementDefinition)))
-                                        {
-                                            var elementDefinition = (ElementDefinition)element;
-                                            @if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
+                            <BSTR AlignRow="AlignRow.Middle">
+                                <BSTD Class="width-10">@element.Name</BSTD>
+                                <BSTD Class="width-1400">
+                                    <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
+                                        <BSTBody>
+                                            @if (element.GetType().Equals(typeof(ElementDefinition)))
                                             {
-                                                foreach (var parameter in FilterParameters(elementDefinition.Parameter))
+                                                var elementDefinition = (ElementDefinition)element;
+                                                @if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
                                                 {
-                                                    var valueSet = new List<ParameterValueSetBase>();
-                                                    valueSet.AddRange(parameter.ValueSet);
-                                                    foreach (var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
+                                                    foreach (var parameter in FilterParameters(elementDefinition.Parameter))
                                                     {
-                                                        <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                        var valueSet = new List<ParameterValueSetBase>();
+                                                        valueSet.AddRange(parameter.ValueSet);
+                                                        foreach (var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
+                                                        {
+                                                            <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        } 
-                                        else if (element.GetType().Equals(typeof(ElementUsage)))
-                                        {
-                                            var elementUsage = (ElementUsage)element;
-                                            @if(elementUsage.ParameterOverride.Count == 0)
+                                            } 
+                                            else if (element.GetType().Equals(typeof(ElementUsage)))
                                             {
-                                                foreach(var parameter in FilterParameters(elementUsage.ElementDefinition.Parameter))
+                                                var elementUsage = (ElementUsage)element;
+                                                @if(elementUsage.ParameterOverride.Count == 0)
                                                 {
-                                                    var valueSet = new List<ParameterValueSetBase>();
-                                                    valueSet.AddRange(parameter.ValueSet);
-                                                    foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
+                                                    foreach(var parameter in FilterParameters(elementUsage.ElementDefinition.Parameter))
                                                     {
-                                                        <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                        var valueSet = new List<ParameterValueSetBase>();
+                                                        valueSet.AddRange(parameter.ValueSet);
+                                                        foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
+                                                        {
+                                                            <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                        }
                                                     }
-                                                }
-                                            } else
-                                            {
-                                                var parameters = new List<ParameterOrOverrideBase>();
-                                                parameters.AddRange(FilterParameterOverrides(elementUsage.ParameterOverride));
-                                                var associatedParameters = new List<Parameter>();
-                                                associatedParameters.AddRange(elementUsage.ParameterOverride.Select(p => p.Parameter).ToList());
-                                                parameters.AddRange(FilterParameters(elementUsage.ElementDefinition.Parameter.FindAll(p => !associatedParameters.Contains(p))));
-                                                foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name).ToList())
+                                                } else
                                                 {
-                                                    var valueSet = new List<ParameterValueSetBase>();
-                                                    if(parameter is Parameter)
+                                                    var parameters = new List<ParameterOrOverrideBase>();
+                                                    parameters.AddRange(FilterParameterOverrides(elementUsage.ParameterOverride));
+                                                    var associatedParameters = new List<Parameter>();
+                                                    associatedParameters.AddRange(elementUsage.ParameterOverride.Select(p => p.Parameter).ToList());
+                                                    parameters.AddRange(FilterParameters(elementUsage.ElementDefinition.Parameter.FindAll(p => !associatedParameters.Contains(p))));
+                                                    foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name).ToList())
                                                     {
-                                                        var p = (Parameter)parameter;
-                                                        valueSet.AddRange(p.ValueSet);
-                                                    } else if (parameter is ParameterOverride)
-                                                    {
-                                                        var p = (ParameterOverride)parameter;
-                                                        valueSet.AddRange(p.ValueSet);
-                                                    }
+                                                        var valueSet = new List<ParameterValueSetBase>();
+                                                        if(parameter is Parameter)
+                                                        {
+                                                            var p = (Parameter)parameter;
+                                                            valueSet.AddRange(p.ValueSet);
+                                                        } else if (parameter is ParameterOverride)
+                                                        {
+                                                            var p = (ParameterOverride)parameter;
+                                                            valueSet.AddRange(p.ValueSet);
+                                                        }
 
-                                                    foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
-                                                    {
-                                                        <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                        foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
+                                                        {
+                                                            <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                    </BSTBody>
-                                </BSTable>
-                            </BSTD>
-                        </BSTR>
+                                        </BSTBody>
+                                    </BSTable>
+                                </BSTD>
+                            </BSTR>
                         </div>
                     }
                 </div>

@@ -34,8 +34,8 @@ Copyright (c) 2022 RHEA System S.A.
 {
     @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
-            <div class="row m-0">
-                <div class="col-7 p-0 @colorToApply">
+        <div class="row m-0">
+            <div class="col-7 p-0 @colorToApply">
                 <BSInput Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
             </div>
             <div class="col-5 align-self-center @colorToApply">
@@ -47,12 +47,136 @@ Copyright (c) 2022 RHEA System S.A.
         <div class="col p-0 @colorToApply"> @Value [@Scale] </div>
     }  
 }
-else
+else if (this.Value != null && this.ValueType != null)
 {
     @if(this.IsManualEditable == true || this.IsReferenceEditable == true)
     {
         <div class="col p-0 @colorToApply">
-            <BSInput InputSize="Size.Small" Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+            @if(this.ValueType.Equals(typeof(TextParameterType)))
+            {
+                <BSInput InputSize="Size.Small" Class="@colorToApply" InputType="InputType.Text" Value="@Value" @onchange="@OnChangeValue"/>
+            } else if (this.ValueType.Equals(typeof(BooleanParameterType)))
+            {
+                <DxComboBox
+                    InputCssClass="@colorToApply"
+                    Data="@(new string[] {"-", "true", "false" })"
+                    AllowUserInput="true"
+                    Value="this.Value"
+                    ValueChanged="@((string value) => this.OnChangeBooleanValue(value))"
+                    FilteringMode="DataGridFilteringMode.Contains"/>
+            } else if (this.ValueType.Equals(typeof(DateTimeParameterType)))
+            {
+                if(!this.Value.Equals("-"))
+                {
+                    this.dateValue = Convert.ToDateTime(this.Value.Substring(0, this.Value.IndexOf("T")));
+
+                    if(this.timeValue.hour is null)
+                    {
+                        var value = this.Value.Substring(this.Value.IndexOf("T")+1);
+                        if(value.Length == 8)
+                        {
+                            this.timeValue.hour = value.Substring(0, 2);
+                            this.timeValue.minute = value.Substring(3, 2);
+                            this.timeValue.second = value.Substring(6, 2); 
+                        }
+                    }
+                } else
+                {
+                    this.dateValue = null;
+                    this.timeValue.hour = null;
+                    this.timeValue.minute = null;
+                    this.timeValue.second = null;
+                }
+                <DxDateEdit
+                    InputCssClass="@colorToApply"
+                    Date="@dateValue"
+                    DateChanged="@((DateTime? date) => OnChangeDateTimeValue(date))"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select a date..."/>
+                @if (this.dateValue != null)
+                {
+                    <EditForm Model="this.timeValue" OnValidSubmit="@OnSubmitTimeValue">
+                        <DataAnnotationsValidator />
+                        <div class="row m-0">
+                            @{
+                                var classText = "form-control " + colorToApply;
+                            }
+                            <div class="col p-0">
+                                <InputText id="hour" class="@classText" @bind-Value="this.timeValue.hour" />
+                            </div>
+                            <div class="col-1 p-0">:</div>
+                            <div class="col p-0">
+                                <InputText id="minute" class="@classText" @bind-Value="this.timeValue.minute" />
+                            </div>
+                            <div class="col-1 p-0">:</div>
+                            <div class="col p-0">
+                                <InputText id="second" class="@classText" @bind-Value="this.timeValue.second" />
+                            </div>
+                        </div>
+                        <button id="timesubmit" type="submit" class="btn padding-bottom-1">Submit</button>
+                    </EditForm>
+                }
+            } else if (this.ValueType.Equals(typeof(DateParameterType)))
+            {
+                if(!this.Value.Equals("-"))
+                {
+                     this.dateValue = Convert.ToDateTime(this.Value);
+                } else
+                {
+                    this.dateValue = null;
+                }
+                <DxDateEdit
+                    InputCssClass="@colorToApply"
+                    Date="@dateValue"
+                    DateChanged="@((DateTime? date) => OnChangeDateValue(date))"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select a date..." />
+            } else if (this.ValueType.Equals(typeof(TimeOfDayParameterType)))
+            {
+                if(!this.Value.Equals("-") && this.timeValue.hour is null)
+                {
+                    var value = this.Value.Substring(this.Value.IndexOf("T")+1);
+                    if(value.Length == 8)
+                    {
+                        this.timeValue.hour = value.Substring(0, 2);
+                        this.timeValue.minute = value.Substring(3, 2);
+                        this.timeValue.second = value.Substring(6, 2); 
+                    }
+                }
+                <EditForm Model="this.timeValue" OnValidSubmit="@OnSubmitTimeValue">
+                    <DataAnnotationsValidator />
+                    <div class="row m-0">
+                        @{
+                            var classText = "form-control " + colorToApply;
+                        }
+                        <div class="col p-0">
+                            <InputText id="hour" class="@classText" @bind-Value="this.timeValue.hour" />
+                        </div>
+                        <div class="col-1 p-0">:</div>
+                        <div class="col p-0">
+                            <InputText id="minute" class="@classText" @bind-Value="this.timeValue.minute" />
+                        </div>
+                        <div class="col-1 p-0">:</div>
+                        <div class="col p-0">
+                            <InputText id="second" class="@classText" @bind-Value="this.timeValue.second" />
+                        </div>
+                    </div>
+                    <button id="timesubmit" type="submit" class="btn padding-bottom-1">Submit</button>
+                </EditForm>
+            } else if (this.ValueType.Equals(typeof(EnumerationParameterType)))
+            {
+                this.enumValue = this.EnumerationValueDefinitions?.FirstOrDefault(x => x.ShortName.Equals(this.Value))?.Name;
+                if(this.EnumerationValueDefinitions != null)
+                {
+                    <DxComboBox
+                        InputCssClass="@colorToApply"
+                        Data="@EnumerationValueDefinitions.Select(x => x.Name).ToList()"
+                        NullText="-"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        Value="this.enumValue"
+                        ValueChanged="@((string? value) => this.OnChangeEnumValue(value))" />
+                }
+            }
         </div>
     } else
     {
@@ -61,6 +185,18 @@ else
 }
 
 @code {
+    /// <summary>
+    /// Type of the value of the associated <see cref="ParameterValueSet">
+    /// </summary>
+    [Parameter]
+    public Type? ValueType { get; set; }
+
+    /// <summary>
+    /// Enumeration values for an EnumerationParameterType
+    /// </summary>
+    [Parameter]
+    public List<EnumerationValueDefinition>? EnumerationValueDefinitions { get; set; }
+
     /// <summary>
     /// The value of the associated <see cref="ParameterValueSet">
     /// </summary>
@@ -86,6 +222,48 @@ else
     public int IndexInValueSet { get; set; }
 
     /// <summary>
+    /// Date of the ParameterValueSet 
+    /// </summary>
+    private DateTime? dateValue { get; set; }
+
+    /// <summary>
+    /// Name of the selected EnumerationValueDefinition
+    /// </summary>
+    private string? enumValue { get; set; }
+
+    /// <summary>
+    /// Represents the Time of the ParameterValueSet
+    /// </summary>
+    public class TimeValue
+    {
+        /// <summary>
+        /// Hour for the time
+        /// </summary>
+        [Required]
+        [RegularExpression(@"^[0-1]{1}[0-9]{1}$|[2]{1}[0-3]{1}$", ErrorMessage = "Wrong hour format")]
+        public string? hour { get; set; }
+
+        /// <summary>
+        /// Minute for the time
+        /// </summary>
+        [Required]
+        [RegularExpression(@"^[0-5]{1}[0-9]{1}$", ErrorMessage = "Wrong minute format")]
+        public string? minute { get; set; }
+
+        /// <summary>
+        /// Second for the time
+        /// </summary>
+        [Required]
+        [RegularExpression(@"^[0-5]{1}[0-9]{1}$", ErrorMessage = "Wrong second format")]
+        public string? second { get; set; }
+    }
+
+    /// <summary>
+    /// Time of the ParameterValueSet
+    /// </summary>
+    private TimeValue timeValue { get; set; } = new TimeValue();
+
+    /// <summary>
     /// Sets if ParameterValueSet was edited
     /// </summary>
     [Parameter]
@@ -107,7 +285,15 @@ else
     /// Update value of <see cref="ParameterValueSet"> when a change appears 
     /// </summary>
     /// <param name="e"><see cref="ChangeEventArgs"> from input</param>
-    public void OnChangeValue(ChangeEventArgs e)
+    private void OnChangeValue(ChangeEventArgs e)
+    {
+        this.UpdateChange(e.Value?.ToString());
+    }
+
+    /// <summary>
+    /// Update value of <see cref="ParameterValueSet"> when a change appears 
+    /// </summary>
+    private void UpdateChange(string? newValue)
     {
         if (this.ParameterValueSet != null)
         {
@@ -119,16 +305,103 @@ else
             var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
             if (this.IsManualEditable == true)
             {
-                clonedParameterValueSet.Manual[this.IndexInValueSet] = e.Value?.ToString();
+                clonedParameterValueSet.Manual[this.IndexInValueSet] = newValue;
             }
             else if (this.IsReferenceEditable == true)
             {
-                clonedParameterValueSet.Reference[this.IndexInValueSet] = e.Value?.ToString();
+                clonedParameterValueSet.Reference[this.IndexInValueSet] = newValue;
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
                 clonedParameterValueSet
             });
         }
+    }
+
+    /// <summary>
+    /// Submit new boolean value
+    /// </summary>
+    /// <param name="value">New boolean value</param>
+    private void OnChangeBooleanValue(string value)
+    {
+        this.Value = value;
+        this.UpdateChange(value);
+    }
+
+    /// <summary>
+    /// Submit Date value for a DateParameterType
+    /// </summary>
+    /// <param name="date">The new date</param>
+    private void OnChangeDateValue(DateTime? date)
+    {
+        this.dateValue = date;
+        var newValue = "-";
+        if(this.dateValue != null)
+        {
+            newValue = this.dateValue?.ToString("yyyy-MM-dd");
+        }
+        this.Value = newValue;
+        this.UpdateChange(newValue);
+    }
+
+    /// <summary>
+    /// Submit Time value for a DateTimeParameterType or a TimeOfDayParameterType
+    /// </summary>
+    private void OnSubmitTimeValue()
+    {
+        var time = this.timeValue.hour + ":" + this.timeValue.minute + ":" + this.timeValue.second;
+        var newValue = "-";
+        if(this.dateValue != null && time != null)
+        {
+            newValue = this.dateValue?.ToString("yyyy-MM-dd") + "T" + time;
+        } else if (time != null)
+        {
+            newValue = time;
+        }
+        this.Value = newValue;
+        this.UpdateChange(newValue);
+    }
+
+    /// <summary>
+    /// Submit Date value for a DateTimeParameterType
+    /// </summary>
+    /// <param name="date">The new date to use</param>
+    private void OnChangeDateTimeValue(DateTime? date)
+    {
+        this.dateValue = date;
+        var newValue = "-";
+        if (this.dateValue != null)
+        {
+            if(this.timeValue.hour is null && this.timeValue.minute is null && this.timeValue.second is null)
+            {
+                this.timeValue.hour = "00";
+                this.timeValue.minute = "00";
+                this.timeValue.second = "00";
+            }
+            var time = this.timeValue.hour + ":" + this.timeValue.minute + ":" + this.timeValue.second;
+            newValue = this.dateValue?.ToString("yyyy-MM-dd") + "T" + time;
+        } else
+        {
+            this.timeValue.hour = null;
+            this.timeValue.minute = null;
+            this.timeValue.second = null;
+        }
+        this.Value = newValue;
+        this.UpdateChange(newValue);
+    }
+
+    /// <summary>
+    /// Submits enumeration change
+    /// </summary>
+    /// <param name="value">Name of the new enumerationValueDefinition</param>
+    private void OnChangeEnumValue(string? value)
+    {
+        var newValue = "-";
+        if(value != null)
+        {
+            newValue = this.EnumerationValueDefinitions?.FirstOrDefault(x => x.Name.Equals(value))?.ShortName;
+        }
+        this.Value = newValue;
+        this.UpdateChange(newValue);
     }
 }
