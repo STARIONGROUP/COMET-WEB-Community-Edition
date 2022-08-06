@@ -27,27 +27,46 @@ Copyright (c) 2022 RHEA System S.A.
         {
             width = "125px";
         }
+        var colorButton = BlazorStrap.BSColor.Secondary;
     }
     <span style="bottom: -90%; width: @width; border: 1px solid; border-color: #95a5a6;">
         <div class="container-fluid p-0 width-fit-content m-0">
             <div class="row m-0 width-fit-content">
                 <div class="col-7 p-0 width-fit-content">
                     <BSButtonGroup IsVertical="true">
-                        <BSButton Color="BSColor.Secondary" 
+                        @if(this.ParameterValueSetSwitchMode == ParameterSwitchKind.COMPUTED)
+                        {
+                            colorButton = BlazorStrap.BSColor.Success;
+                        }
+                        <BSButton Color="@colorButton" 
                             IsOutlined="true" 
                             Class="p-0 font-size-small font-weight-bold" 
                             OnClick="@OnClickComputed" 
                             IsActive="this.SwitchValue == ParameterSwitchKind.COMPUTED" >
                             Computed
                         </BSButton>
-                        <BSButton Color="BSColor.Secondary" 
+                        @if(this.ParameterValueSetSwitchMode == ParameterSwitchKind.MANUAL)
+                        {
+                            colorButton = BlazorStrap.BSColor.Success;
+                        } else
+                        {
+                            colorButton = BlazorStrap.BSColor.Secondary;
+                        }
+                        <BSButton Color="@colorButton" 
                             IsOutlined="true" 
                             Class="p-0 font-size-small font-weight-bold" 
                             OnClick="@OnClickManual" 
                             IsActive="this.SwitchValue == ParameterSwitchKind.MANUAL" >
                             Manual
                         </BSButton>
-                        <BSButton Color="BSColor.Secondary" 
+                        @if(this.ParameterValueSetSwitchMode == ParameterSwitchKind.REFERENCE)
+                        {
+                            colorButton = BlazorStrap.BSColor.Success;
+                        } else
+                        {
+                            colorButton = BlazorStrap.BSColor.Secondary;
+                        }
+                        <BSButton Color="@colorButton" 
                             IsOutlined="true" 
                             Class="p-0 font-size-small font-weight-bold" 
                             OnClick="@OnClickReference" 
@@ -73,6 +92,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public Guid? ParameterValueSetIid { get; set; }
+
+    /// <summary>
+    /// The switch mode of the associated ParameterValueSet
+    /// </summary>
+    [Parameter]
+    public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
 
     /// <summary>
     /// Sets computed button active
