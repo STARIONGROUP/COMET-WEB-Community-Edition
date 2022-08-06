@@ -123,6 +123,10 @@ Copyright (c) 2022 RHEA System S.A.
     [SupplyParameterFromQuery]
     public Guid? FilterOption { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? FilterElementBase { get; set; }
+
     /// <summary>
     /// The selected <see cref="ElementBase"> to filter
     /// </summary>
@@ -200,13 +204,18 @@ Copyright (c) 2022 RHEA System S.A.
     protected override void OnParametersSet()
     {
         this.FilterOption = FilterOption ?? null;
-        Console.WriteLine(this.FilterOption);
         if(this.FilterOption != null)
         {
             this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
         } else
         {
             this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
+        }
+
+        this.FilterElementBase = FilterElementBase ?? null;
+        if(this.FilterElementBase != null)
+        {
+            this.selectedElement = this.Elements.Find(e => e.Iid == this.FilterElementBase);
         }
     }
 

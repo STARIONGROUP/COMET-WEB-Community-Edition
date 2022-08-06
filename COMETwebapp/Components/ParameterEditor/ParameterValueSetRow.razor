@@ -162,15 +162,15 @@ Copyright (c) 2022 RHEA System S.A.
                     <div class="container-fluid p-0">
                         <div class="row m-0">
                             <div class="col p-0">
-                            <ScalarParameter 
-                                Value="@ParameterValueSet.Reference.First()" 
-                                Scale="@Parameter.Scale?.ShortName" 
-                                ParameterValueSet="@ParameterValueSet"
-                                ValueType="@Parameter.ParameterType.GetType()"
-                                EnumerationValueDefinitions="@enumerationValueDefinitions"
-                                IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
-                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
-                        </div>
+                                <ScalarParameter 
+                                    Value="@ParameterValueSet.Reference.First()" 
+                                    Scale="@Parameter.Scale?.ShortName" 
+                                    ParameterValueSet="@ParameterValueSet"
+                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    EnumerationValueDefinitions="@enumerationValueDefinitions"
+                                    IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
+                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                            </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
                                     ParameterValueSetIid="@ParameterValueSet.Iid" 
@@ -194,59 +194,59 @@ Copyright (c) 2022 RHEA System S.A.
             </BSTD>
             @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
             {
-                <div class="container-fluid p-0">
-                    <div class="row m-0">
-                        <div class="col p-0">
-                            <BSTD Class="width-30">
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
                                 <ArrayParameter 
                                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
                                     Values="@ParameterValueSet.Computed" 
                                     IsParameterValueSetEdited="@isParameterValueSetEdited" />
-                            </BSTD>
-                        </div>
-                        <div class="col-2 align-self-center">
-                            <SwitchTooltip
-                                ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                SwitchValue="valueSwitchToShow" 
-                                IsEditable="@IsEditable()">
-                                <button type="button" class="btn btn-secondary btn-tooltip">C</button>
-                            </SwitchTooltip>
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">C</button>
+                                </SwitchTooltip>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </BSTD>
             } else if(valueSwitchToShow == ParameterSwitchKind.MANUAL)
             {
-                <div class="container-fluid p-0">
-                    <div class="row m-0">
-                        <div class="col p-0">
-                            <BSTD Class="width-30">
-                                <ArrayParameter 
-                                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                                    Values="@ParameterValueSet.Manual" 
-                                    ParameterValueSet="@ParameterValueSet" 
-                                    IndexStartInValueSet="0" 
-                                    IsManualEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@isParameterValueSetEdited"/>
-                            </BSTD>
-                        </div>
-                        <div class="col-2 align-self-center">
-                            <SwitchTooltip 
-                                ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                SwitchValue="valueSwitchToShow" 
-                                IsEditable="@IsEditable()">
-                                <button type="button" class="btn btn-secondary btn-tooltip">M</button>
-                            </SwitchTooltip>
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                    <ArrayParameter 
+                                        ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
+                                        Values="@ParameterValueSet.Manual" 
+                                        ParameterValueSet="@ParameterValueSet" 
+                                        IndexStartInValueSet="0" 
+                                        IsManualEditable="@IsEditable()" 
+                                        IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip 
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">M</button>
+                                </SwitchTooltip>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </BSTD>
             } else
             {
-                <div class="container-fluid p-0">
-                    <div class="row m-0">
-                        <div class="col p-0">
-                            <BSTD Class="width-30">
+                <BSTD Class="width-30">
+                    <div class="container-fluid p-0">
+                        <div class="row m-0">
+                            <div class="col p-0">
                                 <ArrayParameter 
                                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
                                     Values="@ParameterValueSet.Reference" 
@@ -254,19 +254,19 @@ Copyright (c) 2022 RHEA System S.A.
                                     IndexStartInValueSet="0" 
                                     IsReferenceEditable="@IsEditable()" 
                                     IsParameterValueSetEdited="@isParameterValueSetEdited"/>
-                            </BSTD>
-                        </div>
-                        <div class="col-2 align-self-center">
-                            <SwitchTooltip 
-                                ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                SwitchValue="valueSwitchToShow" 
-                                IsEditable="@IsEditable()">
-                                <button type="button" class="btn btn-secondary btn-tooltip">R</button>
-                            </SwitchTooltip>
+                            </div>
+                            <div class="col-2 align-self-center">
+                                <SwitchTooltip 
+                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow" 
+                                    IsEditable="@IsEditable()">
+                                    <button type="button" class="btn btn-secondary btn-tooltip">R</button>
+                                </SwitchTooltip>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </BSTD>
             }
         } else
         {
@@ -294,10 +294,10 @@ Copyright (c) 2022 RHEA System S.A.
                 </BSTD>
                 @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
                 {
-                    <div class="container-fluid p-0">
-                        <div class="row m-0">
-                            <div class="col p-0">
-                                <BSTD Class="width-30">
+                    <BSTD Class="width-30">
+                        <div class="container-fluid p-0">
+                            <div class="row m-0">
+                                <div class="col p-0">
                                     <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
                                         @foreach (var component in components)
                                         {
@@ -313,26 +313,26 @@ Copyright (c) 2022 RHEA System S.A.
                                                 Component="component" 
                                                 IsParameterValueSetEdited="@isParameterValueSetEdited"/>
                                         }
-                                    </div>                                                    
-                                </BSTD>
-                            </div>
-                            <div class="col-2 align-self-center">
-                                <SwitchTooltip 
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                    SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
-                                    <button type="button" class="btn btn-secondary btn-tooltip">C</button>
-                                </SwitchTooltip>
+                                    </div>     
+                                </div>
+                                <div class="col-2 align-self-center">
+                                    <SwitchTooltip 
+                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        SwitchValue="valueSwitchToShow" 
+                                        IsEditable="@IsEditable()">
+                                        <button type="button" class="btn btn-secondary btn-tooltip">C</button>
+                                    </SwitchTooltip>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </BSTD>
                 } else if(valueSwitchToShow == ParameterSwitchKind.MANUAL)
                 {
-                    <div class="container-fluid p-0">
-                        <div class="row m-0">
-                            <div class="col p-0">
-                                <BSTD Class="width-30">
+                    <BSTD Class="width-30">
+                        <div class="container-fluid p-0">
+                            <div class="row m-0">
+                                <div class="col p-0">
                                     <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
                                         @foreach(var component in components)
                                         {
@@ -351,25 +351,25 @@ Copyright (c) 2022 RHEA System S.A.
                                                 IsParameterValueSetEdited="@isParameterValueSetEdited" />
                                         }
                                     </div>                                               
-                                </BSTD>
-                            </div>
-                            <div class="col-2 align-self-center">
-                                <SwitchTooltip 
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                    SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
-                                    <button type="button" class="btn btn-secondary btn-tooltip">M</button>
-                                </SwitchTooltip>
+                                </div>
+                                <div class="col-2 align-self-center">
+                                    <SwitchTooltip 
+                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        SwitchValue="valueSwitchToShow" 
+                                        IsEditable="@IsEditable()">
+                                        <button type="button" class="btn btn-secondary btn-tooltip">M</button>
+                                    </SwitchTooltip>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </BSTD>
                 } else
                 {
-                    <div class="container-fluid p-0">
-                        <div class="row m-0">
-                            <div class="col p-0">
-                                <BSTD Class="width-30">
+                    <BSTD Class="width-30">
+                        <div class="container-fluid p-0">
+                            <div class="row m-0">
+                                <div class="col p-0">
                                     <div class="p-0" style="border: 1px solid black; border-radius: 10px;">
                                         @foreach(var component in components)
                                         {
@@ -388,19 +388,19 @@ Copyright (c) 2022 RHEA System S.A.
                                                 IsParameterValueSetEdited="@isParameterValueSetEdited" />
                                         }
                                     </div>
-                                </BSTD>
-                            </div>
-                            <div class="col-2 align-self-center">
-                                <SwitchTooltip 
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                    SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
-                                    <button type="button" class="btn btn-secondary btn-tooltip">R</button>
-                                </SwitchTooltip>
+                                </div>
+                                <div class="col-2 align-self-center">
+                                    <SwitchTooltip 
+                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        SwitchValue="valueSwitchToShow" 
+                                        IsEditable="@IsEditable()">
+                                        <button type="button" class="btn btn-secondary btn-tooltip">R</button>
+                                    </SwitchTooltip>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </BSTD>
                 }
             }
         }

@@ -41,7 +41,7 @@ Copyright (c) 2022 RHEA System S.A.
                     <Nodes>
                         <DxTreeViewNode >
                             <Template>
-                                <DomainOfExpertiseSubscriptionTable />
+                                <DomainOfExpertiseSubscriptionTable OptionSelected="@optionSelected"/>
                             </Template>
                         </DxTreeViewNode>
                     </Nodes>
@@ -53,6 +53,18 @@ Copyright (c) 2022 RHEA System S.A.
 
 
 @code{
+    /// <summary>
+    /// The filter on option
+    /// </summary>
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? FilterOption { get; set; }
+
+    /// <summary>
+    /// Name of the selected Option
+    /// </summary>
+    private string? optionSelected { get; set; }
+
     /// <summary>
     /// Title for SubscribedTableView table
     /// </summary>
@@ -99,5 +111,20 @@ Copyright (c) 2022 RHEA System S.A.
     {
         this.listeners.Values.ToList().ForEach(l => l.Dispose());
         this.listeners.Clear();
+    }
+
+    /// <summary>
+    /// Get selected filter on url page
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        this.FilterOption = FilterOption ?? null;
+        if(this.FilterOption != null)
+        {
+            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
+        } else
+        {
+            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
+        }
     }
 }
