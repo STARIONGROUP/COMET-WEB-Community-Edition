@@ -1,0 +1,126 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2022 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+<div class="tooltip-wrapper">
+    @{
+        var width = "fit-content";
+        if (this.IsEditable == true)
+        {
+            width = "125px";
+        }
+    }
+    <span style="bottom: -90%; width: @width; border: 1px solid; border-color: #95a5a6;">
+        <div class="container-fluid p-0 width-fit-content m-0">
+            <div class="row m-0 width-fit-content">
+                <div class="col-7 p-0 width-fit-content">
+                    <BSButtonGroup IsVertical="true">
+                        <BSButton Color="BSColor.Secondary" 
+                            IsOutlined="true" 
+                            Class="p-0 font-size-small font-weight-bold" 
+                            OnClick="@OnClickComputed" 
+                            IsActive="this.SwitchValue == ParameterSwitchKind.COMPUTED" >
+                            Computed
+                        </BSButton>
+                        <BSButton Color="BSColor.Secondary" 
+                            IsOutlined="true" 
+                            Class="p-0 font-size-small font-weight-bold" 
+                            OnClick="@OnClickManual" 
+                            IsActive="this.SwitchValue == ParameterSwitchKind.MANUAL" >
+                            Manual
+                        </BSButton>
+                        <BSButton Color="BSColor.Secondary" 
+                            IsOutlined="true" 
+                            Class="p-0 font-size-small font-weight-bold" 
+                            OnClick="@OnClickReference" 
+                            IsActive="this.SwitchValue == ParameterSwitchKind.REFERENCE" >
+                            Reference
+                        </BSButton>
+                    </BSButtonGroup>
+                </div>
+                @if(this.IsEditable == true){
+                    <div class="col-5 p-0 width-fit-content align-self-center">
+                        <button id="switchsubmit" type="submit" class="btn p-0" style="color: #95a5a6;" @onclick="@OnSubmitSwitchChange">Submit</button>
+                    </div>
+                }            
+            </div>
+        </div>
+    </span>
+    @ChildContent
+</div>
+ 
+@code {
+    /// <summary>
+    /// Iid of the associated ParametervalueSet
+    /// </summary>
+    [Parameter]
+    public Guid? ParameterValueSetIid { get; set; }
+
+    /// <summary>
+    /// Sets computed button active
+    /// </summary>
+    [Parameter]
+    public ParameterSwitchKind SwitchValue { get; set; }
+
+    /// <summary>
+    /// Sets if the switch can be change in the ISession
+    /// </summary>
+    [Parameter]
+    public bool? IsEditable { get; set; }
+
+    /// <summary>
+    /// RenderFragment that contains the tooltip
+    /// </summary>
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Sends an event with the selected switch
+    /// </summary>
+    private void OnClickComputed(MouseEventArgs e)
+    {
+        CDPMessageBus.Current.SendMessage<SwitchEvent>(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.COMPUTED, null));
+    }
+
+    /// <summary>
+    /// Sends an event with the selected switch
+    /// </summary>
+    private void OnClickManual(MouseEventArgs e)
+    {
+        CDPMessageBus.Current.SendMessage<SwitchEvent>(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.MANUAL, null));
+    }
+
+    /// <summary>
+    /// Sends an event with the selected switch
+    /// </summary>
+    private void OnClickReference(MouseEventArgs e)
+    {
+        CDPMessageBus.Current.SendMessage<SwitchEvent>(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.REFERENCE, null));
+    }
+
+    /// <summary>
+    /// Sends an event to write the selected switch on ISession
+    /// </summary>
+    private void OnSubmitSwitchChange(MouseEventArgs e)
+    {
+        CDPMessageBus.Current.SendMessage<SwitchEvent>(new SwitchEvent(this.ParameterValueSetIid, this.SwitchValue, true));
+    }
+}
