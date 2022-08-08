@@ -47,20 +47,6 @@ namespace COMETwebapp.IterationServices
         public List<Guid> NewUpdates { get; set; } = new List<Guid>();
 
         /// <summary>
-        /// Get all <see cref="ParameterValueSet"/> of the given iteration
-        /// </summary>
-        /// <param name="iteration">
-        /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSet"/>s list is created
-        /// </param>
-        /// <returns>All <see cref="ParameterValueSet"/></returns>
-        public List<ParameterValueSet> GetParameterValueSets(Iteration? iteration)
-        {
-            var result = new List<ParameterValueSet>();
-            iteration?.Element.ForEach(e => e.Parameter.ForEach(p => result.AddRange(p.ValueSet)));
-            return result;
-        }
-
-        /// <summary>
         /// Get all <see cref="ParameterValueSetBase"/> of the given iteration
         /// </summary>
         /// <param name="iteration">
@@ -224,37 +210,44 @@ namespace COMETwebapp.IterationServices
         }
 
         /// <summary>
-        /// Get all <see cref="ParameterSubscription"/> by the given domain in the given iteration 
+        /// Get all <see cref="ParameterSubscription"/> of the given domain and for the given element
         /// </summary>
-        /// <param name="iteration">The opened <see cref="Iteration"/></param>
+        /// <param name="element">The <see cref="ElementBase"> to get the subscriptions</param>
         /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
-        /// <returns>List of all <see cref="ParameterSubscription"/></returns>
-        public List<ParameterSubscription> GetParameterSubscriptions(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
+        /// <returns>List of all <see cref="ParameterSubscription"/> for this element </returns>
+        public List<ParameterSubscription> GetParameterSubscriptionsByElement(ElementBase element, DomainOfExpertise? currentDomainOfExpertise)
         {
-            var subscribedParameters = new List<ParameterSubscription>();
-            iteration?.Element.ForEach(element =>
+            var parameterSubscriptions = new List<ParameterSubscription>();
+            if(element is ElementDefinition)
             {
-                element?.Parameter.ForEach(parameter =>
-                            subscribedParameters.AddRange(parameter.ParameterSubscription.FindAll(p => p.Owner.Equals(currentDomainOfExpertise)))
-                );
-            });
-            return subscribedParameters;
-        }
-
-        /// <summary>
-        /// Gets all <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/> and subscribed by other <see cref="DomainOfExpertise"/>
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/> to get <see cref="Parameter"/></param>
-        /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
-        /// <returns>Subscribed <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/></returns>
-        public List<Parameter> GetCurrentDomainSubscribedParameters(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
-        {
-            var subscribedParameters = new List<Parameter>();
-            iteration?.Element.FindAll(element => element.Owner == currentDomainOfExpertise).ForEach(element =>
+                parameterSubscriptions.AddRange(((ElementDefinition)element).Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
+            } else if(element is ElementUsage)
             {
-                subscribedParameters.AddRange(element.Parameter.FindAll(parameter => parameter.ParameterSubscription.Count != 0));
-            });
-            return subscribedParameters;
+                var elementUsage = (ElementUsage)element;
+                if (elementUsage.ParameterOverride.Count == 0)
+                {
+                    parameterSubscriptions.AddRange(elementUsage.ElementDefinition.Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
+                }
+                else
+                {
+                    var associatedParameters = new List<Parameter>();
+                    elementUsage.ParameterOverride.ForEach(p =>
+                    {
+                        p.ParameterSubscription.ForEach(s =>
+                        {
+                            if (s.Owner == currentDomainOfExpertise)
+                            {
+                                parameterSubscriptions.Add(s);
+                                associatedParameters.Add(p.Parameter);
+                            }
+                        });
+                    });
+                    parameterSubscriptions.AddRange(
+                        elementUsage.ElementDefinition.Parameter.Where(p => !associatedParameters.Contains(p))
+                        .SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
+                }
+            }
+            return parameterSubscriptions.OrderBy(p => p.ParameterType.Name).ToList();
         }
 
         /// <summary>
@@ -265,63 +258,46 @@ namespace COMETwebapp.IterationServices
         /// <returns></returns>
         public int GetNumberUpdates(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise)
         {
-            var subscribedParameters = this.GetParameterSubscriptions(iteration, currentDomainOfExpertise);
+            var subscribedParameters = new List<ParameterSubscription>();
+            if (iteration is not null)
+            {
+                if(iteration.TopElement != null)
+                {
+                    subscribedParameters.AddRange(this.GetParameterSubscriptionsByElement(iteration.TopElement, currentDomainOfExpertise));
+                }
+                iteration.Element.SelectMany(e => e.ContainedElement).ToList().ForEach(e =>
+                {
+                    subscribedParameters.AddRange(this.GetParameterSubscriptionsByElement(e, currentDomainOfExpertise));
+                });
+            }
+            
             var numberUpdates = 0;
 
-            subscribedParameters.ForEach(subscribedparameter =>
+            subscribedParameters.SelectMany(p => p.ValueSet).ToList().ForEach(parameterSubscriptionValueSet => 
             {
-                subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet => 
+                var isUpdated = false;
+                if (parameterSubscriptionValueSet.SubscribedValueSet.Revisions.LongCount() != (long)0
+                    && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber != parameterSubscriptionValueSet.SubscribedValueSet.Revisions.Last().Value.RevisionNumber)
                 {
-                    var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet?.Revisions;
-                    var isParameterSubscriptionValueUpdated = false;
-
-                    //if change in manual or reference value, revisionNumber changes
-                    if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0
-                        && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
+                    isUpdated = true;
+                }
+                if (currentDomainOfExpertise != null && this.ValidatedUpdates.TryGetValue(currentDomainOfExpertise, out var list))
+                {
+                    var existingValidatedParameter = list.Find(p => p.Iid == parameterSubscriptionValueSet.Iid);
+                    if (existingValidatedParameter != null && parameterSubscriptionValueSet.RevisionNumber == existingValidatedParameter.RevisionNumber && parameterSubscriptionValueSet.ValueSwitch != ParameterSwitchKind.COMPUTED)
                     {
-                        isParameterSubscriptionValueUpdated = true;
+                        isUpdated = false;
                     }
-
-                    var paramererValueSets = this.GetParameterValueSets(iteration);
-
-                    var associatedParameterValueSet = paramererValueSets?.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
-                    var associatedElement = iteration?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
-                    var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
-
-                    var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
-                    var isAssociatedParameterValueUpdated = false;
-
-                    //if any change, revisionNumber changes
-                    if (associatedParameterValueSetRevisions?.LongCount() != (long)0
-                        && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
+                    if (existingValidatedParameter != null && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
                     {
-                        isAssociatedParameterValueUpdated = true;
+                        isUpdated = false;
                     }
+                }
 
-                    //check if changes already validated
-                    if (currentDomainOfExpertise != null && this.ValidatedUpdates.TryGetValue(currentDomainOfExpertise, out var list))
-                    {
-                        var existingValidatedParameter = list.Find(element => element.Iid == parameterSubscriptionValueSet?.Iid);
-                        if (existingValidatedParameter != null && parameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber)
-                        {
-                            isParameterSubscriptionValueUpdated = false;
-                        }
-                        if (existingValidatedParameter != null && associatedParameterValueSet?.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
-                        {
-                            isAssociatedParameterValueUpdated = false;
-                        }
-                    }
-
-                    if (isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
-                    {
-                        isParameterSubscriptionValueUpdated = true;
-                    }
-
-                    if(isAssociatedParameterValueUpdated || isParameterSubscriptionValueUpdated)
-                    {
-                        numberUpdates += 1;
-                    }
-                });
+                if (isUpdated)
+                {
+                    numberUpdates += 1;
+                }
             });
 
             return numberUpdates;

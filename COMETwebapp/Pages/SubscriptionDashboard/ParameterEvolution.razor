@@ -25,15 +25,15 @@ Copyright (c) 2022 RHEA System S.A.
 @inject IIterationService IterationService
 @implements IDisposable
 
-<div class="display-flex flex-column justify-content-center">
-    <div class="font-weight-bold">@ElementName - @ParameterName</div>
+<div class="container-fluid">
+    <div class="row font-weight-bold">@ElementName - @ParameterName</div>
     @if(this.Data.Count != 0)
     {
-        <div class="row p-1 m-top-5px">
+        <div class="row p-1 m-top-10px">
             <div class="col-1 text-align-center align-self-center width-fit-content">
                 <p style="transform: rotate(-90deg);">@ParameterUnit</p>
             </div>
-            <div class="col">
+            <div class="col-11">
                 <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
                     <DxChartLineSeries
                         ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
@@ -48,54 +48,26 @@ Copyright (c) 2022 RHEA System S.A.
             </div>
         </div>
         <div class="row p-1">
-            <div class="col text-align-center">Actual values of the subscribed Parameter</div>
-        </div>
-    }
-    @if(this.SubscriptionData.Count != 0)
-    {
-        <div class="row p-1 m-top-5px">
-            <div class="col-1 text-align-center align-self-center width-fit-content">
-                <p style="transform: rotate(-90deg);">@ParameterUnit</p>
+            <div class="col-7 text-align-end font-weight-bold">Values of the subscribed Parameter</div>
+            <div class="col text-align-start p-0">
+                @{
+                    var message = $"In the graph, no label next to a point means value as default '-'.";
+                }
+                <Tooltip MarginBottom="bottom-60" Text="@message">
+                    <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
+                </Tooltip>
             </div>
-            <div class="col">
-                <DxChart Data="@SubscriptionData" CustomizeSeriesPoint="@PreparePointLabel">
-                    <DxChartLineSeries
-                        ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
-                        ValueField="@(p => p.ActualValue)"
-                        AggregationMethod="Enumerable.Sum">
-                        <DxChartSeriesLabel Position="RelativePosition.Outside">
-                            <DxChartSeriesLabelConnector Visible="true" Width="3" />
-                        </DxChartSeriesLabel>
-                    </DxChartLineSeries>
-                    <DxChartLegend Visible="false"/>
-                </DxChart>
-            </div>
-        </div>
-        <div class="row p-1">
-            <div class="col text-align-center">Actual values of the ParameterSubscription</div>
         </div>
     }
 </div>
 
 @code {
     /// <summary>
-    /// The iid of the parameterSubscriptionValueSet to present in the graph
-    /// </summary>
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public string? ParameterSubscriptionValueSetIid { get; set; }
-
-    /// <summary>
     /// The iid of the parameterValueSet to present in the graph
     /// </summary>
     [Parameter]
     [SupplyParameterFromQuery]
     public string? ParameterValueSetIid { get; set; }
-
-    /// <summary>
-    /// Data for ParameterSubscriptionValueSet to show in the graph
-    /// </summary>
-    public ObservableCollection<RevisionHistory> SubscriptionData { get; set; } = new ObservableCollection<RevisionHistory>();
 
     /// <summary>
     /// Data for ParameterValueSet to show in the graph
@@ -112,6 +84,9 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     public string? ElementName { get; set; }
 
+    /// <summary>
+    /// Scale of the ParameterValueSet
+    /// </summary>
     public string? ParameterUnit { get; set; }
 
     /// <summary>
@@ -125,7 +100,6 @@ Copyright (c) 2022 RHEA System S.A.
     protected override void OnParametersSet()
     {
         this.ParameterValueSetIid = ParameterValueSetIid ?? null;
-        this.ParameterSubscriptionValueSetIid = ParameterSubscriptionValueSetIid ?? null;
     }
 
     /// <summary>
@@ -161,67 +135,52 @@ Copyright (c) 2022 RHEA System S.A.
     {
         if (this.ParameterValueSetIid != null)
         {
-            var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration);
+            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration);
             var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid.FromShortGuid());
             associatedParameterValueSet?.Revisions.Values.ToList().ForEach(revision =>
             {
-                var value = (ParameterValueSet)revision;
-                this.Data.Add(new RevisionHistory()
+                var value = (ParameterValueSetBase)revision;
+                if (value.Published.First().Equals("-"))
+                {
+                    this.Data.Add(new RevisionHistory()
                     {
                         RevisionNumber = value.RevisionNumber.ToString(),
-                        ActualValue = Double.Parse(value.ActualValue.First())
+                        ActualValue = null
                     });
+                } else
+                {
+                    this.Data.Add(new RevisionHistory()
+                    {
+                        RevisionNumber = value.RevisionNumber.ToString(),
+                        ActualValue = Double.Parse(value.Published.First())
+                    });
+                }
             });
             if (associatedParameterValueSet != null)
             {
-                var parameter = (Parameter)associatedParameterValueSet.Container;
+                var parameter = (ParameterOrOverrideBase)associatedParameterValueSet.Container;
                 this.ParameterName = parameter.ParameterType.Name;
                 this.ParameterUnit = parameter.Scale.ShortName;
-                var element = (ElementDefinition)parameter.Container;
+                var element = (ElementBase)parameter.Container;
                 this.ElementName = element.Name;
 
                 if(associatedParameterValueSet.Revisions.Count != 0)
                 {
-                    this.Data.Add(new RevisionHistory()
+                    if (associatedParameterValueSet.Published.First().Equals("-"))
                     {
-                        RevisionNumber = associatedParameterValueSet.RevisionNumber.ToString(),
-                        ActualValue = Double.Parse(associatedParameterValueSet.ActualValue.First())
-                    });
-                }
-            }
-        }
-
-        if(this.ParameterSubscriptionValueSetIid != null)
-        {
-            var parameterSubscriptionValueSets = new List<ParameterSubscriptionValueSet>();
-            this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise).ForEach(p => parameterSubscriptionValueSets.AddRange(p.ValueSet));
-            var associatedParameterSubscriptionValueSet = parameterSubscriptionValueSets.Find(p => p.Iid == this.ParameterSubscriptionValueSetIid.FromShortGuid());
-            associatedParameterSubscriptionValueSet?.Revisions.Values.ToList().ForEach(revision =>
-            {
-                var value = (ParameterSubscriptionValueSet)revision;
-                this.SubscriptionData.Add(new RevisionHistory()
+                        this.Data.Add(new RevisionHistory()
+                        {
+                            RevisionNumber = associatedParameterValueSet.RevisionNumber.ToString(),
+                            ActualValue = null
+                        });
+                    } else
                     {
-                        RevisionNumber = value.RevisionNumber.ToString(),
-                        ActualValue = Double.Parse(value.ActualValue.First())
-                    });
-            });
-            if (associatedParameterSubscriptionValueSet != null)
-            {
-                if(associatedParameterSubscriptionValueSet.Revisions.Count != 0)
-                {
-                    this.SubscriptionData.Add(new RevisionHistory()
-                    {
-                        RevisionNumber = associatedParameterSubscriptionValueSet.RevisionNumber.ToString(),
-                        ActualValue = Double.Parse(associatedParameterSubscriptionValueSet.ActualValue.First())
-                    });
-                }
-                if(this.ParameterValueSetIid == null)
-                {
-                    var parameter = (ParameterSubscription)associatedParameterSubscriptionValueSet.Container;
-                    this.ParameterName = parameter.ParameterType.Name;
-                    this.ParameterUnit = parameter.Scale.ShortName;
-                    var element = (ElementDefinition)parameter.Container;
-                    this.ElementName = element.Name;
+                        this.Data.Add(new RevisionHistory()
+                        {
+                            RevisionNumber = associatedParameterValueSet.RevisionNumber.ToString(),
+                            ActualValue = Double.Parse(associatedParameterValueSet.Published.First())
+                        });
+                    }
                 }
             }
         }
@@ -232,6 +191,29 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="pointSettings">The <see cref="ChartSeriesPointCustomizationSettings"> from the graph </param>
     protected void PreparePointLabel(ChartSeriesPointCustomizationSettings pointSettings) {
-        pointSettings.PointLabel.Visible = true;
+        var argument = pointSettings.Point.Argument;
+        var revisionNumber = Int32.Parse((string)argument);
+        var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration);
+        var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid?.FromShortGuid());
+        var value = string.Empty;
+        if(associatedParameterValueSet?.RevisionNumber == revisionNumber)
+        {
+            value = associatedParameterValueSet.Published.First();
+        } else
+        {
+            var revision = associatedParameterValueSet?.Revisions.Values.ToList().Find(v => v.RevisionNumber == revisionNumber);
+            if(revision != null)
+            {
+                value = ((ParameterValueSetBase)revision).Published.First();
+            }
+        }
+        
+        if (value.Equals("-"))
+        {
+            pointSettings.PointLabel.Visible = false;
+        } else
+        {
+            pointSettings.PointLabel.Visible = true;
+        }
     }
 }

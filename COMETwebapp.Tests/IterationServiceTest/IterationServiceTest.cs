@@ -41,7 +41,6 @@ namespace COMETwebapp.Tests.IterationServiceTest
     {
         private Iteration iteration;
         private IIterationService iterationService = new IterationService();
-        private List<ParameterValueSet> parameterValueSets;
         private List<ParameterValueSetBase> parameterValueSetBase;
         private List<ParameterSubscription> parameterSubscriptions;
         private List<ElementDefinition> unReferencedElements;
@@ -268,13 +267,7 @@ namespace COMETwebapp.Tests.IterationServiceTest
             parameterSubscription.ValueSet.Add(parameterSubscriptionValueSet);
 
             parameter.ParameterSubscription.Add(parameterSubscription);
-           
-            this.parameterValueSets = new List<ParameterValueSet>()
-            {
-                parameterValueset_1,
-                parameterValueset_2
-            };
-
+ 
             this.parameterValueSetBase = new List<ParameterValueSetBase>()
             {
                 parameterValueset_1,
@@ -308,13 +301,6 @@ namespace COMETwebapp.Tests.IterationServiceTest
 
             this.parameterSubscriptions = new List<ParameterSubscription>();
             this.parameterSubscriptions.Add(parameterSubscription);
-        }
-
-        [Test]
-        public void VerifyGetParameterValueSets()
-        {
-            Assert.That(iterationService.GetParameterValueSets(this.iteration), Is.Not.Empty);
-            Assert.That(iterationService.GetParameterValueSets(this.iteration), Is.EqualTo(this.parameterValueSets));   
         }
 
         [Test]
@@ -359,18 +345,11 @@ namespace COMETwebapp.Tests.IterationServiceTest
         }
 
         [Test]
-        public void VerifyGetParameterSubscriptions()
+        public void VerifyGetParameterSubscriptionsByElement()
         {
-            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise), Is.Not.Empty);
-            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise).Count, Is.EqualTo(1));
-            Assert.That(iterationService.GetParameterSubscriptions(this.iteration, this.currentDomainOfExpertise).Contains(this.parameterSubscriptions.First()), Is.True);
-        }
-
-        [Test]
-        public void VerifyGetCurrentDomainSubscribedParameters()
-        {
-            Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise), Is.Not.Empty);
-            Assert.That(iterationService.GetCurrentDomainSubscribedParameters(this.iteration, this.domainOfExpertise).Count, Is.EqualTo(1));
+            Assert.That(iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise), Is.Not.Empty);
+            Assert.That(iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise).Count, Is.EqualTo(1));
+            Assert.That(iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise).Contains(this.parameterSubscriptions.First()), Is.True);
         }
 
         [Test]

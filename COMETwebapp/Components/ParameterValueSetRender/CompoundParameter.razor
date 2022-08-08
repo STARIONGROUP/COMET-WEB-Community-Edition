@@ -36,6 +36,7 @@ Copyright (c) 2022 RHEA System S.A.
                         Scale="@Component.Scale?.ShortName" 
                         ValueType="@valueType"
                         ParameterValueSet="@ParameterValueSet" 
+                        ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
                         IndexInValueSet="@IndexStartInParameterTypeComponent" 
                         IsManualEditable="@IsManualEditable" 
                         IsReferenceEditable="@IsReferenceEditable" 
@@ -46,6 +47,7 @@ Copyright (c) 2022 RHEA System S.A.
                         ArrayParameterType="(ArrayParameterType)this.Component.ParameterType" 
                         Values="@GetCompoundOrArrayValues()" 
                         ParameterValueSet="@ParameterValueSet" 
+                        ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
                         IndexStartInValueSet="@IndexStartInParameterTypeComponent" 
                         IsManualEditable="@IsManualEditable" 
                         IsReferenceEditable="@IsReferenceEditable" 
@@ -70,6 +72,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 Values="@GetCompoundOrArrayValues()" 
                                 Component="component" 
                                 ParameterValueSet="@ParameterValueSet" 
+                                ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
                                 IsManualEditable="@IsManualEditable" 
                                 IsReferenceEditable="@IsReferenceEditable" 
                                 IsParameterValueSetEdited="@IsParameterValueSetEdited" />
@@ -111,6 +114,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public bool? IsManualEditable { get; set; }
+
+    /// <summary>
+    /// <see cref="ParameterSubscriptionValueSet"> to show
+    /// </summary>
+    [Parameter]
+    public ParameterSubscriptionValueSet? ParameterSubscriptionValueSet { get; set; } 
 
     /// <summary>
     /// Tells if the Reference Value can be editable by the user

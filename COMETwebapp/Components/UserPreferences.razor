@@ -167,6 +167,15 @@ Copyright (c) 2022 RHEA System S.A.
                 this.StateHasChanged();
             }));
         }
+
+        if (!this.listeners.TryGetValue("ValidateUpdate", out listener))
+        {
+            this.listeners.Add("ValidateUpdate", CDPMessageBus.Current.Listen<ValidateUpdate>().Subscribe(x =>
+            {
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.StateHasChanged();
+            }));
+        }
     }
 
     /// <summary>

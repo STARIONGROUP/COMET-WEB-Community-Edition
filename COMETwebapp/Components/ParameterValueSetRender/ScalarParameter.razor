@@ -186,7 +186,7 @@ else if (this.Value != null && this.ValueType != null)
 
 @code {
     /// <summary>
-    /// Type of the value of the associated <see cref="ParameterValueSet">
+    /// Type of the value of the associated <see cref="ParameterValueSet"> or of the associated <see cref="ParameterSubscriptionValueSet">
     /// </summary>
     [Parameter]
     public Type? ValueType { get; set; }
@@ -198,13 +198,13 @@ else if (this.Value != null && this.ValueType != null)
     public List<EnumerationValueDefinition>? EnumerationValueDefinitions { get; set; }
 
     /// <summary>
-    /// The value of the associated <see cref="ParameterValueSet">
+    /// The value of the associated <see cref="ParameterValueSet"> or of <see cref="ParameterSubscriptionValueSet">
     /// </summary>
     [Parameter]
     public string? Value { get; set; }
 
     /// <summary>
-    /// The scale of the associated <see cref="ParameterValueSet">
+    /// The scale of the associated <see cref="ParameterValueSet"> or of <see cref="ParameterSubscriptionValueSet">
     /// </summary>
     [Parameter]
     public string? Scale { get; set; }
@@ -216,7 +216,13 @@ else if (this.Value != null && this.ValueType != null)
     public ParameterValueSetBase? ParameterValueSet { get; set; } 
 
     /// <summary>
-    /// Index of the displayed value in <see cref="ParameterValueSet">
+    /// <see cref="ParameterSubscriptionValueSet"> to show
+    /// </summary>
+    [Parameter]
+    public ParameterSubscriptionValueSet? ParameterSubscriptionValueSet { get; set; } 
+
+    /// <summary>
+    /// Index of the displayed value in <see cref="ParameterValueSet"> or in <see cref="ParameterSubscriptionValueSet">
     /// </summary>
     [Parameter]
     public int IndexInValueSet { get; set; }
@@ -291,7 +297,7 @@ else if (this.Value != null && this.ValueType != null)
     }
 
     /// <summary>
-    /// Update value of <see cref="ParameterValueSet"> when a change appears 
+    /// Update value of <see cref="ParameterValueSet"> or of <see cref="ParameterSubscriptionValueSet"> when a change appears 
     /// </summary>
     private void UpdateChange(string? newValue)
     {
@@ -303,6 +309,26 @@ else if (this.Value != null && this.ValueType != null)
                 CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
             }
             var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
+            if (this.IsManualEditable == true)
+            {
+                clonedParameterValueSet.Manual[this.IndexInValueSet] = newValue;
+            }
+            else if (this.IsReferenceEditable == true)
+            {
+                clonedParameterValueSet.Reference[this.IndexInValueSet] = newValue;
+            }
+            this.ISessionAnchor.UpdateThings(new List<Thing>()
+            {
+                clonedParameterValueSet
+            });
+        } else if(this.ParameterSubscriptionValueSet != null)
+        {
+            if((this.IsManualEditable == true || this.IsReferenceEditable == true) && !this.IterationService.NewUpdates.Contains(this.ParameterSubscriptionValueSet.Iid))
+            {
+                this.IterationService.NewUpdates.Add(this.ParameterSubscriptionValueSet.Iid);
+                CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterSubscriptionValueSet.Iid));
+            }
+            var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             if (this.IsManualEditable == true)
             {
                 clonedParameterValueSet.Manual[this.IndexInValueSet] = newValue;

@@ -51,6 +51,7 @@ Copyright (c) 2022 RHEA System S.A.
                             Scale="@scale" 
                             ValueType="@valueType"
                             ParameterValueSet="@ParameterValueSet" 
+                            ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
                             EnumerationValueDefinitions="@enumerationValueDefinitions"
                             IndexInValueSet="@index" 
                             IsManualEditable="@IsManualEditable" 
@@ -94,6 +95,7 @@ Copyright (c) 2022 RHEA System S.A.
                                 Scale="@scale" 
                                 ValueType="@valueType"
                                 ParameterValueSet="@ParameterValueSet" 
+                                ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
                                 EnumerationValueDefinitions="@enumerationValueDefinitions"
                                 IndexInValueSet="@(i*nbRows + j)" 
                                 IsManualEditable="@IsManualEditable" 
@@ -125,6 +127,12 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public ParameterValueSetBase? ParameterValueSet { get; set; }
+
+    /// <summary>
+    /// <see cref="ParameterSubscriptionValueSet"> to show
+    /// </summary>
+    [Parameter]
+    public ParameterSubscriptionValueSet? ParameterSubscriptionValueSet { get; set; } 
 
     /// <summary>
     /// Tells if the Manual Value can be editable by the user

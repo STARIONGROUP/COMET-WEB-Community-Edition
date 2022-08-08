@@ -22,6 +22,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
+@implements IDisposable
 
 @if(this.Parameter != null && this.ParameterValueSet != null)
 {
@@ -53,7 +54,7 @@ Copyright (c) 2022 RHEA System S.A.
         {
             if (this.Parameter.IsOptionDependent)
             {
-                <BSTD>
+                <BSTD Class="width-20">
                     <div class="@colorToApply">
                         @modelCode[0]
                         <div>
@@ -63,7 +64,7 @@ Copyright (c) 2022 RHEA System S.A.
                 </BSTD>
             } else if (this.Parameter.StateDependence != null)
             {
-                <BSTD>
+                <BSTD Class="width-20">
                     <div class="@colorToApply">
                         @modelCode[0]
                         <div>
@@ -72,10 +73,9 @@ Copyright (c) 2022 RHEA System S.A.
                     </div>
                 </BSTD>
             }
-
         } else if(modelCode.Count() > 2)
         {
-            <BSTD>
+            <BSTD Class="width-20">
                 <div class="@colorToApply">
                     @modelCode[0]
                     <div>
@@ -497,7 +497,6 @@ Copyright (c) 2022 RHEA System S.A.
             if(this.IsEditable() && !this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid))
             {
                 this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
-                CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
             }
             var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
@@ -505,6 +504,16 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 clonedParameterValueSet
             });
+            CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
         }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
     }
 }

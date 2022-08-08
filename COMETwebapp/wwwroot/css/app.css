@@ -253,7 +253,7 @@ html, body, #app {
     margin-right: 10px;
 }
 
-@media (min-width: 607px) {
+@media (min-width: 721px) {
     .refresh-button-popover {
         display: none;
     }
@@ -358,4 +358,8 @@ html, body, #app {
 
 .width-30{
     width: 30%;
+}
+
+.width-12.5{
+    width:12.5%;
 }

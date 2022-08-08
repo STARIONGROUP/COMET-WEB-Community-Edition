@@ -25,496 +25,186 @@ Copyright (c) 2022 RHEA System S.A.
 @inject NavigationManager NavigationManager
 @implements IDisposable
 
-<div class="display-flex flex-column">
-    @if (this.SubscribedParameters.Count == 0)
+<div>
+    @if (this.Elements.Count == 0)
     {
         <div>
             You don't have any subscriptions.
         </div>
-    } else {
-        @if (this.ViewModelSubscribedParameters.ToList().Exists(parameter => parameter.IsUpdated || parameter.IsSubscribedUpdated))
-        {
-            <div class="display-flex flex-row-reverse align-items-end justify-content-between">
-                <button class="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" @onclick="() => ValidateAllChanges()">
-                    <i class="oi oi-check m-right-3px"></i>
-                    Validate all changes
-                </button>
-                
-                <div>
-                    <input type="checkbox" id="filterUpdates" @onchange="@OnFilterUpdates" >
-                    <label class="m-left-3px color-7b8a8b" for="filterUpdates">Filter only changes</label>
+    } else
+    {
+        <div class="container-fluid" style="min-width: 1400px; max-width: 1400px;">
+            <div class="container-fluid m-2">
+                <div class="row">
+                    <div class="col">
+                        <h6 style="color: black">Filter on Element Usage Name:</h6>
+                        <div class="width-fit-content">
+                            <DxComboBox Data="@Filter(Elements.OrderBy(e => e.Name).ToList())"
+                                TextFieldName="@nameof(ElementBase.Name)"
+                                AllowUserInput="true"
+                                NullText="--Select an Element--"
+                                Value="this.selectedElement"
+                                ValueChanged="@((ElementBase element) => this.selectedElement = element)"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                FilteringMode="DataGridFilteringMode.Contains"/>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h6 style="color: black">Filter on Parameter Type:</h6>
+                        <div class="width-fit-content">
+                            <DxComboBox Data="@ParameterTypeNames"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.parameterTypeSelected"
+                                ValueChanged="@((string parameterTypeName) => this.OnParameterFilterChange(parameterTypeName))"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                FilteringMode="DataGridFilteringMode.Contains"/>
+                        </div>
+                    </div>  
+                    @{
+                        var iteration = this.ISessionAnchor.OpenIteration;
+                    }
+                    @if (iteration != null && iteration.Option.ToList().Count > 1)
+                    {
+                        var optionNames = iteration.Option.Select(o => o.Name).OrderBy(o => o).ToList();
+                        <div class="col">
+                            <h6 style="color: black">Filter on Option:</h6>
+                            <div class="width-fit-content">
+                                <DxComboBox Data="@optionNames"
+                                    AllowUserInput="true"
+                                    Value="this.OptionSelected"
+                                    ValueChanged="@((string option) => OnOptionFilterChange(option))"
+                                    FilteringMode="DataGridFilteringMode.Contains"/>
+                            </div>
+                        </div>
+                    }
+                    <div class="col align-self-end">
+                        <div>
+                            <input type="checkbox" id="filterUpdates" @onchange="@OnFilterUpdates" >
+                            <label class="m-left-3px color-7b8a8b" for="filterUpdates">Filter only changes</label>
+                        </div>
+                    </div>
+                    <div class="col align-self-center">
+                        <button class="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" @onclick="() => ValidateAllChanges()">
+                            <i class="oi oi-check m-right-3px"></i>
+                            Validate all changes
+                        </button>
+                    </div>
                 </div>
             </div>
-        }
-        <div>
-            <DxDataGrid @ref="@grid" Data="@SortOrder(this.ViewModelSubscribedParameters)" PageSize="0" RowClick="@OnRowClick" ShowFilterRow="true">
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ElementName)" Caption="Element" TextAlignment="DataGridTextAlign.Center" />
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ParameterType)" Caption="Parameter" TextAlignment="DataGridTextAlign.Center" />
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ModelCode)" Caption="Model code" TextAlignment="DataGridTextAlign.Center" AllowFilter="false" />
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.ActualValue)" Caption="Actual Value from ParameterSubscription" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
-                    <DisplayTemplate>
-                        @{
-                            var iid = (context as ParameterSubscriptionViewModel)?.Iid;
-                            var parameterSubscriptionValueSets = new List<ParameterSubscriptionValueSet>();
-                            this.SubscribedParameters.ForEach(p => parameterSubscriptionValueSets.AddRange(p.ValueSet));
-                            var associatedParameterSubscriptionValueSet = parameterSubscriptionValueSets.Find(p => p.Iid == iid);
-                            var lastActualValue = new ValueArray<string>();
-                            if(associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
-                            {
-                                var lastParameter = (ParameterSubscriptionValueSet)associatedParameterSubscriptionValueSet.Revisions.Last().Value;
-                                lastActualValue = lastParameter?.ActualValue;
-                            }
-                            var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
-                            var scalevalue = (context as ParameterSubscriptionViewModel)?.Scale;
-                            var switchmode = (context as ParameterSubscriptionViewModel)?.SwitchMode;
-
-                            var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
-                            var subscribedActualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
-                            var subscribedScalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration).Find(p => p.Iid == subscribedIid);
-                            var subscribedLastActualValue = new ValueArray<string>();
-                            if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
-                            {
-                                var lastParameter = (ParameterValueSet)associatedParameterValueSet.Revisions.Last().Value;
-                                subscribedLastActualValue = lastParameter.ActualValue;
-                            }
-
-                            var evolution = 0D;
-                            if(actualValue != null 
-                                && lastActualValue != null 
-                                && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue) 
-                                && !lastActualValue.First().Equals("0"))
-                            {
-                                evolution = Math.Round(((double.Parse(actualValue.First()) - double.Parse(lastActualValue.First())) / double.Parse(lastActualValue.First())) * 100);
-                            }
-                        }
-                        @if ((context as ParameterSubscriptionViewModel)?.IsUpdated == true && actualValue != null)
+            <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
+                <BSTHead>
+                    <BSTR>
+                        <BSTD>
+                            <div class="row">
+                                <div style="width: 10%;">Element</div>
+                                <div style="width: 11%;">Parameter</div>
+                                <div style="width: 10%;">Model Code</div>
+                                <div style="width: 20%;">Parameter Subscription Value</div>
+                                <div style="width: 18%;">Parameter Value</div>
+                                <div style="width: 11%;">Owner</div>
+                                <div style="width: 18%">History</div>
+                            </div>
+                        </BSTD>
+                    </BSTR>
+                </BSTHead>
+                <BSTBody>
+                    <div style="max-height:600px;overflow-y:scroll">
+                        @foreach(var element in this.Filter(this.Elements.OrderBy(e => e.Name).ToList()))
                         {
-                            <span class="badge rounded-pill bg-dark font-weight-100">
-                                <div class="display-flex flex-row">
-                                    @if (actualValue.Count == 1)
-                                    {
-                                        <div class="font-size-bs-body">@actualValue.First() @scalevalue </div>
-                                    }
-                                    else
-                                    {
-                                        @foreach(string value in actualValue)
-                                        {
-                                            <a>value</a>
-                                        }
-                                        <a>@scalevalue </a>
-                                    }
-
-                                    @if(lastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue) 
-                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
-                                        && checkIfLastActualValueIsHigherThanActualValue(actualValue.First(), lastActualValue.First()))
-                                    {
-                                        <i class="oi oi-caret-bottom m-left-5px"></i>
-                                        <div class="m-left-5px font-size-small"> (@evolution %) </div>
-
-                                    } else if (lastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue) 
-                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
-                                        && checkIfLastActualValueIsLowerThanActualValue(actualValue.First(), lastActualValue.First()))
-                                    {
-                                        <i class="oi oi-caret-top m-left-5px"></i>
-                                        <div class="m-left-5px font-size-small"> (+@evolution %) </div>
-
-                                    } else if (switchmode != null && switchmode.Equals("COMPUTED")
-                                        && subscribedActualValue != null
-                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue)
-                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)) {
-
-                                        if(checkIfLastActualValueIsHigherThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
-                                        {
-                                            <i class="oi oi-caret-bottom m-left-5px"></i>
-                                        
-                                        } else if(checkIfLastActualValueIsLowerThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
-                                        {
-                                            <i class="oi oi-caret-top m-left-5px"></i>
-                                        }
-                                    }
-                                </div>
-                            </span>
-                            <a><br/> (@switchmode)</a>
-                        } else if (actualValue != null)
-                        {
-                            <div class="container-fluid p-0">
-                                <div class="row m-0">
-                                    @if(lastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue)
-                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
-                                        && checkIfLastActualValueIsHigherThanActualValue(actualValue.First(), lastActualValue.First()))
-                                    {
-                                        <div class="col p-0 text-align-end">
-                                            @if (actualValue.Count == 1)
-                                            {
-                                                <a>@actualValue.First() @scalevalue</a>
-                                            }
-                                            else
-                                            {
-                                                @foreach(string value in actualValue)
+                            <div style="padding-right: 0px; border-bottom-color: black; border-bottom-style: double;">
+                                <BSTR AlignRow="AlignRow.Middle">
+                                    <BSTD Class="width-10">@element.Name</BSTD>
+                                    <BSTD Class="width-1400">
+                                        <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
+                                            <BSTBody>
+                                                @foreach(var parameterSubscription in this.FilterParameter(this.IterationService.GetParameterSubscriptionsByElement(element, this.ISessionAnchor.CurrentDomainOfExpertise)))
                                                 {
-                                                    <a>value</a>
+                                                    var associatedParameter = (ParameterOrOverrideBase)parameterSubscription.Container;
+                                                    @foreach(var parameterSubscriptionValueSet in this.FilterParameterSubscriptionValueSet(parameterSubscription.IsOptionDependent, parameterSubscription.ValueSet))
+                                                    {
+                                                        var subscribedParameterValueSet = parameterSubscriptionValueSet.SubscribedValueSet;
+                                                        <BSTR AlignRow="AlignRow.Middle" @onclick="() => UpdateValidation(parameterSubscriptionValueSet)">
+                                                            <ParameterSubscriptionValueSetRow 
+                                                                ParameterSubscription = "@parameterSubscription"
+                                                                ParameterSubscriptionValueSet = "@parameterSubscriptionValueSet"
+                                                                ParameterOrOverride = "@associatedParameter"
+                                                                SubscribedParameterValueSetBase = "@subscribedParameterValueSet" />
+                                                        </BSTR>
+                                                    }
                                                 }
-                                                <a>@scalevalue</a>
-                                            }
-                                        </div>
-                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
-                                            <i class="oi oi-caret-bottom"></i>
-                                        </div>
-                                        <div class="col p-0 text-align-start">
-                                            <div class="font-size-small"> (@evolution %) </div>
-                                        </div>
-
-                                    } else if (lastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(actualValue, lastActualValue)
-                                        && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)
-                                        && checkIfLastActualValueIsLowerThanActualValue(actualValue.First(), lastActualValue.First()))
-                                    {
-                                        <div class="col p-0 text-align-end">
-                                            @if (actualValue.Count == 1)
-                                            {
-                                                <a>@actualValue.First() @scalevalue</a>
-                                            }
-                                            else
-                                            {
-                                                @foreach(string value in actualValue)
-                                                {
-                                                    <a>value</a>
-                                                }
-                                                <a>@scalevalue</a>
-                                            }
-                                        </div>
-                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
-                                            <i class="oi oi-caret-top"></i>
-                                        </div>
-                                        <div class="col p-0 text-align-start">
-                                            <div class="font-size-small"> (+@evolution %) </div>
-                                        </div>
-                                    } else
-                                    {
-                                        <div class="col p-0 text-align-center">
-                                            @if (actualValue.Count == 1)
-                                            {
-                                                <a>@actualValue.First() @scalevalue</a>
-                                            }
-                                            else
-                                            {
-                                                @foreach(string value in actualValue)
-                                                {
-                                                    <a>value</a>
-                                                }
-                                                <a>@scalevalue</a>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                                <div class="row m-0">
-                                    <a>(@switchmode)</a>
-                                </div>
+                                            </BSTBody>
+                                        </BSTable>
+                                    </BSTD>
+                                </BSTR>
                             </div>
                         }
-                    </DisplayTemplate>
-                </DxDataGridColumn>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedActualValue)" Caption="Actual Value from Parameter" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
-                    <DisplayTemplate>
-                        @{
-                            var subscribedActualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
-                            var subscribedScalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                            var subscribedSwitchmode = (context as ParameterSubscriptionViewModel)?.SubscribedSwitchMode;
-
-                            var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration).Find(p => p.Iid == subscribedIid);
-                            var subscribedLastActualValue = new ValueArray<string>();
-                            if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
-                            {
-                                var lastParameter = (ParameterValueSet)associatedParameterValueSet.Revisions.Last().Value;
-                                subscribedLastActualValue = lastParameter.ActualValue;
-                            }
-
-                            var evolution = 0D;
-
-                            if(subscribedActualValue != null 
-                                && subscribedLastActualValue != null 
-                                && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
-                                && !subscribedLastActualValue.First().Equals("0"))
-                            {
-                                evolution = Math.Round(((double.Parse(subscribedActualValue.First()) - double.Parse(subscribedLastActualValue.First())) / double.Parse(subscribedLastActualValue.First())) * 100);
-                            }
-                        }
-                        @if ((context as ParameterSubscriptionViewModel)?.IsSubscribedUpdated == true && subscribedActualValue != null)
-                        {
-                            <span class="badge rounded-pill bg-dark font-weight-100">
-                                <div class="display-flex flex-row">
-                                    @if (subscribedActualValue.Count == 1)
-                                    {
-                                         <div class="font-size-bs-body">@subscribedActualValue.First() @subscribedScalevalue </div>
-                                    } else
-                                    {
-                                        @foreach(string value in subscribedActualValue)
-                                        {
-                                            <a>value</a>
-                                        }
-                                        <a>@subscribedScalevalue </a>
-                                    }
-                                    @if(subscribedLastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
-                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
-                                        && checkIfLastActualValueIsHigherThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
-                                    {
-                                        <i class="oi oi-caret-bottom m-left-5px"></i>
-                                        <div class="m-left-5px font-size-small"> (@evolution %) </div>
-
-                                        
-                                    } else if (subscribedLastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
-                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
-                                        && checkIfLastActualValueIsLowerThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
-                                    {
-                                        <i class="oi oi-caret-top m-left-5px"></i>
-                                        <div class="m-left-5px font-size-small"> (+@evolution %) </div>
-                                    }
-                                </div>
-                            </span>
-                            <a><br/> (@subscribedSwitchmode)</a>
-                        } else if (subscribedActualValue != null)
-                        {
-                            <div class="container-fluid p-0">
-                                <div class="row m-0">
-                                    
-                                    @if(subscribedLastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
-                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
-                                        && checkIfLastActualValueIsHigherThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
-                                    {
-                                        <div class="col p-0 text-align-end">
-                                            @if (subscribedActualValue.Count == 1)
-                                            {
-                                                <a>@subscribedActualValue.First() @subscribedScalevalue</a>
-                                            } else
-                                            {
-                                                @foreach(string value in subscribedActualValue)
-                                                {
-                                                    <a>value</a>
-                                                }
-                                                <a>@subscribedScalevalue</a>
-                                            }
-                                        </div>
-                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
-                                            <i class="oi oi-caret-bottom"></i>
-                                        </div>
-                                        <div class="col p-0 text-align-start">
-                                            <div class="font-size-small"> (@evolution %) </div>
-                                        </div>
-
-                                    } else if (subscribedLastActualValue != null 
-                                        && checkIfEvolutionCanBeCalculated(subscribedActualValue, subscribedLastActualValue) 
-                                        && checkIfParameterRevisionsExist(associatedParameterValueSet)
-                                        && checkIfLastActualValueIsLowerThanActualValue(subscribedActualValue.First(), subscribedLastActualValue.First()))
-                                    {
-                                        <div class="col p-0 text-align-end">
-                                            @if (subscribedActualValue.Count == 1)
-                                            {
-                                                <a>@subscribedActualValue.First() @subscribedScalevalue</a>
-                                            } else
-                                            {
-                                                @foreach(string value in subscribedActualValue)
-                                                {
-                                                    <a>value</a>
-                                                }
-                                                <a>@subscribedScalevalue</a>
-                                            }
-                                        </div>
-                                        <div class="col-1 p-0 width-fit-content" style="margin: 0px 5px;">
-                                            <i class="oi oi-caret-top"></i>
-                                        </div>
-                                        <div class="col p-0 text-align-start">
-                                            <div class="font-size-small"> (+@evolution %) </div>
-                                    </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="col p-0 text-align-center">
-                                            @if (subscribedActualValue.Count == 1)
-                                            {
-                                                <a>@subscribedActualValue.First() @subscribedScalevalue</a>
-                                            } else
-                                            {
-                                                @foreach(string value in subscribedActualValue)
-                                                {
-                                                    <a>value</a>
-                                                }
-                                                <a>@subscribedScalevalue</a>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                                <div class="row m-0">
-                                    <a>(@subscribedSwitchmode)</a>
-                                </div>
-                            </div>
-                        }
-                </DisplayTemplate>
-                </DxDataGridColumn>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.SubscribedOwner)" Caption="Owner"TextAlignment="DataGridTextAlign.Center" AllowFilter="false"/>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.Option)" TextAlignment="DataGridTextAlign.Center" AllowFilter="false"/>
-                <DxDataGridColumn Field="@nameof(ParameterSubscriptionViewModel.State)" TextAlignment="DataGridTextAlign.Center" AllowFilter="false"/>
-                <DxDataGridColumn Caption="History" TextAlignment="DataGridTextAlign.Center" AllowFilter="false">
-                    <DisplayTemplate>
-                        @{
-                            var iid = (context as ParameterSubscriptionViewModel)?.Iid;
-                            var actualValue = (context as ParameterSubscriptionViewModel)?.ActualValue;
-                            var scalevalue = (context as ParameterSubscriptionViewModel)?.Scale;
-                            var switchmode = (context as ParameterSubscriptionViewModel)?.SwitchMode;
-                            var parameterSubscriptionValueSets = new List<ParameterSubscriptionValueSet>();
-                            this.SubscribedParameters.ForEach(p => parameterSubscriptionValueSets.AddRange(p.ValueSet));
-                            var associatedParameterSubscriptionValueSet = parameterSubscriptionValueSets.Find(p => p.Iid == iid);
-                            var lastActualValue = new ValueArray<string>();
-                            if(associatedParameterSubscriptionValueSet != null && associatedParameterSubscriptionValueSet.Revisions.Count != 0)
-                            {
-                                var lastParameter = (ParameterSubscriptionValueSet)associatedParameterSubscriptionValueSet.Revisions.Last().Value;
-                                lastActualValue = lastParameter.ActualValue;
-                            }
-
-                            var subscribedIid = (context as ParameterSubscriptionViewModel)?.SubscribedIid;
-                            var subscribedActualValue = (context as ParameterSubscriptionViewModel)?.SubscribedActualValue;
-                            var subscribedScalevalue = (context as ParameterSubscriptionViewModel)?.SubscribedScale;
-                            var associatedParameterValueSet = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration).Find(p => p.Iid == subscribedIid);
-                            var subscribedLastActualValue = new ValueArray<string>();
-                            if(associatedParameterValueSet != null && associatedParameterValueSet.Revisions.Count != 0)
-                            {
-                                var lastParameter = (ParameterValueSet)associatedParameterValueSet.Revisions.Last().Value;
-                                subscribedLastActualValue = lastParameter.ActualValue;
-                            }
-                        }
-                        <div class="display-flex flex-row justify-content-center">
-                            @if (checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet))
-                            {
-                                <div class="font-size-small">
-                                    @if (lastActualValue.Count == 1)
-                                    {
-                                    <a>@lastActualValue.First() @scalevalue</a>
-                                    } else
-                                    {
-                                    @foreach (string value in lastActualValue)
-                                    {
-                                        <a>value</a>
-                                    }
-                                        <a>@scalevalue </a>
-                                    }
-                                </div>
-                            } else if (switchmode != null && switchmode.Equals("COMPUTED") 
-                                && checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet)){
-                                <div class="font-size-small">
-                                    @if (subscribedLastActualValue.Count == 1)
-                                    {
-                                        <a>@subscribedLastActualValue.First() @subscribedScalevalue</a>
-                                    } else
-                                    {
-                                        @foreach(string value in subscribedLastActualValue)
-                                        {
-                                            <a>value</a>
-                                        }
-                                        <a>@subscribedScalevalue </a>
-                                    }
-                                </div>
-                            } else
-                            {
-                                <div>-</div>
-                            }
-                        <div class="m-left-3px m-right-3px"> / </div>
-                            @if(checkIfParameterRevisionsExist(associatedParameterValueSet))
-                            {
-                                <div class="font-size-small">
-                                    @if (subscribedLastActualValue.Count == 1)
-                                    {
-                                        <a>@subscribedLastActualValue.First() @subscribedScalevalue</a>
-                                    } else
-                                    {
-                                        @foreach(string value in subscribedLastActualValue)
-                                        {
-                                            <a>value</a>
-                                        }
-                                        <a>@subscribedScalevalue </a>
-                                    }
-                                </div>
-                            } else
-                            {
-                                <div>-</div>
-                            }
-                        </div>
-                        @if(checkIfParameterSubscriptionRevisionsExist(associatedParameterSubscriptionValueSet) 
-                            || checkIfParameterRevisionsExist(associatedParameterValueSet))
-                        {
-                            <a @onclick="@(() => AccessData(iid, subscribedIid))" class="m-left-3px">More</a>
-                        }
-                    </DisplayTemplate>
-                </DxDataGridColumn>
-            </DxDataGrid>
+                    </div>
+                </BSTBody>
+            </BSTable>
         </div>
     }
 </div>
 
 @code {
     /// <summary>
-    /// List of subscribed <see cref="Parameter"> by the current <see cref="DomainOfExpertise">
+    /// List of <see cref="ElementBase"> containing at least one subscribed <see cref="ParameterOrOverrideBase">
     /// </summary>
-    public List<ParameterSubscription> SubscribedParameters { get; set; } = new List<ParameterSubscription>();
+    public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
 
     /// <summary>
-    /// Defines grid for the component to be able to define actions on it
+    /// Name of the option selected
     /// </summary>
-    private DxDataGrid<ParameterSubscriptionViewModel>? grid;
+    [Parameter]
+    public string? OptionSelected { get; set; }
 
     /// <summary>
-    /// List of <see cref="ParameterSubscriptionViewModel"> to show in the table
+    /// The selected <see cref="ElementBase"> to filter
     /// </summary>
-    public List<ParameterSubscriptionViewModel> ViewModelSubscribedParameters = new List<ParameterSubscriptionViewModel>();
+    private ElementBase? selectedElement { get; set; }
 
     /// <summary>
-    /// Set if only changes will appear in the table
+    /// Name of the parameter type selected
     /// </summary>
-    public bool IsFilterChangesSelected { get; set; }
+    private string? parameterTypeSelected { get; set; }
+
+    private bool? isOnlyUpdates { get; set; }
+
+    /// <summary>
+    /// All ParameterType names in the model
+    /// </summary>
+    public List<string> ParameterTypeNames = new List<string>();
 
     /// <summary>
     /// Listeners for the components to update it with ISession
     /// </summary>
     private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
 
+
     /// <summary>
     /// Initialize component at first render and after session update
     /// </summary>
     protected override void OnInitialized()
     {
-        this.LoadData();
+        this.LoadElements();
+        this.ParameterTypeNames.Clear();
+        this.IterationService.GetParameterTypes(this.ISessionAnchor.OpenIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
             this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
-                this.LoadData();
+                this.LoadElements();
                 this.StateHasChanged();
             }));
         }
         if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)) {
             this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
             {
-                this.LoadData();
+                this.LoadElements();
                 this.StateHasChanged();
             }));
         }
-    }
-
-    /// <summary>
-    /// Load all data to create the table
-    /// </summary>
-    private void LoadData()
-    {
-        this.ViewModelSubscribedParameters.Clear();
-        this.SubscribedParameters = this.IterationService.GetParameterSubscriptions(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
-        this.GetViewModelSubscribedParameters();
     }
 
     /// <summary>
@@ -526,82 +216,157 @@ Copyright (c) 2022 RHEA System S.A.
         this.listeners.Clear();
     }
 
-    /// <summary>
-    /// Initialize the list of <see cref="ParameterSubscriptionViewModel"> with subscribed <see cref="Parameter">
-    /// </summary>
-    public void GetViewModelSubscribedParameters()
+    private List<ParameterSubscription> FilterParameter(List<ParameterSubscription> parameterSubscriptions)
     {
-        this.SubscribedParameters.ForEach(subscribedparameter => {
-            subscribedparameter.ValueSet.ForEach(parameterSubscriptionValueSet =>
+        if(this.parameterTypeSelected != null)
+        {
+            parameterSubscriptions.RemoveAll(p => p.ParameterType.Name != this.parameterTypeSelected);
+        }
+        return parameterSubscriptions;
+    }
+    /// <summary>
+    /// Load all data to create the table
+    /// </summary>
+    private void LoadElements()
+    {
+        this.Elements.Clear();
+        var iteration = this.ISessionAnchor.OpenIteration;
+        if (iteration != null)
+        {
+            if (iteration.TopElement != null)
             {
-                var parameterSubscriptionValueSetRevisions = parameterSubscriptionValueSet?.Revisions;
-                var isParameterSubscriptionValueUpdated = false;
-
-            //if change in manual or reference value, revisionNumber changes
-                if (parameterSubscriptionValueSetRevisions?.LongCount() != (long)0 
-                    && parameterSubscriptionValueSet?.RevisionNumber != parameterSubscriptionValueSetRevisions?.Last().Value.RevisionNumber)
+                var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(iteration.TopElement, this.ISessionAnchor.CurrentDomainOfExpertise);
+                if (parameterSubscriptions?.Count != 0)
                 {
-                    isParameterSubscriptionValueUpdated = true;
+                    this.Elements.Add(iteration.TopElement);
                 }
+            }
 
-                var paramererValueSets = this.IterationService.GetParameterValueSets(this.ISessionAnchor.OpenIteration);
+            this.Elements.AddRange(iteration.Element.SelectMany(e => e.ContainedElement)
+                .Where(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0));
+        }
+    }
 
-                var associatedParameterValueSet = paramererValueSets?.Find(p => p.Iid == parameterSubscriptionValueSet?.SubscribedValueSet.Iid);
-                var associatedElement = this.ISessionAnchor.OpenIteration?.Element.Find(element => element.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet)) != null);
-                var associatedParameter = associatedElement?.Parameter.Find(p => p.ValueSet.Contains(associatedParameterValueSet));
+    /// <summary>
+    /// Filter <see cref="ElementBase"> to show in the tree
+    /// </summary>
+    /// <param name="elements"></param>
+    /// <returns></returns>
+    public List<ElementBase> Filter(List<ElementBase> elements)
+    {
+        if(this.OptionSelected != null)
+        {
+            var option = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
+            var nestedElements = this.IterationService.GetNestedElementsByOption(this.ISessionAnchor.OpenIteration, option);
 
-                var associatedParameterValueSetRevisions = associatedParameterValueSet?.Revisions;
-                var isAssociatedParameterValueUpdated = false;
-
-            //if any change, revisionNumber changes
-                if (associatedParameterValueSetRevisions?.LongCount() != (long)0 
-                    && associatedParameterValueSet?.RevisionNumber != associatedParameterValueSetRevisions?.Last().Value.RevisionNumber)
-                {
-                    isAssociatedParameterValueUpdated = true;
-                }
-
-            //check if changes already validated
-                if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
-                {
-                    var existingValidatedParameter = list.Find(element => element.Iid == parameterSubscriptionValueSet?.Iid);
-                    if(existingValidatedParameter != null && parameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber)
-                    {
-                        isParameterSubscriptionValueUpdated = false;
-                    }
-                    if(existingValidatedParameter != null && associatedParameterValueSet?.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
-                    {
-                        isAssociatedParameterValueUpdated = false;
-                    }
-                }
-
-                if(isAssociatedParameterValueUpdated && parameterSubscriptionValueSet?.ValueSwitch == ParameterSwitchKind.COMPUTED)
-                {
-                    isParameterSubscriptionValueUpdated = true;
-                }
-
-                this.ViewModelSubscribedParameters.Add(new ParameterSubscriptionViewModel()
-                {
-                    ElementName = associatedElement?.Name,
-                    ParameterType = subscribedparameter?.ParameterType?.Name,
-                    ModelCode = associatedParameter?.ModelCode(),
-                    Iid = parameterSubscriptionValueSet?.Iid,
-                    RevisionNumber = parameterSubscriptionValueSet?.RevisionNumber,
-                    ActualValue = parameterSubscriptionValueSet?.ActualValue,
-                    Scale = subscribedparameter?.Scale?.ShortName,
-                    SwitchMode = parameterSubscriptionValueSet?.ValueSwitch.ToString(),
-                    Option = parameterSubscriptionValueSet?.ActualOption?.Name,
-                    State = parameterSubscriptionValueSet?.ActualState?.Name,
-                    IsUpdated = isParameterSubscriptionValueUpdated,
-                    SubscribedIid = associatedParameterValueSet?.Iid,
-                    SubscribedRevisionNumber = associatedParameterValueSet?.RevisionNumber,
-                    SubscribedActualValue = associatedParameterValueSet?.ActualValue,
-                    SubscribedScale = associatedParameter?.Scale.ShortName,
-                    SubscribedSwitchMode = associatedParameterValueSet?.ValueSwitch.ToString(),
-                    SubscribedOwner = associatedParameterValueSet?.Owner.ShortName,
-                    IsSubscribedUpdated = isAssociatedParameterValueUpdated
-                });
+            var associatedElements = new List<ElementUsage>();
+            nestedElements.ForEach(element =>
+            {
+                associatedElements.AddRange(element.ElementUsage);
             });
-        });
+            associatedElements = associatedElements.Distinct().ToList();
+
+            var elementsToRemove = new List<ElementBase>();
+            elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
+                {
+                    elementsToRemove.Add(e);
+                }
+            });
+            elements.RemoveAll(e => elementsToRemove.Contains(e));
+        }
+
+        if(this.parameterTypeSelected != null)
+        {
+            var elementsToRemove = new List<ElementBase>();
+            elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementDefinition)))
+                {
+                    var elementDefinition = (ElementDefinition)e;
+                    if(elementDefinition.Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count() == 0)
+                    {
+                        elementsToRemove.Add(e);
+                    }
+                } else if (e.GetType().Equals(typeof(ElementUsage)))
+                {
+                    var elementUsage = (ElementUsage)e;
+                    if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count() == 0)
+                    {
+                        elementsToRemove.Add(e);
+                    }
+                    else if (elementUsage.ParameterOverride.Count != 0)
+                    {
+                        if (elementUsage.ParameterOverride.SelectMany(p => p.ParameterSubscription).Where(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count() == 0 &&
+                            elementUsage.ElementDefinition.Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count() == 0)
+                        {
+                            elementsToRemove.Add(e);
+                        }
+                    }
+                }
+            });
+            elements.RemoveAll(e => elementsToRemove.Contains(e));
+        }
+
+        if(this.isOnlyUpdates == true)
+        {
+            elements.RemoveAll(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.ISessionAnchor.CurrentDomainOfExpertise)
+                .SelectMany(p => p.ValueSet).Where(p => this.isParameterSubscriptionValueSetUpdated(p)).Count() == 0);
+        }
+
+        if(this.selectedElement != null)
+        {
+            return elements.FindAll(e => e.Iid == this.selectedElement?.Iid);
+        } else
+        {
+            return elements;
+        }
+    }
+
+    /// <summary>
+    /// Updates Elements list when a filter for option is selected
+    /// </summary>
+    /// <param name="e">Name of the Option selected</param>
+    public void OnOptionFilterChange(string option)
+    {
+        this.OptionSelected = option;
+        var iid = this.ISessionAnchor.OpenIteration?.Option.SingleOrDefault(o => o.Name.Equals(this.OptionSelected))?.Iid;
+        this.NavigationManager.NavigateTo($"/SubscriptionDashboard/?filteroption={iid}");
+    }
+
+    /// <summary>
+    /// Updates Elements list when a filter for parameter type is selected
+    /// </summary>
+    /// <param name="e">Name of the ParameterType selected</param>
+    public void OnParameterFilterChange(string? parameterType)
+    {
+        this.parameterTypeSelected = parameterType;
+        this.StateHasChanged();
+    }
+
+    /// <summary>
+    /// Filters <see cref="ParameterSubscriptionValueSet">s for the selected option and the selected state
+    /// </summary>
+    /// <param name="parameterSubscriptionValueSets"><see cref="ParameterSubscriptionValueSet">s to filter</param>
+    public List<ParameterSubscriptionValueSet> FilterParameterSubscriptionValueSet(bool isOptionDependent, List<ParameterSubscriptionValueSet> parameterSubscriptionValueSets)
+    {
+        var filteredParameterSubscriptionValueSets = new List<ParameterSubscriptionValueSet>();
+        if(this.OptionSelected != null && isOptionDependent)
+        {
+            filteredParameterSubscriptionValueSets.AddRange(parameterSubscriptionValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+        } else
+        {
+            filteredParameterSubscriptionValueSets.AddRange(parameterSubscriptionValueSets);
+        }
+
+        if(this.isOnlyUpdates == true)
+        {
+            return filteredParameterSubscriptionValueSets.Where(p => this.isParameterSubscriptionValueSetUpdated(p)).OrderBy(p => p.ModelCode()).ToList();
+        } else
+        {
+            return filteredParameterSubscriptionValueSets.OrderBy(p => p.ModelCode()).ToList();
+        }   
     }
 
     /// <summary>
@@ -609,40 +374,41 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     private void ValidateAllChanges()
     {
-        this.ViewModelSubscribedParameters.ToList().ForEach(parameter =>
+        this.Filter(this.Elements).ToList().ForEach(e =>
         {
-            if (parameter.IsSubscribedUpdated || parameter.IsUpdated)
+            var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(e, this.ISessionAnchor.CurrentDomainOfExpertise);
+            parameterSubscriptions.ForEach(p =>
             {
-                parameter.IsSubscribedUpdated = false;
-                parameter.IsUpdated = false;
-                this.UpdateValidation(parameter);
-            }
+                this.FilterParameterSubscriptionValueSet(p.IsOptionDependent, p.ValueSet).ForEach(v =>
+                {
+                    UpdateValidation(v);
+                });
+            });
         });
         CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpdatesAreValidated);
-        this.StateHasChanged();
     }
 
     /// <summary>
     /// Save validation to not highlight changes a second time
     /// </summary>
-    /// <param name="parameter">The <see cref="ParameterSubscriptionViewModel"> change to save </param>
-    private void UpdateValidation(ParameterSubscriptionViewModel parameter)
+    /// <param name="parameterSubscriptionValueSet">The <see cref="ParameterSubscriptionValueSet"> change to save </param>
+    private void UpdateValidation(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
         if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
         {
-            var previousVersion = this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameter.Iid);
+            var previousVersion = this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameterSubscriptionValueSet.Iid);
             if(previousVersion != null)
             {
-                previousVersion.RevisionNumber = parameter.RevisionNumber;
-                previousVersion.SubscribedRevisionNumber = parameter.SubscribedRevisionNumber;
+                previousVersion.RevisionNumber = parameterSubscriptionValueSet.RevisionNumber;
+                previousVersion.SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber;
 
             } else
             {
                 this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
                 {
-                    Iid = parameter.Iid,
-                    RevisionNumber = parameter.RevisionNumber,
-                    SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
+                    Iid = parameterSubscriptionValueSet.Iid,
+                    RevisionNumber = parameterSubscriptionValueSet.RevisionNumber,
+                    SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber
                 });
             }
         } else if (this.ISessionAnchor.CurrentDomainOfExpertise != null)
@@ -651,58 +417,13 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 new ParameterSubscriptionViewModel()
                 {
-                    Iid = parameter.Iid,
-                    RevisionNumber = parameter.RevisionNumber,
-                    SubscribedRevisionNumber = parameter.SubscribedRevisionNumber
+                    Iid = parameterSubscriptionValueSet.Iid,
+                    RevisionNumber = parameterSubscriptionValueSet.RevisionNumber,
+                    SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber
                 }
             });
         }
-        CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpdatesAreValidated);
-    }
-
-    /// <summary>
-    /// Unhighlights changes and deletes row selection when you click on the table
-    /// </summary>
-    /// <param name="args"><see cref="DataGridRowClickEventArgs"> from the table</param>
-    private void OnRowClick(DataGridRowClickEventArgs<ParameterSubscriptionViewModel> args) {
-        if(args.MouseEventArgs.Detail == 1 && (args.DataItem.IsUpdated || args.DataItem.IsSubscribedUpdated)) {
-            args.DataItem.IsUpdated = false;
-            args.DataItem.IsSubscribedUpdated = false;
-            this.UpdateValidation(args.DataItem);
-            this.StateHasChanged();
-        }
-        grid?.SetDataRowSelected(args.DataItem, false);
-        args.Handled = true;
-    }
-
-    /// <summary>
-    /// Sorts elements in the table alphabetically by ElementName
-    /// When there are updates, puts updated elements at the top of the table
-    /// </summary>
-    /// <param name="viewModelSubscribedParameters">The list of <see cref ="ParameterSubscriptionViewModel"> to show in the table</param>
-    /// <returns>An <see cref="ObservableCollection"> with sorted elements</returns>
-    private ObservableCollection<ParameterSubscriptionViewModel> SortOrder(List<ParameterSubscriptionViewModel> viewModelSubscribedParameters)
-    {
-        var updatedParameters = viewModelSubscribedParameters.ToList().FindAll(i => i.IsUpdated || i.IsSubscribedUpdated).OrderBy(i => i.ElementName);
-        var otherParameters = viewModelSubscribedParameters.ToList().FindAll(i => !i.IsUpdated && !i.IsSubscribedUpdated).OrderBy(i => i.ElementName);
-
-        if (this.IsFilterChangesSelected)
-        {
-            return new ObservableCollection<ParameterSubscriptionViewModel>(updatedParameters);
-        } else
-        {
-            return new ObservableCollection<ParameterSubscriptionViewModel>(updatedParameters.Concat(otherParameters)); 
-        }
-    }
-
-    /// <summary>
-    /// Access to historic graph for selected parameterSubscriptionValueSet and parameterValueSet
-    /// </summary>
-    /// <param name="parameterSubscriptionValueSetIid">Guid of the selected parameterSubscriptionValueSet</param>
-    /// <param name="parameterValueSetIid">Guid of the selected parameterSubscriptionValueSet</param>
-    public void AccessData(Guid? parameterSubscriptionValueSetIid, Guid? parameterValueSetIid)
-    {
-        this.NavigationManager.NavigateTo($"/SubscriptionDashboard/More?parameterSubscriptionValueSetIid={parameterSubscriptionValueSetIid?.ToString().ToShortGuid()}&parameterValueSetIid={parameterValueSetIid?.ToString().ToShortGuid()}");
+        CDPMessageBus.Current.SendMessage<ValidateUpdate>(new ValidateUpdate(parameterSubscriptionValueSet.Iid));
     }
 
     /// <summary>
@@ -714,61 +435,60 @@ Copyright (c) 2022 RHEA System S.A.
         var value = e.Value;
         if(value != null)
         {
-            this.IsFilterChangesSelected = (bool) value;
+            this.isOnlyUpdates = (bool) value;
         }
+        this.Elements.Clear();
+        this.LoadElements();
     }
 
-    /// <summary>
-    /// Checks if pourcentage of evolution of actualValue can be calculated
-    /// </summary>
-    /// <param name="actualValue"></param>
-    /// <param name="lastActualValue"></param>
-    private bool checkIfEvolutionCanBeCalculated(ValueArray<string>? actualValue, ValueArray<string>? lastActualValue)
+    private bool isSubscribedParameterValueSetBaseUpdated(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
-        return actualValue?.Count == 1
-            && lastActualValue?.Count == 1
-            && !actualValue.First().Equals("-")
-            && !lastActualValue.First().Equals("-");
+        var isUpdated = false;
+        if(parameterSubscriptionValueSet.SubscribedValueSet.Revisions.LongCount() != (long)0 
+            && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber != parameterSubscriptionValueSet.SubscribedValueSet.Revisions.Last().Value.RevisionNumber)
+        {
+            isUpdated = true;
+        }
+
+        if (this.isUpdateAlreadyValidated(parameterSubscriptionValueSet))
+        {
+            isUpdated = false;
+        }
+
+        return isUpdated;
     }
 
-    /// <summary>
-    /// Checks if the previous value is higher than the actual value
-    /// </summary>
-    /// <param name="actualValue"></param>
-    /// <param name="lastActualValue"></param>
-    private bool checkIfLastActualValueIsHigherThanActualValue(string actualValue, string lastActualValue)
+    private bool isParameterSubscriptionValueSetUpdated(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
-        return double.Parse(lastActualValue) > double.Parse(actualValue);
+        bool isUpdated = false;
+        if(this.isSubscribedParameterValueSetBaseUpdated(parameterSubscriptionValueSet) && parameterSubscriptionValueSet.ValueSwitch == ParameterSwitchKind.COMPUTED)
+        {
+            isUpdated = true;
+        }
+
+        if (this.isUpdateAlreadyValidated(parameterSubscriptionValueSet))
+        {
+            isUpdated = false;
+        }
+
+        return isUpdated;
     }
 
-    /// <summary>
-    /// Checks if the previous value is lower than the actual value
-    /// </summary>
-    /// <param name="actualValue"></param>
-    /// <param name="lastActualValue"></param>
-    private bool checkIfLastActualValueIsLowerThanActualValue(string actualValue, string lastActualValue)
+    private bool isUpdateAlreadyValidated(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
-        return double.Parse(lastActualValue) < double.Parse(actualValue);
+        var isValidated = false;
+        if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
+        {
+            var existingValidatedParameter = list.Find(p => p.Iid == parameterSubscriptionValueSet.Iid);
+            if(existingValidatedParameter != null && parameterSubscriptionValueSet.RevisionNumber == existingValidatedParameter.RevisionNumber && parameterSubscriptionValueSet.ValueSwitch != ParameterSwitchKind.COMPUTED)
+            {
+                isValidated = true;
+            }
+            if(existingValidatedParameter != null && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
+            {
+                isValidated = true;
+            }
+        }
+        return isValidated;
     }
-
-    /// <summary>
-    /// Checks if the <see cref="ParameterSubscriptionValueSet"> has Revisions
-    /// </summary>
-    /// <param name="associatedParameterSubscriptionValueSet"></param>
-    private bool checkIfParameterSubscriptionRevisionsExist(ParameterSubscriptionValueSet? associatedParameterSubscriptionValueSet)
-    {
-        return associatedParameterSubscriptionValueSet != null 
-            && associatedParameterSubscriptionValueSet.Revisions.Count != 0;
-    }
-
-    /// <summary>
-    /// Checks if the <see cref="ParameterValueSet"> has Revisions
-    /// </summary>
-    /// <param name="associatedParameterValueSet"></param>
-    private bool checkIfParameterRevisionsExist(ParameterValueSet? associatedParameterValueSet)
-    {
-        return associatedParameterValueSet != null 
-            && associatedParameterValueSet.Revisions.Count != 0;
-    }
-
 }

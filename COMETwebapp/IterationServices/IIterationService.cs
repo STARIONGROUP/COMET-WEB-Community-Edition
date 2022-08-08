@@ -46,15 +46,6 @@ namespace COMETwebapp.IterationServices
         List<Guid> NewUpdates { get; set; }
 
         /// <summary>
-        /// Get all <see cref="ParameterValueSet"/> of the given iteration
-        /// </summary>
-        /// <param name="iteration">
-        /// The <see cref="Iteration"/> for which the <see cref="ParameterValueSet"/>s list is created
-        /// </param>
-        /// <returns>All <see cref="ParameterValueSet"/></returns>
-        List<ParameterValueSet> GetParameterValueSets(Iteration? iteration);
-
-        /// <summary>
         /// Get all <see cref="ParameterValueSetBase"/> of the given iteration
         /// </summary>
         /// <param name="iteration">
@@ -117,20 +108,12 @@ namespace COMETwebapp.IterationServices
         List<ElementDefinition> GetUnreferencedElements(Iteration? iteration);
 
         /// <summary>
-        /// Get all <see cref="ParameterSubscription"/> by the given domain in the given iteration 
+        /// Get all <see cref="ParameterSubscription"/> of the given domain and for the given element
         /// </summary>
-        /// <param name="iteration">The opened <see cref="Iteration"/></param>
+        /// <param name="element">The <see cref="ElementBase"> to get the subscriptions</param>
         /// <param name="currentDomainOfExpertise">The current <see cref="DomainOfExpertise"/> of the iteration</param>
-        /// <returns>List of all <see cref="ParameterSubscription"/></returns>
-        List<ParameterSubscription> GetParameterSubscriptions(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise);
-
-        /// <summary>
-        /// Gets all <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/> and subscribed by other <see cref="DomainOfExpertise"/>
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/> to get <see cref="Parameter"/></param>
-        /// <param name="currentDomainOfExpertise">The <see cref="DomainOfExpertise"/></param>
-        /// <returns>Subscribed <see cref="Parameter"/> owned by the given <see cref="DomainOfExpertise"/></returns>
-        List<Parameter> GetCurrentDomainSubscribedParameters(Iteration? iteration, DomainOfExpertise? currentDomainOfExpertise);
+        /// <returns>List of all <see cref="ParameterSubscription"/> for this element </returns>
+        List<ParameterSubscription> GetParameterSubscriptionsByElement(ElementBase element, DomainOfExpertise? currentDomainOfExpertise);
 
         /// <summary>
         /// Gets number of updates in the iteration after a session refresh
