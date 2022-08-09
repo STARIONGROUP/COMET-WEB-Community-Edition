@@ -31,9 +31,9 @@ Copyright (c) 2022 RHEA System S.A.
     {
         <div class="row p-1 m-top-10px">
             <div class="col-1 text-align-center align-self-center width-fit-content">
-                <p style="transform: rotate(-90deg);">@ParameterUnit</p>
+                <p style="transform: rotate(-90deg); margin-bottom:0px;">@ParameterUnit</p>
             </div>
-            <div class="col-11">
+            <div class="col-11 p-0">
                 <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
                     <DxChartLineSeries
                         ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
@@ -48,6 +48,12 @@ Copyright (c) 2022 RHEA System S.A.
             </div>
         </div>
         <div class="row p-1">
+            <div class="col text-align-center">
+                revision number
+            </div>
+        </div>
+
+        <div class="row p-5">
             <div class="col-7 text-align-end font-weight-bold">Values of the subscribed Parameter</div>
             <div class="col text-align-start p-0">
                 @{
@@ -191,29 +197,32 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     /// <param name="pointSettings">The <see cref="ChartSeriesPointCustomizationSettings"> from the graph </param>
     protected void PreparePointLabel(ChartSeriesPointCustomizationSettings pointSettings) {
-        var argument = pointSettings.Point.Argument;
-        var revisionNumber = Int32.Parse((string)argument);
-        var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration);
-        var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid?.FromShortGuid());
-        var value = string.Empty;
-        if(associatedParameterValueSet?.RevisionNumber == revisionNumber)
+        var argument = (string)pointSettings.Point.Argument;
+        if(argument != null)
         {
-            value = associatedParameterValueSet.Published.First();
-        } else
-        {
-            var revision = associatedParameterValueSet?.Revisions.Values.ToList().Find(v => v.RevisionNumber == revisionNumber);
-            if(revision != null)
+            var revisionNumber = Int32.Parse(argument);
+            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration);
+            var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid?.FromShortGuid());
+            var value = string.Empty;
+            if(associatedParameterValueSet?.RevisionNumber == revisionNumber)
             {
-                value = ((ParameterValueSetBase)revision).Published.First();
+                value = associatedParameterValueSet.Published.First();
+            } else
+            {
+                var revision = associatedParameterValueSet?.Revisions.Values.ToList().Find(v => v.RevisionNumber == revisionNumber);
+                if(revision != null)
+                {
+                    value = ((ParameterValueSetBase)revision).Published.First();
+                }
             }
-        }
         
-        if (value.Equals("-"))
-        {
-            pointSettings.PointLabel.Visible = false;
-        } else
-        {
-            pointSettings.PointLabel.Visible = true;
+            if (value.Equals("-"))
+            {
+                pointSettings.PointLabel.Visible = false;
+            } else
+            {
+                pointSettings.PointLabel.Visible = true;
+            }
         }
     }
 }

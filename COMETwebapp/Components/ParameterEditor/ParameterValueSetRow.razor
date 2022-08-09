@@ -504,6 +504,7 @@ Copyright (c) 2022 RHEA System S.A.
             {
                 clonedParameterValueSet
             });
+            this.ParameterValueSet.ValueSwitch = newValue;
             CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
         }
     }

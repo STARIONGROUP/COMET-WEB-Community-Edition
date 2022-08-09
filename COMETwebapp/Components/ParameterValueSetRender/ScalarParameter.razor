@@ -312,10 +312,12 @@ else if (this.Value != null && this.ValueType != null)
             if (this.IsManualEditable == true)
             {
                 clonedParameterValueSet.Manual[this.IndexInValueSet] = newValue;
+                this.ParameterValueSet.Manual[this.IndexInValueSet] = newValue;
             }
             else if (this.IsReferenceEditable == true)
             {
                 clonedParameterValueSet.Reference[this.IndexInValueSet] = newValue;
+                this.ParameterValueSet.Reference[this.IndexInValueSet] = newValue;
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
@@ -328,18 +330,20 @@ else if (this.Value != null && this.ValueType != null)
                 this.IterationService.NewUpdates.Add(this.ParameterSubscriptionValueSet.Iid);
                 CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterSubscriptionValueSet.Iid));
             }
-            var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
+            var clonedParameterSubscriptionValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             if (this.IsManualEditable == true)
             {
-                clonedParameterValueSet.Manual[this.IndexInValueSet] = newValue;
+                clonedParameterSubscriptionValueSet.Manual[this.IndexInValueSet] = newValue;
+                this.ParameterSubscriptionValueSet.Manual[this.IndexInValueSet] = newValue;
             }
             else if (this.IsReferenceEditable == true)
             {
-                clonedParameterValueSet.Reference[this.IndexInValueSet] = newValue;
+                clonedParameterSubscriptionValueSet.Reference[this.IndexInValueSet] = newValue;
+                this.ParameterSubscriptionValueSet.Reference[this.IndexInValueSet] = newValue;
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
-                clonedParameterValueSet
+                clonedParameterSubscriptionValueSet
             });
         }
     }
