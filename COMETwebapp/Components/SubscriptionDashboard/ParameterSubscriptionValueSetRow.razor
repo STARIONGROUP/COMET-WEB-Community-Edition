@@ -34,7 +34,8 @@ Copyright (c) 2022 RHEA System S.A.
     {
         valueSwitchToShow = (ParameterSwitchKind) Enum.Parse(typeof(ParameterSwitchKind), this.selectedSwitchKind);
     }
-    
+    this.isUpdated = this.isParameterSubscriptionValueSetUpdated();
+
     <BSTD Class="width-10">@ParameterSubscription.ParameterType.Name</BSTD>
     @if(modelCode.Count() == 1)
     {
@@ -121,23 +122,19 @@ Copyright (c) 2022 RHEA System S.A.
                             ValueType="@ParameterOrOverride.ParameterType.GetType()" />
                     }
                 </div>
-                @if(this.ParameterOrOverride.Scale is not null && this.SubscribedParameterValueSetBase.Revisions.Count != 0)
+                @if(this.ParameterOrOverride.Scale is not null && this.checkIfParameterRevisionsExist(this.SubscribedParameterValueSetBase)
+                    && this.checkIfEvolutionCanBeCalculated(this.SubscribedParameterValueSetBase.Published, previousPublishedValue))
                 {
                     <div class="col-4 p-0">
-                        @if(this.checkIfEvolutionCanBeCalculated(this.SubscribedParameterValueSetBase.Published, previousPublishedValue) 
-                            && this.checkIfParameterRevisionsExist(this.SubscribedParameterValueSetBase)
-                            && this.checkIfLastActualValueIsHigherThanActualValue(this.SubscribedParameterValueSetBase.Published.First(), previousPublishedValue.First()))
+                        @if(this.checkIfLastActualValueIsHigherThanActualValue(this.SubscribedParameterValueSetBase.Published.First(), previousPublishedValue.First()))
                         {
                             <i class="oi oi-caret-bottom m-left-5px"></i>
                             <div class="m-left-5px font-size-small"> (@evolution %) </div>
 
-                        } else if (this.checkIfEvolutionCanBeCalculated(this.SubscribedParameterValueSetBase.Published, previousPublishedValue) 
-                            && this.checkIfParameterRevisionsExist(this.SubscribedParameterValueSetBase)
-                            && this.checkIfLastActualValueIsLowerThanActualValue(this.SubscribedParameterValueSetBase.Published.First(), previousPublishedValue.First()))
+                        } else if (this.checkIfLastActualValueIsLowerThanActualValue(this.SubscribedParameterValueSetBase.Published.First(), previousPublishedValue.First()))
                         {
                             <i class="oi oi-caret-top m-left-5px"></i>
                             <div class="m-left-5px font-size-small"> (+@evolution %) </div>
-
                         }
                     </div>
                 }
@@ -318,7 +315,6 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        this.isUpdated = this.isParameterSubscriptionValueSetUpdated();
         if (this.ParameterSubscriptionValueSet != null)
         {
             this.isParameterSubscriptionValueSetEdited = this.IterationService.NewUpdates.Contains(this.ParameterSubscriptionValueSet.Iid);
@@ -428,7 +424,6 @@ Copyright (c) 2022 RHEA System S.A.
         {
             isUpdated = false;
         }
-
         return isUpdated;
     }
 

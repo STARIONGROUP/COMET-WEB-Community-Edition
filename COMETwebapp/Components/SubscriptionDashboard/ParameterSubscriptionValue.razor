@@ -19,6 +19,9 @@ Copyright (c) 2022 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@implements IDisposable
+@inject ISessionAnchor ISessionAnchor
+@inject IIterationService IterationService
 
 @if(this.ParameterSubscription != null && this.ParameterSubscriptionValueSet != null && this.IsParameterSubscriptionValueSetEdited != null)
 {
@@ -386,4 +389,59 @@ Copyright (c) 2022 RHEA System S.A.
     /// </summary>
     [Parameter]
     public bool? IsUpdated { get; set; }
+
+    /// <summary>
+    /// Listeners for the components to update it with edit changes
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize ClonedParameterValueSet 
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (!this.listeners.TryGetValue("SwitchMode", out var listener)) {
+            this.listeners.Add("SwitchMode", CDPMessageBus.Current.Listen<SwitchEvent>().Where(x => x.ParameterValuSetIid == this.ParameterSubscriptionValueSet?.Iid).Subscribe(x =>
+            {
+                if (x.SubmitChange == null)
+                {
+                    this.ValueSwitchToShow = x.SelectedSwitch;
+                    this.StateHasChanged();
+                } else if (x.SubmitChange == true) {
+                    this.UpdateChange(x.SelectedSwitch);
+                }
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+
+     /// <summary>
+    /// Update value of <see cref="ParameterValueSet"> when a change appears 
+    /// </summary>
+    private void UpdateChange(ParameterSwitchKind newValue)
+    {
+        if (this.ParameterSubscriptionValueSet != null)
+        {
+            if(!this.IterationService.NewUpdates.Contains(this.ParameterSubscriptionValueSet.Iid))
+            {
+                this.IterationService.NewUpdates.Add(this.ParameterSubscriptionValueSet.Iid);
+            }
+            var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
+            clonedParameterValueSet.ValueSwitch = newValue;
+            this.ISessionAnchor.UpdateThings(new List<Thing>()
+            {
+                clonedParameterValueSet
+            });
+            this.ParameterSubscriptionValueSet.ValueSwitch = newValue;
+            CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterSubscriptionValueSet.Iid));
+        }
+    }
 }
