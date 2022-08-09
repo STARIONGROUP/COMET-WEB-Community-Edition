@@ -94,12 +94,14 @@ Copyright (c) 2022 RHEA System S.A.
                         <BSTD>
                             <ScalarParameter 
                                 Value="@parameterValueSet.ActualValue.First()" 
-                                Scale="@parameter.Scale?.ShortName"/>
+                                Scale="@parameter.Scale?.ShortName"
+                                ValueType="@parameter.ParameterType.GetType()"/>
                         </BSTD>
                         <BSTD>
                             <ScalarParameter 
                                 Value="@parameterValueSet.Published.First()" 
-                                Scale="@parameter.Scale?.ShortName" />
+                                Scale="@parameter.Scale?.ShortName" 
+                                ValueType="@parameter.ParameterType.GetType()" />
                         </BSTD>
                     } else if(parameter.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
                     {
