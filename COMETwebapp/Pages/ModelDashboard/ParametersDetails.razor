@@ -260,11 +260,11 @@ Copyright (c) 2022 RHEA System S.A.
         {
             parameterValueSets.RemoveAll(p => p.Published.SequenceEqual(p.ActualValue));
 
-        } else if (this.Criteria is not null && this.Criteria.Equals("Published Values as Default"))
+        } else if (this.Criteria is not null && this.Criteria.Equals("Missing Values"))
         {
             parameterValueSets.RemoveAll(p => p.Published.Count(el => !el.Equals("-")) != 0);
 
-        } else if (this.Criteria is not null && this.Criteria.Equals("Other Values"))
+        } else if (this.Criteria is not null && this.Criteria.Equals("Complete Values"))
         {
             parameterValueSets.RemoveAll(p => p.Published.Count(el => !el.Equals("-")) == 0);
         }

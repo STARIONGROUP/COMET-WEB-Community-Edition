@@ -24,7 +24,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="col col-xxl-8">
     <DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
-        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Values as Default") || d.Argument.Equals("Other Values")))"
+        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
                         ValueField="@(d => d.Value)"
                         ArgumentField="@(d => d.Argument)"
                         AggregationMethod="Enumerable.Sum">
@@ -58,10 +58,10 @@ Copyright (c) 2022 RHEA System S.A.
         }else if (argument != null && argument.Equals("Publishable Parameters"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.LightCoral;
-        } else if (argument != null && argument.Equals("Published Values as Default"))
+        } else if (argument != null && argument.Equals("Missing Values"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.DarkSeaGreen;
-        } else if (argument != null && argument.Equals("Other Values"))
+        } else if (argument != null && argument.Equals("Complete Values"))
         {
             settings.PointAppearance.Color = System.Drawing.Color.LightSlateGray;
         }
@@ -87,13 +87,13 @@ Copyright (c) 2022 RHEA System S.A.
                 donutData.Add(new DataChart()
                 {
                     Value = nbDefaultValues,
-                    Argument = "Published Values as Default",
+                    Argument = "Missing Values",
                     Domain = d.ShortName
                 });
                 donutData.Add(new DataChart()
                 {
                     Value = domainParameterValueSets.Count - nbDefaultValues,
-                    Argument = "Other Values",
+                    Argument = "Complete Values",
                     Domain = d.ShortName
                 });
 

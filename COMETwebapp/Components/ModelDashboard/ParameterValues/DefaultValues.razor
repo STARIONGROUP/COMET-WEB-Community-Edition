@@ -25,7 +25,7 @@ Copyright (c) 2022 RHEA System S.A.
 
 <div class="width-100">
     <div class="row">
-        <div class="col-9">
+        <div class="col-8">
             <h3 class="text-align-end">Missing Values</h3>
         </div>
         <div class="col text-align-start p-0">
@@ -132,7 +132,7 @@ Copyright (c) 2022 RHEA System S.A.
     /// <returns>The number of <see cref="ParameterValueSetBase"> represented in the selected area</returns>
     public int NumberData(string criteria, object domain)
     {
-        if(this.Data != null && criteria.Equals("Published Values as Default"))
+        if(this.Data != null && criteria.Equals("Missing Values"))
         {
             return this.Data.FindAll(d => d.Owner.ShortName.Equals(domain) && d.Published.Count(el => !el.Equals("-")) == 0).Count;
         } else if(this.Data != null)
