@@ -312,17 +312,23 @@ else if (this.Value != null && this.ValueType != null)
             if (this.IsManualEditable == true)
             {
                 clonedParameterValueSet.Manual[this.IndexInValueSet] = newValue;
-                this.ParameterValueSet.Manual[this.IndexInValueSet] = newValue;
             }
             else if (this.IsReferenceEditable == true)
             {
                 clonedParameterValueSet.Reference[this.IndexInValueSet] = newValue;
-                this.ParameterValueSet.Reference[this.IndexInValueSet] = newValue;
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
                 clonedParameterValueSet
             });
+            if (this.IsManualEditable == true)
+            {
+                this.ParameterValueSet.Manual[this.IndexInValueSet] = newValue;
+            }
+            else if (this.IsReferenceEditable == true)
+            {
+                this.ParameterValueSet.Reference[this.IndexInValueSet] = newValue;
+            }
         } else if(this.ParameterSubscriptionValueSet != null)
         {
             if((this.IsManualEditable == true || this.IsReferenceEditable == true) && !this.IterationService.NewUpdates.Contains(this.ParameterSubscriptionValueSet.Iid))
@@ -334,17 +340,23 @@ else if (this.Value != null && this.ValueType != null)
             if (this.IsManualEditable == true)
             {
                 clonedParameterSubscriptionValueSet.Manual[this.IndexInValueSet] = newValue;
-                this.ParameterSubscriptionValueSet.Manual[this.IndexInValueSet] = newValue;
             }
             else if (this.IsReferenceEditable == true)
             {
                 clonedParameterSubscriptionValueSet.Reference[this.IndexInValueSet] = newValue;
-                this.ParameterSubscriptionValueSet.Reference[this.IndexInValueSet] = newValue;
             }
             this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
                 clonedParameterSubscriptionValueSet
             });
+            if (this.IsManualEditable == true)
+            {
+                this.ParameterSubscriptionValueSet.Manual[this.IndexInValueSet] = newValue;
+            }
+            else if (this.IsReferenceEditable == true)
+            {
+                this.ParameterSubscriptionValueSet.Reference[this.IndexInValueSet] = newValue;
+            }
         }
     }
 

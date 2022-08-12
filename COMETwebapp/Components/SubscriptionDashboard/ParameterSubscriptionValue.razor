@@ -49,7 +49,7 @@ Copyright (c) 2022 RHEA System S.A.
                                         Value="@ParameterSubscriptionValueSet.Computed.First()" 
                                         Scale="@ParameterSubscription.Scale?.ShortName" 
                                         ValueType="@ParameterSubscription.ParameterType.GetType()"
-                                        IsParameterValueSetEdited="@IsParameterSubscriptionValueSetEdited" />
+                                        IsParameterValueSetEdited="false" />
                                 </span>
                             } else
                             {
@@ -57,7 +57,7 @@ Copyright (c) 2022 RHEA System S.A.
                                     Value="@ParameterSubscriptionValueSet.Computed.First()" 
                                     Scale="@ParameterSubscription.Scale?.ShortName" 
                                     ValueType="@ParameterSubscription.ParameterType.GetType()"
-                                    IsParameterValueSetEdited="@IsParameterSubscriptionValueSetEdited" />
+                                    IsParameterValueSetEdited="false" />
                             }
                         </div>
                         <div class="col-2 align-self-center">
@@ -141,14 +141,14 @@ Copyright (c) 2022 RHEA System S.A.
                                     <ArrayParameter 
                                         ArrayParameterType="(ArrayParameterType)this.ParameterSubscription.ParameterType" 
                                         Values="@ParameterSubscriptionValueSet.Computed" 
-                                        IsParameterValueSetEdited="@IsParameterSubscriptionValueSetEdited" />
+                                        IsParameterValueSetEdited="false" />
                                 </div>
                             } else
                             {
                                 <ArrayParameter 
                                     ArrayParameterType="(ArrayParameterType)this.ParameterSubscription.ParameterType" 
                                     Values="@ParameterSubscriptionValueSet.Computed" 
-                                    IsParameterValueSetEdited="@IsParameterSubscriptionValueSetEdited" />
+                                    IsParameterValueSetEdited="false" />
                             }
                         </div>
                         <div class="col-2 align-self-center">
@@ -244,7 +244,7 @@ Copyright (c) 2022 RHEA System S.A.
                                                     IndexStartInParameterTypeComponent="indexStart" 
                                                     Values="@ParameterSubscriptionValueSet.Computed" 
                                                     Component="component" 
-                                                    IsParameterValueSetEdited="@IsParameterSubscriptionValueSetEdited"/>
+                                                    IsParameterValueSetEdited="false"/>
                                             }
                                         </div>  
                                     </div>
@@ -263,7 +263,7 @@ Copyright (c) 2022 RHEA System S.A.
                                                 IndexStartInParameterTypeComponent="indexStart" 
                                                 Values="@ParameterSubscriptionValueSet.Computed" 
                                                 Component="component" 
-                                                IsParameterValueSetEdited="@IsParameterSubscriptionValueSetEdited"/>
+                                                IsParameterValueSetEdited="false"/>
                                         }
                                     </div>
                                 }
