@@ -61,13 +61,6 @@ namespace COMETwebapp.Model
             },
             new Card()
             {
-                Name = "Report Preview",
-                Color = "#f2f240f2",
-                Icon = "book",
-                Description = "Preview of the actual report state."
-            },
-            new Card()
-            {
                 Name = "Requirement Management",
                 Color = "#fda966",
                 Icon = "link-intact",
