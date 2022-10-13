@@ -72,6 +72,13 @@ namespace COMETwebapp.Model
                 Color = "#fc3a1aad",
                 Icon = "brush",
                 Description = "Create budget tables."
+            },
+            new Card()
+            {
+                Name = "3D Viewer",
+                Color = "#76fd98",
+                Icon = "brush",
+                Description = "Show 3D Viewer"
             }
         };
     }
