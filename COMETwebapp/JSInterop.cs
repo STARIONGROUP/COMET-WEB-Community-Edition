@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Cube.cs" company="RHEA System S.A.">
+// <copyright file="JSInterop.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
-//    Author: Jaime Bernar
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -89,7 +89,5 @@ namespace COMETwebapp
         {
             return await JsRuntime.InvokeAsync<T>(methodName, args);
         }
-
-
     }
 }

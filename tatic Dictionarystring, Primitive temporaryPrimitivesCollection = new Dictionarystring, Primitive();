@@ -1,0 +1,120 @@
+[33mc85bb2e[m[33m ([m[1;36mHEAD -> [m[1;32mfeat/GH159-Merge-BlazorViewer-COMET-WEB[m[33m, [m[1;31morigin/feat/GH159-Merge-BlazorViewer-COMET-WEB[m[33m)[m Added the Blazor Viewer; fixes #159
+[33m356d59f[m[33m ([m[1;33mtag: 0.22.0[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/development[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mdevelopment[m[33m)[m [Bum[] version to 0.22.0
+[33md4f25b9[m remove alert after closing the model
+[33m8777d4d[m Correction of several bugs
+[33m73706f0[m[33m ([m[1;33mtag: 0.21.0[m[33m)[m [Bum[] version to 0.21.0
+[33m728c7bc[m Correct missing values
+[33mabe5068[m Correct missing values
+[33mf7fc2d9[m[33m ([m[1;33mtag: 0.20.0[m[33m)[m [Bum[] version to 0.20.0
+[33mb3d0a79[m Last updates
+[33mde153f2[m[33m ([m[1;33mtag: 0.19.0[m[33m)[m [Bum[] version to 0.19.0
+[33m89eeebd[m See every type of value in ParametersDetails
+[33m9a7ee87[m[33m ([m[1;33mtag: 0.18.0[m[33m)[m [Bum[] version to 0.18.0
+[33mf3228d6[m Update subscription table; fixes #147
+[33m86a07fc[m Manage all value types; fixes #144 & #146 & #138
+[33mb14e04a[m All elements in a table; fixes #141
+[33m211599b[m Correction several bugs; fixes#139
+[33m26e00e5[m[33m ([m[1;33mtag: 0.17.0[m[33m)[m [Bump] version to 0.17.0
+[33m6a52dc0[m Finalize Model dashboard; fixes #136
+[33m1be0abb[m Navmenu, login, dashboard; fixes #102 & #36 & #37
+[33m5bbcb5c[m[33m ([m[1;33mtag: 0.16.0[m[33m)[m [Bump] version to 0.16.0
+[33md7968b9[m SwitchMode changes & highlight ; fixes #125 & #128
+[33m3dc4794[m[33m ([m[1;33mtag: 0.15.0[m[33m)[m [Bump] version to 0.15.0
+[33maf38cbf[m Updates actual value with changes; fixes #127
+[33mc645da0[m Add option and state filters; fixes #19
+[33m1b714a7[m Add filter on parameter type; fixes #20
+[33m6bc8c76[m Add filter on owned parameters; fixes #21
+[33m8a9e711[m Edit values; fixes #119
+[33m8a855f1[m Add filter on ElementUsage; fixes #115 & #117
+[33m8963219[m Add Write feature in session; fixes #22
+[33m14129dc[m Change select component; fixes #112
+[33m1627fb2[m Correction bug; fixes #111 & #113
+[33m28773cd[m[33m ([m[1;33mtag: 0.14.0[m[33m)[m [Bump] version to 0.14.0
+[33mad61c85[m Put application title in the header; fixes #109 & #108
+[33m3ef708e[m Improve table in Parameter Editor; fixes #15
+[33m7ab2585[m [Improve] coverage of the AutoRefreshService
+[33m5662c5b[m [Refactor] IAutoRefreshService to fix timer not being stopped or disposed of; fixes #105
+[33m40d6a09[m Add filter on ParameterType; fixes #99
+[33mec0da13[m[33m ([m[1;33mtag: 0.13.0[m[33m)[m [Bump] version to 0.13.0
+[33mdb076c1[m Improve style; fixes #100
+[33m5dad3e7[m [Add] link to deployed app
+[33m1b6459f[m[33m ([m[1;33mtag: 0.12.0[m[33m)[m [Bump] version to 0.12.0
+[33mfb9733c[m [Fix] VersionService superflous ";" and improve code coverage as per SonarQube suggestion
+[33mf1f4952[m [Add] AuthenticationServiceTestFixture
+[33mce71bf8[m Add updates notification; fixes #80
+[33m5d9bc15[m [Update] README with stats
+[33ma59e55f[m Modify sidebar menu and colors
+[33m73370e0[m[33m ([m[1;33mtag: 0.11.0[m[33m)[m [Bump] version to 0.11.0
+[33m5673fb0[m Add home page & style review
+[33mc9292b0[m[33m ([m[1;33mtag: 0.10.0[m[33m)[m [Bump] version to 0.10.0
+[33mb540ee2[m Add filters on subscription table; fixes #44 & #45
+[33ma18ca4c[m Put highlights at the top; fixes #85 & #43
+[33m4aa60cb[m Add unit tests on classes; fixes #90
+[33m6d672d1[m [Improve] code coverage for CometWebAuthStateProvider
+[33m7b156b5[m [Add] bUnit test for Header
+[33m8c95b15[m Correction of several errors; fixes #87
+[33m6960641[m[33m ([m[1;33mtag: 0.9.0[m[33m)[m [Bump] version to 0.9.0
+[33mb0595bf[m Add link to access parameter details; fixes #82
+[33mab38959[m Add unhighlight changes; fixes #79
+[33m218c655[m Add table for subscribed parameters; fixes #42
+[33m0411a46[m Add highlights on changes; fixes #41
+[33mce0fc1d[m[33m ([m[1;33mtag: 0.8.0[m[33m)[m [Update] test project dependencies
+[33mfd80aef[m [Add] About popup dialog; fixes #71
+[33mef50cd3[m[33m ([m[1;33mtag: 0.7.0[m[33m)[m [Bump] version to 0.7.0
+[33m9227150[m [Add] Integration category
+[33m54a7e8d[m Unit test correction
+[33mf8c8021[m Merge branch 'GH74-switch-domain' of https://github.com/RHEAGROUP/COMET-WEB-Community-Edition into GH74-switch-domain
+[33m8c39b7c[m Add switch domain feature; fixes #74
+[33ma200903[m Review 4
+[33m191969c[m review 3
+[33me987c40[m Review 2
+[33m40113a5[m review
+[33m0224297[m Add switch domain feature; fixes #74
+[33mfc5fcc1[m[33m ([m[1;33mtag: 0.6.0[m[33m)[m [Bump] version 0.6.0
+[33mbf3f044[m [Bump] version 0.5.0
+[33mad7465a[m Add auto-refresh; fixes #70
+[33meddd0f2[m Add manual refresh; fixes #57
+[33m2fb7908[m [Bump] to version 0.4.0
+[33mf56252c[m Add manual refresh; fixes #57
+[33m303015c[m[33m ([m[1;33mtag: 0.4.0[m[33m)[m [Bump] to version 0.4.0
+[33m040e27a[m Merge branch 'development' of https://github.com/RHEAGROUP/COMET-WEB-Community-Edition into development
+[33me50c7bb[m [Bump] version to 0.3.0
+[33m571cab6[m Parameter subscription; fixes #40
+[33med94312[m[33m ([m[1;33mtag: 0.3.0[m[33m)[m [Bump] version to 0.3.0
+[33m55ba143[m Unused elements dashboard; fixes 62
+[33ma020de8[m Merge branch 'development' of https://github.com/RHEAGROUP/COMET-WEB-Community-Edition into development
+[33m83acdc3[m [Bump] version to 0.2.0
+[33m5770ac8[m Add adapting disposition; fixes 63
+[33m8fa57c5[m[33m ([m[1;33mtag: 0.2.0[m[33m)[m [Bump] version to 0.2.0
+[33ma8f9fc6[m Merge branch 'development' of https://github.com/RHEAGROUP/COMET-WEB-Community-Edition into development
+[33mbd5ae6b[m [Add] docker file and update readme with instructions; fixes #58
+[33me32265e[m[33m ([m[1;33mtag: 0.1.0[m[33m)[m [Add] docker file and update readme with instructions; fixes #58
+[33mf1bee60[m Create general dashboard; fixes #59
+[33md0f874c[m Merge branch 'development' of https://github.com/RHEAGROUP/COMET-WEB-Community-Edition into development
+[33m6b737d4[m [Add] utility methods to encode/decode strings and guids
+[33mb74f0b7[m [Add] GenerateAssemblyInfo and GenerateTargetFrameworkAttribute to disable generation on build
+[33m28a26d2[m Add filter on option; fixes 35
+[33ma54c200[m [Add] utility methods to encode/decode strings and guids
+[33m2c10d30[m [Add] GenerateAssemblyInfo and GenerateTargetFrameworkAttribute to disable generation on build
+[33m899760c[m Add progress dashboard; fixes #34
+[33m94012dd[m Add links in NavMenu; fixes #14
+[33m51aab54[m Delete useless repository
+[33m76befe1[m Add menu page; fixes #13
+[33m19a1709[m [Add] Selenium integration test for to verify that login works
+[33md36ad3a[m [Refactor] authentication so that the user is informed about the state and possible failure
+[33me834b23[m [Add] COMET favicon and header logo
+[33m6be29e0[m [Update] COMET Web Application to COMET Community Edition
+[33me059f47[m [Add] code quality github action; fixes #5
+[33md912e7b[m [Remove] superfluous line
+[33mf0df51c[m [Add] COMET logo and update README
+[33mfe9d2c6[m Create parameter table + add devexpress; fixes #16
+[33m3f0d856[m Open and close a model; fixes #4
+[33me73e926[m Merge pull request #12 from RHEAGROUP/GH11-css-file
+[33m05ab409[m Create a css central file; fixes 11
+[33m0a933ba[m Add login page; fixes #2
+[33m3248763[m add file header;fixes#8
+[33m2cb3249[m Setup of application; fixes #1
+[33m251dc72[m [Update] README
+[33m13f9834[m Create CODE_OF_CONDUCT.md
+[33mefd680e[m [Add] GitHub templates
+[33m50fcfc0[m Initial commit

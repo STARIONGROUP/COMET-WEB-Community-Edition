@@ -1,22 +1,50 @@
-﻿namespace COMETwebapp.Componentes.Viewer
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BabylonCanvasBase.cs" company="RHEA System S.A.">
+//    Copyright (c) 2022 RHEA System S.A.
+//
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+namespace COMETwebapp.Componentes.Viewer
 {
-    using CDP4Common.EngineeringModelData;
-    using COMETwebapp.Primitives;
-    using COMETwebapp.SessionManagement;
-    using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Web;
-    using Microsoft.JSInterop;
     using System;
     using System.Drawing;
     using System.Threading.Tasks;
+
+    using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.Primitives;
+    using COMETwebapp.SessionManagement;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.JSInterop;
 
     /// <summary>
     /// Support class for the <see cref="BabylonCanvas"/>
     /// </summary>
     public class BabylonCanvasBase : ComponentBase
     {
-        private bool isMouseDown = false;
-
+        /// <summary>
+        /// Tells if the mouse if pressed or not in the canvas component
+        /// </summary>
+        public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
         /// Property to inject the JSRuntime and allow C#-JS interop
@@ -30,15 +58,35 @@
         [Inject]
         ISessionAnchor SessionAnchor { get; set; }
 
+        /// <summary>
+        /// Invokable method from JS to get a GUID
+        /// </summary>
+        /// <returns>the GUID in string format</returns>
         [JSInvokable]
         public static string GetGUID() => Guid.NewGuid().ToString();
 
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
 
             if (firstRender)
-            {
+            {                
                 JSInterop.JsRuntime = JsRuntime;
                 Scene.Init();
                 InitializeElements();
@@ -69,7 +117,7 @@
             {
                 foreach (var elementUsage in elementUsages)
                 {
-                    CreateShapeBasedOnElementUsage(elementUsage);
+                    this.CreateShapeBasedOnElementUsage(elementUsage);
                 }
             }
         }
@@ -80,11 +128,7 @@
         /// <param name="elementUsage">The element usage used for creating the shape</param>
         private void CreateShapeBasedOnElementUsage(ElementUsage elementUsage)
         {
-            //elementUsage.ParameterOverride.Find(x=>x.p)
-            if (elementUsage.ParameterOverride.Count > 0)
-            {
-
-            }
+            //TODO: based on element usage information create a basic shape type and add it to scene.
         }
 
         /// <summary>
@@ -93,7 +137,8 @@
         /// <param name="e">the mouse args of the event</param>
         public void OnMouseDown(MouseEventArgs e)
         {
-
+            this.IsMouseDown = true;
+            //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
         }
 
         /// <summary>
@@ -102,52 +147,8 @@
         /// <param name="e">the mouse args of the event</param>
         public void OnMouseUp(MouseEventArgs e)
         {
-
-        }
-
-        /// <summary>
-        /// Canvas on click event
-        /// </summary>
-        /// <param name="e">the mouse args of the event</param>
-        public void OnClick(MouseEventArgs e)
-        {
-
-        }
-
-        /// <summary>
-        /// Canvas on mouse move event
-        /// </summary>
-        /// <param name="e">the mouse args of the event</param>
-        public void OnMouseMove(MouseEventArgs e) 
-        { 
-
-        }
-
-        /// <summary>
-        /// Canvas on mouse wheel event
-        /// </summary>
-        /// <param name="e">the mouse wheel args of the event</param>
-        public void OnMouseWheel(WheelEventArgs e)
-        {
-            Scene.SetInfoPanelVisibility(false);
-        }
-
-        /// <summary>
-        /// Canvas on key down event
-        /// </summary>
-        /// <param name="e">the keyboard args of the event</param>
-        public void OnKeyDown(KeyboardEventArgs e)
-        {
-
-        }
-
-        /// <summary>
-        /// Canvas on key up event
-        /// </summary>
-        /// <param name="e">the keyboard args of the event</param>
-        public void OnKeyUp(KeyboardEventArgs e)
-        {
-
+            this.IsMouseDown = false;
+            //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
         }
 
         /// <summary>

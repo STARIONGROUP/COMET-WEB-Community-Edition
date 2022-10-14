@@ -2,7 +2,7 @@
 // <copyright file="Scene.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
-//    Author: Jaime Bernar
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -23,21 +23,23 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp
 {
-    using COMETwebapp.Primitives;
-    using Newtonsoft.Json;
     using System;
-    using System.Collections.Generic;
     using System.Drawing;
     using System.Numerics;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
+
+    using COMETwebapp.Primitives;
+
+    using Newtonsoft.Json;
 
     /// <summary>
-    /// Static class to acess the resources of a Scene 
+    /// Static class to access the resources of a Scene 
     /// </summary>
     public static class Scene
     {
         /// <summary>
-        /// Collection of temporaty <see cref="Primitive"/> in the Scene. 
+        /// Collection of temporary <see cref="Primitive"/> in the Scene. 
         /// </summary>
         private static Dictionary<string, Primitive> temporaryPrimitivesCollection = new Dictionary<string, Primitive>();
 
@@ -124,21 +126,19 @@ namespace COMETwebapp
             }
         }
 
-
         /// <summary>
         /// Gets the primitive under the mouse cursor asyncronously
         /// </summary>
         /// <returns>The primitive under the mouse cursor</returns>
         public static async Task<Primitive> GetPrimitiveUnderMouseAsync()
         {
-            var id = await JSInterop.Invoke<string>("GetPrimitiveUnderMouse");
+            var id = await JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
             if(id == null)
             {
                 return null;
             }
             return GetEntityById(id);
         }
-
 
         /// <summary>
         /// Gets the primitive asociated to an specific Id
