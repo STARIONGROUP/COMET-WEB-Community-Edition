@@ -22,16 +22,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-/// <summary>
-/// Creates a babylon.js material from the specified colors. For more info of the colors: https://learnopengl.com/Lighting/Basic-Lighting
-/// </summary>
-/// <param name="diffuse">the diffuse color</param>
-/// <param name="specular">the specular color</param>
-/// <param name="emissive">the emissive color</param>
-/// <param name="ambient">the ambient color</param>
-/// <param name="materialName">the material name</param>
-/// <param name="scene">the scene that contains this material</param>
-/// <returns>the babylon.js material</returns>
+/**
+ * Creates a babylon.js material from the specified colors. For more info of the colors: https://learnopengl.com/Lighting/Basic-Lighting
+ * @param {Vector3} diffuse - the diffuse color
+ * @param {Vector3} specular - the specular color.
+ * @param {Vector3} emissive - the emissive color
+ * @param {Vector3} ambient - the ambient global ilumination color.
+ * @param {string} materialName - the name of the new material.
+ * @param {BABYLON.js scene} scene - the scene to add the material to.
+ * @returns {BABYLON.js Material} 
+ */
 function CreateMaterial(diffuse, specular, emissive, ambient, materialName, scene) {
     var babylonMaterial = new BABYLON.StandardMaterial(materialName, scene);
     babylonMaterial.diffuseColor = new BABYLON.Color3(diffuse.X, diffuse.Y, diffuse.Z);
@@ -41,11 +41,11 @@ function CreateMaterial(diffuse, specular, emissive, ambient, materialName, scen
     return babylonMaterial;
 }
 
-/// <summary>
-/// Creates an skybox. Sky with texture for the background.
-/// </summary>
-/// <param name="scene">the scene to add the skybox to</param>
-/// <param name="size">the size of the skybox</param>
+/**
+ * Creates an skybox. Sky with texture for the background.
+ * @param {BABYLON.js scene} scene - the scene to add the skybox to.
+ * @param {number} size - the size of the scene.
+ */
 function CreateSkybox(scene, size) {
     var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: size }, scene);
     skybox.CometID = "Skybox";
@@ -58,10 +58,10 @@ function CreateSkybox(scene, size) {
     skybox.material = skyboxMaterial;
 }
 
-/// <summary>
-/// Creates the picking material for the scene.
-/// </summary>
-/// <returns>the babylon.js material</returns>
+/**
+ * Creates the picking material used in the scene.
+ * @returns {BABYLON.js material} - the material to use.
+ */
 function SetUpPickingMaterial() {
     var pickingMaterial = new BABYLON.StandardMaterial("PickingMaterial", Scene);
     pickingMaterial.diffuseColor =  new BABYLON.Color3(0.8, 0.35, 0.35);
@@ -71,17 +71,18 @@ function SetUpPickingMaterial() {
     return pickingMaterial;
 }
 
-/// <summary>
-/// Calls a C# method that is in the COMETwebapp assembly. More Info: https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/call-dotnet-from-javascript?view=aspnetcore-6.0
-/// </summary>
-/// <returns>the same result ad the invoked method</returns>
+/**
+ * Calls a C# method that is in the COMETwebapp assembly. More Info: https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/call-dotnet-from-javascript?view=aspnetcore-6.0
+ * @param {string} methodName - the name of the method to invoke.
+ * @returns {any} the same result as the invoked method.
+ */
 function CallCSharpMethod(methodName) {
     return DotNet.invokeMethod('COMETwebapp', methodName);
 }
 
-/// <summary>
-/// Calls the method to get GUIDs from C#
-/// </summary>
+/**
+ * Call the method to get GUIDs from C#
+ */
 function GetGUID() {
     return CallCSharpMethod('GetGUID');
 }

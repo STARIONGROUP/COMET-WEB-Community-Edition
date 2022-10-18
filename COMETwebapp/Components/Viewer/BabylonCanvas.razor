@@ -22,7 +22,9 @@ Copyright (c) 2022 RHEA System S.A.
 @using COMETwebapp.Componentes.Viewer
 @inherits BabylonCanvasBase
 <div id="canvas-wrap">
-    <canvas id="babylon-canvas" touch-action="none"
+    <canvas @ref=CanvasReference
+            id="babylon-canvas" 
+            touch-action="none"
             @onpointerdown="@OnMouseDown"
             @onpointerup="@OnMouseUp">
     </canvas>

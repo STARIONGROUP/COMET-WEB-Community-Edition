@@ -28,7 +28,7 @@ namespace COMETwebapp.Componentes.Viewer
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
-
+    using CDP4Common.SiteDirectoryData;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
 
@@ -42,6 +42,11 @@ namespace COMETwebapp.Componentes.Viewer
     public class BabylonCanvasBase : ComponentBase
     {
         /// <summary>
+        /// Reference to the HTML5 canvas
+        /// </summary>
+        public ElementReference CanvasReference { get; set; }
+
+        /// <summary>
         /// Tells if the mouse if pressed or not in the canvas component
         /// </summary>
         public bool IsMouseDown { get; private set; } = false;
@@ -50,13 +55,13 @@ namespace COMETwebapp.Componentes.Viewer
         /// Property to inject the JSRuntime and allow C#-JS interop
         /// </summary>
         [Inject] 
-        IJSRuntime JsRuntime { get; set; }
+        IJSRuntime? JsRuntime { get; set; }
 
         /// <summary>
         /// Injected property to get acess to <see cref="ISessionAnchor"/>
         /// </summary>
         [Inject]
-        ISessionAnchor SessionAnchor { get; set; }
+        ISessionAnchor? SessionAnchor { get; set; }
 
         /// <summary>
         /// Invokable method from JS to get a GUID
@@ -87,8 +92,16 @@ namespace COMETwebapp.Componentes.Viewer
 
             if (firstRender)
             {                
-                JSInterop.JsRuntime = JsRuntime;
-                Scene.Init();
+                if(JsRuntime != null)
+                {
+                    JSInterop.JsRuntime = JsRuntime;
+                }
+                else
+                {
+                    throw new Exception("JSRuntime can't be null");
+                }
+                
+                Scene.InitCanvas(this.CanvasReference);
                 InitializeElements();
 
                 AddWorldAxes();
@@ -99,7 +112,7 @@ namespace COMETwebapp.Componentes.Viewer
                 Cube cube = new Cube(-50, 70, 10, 20, 20, 20);
                 cube.SetRotation(1.0, 0.2, 0.1);
                 Scene.AddPrimitive(cube, Color.Red);
-
+                id = cube.ID;
                 CustomPrimitive cp = new CustomPrimitive("./Assets/obj/", "RX2_CUSTOM_BODYKIT.obj");
                 Scene.AddPrimitive(cp);
             }
@@ -110,14 +123,18 @@ namespace COMETwebapp.Componentes.Viewer
         /// </summary>
         private void InitializeElements()
         {
-            var iteration = this.SessionAnchor.OpenIteration;
-            var elementUsages = iteration?.Element.SelectMany(x => x.ContainedElement).ToList();
-
-            if(elementUsages != null)
+            if(this.SessionAnchor != null)
             {
-                foreach (var elementUsage in elementUsages)
+                var iteration = this.SessionAnchor?.OpenIteration;
+
+                var elementUsages = iteration?.Element.SelectMany(x => x.ContainedElement).ToList();
+
+                if (elementUsages != null)
                 {
-                    this.CreateShapeBasedOnElementUsage(elementUsage);
+                    foreach (var elementUsage in elementUsages)
+                    {
+                        this.CreateShapeBasedOnElementUsage(elementUsage);
+                    }
                 }
             }
         }
@@ -135,7 +152,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// Canvas on mouse down event
         /// </summary>
         /// <param name="e">the mouse args of the event</param>
-        public void OnMouseDown(MouseEventArgs e)
+        public async void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
@@ -166,5 +183,7 @@ namespace COMETwebapp.Componentes.Viewer
             Line zAxis = new Line(0, 0, -size, 0, 0, size);
             Scene.AddPrimitive(zAxis, Color.Blue);
         }
+
+        private string id;
     }
 }

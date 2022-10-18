@@ -32,6 +32,8 @@ namespace COMETwebapp
     using COMETwebapp.Primitives;
 
     using Newtonsoft.Json;
+    using System.Net.NetworkInformation;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Static class to access the resources of a Scene 
@@ -49,11 +51,34 @@ namespace COMETwebapp
         private static Dictionary<string, Primitive> primitivesCollection = new Dictionary<string, Primitive>();
 
         /// <summary>
-        /// Inits the canvas, the asociated resources and the render loop.
+        /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public static void Init()
+        public static void InitCanvas(ElementReference canvas)
         {
-            JSInterop.Invoke("InitCanvas");
+            JSInterop.Invoke("InitCanvas", canvas);
+        }
+
+        /// <summary>
+        /// Get the canvas that contains the scene size
+        /// </summary>
+        /// <returns>The canvas size</returns>
+        public static async Task<Vector2> GetCanvasSize()
+        {
+            var result = await JSInterop.Invoke <float[]>("GetCanvasSize");
+            if(result != null && result.Length == 2)
+            {
+                return new Vector2(result[0], result[1]);
+            }            
+            return new Vector2 ();
+        }
+
+        /// <summary>
+        /// Gets a copy of the current primitives on the scene.
+        /// </summary>
+        /// <returns>The list of primitives</returns>
+        public static List<Primitive> GetPrimitives()
+        {
+            return primitivesCollection.Values.ToList();
         }
 
         /// <summary>
@@ -108,11 +133,12 @@ namespace COMETwebapp
         /// Clears the scene deleting the primitives that contains
         /// </summary>
         public static void ClearPrimitives()
-        {
+        {            
             foreach(var id in primitivesCollection.Keys)
             {
                 JSInterop.Invoke("Dispose", id);
             }
+            primitivesCollection.Clear();
         }
 
         /// <summary>
@@ -124,6 +150,7 @@ namespace COMETwebapp
             {
                 JSInterop.Invoke("Dispose", id);
             }
+            temporaryPrimitivesCollection.Clear();
         }
 
         /// <summary>
@@ -137,7 +164,7 @@ namespace COMETwebapp
             {
                 return null;
             }
-            return GetEntityById(id);
+            return GetPrimitiveById(id);
         }
 
         /// <summary>
@@ -146,7 +173,7 @@ namespace COMETwebapp
         /// <param name="id">The Id of the entity</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        private static Primitive GetEntityById(string id)
+        public static Primitive GetPrimitiveById(string id)
         {
             if (!primitivesCollection.ContainsKey(id))
             {
@@ -154,6 +181,54 @@ namespace COMETwebapp
             }
 
             return primitivesCollection[id];
+        }
+
+        /// <summary>
+        /// Sets the position of the primitive with the specified ID
+        /// </summary>
+        /// <param name="Id">the id of the primitive</param>
+        /// <param name="x">translation along X axis</param>
+        /// <param name="y">translation along Y axis</param>
+        /// <param name="z">translation along Z axis</param>
+        public static void SetPrimitivePosition(string Id, double x, double y, double z)
+        {
+            JSInterop.Invoke("SetPrimitivePosition",Id, x, y, z);
+        }
+
+        /// <summary>
+        /// Sets the position of the primitive 
+        /// </summary>
+        /// <param name="primitive">the primitive to sets the position to</param>
+        /// <param name="x">translation along X axis</param>
+        /// <param name="y">translation along Y axis</param>
+        /// <param name="z">translation along Z axis</param>
+        public static void SetPrimitivePosition(Primitive primitive, double x, double y, double z)
+        {
+            SetPrimitivePosition(primitive.ID, x, y, z);
+        }
+
+        /// <summary>
+        /// Sets the rotation of the primitive with the specified ID
+        /// </summary>
+        /// <param name="Id">the id of the primitive</param>
+        /// <param name="rx">rotation around X axis</param>
+        /// <param name="ry">rotation around Y axis</param>
+        /// <param name="rz">rotation around Z axis</param>
+        public static void SetPrimitiveRotation(string Id, double rx, double ry, double rz)
+        {
+            JSInterop.Invoke("SetPrimitiveRotation", Id, rx, ry, rz);
+        }
+
+        /// <summary>
+        /// Sets the rotation of the primitive
+        /// </summary>
+        /// <param name="primitive">the primitive to sets the rotation to</param>
+        /// <param name="rx">rotation around X axis</param>
+        /// <param name="ry">rotation around Y axis</param>
+        /// <param name="rz">rotation around Z axis</param>
+        public static void SetPrimitiveRotation(Primitive primitive, double rx, double ry, double rz)
+        {
+            SetPrimitiveRotation(primitive.ID, rx, ry, rz);
         }
 
         /// <summary>
@@ -185,17 +260,38 @@ namespace COMETwebapp
         }
 
         /// <summary>
-        /// Tries to get the world coordinates of the specified coordinates. A ray is projected from the specified screen coordinates.
+        /// Tries to get the world coordinates from the specified screen coordinates. A ray is projected from the specified screen coordinates.
         /// If the ray don't collide with a mesh it is not posible to compute the world coordinates. <see cref="https://learnopengl.com/Getting-started/Coordinate-Systems"/>
         /// </summary>
         /// <param name="x">the x coordinate in screen coordinates</param>
         /// <param name="y">the y coordinate in screen coordinates</param>
-        /// <param name="worldCoords">the computed world coordinates</param>
-        /// <returns>True if the computation is successful, false otherwise</returns>
-        public static async Task<Vector3?> TryGetWorldCoordinates(double x, double y)
+        public static async Task<Vector3?> GetWorldCoordinates(double x, double y)
         {
-            var result = await JSInterop.Invoke<float[]>("TryGetWorldCoordinates", x, y);
-            return new Vector3(result[0], result[1], result[2]);
+            var result = await JSInterop.Invoke<float[]>("GetWorldCoordinates", x, y);
+            if(result != null && result.Length == 3)
+            {
+                return new Vector3(result[0], result[1], result[2]);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to get the screen coordinates from the specified world coordinates.
+        /// </summary>
+        /// <param name="x">the x coordinate in world coordinates</param>
+        /// <param name="y">the y coordinate in world coordinates</param>
+        /// <param name="z">the z coordinate in world coordinates</param>
+        /// <returns></returns>
+        public static async Task<Vector2?> GetScreenCoordinates(double x, double y, double z)
+        {
+            var result = await JSInterop.Invoke<float[]>("GetScreenCoordinates", x, y, z);
+            if (result != null && result.Length == 2)
+            {
+                return new Vector2(result[0], result[1]);
+            }
+
+            return null;
         }
     }
 }

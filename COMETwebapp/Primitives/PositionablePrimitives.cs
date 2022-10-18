@@ -71,7 +71,7 @@ namespace COMETwebapp.Primitives
             this.X += x;
             this.Y += y;
             this.Z += z;
-            JSInterop.Invoke("SetTranslation", this.ID, this.X, this.Y, this.Z);
+            Scene.SetPrimitiveRotation(this, this.X, this.Y, this.Z);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace COMETwebapp.Primitives
             this.RX += rx;
             this.RY += ry;
             this.RZ += rz;
-            JSInterop.Invoke("SetRotation", this.ID, this.RX, this.RY, this.RZ);
+            Scene.SetPrimitiveRotation(this, this.RX, this.RY, this.RZ);
         }
 
         /// <summary>

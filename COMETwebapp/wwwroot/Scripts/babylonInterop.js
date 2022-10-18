@@ -22,73 +22,119 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-/// <summary>
-/// Skybox size, used for the cube that surrounds the scene.
-/// </summary>
+/**
+ * Skybox size, used for the cube that surrounds the scene.
+ * @type {number}
+ */
 const SkyboxSize = 1400.0;
 
-/// <summary>
-/// Camera rotation sensibility. A higher number means that the angle of rotation per mouse displacement is fewer.
-/// </summary>
+/**
+ * Camera rotation sensibility. A higher number means that the angle of rotation per mouse displacement is fewer.
+ * @type {number}
+ */
 const CameraRotationSensibility = 900.0;
 
-/// <summary>
-/// Camera panning sensibility. A higher number means that the panning distance per mouse displacement is fewer.
-/// </summary>
+/**
+ * Camera panning sensibility. A higher number means that the panning distance per mouse displacement is fewer.
+ * @type {number}
+ */
 const CameraPanningSensibility = 100;
 
-/// <summary>
-/// Camera zoom sensibility. A higher number means that the zoom per mouse wheel displacement is fewer.
-/// </summary>
+/**
+ * Camera zoom sensibility. A higher number means that the zoom per mouse wheel displacement is fewer.
+ * @type {number}
+ */
 const CameraZoomSensibility = 0.3;
 
-/// <summary>
-/// The Inertia of the camera. Used to interpolate animations.
-/// </summary>
+/**
+ * Camera inertia. Used to interpolate between animations. 
+ * @type {number}
+ */
 const CameraInertia = 0.1;
 
-/// <summary>
-/// The Babylon.JS Scene
-/// </summary>
+/**
+ * The babylon.js scene.
+ * @type {BABYLON.JS Scene}
+ */
 var Scene;
 
-/// <summary>
-/// A list of the primitives that the scene contains.
-/// </summary>
+/**
+ * A list of the primitives that the scene contains.
+ * @type {Map}
+ */
 var Primitives = new Map();
 
-/// <summary>
-/// The material used when a primitive is picked.
-/// </summary>
+/**
+ * Picking material used when a primitive is hover with the mouse.
+ * @type {BABYLON.js material}
+ */
 var PickingMaterial;
 
-/// <summary>
-/// The panel used for displaying primitive's details in the window.
-/// </summary>
+/**
+ * The panel used for displaying primitive's details in the window.
+ * @type {HTMLElement}
+ */
 var DetailsPanel;
 
-/// <summary>
-/// Scene specular color. More Info: https://learnopengl.com/Lighting/Basic-Lighting
-/// </summary>
+/**
+ * Scene specular color. 
+ * @type {BABYLON.js Color}
+ */
 var SceneSpecularColor;
 
-/// <summary>
-/// Scene emissive color. More Info: https://learnopengl.com/Lighting/Basic-Lighting
-/// </summary>
+/**
+ * Scene emissive color. 
+ * @type {BABYLON.js Color}
+ */
 var SceneEmissiveColor;
 
-/// <summary>
-/// Scene ambient color. More Info: https://learnopengl.com/Lighting/Basic-Lighting
-/// </summary>
+/**
+ * Scene ambient color. 
+ * @type {BABYLON.js Color}
+ */
 var SceneAmbientColor;
 
-/// <summary>
-/// Inits the babylon.js canvas, the asociated resources and starts the render loop.
-/// </summary>
-function InitCanvas() {
-    var BabylonCanvas = document.getElementById("babylon-canvas");
-    var BabylonEngine = new BABYLON.Engine(BabylonCanvas, true, { stencil: true, antialias: true });
+/**
+ * The HTML5 canvas where the scene is drawn.
+ * @type {HTMLCanvasElement}
+ */
+var BabylonCanvas;
+
+/**
+ * The Babylon Camera
+ * @type {Babylon.js Camera}
+ */
+var Camera;
+
+/**
+ * The Babylon Engine
+ * @type {Babylon.js Engine}
+ */
+var BabylonEngine;
+
+/**
+ * Inits the babylon.js scene on the canvas, the asociated resources and starts the render loop.
+ * @param {HTMLCanvasElement} canvas - the canvas the scene it's attached to.
+ */
+function InitCanvas(canvas) {
+
+    if (canvas == null || canvas == undefined) {
+        throw "The canvas can't be null or undefined";
+    }
+
+    BabylonCanvas = canvas;
+    BabylonEngine = new BABYLON.Engine(BabylonCanvas, true, { stencil: true, antialias: true });
+
+    if (BabylonEngine == null || BabylonEngine == undefined) {
+        throw "The babylon engine cannot be initialized";
+    }
+
     Scene = CreateScene(BabylonEngine, BabylonCanvas);
+
+    if (Scene == null || Scene == undefined) {
+        throw "The scene cannot be initialized";
+    }
+
     CreateSkybox(Scene, SkyboxSize);
 
     PickingMaterial = SetUpPickingMaterial();
@@ -107,68 +153,20 @@ function InitCanvas() {
     });
 };
 
-/// <summary>
-/// Creates the babylon.js scene.
-/// </summary>
-/// <param name="engine">the babylon.js engine</param>
-/// <param name="canvas">the HTML5 canvas to attach the scene</param>
-/// <returns>The babylon.js scene</returns>
-function CreateScene (engine, canvas) {
-    var scene = new BABYLON.Scene(engine);
-    scene.clearColor = new BABYLON.Color3(0.98, 0.98, 0.98);
-
-    var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
-    camera.setPosition(new BABYLON.Vector3(200, 100, -300));
-    camera.attachControl(canvas, true);
-    camera.lowerRadiusLimit = 5;
-    camera.upperRadiusLimit = SkyboxSize / 2.0;
-    camera.inertia = CameraInertia;
-    camera.panningInertia = CameraInertia;
-    camera.angularSensibilityX = camera.angularSensibilityY = CameraRotationSensibility;
-    camera.panningSensibility = CameraPanningSensibility;
-    camera.wheelPrecision = CameraZoomSensibility;
-   
-    var light1 = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0), scene);
-    
-    return scene;
-};
-
-/// <summary>
-/// Gets the ID of the primitive that is under the mouse cursor.
-/// </summary>
-/// <returns>The ID of the primitive or null if there is no primitive under mouse cursor</returns>
-function GetPrimitiveIDUnderMouse() {
-    var hit = Scene.pick(Scene.pointerX, Scene.pointerY)
-    var pickedMesh = hit.pickedMesh;
-
-    if (pickedMesh.CometID != "Skybox")
-    {
-        return pickedMesh.CometID;
-    }
-
-    return null;
+/**
+ * Gets the scene size
+ * @returns the size in the format [width,height]
+ */
+function GetCanvasSize() {
+    console.log(BabylonCanvas.width, BabylonCanvas.height);
+    return [BabylonCanvas.width, BabylonCanvas.height];
 }
 
-/// <summary>
-/// Registers the mesh so it can be selected by the mouse in real time.
-/// </summary>
-/// <param name="mesh">the mesh to register</param>
-function RegisterMeshActions(mesh) {
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger,  mesh.material, "emissiveColor", mesh.material.emissiveColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "emissiveColor", PickingMaterial.emissiveColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger,  mesh.material, "diffuseColor",  mesh.material.diffuseColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "diffuseColor",  PickingMaterial.diffuseColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger,  mesh.material, "specularColor", mesh.material.specularColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "specularColor", PickingMaterial.specularColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger,  mesh.material, "ambientColor",  mesh.material.ambientColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "ambientColor",  PickingMaterial.ambientColor));
-}
-
-/// <summary>
-/// Adds the primitive with the specified color to the scene.
-/// </summary>
-/// <param name="primitive">a JSON string representation of the primitive</param>
-/// <param name="color">a JSON string representation of the color</param>
+/**
+ * Adds the primitive with the specified color to the scene.
+ * @param {any} primitive - a JSON string representation of the primitive.
+ * @param {any} color - a JSON string representation of the color.
+ */
 function AddPrimitive(primitive, color) {
     //Convert to JSON the parameters
     primitive = JSON.parse(primitive);
@@ -191,139 +189,57 @@ function AddPrimitive(primitive, color) {
     }
 }
 
-/// <summary>
-/// Creates a line primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function CreateLine(primitive, color) {
-    const lpoints = [
-        new BABYLON.Vector3(primitive.P0.X, primitive.P0.Y, primitive.P0.Z),
-        new BABYLON.Vector3(primitive.P1.X, primitive.P1.Y, primitive.P1.Z)
-    ];
-    var line = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
-    line.color = new BABYLON.Color3(color.X, color.Y, color.Z);
-}
-
-/// <summary>
-/// Creates a box primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function CreateBox(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: primitive.Height, depth: primitive.Depth }, Scene);
-    InitializePrimitiveData(mesh, primitive, color);
-}
-
-/// <summary>
-/// Creates a sphere primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function CreateSphere(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: primitive.Radius * 2.0 }, Scene);
-    InitializePrimitiveData(mesh, primitive, color);
-}
-
-/// <summary>
-/// Creates a cylinder primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function CreateCylinder(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
-    InitializePrimitiveData(mesh, primitive, color);
-}
-
-/// <summary>
-/// Creates a cone primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function CreateCone(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height }, Scene);
-    InitializePrimitiveData(mesh, primitive, color);
-}
-
-/// <summary>
-/// Creates a torus primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function CreateTorus(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateTorus("torus", { diameter: primitive.Diameter, thickness: primitive.Thickness, tessellation : 36 }, Scene);
-    InitializePrimitiveData(mesh, primitive, color);
-}
-
-/// <summary>
-/// Creates a custom primitive.
-/// </summary>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-async function LoadPrimitive(primitive, color) {
-    var path = primitive.Path;
-    var fileName = primitive.FileName;
-
-    const result = await BABYLON.SceneLoader.ImportMeshAsync(null, path, fileName, Scene);
-    var meshes = result.meshes;
-
-    for (let i = 0; i < meshes.length; i++) {
-        InitializePrimitiveData(meshes[i], primitive, color);
-    }
-}
-
-/// <summary>
-/// Initializes and creates important data for the primitives
-/// </summary>
-/// <param name="mesh">the babylon.js mesh</param>
-/// <param name="primitive">the primitive in JSON format</param>
-/// <param name="color">the color in JSON format</param>
-function InitializePrimitiveData(mesh, primitive, color) {
-
-    if (primitive.hasOwnProperty("Subtype") && primitive.Subtype == "Positionable") {
-        mesh.position.x = primitive.X;
-        mesh.position.y = primitive.Y;
-        mesh.position.z = primitive.Z;
-
-        mesh.rotation.x = primitive.RX;
-        mesh.rotation.y = primitive.RY;
-        mesh.rotation.z = primitive.RZ;
-    }
-
-    var babylonMaterial = CreateMaterial(color, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
-    mesh.material = babylonMaterial;
-
-    mesh.actionManager = new BABYLON.ActionManager(Scene);
-    RegisterMeshActions(mesh);
-
-    //Custom properties for the object
-    mesh.CometID = primitive.ID;
-    mesh.Materials = [mesh.material, PickingMaterial];
-
-    Primitives.set(primitive.ID, { "mesh": mesh, "primitive": primitive });
-}
-
-/// <summary>
-/// Removes the primitive with id from the scene.
-/// </summary>
-/// <param name="Id">the Id of the primitive to delete</param>
-function Dispose(Id) {
-    var data = Primitives.get(Id);
+/**
+ * Removes the primitive with the specified ID from the scene.
+ * @param {number} ID - the ID of the primitive to delete.
+ */
+function Dispose(ID) {
+    var data = Primitives.get(ID);
     var mesh = data["mesh"];
     if (mesh != null) {
         mesh.dispose();
     }
 }
 
-/// <summary>
-/// Sets the translation of the primitive with id.
-/// </summary>
-/// <param name="Id">the Id of the primitive to delete</param>
-/// <param name="x">the translation along the x axis</param>
-/// <param name="y">the translation along the y axis</param>
-/// <param name="z">the translation along the z axis</param>
-function SetTranslation(Id, x, y, z) {    
+/**
+ * Get the ID of the primitive that is under the mouse cursor.
+ * @returns {string} the ID.
+ */
+function GetPrimitiveIDUnderMouse() {
+    var hit = Scene.pick(Scene.pointerX, Scene.pointerY)
+    var pickedMesh = hit.pickedMesh;
+
+    if (pickedMesh.CometID != "Skybox") {
+        return pickedMesh.CometID;
+    }
+
+    return null;
+}
+
+/**
+ * Get the primitive by the ID
+ * @param {any} Id - the Id of the primitive to retrieve
+ * @returns {any} - the primitive if the ID is valid, null otherwise
+ */
+function GetPrimitiveByID(Id) {
     var data = Primitives.get(Id);
+    if (data != undefined) {
+        var primitiveData = data["primitive"];
+        var primitiveString = JSON.stringify(data["primitive"]);
+        return [primitiveData.Type, primitiveString]; 
+    }
+    return null;
+}
+
+/**
+ * Sets the translation of the primitive with the specified ID
+ * @param {number} ID - the ID of the primitive to translate.
+ * @param {number} x - translation along the X axis
+ * @param {number} y - translation along the Y axis
+ * @param {number} z - translation along the Z axis
+ */
+function SetPrimitivePosition(ID, x, y, z) {    
+    var data = Primitives.get(ID);
     if (data != undefined) {
         var mesh = data["mesh"];
         mesh.position.x = x;
@@ -332,14 +248,14 @@ function SetTranslation(Id, x, y, z) {
     }
 }
 
-/// <summary>
-/// Sets the rotation of the primitive with id.
-/// </summary>
-/// <param name="Id">the Id of the primitive to delete</param>
-/// <param name="x">the rotation around the x axis</param>
-/// <param name="y">the rotation around the y axis</param>
-/// <param name="z">the rotation around the z axis</param>
-function SetRotation(Id, rx, ry, rz) {
+/**
+ * Sets the rotation of the primitive with the specified ID
+ * @param {number} Id - the ID of the primitive to rotate.
+ * @param {number} rx - the rotation around X axis
+ * @param {number} ry - the rotation around Y axis
+ * @param {number} rz - the rotation around Z axis
+ */
+function SetPrimitiveRotation(Id, rx, ry, rz) {
     var data = Primitives.get(Id);
     if (data != undefined) {
         var mesh = data["mesh"];
@@ -349,20 +265,20 @@ function SetRotation(Id, rx, ry, rz) {
     }
 }
 
-/// <summary>
-/// Sets the position of the details panel.
-/// </summary>
-/// <param name="x">the translation along the x axis in screen coordinates</param>
-/// <param name="y">the translation along the y axis in screen coordinates</param>
+/**
+ * Sets the position of the details panel.
+ * @param {number} x - translation along X axis in screen coordinates (px)
+ * @param {number} y - translation along Y axis in screen coordinates (px)
+ */
 function SetPanelPosition(x, y) {
     DetailsPanel.style.left = x + 'px';
     DetailsPanel.style.top = y + 'px';
 }
 
-/// <summary>
-/// Sets the visibility of the details panel.
-/// </summary>
-/// <param name="visible">the new visibility of the panel</param>
+/**
+ * Sets the visibility of the details panel.
+ * @param {boolean} visible - the new visibility of the panel.
+ */
 function SetPanelVisibility(visible) {
     if (visible) {
         DetailsPanel.style.display = 'block';
@@ -371,23 +287,43 @@ function SetPanelVisibility(visible) {
     }
 }
 
-/// <summary>
-/// Sets the content of the panel
-/// </summary>
-/// <param name="content">the content of the panel in HTML5 format</param>
+/**
+ * Sets the content of the panel.
+ * @param {HTMLElement} content - the content of the panel in HTML5 format.
+ */
 function SetPanelContent(content) {
     DetailsPanel.innerHTML = content;
 }
 
-/// <summary>
-/// Tries to get the world coordinates of the mouse cursor.
-/// </summary>
-/// <returns>An array of type [x,y,z] is the transformation can be done, null otherwise</returns>
-function TryGetWorldCoordinates(x, y) {
+/**
+ * Tries to get the world coordinates of the mouse cursor.
+ * @param {number} x
+ * @param {number} y
+ * @returns {Array} - An array of type [x,y,z] if the transformation is done, null otherwi
+ */
+function GetWorldCoordinates(x, y) {
     var hit = Scene.pick(x, y);
     if (hit.pickedMesh.CometID != 'Skybox') {
         var pt = hit.pickedPoint;
         return [pt._x, pt._y, pt._z];
     }
     return null;
+}
+
+/**
+ * Get the screen coordinates by projecting the specified world coordinates
+ * @param {number} x - the world X coordinate
+ * @param {number} y - the world Y coordinate
+ * @param {number} z - the world Z coordinate
+ * @returns {Array} - Array of type [x,y] with the screen coordinates
+ */
+function GetScreenCoordinates(x,y,z) {
+    var coordinates = BABYLON.Vector3.Project(new BABYLON.Vector3(x,y,z),
+        BABYLON.Matrix.Identity(),
+        Scene.getTransformMatrix(),
+        Camera.viewport.toGlobal(
+            BabylonEngine.getRenderWidth(),
+            BabylonEngine.getRenderHeight(),
+        ));
+    return [coordinates.x, coordinates.y];
 }
