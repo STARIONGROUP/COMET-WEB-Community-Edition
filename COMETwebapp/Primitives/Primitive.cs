@@ -49,7 +49,7 @@ namespace COMETwebapp.Primitives
         /// Sets the diffuse color of this primitive.
         /// </summary>
         /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async void SetPrimitiveDiffuseColor(Vector3 color)
+        public async Task SetPrimitiveDiffuseColor(Vector3 color)
         {
             await JSInterop.Invoke("SetDiffuseColor", this.ID, color.X, color.Y, color.Z);
         }
@@ -58,7 +58,7 @@ namespace COMETwebapp.Primitives
         /// Sets the specular color of this primitive.
         /// </summary>
         /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async void SetPrimitiveSpecularColor(Vector3 color)
+        public async Task SetPrimitiveSpecularColor(Vector3 color)
         {
             await JSInterop.Invoke("SetSpecularColor", this.ID, color.X, color.Y, color.Z);
         }
@@ -67,7 +67,7 @@ namespace COMETwebapp.Primitives
         /// Sets the emissive color of this primitive.
         /// </summary>
         /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async void SetPrimitiveEmissiveColor(Vector3 color)
+        public async Task SetPrimitiveEmissiveColor(Vector3 color)
         {
             await JSInterop.Invoke("SetEmissiveColor", this.ID, color.X, color.Y, color.Z);
         }
@@ -76,7 +76,7 @@ namespace COMETwebapp.Primitives
         /// Sets the ambient color of this primitive.
         /// </summary>
         /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async void SetPrimitiveAmbientColor(Vector3 color)
+        public async Task SetPrimitiveAmbientColor(Vector3 color)
         {
             await JSInterop.Invoke("SetAmbientColor", this.ID, color.X, color.Y, color.Z);
         }

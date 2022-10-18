@@ -56,61 +56,61 @@ const CameraInertia = 0.1;
  * The babylon.js scene.
  * @type {BABYLON.JS Scene}
  */
-var Scene;
+let Scene;
 
 /**
  * A list of the primitives that the scene contains.
  * @type {Map}
  */
-var Primitives = new Map();
+let Primitives = new Map();
 
 /**
  * Picking material used when a primitive is hover with the mouse.
  * @type {BABYLON.js material}
  */
-var PickingMaterial;
+let PickingMaterial;
 
 /**
  * The panel used for displaying primitive's details in the window.
  * @type {HTMLElement}
  */
-var DetailsPanel;
+let DetailsPanel;
 
 /**
  * Scene specular color. 
  * @type {BABYLON.js Color}
  */
-var SceneSpecularColor;
+let SceneSpecularColor;
 
 /**
  * Scene emissive color. 
  * @type {BABYLON.js Color}
  */
-var SceneEmissiveColor;
+let SceneEmissiveColor;
 
 /**
  * Scene ambient color. 
  * @type {BABYLON.js Color}
  */
-var SceneAmbientColor;
+let SceneAmbientColor;
 
 /**
  * The HTML5 canvas where the scene is drawn.
  * @type {HTMLCanvasElement}
  */
-var BabylonCanvas;
+let BabylonCanvas;
 
 /**
  * The Babylon Camera
  * @type {Babylon.js Camera}
  */
-var Camera;
+let Camera;
 
 /**
  * The Babylon Engine
  * @type {Babylon.js Engine}
  */
-var BabylonEngine;
+let BabylonEngine;
 
 /**
  * Inits the babylon.js scene on the canvas, the asociated resources and starts the render loop.
