@@ -98,7 +98,7 @@ namespace COMETwebapp.Componentes.Viewer
                 }
                 else
                 {
-                    throw new Exception("JSRuntime can't be null");
+                    throw new JSException("JSRuntime can't be null");
                 }
                 
                 Scene.InitCanvas(this.CanvasReference);
@@ -112,7 +112,6 @@ namespace COMETwebapp.Componentes.Viewer
                 Cube cube = new Cube(-50, 70, 10, 20, 20, 20);
                 cube.SetRotation(1.0, 0.2, 0.1);
                 Scene.AddPrimitive(cube, Color.Red);
-                id = cube.ID;
                 CustomPrimitive cp = new CustomPrimitive("./Assets/obj/", "RX2_CUSTOM_BODYKIT.obj");
                 Scene.AddPrimitive(cp);
             }
@@ -152,7 +151,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// Canvas on mouse down event
         /// </summary>
         /// <param name="e">the mouse args of the event</param>
-        public async void OnMouseDown(MouseEventArgs e)
+        public void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
@@ -183,7 +182,5 @@ namespace COMETwebapp.Componentes.Viewer
             Line zAxis = new Line(0, 0, -size, 0, 0, size);
             Scene.AddPrimitive(zAxis, Color.Blue);
         }
-
-        private string id;
     }
 }

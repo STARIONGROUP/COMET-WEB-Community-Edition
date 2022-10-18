@@ -28,7 +28,7 @@
  * @param {HTMLElement} canvas - the HTML5 Canvas element.
  */
 function CreateScene(engine, canvas) {
-    var scene = new BABYLON.Scene(engine);
+    const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color3(0.98, 0.98, 0.98);
 
     Camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
@@ -42,7 +42,7 @@ function CreateScene(engine, canvas) {
     Camera.panningSensibility = CameraPanningSensibility;
     Camera.wheelPrecision = CameraZoomSensibility;
 
-    var light1 = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0), scene);
+    let light1 = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0), scene);
 
     return scene;
 };
@@ -72,7 +72,7 @@ function CreateLine(primitive, color) {
         new BABYLON.Vector3(primitive.P0.X, primitive.P0.Y, primitive.P0.Z),
         new BABYLON.Vector3(primitive.P1.X, primitive.P1.Y, primitive.P1.Z)
     ];
-    var line = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    let line = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
     line.color = new BABYLON.Color3(color.X, color.Y, color.Z);
 }
 
@@ -82,7 +82,7 @@ function CreateLine(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateBox(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: primitive.Height, depth: primitive.Depth }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: primitive.Height, depth: primitive.Depth }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -92,7 +92,7 @@ function CreateBox(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateSphere(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: primitive.Radius * 2.0 }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: primitive.Radius * 2.0 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -102,7 +102,7 @@ function CreateSphere(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateCylinder(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -112,7 +112,7 @@ function CreateCylinder(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateCone(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -122,7 +122,7 @@ function CreateCone(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateTorus(primitive, color) {
-    var mesh = BABYLON.MeshBuilder.CreateTorus("torus", { diameter: primitive.Diameter, thickness: primitive.Thickness, tessellation: 36 }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateTorus("torus", { diameter: primitive.Diameter, thickness: primitive.Thickness, tessellation: 36 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -132,11 +132,11 @@ function CreateTorus(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 async function LoadPrimitive(primitive, color) {
-    var path = primitive.Path;
-    var fileName = primitive.FileName;
+    let path = primitive.Path;
+    let fileName = primitive.FileName;
 
     const result = await BABYLON.SceneLoader.ImportMeshAsync(null, path, fileName, Scene);
-    var meshes = result.meshes;
+    let meshes = result.meshes;
 
     for (let i = 0; i < meshes.length; i++) {
         InitializePrimitiveData(meshes[i], primitive, color);
@@ -161,7 +161,7 @@ function InitializePrimitiveData(mesh, primitive, color) {
         mesh.rotation.z = primitive.RZ;
     }
 
-    var babylonMaterial = CreateMaterial(color, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
+    let babylonMaterial = CreateMaterial(color, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
     mesh.material = babylonMaterial;
 
     mesh.actionManager = new BABYLON.ActionManager(Scene);
@@ -172,4 +172,53 @@ function InitializePrimitiveData(mesh, primitive, color) {
     mesh.Materials = [mesh.material, PickingMaterial];
 
     Primitives.set(primitive.ID, { "mesh": mesh, "primitive": primitive });
+}
+
+/**
+ * Creates a babylon.js material from the specified colors. For more info of the colors: https://learnopengl.com/Lighting/Basic-Lighting
+ * @param {Vector3} diffuse - the diffuse color
+ * @param {Vector3} specular - the specular color.
+ * @param {Vector3} emissive - the emissive color
+ * @param {Vector3} ambient - the ambient global ilumination color.
+ * @param {string} materialName - the name of the new material.
+ * @param {BABYLON.js scene} scene - the scene to add the material to.
+ * @returns {BABYLON.js Material} 
+ */
+function CreateMaterial(diffuse, specular, emissive, ambient, materialName, scene) {
+    let babylonMaterial = new BABYLON.StandardMaterial(materialName, scene);
+    babylonMaterial.diffuseColor = new BABYLON.Color3(diffuse.X, diffuse.Y, diffuse.Z);
+    babylonMaterial.specularColor = new BABYLON.Color3(specular.X, specular.Y, specular.Z);
+    babylonMaterial.emissiveColor = new BABYLON.Color3(emissive.X, emissive.Y, emissive.Z);
+    babylonMaterial.ambientColor = new BABYLON.Color3(ambient.X, ambient.Y, ambient.Z);
+    return babylonMaterial;
+}
+
+/**
+ * Creates an skybox. Sky with texture for the background.
+ * @param {BABYLON.js scene} scene - the scene to add the skybox to.
+ * @param {number} size - the size of the scene.
+ */
+function CreateSkybox(scene, size) {
+    let skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: size }, scene);
+    skybox.CometID = "Skybox";
+    let skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("../Skybox/sky", scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+}
+
+/**
+ * Creates the picking material used in the scene.
+ * @returns {BABYLON.js material} - the material to use.
+ */
+function SetUpPickingMaterial() {
+    let pickingMaterial = new BABYLON.StandardMaterial("PickingMaterial", Scene);
+    pickingMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.35, 0.35);
+    pickingMaterial.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
+    pickingMaterial.emissiveColor = new BABYLON.Color3(0.15, 0.15, 0.15);
+    pickingMaterial.ambientColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+    return pickingMaterial;
 }

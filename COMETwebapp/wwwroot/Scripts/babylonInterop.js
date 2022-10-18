@@ -158,7 +158,6 @@ function InitCanvas(canvas) {
  * @returns the size in the format [width,height]
  */
 function GetCanvasSize() {
-    console.log(BabylonCanvas.width, BabylonCanvas.height);
     return [BabylonCanvas.width, BabylonCanvas.height];
 }
 
@@ -194,10 +193,12 @@ function AddPrimitive(primitive, color) {
  * @param {number} ID - the ID of the primitive to delete.
  */
 function Dispose(ID) {
-    var data = Primitives.get(ID);
-    var mesh = data["mesh"];
-    if (mesh != null) {
-        mesh.dispose();
+    if (Primitives.size > 0) {
+        let data = Primitives.get(ID);
+        let mesh = data["mesh"];
+        if (mesh != null) {
+            mesh.dispose();
+        }
     }
 }
 
@@ -206,8 +207,8 @@ function Dispose(ID) {
  * @returns {string} the ID.
  */
 function GetPrimitiveIDUnderMouse() {
-    var hit = Scene.pick(Scene.pointerX, Scene.pointerY)
-    var pickedMesh = hit.pickedMesh;
+    let hit = Scene.pick(Scene.pointerX, Scene.pointerY)
+    let pickedMesh = hit.pickedMesh;
 
     if (pickedMesh.CometID != "Skybox") {
         return pickedMesh.CometID;
@@ -222,11 +223,13 @@ function GetPrimitiveIDUnderMouse() {
  * @returns {any} - the primitive if the ID is valid, null otherwise
  */
 function GetPrimitiveByID(Id) {
-    var data = Primitives.get(Id);
-    if (data != undefined) {
-        var primitiveData = data["primitive"];
-        var primitiveString = JSON.stringify(data["primitive"]);
-        return [primitiveData.Type, primitiveString]; 
+    if (Primitives.size > 0) {
+        let data = Primitives.get(Id);
+        if (data != undefined) {
+            let primitiveData = data["primitive"];
+            let primitiveString = JSON.stringify(data["primitive"]);
+            return [primitiveData.Type, primitiveString];
+        }
     }
     return null;
 }
@@ -238,13 +241,15 @@ function GetPrimitiveByID(Id) {
  * @param {number} y - translation along the Y axis
  * @param {number} z - translation along the Z axis
  */
-function SetPrimitivePosition(ID, x, y, z) {    
-    var data = Primitives.get(ID);
-    if (data != undefined) {
-        var mesh = data["mesh"];
-        mesh.position.x = x;
-        mesh.position.y = y;
-        mesh.position.z = z;
+function SetPrimitivePosition(ID, x, y, z) {
+    if (Primitives.size > 0) {
+        let data = Primitives.get(ID);
+        if (data != undefined) {
+            let mesh = data["mesh"];
+            mesh.position.x = x;
+            mesh.position.y = y;
+            mesh.position.z = z;
+        }
     }
 }
 
@@ -256,12 +261,14 @@ function SetPrimitivePosition(ID, x, y, z) {
  * @param {number} rz - the rotation around Z axis
  */
 function SetPrimitiveRotation(Id, rx, ry, rz) {
-    var data = Primitives.get(Id);
-    if (data != undefined) {
-        var mesh = data["mesh"];
-        mesh.rotation.x = rx;
-        mesh.rotation.y = ry;
-        mesh.rotation.z = rz;
+    if (Primitives.size > 0) {
+        let data = Primitives.get(Id);
+        if (data != undefined) {
+            let mesh = data["mesh"];
+            mesh.rotation.x = rx;
+            mesh.rotation.y = ry;
+            mesh.rotation.z = rz;
+        }
     }
 }
 
@@ -302,9 +309,9 @@ function SetPanelContent(content) {
  * @returns {Array} - An array of type [x,y,z] if the transformation is done, null otherwi
  */
 function GetWorldCoordinates(x, y) {
-    var hit = Scene.pick(x, y);
+    let hit = Scene.pick(x, y);
     if (hit.pickedMesh.CometID != 'Skybox') {
-        var pt = hit.pickedPoint;
+        let pt = hit.pickedPoint;
         return [pt._x, pt._y, pt._z];
     }
     return null;
@@ -318,7 +325,7 @@ function GetWorldCoordinates(x, y) {
  * @returns {Array} - Array of type [x,y] with the screen coordinates
  */
 function GetScreenCoordinates(x,y,z) {
-    var coordinates = BABYLON.Vector3.Project(new BABYLON.Vector3(x,y,z),
+    let coordinates = BABYLON.Vector3.Project(new BABYLON.Vector3(x,y,z),
         BABYLON.Matrix.Identity(),
         Scene.getTransformMatrix(),
         Camera.viewport.toGlobal(
