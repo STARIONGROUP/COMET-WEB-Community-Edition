@@ -105,15 +105,6 @@ namespace COMETwebapp.Componentes.Viewer
                 InitializeElements();
 
                 AddWorldAxes();
-
-                Scene.AddPrimitive(new Cube(5, 10, 15), Color.Yellow);
-                Scene.AddPrimitive(new Torus(70, 50, 0, 20, 10), Color.Blue);
-
-                Cube cube = new Cube(-50, 70, 10, 20, 20, 20);
-                cube.SetRotation(1.0, 0.2, 0.1);
-                Scene.AddPrimitive(cube, Color.Red);
-                CustomPrimitive cp = new CustomPrimitive("./Assets/obj/", "RX2_CUSTOM_BODYKIT.obj");
-                Scene.AddPrimitive(cp);
             }
         }
 
@@ -122,29 +113,45 @@ namespace COMETwebapp.Componentes.Viewer
         /// </summary>
         private void InitializeElements()
         {
-            if(this.SessionAnchor != null)
+            var iteration = this.SessionAnchor?.OpenIteration;
+
+            var elementUsages = this.SessionAnchor?.OpenIteration?.Element.SelectMany(ed => ed.ContainedElement).OrderBy(x=>x.Name).ToList();
+            
+            if(elementUsages is not null)
             {
-                var iteration = this.SessionAnchor?.OpenIteration;
-
-                var elementUsages = iteration?.Element.SelectMany(x => x.ContainedElement).ToList();
-
-                if (elementUsages != null)
+                foreach (var elementUsage in elementUsages)
                 {
-                    foreach (var elementUsage in elementUsages)
+                    var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.Name == "Shape kind"
+                                          && x.ParameterType is EnumerationParameterType
+                                          || x.ParameterType is TextParameterType);
+
+                    Primitive basicShape = null;
+                    if (parameter is not null)
                     {
-                        this.CreateShapeBasedOnElementUsage(elementUsage);
+                        string? shapekind = parameter?.ExtractActualValues(1).First();
+                        switch (shapekind?.ToLowerInvariant())
+                        {
+                            case "box": basicShape = new Cube(1, 1, 1); break;
+                        }
+                    }
+                    parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.Name == "Position"
+                                                          && x.ParameterType is CompoundParameterType);
+
+                    string[]? translations = parameter?.ExtractActualValues(3);
+                    if (basicShape is PositionablePrimitives positionablePrim && translations is not null)
+                    {
+                        var x = double.Parse(translations[0]);
+                        var y = double.Parse(translations[1]);
+                        var z = double.Parse(translations[2]);
+                        positionablePrim.SetTranslation(x, y, z);
+                    }
+
+                    if (basicShape is not null)
+                    {
+                        Scene.AddPrimitive(basicShape);
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Creates a shape for the scene based on the element usage
-        /// </summary>
-        /// <param name="elementUsage">The element usage used for creating the shape</param>
-        private void CreateShapeBasedOnElementUsage(ElementUsage elementUsage)
-        {
-            //TODO: based on element usage information create a basic shape type and add it to scene.
         }
 
         /// <summary>

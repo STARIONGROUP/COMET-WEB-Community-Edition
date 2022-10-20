@@ -93,8 +93,8 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public void ResetTransformations()
         {
-            ResetRotation();
-            ResetTranslation();
+            this.ResetRotation();
+            this.ResetTranslation();
         }
 
         /// <summary>
