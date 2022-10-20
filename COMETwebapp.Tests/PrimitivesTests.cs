@@ -21,15 +21,11 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-using Bunit;
-
 namespace COMETwebapp.Tests.IntegrationTests
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
+
+    using Bunit;
 
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
