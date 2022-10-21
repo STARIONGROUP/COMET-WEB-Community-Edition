@@ -63,40 +63,5 @@ namespace COMETwebapp
 
             return values;
         }
-
-
-        /// <summary>
-        /// Extract the specified number of values from the parameter override
-        /// </summary>
-        /// <param name="parameter">the <see cref="ParameterOverride"/> to extract the data from</param>
-        /// <param name="numberOfValues">number of values to extract</param>
-        /// <returns>the extracted values</returns>
-        /// <exception cref="ArgumentException">if the parameter is null</exception>
-        public static string[] ExtractActualValues(this ParameterOverride parameter, int numberOfValues)
-        {
-            string[] values = new string[numberOfValues];
-
-            if (parameter is not null)
-            {
-                var valueSet = parameter.ValueSet;
-                var validValues = valueSet.FindAll(x => x is not null).ToList();
-
-                if (validValues.Count > 0)
-                {
-                    var validValue = validValues.First();
-
-                    for (int i = 0; i < numberOfValues; i++)
-                    {
-                        values[i] = validValue.ActualValue[i];
-                    }
-                }
-            }
-            else
-            {
-                throw new ArgumentException("The parameter can't be null");
-            }
-
-            return values;
-        }
     }
 }
