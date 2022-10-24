@@ -26,7 +26,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Cone primitive type
     /// </summary>
-    public class Cone : PositionablePrimitives
+    public class Cone : PositionablePrimitive
     {
         /// <summary>
         /// The radius of the base of the cone

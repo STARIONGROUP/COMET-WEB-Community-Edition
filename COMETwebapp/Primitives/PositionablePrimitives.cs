@@ -23,7 +23,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.Primitives
 {
-    public abstract class PositionablePrimitives : Primitive
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    using System.Numerics;
+
+    public abstract class PositionablePrimitive : Primitive
     {
         /// <summary>
         /// Subtype of the primitive
@@ -59,6 +63,16 @@ namespace COMETwebapp.Primitives
         /// Angle of rotation (radians) around Z axis
         /// </summary>
         public double RZ { get; private set; }
+
+        /// <summary>
+        /// The current position of the <see cref="PositionablePrimitive"/>
+        /// </summary>
+        public Vector3 Position => new Vector3((float)this.X, (float)this.Y, (float)this.Z);
+
+        /// <summary>
+        /// The current orientation of the <see cref="PositionablePrimitive"/>
+        /// </summary>
+        public Vector3 Orientation => new Vector3((float)this.RX, (float)this.RY, (float)this.RZ);
 
         /// <summary>
         /// Sets a NEW translation to the primitive. Added to the previous one.
@@ -111,6 +125,28 @@ namespace COMETwebapp.Primitives
         public void ResetRotation()
         {
             this.RX = this.RY = this.RZ = 0;
+        }
+
+        /// <summary>
+        /// Sets the position of a <see cref="Primitive"/> from the parameters of a <see cref="ElementUsage"/>
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> with the position parameter</param>
+        public void SetPositionFromElementUsageParameter(ElementUsage elementUsage)
+        {
+            var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "coord"
+                                      && x.ParameterType is CompoundParameterType);
+
+            if (parameter is not null)
+            {
+                string[]? translations = parameter?.ExtractActualValues(3);
+                if (translations is not null && translations.All(x => x is not null))
+                {
+                    var x = double.Parse(translations[0]);
+                    var y = double.Parse(translations[1]);
+                    var z = double.Parse(translations[2]);
+                    this.SetTranslation(x, y, z);
+                }
+            }
         }
     }
 }

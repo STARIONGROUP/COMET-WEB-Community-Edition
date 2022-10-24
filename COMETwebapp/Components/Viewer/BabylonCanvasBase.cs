@@ -71,6 +71,12 @@ namespace COMETwebapp.Componentes.Viewer
         public static string GetGUID() => Guid.NewGuid().ToString();
 
         /// <summary>
+        /// Shape factory for creating <see cref="Primitive"/> from <see cref="ElementUsage"/>
+        /// </summary>
+        [Inject]
+        public IShapeFactory ShapeFactory { get; set; }
+
+        /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
@@ -100,7 +106,7 @@ namespace COMETwebapp.Componentes.Viewer
                 {
                     throw new JSException("JSRuntime can't be null");
                 }
-                
+ 
                 Scene.InitCanvas(this.CanvasReference);
                 InitializeElements();
 
@@ -113,47 +119,25 @@ namespace COMETwebapp.Componentes.Viewer
         /// </summary>
         private void InitializeElements()
         {
-            var iteration = this.SessionAnchor?.OpenIteration;
-
             var elementUsages = this.SessionAnchor?.OpenIteration?.Element.SelectMany(ed => ed.ContainedElement).OrderBy(x=>x.Name).ToList();
             
             if(elementUsages is not null)
             {
                 foreach (var elementUsage in elementUsages)
                 {
-                    var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.Name == "Shape kind"
-                                          && x.ParameterType is EnumerationParameterType
-                                          || x.ParameterType is TextParameterType);
-
-                    Primitive basicShape = null;
-                    if (parameter is not null)
+                    if(ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))
                     {
-                        string? shapekind = parameter?.ExtractActualValues(1).First();
-                        switch (shapekind?.ToLowerInvariant())
+                        if(basicShape is PositionablePrimitive positionablePrimitive)
                         {
-                            case "box": basicShape = new Cube(1, 1, 1); break;
+                            positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
                         }
-                    }
-                    parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.Name == "Position"
-                                                          && x.ParameterType is CompoundParameterType);
 
-                    string[]? translations = parameter?.ExtractActualValues(3);
-                    if (basicShape is PositionablePrimitives positionablePrim && translations is not null)
-                    {
-                        var x = double.Parse(translations[0]);
-                        var y = double.Parse(translations[1]);
-                        var z = double.Parse(translations[2]);
-                        positionablePrim.SetTranslation(x, y, z);
-                    }
-
-                    if (basicShape is not null)
-                    {
                         Scene.AddPrimitive(basicShape);
                     }
                 }
             }
         }
-
+                
         /// <summary>
         /// Canvas on mouse down event
         /// </summary>

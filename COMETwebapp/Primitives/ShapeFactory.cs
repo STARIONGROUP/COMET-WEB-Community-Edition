@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterExtensions.cs" company="RHEA System S.A.">
+// <copyright file="ShapeFactory.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -21,50 +21,39 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace COMETwebapp
+
+namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-    /// <summary>
-    /// Class containing extension methods for the <see cref="Parameter"/> or <see cref="ParameterOverride"/>
-    /// </summary>
-    public static class ParameterExtensions
+    public class ShapeFactory : IShapeFactory
     {
         /// <summary>
-        /// Extract the specified number of values from the parameter
+        /// Tries to get a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
         /// </summary>
-        /// <param name="parameter">the <see cref="Parameter"/> to extract the data from</param>
-        /// <param name="numberOfValues">number of values to extract</param>
-        /// <returns>the extracted values</returns>
-        /// <exception cref="ArgumentException">if the parameter is null</exception>
-        public static string[] ExtractActualValues(this Parameter parameter, int numberOfValues)
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> wiht the shape parameter</param>
+        /// <param name="basicShape">the basic shape</param>
+        /// <returns>True if the conversion succeed, false otherwise</returns>
+        public bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, out Primitive basicShape)
         {
-            string[] values = new string[numberOfValues];
+            var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"
+                      && (x.ParameterType is EnumerationParameterType || x.ParameterType is TextParameterType));
 
             if (parameter is not null)
             {
-                var valueSet = parameter.ValueSet;
-                var validValues = valueSet.FindAll(x => x is not null).ToList();
-
-                if (validValues.Count > 0)
+                string? shapekind = parameter?.ExtractActualValues(1).First();
+                switch (shapekind?.ToLowerInvariant())
                 {
-                    var validValue = validValues.First();
-
-                    if(validValue.ActualValue.Count >= numberOfValues)
-                    {
-                        for (int i = 0; i < numberOfValues; i++)
-                        {
-                            values[i] = validValue.ActualValue[i];
-                        }
-                    }
+                    case "box": basicShape = new Cube(1, 1, 1); return true;
+                    default: basicShape = null; return false;
                 }
             }
             else
             {
-                throw new ArgumentException("The parameter can't be null");
+                basicShape = null;
+                return false;
             }
-
-            return values;
         }
     }
 }

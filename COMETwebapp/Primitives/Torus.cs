@@ -26,7 +26,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Torus primitive type
     /// </summary>
-    public class Torus : PositionablePrimitives
+    public class Torus : PositionablePrimitive
     {
         /// <summary>
         /// Basic type name

@@ -27,6 +27,7 @@ namespace COMETwebapp
     using BlazorStrap;
     using CDP4Dal;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
     using Microsoft.AspNetCore.Components.Authorization;
@@ -52,6 +53,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IIterationService, IterationService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
+            builder.Services.AddSingleton<IShapeFactory, ShapeFactory>();
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();
