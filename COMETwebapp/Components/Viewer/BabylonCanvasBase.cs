@@ -37,7 +37,7 @@ namespace COMETwebapp.Componentes.Viewer
     using Microsoft.JSInterop;
 
     /// <summary>
-    /// Support class for the <see cref="BabylonCanvas"/>
+    /// Support class for the <see cref="BabylonCanvas.razor"/>
     /// </summary>
     public class BabylonCanvasBase : ComponentBase
     {
@@ -82,12 +82,12 @@ namespace COMETwebapp.Componentes.Viewer
         /// that would cause an infinite render loop.
         /// </summary>
         /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
         /// on this component instance; otherwise <c>false</c>.
         /// </param>
         /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
         /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
         /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
         /// once.
@@ -119,23 +119,23 @@ namespace COMETwebapp.Componentes.Viewer
         /// </summary>
         private void InitializeElements()
         {
-            var elementUsages = this.SessionAnchor?.OpenIteration?.Element.SelectMany(ed => ed.ContainedElement).OrderBy(x=>x.Name).ToList();
+            //var elementUsages = this.SessionAnchor?.OpenIteration?.Element.SelectMany(ed => ed.ContainedElement).OrderBy(x=>x.Name).ToList();
             
-            if(elementUsages is not null)
-            {
-                foreach (var elementUsage in elementUsages)
-                {
-                    if(ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))
-                    {
-                        if(basicShape is PositionablePrimitive positionablePrimitive)
-                        {
-                            positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
-                        }
+            //if(elementUsages is not null)
+            //{
+            //    foreach (var elementUsage in elementUsages)
+            //    {
+            //        if(ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))
+            //        {
+            //            if(basicShape is PositionablePrimitive positionablePrimitive)
+            //            {
+            //                positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
+            //            }
 
-                        Scene.AddPrimitive(basicShape);
-                    }
-                }
-            }
+            //            Scene.AddPrimitive(basicShape);
+            //        }
+            //    }
+            //}
         }
                 
         /// <summary>
@@ -172,6 +172,25 @@ namespace COMETwebapp.Componentes.Viewer
 
             Line zAxis = new Line(0, 0, -size, 0, 0, size);
             Scene.AddPrimitive(zAxis, Color.Blue);
+        }
+
+        public void RepopulateScene(List<ElementUsage> elementUsages)
+        {
+            var a = Scene.GetPrimitives();
+            Scene.ClearPrimitives();
+            var b = Scene.GetPrimitives();
+            foreach (var elementUsage in elementUsages)
+            {
+                if (ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))
+                {
+                    if (basicShape is PositionablePrimitive positionablePrimitive)
+                    {
+                        positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
+                    }
+
+                    Scene.AddPrimitive(basicShape);
+                }
+            }
         }
     }
 }

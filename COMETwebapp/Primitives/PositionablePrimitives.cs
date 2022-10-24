@@ -139,6 +139,8 @@ namespace COMETwebapp.Primitives
             if (parameter is not null)
             {
                 string[]? translations = parameter?.ExtractActualValues(3);
+
+
                 if (translations is not null && translations.All(x => x is not null))
                 {
                     var x = double.Parse(translations[0]);

@@ -20,11 +20,36 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @page "/3DViewer"
+@inherits ViewerBase
 
 <ApplicationTemplate Title="3D Viewer">
     <Body>
-        <BabylonCanvas/>
+        <div class="row">
+            <div class="col">
+                <h6>Filter on Option:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="this.Options"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.OptionSelected"
+                                ValueChanged="@((string option) => OnOptionFilterChange(option))"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+                </div>
+            </div>
+
+            <div class="col">
+                <h6>Filter on State:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="this.States"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.StateSelected"
+                                ValueChanged="@((string actualState) => OnStateFilterChange(actualState))"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+                </div>
+            </div>           
+        </div>
+        <BabylonCanvas @ref=CanvasComponentReference/>
     </Body>
 </ApplicationTemplate>
-
-
