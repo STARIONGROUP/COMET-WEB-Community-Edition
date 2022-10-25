@@ -108,36 +108,10 @@ namespace COMETwebapp.Componentes.Viewer
                 }
  
                 Scene.InitCanvas(this.CanvasReference);
-                InitializeElements();
-
                 AddWorldAxes();
             }
         }
-
-        /// <summary>
-        /// Initialize the elements in the scene based on the elements of the iteration
-        /// </summary>
-        private void InitializeElements()
-        {
-            //var elementUsages = this.SessionAnchor?.OpenIteration?.Element.SelectMany(ed => ed.ContainedElement).OrderBy(x=>x.Name).ToList();
-            
-            //if(elementUsages is not null)
-            //{
-            //    foreach (var elementUsage in elementUsages)
-            //    {
-            //        if(ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))
-            //        {
-            //            if(basicShape is PositionablePrimitive positionablePrimitive)
-            //            {
-            //                positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
-            //            }
-
-            //            Scene.AddPrimitive(basicShape);
-            //        }
-            //    }
-            //}
-        }
-                
+               
         /// <summary>
         /// Canvas on mouse down event
         /// </summary>
@@ -161,22 +135,22 @@ namespace COMETwebapp.Componentes.Viewer
         /// <summary>
         /// Create the world axes and adds them to the scene
         /// </summary>
-        private void AddWorldAxes()
+        private async void AddWorldAxes()
         {
             float size = 700;
             Line xAxis = new Line(-size, 0, 0, size, 0, 0);
-            Scene.AddPrimitive(xAxis, Color.Red);
+            await Scene.AddPrimitive(xAxis, Color.Red);
 
             Line yAxis = new Line(0, -size, 0, 0, size, 0);
-            Scene.AddPrimitive(yAxis, Color.Green);
+            await Scene.AddPrimitive(yAxis, Color.Green);
 
             Line zAxis = new Line(0, 0, -size, 0, 0, size);
-            Scene.AddPrimitive(zAxis, Color.Blue);
+            await Scene.AddPrimitive(zAxis, Color.Blue);
         }
 
-        public void RepopulateScene(List<ElementUsage> elementUsages)
+        public async void RepopulateScene(List<ElementUsage> elementUsages)
         {
-            Scene.ClearPrimitives();
+            await Scene.ClearPrimitives();
 
             foreach (var elementUsage in elementUsages)
             {
@@ -187,7 +161,7 @@ namespace COMETwebapp.Componentes.Viewer
                         positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
                     }
 
-                    Scene.AddPrimitive(basicShape);
+                    await Scene.AddPrimitive(basicShape);
                 }
             }
         }

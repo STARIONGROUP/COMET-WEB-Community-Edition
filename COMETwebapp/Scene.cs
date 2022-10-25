@@ -98,7 +98,6 @@ namespace COMETwebapp
         /// <param name="color">the color of the primitive</param>
         public static async Task AddPrimitive(Primitive primitive, Color color)
         {
-            Console.WriteLine("Add primitive");
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
             string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
@@ -136,14 +135,12 @@ namespace COMETwebapp
         /// </summary>
         public static async Task ClearPrimitives()
         {
-            Console.WriteLine("Begin Clear primitives");
             var keys = primitivesCollection.Keys.ToList();
             foreach (var id in keys)
             {
                 await JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
-            Console.WriteLine("End Clear primitives");
         }
 
         /// <summary>

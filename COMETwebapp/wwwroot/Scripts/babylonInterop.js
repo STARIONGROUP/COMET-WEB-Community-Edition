@@ -198,21 +198,11 @@ function Dispose(ID) {
         if (data != null && data != undefined) {
             let mesh = data["mesh"];
             if (mesh != null && mesh != undefined) {
-                console.log("Disposing Mesh");
                 mesh.dispose();
                 mesh = null;
                 Primitives.delete(ID);
             }
-            else {
-                console.log("mesh data is null");
-            }
         }
-        else {
-            console.log("data asociated to the ID dont exist");
-        }
-    }
-    else {
-        console.log("Primitives its empty");
     }
 }
 
