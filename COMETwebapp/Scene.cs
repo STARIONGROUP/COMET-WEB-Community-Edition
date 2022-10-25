@@ -86,9 +86,9 @@ namespace COMETwebapp
         /// Adds a primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        public static void AddPrimitive(Primitive primitive)
+        public static async Task AddPrimitive(Primitive primitive)
         {
-            AddPrimitive(primitive, Color.LightGray);
+            await AddPrimitive(primitive, Color.LightGray);
         }
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         /// <param name="color">the color of the primitive</param>
-        public static async void AddPrimitive(Primitive primitive, Color color)
+        public static async Task AddPrimitive(Primitive primitive, Color color)
         {
-            Debug.WriteLine("Add primitive");
+            Console.WriteLine("Add primitive");
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
             string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
@@ -111,9 +111,9 @@ namespace COMETwebapp
         /// Adds a temporary primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        public static void AddTemporaryPrimitive(Primitive primitive)
+        public static async Task AddTemporaryPrimitive(Primitive primitive)
         {
-            AddTemporaryPrimitive(primitive, Color.LightGray);
+            await AddTemporaryPrimitive(primitive, Color.LightGray);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         /// <param name="color">the color of the primitive</param>
-        public static async void AddTemporaryPrimitive(Primitive primitive, Color color)
+        public static async Task AddTemporaryPrimitive(Primitive primitive, Color color)
         {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
@@ -134,22 +134,22 @@ namespace COMETwebapp
         /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
-        public static async void ClearPrimitives()
+        public static async Task ClearPrimitives()
         {
-            Debug.WriteLine("Begin Clear primitives");
+            Console.WriteLine("Begin Clear primitives");
             var keys = primitivesCollection.Keys.ToList();
             foreach (var id in keys)
             {
                 await JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
-            Debug.WriteLine("End Clear primitives");
+            Console.WriteLine("End Clear primitives");
         }
 
         /// <summary>
         /// Clears the scene deleting the temporary primitives
         /// </summary>
-        public static async void ClearTemporaryPrimitives()
+        public static async Task ClearTemporaryPrimitives()
         {
             var keys = primitivesCollection.Keys.ToList();
             foreach (var id in keys)
