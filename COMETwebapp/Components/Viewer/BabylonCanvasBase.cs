@@ -120,6 +120,7 @@ namespace COMETwebapp.Componentes.Viewer
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
+            var a = Scene.GetPrimitives();
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace COMETwebapp.Componentes.Viewer
             await Scene.AddPrimitive(zAxis, Color.Blue);
         }
 
-        public async void RepopulateScene(List<ElementUsage> elementUsages)
+        public async void RepopulateScene(List<ElementUsage> elementUsages, string selectedOptionName, string selectedStateName)
         {
             await Scene.ClearPrimitives();
 
@@ -158,7 +159,7 @@ namespace COMETwebapp.Componentes.Viewer
                 {
                     if (basicShape is PositionablePrimitive positionablePrimitive)
                     {
-                        positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage);
+                        positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage, selectedOptionName, selectedStateName);
                     }
 
                     await Scene.AddPrimitive(basicShape);

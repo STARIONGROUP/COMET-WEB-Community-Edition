@@ -71,6 +71,15 @@
         [Parameter]
         public List<string>? States { get; set; }
 
+
+        /// <summary>
+        /// List of the of <see cref="ActualFiniteStateList"/> 
+        /// </summary>
+        [Parameter]
+        public List<ActualFiniteStateList>? ListActualFiniteStateLists { get; set; }
+
+
+
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
@@ -100,6 +109,8 @@
                 States = new List<string>();
                 var iteration = this.SessionAnchor?.OpenIteration;
                 iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => Options.Add(o.Name));
+
+                this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
 
                 iteration?.ActualFiniteStateList.ForEach(l =>
                 {
@@ -237,8 +248,8 @@
                 });
                 elements.RemoveAll(e => elementsToRemove.Contains(e));
             }
-
-            this.CanvasComponentReference?.RepopulateScene(elements.OfType<ElementUsage>().ToList());
+                        
+            this.CanvasComponentReference?.RepopulateScene(elements.OfType<ElementUsage>().ToList(), this.OptionSelected, this.StateSelected);
 
             return elements;
         }
@@ -268,6 +279,11 @@
             this.InitializeElements();
             this.Filter(this.Elements);
             this.StateHasChanged();
+
+        }
+
+        public void OnStateRadioButtonChange(ChangeEventArgs args)
+        {
 
         }
     }

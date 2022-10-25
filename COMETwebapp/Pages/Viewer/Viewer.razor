@@ -50,6 +50,53 @@ Copyright (c) 2022 RHEA System S.A.
                 </div>
             </div>           
         </div>
-        <BabylonCanvas @ref=CanvasComponentReference/>
+        <div id="bodyGrid">
+            <BabylonCanvas @ref=CanvasComponentReference />
+            <div id="column">
+                @{
+                    if(this.ListActualFiniteStateLists is not null){
+                        foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
+                        {
+                            <div class="actualFiniteStateList">
+                                <input type="checkbox" id="@actualFiniteStateList.Name" name="@actualFiniteStateList.Name" value="@actualFiniteStateList.Name">
+                                <label for="@actualFiniteStateList.Name">@actualFiniteStateList.Name</label>
+                            </div>
+
+                            @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+                            {
+                                <div class="actualFiniteState">
+                                    <input type="radio" id="@actualFiniteState.Name" name="@actualFiniteStateList.Name" value="@actualFiniteState.Name" onchange="@((ChangeEventArgs args) => OnStateRadioButtonChange(args))" checked>
+                                    <label for="@actualFiniteState.Name">@actualFiniteState.Name</label>
+                                </div>
+                            }
+                        }
+                    }
+                }            
+            </div>
+        </div>
     </Body>
 </ApplicationTemplate>
+
+<style>
+    #bodyGrid{
+        display: grid;
+        grid-template-columns: 9fr 2fr;
+        grid-template-rows: 1fr;
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
+    }
+
+    #column{
+        grid-area: 1 / 2 / 2 / 3;        
+    }
+
+    .actualFiniteStateList{
+        margin : 0;
+        margin-left: 20px;
+    }
+
+    .actualFiniteState {
+        margin: 0;
+        margin-left: 40px;
+    }
+</style>
