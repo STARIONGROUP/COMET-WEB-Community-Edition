@@ -109,7 +109,8 @@
                     });
                 });
 
-                this.OptionSelected = iteration?.DefaultOption.Name;
+                //this.OptionSelected = iteration?.DefaultOption.Name;
+                //this.Filter(this.Elements);
                 this.StateHasChanged();
             }
         }

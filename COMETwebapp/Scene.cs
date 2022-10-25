@@ -34,6 +34,7 @@ namespace COMETwebapp
     using Newtonsoft.Json;
     using System.Net.NetworkInformation;
     using Microsoft.AspNetCore.Components;
+    using System.Diagnostics;
 
     /// <summary>
     /// Static class to access the resources of a Scene 
@@ -53,9 +54,9 @@ namespace COMETwebapp
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public static void InitCanvas(ElementReference canvas)
+        public static async void InitCanvas(ElementReference canvas)
         {
-            JSInterop.Invoke("InitCanvas", canvas);
+            await JSInterop.Invoke("InitCanvas", canvas);
         }
 
         /// <summary>
@@ -95,14 +96,15 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         /// <param name="color">the color of the primitive</param>
-        public static void AddPrimitive(Primitive primitive, Color color)
+        public static async void AddPrimitive(Primitive primitive, Color color)
         {
+            Debug.WriteLine("Add primitive");
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
             string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
 
             primitivesCollection.Add(primitive.ID, primitive);
-            JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
+            await JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
         }
 
         /// <summary>
@@ -133,12 +135,15 @@ namespace COMETwebapp
         /// Clears the scene deleting the primitives that contains
         /// </summary>
         public static async void ClearPrimitives()
-        {            
-            foreach(var id in primitivesCollection.Keys)
+        {
+            Debug.WriteLine("Begin Clear primitives");
+            var keys = primitivesCollection.Keys.ToList();
+            foreach (var id in keys)
             {
                 await JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
+            Debug.WriteLine("End Clear primitives");
         }
 
         /// <summary>
@@ -146,7 +151,8 @@ namespace COMETwebapp
         /// </summary>
         public static async void ClearTemporaryPrimitives()
         {
-            foreach (var id in temporaryPrimitivesCollection.Keys)
+            var keys = primitivesCollection.Keys.ToList();
+            foreach (var id in keys)
             {
                 await JSInterop.Invoke("Dispose", id);
             }

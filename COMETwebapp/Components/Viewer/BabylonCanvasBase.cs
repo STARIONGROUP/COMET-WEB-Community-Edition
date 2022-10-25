@@ -176,9 +176,8 @@ namespace COMETwebapp.Componentes.Viewer
 
         public void RepopulateScene(List<ElementUsage> elementUsages)
         {
-            var a = Scene.GetPrimitives();
             Scene.ClearPrimitives();
-            var b = Scene.GetPrimitives();
+
             foreach (var elementUsage in elementUsages)
             {
                 if (ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))

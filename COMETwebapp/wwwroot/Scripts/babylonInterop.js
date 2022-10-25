@@ -195,10 +195,24 @@ function AddPrimitive(primitive, color) {
 function Dispose(ID) {
     if (Primitives.size > 0) {
         let data = Primitives.get(ID);
-        let mesh = data["mesh"];
-        if (mesh != null) {
-            mesh.dispose();
+        if (data != null && data != undefined) {
+            let mesh = data["mesh"];
+            if (mesh != null && mesh != undefined) {
+                console.log("Disposing Mesh");
+                mesh.dispose();
+                mesh = null;
+                Primitives.delete(ID);
+            }
+            else {
+                console.log("mesh data is null");
+            }
         }
+        else {
+            console.log("data asociated to the ID dont exist");
+        }
+    }
+    else {
+        console.log("Primitives its empty");
     }
 }
 
@@ -333,4 +347,12 @@ function GetScreenCoordinates(x,y,z) {
             BabylonEngine.getRenderHeight(),
         ));
     return [coordinates.x, coordinates.y];
+}
+
+/**
+ * Clears all the meshes in the scene
+ */
+function ClearScene() {
+    Scene.dispose();
+    Primitives = new Map();
 }

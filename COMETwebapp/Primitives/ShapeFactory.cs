@@ -46,6 +46,9 @@ namespace COMETwebapp.Primitives
                 switch (shapekind?.ToLowerInvariant())
                 {
                     case "box": basicShape = new Cube(1, 1, 1); return true;
+                    case "cylinder": basicShape = new Cylinder(1, 1); return true;
+                    case "sphere": basicShape = new Sphere(1); return true;
+                    case "torus": basicShape = new Torus(1, 1); return true;
                     default: basicShape = null; return false;
                 }
             }
