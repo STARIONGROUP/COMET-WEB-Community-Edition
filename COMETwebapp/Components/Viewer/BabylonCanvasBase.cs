@@ -149,6 +149,12 @@ namespace COMETwebapp.Componentes.Viewer
             await Scene.AddPrimitive(zAxis, Color.Blue);
         }
 
+        /// <summary>
+        /// Clears the scene and populates again with the <see cref="ElementUsage"/>
+        /// </summary>
+        /// <param name="elementUsages">The element usages to populate the scene</param>
+        /// <param name="selectedOptionName">The name of the selected option</param>
+        /// <param name="selectedStateName">The name of the selected state</param>
         public async void RepopulateScene(List<ElementUsage> elementUsages, string selectedOptionName, string selectedStateName)
         {
             await Scene.ClearPrimitives();

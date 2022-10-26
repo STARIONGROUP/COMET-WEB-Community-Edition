@@ -35,43 +35,47 @@ Copyright (c) 2022 RHEA System S.A.
                                 ValueChanged="@((string option) => OnOptionFilterChange(option))"
                                 FilteringMode="DataGridFilteringMode.Contains" />
                 </div>
-            </div>
-
-            <div class="col">
-                <h6>Filter on State:</h6>
-                <div class="width-fit-content">
-                    <DxComboBox Data="this.States"
-                                AllowUserInput="true"
-                                NullText="--Select--"
-                                Value="this.StateSelected"
-                                ValueChanged="@((string actualState) => OnStateFilterChange(actualState))"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                FilteringMode="DataGridFilteringMode.Contains" />
-                </div>
-            </div>           
+            </div>         
         </div>
         <div id="bodyGrid">
             <BabylonCanvas @ref=CanvasComponentReference />
             <div id="column">
                 @{
-                    if(this.ListActualFiniteStateLists is not null){
+                        <h1>States</h1>
+                    if (this.ListActualFiniteStateLists is not null)
+                    {
                         foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
                         {
-                            <div class="actualFiniteStateList">
-                                <input type="checkbox" id="@actualFiniteStateList.Name" name="@actualFiniteStateList.Name" value="@actualFiniteStateList.Name">
-                                <label for="@actualFiniteStateList.Name">@actualFiniteStateList.Name</label>
-                            </div>
+                                <div class="actualFiniteStateList">
+                                    <input type="checkbox"
+                                           id="@actualFiniteStateList.Name"
+                                           name="@actualFiniteStateList.Name"
+                                           value="@actualFiniteStateList.Name"
+                                           onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(args))">
 
-                            @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
-                            {
-                                <div class="actualFiniteState">
-                                    <input type="radio" id="@actualFiniteState.Name" name="@actualFiniteStateList.Name" value="@actualFiniteState.Name" onchange="@((ChangeEventArgs args) => OnStateRadioButtonChange(args))" checked>
-                                    <label for="@actualFiniteState.Name">@actualFiniteState.Name</label>
+                                    <label for="@actualFiniteStateList.Name">
+                                        @actualFiniteStateList.Name
+                                    </label>
                                 </div>
+
+                                @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+                            {
+                                    <div class="actualFiniteState">
+                                        <input type="radio"
+                                               id="@actualFiniteState.Name"
+                                               name="@actualFiniteStateList.Name"
+                                               value="@actualFiniteState.Name"
+                                               onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(args))"
+                                               checked>
+
+                                        <label for="@actualFiniteState.Name">
+                                            @actualFiniteState.Name
+                                        </label>
+                                    </div>
                             }
                         }
                     }
-                }            
+                }
             </div>
         </div>
     </Body>
@@ -79,8 +83,9 @@ Copyright (c) 2022 RHEA System S.A.
 
 <style>
     #bodyGrid{
+        margin: 1% 0;
         display: grid;
-        grid-template-columns: 9fr 2fr;
+        grid-template-columns: 9fr 1.5fr;
         grid-template-rows: 1fr;
         grid-column-gap: 0px;
         grid-row-gap: 0px;
@@ -98,5 +103,9 @@ Copyright (c) 2022 RHEA System S.A.
     .actualFiniteState {
         margin: 0;
         margin-left: 40px;
+    }
+
+    h1{
+        margin-left:20px;
     }
 </style>

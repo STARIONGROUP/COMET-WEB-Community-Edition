@@ -282,7 +282,20 @@
 
         }
 
-        public void OnStateRadioButtonChange(ChangeEventArgs args)
+        /// <summary>
+        /// Event that is raised when the checkboxes of an <see cref="ActualFiniteStateList"/> change their state
+        /// </summary>
+        /// <param name="args">the arguments of the event</param>
+        public void OnActualFiniteStateList_SelectionChanged(ChangeEventArgs args)
+        {
+
+        }
+
+        /// <summary>
+        /// Event that is raised when the radiobuttons of an <see cref="ActualFiniteState"/> change their state
+        /// </summary>
+        /// <param name="args">the argument of the event</param>
+        public void OnActualFiniteState_SelectionChanged(ChangeEventArgs args)
         {
 
         }
