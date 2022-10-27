@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
@@ -139,39 +140,28 @@ namespace COMETwebapp.Primitives
         {
             const string shortName = "coord";
 
-            IValueSet valueSet = null;
+            ParameterBase? parameterBase = null;
+            IValueSet? valueSet = null;
 
             if (elementUsage.ParameterOverride.Count > 0)
             {
-                var parameterOverride = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == shortName
+                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == shortName
                                                         && x.ParameterType is CompoundParameterType);
-
-                if(parameterOverride is not null)
-                {
-                    foreach (var actualFiniteState in states)
-                    {
-                        valueSet = parameterOverride.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
-                        if(valueSet is not null)
-                        {
-                            break;
-                        }
-                    }
-                }
             }
             else
             {
-                var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == shortName
+                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == shortName
                           && x.ParameterType is CompoundParameterType);
+            }
 
-                if (parameter is not null)
+            if (parameterBase is not null)
+            {
+                foreach (var actualFiniteState in states)
                 {
-                    foreach (var actualFiniteState in states)
+                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                    if (valueSet is not null)
                     {
-                        valueSet = parameter.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
-                        if (valueSet is not null)
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
             }

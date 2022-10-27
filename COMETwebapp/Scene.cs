@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp
 {
     using System;
@@ -32,9 +33,7 @@ namespace COMETwebapp
     using COMETwebapp.Primitives;
 
     using Newtonsoft.Json;
-    using System.Net.NetworkInformation;
     using Microsoft.AspNetCore.Components;
-    using System.Diagnostics;
 
     /// <summary>
     /// Static class to access the resources of a Scene 
