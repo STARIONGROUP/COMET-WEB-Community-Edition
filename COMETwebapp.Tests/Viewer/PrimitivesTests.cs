@@ -53,32 +53,32 @@ namespace COMETwebapp.Tests.Viewer
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.JSInterop.Mode = JSRuntimeMode.Loose;
-            JSInterop.JsRuntime = context.JSInterop.JSRuntime;
+            this.context = new TestContext();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            JSInterop.JsRuntime = this.context.JSInterop.JSRuntime;
 
             var session = new Mock<ISessionAnchor>();
-            context.Services.AddSingleton(session.Object);
+            this.context.Services.AddSingleton(session.Object);
             var factory = new Mock<IShapeFactory>();
-            context.Services.AddSingleton(factory.Object);
+            this.context.Services.AddSingleton(factory.Object);
 
-            var renderer = context.RenderComponent<BabylonCanvas>();
-            positionables = new List<PositionablePrimitive>();
-            positionables.Add(new Cone(1, 2));
-            positionables.Add(new Cube(1, 1, 1));
-            positionables.Add(new Cylinder(1, 1));
-            positionables.Add(new Sphere(1));
-            positionables.Add(new Torus(2, 1));
+            var renderer = this.context.RenderComponent<BabylonCanvas>();
+            this.positionables = new List<PositionablePrimitive>();
+            this.positionables.Add(new Cone(1, 2));
+            this.positionables.Add(new Cube(1, 1, 1));
+            this.positionables.Add(new Cylinder(1, 1));
+            this.positionables.Add(new Sphere(1));
+            this.positionables.Add(new Torus(2, 1));
 
-            primitives = new List<Primitive>(positionables);
-            primitives.Add(new Line(new System.Numerics.Vector3(), new System.Numerics.Vector3(1, 1, 1)));
-            primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
+            this.primitives = new List<Primitive>(this.positionables);
+            this.primitives.Add(new Line(new System.Numerics.Vector3(), new System.Numerics.Vector3(1, 1, 1)));
+            this.primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
         }
 
         [Test]
         public void VerifyThatPrimitivesHaveValidPropertyName()
         {
-            foreach (var primitive in primitives)
+            foreach (var primitive in this.primitives)
             {
                 Assert.AreEqual(primitive.GetType().Name, primitive.Type);
             }
@@ -87,7 +87,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatPrimitivesCanBeTranslated()
         {
-            foreach (var primitive in positionables)
+            foreach (var primitive in this.positionables)
             {
                 Assert.AreEqual(0, primitive.X);
                 Assert.AreEqual(0, primitive.Y);
@@ -104,7 +104,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatPrimitivesCanBeRotated()
         {
-            foreach (var primitive in positionables)
+            foreach (var primitive in this.positionables)
             {
                 Assert.AreEqual(0, primitive.RX);
                 Assert.AreEqual(0, primitive.RY);

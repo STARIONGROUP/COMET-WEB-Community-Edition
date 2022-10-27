@@ -49,16 +49,16 @@ namespace COMETwebapp.Tests.Viewer
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context = new TestContext();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             JSInterop.JsRuntime = context.JSInterop.JSRuntime;
 
             var session = new Mock<ISessionAnchor>();
-            context.Services.AddSingleton(session.Object);
+            this.context.Services.AddSingleton(session.Object);
             var factory = new Mock<IShapeFactory>();
-            context.Services.AddSingleton(factory.Object);
+            this.context.Services.AddSingleton(factory.Object);
 
-            var renderer = context.RenderComponent<BabylonCanvas>();
+            var renderer = this.context.RenderComponent<BabylonCanvas>();
         }
 
         [Test]

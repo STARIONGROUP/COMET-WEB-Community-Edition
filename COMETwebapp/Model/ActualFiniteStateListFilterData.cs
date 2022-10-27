@@ -62,7 +62,7 @@ namespace COMETwebapp.Model
         /// <returns>the <see cref="ActiveState"/> if <see cref="IsFilterActive"/> is true, the <see cref="DefaultState"/> otherwise</returns>
         public ActualFiniteState GetStateToUse()
         {
-            return IsFilterActive ? ActiveState : DefaultState;
+            return this.IsFilterActive ? this.ActiveState : this.DefaultState;
         }
     }
 }

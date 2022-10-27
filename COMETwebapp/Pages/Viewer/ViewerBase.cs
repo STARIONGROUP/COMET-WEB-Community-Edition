@@ -53,10 +53,6 @@ namespace COMETwebapp.Pages.Viewer
         [SupplyParameterFromQuery]
         public Guid? FilterOption { get; set; }
 
-        [Parameter]
-        [SupplyParameterFromQuery]
-        public Guid? FilterElementBase { get; set; }
-
         /// <summary>
         /// All <see cref="ElementBase"> of the iteration
         /// </summary>
@@ -132,12 +128,12 @@ namespace COMETwebapp.Pages.Viewer
                 this.Elements.Clear();
                 this.InitializeElements();
 
-                Options = new List<string>();
-                States = new List<string>();
-                CheckboxStates_ActualFiniteStateList = new Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData>();
+                this.Options = new List<string>();
+                this.States = new List<string>();
+                this.CheckboxStates_ActualFiniteStateList = new Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData>();
 
                 var iteration = this.SessionAnchor?.OpenIteration;
-                iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => Options.Add(o.Name));
+                iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => this.Options.Add(o.Name));
 
                 this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
                 
@@ -145,7 +141,7 @@ namespace COMETwebapp.Pages.Viewer
                 {
                     var defaultState = x.ActualState.FirstOrDefault(afs => afs.IsDefault);
                     var data = new ActualFiniteStateListFilterData(defaultState);
-                    CheckboxStates_ActualFiniteStateList.Add(x, data);
+                    this.CheckboxStates_ActualFiniteStateList.Add(x, data);
                 });
 
                 this.States = iteration?.ActualFiniteStateList.SelectMany(x => x.ActualState.Select(s => s.Name)).ToList();
@@ -221,7 +217,7 @@ namespace COMETwebapp.Pages.Viewer
             }
                         
             var option = this.SessionAnchor?.OpenIteration?.Option.FirstOrDefault(opt => opt.Name == optionName);
-            List<ActualFiniteState> states = CheckboxStates_ActualFiniteStateList.Values.Select(x => x.GetStateToUse()).ToList();
+            List<ActualFiniteState> states = this.CheckboxStates_ActualFiniteStateList.Values.Select(x => x.GetStateToUse()).ToList();
 
             this.CanvasComponentReference?.RepopulateScene(elementUsages, option, states);
         }
@@ -249,9 +245,9 @@ namespace COMETwebapp.Pages.Viewer
         {
             if(sender is ActualFiniteStateList actualFiniteStateList && args.Value is bool value)
             {
-                if (CheckboxStates_ActualFiniteStateList.ContainsKey(actualFiniteStateList))
+                if (this.CheckboxStates_ActualFiniteStateList.ContainsKey(actualFiniteStateList))
                 {
-                    CheckboxStates_ActualFiniteStateList[actualFiniteStateList].IsFilterActive = value;                    
+                    this.CheckboxStates_ActualFiniteStateList[actualFiniteStateList].IsFilterActive = value;                    
                 }                
             }
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
@@ -266,9 +262,9 @@ namespace COMETwebapp.Pages.Viewer
         {
             if(sender is ActualFiniteState actualFiniteState && actualFiniteState.Container is ActualFiniteStateList actualFiniteStateList)
             {
-                if (CheckboxStates_ActualFiniteStateList.ContainsKey(actualFiniteStateList))
+                if (this.CheckboxStates_ActualFiniteStateList.ContainsKey(actualFiniteStateList))
                 {
-                    CheckboxStates_ActualFiniteStateList[actualFiniteStateList].ActiveState = actualFiniteState;
+                    this.CheckboxStates_ActualFiniteStateList[actualFiniteStateList].ActiveState = actualFiniteState;
                 }
             }
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);

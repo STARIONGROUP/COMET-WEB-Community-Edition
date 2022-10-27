@@ -92,9 +92,9 @@ namespace COMETwebapp.Componentes.Viewer
 
             if (firstRender)
             {                
-                if(JsRuntime != null)
+                if(this.JsRuntime != null)
                 {
-                    JSInterop.JsRuntime = JsRuntime;
+                    JSInterop.JsRuntime = this.JsRuntime;
                 }
                 else
                 {
@@ -102,7 +102,7 @@ namespace COMETwebapp.Componentes.Viewer
                 }
  
                 Scene.InitCanvas(this.CanvasReference);
-                AddWorldAxes();
+                this.AddWorldAxes();
             }
         }
                
@@ -154,7 +154,7 @@ namespace COMETwebapp.Componentes.Viewer
 
             foreach (var elementUsage in elementUsages)
             {
-                if (ShapeFactory is not null && ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states, out Primitive basicShape))
+                if (this.ShapeFactory is not null && this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states, out Primitive basicShape))
                 {
                     if (basicShape is PositionablePrimitive positionablePrimitive)
                     {

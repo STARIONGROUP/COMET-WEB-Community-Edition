@@ -24,12 +24,14 @@
 
 namespace COMETwebapp.Primitives
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-    using COMETwebapp.Model;
-    using COMETwebapp.SessionManagement;
     using System.Numerics;
 
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;    
+
+    /// <summary>
+    /// Class fot primitives that can be positioned in space
+    /// </summary>
     public abstract class PositionablePrimitive : Primitive
     {
         /// <summary>

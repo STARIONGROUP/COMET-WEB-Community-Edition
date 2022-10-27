@@ -88,7 +88,7 @@ namespace COMETwebapp.Primitives
         /// <returns>A string containing the info</returns>
         public virtual string GetInfo()
         {
-            return "Type: " + Type.ToString();
+            return "Type: " + this.Type.ToString();
         }
     }
 }
