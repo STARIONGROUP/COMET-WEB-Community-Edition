@@ -26,8 +26,19 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
+    /// <summary>
+    /// Factory for creating different basic shapes of type <see cref="Primitive"/>
+    /// </summary>
     public interface IShapeFactory
     {
-        bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, out Primitive basicShape);
+        /// <summary>
+        /// Tries to create a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
+        /// </summary>
+        /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
+        /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
+        /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
+        /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
+        /// <returns></returns>
+        bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states, out Primitive basicShape);
     }
 }

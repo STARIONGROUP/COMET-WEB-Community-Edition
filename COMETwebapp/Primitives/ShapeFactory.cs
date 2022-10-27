@@ -24,26 +24,47 @@
 
 namespace COMETwebapp.Primitives
 {
+    using System.Collections.Generic;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    /// <summary>
+    /// The factory used for creating basic shapes of type <see cref="Primitive"/>
+    /// </summary>
     public class ShapeFactory : IShapeFactory
     {
         /// <summary>
-        /// Tries to get a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
+        /// Tries to create a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> wiht the shape parameter</param>
-        /// <param name="basicShape">the basic shape</param>
-        /// <returns>True if the conversion succeed, false otherwise</returns>
-        public bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, out Primitive basicShape)
+        /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
+        /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
+        /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
+        /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
+        /// <returns></returns>
+        public bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states, out Primitive basicShape)
         {
             var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"
                       && (x.ParameterType is EnumerationParameterType || x.ParameterType is TextParameterType));
 
+            IValueSet? valueSet = null;
+
             if (parameter is not null)
             {
-                string? shapekind = parameter?.ExtractActualValues(1).First();
-                switch (shapekind?.ToLowerInvariant())
+                foreach (var actualFiniteState in states)
+                {
+                    valueSet = parameter.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                    if (valueSet is not null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if(valueSet is not null)
+            {
+                string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
+                switch (shapeKind)
                 {
                     case "box": basicShape = new Cube(1, 1, 1); return true;
                     case "cylinder": basicShape = new Cylinder(1, 1); return true;

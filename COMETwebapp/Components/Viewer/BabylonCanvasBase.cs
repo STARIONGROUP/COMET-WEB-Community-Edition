@@ -28,10 +28,8 @@ namespace COMETwebapp.Componentes.Viewer
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-    using COMETwebapp.Model;
+
     using COMETwebapp.Primitives;
-    using COMETwebapp.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
@@ -59,12 +57,6 @@ namespace COMETwebapp.Componentes.Viewer
         IJSRuntime? JsRuntime { get; set; }
 
         /// <summary>
-        /// Injected property to get acess to <see cref="ISessionAnchor"/>
-        /// </summary>
-        [Inject]
-        ISessionAnchor? SessionAnchor { get; set; }
-
-        /// <summary>
         /// Invokable method from JS to get a GUID
         /// </summary>
         /// <returns>the GUID in string format</returns>
@@ -75,7 +67,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// Shape factory for creating <see cref="Primitive"/> from <see cref="ElementUsage"/>
         /// </summary>
         [Inject]
-        public IShapeFactory ShapeFactory { get; set; }
+        public IShapeFactory? ShapeFactory { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -121,7 +113,6 @@ namespace COMETwebapp.Componentes.Viewer
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
-            var a = Scene.GetPrimitives();
         }
 
         /// <summary>
@@ -151,18 +142,18 @@ namespace COMETwebapp.Componentes.Viewer
         }
 
         /// <summary>
-        /// Clears the scene and populates again with the <see cref="ElementUsage"/>
+        /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
         /// </summary>
-        /// <param name="elementUsages">The element usages to populate the scene</param>
-        /// <param name="selectedOptionName">The name of the selected option</param>
-        /// <param name="selectedStateName">The name of the selected state</param>
+        /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
         public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
             await Scene.ClearPrimitives();
 
             foreach (var elementUsage in elementUsages)
             {
-                if (ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, out Primitive basicShape))
+                if (ShapeFactory is not null && ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states, out Primitive basicShape))
                 {
                     if (basicShape is PositionablePrimitive positionablePrimitive)
                     {

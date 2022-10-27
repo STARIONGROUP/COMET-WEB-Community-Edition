@@ -33,7 +33,6 @@ namespace COMETwebapp.Pages.Viewer
     using COMETwebapp.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Support class for the <see cref="Viewer"/>
@@ -96,7 +95,6 @@ namespace COMETwebapp.Pages.Viewer
         [Parameter]
         public List<string>? States { get; set; }
 
-
         /// <summary>
         /// List of the of <see cref="ActualFiniteStateList"/> 
         /// </summary>
@@ -135,26 +133,21 @@ namespace COMETwebapp.Pages.Viewer
 
                 Options = new List<string>();
                 States = new List<string>();
+                CheckboxStates_ActualFiniteStateList = new Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData>();
+
                 var iteration = this.SessionAnchor?.OpenIteration;
                 iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => Options.Add(o.Name));
 
                 this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
-
-                iteration?.ActualFiniteStateList.ForEach(l =>
-                {
-                    l.ActualState.ForEach(s =>
-                    {
-                        States.Add(s.Name);
-                    });
-                });
-
-                CheckboxStates_ActualFiniteStateList = new Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData>();
+                
                 this.ListActualFiniteStateLists?.ForEach(x =>
                 {
                     var defaultState = x.ActualState.FirstOrDefault(afs => afs.IsDefault);
                     var data = new ActualFiniteStateListFilterData(defaultState);
                     CheckboxStates_ActualFiniteStateList.Add(x, data);
                 });
+
+                this.States = iteration?.ActualFiniteStateList.SelectMany(x => x.ActualState.Select(s => s.Name)).ToList();
 
                 this.StateHasChanged();
             }
@@ -177,115 +170,10 @@ namespace COMETwebapp.Pages.Viewer
         }
 
         /// <summary>
-        /// Filter <see cref="ElementBase"> to show in the tree
+        /// Creates the <see cref="ElementUsage"/> that need to be used fot populating the scene
         /// </summary>
-        /// <param name="elements"></param>
-        /// <returns></returns>
-        public List<ElementBase> Filter(List<ElementBase> elements)
-        {
-            if (this.OptionSelected != null)
-            {
-                var option = this.SessionAnchor?.OpenIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
-                var nestedElements = this.IterationService?.GetNestedElementsByOption(this.SessionAnchor?.OpenIteration, option);
-
-                var associatedElements = new List<ElementUsage>();
-                nestedElements?.ForEach(element =>
-                {
-                    associatedElements.AddRange(element.ElementUsage);
-                });
-                associatedElements = associatedElements.Distinct().ToList();
-
-                var elementsToRemove = new List<ElementBase>();
-                elements.ForEach(e =>
-                {
-                    if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
-                    {
-                        elementsToRemove.Add(e);
-                    }
-                });
-                elements.RemoveAll(e => elementsToRemove.Contains(e));
-            }
-
-            if (this.StateSelected != null)
-            {
-                var elementsToRemove = new List<ElementBase>();
-                elements.ForEach(e =>
-                {
-                    if (e.GetType().Equals(typeof(ElementDefinition)))
-                    {
-                        var elementDefinition = (ElementDefinition)e;
-                        var actualStates = new List<ActualFiniteState>();
-                        elementDefinition.Parameter.ForEach(p =>
-                        {
-                            p.ValueSet.ForEach(v =>
-                            {
-                                if (v.ActualState != null && v.ActualState.Name.Equals(this.StateSelected))
-                                {
-                                    actualStates.Add(v.ActualState);
-                                }
-                            });
-                        });
-                        if (actualStates.Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                    }
-                    else if (e.GetType().Equals(typeof(ElementUsage)))
-                    {
-                        var elementUsage = (ElementUsage)e;
-                        var actualStates = new List<ActualFiniteState>();
-                        if (elementUsage.ParameterOverride.Count == 0)
-                        {
-                            elementUsage.ElementDefinition.Parameter.ForEach(p =>
-                            {
-                                p.ValueSet.ForEach(v =>
-                                {
-                                    if (v.ActualState != null && v.ActualState.Name.Equals(this.StateSelected))
-                                    {
-                                        actualStates.Add(v.ActualState);
-                                    }
-                                });
-                            });
-                            if (actualStates.Count == 0)
-                            {
-                                elementsToRemove.Add(e);
-                            }
-                        }
-                        else if (elementUsage.ParameterOverride.Count != 0)
-                        {
-                            elementUsage.ParameterOverride.ForEach(p =>
-                            {
-                                p.ValueSet.ForEach(v =>
-                                {
-                                    if (v.ActualState != null && v.ActualState.Name.Equals(this.StateSelected))
-                                    {
-                                        actualStates.Add(v.ActualState);
-                                    }
-                                });
-                            });
-                            elementUsage.ElementDefinition.Parameter.ForEach(p =>
-                            {
-                                p.ValueSet.ForEach(v =>
-                                {
-                                    if (v.ActualState != null && v.ActualState.Name.Equals(this.StateSelected))
-                                    {
-                                        actualStates.Add(v.ActualState);
-                                    }
-                                });
-                            });
-                            if (actualStates.Count == 0)
-                            {
-                                elementsToRemove.Add(e);
-                            }
-                        }
-                    }
-                });
-                elements.RemoveAll(e => elementsToRemove.Contains(e));
-            }                        
-
-            return elements;
-        }
-
+        /// <param name="elements">the elements of the current <see cref="Iteration"/></param>
+        /// <returns>the <see cref="ElementUsage"/> used in the scene</returns>
         private List<ElementUsage> CreateElementUsagesForScene(List<ElementBase> elements)
         {
             var optionId = this.SessionAnchor?.OpenIteration?.DefaultOption?.Iid;

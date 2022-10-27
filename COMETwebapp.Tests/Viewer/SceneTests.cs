@@ -65,7 +65,7 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatPrimitivesAreAddedToScene()
         {
             Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            Scene.AddPrimitive(cube);
+            Scene.AddPrimitive(cube).Wait();
             var prim = Scene.GetPrimitiveById(cube.ID);
             Assert.AreEqual(cube, prim);
         }
@@ -95,12 +95,12 @@ namespace COMETwebapp.Tests.Viewer
         {
             var cube1 = new Cube(1, 1, 1);
             var cube2 = new Cube(1, 1, 1);
-            Scene.ClearPrimitives();
-            Scene.AddPrimitive(cube1);
-            Scene.AddPrimitive(cube2);
+            Scene.ClearPrimitives().Wait();
+            Scene.AddPrimitive(cube1).Wait();
+            Scene.AddPrimitive(cube2).Wait();
             Assert.AreEqual(2, Scene.GetPrimitives().Count);
 
-            Scene.ClearPrimitives();
+            Scene.ClearPrimitives().Wait();
             Assert.AreEqual(0, Scene.GetPrimitives().Count);
         }
     }
