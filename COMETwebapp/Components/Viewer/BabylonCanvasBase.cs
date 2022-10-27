@@ -29,6 +29,7 @@ namespace COMETwebapp.Componentes.Viewer
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
 
@@ -155,7 +156,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// <param name="elementUsages">The element usages to populate the scene</param>
         /// <param name="selectedOptionName">The name of the selected option</param>
         /// <param name="selectedStateName">The name of the selected state</param>
-        public async void RepopulateScene(List<ElementUsage> elementUsages, string selectedOptionName, string selectedStateName)
+        public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
             await Scene.ClearPrimitives();
 
@@ -165,7 +166,7 @@ namespace COMETwebapp.Componentes.Viewer
                 {
                     if (basicShape is PositionablePrimitive positionablePrimitive)
                     {
-                        positionablePrimitive.SetPositionFromElementUsageParameter(elementUsage, selectedOptionName, selectedStateName);
+                        positionablePrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
                     }
 
                     await Scene.AddPrimitive(basicShape);

@@ -41,37 +41,49 @@ Copyright (c) 2022 RHEA System S.A.
             <BabylonCanvas @ref=CanvasComponentReference />
             <div id="column">
                 @{
-                        <h1>States</h1>
+                    <h1>States</h1>
                     if (this.ListActualFiniteStateLists is not null)
                     {
                         foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
                         {
-                                <div class="actualFiniteStateList">
-                                    <input type="checkbox"
-                                           id="@actualFiniteStateList.Name"
-                                           name="@actualFiniteStateList.Name"
-                                           value="@actualFiniteStateList.Name"
-                                           onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(args))">
+                            <div class="actualFiniteStateList">
+                                <input type="checkbox"
+                               id="@actualFiniteStateList.Name"
+                               name="@actualFiniteStateList.Name"
+                               value="@actualFiniteStateList.Name"
+                               onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(actualFiniteStateList,args))">
 
-                                    <label for="@actualFiniteStateList.Name">
-                                        @actualFiniteStateList.Name
+                                <label for="@actualFiniteStateList.Name">
+                                    @actualFiniteStateList.Name
+                                </label>
+                            </div>
+
+                            @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+                            {
+                                <div class="actualFiniteState">
+
+                                    @if(actualFiniteState.IsDefault)
+                                    {
+                                    <input type="radio"
+                                           id="@actualFiniteState.Name"
+                                           name="@actualFiniteStateList.Name"
+                                           value="@actualFiniteState.Name"
+                                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
+                                           checked>
+                                    }
+                                    else
+                                    {
+                                    <input type="radio"
+                                           id="@actualFiniteState.Name"
+                                           name="@actualFiniteStateList.Name"
+                                           value="@actualFiniteState.Name"
+                                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
+                                    }
+
+                                    <label for="@actualFiniteState.Name">
+                                        @actualFiniteState.Name
                                     </label>
                                 </div>
-
-                                @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
-                            {
-                                    <div class="actualFiniteState">
-                                        <input type="radio"
-                                               id="@actualFiniteState.Name"
-                                               name="@actualFiniteStateList.Name"
-                                               value="@actualFiniteState.Name"
-                                               onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(args))"
-                                               checked>
-
-                                        <label for="@actualFiniteState.Name">
-                                            @actualFiniteState.Name
-                                        </label>
-                                    </div>
                             }
                         }
                     }

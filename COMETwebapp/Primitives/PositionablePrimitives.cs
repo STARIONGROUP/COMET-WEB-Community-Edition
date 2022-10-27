@@ -25,6 +25,7 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
     using System.Numerics;
 
@@ -129,50 +130,31 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Sets the position of a <see cref="Primitive"/> from the parameters of a <see cref="ElementUsage"/>
+        /// Set the position of the <see cref="Primitive"/> from a <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> with the position parameter</param>
-        public void SetPositionFromElementUsageParameter(ElementUsage elementUsage, string selectedOptionName, string selectedStateName)
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the positioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
+        public void SetPositionFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
             const string shortName = "coord";
 
+            IValueSet valueSet = null;
+
             if (elementUsage.ParameterOverride.Count > 0)
             {
-                var positionParameterOverride = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == shortName
+                var parameterOverride = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == shortName
                                                         && x.ParameterType is CompoundParameterType);
 
-                if (positionParameterOverride is not null)
+                if(parameterOverride is not null)
                 {
-                    ParameterOverrideValueSet? parameterValueSet = null;
-
-                    var parameterValueSets = positionParameterOverride.ValueSet.FindAll(set => set is not null).ToList();
-
-                    parameterValueSet = parameterValueSets.FirstOrDefault(valueSet =>
+                    foreach (var actualFiniteState in states)
                     {
-                        if (positionParameterOverride.IsOptionDependent && positionParameterOverride.StateDependence is not null && selectedStateName is not null)
+                        valueSet = parameterOverride.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                        if(valueSet is not null)
                         {
-                            return (valueSet.ActualOption.Name == selectedOptionName && valueSet.ActualState.Name == selectedStateName);
+                            break;
                         }
-                        else if (positionParameterOverride.IsOptionDependent)
-                        {
-                            return valueSet.ActualOption.Name == selectedOptionName;
-                        }
-                        else if (positionParameterOverride.StateDependence is not null)
-                        {
-                            return valueSet.ActualState.Name == selectedStateName;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    });
-
-                    if (parameterValueSet is not null &&
-                       double.TryParse(parameterValueSet.ActualValue[0], out var x) &&
-                       double.TryParse(parameterValueSet.ActualValue[1], out var y) &&
-                       double.TryParse(parameterValueSet.ActualValue[2], out var z))
-                    {
-                        this.SetTranslation(x, y, z);
                     }
                 }
             }
@@ -181,40 +163,25 @@ namespace COMETwebapp.Primitives
                 var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == shortName
                           && x.ParameterType is CompoundParameterType);
 
-                if(parameter is not null)
+                if (parameter is not null)
                 {
-                    ParameterValueSet? parameterValueSet = null;                                      
-
-                    //var parameterValueSets = parameter.ValueSet.FindAll(set => set is not null).ToList();
-                        
-                    parameterValueSet = parameter.ValueSet?.FirstOrDefault(valueSet => 
+                    foreach (var actualFiniteState in states)
                     {
-                        if (parameter.IsOptionDependent && parameter.StateDependence is not null && selectedStateName is not null)
+                        valueSet = parameter.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                        if (valueSet is not null)
                         {
-                            return (valueSet.ActualOption.Name == selectedOptionName && valueSet.ActualState.Name == selectedStateName);
+                            break;
                         }
-                        else if (parameter.IsOptionDependent)
-                        {
-                            return valueSet.ActualOption.Name == selectedOptionName;
-                        }
-                        else if (parameter.StateDependence is not null)
-                        {
-                            return valueSet.ActualState.Name == selectedStateName;
-                        }
-                        else
-                        {
-                            return true; 
-                        }
-                    });
-                    
-                    if(parameterValueSet is not null &&
-                       double.TryParse(parameterValueSet.ActualValue[0], out var x) &&
-                       double.TryParse(parameterValueSet.ActualValue[1], out var y) &&
-                       double.TryParse(parameterValueSet.ActualValue[2], out var z))
-                    {
-                        this.SetTranslation(x, y, z);
                     }
                 }
+            }
+
+            if (valueSet is not null &&
+                double.TryParse(valueSet.ActualValue[0], out var x) &&
+                double.TryParse(valueSet.ActualValue[1], out var y) &&
+                double.TryParse(valueSet.ActualValue[2], out var z))
+            {
+                this.SetTranslation(x, y, z);
             }
         }
     }

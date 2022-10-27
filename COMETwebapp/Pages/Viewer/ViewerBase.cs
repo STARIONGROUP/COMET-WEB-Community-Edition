@@ -1,4 +1,27 @@
-﻿namespace COMETwebapp.Pages.Viewer
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ViewerBase.cs" company="RHEA System S.A.">
+//    Copyright (c) 2022 RHEA System S.A.
+//
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+namespace COMETwebapp.Pages.Viewer
 {
     using System.Threading.Tasks;
 
@@ -6,9 +29,11 @@
 
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Support class for the <see cref="Viewer"/>
@@ -78,7 +103,10 @@
         [Parameter]
         public List<ActualFiniteStateList>? ListActualFiniteStateLists { get; set; }
 
-
+        /// <summary>
+        /// The dictionary that keeps track of the filters
+        /// </summary>
+        private Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData> CheckboxStates_ActualFiniteStateList;
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -120,8 +148,14 @@
                     });
                 });
 
-                //this.OptionSelected = iteration?.DefaultOption.Name;
-                //this.Filter(this.Elements);
+                CheckboxStates_ActualFiniteStateList = new Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData>();
+                this.ListActualFiniteStateLists?.ForEach(x =>
+                {
+                    var defaultState = x.ActualState.FirstOrDefault(afs => afs.IsDefault);
+                    var data = new ActualFiniteStateListFilterData(defaultState);
+                    CheckboxStates_ActualFiniteStateList.Add(x, data);
+                });
+
                 this.StateHasChanged();
             }
         }
@@ -247,11 +281,60 @@
                     }
                 });
                 elements.RemoveAll(e => elementsToRemove.Contains(e));
-            }
-                        
-            this.CanvasComponentReference?.RepopulateScene(elements.OfType<ElementUsage>().ToList(), this.OptionSelected, this.StateSelected);
+            }                        
 
             return elements;
+        }
+
+        private List<ElementUsage> CreateElementUsagesForScene(List<ElementBase> elements)
+        {
+            var optionId = this.SessionAnchor?.OpenIteration?.DefaultOption?.Iid;
+
+            if(this.OptionSelected != null)
+            {
+                optionId = this.SessionAnchor?.OpenIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
+            }
+
+            var nestedElements = this.IterationService?.GetNestedElementsByOption(this.SessionAnchor?.OpenIteration, optionId);
+
+            var associatedElements = new List<ElementUsage>();
+            nestedElements?.ForEach(element =>
+            {
+                associatedElements.AddRange(element.ElementUsage);
+            });
+            associatedElements = associatedElements.Distinct().ToList();
+
+            var elementsToRemove = new List<ElementBase>();
+            elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
+                {
+                    elementsToRemove.Add(e);
+                }
+            });
+            elements.RemoveAll(e => elementsToRemove.Contains(e));
+
+            return elements.OfType<ElementUsage>().ToList();
+        }
+
+        /// <summary>
+        /// Repopulates the scene with the specified <see cref="ElementUsage"/>
+        /// </summary>
+        /// <param name="elementUsages">the element usages to populate the scene with</param>
+        private void RepopulateScene(List<ElementUsage> elementUsages)
+        {
+            var optionName = this.OptionSelected;
+            var stateName = this.StateSelected;
+
+            if(optionName is null)
+            {
+                optionName = this.SessionAnchor?.OpenIteration?.DefaultOption.Name;
+            }
+                        
+            var option = this.SessionAnchor?.OpenIteration?.Option.FirstOrDefault(opt => opt.Name == optionName);
+            List<ActualFiniteState> states = CheckboxStates_ActualFiniteStateList.Values.Select(x => x.GetStateToUse()).ToList();
+
+            this.CanvasComponentReference?.RepopulateScene(elementUsages, option, states);
         }
 
         /// <summary>
@@ -264,40 +347,43 @@
             this.FilterOption = this.OptionSelected != null ? this.SessionAnchor?.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid : null;
             this.Elements.Clear();
             this.InitializeElements();
-            this.Filter(this.Elements);
+            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.RepopulateScene(elementsOnScene);
             this.StateHasChanged();
-        }
-
-        /// <summary>
-        /// Updates Elements list when a filter for parameter typestate is selected
-        /// </summary>
-        /// <param name="state">Name of the State selected</param>
-        public void OnStateFilterChange(string? state)
-        {
-            this.StateSelected = state;
-            this.Elements.Clear();
-            this.InitializeElements();
-            this.Filter(this.Elements);
-            this.StateHasChanged();
-
         }
 
         /// <summary>
         /// Event that is raised when the checkboxes of an <see cref="ActualFiniteStateList"/> change their state
         /// </summary>
         /// <param name="args">the arguments of the event</param>
-        public void OnActualFiniteStateList_SelectionChanged(ChangeEventArgs args)
+        public void OnActualFiniteStateList_SelectionChanged(object sender, ChangeEventArgs args)
         {
-
+            if(sender is ActualFiniteStateList actualFiniteStateList && args.Value is bool value)
+            {
+                if (CheckboxStates_ActualFiniteStateList.ContainsKey(actualFiniteStateList))
+                {
+                    CheckboxStates_ActualFiniteStateList[actualFiniteStateList].IsFilterActive = value;                    
+                }                
+            }
+            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.RepopulateScene(elementsOnScene);
         }
 
         /// <summary>
         /// Event that is raised when the radiobuttons of an <see cref="ActualFiniteState"/> change their state
         /// </summary>
         /// <param name="args">the argument of the event</param>
-        public void OnActualFiniteState_SelectionChanged(ChangeEventArgs args)
+        public void OnActualFiniteState_SelectionChanged(object sender, ChangeEventArgs args)
         {
-
+            if(sender is ActualFiniteState actualFiniteState && actualFiniteState.Container is ActualFiniteStateList actualFiniteStateList)
+            {
+                if (CheckboxStates_ActualFiniteStateList.ContainsKey(actualFiniteStateList))
+                {
+                    CheckboxStates_ActualFiniteStateList[actualFiniteStateList].ActiveState = actualFiniteState;
+                }
+            }
+            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.RepopulateScene(elementsOnScene);
         }
     }
 }
