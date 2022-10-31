@@ -39,6 +39,6 @@ namespace COMETwebapp.Primitives
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
         /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
         /// <returns></returns>
-        Task<Primitive> TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
+        Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
     }
 }

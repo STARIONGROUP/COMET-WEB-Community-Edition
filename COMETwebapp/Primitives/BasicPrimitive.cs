@@ -216,6 +216,6 @@ namespace COMETwebapp.Primitives
         /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
-        public abstract Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
+        public abstract void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
     }
 }
