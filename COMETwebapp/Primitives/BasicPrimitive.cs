@@ -147,7 +147,7 @@ namespace COMETwebapp.Primitives
         /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the positioning</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="BasicPrimitive"/></param>
-        public Task SetPositionFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        public void SetPositionFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
             IValueSet? valueSet = null;
 
@@ -159,9 +159,7 @@ namespace COMETwebapp.Primitives
                 double.TryParse(valueSet.ActualValue[2], out var z))
             {
                 this.SetTranslation(x / 1000.0, y / 1000.0, z / 1000.0);
-            }
-
-            return Task.CompletedTask;
+            }            
         }
 
         /// <summary>

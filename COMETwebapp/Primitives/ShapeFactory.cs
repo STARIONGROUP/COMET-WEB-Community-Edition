@@ -35,12 +35,12 @@ namespace COMETwebapp.Primitives
     public class ShapeFactory : IShapeFactory
     {
         /// <summary>
-        /// Tries to create a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
+        /// Tries to create a <see cref="Primitive"/> from the data of a <see cref="ElementUsage"/>
         /// </summary>
         /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
-        /// <returns>A <see cref="Task" of <see cref="Primitive"/> result/></returns>
+        /// <returns>The created <see cref="Primitive"/></returns>
         public Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
             var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"

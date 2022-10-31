@@ -111,11 +111,6 @@ namespace COMETwebapp.Primitives
             {
                 this.Depth = d;
             }
-
-            if(this.Width > 1 || this.Height > 1 || this.Depth > 1)
-            {
-
-            }
         }
     }
 }

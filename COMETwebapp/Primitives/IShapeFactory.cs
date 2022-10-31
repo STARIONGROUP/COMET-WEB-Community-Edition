@@ -32,13 +32,12 @@ namespace COMETwebapp.Primitives
     public interface IShapeFactory
     {
         /// <summary>
-        /// Tries to create a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
+        /// Tries to create a <see cref="Primitive"/> from the data of a <see cref="ElementUsage"/>
         /// </summary>
         /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
-        /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
-        /// <returns></returns>
+        /// <returns>The created <see cref="Primitive"/></returns>
         Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
     }
 }
