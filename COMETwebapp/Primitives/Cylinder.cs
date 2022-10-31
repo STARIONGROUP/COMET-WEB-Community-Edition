@@ -21,12 +21,13 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.Primitives
 {
     /// <summary>
     /// Cylinder primitive type
     /// </summary>
-    public class Cylinder : PositionablePrimitives
+    public class Cylinder : PositionablePrimitive
     {
         /// <summary>
         /// Radius of the <see cref="Cylinder"/>

@@ -21,9 +21,18 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.Primitives
 {
-    public abstract class PositionablePrimitives : Primitive
+    using System.Numerics;
+
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;    
+
+    /// <summary>
+    /// Class fot primitives that can be positioned in space
+    /// </summary>
+    public abstract class PositionablePrimitive : Primitive
     {
         /// <summary>
         /// Subtype of the primitive
@@ -61,6 +70,16 @@ namespace COMETwebapp.Primitives
         public double RZ { get; private set; }
 
         /// <summary>
+        /// The current position of the <see cref="PositionablePrimitive"/>
+        /// </summary>
+        public Vector3 Position => new Vector3((float)this.X, (float)this.Y, (float)this.Z);
+
+        /// <summary>
+        /// The current orientation of the <see cref="PositionablePrimitive"/>
+        /// </summary>
+        public Vector3 Orientation => new Vector3((float)this.RX, (float)this.RY, (float)this.RZ);
+
+        /// <summary>
         /// Sets a NEW translation to the primitive. Added to the previous one.
         /// </summary>
         /// <param name="x">translation along X axis</param>
@@ -93,8 +112,8 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public void ResetTransformations()
         {
-            ResetRotation();
-            ResetTranslation();
+            this.ResetRotation();
+            this.ResetTranslation();
         }
 
         /// <summary>
@@ -111,6 +130,51 @@ namespace COMETwebapp.Primitives
         public void ResetRotation()
         {
             this.RX = this.RY = this.RZ = 0;
+        }
+
+        /// <summary>
+        /// Set the position of the <see cref="Primitive"/> from a <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the positioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
+        public void SetPositionFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {
+            const string shortName = "coord";
+
+            ParameterBase? parameterBase = null;
+            IValueSet? valueSet = null;
+
+            if (elementUsage.ParameterOverride.Count > 0)
+            {
+                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == shortName
+                                                        && x.ParameterType is CompoundParameterType);
+            }
+            else
+            {
+                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == shortName
+                          && x.ParameterType is CompoundParameterType);
+            }
+
+            if (parameterBase is not null)
+            {
+                foreach (var actualFiniteState in states)
+                {
+                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                    if (valueSet is not null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (valueSet is not null &&
+                double.TryParse(valueSet.ActualValue[0], out var x) &&
+                double.TryParse(valueSet.ActualValue[1], out var y) &&
+                double.TryParse(valueSet.ActualValue[2], out var z))
+            {
+                this.SetTranslation(x, y, z);
+            }
         }
     }
 }

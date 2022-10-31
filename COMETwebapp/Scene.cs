@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp
 {
     using System;
@@ -32,7 +33,6 @@ namespace COMETwebapp
     using COMETwebapp.Primitives;
 
     using Newtonsoft.Json;
-    using System.Net.NetworkInformation;
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -53,9 +53,9 @@ namespace COMETwebapp
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public static void InitCanvas(ElementReference canvas)
+        public static async void InitCanvas(ElementReference canvas)
         {
-            JSInterop.Invoke("InitCanvas", canvas);
+            await JSInterop.Invoke("InitCanvas", canvas);
         }
 
         /// <summary>
@@ -85,9 +85,9 @@ namespace COMETwebapp
         /// Adds a primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        public static void AddPrimitive(Primitive primitive)
+        public static async Task AddPrimitive(Primitive primitive)
         {
-            AddPrimitive(primitive, Color.LightGray);
+            await AddPrimitive(primitive, Color.LightGray);
         }
 
         /// <summary>
@@ -95,23 +95,23 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         /// <param name="color">the color of the primitive</param>
-        public static void AddPrimitive(Primitive primitive, Color color)
+        public static async Task AddPrimitive(Primitive primitive, Color color)
         {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
             string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
 
             primitivesCollection.Add(primitive.ID, primitive);
-            JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
+            await JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
         }
 
         /// <summary>
         /// Adds a temporary primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        public static void AddTemporaryPrimitive(Primitive primitive)
+        public static async Task AddTemporaryPrimitive(Primitive primitive)
         {
-            AddTemporaryPrimitive(primitive, Color.LightGray);
+            await AddTemporaryPrimitive(primitive, Color.LightGray);
         }
 
         /// <summary>
@@ -119,24 +119,25 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         /// <param name="color">the color of the primitive</param>
-        public static void AddTemporaryPrimitive(Primitive primitive, Color color)
+        public static async Task AddTemporaryPrimitive(Primitive primitive, Color color)
         {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
             string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
 
             primitivesCollection.Add(primitive.ID, primitive);
-            JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
+            await JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
         }
 
         /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
-        public static void ClearPrimitives()
-        {            
-            foreach(var id in primitivesCollection.Keys)
+        public static async Task ClearPrimitives()
+        {
+            var keys = primitivesCollection.Keys.ToList();
+            foreach (var id in keys)
             {
-                JSInterop.Invoke("Dispose", id);
+                await JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
         }
@@ -144,11 +145,12 @@ namespace COMETwebapp
         /// <summary>
         /// Clears the scene deleting the temporary primitives
         /// </summary>
-        public static void ClearTemporaryPrimitives()
+        public static async Task ClearTemporaryPrimitives()
         {
-            foreach (var id in temporaryPrimitivesCollection.Keys)
+            var keys = primitivesCollection.Keys.ToList();
+            foreach (var id in keys)
             {
-                JSInterop.Invoke("Dispose", id);
+                await JSInterop.Invoke("Dispose", id);
             }
             temporaryPrimitivesCollection.Clear();
         }
@@ -190,9 +192,9 @@ namespace COMETwebapp
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        public static void SetPrimitivePosition(string Id, double x, double y, double z)
+        public static async void SetPrimitivePosition(string Id, double x, double y, double z)
         {
-            JSInterop.Invoke("SetPrimitivePosition",Id, x, y, z);
+            await JSInterop.Invoke("SetPrimitivePosition",Id, x, y, z);
         }
 
         /// <summary>
@@ -214,9 +216,9 @@ namespace COMETwebapp
         /// <param name="rx">rotation around X axis</param>
         /// <param name="ry">rotation around Y axis</param>
         /// <param name="rz">rotation around Z axis</param>
-        public static void SetPrimitiveRotation(string Id, double rx, double ry, double rz)
+        public static async void SetPrimitiveRotation(string Id, double rx, double ry, double rz)
         {
-            JSInterop.Invoke("SetPrimitiveRotation", Id, rx, ry, rz);
+            await JSInterop.Invoke("SetPrimitiveRotation", Id, rx, ry, rz);
         }
 
         /// <summary>
@@ -236,27 +238,27 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="x">The x coordinate</param>
         /// <param name="y">The y coordinate</param>
-        public static void SetInfoPanelPosition(int x, int y)
+        public static async void SetInfoPanelPosition(int x, int y)
         {
-            JSInterop.Invoke("SetPanelPosition", x, y);
+            await JSInterop.Invoke("SetPanelPosition", x, y);
         }
 
         /// <summary>
         /// Sets the info panel visibility
         /// </summary>
         /// <param name="visible">true if the panel must be visible, false otherwise</param>
-        public static void SetInfoPanelVisibility(bool visible)
+        public static async void SetInfoPanelVisibility(bool visible)
         {
-            JSInterop.Invoke("SetPanelVisibility", visible);
+            await JSInterop.Invoke("SetPanelVisibility", visible);
         }
 
         /// <summary>
         /// Sets the info panel with the specified content
         /// </summary>
         /// <param name="info">The info that the panel must display</param>
-        public static void SetInfoPanelContent(string info)
+        public static async void SetInfoPanelContent(string info)
         {
-            JSInterop.Invoke("SetPanelContent", info);
+            await JSInterop.Invoke("SetPanelContent", info);
         }
 
         /// <summary>

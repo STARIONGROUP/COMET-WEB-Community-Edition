@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Sphere.cs" company="RHEA System S.A.">
+// <copyright file="IShapeFactory.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -24,43 +24,21 @@
 
 namespace COMETwebapp.Primitives
 {
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
-    /// Sphere primitive type
+    /// Factory for creating different basic shapes of type <see cref="Primitive"/>
     /// </summary>
-    public class Sphere : PositionablePrimitive
+    public interface IShapeFactory
     {
         /// <summary>
-        /// Basic type name
+        /// Tries to create a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
         /// </summary>
-        public override string Type { get; protected set; } = "Sphere";
-
-        /// <summary>
-        /// The radius of the <see cref="Sphere"/>
-        /// </summary>
-        public double Radius { get; }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="Sphere"/> class
-        /// </summary>
-        /// <param name="radius"></param>
-        public Sphere(double radius)
-        {
-            this.Radius = radius;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="Sphere"/> class
-        /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="radius">the radius of the sphere</param>
-        public Sphere(double x, double y, double z, double radius)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Radius = radius;
-        }
+        /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
+        /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
+        /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
+        /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
+        /// <returns></returns>
+        bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states, out Primitive basicShape);
     }
 }

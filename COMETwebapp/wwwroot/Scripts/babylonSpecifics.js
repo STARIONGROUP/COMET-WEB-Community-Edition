@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Helper.js" company="RHEA System S.A.">
+// <copyright file="babylonSpecifics.js" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -32,7 +32,7 @@ function CreateScene(engine, canvas) {
     scene.clearColor = new BABYLON.Color3(0.98, 0.98, 0.98);
 
     Camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
-    Camera.setPosition(new BABYLON.Vector3(200, 100, -300));
+    Camera.setPosition(new BABYLON.Vector3(20, 10, -30));
     Camera.attachControl(canvas, true);
     Camera.lowerRadiusLimit = 5;
     Camera.upperRadiusLimit = SkyboxSize / 2.0;

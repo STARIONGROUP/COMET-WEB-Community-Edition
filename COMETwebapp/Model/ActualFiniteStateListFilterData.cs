@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Torus.cs" company="RHEA System S.A.">
+// <copyright file="ActualFiniteStateListFilterData.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,54 +22,47 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Model
 {
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
-    /// Torus primitive type
+    /// Class that contains the data of a filter of type <see cref="ActualFiniteStateList"/>
     /// </summary>
-    public class Torus : PositionablePrimitive
+    public class ActualFiniteStateListFilterData
     {
         /// <summary>
-        /// Basic type name
+        /// If the filter is active or not
         /// </summary>
-        public override string Type { get; protected set; } = "Torus";
+        public bool IsFilterActive { get; set; }
 
         /// <summary>
-        /// Diameter of the <see cref="Torus"/>
+        /// The <see cref="ActualFiniteState"/> that is active inside the <see cref="ActualFiniteStateList"/>
         /// </summary>
-        public double Diameter { get; }
+        public ActualFiniteState ActiveState { get; set; }
 
         /// <summary>
-        /// Thickness of the <see cref="Torus"/>
+        /// The default <see cref="ActualFiniteState"/> that needs to be used when <see cref="IsFilterActive"/> is false
         /// </summary>
-        public double Thickness { get; }
-        
+        public ActualFiniteState DefaultState { get;}
+
         /// <summary>
-        /// Initializes a new instance of <see cref="Torus"/> class
+        /// Creates a new instance of type <see cref="ActualFiniteStateListFilterData"/>
         /// </summary>
-        /// <param name="diameter">the diameter of the <see cref="Torus"/></param>
-        /// <param name="thickness">The thickness of the <see cref="Torus"/></param>
-        public Torus(double diameter, double thickness)
+        /// <param name="defaultState">the <see cref="ActualFiniteState"/> used for initializing the <see cref="DefaultState"/> and the <see cref="ActiveState"/></param>
+        public ActualFiniteStateListFilterData(ActualFiniteState defaultState)
         {
-            this.Diameter = diameter;
-            this.Thickness = thickness;
+            this.DefaultState = defaultState;
+            this.ActiveState = defaultState;
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Torus"/> class
+        /// Gets the state that needs to be used.
         /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="diameter">the diameter of the <see cref="Torus"/></param>
-        /// <param name="thickness">The thickness of the <see cref="Torus"/></param>
-        public Torus(double x, double y, double z, double diameter, double thickness)
+        /// <returns>the <see cref="ActiveState"/> if <see cref="IsFilterActive"/> is true, the <see cref="DefaultState"/> otherwise</returns>
+        public ActualFiniteState GetStateToUse()
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Diameter = diameter;
-            this.Thickness = thickness;
+            return this.IsFilterActive ? this.ActiveState : this.DefaultState;
         }
     }
 }

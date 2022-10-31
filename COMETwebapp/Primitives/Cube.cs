@@ -21,12 +21,13 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.Primitives
 {
     /// <summary>
     /// Cube primitive type
     /// </summary>
-    public class Cube : PositionablePrimitives
+    public class Cube : PositionablePrimitive
     {
         /// <summary>
         /// The width of the cube

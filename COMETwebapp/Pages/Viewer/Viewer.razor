@@ -20,11 +20,104 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @page "/3DViewer"
+@inherits ViewerBase
 
 <ApplicationTemplate Title="3D Viewer">
     <Body>
-        <BabylonCanvas/>
+        <div class="row">
+            <div class="col">
+                <h6>Filter on Option:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="this.Options"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.OptionSelected"
+                                ValueChanged="@((string option) => OnOptionFilterChange(option))"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+                </div>
+            </div>         
+        </div>
+        <div id="bodyGrid">
+            <BabylonCanvas @ref=CanvasComponentReference />
+            <div id="column">
+                @{
+                    <h1>States</h1>
+                    if (this.ListActualFiniteStateLists is not null)
+                    {
+                        foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
+                        {
+                            <div class="actualFiniteStateList">
+                                <input type="checkbox"
+                               id="@actualFiniteStateList.Name"
+                               name="@actualFiniteStateList.Name"
+                               value="@actualFiniteStateList.Name"
+                               onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(actualFiniteStateList,args))">
+
+                                <label for="@actualFiniteStateList.Name">
+                                    @actualFiniteStateList.Name
+                                </label>
+                            </div>
+
+                            @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+                            {
+                                <div class="actualFiniteState">
+
+                                    @if(actualFiniteState.IsDefault)
+                                    {
+                                    <input type="radio"
+                                           id="@actualFiniteState.Name"
+                                           name="@actualFiniteStateList.Name"
+                                           value="@actualFiniteState.Name"
+                                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
+                                           checked>
+                                    }
+                                    else
+                                    {
+                                    <input type="radio"
+                                           id="@actualFiniteState.Name"
+                                           name="@actualFiniteStateList.Name"
+                                           value="@actualFiniteState.Name"
+                                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
+                                    }
+
+                                    <label for="@actualFiniteState.Name">
+                                        @actualFiniteState.Name
+                                    </label>
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
     </Body>
 </ApplicationTemplate>
 
+<style>
+    #bodyGrid{
+        margin: 1% 0;
+        display: grid;
+        grid-template-columns: 9fr 1.5fr;
+        grid-template-rows: 1fr;
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
+    }
 
+    #column{
+        grid-area: 1 / 2 / 2 / 3;        
+    }
+
+    .actualFiniteStateList{
+        margin : 0;
+        margin-left: 20px;
+    }
+
+    .actualFiniteState {
+        margin: 0;
+        margin-left: 40px;
+    }
+
+    h1{
+        margin-left:20px;
+    }
+</style>
