@@ -38,7 +38,7 @@ const CameraRotationSensibility = 900.0;
  * Camera panning sensibility. A higher number means that the panning distance per mouse displacement is fewer.
  * @type {number}
  */
-const CameraPanningSensibility = 100;
+const CameraPanningSensibility = 80.0;
 
 /**
  * Camera zoom sensibility. A higher number means that the zoom per mouse wheel displacement is fewer.
@@ -240,33 +240,38 @@ function GetPrimitiveByID(Id) {
 
 /**
  * Sets the translation of the primitive with the specified ID
- * @param {number} ID - the ID of the primitive to translate.
+ * @param {string} ID - the ID of the primitive to translate.
  * @param {number} x - translation along the X axis
  * @param {number} y - translation along the Y axis
  * @param {number} z - translation along the Z axis
  */
 function SetPrimitivePosition(ID, x, y, z) {
     if (Primitives.size > 0) {
+        console.log("Id: " + ID);
+        console.log("TypeOf: " + typeof (ID));
         let data = Primitives.get(ID);
+        console.log("data: " + data);
         if (data != undefined) {
+            console.log("Mesh before Translate: " + mesh.position.x, mesh.position.y, mesh.position.z);
             let mesh = data["mesh"];
             mesh.position.x = x;
             mesh.position.y = y;
             mesh.position.z = z;
+            console.log("Mesh after Translate: " + mesh.position.x, mesh.position.y, mesh.position.z);
         }
     }
 }
 
 /**
  * Sets the rotation of the primitive with the specified ID
- * @param {number} Id - the ID of the primitive to rotate.
+ * @param {string} ID - the ID of the primitive to rotate.
  * @param {number} rx - the rotation around X axis
  * @param {number} ry - the rotation around Y axis
  * @param {number} rz - the rotation around Z axis
  */
-function SetPrimitiveRotation(Id, rx, ry, rz) {
+function SetPrimitiveRotation(ID, rx, ry, rz) {
     if (Primitives.size > 0) {
-        let data = Primitives.get(Id);
+        let data = Primitives.get(ID);
         if (data != undefined) {
             let mesh = data["mesh"];
             mesh.rotation.x = rx;

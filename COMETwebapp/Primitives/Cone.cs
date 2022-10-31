@@ -24,10 +24,13 @@
 
 namespace COMETwebapp.Primitives
 {
+    using CDP4Common.EngineeringModelData;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Cone primitive type
     /// </summary>
-    public class Cone : PositionablePrimitive
+    public class Cone : BasicPrimitive
     {
         /// <summary>
         /// The radius of the base of the cone
@@ -70,6 +73,11 @@ namespace COMETwebapp.Primitives
             this.Z = z;
             this.Radius = radius;
             this.Height = height;
+        }
+
+        public override async Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {
+            throw new NotImplementedException();
         }
     }
 }

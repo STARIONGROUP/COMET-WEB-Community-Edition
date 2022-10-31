@@ -24,10 +24,14 @@
 
 namespace COMETwebapp.Primitives
 {
+    using System.Collections.Generic;
+
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Sphere primitive type
     /// </summary>
-    public class Sphere : PositionablePrimitive
+    public class Sphere : BasicPrimitive
     {
         /// <summary>
         /// Basic type name
@@ -37,7 +41,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// The radius of the <see cref="Sphere"/>
         /// </summary>
-        public double Radius { get; }
+        public double Radius { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="Sphere"/> class
@@ -61,6 +65,24 @@ namespace COMETwebapp.Primitives
             this.Y = y;
             this.Z = z;
             this.Radius = radius;
+        }
+
+        /// <summary>
+        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
+        public override Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {
+            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.DiameterShortName);
+            
+            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            {
+                this.Radius =  d/ 2.0;
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

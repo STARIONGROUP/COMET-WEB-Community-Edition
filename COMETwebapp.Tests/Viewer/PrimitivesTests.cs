@@ -47,7 +47,7 @@ namespace COMETwebapp.Tests.Viewer
     public class PrimitivesTests
     {
         private TestContext context;
-        private List<PositionablePrimitive> positionables;
+        private List<BasicPrimitive> positionables;
         private List<Primitive> primitives;
 
         [SetUp]
@@ -63,8 +63,7 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddSingleton(factory.Object);
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
-            this.positionables = new List<PositionablePrimitive>();
-            this.positionables.Add(new Cone(1, 2));
+            this.positionables = new List<BasicPrimitive>();
             this.positionables.Add(new Cube(1, 1, 1));
             this.positionables.Add(new Cylinder(1, 1));
             this.positionables.Add(new Sphere(1));

@@ -24,25 +24,29 @@
 
 namespace COMETwebapp.Primitives
 {
+    using System.Collections.Generic;
+
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Cube primitive type
     /// </summary>
-    public class Cube : PositionablePrimitive
+    public class Cube : BasicPrimitive
     {
         /// <summary>
         /// The width of the cube
         /// </summary>
-        public double Width { get; }
+        public double Width { get; private set; }
 
         /// <summary>
         /// The height of the cube
         /// </summary>
-        public double Height { get; }
+        public double Height { get; private set; }
 
         /// <summary>
         /// The depth of the cube
         /// </summary>
-        public double Depth { get; }
+        public double Depth { get; private set; }
 
         /// <summary>
         /// Basic type name
@@ -79,6 +83,41 @@ namespace COMETwebapp.Primitives
             this.Width = width;
             this.Height = height;
             this.Depth = depth;
+        }
+
+        /// <summary>
+        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
+        public override Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {            
+            var widthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.WidthShortName);
+            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
+            var lengthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.LengthShortName);
+
+            if(widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
+            {
+                this.Width = w;
+            }
+
+            if(heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
+            {
+                this.Height = h;
+            }
+
+            if(lengthValueSet is not null && double.TryParse(lengthValueSet.ActualValue.First(), out double d))
+            {
+                this.Depth = d;
+            }
+
+            if(this.Width > 1 || this.Height > 1 || this.Depth > 1)
+            {
+
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

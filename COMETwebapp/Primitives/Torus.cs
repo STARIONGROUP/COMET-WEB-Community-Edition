@@ -24,10 +24,14 @@
 
 namespace COMETwebapp.Primitives
 {
+    using System.Collections.Generic;
+
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Torus primitive type
     /// </summary>
-    public class Torus : PositionablePrimitive
+    public class Torus : BasicPrimitive
     {
         /// <summary>
         /// Basic type name
@@ -37,12 +41,12 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Diameter of the <see cref="Torus"/>
         /// </summary>
-        public double Diameter { get; }
+        public double Diameter { get; private set; }
 
         /// <summary>
         /// Thickness of the <see cref="Torus"/>
         /// </summary>
-        public double Thickness { get; }
+        public double Thickness { get; private set; }
         
         /// <summary>
         /// Initializes a new instance of <see cref="Torus"/> class
@@ -70,6 +74,30 @@ namespace COMETwebapp.Primitives
             this.Z = z;
             this.Diameter = diameter;
             this.Thickness = thickness;
+        }
+
+        /// <summary>
+        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
+        public override Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {
+            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.DiameterShortName);
+            var thicknessValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.ThicknessShortName);
+            
+            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            {
+                this.Diameter = d;
+            }
+
+            if(thicknessValueSet is not null && double.TryParse(thicknessValueSet.ActualValue.First(), out double t))
+            {
+                this.Thickness = t;
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

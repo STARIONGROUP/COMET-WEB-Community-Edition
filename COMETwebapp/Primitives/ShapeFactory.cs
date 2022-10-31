@@ -42,7 +42,7 @@ namespace COMETwebapp.Primitives
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
         /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
         /// <returns></returns>
-        public bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states, out Primitive basicShape)
+        public Task<Primitive> TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
             var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"
                       && (x.ParameterType is EnumerationParameterType || x.ParameterType is TextParameterType));
@@ -66,18 +66,21 @@ namespace COMETwebapp.Primitives
                 string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
                 switch (shapeKind)
                 {
-                    case "box": basicShape = new Cube(1, 1, 1); return true;
-                    case "cylinder": basicShape = new Cylinder(1, 1); return true;
-                    case "sphere": basicShape = new Sphere(1); return true;
-                    case "torus": basicShape = new Torus(1, 1); return true;
-                    default: basicShape = null; return false;
+                    case "box": return Task.FromResult<Primitive>(new Cube(1, 1, 1));
+                    case "cylinder": return Task.FromResult<Primitive>(new Cylinder(1, 1));
+                    case "sphere": return Task.FromResult<Primitive>(new Sphere(1));
+                    case "torus": return Task.FromResult<Primitive>(new Torus(1, 1));
+                    case "triprism": throw new NotImplementedException();
+                    case "tetrahedron": throw new NotImplementedException();
+                    case "capsule": throw new NotImplementedException();
+                    
+                    default: return Task.FromResult<Primitive>(new Cube(1, 1, 1)); 
                 }
             }
             else
             {
-                basicShape = null;
-                return false;
-            }
+                return Task.FromResult<Primitive>(new Cube(1, 1, 1));
+            }      
         }
     }
 }

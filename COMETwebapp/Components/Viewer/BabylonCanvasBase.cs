@@ -154,11 +154,14 @@ namespace COMETwebapp.Componentes.Viewer
 
             foreach (var elementUsage in elementUsages)
             {
-                if (this.ShapeFactory is not null && this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states, out Primitive basicShape))
+                var basicShape = await this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states);
+
+                if (this.ShapeFactory is not null && basicShape is not null)
                 {
-                    if (basicShape is PositionablePrimitive positionablePrimitive)
+                    if (basicShape is BasicPrimitive basicPrimitive)
                     {
-                        positionablePrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
+                        await basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
+                        await basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
                     }
 
                     await Scene.AddPrimitive(basicShape);
