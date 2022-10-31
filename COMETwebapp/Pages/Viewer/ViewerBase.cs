@@ -219,10 +219,7 @@ namespace COMETwebapp.Pages.Viewer
             var option = this.SessionAnchor?.OpenIteration?.Option.FirstOrDefault(opt => opt.Name == optionName);
             List<ActualFiniteState> states = this.CheckboxStates_ActualFiniteStateList.Values.Select(x => x.GetStateToUse()).ToList();
 
-            if(option is not null)
-            {
-                this.CanvasComponentReference?.RepopulateScene(elementUsages, option, states);
-            }
+            this.CanvasComponentReference?.RepopulateScene(elementUsages, option, states);
         }
 
         /// <summary>

@@ -180,9 +180,9 @@ namespace COMETwebapp.Primitives
             {
                 parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
                                                                                    && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(parameterTypeShortName));
-            }            
-            
-            if(parameterBase is null)
+            }
+
+            if (parameterBase is null)
             {
                 parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
                                                                                              && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(parameterTypeShortName));
@@ -206,7 +206,6 @@ namespace COMETwebapp.Primitives
                     valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, null);
                 }
             }
-
 
             return valueSet;
         }
