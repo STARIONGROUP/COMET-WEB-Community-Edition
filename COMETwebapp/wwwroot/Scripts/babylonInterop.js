@@ -247,17 +247,12 @@ function GetPrimitiveByID(Id) {
  */
 function SetPrimitivePosition(ID, x, y, z) {
     if (Primitives.size > 0) {
-        console.log("Id: " + ID);
-        console.log("TypeOf: " + typeof (ID));
         let data = Primitives.get(ID);
-        console.log("data: " + data);
         if (data != undefined) {
-            console.log("Mesh before Translate: " + mesh.position.x, mesh.position.y, mesh.position.z);
             let mesh = data["mesh"];
             mesh.position.x = x;
             mesh.position.y = y;
             mesh.position.z = z;
-            console.log("Mesh after Translate: " + mesh.position.x, mesh.position.y, mesh.position.z);
         }
     }
 }

@@ -24,8 +24,9 @@
 
 namespace COMETwebapp.Primitives
 {
-    using CDP4Common.EngineeringModelData;
     using System.Collections.Generic;
+
+    using CDP4Common.EngineeringModelData;
 
     /// <summary>
     /// Cone primitive type
@@ -35,12 +36,12 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// The radius of the base of the cone
         /// </summary>
-        public double Radius { get; }
+        public double Radius { get; private set; }
 
         /// <summary>
         /// The height of the cone
         /// </summary>
-        public double Height { get; }
+        public double Height { get; private set; }
 
         /// <summary>
         /// Basic type name
@@ -75,9 +76,28 @@ namespace COMETwebapp.Primitives
             this.Height = height;
         }
 
-        public override async Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        /// <summary>
+        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
+        public override Task SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            throw new NotImplementedException();
+            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.DiameterShortName);
+            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
+
+            if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            {
+                this.Radius = d / 2.0;
+            }
+
+            if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
+            {
+                this.Height = h;
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

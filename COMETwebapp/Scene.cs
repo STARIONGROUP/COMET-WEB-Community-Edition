@@ -30,11 +30,13 @@ namespace COMETwebapp
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.Primitives;
 
     using Newtonsoft.Json;
+
     using Microsoft.AspNetCore.Components;
-    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// Static class to access the resources of a Scene 

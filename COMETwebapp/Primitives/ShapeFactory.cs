@@ -40,8 +40,7 @@ namespace COMETwebapp.Primitives
         /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
-        /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task" of <see cref="Primitive"/> result/></returns>
         public Task<Primitive> TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
             var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"
