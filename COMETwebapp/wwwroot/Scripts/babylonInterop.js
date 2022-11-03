@@ -215,6 +215,16 @@ function GetPrimitiveIDUnderMouse() {
     let pickedMesh = hit.pickedMesh;
 
     if (pickedMesh.CometID != "Skybox") {
+
+        let data = Primitives.get(pickedMesh.CometID);
+        if (data != undefined) {
+            let primitiveData = data["primitive"];
+
+            if (primitiveData != undefined) {
+                console.log(primitiveData.ElementUsageName);
+            }
+        }
+
         return pickedMesh.CometID;
     }
 
@@ -246,15 +256,19 @@ function GetPrimitiveByID(Id) {
  * @param {number} z - translation along the Z axis
  */
 function SetPrimitivePosition(ID, x, y, z) {
+    console.log("Set position enter. Translate to: " + x, y, z);
     if (Primitives.size > 0) {
         let data = Primitives.get(ID);
         if (data != undefined) {
             let mesh = data["mesh"];
+            console.log("Data: " + mesh.position);
             mesh.position.x = x;
             mesh.position.y = y;
             mesh.position.z = z;
+            console.log("Data: " + mesh.position);
         }
     }
+    console.log("---- FINISH POSITIONING ----")
 }
 
 /**
@@ -265,6 +279,7 @@ function SetPrimitivePosition(ID, x, y, z) {
  * @param {number} rz - the rotation around Z axis
  */
 function SetPrimitiveRotation(ID, rx, ry, rz) {
+    console.log("Set rotation enter. Rotate: " + rx, ry, rx);
     if (Primitives.size > 0) {
         let data = Primitives.get(ID);
         if (data != undefined) {
@@ -274,6 +289,7 @@ function SetPrimitiveRotation(ID, rx, ry, rz) {
             mesh.rotation.z = rz;
         }
     }
+    console.log("---- FINISH ROTATION ----")
 }
 
 /**

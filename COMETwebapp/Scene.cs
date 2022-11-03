@@ -84,11 +84,6 @@ namespace COMETwebapp
         public const string ThicknessShortName = "thickn";
 
         /// <summary>
-        /// Collection of temporary <see cref="Primitive"/> in the Scene. 
-        /// </summary>
-        private static Dictionary<string, Primitive> temporaryPrimitivesCollection = new Dictionary<string, Primitive>();
-
-        /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
         private static Dictionary<string, Primitive> primitivesCollection = new Dictionary<string, Primitive>();
@@ -173,30 +168,6 @@ namespace COMETwebapp
         }
 
         /// <summary>
-        /// Adds a temporary primitive to the scene
-        /// </summary>
-        /// <param name="primitive">The primitive to add</param>
-        public static async Task AddTemporaryPrimitive(Primitive primitive)
-        {
-            await AddTemporaryPrimitive(primitive, Color.LightGray);
-        }
-
-        /// <summary>
-        /// Adds a temporary primitive to the scene with the specified color
-        /// </summary>
-        /// <param name="primitive">the primitive to add</param>
-        /// <param name="color">the color of the primitive</param>
-        public static async Task AddTemporaryPrimitive(Primitive primitive, Color color)
-        {
-            string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
-            Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
-            string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
-
-            primitivesCollection.Add(primitive.ID, primitive);
-            await JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
-        }
-
-        /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
         public static async Task ClearPrimitives()
@@ -207,19 +178,6 @@ namespace COMETwebapp
                 await JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
-        }
-
-        /// <summary>
-        /// Clears the scene deleting the temporary primitives
-        /// </summary>
-        public static async Task ClearTemporaryPrimitives()
-        {
-            var keys = primitivesCollection.Keys.ToList();
-            foreach (var id in keys)
-            {
-                await JSInterop.Invoke("Dispose", id);
-            }
-            temporaryPrimitivesCollection.Clear();
         }
 
         /// <summary>

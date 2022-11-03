@@ -158,14 +158,18 @@ namespace COMETwebapp.Componentes.Viewer
 
                 if (basicShape is not null)
                 {
+                    basicShape.ElementUsageName = elementUsage.Name;
+
                     if (basicShape is BasicPrimitive basicPrimitive)
                     {
-                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetOrientationFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);                        
                         basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
                     }
 
                     await Scene.AddPrimitive(basicShape);
                 }
+                //await Task.Delay(1000);
             }
         }
     }

@@ -26,11 +26,18 @@ namespace COMETwebapp.Primitives
 {
     using System.Numerics;
 
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Base class for the wrapper classes around JS objects. Represents an object on the Scene.
     /// </summary>
     public abstract class Primitive
     {
+        /// <summary>
+        /// The element usage name the primitive was created from
+        /// </summary>
+        public string ElementUsageName { get; set; }
+
         /// <summary>
         /// The base color of the primitive
         /// </summary>
