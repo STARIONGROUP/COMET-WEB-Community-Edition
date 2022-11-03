@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="GuidExtensions.cs" company="RHEA System S.A.">
+// <copyright file="MatrixExtensions.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -39,15 +39,15 @@ namespace COMETwebapp.Utilities
         {
             double Rx = 0, Ry = 0, Rz = 0;
 
-            if(rotMatrix.Length < 9)
+            if (rotMatrix.Length < 9)
             {
                 throw new ArgumentException("The rotation Matrix needs to be at least 3x3 so at least an Array of 9 numbers is needed");
             }
 
-            if (rotMatrix[6]!= 1 && rotMatrix[6]!= -1)
+            if (rotMatrix[6] != 1 && rotMatrix[6] != -1)
             {
                 Ry = -Math.Asin(rotMatrix[6]);
-                Rx = Math.Atan2(rotMatrix[7]/Math.Cos(Ry), rotMatrix[8]/ Math.Cos(Ry));
+                Rx = Math.Atan2(rotMatrix[7] / Math.Cos(Ry), rotMatrix[8] / Math.Cos(Ry));
                 Rz = Math.Atan2(rotMatrix[3] / Math.Cos(Ry), rotMatrix[0] / Math.Cos(Ry));
             }
             else
@@ -56,16 +56,15 @@ namespace COMETwebapp.Utilities
                 if (rotMatrix[6] == -1)
                 {
                     Ry = Math.PI / 2.0;
-                    Rx = Ry + Math.Atan2(rotMatrix[1],rotMatrix[2]);
+                    Rx = Rz + Math.Atan2(rotMatrix[1], rotMatrix[2]);
                 }
                 else
                 {
                     Ry = -Math.PI / 2.0;
-                    Rx = -Ry + Math.Atan2(-rotMatrix[1],-rotMatrix[2]);
+                    Rx = -Rz + Math.Atan2(-rotMatrix[1], -rotMatrix[2]);
                 }
             }
             return new double[] { Rx, Ry, Rz };
         }
-
     }
 }

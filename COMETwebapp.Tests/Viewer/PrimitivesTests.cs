@@ -24,10 +24,15 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
+    using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using Bunit;
-
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
@@ -49,20 +54,32 @@ namespace COMETwebapp.Tests.Viewer
         private TestContext context;
         private List<BasicPrimitive> positionables;
         private List<Primitive> primitives;
+        private ElementDefinition elementDef;
+        private ElementUsage elementUsage;
+        private readonly Uri uri = new Uri("http://test.com");
+        private DomainOfExpertise domain;
+        private IShapeFactory shapeFactory;
+        private Option option;
 
         [SetUp]
         public void SetUp()
         {
+            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            this.domain = new DomainOfExpertise(Guid.NewGuid(), cache, this.uri) { Name = "domain" };
+
             this.context = new TestContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             JSInterop.JsRuntime = this.context.JSInterop.JSRuntime;
 
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
-            var factory = new Mock<IShapeFactory>();
-            this.context.Services.AddSingleton(factory.Object);
+
+            this.context.Services.AddSingleton<IShapeFactory>(new ShapeFactory());
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
+
+            this.shapeFactory = renderer.Instance.ShapeFactory;
+
             this.positionables = new List<BasicPrimitive>();
             this.positionables.Add(new Cube(1, 1, 1));
             this.positionables.Add(new Cylinder(1, 1));
@@ -72,6 +89,86 @@ namespace COMETwebapp.Tests.Viewer
             this.primitives = new List<Primitive>(this.positionables);
             this.primitives.Add(new Line(new System.Numerics.Vector3(), new System.Numerics.Vector3(1, 1, 1)));
             this.primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
+
+            this.option = new Option(Guid.NewGuid(), cache, this.uri);
+
+            var shapeKindParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "box" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+            };
+            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName= Scene.ShapeKindShortName, };
+            var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = shapeKindParameterType };
+            shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
+
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "1","1", "1" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+            };
+            var positionParameterType = new CompoundParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Coordinates", ShortName = Scene.PositionShortName, };
+            var positionParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = positionParameterType };
+            positionParameter.ValueSet.Add(positionParameterValueSet);
+
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "0.5", "0", "0.8660254", "0", "1", "0", "-0.8660254", "0", "0.5" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+            };
+            var orientationParameterType = new ArrayParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = Scene.OrientationShortName, };
+            var orientationParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = orientationParameterType };
+            orientationParameter.ValueSet.Add(orientationParameterValueSet);
+
+
+            this.elementDef = new ElementDefinition(Guid.NewGuid(), cache, this.uri) { Owner = this.domain };
+            this.elementUsage = new ElementUsage(Guid.NewGuid(), cache, this.uri) { ElementDefinition = this.elementDef, Owner = this.domain };
+            this.elementDef.ContainedElement.Add(this.elementUsage);
+            this.elementDef.Parameter.Add(shapeKindParameter);
+            this.elementDef.Parameter.Add(positionParameter);
+            this.elementDef.Parameter.Add(orientationParameter);
+        }
+
+        [Test]
+        public void VerifyThatPrimiteCanBeCreatedByElementUsage()
+        {
+            var basicShape = this.shapeFactory.TryGetPrimitiveFromElementUsageParameter(this.elementUsage, this.option, new List<ActualFiniteState>());
+            Assert.IsNotNull(basicShape);
+        }
+
+        [Test]
+        public void VerifyThatPrimitiveCanBePositionedByElementUsage()
+        {
+            var basicShape = this.shapeFactory.TryGetPrimitiveFromElementUsageParameter(this.elementUsage, this.option, new List<ActualFiniteState>());
+            Assert.IsNotNull(basicShape);
+            Assert.IsTrue(basicShape is BasicPrimitive);
+
+            var basicPrim = basicShape as BasicPrimitive;
+            var posX = basicPrim.X;
+            var posY = basicPrim.Y;
+            var posZ = basicPrim.Z;
+            basicPrim.SetPositionFromElementUsageParameters(this.elementUsage, this.option, new List<ActualFiniteState>());
+
+            Assert.AreNotEqual(posX, basicPrim.X);
+            Assert.AreNotEqual(posY, basicPrim.Y);
+            Assert.AreNotEqual(posZ, basicPrim.Z);
+        }
+
+        [Test]
+        public void VerifyThatPrimitiveCanBeRotatedByElementUsage()
+        {
+            var basicShape = this.shapeFactory.TryGetPrimitiveFromElementUsageParameter(this.elementUsage, this.option, new List<ActualFiniteState>());
+            Assert.IsNotNull(basicShape);
+            Assert.IsTrue(basicShape is BasicPrimitive);
+
+            var basicPrim = basicShape as BasicPrimitive;
+            var orientX = basicPrim.RX;
+            var orientY = basicPrim.RY;
+            var orientZ = basicPrim.RZ;
+            basicPrim.SetOrientationFromElementUsageParameters(this.elementUsage, this.option, new List<ActualFiniteState>());
+
+            Assert.AreNotEqual(0, basicPrim.RX);
+            Assert.AreNotEqual(0, basicPrim.RY);
+            Assert.AreNotEqual(0, basicPrim.RZ);
         }
 
         [Test]

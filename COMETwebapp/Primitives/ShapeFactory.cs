@@ -27,7 +27,6 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// The factory used for creating basic shapes of type <see cref="Primitive"/>
