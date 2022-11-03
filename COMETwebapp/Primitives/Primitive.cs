@@ -26,8 +26,6 @@ namespace COMETwebapp.Primitives
 {
     using System.Numerics;
 
-    using CDP4Common.EngineeringModelData;
-
     /// <summary>
     /// Base class for the wrapper classes around JS objects. Represents an object on the Scene.
     /// </summary>
