@@ -35,14 +35,13 @@ namespace COMETwebapp.Primitives
     public class ShapeFactory : IShapeFactory
     {
         /// <summary>
-        /// Tries to create a <see cref="Primitive"/> from the <see cref="ElementUsage"/>
+        /// Tries to create a <see cref="Primitive"/> from the data of a <see cref="ElementUsage"/>
         /// </summary>
         /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
-        /// <param name="basicShape">The basic shape of type <see cref="Primitive"/></param>
-        /// <returns></returns>
-        public bool TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states, out Primitive basicShape)
+        /// <returns>The created <see cref="Primitive"/></returns>
+        public Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
             var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"
                       && (x.ParameterType is EnumerationParameterType || x.ParameterType is TextParameterType));
@@ -66,18 +65,21 @@ namespace COMETwebapp.Primitives
                 string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
                 switch (shapeKind)
                 {
-                    case "box": basicShape = new Cube(1, 1, 1); return true;
-                    case "cylinder": basicShape = new Cylinder(1, 1); return true;
-                    case "sphere": basicShape = new Sphere(1); return true;
-                    case "torus": basicShape = new Torus(1, 1); return true;
-                    default: basicShape = null; return false;
+                    case "box": return new Cube(1, 1, 1);
+                    case "cylinder": return new Cylinder(1, 1);
+                    case "sphere": return new Sphere(1);
+                    case "torus": return new Torus(1, 1);
+                    case "triprism": throw new NotImplementedException();
+                    case "tetrahedron": throw new NotImplementedException();
+                    case "capsule": throw new NotImplementedException();
+                    
+                    default: return new Cube(1, 1, 1); 
                 }
             }
             else
             {
-                basicShape = null;
-                return false;
-            }
+                return new Cube(1, 1, 1);
+            }      
         }
     }
 }

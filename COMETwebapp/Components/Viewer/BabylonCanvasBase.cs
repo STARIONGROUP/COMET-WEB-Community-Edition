@@ -102,7 +102,7 @@ namespace COMETwebapp.Componentes.Viewer
                 }
  
                 Scene.InitCanvas(this.CanvasReference);
-                this.AddWorldAxes();
+                await this.AddWorldAxes();
             }
         }
                
@@ -113,7 +113,7 @@ namespace COMETwebapp.Componentes.Viewer
         public void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
-            //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
+            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
         }
 
         /// <summary>
@@ -123,13 +123,13 @@ namespace COMETwebapp.Componentes.Viewer
         public void OnMouseUp(MouseEventArgs e)
         {
             this.IsMouseDown = false;
-            //TODO: when the tools are ready here we are going to manager the different types of actions that a user can make.
+            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
         }
 
         /// <summary>
         /// Create the world axes and adds them to the scene
         /// </summary>
-        private async void AddWorldAxes()
+        private async Task AddWorldAxes()
         {
             float size = 700;
             Line xAxis = new Line(-size, 0, 0, size, 0, 0);
@@ -154,11 +154,14 @@ namespace COMETwebapp.Componentes.Viewer
 
             foreach (var elementUsage in elementUsages)
             {
-                if (this.ShapeFactory is not null && this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states, out Primitive basicShape))
+                var basicShape = this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states);
+
+                if (basicShape is not null)
                 {
-                    if (basicShape is PositionablePrimitive positionablePrimitive)
+                    if (basicShape is BasicPrimitive basicPrimitive)
                     {
-                        positionablePrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
                     }
 
                     await Scene.AddPrimitive(basicShape);

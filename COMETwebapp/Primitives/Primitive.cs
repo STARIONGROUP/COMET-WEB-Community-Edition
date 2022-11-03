@@ -27,7 +27,7 @@ namespace COMETwebapp.Primitives
     using System.Numerics;
 
     /// <summary>
-    /// Base class for the wrapper classes around JS objects
+    /// Base class for the wrapper classes around JS objects. Represents an object on the Scene.
     /// </summary>
     public abstract class Primitive
     {

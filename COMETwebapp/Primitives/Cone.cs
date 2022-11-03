@@ -24,20 +24,24 @@
 
 namespace COMETwebapp.Primitives
 {
+    using System.Collections.Generic;
+
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Cone primitive type
     /// </summary>
-    public class Cone : PositionablePrimitive
+    public class Cone : BasicPrimitive
     {
         /// <summary>
         /// The radius of the base of the cone
         /// </summary>
-        public double Radius { get; }
+        public double Radius { get; private set; }
 
         /// <summary>
         /// The height of the cone
         /// </summary>
-        public double Height { get; }
+        public double Height { get; private set; }
 
         /// <summary>
         /// Basic type name
@@ -70,6 +74,28 @@ namespace COMETwebapp.Primitives
             this.Z = z;
             this.Radius = radius;
             this.Height = height;
+        }
+
+        /// <summary>
+        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
+        public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {
+            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.DiameterShortName);
+            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
+
+            if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            {
+                this.Radius = d / 2.0;
+            }
+
+            if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
+            {
+                this.Height = h;
+            }
         }
     }
 }

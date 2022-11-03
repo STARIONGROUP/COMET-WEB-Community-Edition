@@ -30,9 +30,12 @@ namespace COMETwebapp
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.Primitives;
 
     using Newtonsoft.Json;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -40,6 +43,46 @@ namespace COMETwebapp
     /// </summary>
     public static class Scene
     {
+        /// <summary>
+        /// Shape Kind parameter short name
+        /// </summary>
+        public const string ShapeKindShortName = "kind";
+
+        /// <summary>
+        /// Orientation parameter short name
+        /// </summary>
+        public const string OrientationShortName = "orientation";
+
+        /// <summary>
+        /// Position parameter short name
+        /// </summary>
+        public const string PositionShortName = "coord";
+
+        /// <summary>
+        /// Width parameter short name
+        /// </summary>
+        public const string WidthShortName = "wid_diameter";
+
+        /// <summary>
+        /// Diameter parameter short name
+        /// </summary>
+        public const string DiameterShortName = WidthShortName;
+
+        /// <summary>
+        /// Height parameter short name
+        /// </summary>
+        public const string HeightShortName = "h";
+
+        /// <summary>
+        /// Length parameter short name
+        /// </summary>
+        public const string LengthShortName = "l";
+
+        /// <summary>
+        /// Thickness parameter short name
+        /// </summary>
+        public const string ThicknessShortName = "thickn";
+
         /// <summary>
         /// Collection of temporary <see cref="Primitive"/> in the Scene. 
         /// </summary>
@@ -49,6 +92,30 @@ namespace COMETwebapp
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
         private static Dictionary<string, Primitive> primitivesCollection = new Dictionary<string, Primitive>();
+
+        /// <summary>
+        /// Collection for transform from a parameter name to a parameter type
+        /// </summary>
+        private static Dictionary<string, Type> ParameterNameToTypeDictionary = new Dictionary<string, Type>()
+        {
+            { ShapeKindShortName, typeof(EnumerationParameterType) },
+            { OrientationShortName, typeof(ArrayParameterType) },
+            { PositionShortName, typeof(CompoundParameterType) },
+            { WidthShortName, typeof(SpecializedQuantityKind) },
+            { HeightShortName, typeof(SpecializedQuantityKind) },
+            { LengthShortName, typeof(SimpleQuantityKind) },
+            { ThicknessShortName, typeof(SpecializedQuantityKind) },
+        };
+
+        /// <summary>
+        /// Gets the type of the parameter asociated to a parameter short name
+        /// </summary>
+        /// <param name="parameterShortName">the parameter short name</param>
+        /// <returns>The type of the parameter</returns>
+        public static Type GetParameterTypeFromParameterShortName(string parameterShortName)
+        {
+            return ParameterNameToTypeDictionary[parameterShortName];
+        }
 
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
@@ -194,7 +261,7 @@ namespace COMETwebapp
         /// <param name="z">translation along Z axis</param>
         public static async void SetPrimitivePosition(string Id, double x, double y, double z)
         {
-            await JSInterop.Invoke("SetPrimitivePosition",Id, x, y, z);
+            await JSInterop.Invoke("SetPrimitivePosition", Id, x, y, z);
         }
 
         /// <summary>

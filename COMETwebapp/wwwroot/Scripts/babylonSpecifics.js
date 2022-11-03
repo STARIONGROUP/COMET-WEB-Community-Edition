@@ -151,7 +151,7 @@ async function LoadPrimitive(primitive, color) {
  */
 function InitializePrimitiveData(mesh, primitive, color) {
 
-    if (primitive.hasOwnProperty("Subtype") && primitive.Subtype == "Positionable") {
+    if (primitive.hasOwnProperty("Subtype") && primitive.Subtype == "BasicPrimitive") {
         mesh.position.x = primitive.X;
         mesh.position.y = primitive.Y;
         mesh.position.z = primitive.Z;
