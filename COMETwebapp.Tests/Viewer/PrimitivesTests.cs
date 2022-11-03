@@ -29,10 +29,12 @@ namespace COMETwebapp.Tests.Viewer
     using System.Collections.Generic;
 
     using Bunit;
+
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;

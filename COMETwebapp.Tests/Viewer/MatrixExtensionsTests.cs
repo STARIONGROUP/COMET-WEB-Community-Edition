@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SceneTests.cs" company="RHEA System S.A.">
+// <copyright file="MatrixEstensionsTests.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -24,19 +24,9 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
-    using Bunit;
-
-    using COMETwebapp.Components.Viewer;
-    using COMETwebapp.Primitives;
-    using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    using Microsoft.Extensions.DependencyInjection;
-
-    using Moq;
 
     using NUnit.Framework;
-
-    using TestContext = Bunit.TestContext;
 
     /// <summary>
     /// Matrix tests that verifies the correct behavior of the extension methods
