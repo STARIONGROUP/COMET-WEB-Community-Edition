@@ -33,7 +33,7 @@ namespace COMETwebapp.Tests.Viewer
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
-
+    using NLog.LayoutRenderers;
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -45,6 +45,7 @@ namespace COMETwebapp.Tests.Viewer
     public class SceneTests
     {
         private TestContext context;
+        private ISceneProvider scene;
 
         [SetUp]
         public void SetUp()
@@ -58,15 +59,64 @@ namespace COMETwebapp.Tests.Viewer
             var factory = new Mock<IShapeFactory>();
             this.context.Services.AddSingleton(factory.Object);
 
+            this.context.Services.AddTransient<ISceneProvider, Scene>();
+
             var renderer = this.context.RenderComponent<BabylonCanvas>();
+
+            this.scene = renderer.Instance.Scene;
+        }
+
+        [Test]
+        public void VerifyThatAxesAreAddedToScene()
+        {
+            this.scene.ClearPrimitives();
+            Assert.AreEqual(0, this.scene.GetPrimitives().Count);
+            this.scene.AddWorldAxes();
+            Assert.AreEqual(3, this.scene.GetPrimitives().Count);
+        }
+
+        [Test]
+        public void VerifyThatPrimitiveCanBeRetrievedById()
+        {
+            var primitive = new Cube(1, 1, 1);
+            this.scene.AddPrimitive(primitive);
+            var retrieved = this.scene.GetPrimitiveById(primitive.ID);
+            Assert.IsNotNull(retrieved);
+            Assert.AreEqual(primitive, retrieved);
+        }
+
+        [Test]
+        public void VerifyThatGetPrimitivesWorks()
+        {
+            this.scene.ClearPrimitives();
+
+            var primitive1 = new Cube(1, 1, 1);
+            var primitive2 = new Sphere(1);
+            var primitive3 = new Cone(1, 1);
+
+            this.scene.AddPrimitive(primitive1);
+            this.scene.AddPrimitive(primitive2);
+            this.scene.AddPrimitive(primitive3);
+
+            var primitives = this.scene.GetPrimitives();
+
+            Assert.AreEqual(3, primitives.Count);
+
+            var retrieved1 = primitives.Exists(x => x == primitive1);
+            var retrieved2 = primitives.Exists(x => x == primitive2);
+            var retrieved3 = primitives.Exists(x => x == primitive3);
+
+            Assert.IsTrue(retrieved1);
+            Assert.IsTrue(retrieved2);
+            Assert.IsTrue(retrieved3);
         }
 
         [Test]
         public void VerifyThatPrimitivesAreAddedToScene()
         {
             Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            Scene.AddPrimitive(cube).Wait();
-            var prim = Scene.GetPrimitiveById(cube.ID);
+            this.scene.AddPrimitive(cube).Wait();
+            var prim = this.scene.GetPrimitiveById(cube.ID);
             Assert.AreEqual(cube, prim);
         }
 
@@ -95,13 +145,13 @@ namespace COMETwebapp.Tests.Viewer
         {
             var cube1 = new Cube(1, 1, 1);
             var cube2 = new Cube(1, 1, 1);
-            Scene.ClearPrimitives().Wait();
-            Scene.AddPrimitive(cube1).Wait();
-            Scene.AddPrimitive(cube2).Wait();
-            Assert.AreEqual(2, Scene.GetPrimitives().Count);
+            this.scene.ClearPrimitives().Wait();
+            this.scene.AddPrimitive(cube1).Wait();
+            this.scene.AddPrimitive(cube2).Wait();
+            Assert.AreEqual(2, this.scene.GetPrimitives().Count);
 
-            Scene.ClearPrimitives().Wait();
-            Assert.AreEqual(0, Scene.GetPrimitives().Count);
+            this.scene.ClearPrimitives().Wait();
+            Assert.AreEqual(0, this.scene.GetPrimitives().Count);
         }
     }
 }

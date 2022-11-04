@@ -76,6 +76,7 @@ namespace COMETwebapp.Tests.Viewer
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
 
+            this.context.Services.AddTransient<ISceneProvider, Scene>();
             this.context.Services.AddSingleton<IShapeFactory>(new ShapeFactory());
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
