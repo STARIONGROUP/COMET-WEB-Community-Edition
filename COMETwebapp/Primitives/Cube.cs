@@ -95,9 +95,9 @@ namespace COMETwebapp.Primitives
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
         public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {            
-            var widthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.WidthShortName);
-            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
-            var lengthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.LengthShortName);
+            var widthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.WidthShortName);
+            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.HeightShortName);
+            var lengthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.LengthShortName);
 
             if(widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
             {

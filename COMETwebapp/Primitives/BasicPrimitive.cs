@@ -153,7 +153,7 @@ namespace COMETwebapp.Primitives
         {
             IValueSet? valueSet = null;
 
-            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.PositionShortName);
+            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.PositionShortName);
 
             if (valueSet is not null &&
                 double.TryParse(valueSet.ActualValue[0], out var x) &&
@@ -174,7 +174,7 @@ namespace COMETwebapp.Primitives
         {
             IValueSet? valueSet = null;
 
-            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.OrientationShortName);
+            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.OrientationShortName);
 
             if (valueSet is not null)
             {
@@ -212,7 +212,7 @@ namespace COMETwebapp.Primitives
         {
             ParameterBase? parameterBase = null;
             IValueSet? valueSet = null;
-            Type parameterType = Scene.ParameterShortNameToTypeDictionary[parameterTypeShortName];
+            Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[parameterTypeShortName];
 
             if (elementUsage.ParameterOverride.Count > 0)
             {

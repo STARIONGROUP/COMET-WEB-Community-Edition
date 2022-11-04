@@ -46,18 +46,18 @@ namespace COMETwebapp.Primitives
         {
             ParameterBase? parameterBase = null;
             IValueSet? valueSet = null;
-            Type parameterType = Scene.ParameterShortNameToTypeDictionary[Scene.ShapeKindShortName];
+            Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[SceneProvider.ShapeKindShortName];
 
 
             if (elementUsage.ParameterOverride.Count > 0)
             {
-                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == Scene.ShapeKindShortName
+                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName
                                                                                    && x.ParameterType.GetType() == parameterType);
             }
 
             if (parameterBase is null)
             {
-                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == Scene.ShapeKindShortName
+                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName
                                                                                              && x.ParameterType.GetType() == parameterType);
             }
 

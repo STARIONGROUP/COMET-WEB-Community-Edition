@@ -69,7 +69,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// The babylon.js scene
         /// </summary>
         [Inject]
-        public ISceneProvider Scene { get; set; }
+        public ISceneProvider SceneProvider { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -93,8 +93,8 @@ namespace COMETwebapp.Componentes.Viewer
 
             if (firstRender)
             {               
-                this.Scene.InitCanvas(this.CanvasReference);
-                await this.Scene.AddWorldAxes();
+                this.SceneProvider.InitCanvas(this.CanvasReference);
+                await this.SceneProvider.AddWorldAxes();
             }
         }
                
@@ -126,7 +126,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
         public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
-            await Scene.ClearPrimitives();
+            await SceneProvider.ClearPrimitives();
 
             Random rand = new Random();
 
@@ -150,7 +150,7 @@ namespace COMETwebapp.Componentes.Viewer
                     int g = rand.Next(0, 225);
                     int b = rand.Next(0, 225);
 
-                    await Scene.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
+                    await SceneProvider.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
                 }
             }
         }

@@ -59,11 +59,11 @@ namespace COMETwebapp.Tests.Viewer
             var factory = new Mock<IShapeFactory>();
             this.context.Services.AddSingleton(factory.Object);
 
-            this.context.Services.AddTransient<ISceneProvider, Scene>();
+            this.context.Services.AddTransient<ISceneProvider, SceneProvider>();
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
 
-            this.scene = renderer.Instance.Scene;
+            this.scene = renderer.Instance.SceneProvider;
         }
 
         [Test]

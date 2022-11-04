@@ -43,7 +43,7 @@ namespace COMETwebapp.Components.Viewer
     /// <summary>
     /// Static class to access the resources of a Scene 
     /// </summary>
-    public class Scene : ISceneProvider
+    public class SceneProvider : ISceneProvider
     {
         /// <summary>
         /// Shape Kind parameter short name
@@ -105,9 +105,9 @@ namespace COMETwebapp.Components.Viewer
         };
 
         /// <summary>
-        /// Creates a new instance of class <see cref="Scene"/>
+        /// Creates a new instance of class <see cref="SceneProvider"/>
         /// </summary>
-        public Scene(IJSRuntime JsRuntime)
+        public SceneProvider(IJSRuntime JsRuntime)
         {
             JSInterop.JsRuntime = JsRuntime;
         }

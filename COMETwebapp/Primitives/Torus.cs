@@ -86,8 +86,8 @@ namespace COMETwebapp.Primitives
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
         public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.DiameterShortName);
-            var thicknessValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.ThicknessShortName);
+            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
+            var thicknessValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.ThicknessShortName);
             
             if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {
