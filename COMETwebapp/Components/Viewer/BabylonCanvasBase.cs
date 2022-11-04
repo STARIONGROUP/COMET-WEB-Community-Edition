@@ -106,6 +106,9 @@ namespace COMETwebapp.Componentes.Viewer
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
+            var prim = this.SceneProvider.GetPrimitives().FirstOrDefault(x => x is not Line);
+
+            var retrieved = this.SceneProvider.GetPrimitiveById(prim.ID);
         }
 
         /// <summary>

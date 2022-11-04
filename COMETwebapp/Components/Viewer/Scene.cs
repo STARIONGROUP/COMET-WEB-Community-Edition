@@ -88,7 +88,7 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
-        private static Dictionary<string, Primitive> primitivesCollection = new Dictionary<string, Primitive>();
+        private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();
 
         /// <summary>
         /// Collection for transform from a parameter short name to a parameter type
@@ -203,11 +203,11 @@ namespace COMETwebapp.Components.Viewer
         public async Task<Primitive> GetPrimitiveUnderMouseAsync()
         {
             var id = await JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
-            if (id == null)
+            if (id == null || !Guid.TryParse(id, out Guid ID))
             {
                 return null;
             }
-            return GetPrimitiveById(id);
+            return GetPrimitiveById(ID);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="id">The Id of the entity</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        public Primitive GetPrimitiveById(string id)
+        public Primitive GetPrimitiveById(Guid id)
         {
             if (!primitivesCollection.ContainsKey(id))
             {
@@ -233,9 +233,9 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        public async void SetPrimitivePosition(string Id, double x, double y, double z)
+        public async void SetPrimitivePosition(Guid Id, double x, double y, double z)
         {
-            await JSInterop.Invoke("SetPrimitivePosition", Id, x, y, z);
+            await JSInterop.Invoke("SetPrimitivePosition", Id.ToString(), x, y, z);
         }
 
         /// <summary>
@@ -257,9 +257,9 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="rx">rotation around X axis</param>
         /// <param name="ry">rotation around Y axis</param>
         /// <param name="rz">rotation around Z axis</param>
-        public async void SetPrimitiveRotation(string Id, double rx, double ry, double rz)
+        public async void SetPrimitiveRotation(Guid Id, double rx, double ry, double rz)
         {
-            await JSInterop.Invoke("SetPrimitiveRotation", Id, rx, ry, rz);
+            await JSInterop.Invoke("SetPrimitiveRotation", Id.ToString(), rx, ry, rz);
         }
 
         /// <summary>

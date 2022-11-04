@@ -128,7 +128,7 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="id">The Id of the entity</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        Primitive GetPrimitiveById(string id);
+        Primitive GetPrimitiveById(Guid id);
 
         /// <summary>
         /// Sets the position of the primitive with the specified ID
@@ -137,7 +137,7 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        void SetPrimitivePosition(string Id, double x, double y, double z);
+        void SetPrimitivePosition(Guid Id, double x, double y, double z);
 
         /// <summary>
         /// Sets the position of the primitive 
@@ -155,7 +155,7 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="rx">rotation around X axis</param>
         /// <param name="ry">rotation around Y axis</param>
         /// <param name="rz">rotation around Z axis</param>
-        void SetPrimitiveRotation(string Id, double rx, double ry, double rz);
+        void SetPrimitiveRotation(Guid Id, double rx, double ry, double rz);
 
         /// <summary>
         /// Sets the rotation of the primitive
