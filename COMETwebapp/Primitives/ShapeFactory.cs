@@ -28,6 +28,8 @@ namespace COMETwebapp.Primitives
 
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer;
+
     /// <summary>
     /// The factory used for creating basic shapes of type <see cref="Primitive"/>
     /// </summary>
@@ -44,17 +46,19 @@ namespace COMETwebapp.Primitives
         {
             ParameterBase? parameterBase = null;
             IValueSet? valueSet = null;
+            Type parameterType = Scene.ParameterShortNameToTypeDictionary[Scene.ShapeKindShortName];
+
 
             if (elementUsage.ParameterOverride.Count > 0)
             {
                 parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == Scene.ShapeKindShortName
-                                                                                   && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(Scene.ShapeKindShortName));
+                                                                                   && x.ParameterType.GetType() == parameterType);
             }
 
             if (parameterBase is null)
             {
                 parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == Scene.ShapeKindShortName
-                                                                                             && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(Scene.ShapeKindShortName));
+                                                                                             && x.ParameterType.GetType() == parameterType);
             }
 
             if (parameterBase is not null)

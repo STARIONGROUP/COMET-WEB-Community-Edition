@@ -27,6 +27,8 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Components.Viewer;
 
     /// <summary>
     /// Cone primitive type

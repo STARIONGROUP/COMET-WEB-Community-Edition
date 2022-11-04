@@ -26,6 +26,8 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer;
+
     using COMETwebapp.Utilities;
 
     /// <summary>
@@ -79,7 +81,6 @@ namespace COMETwebapp.Primitives
             this.X = x;
             this.Y = y;
             this.Z = z;
-            Scene.SetPrimitivePosition(this, this.X, this.Y, this.Z);
         }
 
         /// <summary>
@@ -93,7 +94,6 @@ namespace COMETwebapp.Primitives
             this.RX = rx;
             this.RY = ry;
             this.RZ = rz;
-            Scene.SetPrimitiveRotation(this, this.RX, this.RY, this.RZ);
         }
 
         /// <summary>
@@ -212,17 +212,18 @@ namespace COMETwebapp.Primitives
         {
             ParameterBase? parameterBase = null;
             IValueSet? valueSet = null;
+            Type parameterType = Scene.ParameterShortNameToTypeDictionary[parameterTypeShortName];
 
             if (elementUsage.ParameterOverride.Count > 0)
             {
                 parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
-                                                                                   && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(parameterTypeShortName));
+                                                                                   && x.ParameterType.GetType() == parameterType);
             }
 
             if (parameterBase is null)
             {
                 parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
-                                                                                             && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(parameterTypeShortName));
+                                                                                             && x.ParameterType.GetType() == parameterType);
             }
 
             if (parameterBase is not null)

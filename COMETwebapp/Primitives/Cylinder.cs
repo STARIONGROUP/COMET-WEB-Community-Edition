@@ -26,6 +26,8 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer;
+
     /// <summary>
     /// Cylinder primitive type
     /// </summary>

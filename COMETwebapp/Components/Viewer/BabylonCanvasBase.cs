@@ -30,6 +30,7 @@ namespace COMETwebapp.Componentes.Viewer
 
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -52,12 +53,6 @@ namespace COMETwebapp.Componentes.Viewer
         public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
-        /// Property to inject the JSRuntime and allow C#-JS interop
-        /// </summary>
-        [Inject] 
-        IJSRuntime? JsRuntime { get; set; }
-
-        /// <summary>
         /// Invokable method from JS to get a GUID
         /// </summary>
         /// <returns>the GUID in string format</returns>
@@ -69,6 +64,12 @@ namespace COMETwebapp.Componentes.Viewer
         /// </summary>
         [Inject]
         public IShapeFactory? ShapeFactory { get; set; }
+
+        /// <summary>
+        /// The babylon.js scene
+        /// </summary>
+        [Inject]
+        public ISceneProvider Scene { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -91,18 +92,9 @@ namespace COMETwebapp.Componentes.Viewer
             await base.OnAfterRenderAsync(firstRender);
 
             if (firstRender)
-            {                
-                if(this.JsRuntime != null)
-                {
-                    JSInterop.JsRuntime = this.JsRuntime;
-                }
-                else
-                {
-                    throw new JSException("JSRuntime can't be null");
-                }
- 
-                Scene.InitCanvas(this.CanvasReference);
-                await this.AddWorldAxes();
+            {               
+                this.Scene.InitCanvas(this.CanvasReference);
+                await this.Scene.AddWorldAxes();
             }
         }
                
@@ -126,21 +118,7 @@ namespace COMETwebapp.Componentes.Viewer
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
         }
 
-        /// <summary>
-        /// Create the world axes and adds them to the scene
-        /// </summary>
-        private async Task AddWorldAxes()
-        {
-            float size = 700;
-            Line xAxis = new Line(-size, 0, 0, size, 0, 0);
-            await Scene.AddPrimitive(xAxis, Color.Red);
 
-            Line yAxis = new Line(0, -size, 0, 0, size, 0);
-            await Scene.AddPrimitive(yAxis, Color.Green);
-
-            Line zAxis = new Line(0, 0, -size, 0, 0, size);
-            await Scene.AddPrimitive(zAxis, Color.Blue);
-        }
 
         /// <summary>
         /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
@@ -163,7 +141,7 @@ namespace COMETwebapp.Componentes.Viewer
                     basicShape.ElementUsageName = elementUsage.Name;
 
                     if (basicShape is BasicPrimitive basicPrimitive)
-                    {
+                    {                       
                         basicPrimitive.SetOrientationFromElementUsageParameters(elementUsage, selectedOption, states);
                         basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);                        
                         basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);

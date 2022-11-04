@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp
+namespace COMETwebapp.Components.Viewer
 {
     using System;
     using System.Drawing;
@@ -32,16 +32,18 @@ namespace COMETwebapp
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp;
     using COMETwebapp.Primitives;
 
-    using Newtonsoft.Json;
-
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
+
+    using Newtonsoft.Json;
 
     /// <summary>
     /// Static class to access the resources of a Scene 
     /// </summary>
-    public static class Scene
+    public class Scene : ISceneProvider
     {
         /// <summary>
         /// Shape Kind parameter short name
@@ -89,9 +91,9 @@ namespace COMETwebapp
         private static Dictionary<string, Primitive> primitivesCollection = new Dictionary<string, Primitive>();
 
         /// <summary>
-        /// Collection for transform from a parameter name to a parameter type
+        /// Collection for transform from a parameter short name to a parameter type
         /// </summary>
-        private static Dictionary<string, Type> ParameterNameToTypeDictionary = new Dictionary<string, Type>()
+        public static Dictionary<string, Type> ParameterShortNameToTypeDictionary = new Dictionary<string, Type>()
         {
             { ShapeKindShortName, typeof(EnumerationParameterType) },
             { OrientationShortName, typeof(ArrayParameterType) },
@@ -103,42 +105,56 @@ namespace COMETwebapp
         };
 
         /// <summary>
-        /// Gets the type of the parameter asociated to a parameter short name
+        /// Creates a new instance of class <see cref="Scene"/>
         /// </summary>
-        /// <param name="parameterShortName">the parameter short name</param>
-        /// <returns>The type of the parameter</returns>
-        public static Type GetParameterTypeFromParameterShortName(string parameterShortName)
+        public Scene(IJSRuntime JsRuntime)
         {
-            return ParameterNameToTypeDictionary[parameterShortName];
+            JSInterop.JsRuntime = JsRuntime;
         }
 
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public static async void InitCanvas(ElementReference canvas)
+        public async void InitCanvas(ElementReference canvas)
         {
             await JSInterop.Invoke("InitCanvas", canvas);
+        }
+
+        /// <summary>
+        /// Create the world axes and adds them to the scene
+        /// </summary>
+        public async Task AddWorldAxes()
+        {
+            float size = 700;
+            Line xAxis = new Line(-size, 0, 0, size, 0, 0);
+            await this.AddPrimitive(xAxis, Color.Red);
+
+            Line yAxis = new Line(0, -size, 0, 0, size, 0);
+            await this.AddPrimitive(yAxis, Color.Green);
+
+            Line zAxis = new Line(0, 0, -size, 0, 0, size);
+            await this.AddPrimitive(zAxis, Color.Blue);
         }
 
         /// <summary>
         /// Get the canvas that contains the scene size
         /// </summary>
         /// <returns>The canvas size</returns>
-        public static async Task<Vector2> GetCanvasSize()
+        public async Task<Vector2> GetCanvasSize()
         {
-            var result = await JSInterop.Invoke <float[]>("GetCanvasSize");
-            if(result != null && result.Length == 2)
+            var result = await JSInterop.Invoke<float[]>("GetCanvasSize");
+            if (result != null && result.Length == 2)
             {
                 return new Vector2(result[0], result[1]);
-            }            
-            return new Vector2 ();
+            }
+            return new Vector2();
         }
 
         /// <summary>
         /// Gets a copy of the current primitives on the scene.
         /// </summary>
         /// <returns>The list of primitives</returns>
-        public static List<Primitive> GetPrimitives()
+        public List<Primitive> GetPrimitives()
         {
             return primitivesCollection.Values.ToList();
         }
@@ -147,7 +163,7 @@ namespace COMETwebapp
         /// Adds a primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        public static async Task AddPrimitive(Primitive primitive)
+        public async Task AddPrimitive(Primitive primitive)
         {
             await AddPrimitive(primitive, Color.LightGray);
         }
@@ -157,7 +173,7 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         /// <param name="color">the color of the primitive</param>
-        public static async Task AddPrimitive(Primitive primitive, Color color)
+        public async Task AddPrimitive(Primitive primitive, Color color)
         {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
@@ -170,7 +186,7 @@ namespace COMETwebapp
         /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
-        public static async Task ClearPrimitives()
+        public async Task ClearPrimitives()
         {
             var keys = primitivesCollection.Keys.ToList();
             foreach (var id in keys)
@@ -184,10 +200,10 @@ namespace COMETwebapp
         /// Gets the primitive under the mouse cursor asyncronously
         /// </summary>
         /// <returns>The primitive under the mouse cursor</returns>
-        public static async Task<Primitive> GetPrimitiveUnderMouseAsync()
+        public async Task<Primitive> GetPrimitiveUnderMouseAsync()
         {
             var id = await JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
-            if(id == null)
+            if (id == null)
             {
                 return null;
             }
@@ -200,7 +216,7 @@ namespace COMETwebapp
         /// <param name="id">The Id of the entity</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        public static Primitive GetPrimitiveById(string id)
+        public Primitive GetPrimitiveById(string id)
         {
             if (!primitivesCollection.ContainsKey(id))
             {
@@ -217,7 +233,7 @@ namespace COMETwebapp
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        public static async void SetPrimitivePosition(string Id, double x, double y, double z)
+        public async void SetPrimitivePosition(string Id, double x, double y, double z)
         {
             await JSInterop.Invoke("SetPrimitivePosition", Id, x, y, z);
         }
@@ -229,7 +245,7 @@ namespace COMETwebapp
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        public static void SetPrimitivePosition(Primitive primitive, double x, double y, double z)
+        public void SetPrimitivePosition(Primitive primitive, double x, double y, double z)
         {
             SetPrimitivePosition(primitive.ID, x, y, z);
         }
@@ -241,7 +257,7 @@ namespace COMETwebapp
         /// <param name="rx">rotation around X axis</param>
         /// <param name="ry">rotation around Y axis</param>
         /// <param name="rz">rotation around Z axis</param>
-        public static async void SetPrimitiveRotation(string Id, double rx, double ry, double rz)
+        public async void SetPrimitiveRotation(string Id, double rx, double ry, double rz)
         {
             await JSInterop.Invoke("SetPrimitiveRotation", Id, rx, ry, rz);
         }
@@ -253,7 +269,7 @@ namespace COMETwebapp
         /// <param name="rx">rotation around X axis</param>
         /// <param name="ry">rotation around Y axis</param>
         /// <param name="rz">rotation around Z axis</param>
-        public static void SetPrimitiveRotation(Primitive primitive, double rx, double ry, double rz)
+        public void SetPrimitiveRotation(Primitive primitive, double rx, double ry, double rz)
         {
             SetPrimitiveRotation(primitive.ID, rx, ry, rz);
         }
@@ -263,7 +279,7 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="x">The x coordinate</param>
         /// <param name="y">The y coordinate</param>
-        public static async void SetInfoPanelPosition(int x, int y)
+        public async void SetInfoPanelPosition(int x, int y)
         {
             await JSInterop.Invoke("SetPanelPosition", x, y);
         }
@@ -272,7 +288,7 @@ namespace COMETwebapp
         /// Sets the info panel visibility
         /// </summary>
         /// <param name="visible">true if the panel must be visible, false otherwise</param>
-        public static async void SetInfoPanelVisibility(bool visible)
+        public async void SetInfoPanelVisibility(bool visible)
         {
             await JSInterop.Invoke("SetPanelVisibility", visible);
         }
@@ -281,7 +297,7 @@ namespace COMETwebapp
         /// Sets the info panel with the specified content
         /// </summary>
         /// <param name="info">The info that the panel must display</param>
-        public static async void SetInfoPanelContent(string info)
+        public async void SetInfoPanelContent(string info)
         {
             await JSInterop.Invoke("SetPanelContent", info);
         }
@@ -292,10 +308,10 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="x">the x coordinate in screen coordinates</param>
         /// <param name="y">the y coordinate in screen coordinates</param>
-        public static async Task<Vector3?> GetWorldCoordinates(double x, double y)
+        public async Task<Vector3?> GetWorldCoordinates(double x, double y)
         {
             var result = await JSInterop.Invoke<float[]>("GetWorldCoordinates", x, y);
-            if(result != null && result.Length == 3)
+            if (result != null && result.Length == 3)
             {
                 return new Vector3(result[0], result[1], result[2]);
             }
@@ -310,7 +326,7 @@ namespace COMETwebapp
         /// <param name="y">the y coordinate in world coordinates</param>
         /// <param name="z">the z coordinate in world coordinates</param>
         /// <returns></returns>
-        public static async Task<Vector2?> GetScreenCoordinates(double x, double y, double z)
+        public async Task<Vector2?> GetScreenCoordinates(double x, double y, double z)
         {
             var result = await JSInterop.Invoke<float[]>("GetScreenCoordinates", x, y, z);
             if (result != null && result.Length == 2)
