@@ -112,6 +112,9 @@ let Camera;
  */
 let BabylonEngine;
 
+/**The layer used for highlightning */
+let HighLightLayer;
+
 /**
  * Inits the babylon.js scene on the canvas, the asociated resources and starts the render loop.
  * @param {HTMLCanvasElement} canvas - the canvas the scene it's attached to.
@@ -134,6 +137,10 @@ function InitCanvas(canvas) {
     if (Scene == null || Scene == undefined) {
         throw "The scene cannot be initialized";
     }
+
+    HighLightLayer = new BABYLON.HighlightLayer("highlightLayer", Scene);
+    HighLightLayer.blurHorizontalSize = 0.3;
+    HighLightLayer.blurVerticalSize = 0.3;
 
     CreateSkybox(Scene, SkyboxSize);
 
@@ -353,4 +360,53 @@ function GetScreenCoordinates(x,y,z) {
 function ClearScene() {
     Scene.dispose();
     Primitives = new Map();
+}
+
+/**
+ * Sets the selection of the primitive
+ * @param {string} ID - the ID of the primitive to select
+ * @param {boolean} isSelected - the value of the new selection
+ */
+function SetSelection(ID, isSelected) {
+    if (Primitives.size > 0) {
+        let data = Primitives.get(ID);
+        if (data != undefined) {
+            let mesh = data["mesh"];
+            if (mesh != undefined) {
+                if (isSelected) {
+                    HighLightLayer.addMesh(mesh, BABYLON.Color3.Green());
+                }
+                else {
+                    HighLightLayer.removeMesh(mesh);
+                }
+            }
+        }
+    }
+}
+
+/** Clears the selection of the scene */
+function ClearSelection() {
+    for (let [key, value] of Primitives) {
+        let mesh = value["mesh"];
+        if (mesh != undefined) {
+            mesh.material = mesh.Materials[0];
+        }
+    }
+}
+
+/**
+ * Sets the visibility of the primitive
+ * @param {string} ID - the ID of the primitive to select
+ * @param {boolean} isVisible - the value of the new selection
+ */
+function SetMeshVisibility(ID, isVisible) {
+    if (Primitives.size > 0) {
+        let data = Primitives.get(ID);
+        if (data != undefined) {
+            let mesh = data["mesh"];
+            if (mesh != undefined) {
+                mesh.setEnabled(isVisible);
+            }
+        }
+    }
 }

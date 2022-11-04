@@ -59,6 +59,11 @@ namespace COMETwebapp.Pages.Viewer
         public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
 
         /// <summary>
+        /// All the <see cref="ElementUsage"/> that are on the 3D Scene
+        /// </summary>
+        public List<ElementUsage> ElementUsagesOnScreen { get; set; } = new List<ElementUsage>();
+
+        /// <summary>
         /// Name of the option selected
         /// </summary>
         public string? OptionSelected { get; set; }
@@ -104,6 +109,11 @@ namespace COMETwebapp.Pages.Viewer
         private Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData> CheckboxStates_ActualFiniteStateList;
 
         /// <summary>
+        /// The nodes of the tree
+        /// </summary>
+        public List<TreeNode> TreeNodes { get; set; }
+
+        /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
@@ -143,6 +153,8 @@ namespace COMETwebapp.Pages.Viewer
                     var data = new ActualFiniteStateListFilterData(defaultState);
                     this.CheckboxStates_ActualFiniteStateList.Add(x, data);
                 });
+
+                this.TreeNodes = new List<TreeNode>();
 
                 this.States = iteration?.ActualFiniteStateList.SelectMany(x => x.ActualState.Select(s => s.Name)).ToList();
 
@@ -220,6 +232,14 @@ namespace COMETwebapp.Pages.Viewer
             List<ActualFiniteState> states = this.CheckboxStates_ActualFiniteStateList.Values.Select(x => x.GetStateToUse()).ToList();
 
             this.CanvasComponentReference?.RepopulateScene(elementUsages, option, states);
+            
+            this.TreeNodes.Clear();
+            foreach(var elementUsage in elementUsages)
+            {
+                this.TreeNodes.Add(new TreeNode(elementUsage.Name));
+            }
+
+            this.StateHasChanged();
         }
 
         /// <summary>
@@ -234,7 +254,6 @@ namespace COMETwebapp.Pages.Viewer
             this.InitializeElements();
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
             this.RepopulateScene(elementsOnScene);
-            this.StateHasChanged();
         }
 
         /// <summary>
@@ -269,6 +288,52 @@ namespace COMETwebapp.Pages.Viewer
             }
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
             this.RepopulateScene(elementsOnScene);
+        }
+
+        /// <summary>
+        /// Event for when a <see cref="TreeNode"/> in the tree is selected
+        /// </summary>
+        /// <param name="node">the selected node</param>
+        public void TreeSelectionChanged(TreeNode node)
+        {
+            //TODO: Update details panel and select a primitive in model and clears selection
+            this.TreeNodes.ForEach(x => x.IsSelected = false);
+            node.IsSelected = true;
+
+            var primitivesOnScene = Scene.GetPrimitives();
+
+            foreach(var primitive in primitivesOnScene)
+            {
+                primitive.IsSelected = false;
+            }
+
+            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == node.Name);
+
+            if(selectedPrimitive is not null)
+            {
+                selectedPrimitive.IsSelected = true;
+            }
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Event for when the <see cref="TreeNode"/> visibility has changed
+        /// </summary>
+        /// <param name="node">the node that visibility has changed</param>
+        public void TreeNodeVisibilityChanged(TreeNode node)
+        {
+            var primitivesOnScene = Scene.GetPrimitives();
+
+            foreach (var primitive in primitivesOnScene)
+            {
+                primitive.IsSelected = false;
+            }
+            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == node.Name);
+            if(selectedPrimitive is not null)
+            {
+                selectedPrimitive.IsVisible = node.IsVisible;
+            }
+            this.InvokeAsync(this.StateHasChanged);
         }
     }
 }
