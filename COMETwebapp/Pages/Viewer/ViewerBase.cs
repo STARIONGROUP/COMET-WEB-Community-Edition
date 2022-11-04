@@ -290,7 +290,10 @@ namespace COMETwebapp.Pages.Viewer
             this.RepopulateScene(elementsOnScene);
         }
 
-
+        /// <summary>
+        /// Event for when a <see cref="TreeNode"/> in the tree is selected
+        /// </summary>
+        /// <param name="node">the selected node</param>
         public void TreeSelectionChanged(TreeNode node)
         {
             //TODO: Update details panel and select a primitive in model and clears selection
@@ -313,6 +316,10 @@ namespace COMETwebapp.Pages.Viewer
             this.InvokeAsync(this.StateHasChanged);
         }
 
+        /// <summary>
+        /// Event for when the <see cref="TreeNode"/> visibility has changed
+        /// </summary>
+        /// <param name="node">the node that visibility has changed</param>
         public void TreeNodeVisibilityChanged(TreeNode node)
         {
             var primitivesOnScene = Scene.GetPrimitives();
