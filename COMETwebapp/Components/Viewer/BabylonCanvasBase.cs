@@ -152,19 +152,29 @@ namespace COMETwebapp.Componentes.Viewer
         {
             await Scene.ClearPrimitives();
 
+            Random rand = new Random();
+
             foreach (var elementUsage in elementUsages)
             {
                 var basicShape = this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states);
 
                 if (basicShape is not null)
                 {
+                    basicShape.ElementUsageName = elementUsage.Name;
+
                     if (basicShape is BasicPrimitive basicPrimitive)
                     {
-                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetOrientationFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);                        
                         basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
                     }
 
-                    await Scene.AddPrimitive(basicShape);
+                    //TODO: When materiales can be added this should not be random. For now helps distinguish different shapes on scene.
+                    int r = rand.Next(0, 225);
+                    int g = rand.Next(0, 225);
+                    int b = rand.Next(0, 225);
+
+                    await Scene.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
                 }
             }
         }

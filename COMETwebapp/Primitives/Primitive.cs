@@ -32,6 +32,11 @@ namespace COMETwebapp.Primitives
     public abstract class Primitive
     {
         /// <summary>
+        /// The element usage name the primitive was created from
+        /// </summary>
+        public string ElementUsageName { get; set; }
+
+        /// <summary>
         /// The base color of the primitive
         /// </summary>
         public Vector3 Color { get; set; }

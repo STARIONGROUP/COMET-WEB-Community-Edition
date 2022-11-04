@@ -26,6 +26,8 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Utilities;
+
     /// <summary>
     /// Class fot primitives that can be positioned and rotated in space
     /// </summary>
@@ -158,8 +160,45 @@ namespace COMETwebapp.Primitives
                 double.TryParse(valueSet.ActualValue[1], out var y) &&
                 double.TryParse(valueSet.ActualValue[2], out var z))
             {
-                this.SetTranslation(x / 1000.0, y / 1000.0, z / 1000.0);
+                this.SetTranslation(x, y, z);
             }            
+        }
+
+        /// <summary>
+        /// Set the orientation of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the orientation</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to orient the <see cref="BasicPrimitive"/></param>
+        public void SetOrientationFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        {
+            IValueSet? valueSet = null;
+
+            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.OrientationShortName);
+
+            if (valueSet is not null)
+            {
+                double[] rotMatrix = new double[9];
+
+                if(valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
+                {
+                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;                    
+                }
+                else
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        rotMatrix[i] = double.Parse(valueSet.ActualValue[i]);
+                    }
+                }
+
+                if (rotMatrix.Length == 9)
+                {
+                    double[] angles = rotMatrix.ToEulerAngles();
+
+                    this.SetRotation(angles[0], angles[1], angles[2]);
+                }
+            }
         }
 
         /// <summary>

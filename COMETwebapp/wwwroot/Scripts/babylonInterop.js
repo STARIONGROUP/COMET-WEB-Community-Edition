@@ -215,6 +215,14 @@ function GetPrimitiveIDUnderMouse() {
     let pickedMesh = hit.pickedMesh;
 
     if (pickedMesh.CometID != "Skybox") {
+        let data = Primitives.get(pickedMesh.CometID);
+        if (data != undefined) {
+            let primitiveData = data["primitive"];
+            if (primitiveData != undefined) {
+                console.log(primitiveData.ElementUsageName);
+            }
+        }
+
         return pickedMesh.CometID;
     }
 

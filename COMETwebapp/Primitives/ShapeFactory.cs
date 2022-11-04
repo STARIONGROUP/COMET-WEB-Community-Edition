@@ -27,7 +27,6 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// The factory used for creating basic shapes of type <see cref="Primitive"/>
@@ -43,42 +42,59 @@ namespace COMETwebapp.Primitives
         /// <returns>The created <see cref="Primitive"/></returns>
         public Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            var parameter = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == "kind"
-                      && (x.ParameterType is EnumerationParameterType || x.ParameterType is TextParameterType));
-
+            ParameterBase? parameterBase = null;
             IValueSet? valueSet = null;
 
-            if (parameter is not null)
+            if (elementUsage.ParameterOverride.Count > 0)
             {
-                foreach (var actualFiniteState in states)
+                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == Scene.ShapeKindShortName
+                                                                                   && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(Scene.ShapeKindShortName));
+            }
+
+            if (parameterBase is null)
+            {
+                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == Scene.ShapeKindShortName
+                                                                                             && x.ParameterType.GetType() == Scene.GetParameterTypeFromParameterShortName(Scene.ShapeKindShortName));
+            }
+
+            if (parameterBase is not null)
+            {
+                if (states.Count > 0)
                 {
-                    valueSet = parameter.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
-                    if (valueSet is not null)
+                    foreach (var actualFiniteState in states)
                     {
-                        break;
+                        valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                        if (valueSet is not null)
+                        {
+                            break;
+                        }
                     }
+                }
+                else
+                {
+                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, null);
                 }
             }
 
-            if(valueSet is not null)
+            if (valueSet is not null)
             {
                 string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
                 switch (shapeKind)
                 {
-                    case "box": return new Cube(1, 1, 1);
-                    case "cylinder": return new Cylinder(1, 1);
+                    case "box": return new Cube(0.15,0.15,0.15);
+                    case "cylinder": return new Cylinder(0.1, 1);
                     case "sphere": return new Sphere(1);
                     case "torus": return new Torus(1, 1);
                     case "triprism": throw new NotImplementedException();
                     case "tetrahedron": throw new NotImplementedException();
                     case "capsule": throw new NotImplementedException();
                     
-                    default: return new Cube(1, 1, 1); 
+                    default: return new Cube(0.15, 0.15, 0.15); 
                 }
             }
             else
             {
-                return new Cube(1, 1, 1);
+                return new Cube(0.15, 0.15, 0.15);
             }      
         }
     }
