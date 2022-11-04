@@ -110,10 +110,17 @@ namespace COMETwebapp.Componentes.Viewer
         /// Canvas on mouse down event
         /// </summary>
         /// <param name="e">the mouse args of the event</param>
-        public void OnMouseDown(MouseEventArgs e)
+        public async void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
+            var primitive = await Scene.GetPrimitiveUnderMouseAsync();
+            Scene.ClearSelection();
+
+            if (primitive is not null)
+            {
+                primitive.IsSelected = true;
+            }
         }
 
         /// <summary>

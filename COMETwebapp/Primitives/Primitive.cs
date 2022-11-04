@@ -32,9 +32,45 @@ namespace COMETwebapp.Primitives
     public abstract class Primitive
     {
         /// <summary>
+        /// Backing field for the property <see cref="IsSelected"/>
+        /// </summary>
+        private bool isSelected = false;
+
+        /// <summary>
+        /// Backing field for the property <see cref="IsVisible"/>
+        /// </summary>
+        private bool isVisible = true;
+
+        /// <summary>
         /// The element usage name the primitive was created from
         /// </summary>
         public string ElementUsageName { get; set; }
+
+        /// <summary>
+        /// If the primitive is selected or not.
+        /// </summary>
+        public bool IsSelected
+        {
+            get => isSelected;
+            set
+            {
+                isSelected = value;
+                JSInterop.Invoke("SetSelection", this.ID, value);
+            }
+        }
+
+        /// <summary>
+        /// If the primitive is visible or not
+        /// </summary>
+        public bool IsVisible
+        {
+            get => isVisible;
+            set
+            {
+                isVisible = value;
+                JSInterop.Invoke("SetMeshVisibility", this.ID, value);
+            }
+        }
 
         /// <summary>
         /// The base color of the primitive
