@@ -118,8 +118,6 @@ namespace COMETwebapp.Componentes.Viewer
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
         }
 
-
-
         /// <summary>
         /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
         /// </summary>

@@ -33,7 +33,7 @@ namespace COMETwebapp.Tests.Viewer
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
-    using NLog.LayoutRenderers;
+
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;

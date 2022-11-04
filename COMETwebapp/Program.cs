@@ -25,18 +25,27 @@
 namespace COMETwebapp
 {
     using BlazorStrap;
+
     using CDP4Dal;
+
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
+    /// <summary>
+    /// Point of entry of the application
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Point of entry of the application
+        /// </summary>
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
