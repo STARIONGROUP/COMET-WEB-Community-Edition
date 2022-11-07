@@ -27,10 +27,11 @@ namespace COMETwebapp.Components.Viewer
     using System.Drawing;
     using System.Numerics;
 
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
-    
+
     /// <summary>
     /// Scene provider
     /// </summary>
@@ -75,6 +76,11 @@ namespace COMETwebapp.Components.Viewer
         /// Thickness parameter short name
         /// </summary>
         public const string ThicknessShortName = "thickn";
+
+        /// <summary>
+        /// Event for when the selection has changed
+        /// </summary>
+        event EventHandler<OnSelectionChangedEventArgs> OnSelectionChanged;
 
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
@@ -201,5 +207,11 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="z">the z coordinate in world coordinates</param>
         /// <returns></returns>
         Task<Vector2?> GetScreenCoordinates(double x, double y, double z);
+
+        /// <summary>
+        /// Raise the <see cref="OnSelectionChanged"/> event 
+        /// </summary>
+        /// <param name="primitive">The <see cref="Primitive"/> that triggers the event</param>
+        void RaiseSelectionChanged(Primitive primitive);
     }
 }

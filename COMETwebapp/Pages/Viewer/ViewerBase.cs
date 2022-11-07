@@ -44,7 +44,7 @@ namespace COMETwebapp.Pages.Viewer
         /// The reference to the <see cref="BabylonCanvas"/> component
         /// </summary>
         [Parameter]
-        public BabylonCanvas? CanvasComponentReference { get; set; }
+        public BabylonCanvas CanvasComponentReference { get; set; }
 
         /// <summary>
         /// The filter on option
@@ -157,6 +157,12 @@ namespace COMETwebapp.Pages.Viewer
                 this.TreeNodes = new List<TreeNode>();
 
                 this.States = iteration?.ActualFiniteStateList.SelectMany(x => x.ActualState.Select(s => s.Name)).ToList();
+
+                this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
+                {
+                    var node = this.TreeNodes.FirstOrDefault(x => x.Name == args.Primitive.ElementUsageName);
+                    this.UpdateTreeUI(node);
+                };
 
                 this.StateHasChanged();
             }
@@ -291,21 +297,28 @@ namespace COMETwebapp.Pages.Viewer
         }
 
         /// <summary>
+        /// Updates the tree UI so it matches the selected element
+        /// </summary>
+        private void UpdateTreeUI(TreeNode selectedNode)
+        {
+            this.TreeNodes.ForEach(x => x.IsSelected = false);
+            selectedNode.IsSelected = true;
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
         /// Event for when a <see cref="TreeNode"/> in the tree is selected
         /// </summary>
         /// <param name="node">the selected node</param>
         public void TreeSelectionChanged(TreeNode node)
         {
             //TODO: Update details panel and select a primitive in model and clears selection
-            this.TreeNodes.ForEach(x => x.IsSelected = false);
-            node.IsSelected = true;
+
+            this.UpdateTreeUI(node);
 
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
 
-            foreach(var primitive in primitivesOnScene)
-            {
-                primitive.IsSelected = false;
-            }
+            primitivesOnScene.ForEach(x => x.IsSelected = false);
 
             var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == node.Name);
 
@@ -313,7 +326,6 @@ namespace COMETwebapp.Pages.Viewer
             {
                 selectedPrimitive.IsSelected = true;
             }
-            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
@@ -324,10 +336,6 @@ namespace COMETwebapp.Pages.Viewer
         {
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
 
-            foreach (var primitive in primitivesOnScene)
-            {
-                primitive.IsSelected = false;
-            }
             var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == node.Name);
             if(selectedPrimitive is not null)
             {

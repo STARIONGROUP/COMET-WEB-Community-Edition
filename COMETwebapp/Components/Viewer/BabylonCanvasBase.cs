@@ -102,23 +102,29 @@ namespace COMETwebapp.Componentes.Viewer
         /// Canvas on mouse down event
         /// </summary>
         /// <param name="e">the mouse args of the event</param>
-        public async void OnMouseDown(MouseEventArgs e)
+        public void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
-            var prim = this.SceneProvider.GetPrimitives().FirstOrDefault(x => x is not Line);
-
-            var retrieved = this.SceneProvider.GetPrimitiveById(prim.ID);
         }
 
         /// <summary>
         /// Canvas on mouse up event
         /// </summary>
         /// <param name="e">the mouse args of the event</param>
-        public void OnMouseUp(MouseEventArgs e)
+        public async void OnMouseUp(MouseEventArgs e)
         {
             this.IsMouseDown = false;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
+
+            var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
+
+            if (primitive is not null)
+            {
+                this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
+                primitive.IsSelected = true;
+                this.SceneProvider.RaiseSelectionChanged(primitive);
+            }
         }
 
         /// <summary>

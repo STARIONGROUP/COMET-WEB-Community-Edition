@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Scene.cs" company="RHEA System S.A.">
+// <copyright file="SceneProvider.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -25,14 +25,15 @@
 namespace COMETwebapp.Components.Viewer
 {
     using System;
+    using System.Collections.Generic;
     using System.Drawing;
     using System.Numerics;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
 
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -41,7 +42,7 @@ namespace COMETwebapp.Components.Viewer
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Static class to access the resources of a Scene 
+    /// Class to access the resources of a Scene 
     /// </summary>
     public class SceneProvider : ISceneProvider
     {
@@ -105,11 +106,25 @@ namespace COMETwebapp.Components.Viewer
         };
 
         /// <summary>
+        /// Event for when selection has changed;
+        /// </summary>
+        public event EventHandler<OnSelectionChangedEventArgs> OnSelectionChanged;
+
+        /// <summary>
         /// Creates a new instance of class <see cref="SceneProvider"/>
         /// </summary>
         public SceneProvider(IJSRuntime JsRuntime)
         {
             JSInterop.JsRuntime = JsRuntime;
+        }
+
+        /// <summary>
+        /// Raise the <see cref="OnSelectionChanged"/> event 
+        /// </summary>
+        /// <param name="primitive">The <see cref="Primitive"/> that triggers the event</param>
+        public void RaiseSelectionChanged(Primitive primitive)
+        {
+            OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(primitive));
         }
 
         /// <summary>
