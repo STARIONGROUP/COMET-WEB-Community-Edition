@@ -35,13 +35,57 @@ Copyright (c) 2022 RHEA System S.A.
                                 ValueChanged="@((string option) => OnOptionFilterChange(option))"
                                 FilteringMode="DataGridFilteringMode.Contains" />
                 </div>
-            </div>         
+            </div>
         </div>
-        <div id="bodyGrid">
-            <BabylonCanvas @ref=CanvasComponentReference />
-            <div id="column">
+        <div id="gridParent">
+            <div id="leftColumn">
+                <h3>Product Tree</h3>
                 @{
-                    <h1>States</h1>
+                    var name = string.Empty;
+
+                    @if (this.Elements.Count > 0 && this.OptionSelected != null)
+                    {
+                        name = this.Elements.First().Name;
+                    }
+
+                    <h6 id="rootElement">@name</h6>
+                    <ul>
+                        @if (this.TreeNodes is not null && this.TreeNodes.Count > 0)
+                        {
+                            @foreach (var node in this.TreeNodes.OrderBy(x => x.Name))
+                            {
+                                var nodeClasses = "treeNode";
+
+                                if (node.IsSelected)
+                                {
+                                    nodeClasses += " active";
+                                }
+
+                                <div class="@nodeClasses" onclick="@(()=>TreeSelectionChanged(node))">
+                                    <p>@node.Name</p>
+
+                                    @if (node.IsVisible)
+                                    {
+                                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ node.IsVisible = false; this.TreeNodeVisibilityChanged(node);})" />
+                                    }
+                                    else
+                                    {
+                                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ node.IsVisible = true; this.TreeNodeVisibilityChanged(node); })" />
+                                    }
+                                </div>
+                            }
+                        }
+                    </ul>
+                }
+                <h3>Details</h3>
+
+            </div>
+
+            <BabylonCanvas @ref=CanvasComponentReference />
+
+            <div id="rightColumn">
+                @{
+                    <h3>States</h3>
                     if (this.ListActualFiniteStateLists is not null)
                     {
                         foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
@@ -62,22 +106,22 @@ Copyright (c) 2022 RHEA System S.A.
                             {
                                 <div class="actualFiniteState">
 
-                                    @if(actualFiniteState.IsDefault)
+                                    @if (actualFiniteState.IsDefault)
                                     {
-                                    <input type="radio"
-                                           id="@actualFiniteState.Name"
-                                           name="@actualFiniteStateList.Name"
-                                           value="@actualFiniteState.Name"
-                                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
-                                           checked>
+                                        <input type="radio"
+                               id="@actualFiniteState.Name"
+                               name="@actualFiniteStateList.Name"
+                               value="@actualFiniteState.Name"
+                               onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
+                               checked>
                                     }
                                     else
                                     {
-                                    <input type="radio"
-                                           id="@actualFiniteState.Name"
-                                           name="@actualFiniteStateList.Name"
-                                           value="@actualFiniteState.Name"
-                                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
+                                        <input type="radio"
+                               id="@actualFiniteState.Name"
+                               name="@actualFiniteStateList.Name"
+                               value="@actualFiniteState.Name"
+                               onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
                                     }
 
                                     <label for="@actualFiniteState.Name">
@@ -94,21 +138,66 @@ Copyright (c) 2022 RHEA System S.A.
 </ApplicationTemplate>
 
 <style>
-    #bodyGrid{
+    #gridParent {
         margin: 1% 0;
         display: grid;
-        grid-template-columns: 9fr 1.5fr;
+        grid-template-columns: 0.15fr 1fr 0.15fr;
         grid-template-rows: 1fr;
         grid-column-gap: 0px;
         grid-row-gap: 0px;
     }
 
-    #column{
-        grid-area: 1 / 2 / 2 / 3;        
+    #leftColumn {
+        grid-area: 1 / 1 / 2 / 2;
+        margin: 0;
+        margin-left: 2%;
+        margin-right: 2%;
     }
 
-    .actualFiniteStateList{
-        margin : 0;
+    #rightColumn {
+        grid-area: 1 / 3 / 2 / 4;
+        margin: 0;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+
+    .treeNode {
+        cursor: pointer;
+        padding: 2%;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        margin-left: 0;
+        margin-right: 5%;
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        overflow: hidden;
+    }
+
+        .treeNode > p {
+            margin: 0;
+        }
+
+        .treeNode:hover {
+            background: #EEE;
+        }
+
+    .active {
+        background: lightgray;
+    }
+
+    .treeIcon {
+        margin-left: 5px;
+        width: 1.5rem;
+        height: auto;
+    }
+
+    .NonVisible {
+        display: none;
+    }
+
+    .actualFiniteStateList {
+        margin: 0;
         margin-left: 20px;
     }
 
@@ -117,7 +206,7 @@ Copyright (c) 2022 RHEA System S.A.
         margin-left: 40px;
     }
 
-    h1{
-        margin-left:20px;
+    h1 {
+        margin-left: 20px;
     }
 </style>

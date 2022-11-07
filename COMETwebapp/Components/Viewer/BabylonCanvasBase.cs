@@ -102,7 +102,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// Canvas on mouse down event
         /// </summary>
         /// <param name="e">the mouse args of the event</param>
-        public void OnMouseDown(MouseEventArgs e)
+        public async void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
@@ -129,7 +129,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
         public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
-            await SceneProvider.ClearPrimitives();
+            await this.SceneProvider.ClearPrimitives();
 
             Random rand = new Random();
 
@@ -153,7 +153,7 @@ namespace COMETwebapp.Componentes.Viewer
                     int g = rand.Next(0, 225);
                     int b = rand.Next(0, 225);
 
-                    await SceneProvider.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
+                    await this.SceneProvider.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
                 }
             }
         }

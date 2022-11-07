@@ -336,5 +336,16 @@ namespace COMETwebapp.Components.Viewer
 
             return null;
         }
+
+        /// <summary>
+        /// Clears the scene selection
+        /// </summary>
+        public static void ClearSelection()
+        {
+            foreach(var primitive in primitivesCollection.Values)
+            {
+                primitive.IsSelected = false;
+            }
+        }
     }
 }
