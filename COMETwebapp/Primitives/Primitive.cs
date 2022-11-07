@@ -85,7 +85,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// ID of the property. Used to identify the primitive between the interop C#-JS
         /// </summary>
-        public string ID { get; } = Guid.NewGuid().ToString();
+        public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
         /// Sets the diffuse color of this primitive.

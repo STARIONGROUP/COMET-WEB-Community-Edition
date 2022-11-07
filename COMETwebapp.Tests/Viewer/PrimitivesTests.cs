@@ -76,6 +76,7 @@ namespace COMETwebapp.Tests.Viewer
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
 
+            this.context.Services.AddTransient<ISceneProvider, SceneProvider>();
             this.context.Services.AddSingleton<IShapeFactory>(new ShapeFactory());
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
@@ -99,7 +100,7 @@ namespace COMETwebapp.Tests.Viewer
                 Manual = new ValueArray<string>(new List<string> { "box" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName= Scene.ShapeKindShortName, };
+            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName= SceneProvider.ShapeKindShortName, };
             var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = shapeKindParameterType };
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
@@ -108,7 +109,7 @@ namespace COMETwebapp.Tests.Viewer
                 Manual = new ValueArray<string>(new List<string> { "1","1", "1" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var positionParameterType = new CompoundParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Coordinates", ShortName = Scene.PositionShortName, };
+            var positionParameterType = new CompoundParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Coordinates", ShortName = SceneProvider.PositionShortName, };
             var positionParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = positionParameterType };
             positionParameter.ValueSet.Add(positionParameterValueSet);
 
@@ -117,7 +118,7 @@ namespace COMETwebapp.Tests.Viewer
                 Manual = new ValueArray<string>(new List<string> { "0.5", "0", "0.8660254", "0", "1", "0", "-0.8660254", "0", "0.5" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var orientationParameterType = new ArrayParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = Scene.OrientationShortName, };
+            var orientationParameterType = new ArrayParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = SceneProvider.OrientationShortName, };
             var orientationParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 

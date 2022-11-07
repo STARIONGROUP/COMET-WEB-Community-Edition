@@ -30,6 +30,7 @@ namespace COMETwebapp.Componentes.Viewer
 
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -52,12 +53,6 @@ namespace COMETwebapp.Componentes.Viewer
         public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
-        /// Property to inject the JSRuntime and allow C#-JS interop
-        /// </summary>
-        [Inject] 
-        IJSRuntime? JsRuntime { get; set; }
-
-        /// <summary>
         /// Invokable method from JS to get a GUID
         /// </summary>
         /// <returns>the GUID in string format</returns>
@@ -69,6 +64,12 @@ namespace COMETwebapp.Componentes.Viewer
         /// </summary>
         [Inject]
         public IShapeFactory? ShapeFactory { get; set; }
+
+        /// <summary>
+        /// The babylon.js scene
+        /// </summary>
+        [Inject]
+        public ISceneProvider SceneProvider { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -91,18 +92,9 @@ namespace COMETwebapp.Componentes.Viewer
             await base.OnAfterRenderAsync(firstRender);
 
             if (firstRender)
-            {                
-                if(this.JsRuntime != null)
-                {
-                    JSInterop.JsRuntime = this.JsRuntime;
-                }
-                else
-                {
-                    throw new JSException("JSRuntime can't be null");
-                }
- 
-                Scene.InitCanvas(this.CanvasReference);
-                await this.AddWorldAxes();
+            {               
+                this.SceneProvider.InitCanvas(this.CanvasReference);
+                await this.SceneProvider.AddWorldAxes();
             }
         }
                
@@ -114,13 +106,9 @@ namespace COMETwebapp.Componentes.Viewer
         {
             this.IsMouseDown = true;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
-            var primitive = await Scene.GetPrimitiveUnderMouseAsync();
-            Scene.ClearSelection();
+            var prim = this.SceneProvider.GetPrimitives().FirstOrDefault(x => x is not Line);
 
-            if (primitive is not null)
-            {
-                primitive.IsSelected = true;
-            }
+            var retrieved = this.SceneProvider.GetPrimitiveById(prim.ID);
         }
 
         /// <summary>
@@ -134,22 +122,6 @@ namespace COMETwebapp.Componentes.Viewer
         }
 
         /// <summary>
-        /// Create the world axes and adds them to the scene
-        /// </summary>
-        private async Task AddWorldAxes()
-        {
-            float size = 700;
-            Line xAxis = new Line(-size, 0, 0, size, 0, 0);
-            await Scene.AddPrimitive(xAxis, Color.Red);
-
-            Line yAxis = new Line(0, -size, 0, 0, size, 0);
-            await Scene.AddPrimitive(yAxis, Color.Green);
-
-            Line zAxis = new Line(0, 0, -size, 0, 0, size);
-            await Scene.AddPrimitive(zAxis, Color.Blue);
-        }
-
-        /// <summary>
         /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
         /// </summary>
         /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
@@ -157,7 +129,7 @@ namespace COMETwebapp.Componentes.Viewer
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
         public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
-            await Scene.ClearPrimitives();
+            await this.SceneProvider.ClearPrimitives();
 
             Random rand = new Random();
 
@@ -170,7 +142,7 @@ namespace COMETwebapp.Componentes.Viewer
                     basicShape.ElementUsageName = elementUsage.Name;
 
                     if (basicShape is BasicPrimitive basicPrimitive)
-                    {
+                    {                       
                         basicPrimitive.SetOrientationFromElementUsageParameters(elementUsage, selectedOption, states);
                         basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);                        
                         basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
@@ -181,7 +153,7 @@ namespace COMETwebapp.Componentes.Viewer
                     int g = rand.Next(0, 225);
                     int b = rand.Next(0, 225);
 
-                    await Scene.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
+                    await this.SceneProvider.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
                 }
             }
         }

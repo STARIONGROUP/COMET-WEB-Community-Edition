@@ -27,6 +27,8 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Components.Viewer;
 
     /// <summary>
     /// Cone primitive type
@@ -84,8 +86,8 @@ namespace COMETwebapp.Primitives
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
         public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.DiameterShortName);
-            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
+            var diameterValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
+            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.HeightShortName);
 
             if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {

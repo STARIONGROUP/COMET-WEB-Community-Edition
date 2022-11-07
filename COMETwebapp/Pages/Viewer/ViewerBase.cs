@@ -300,7 +300,7 @@ namespace COMETwebapp.Pages.Viewer
             this.TreeNodes.ForEach(x => x.IsSelected = false);
             node.IsSelected = true;
 
-            var primitivesOnScene = Scene.GetPrimitives();
+            var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
 
             foreach(var primitive in primitivesOnScene)
             {
@@ -322,7 +322,7 @@ namespace COMETwebapp.Pages.Viewer
         /// <param name="node">the node that visibility has changed</param>
         public void TreeNodeVisibilityChanged(TreeNode node)
         {
-            var primitivesOnScene = Scene.GetPrimitives();
+            var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
 
             foreach (var primitive in primitivesOnScene)
             {
