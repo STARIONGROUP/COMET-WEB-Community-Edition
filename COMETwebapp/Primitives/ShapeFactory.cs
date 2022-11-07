@@ -80,26 +80,32 @@ namespace COMETwebapp.Primitives
                 }
             }
 
+            Primitive primitive = null!;
+
             if (valueSet is not null)
             {
                 string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
                 switch (shapeKind)
                 {
-                    case "box": return new Cube(0.15,0.15,0.15);
-                    case "cylinder": return new Cylinder(0.1, 1);
-                    case "sphere": return new Sphere(1);
-                    case "torus": return new Torus(1, 1);
+                    case "box": primitive = new Cube(0.15,0.15,0.15); break;
+                    case "cylinder": primitive = new Cylinder(0.1, 1); break;
+                    case "sphere": primitive = new Sphere(1); break;
+                    case "torus": primitive = new Torus(1, 1); break;
                     case "triprism": throw new NotImplementedException();
                     case "tetrahedron": throw new NotImplementedException();
                     case "capsule": throw new NotImplementedException();
                     
-                    default: return new Cube(0.15, 0.15, 0.15); 
+                    default: primitive = new Cube(0.15, 0.15, 0.15); break;
                 }
             }
             else
             {
-                return new Cube(0.15, 0.15, 0.15);
-            }      
+                primitive = new Cube(0.15, 0.15, 0.15);
+            }
+
+            primitive.ElementUsage = elementUsage;
+
+            return primitive;
         }
     }
 }

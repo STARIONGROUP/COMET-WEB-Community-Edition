@@ -77,61 +77,67 @@ Copyright (c) 2022 RHEA System S.A.
                         }
                     </ul>
                 }
-                <h3>Details</h3>
-
             </div>
 
-            <BabylonCanvas @ref=CanvasComponentReference />
+            <BabylonCanvas @ref=this.CanvasComponentReference />
 
             <div id="rightColumn">
-                @{
-                    <h3>States</h3>
-                    if (this.ListActualFiniteStateLists is not null)
-                    {
-                        foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
-                        {
-                            <div class="actualFiniteStateList">
-                                <input type="checkbox"
-                               id="@actualFiniteStateList.Name"
-                               name="@actualFiniteStateList.Name"
-                               value="@actualFiniteStateList.Name"
-                               onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(actualFiniteStateList,args))">
 
-                                <label for="@actualFiniteStateList.Name">
-                                    @actualFiniteStateList.Name
+                @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SceneProvider is not null && this.CanvasComponentReference.SceneProvider.SelectedPrimitive is not null)
+                {
+                    var primitive = this.CanvasComponentReference.SceneProvider.SelectedPrimitive;
+
+                    <COMETwebapp.Components.PropertiesPanel.Properties Primitive="primitive"/>
+                }
+
+                <h3>States</h3>
+
+                @if (this.ListActualFiniteStateLists is not null)
+                {
+                    foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
+                    {
+                        <div class="actualFiniteStateList">
+                            <input type="checkbox"
+                           id="@actualFiniteStateList.Name"
+                           name="@actualFiniteStateList.Name"
+                           value="@actualFiniteStateList.Name"
+                           onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(actualFiniteStateList,args))">
+
+                            <label for="@actualFiniteStateList.Name">
+                                @actualFiniteStateList.Name
+                            </label>
+                        </div>
+
+                        @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+                        {
+                            <div class="actualFiniteState">
+
+                                @if (actualFiniteState.IsDefault)
+                                {
+                                    <input type="radio"
+                           id="@actualFiniteState.Name"
+                           name="@actualFiniteStateList.Name"
+                           value="@actualFiniteState.Name"
+                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
+                           checked>
+                                }
+                                else
+                                {
+                                    <input type="radio"
+                           id="@actualFiniteState.Name"
+                           name="@actualFiniteStateList.Name"
+                           value="@actualFiniteState.Name"
+                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
+                                }
+
+                                <label for="@actualFiniteState.Name">
+                                    @actualFiniteState.Name
                                 </label>
                             </div>
-
-                            @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
-                            {
-                                <div class="actualFiniteState">
-
-                                    @if (actualFiniteState.IsDefault)
-                                    {
-                                        <input type="radio"
-                               id="@actualFiniteState.Name"
-                               name="@actualFiniteStateList.Name"
-                               value="@actualFiniteState.Name"
-                               onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
-                               checked>
-                                    }
-                                    else
-                                    {
-                                        <input type="radio"
-                               id="@actualFiniteState.Name"
-                               name="@actualFiniteStateList.Name"
-                               value="@actualFiniteState.Name"
-                               onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
-                                    }
-
-                                    <label for="@actualFiniteState.Name">
-                                        @actualFiniteState.Name
-                                    </label>
-                                </div>
-                            }
                         }
                     }
                 }
+
             </div>
         </div>
     </Body>
@@ -141,7 +147,7 @@ Copyright (c) 2022 RHEA System S.A.
     #gridParent {
         margin: 1% 0;
         display: grid;
-        grid-template-columns: 0.15fr 1fr 0.15fr;
+        grid-template-columns: 0.15fr 1fr 0.23fr;
         grid-template-rows: 1fr;
         grid-column-gap: 0px;
         grid-row-gap: 0px;
@@ -158,7 +164,6 @@ Copyright (c) 2022 RHEA System S.A.
         grid-area: 1 / 3 / 2 / 4;
         margin: 0;
         margin-left: 2%;
-        margin-right: 2%;
     }
 
     .treeNode {

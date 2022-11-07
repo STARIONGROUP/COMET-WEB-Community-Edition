@@ -83,6 +83,11 @@ namespace COMETwebapp.Components.Viewer
         event EventHandler<OnSelectionChangedEventArgs> OnSelectionChanged;
 
         /// <summary>
+        /// The primitive that is currently selected
+        /// </summary>
+        Primitive SelectedPrimitive { get; set; }
+
+        /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
         void InitCanvas(ElementReference canvas);

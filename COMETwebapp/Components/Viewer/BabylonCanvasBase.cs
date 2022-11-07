@@ -118,13 +118,17 @@ namespace COMETwebapp.Componentes.Viewer
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
 
             var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
+            this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
+            this.SceneProvider.SelectedPrimitive = null;
 
             if (primitive is not null)
             {
-                this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
                 primitive.IsSelected = true;
+                this.SceneProvider.SelectedPrimitive = primitive;
                 this.SceneProvider.RaiseSelectionChanged(primitive);
             }
+
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
@@ -145,13 +149,13 @@ namespace COMETwebapp.Componentes.Viewer
 
                 if (basicShape is not null)
                 {
-                    basicShape.ElementUsageName = elementUsage.Name;
+                    basicShape.ElementUsage = elementUsage;
 
                     if (basicShape is BasicPrimitive basicPrimitive)
                     {                       
-                        basicPrimitive.SetOrientationFromElementUsageParameters(elementUsage, selectedOption, states);
-                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);                        
-                        basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetOrientationFromElementUsageParameters(selectedOption, states);
+                        basicPrimitive.SetPositionFromElementUsageParameters(selectedOption, states);                        
+                        basicPrimitive.SetDimensionsFromElementUsageParameters(selectedOption, states);
                     }
 
                     //TODO: When materiales can be added this should not be random. For now helps distinguish different shapes on scene.
