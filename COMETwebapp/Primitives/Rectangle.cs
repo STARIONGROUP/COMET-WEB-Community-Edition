@@ -24,9 +24,11 @@
 
 namespace COMETwebapp.Primitives
 {
-    using CDP4Common.EngineeringModelData;
-    using COMETwebapp.Components.Viewer;
     using System.Collections.Generic;
+
+    using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Components.Viewer;
 
     /// <summary>
     /// Rectangle primitive type

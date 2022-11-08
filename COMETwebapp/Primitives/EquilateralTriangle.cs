@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Triangle.cs" company="RHEA System S.A.">
+// <copyright file="EquilateralTriangle.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -27,10 +27,11 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
+    
     using COMETwebapp.Components.Viewer;
 
     /// <summary>
-    /// Triangle primitive type
+    /// Equilateral Triangle primitive type
     /// </summary>
     public class EquilateralTriangle : BasicPrimitive
     {

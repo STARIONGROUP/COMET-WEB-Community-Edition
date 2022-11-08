@@ -27,6 +27,7 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Components.Viewer;
 
     /// <summary>
@@ -61,9 +62,9 @@ namespace COMETwebapp.Primitives
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
         public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            var radisuValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
+            var radiusValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
 
-            if (radisuValueSet is not null && double.TryParse(radisuValueSet.ActualValue.First(), out double r))
+            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double r))
             {
                 this.Radius = r;
             }
