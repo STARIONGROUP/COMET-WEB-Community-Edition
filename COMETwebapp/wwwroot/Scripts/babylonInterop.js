@@ -195,9 +195,9 @@ function AddPrimitive(primitive, color) {
         case "HexagonalPrism": CreateHexagonalPrism(primitive, color); break;
         case "Rectangle": CreateRectangle(primitive, color); break;
         case "Wedge": CreateWedge(primitive, color); break;
-        case "Triangle": CreateTriangle(primitive, color); break;
+        case "EquilateralTriangle": CreateTriangle(primitive, color); break;
 
-        default: throw "The type of the primitive is not defined in the JS file";
+        default: throw `The type of the primitive [${primitive.Type}] is not defined in the JS file`;
     }
 }
 

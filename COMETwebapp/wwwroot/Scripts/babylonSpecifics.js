@@ -102,7 +102,7 @@ function CreateSphere(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateCylinder(primitive, color) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -132,6 +132,7 @@ function CreateTorus(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateTriangularPrism(primitive, color) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 3 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -141,8 +142,8 @@ function CreateTriangularPrism(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateHexagonalPrism(primitive, color) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 6 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
-
 }
 
 /**
@@ -151,16 +152,7 @@ function CreateHexagonalPrism(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateDisc(primitive, color) {
-    let mesh = BABYLON.MeshBuilder.CreateDisc("disc", {}, scene);
-    InitializePrimitiveData(mesh, primitive, color);
-}
-
-/**
- * Creates a wedge primitive
- * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
- */
-function CreateWedge(primitive, color) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Radius/100.0 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -170,6 +162,8 @@ function CreateWedge(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateRectangle(primitive, color) {
+    let minValue = Math.min(primitive.Width, primitive.Height);
+    let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: minValue / 100.0, depth: primitive.Height }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 
@@ -179,6 +173,7 @@ function CreateRectangle(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateTriangle(primitive, color) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Radius/100.0, diameter: primitive.Radius * 2.0, tessellation: 3 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 

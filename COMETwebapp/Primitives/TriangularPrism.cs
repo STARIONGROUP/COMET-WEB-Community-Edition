@@ -27,18 +27,19 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
-    
+    using COMETwebapp.Components.Viewer;
+
     public class TriangularPrism : BasicPrimitive
     {
         /// <summary>
         /// Basic primitive type
         /// </summary>
-        public override string Type { get; protected set; } = "TraingularPrism";
+        public override string Type { get; protected set; } = "TriangularPrism";
 
         /// <summary>
-        /// The base of the triangular face of the <see cref="TriangularPrism"/>
+        /// The radius of the cicumscribed circle
         /// </summary>
-        public double Base { get; set; }
+        public double Radius { get; set; }
 
         /// <summary>
         /// The height of the triangular face of the <see cref="TriangularPrism"/>
@@ -46,21 +47,14 @@ namespace COMETwebapp.Primitives
         public double Height { get; set; }
 
         /// <summary>
-        /// The length of the prism
-        /// </summary>
-        public double Length { get; set; }
-
-        /// <summary>
         /// Creates a new instance of type <see cref="TriangularPrism"/>
         /// </summary>
-        /// <param name="_base">the base of the triangular face</param>
-        /// <param name="height">the height of the triangular face</param>
-        /// <param name="length">the length of the prism</param>
-        public TriangularPrism(double _base, double height, double length)
-        {           
-            this.Base = _base;
+        /// <param name="radius">the size of the circumradius</param>
+        /// <param name="height">the height of the prism</param>
+        public TriangularPrism(double radius, double height)
+        {
+            this.Radius = radius;
             this.Height = height;
-            this.Length = length;
         }
 
         /// <summary>
@@ -71,23 +65,17 @@ namespace COMETwebapp.Primitives
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
         public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            var baseValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.WidthShortName);
-            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
-            var lengthValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.LengthShortName);
+            var radiusValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
+            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.HeightShortName);
 
-            if (baseValueSet is not null && double.TryParse(baseValueSet.ActualValue.First(), out double b))
+            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double r))
             {
-                this.Base = b;
+                this.Radius = r;
             }
 
             if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
             {
                 this.Height = h;
-            }
-
-            if (lengthValueSet is not null && double.TryParse(lengthValueSet.ActualValue.First(), out double l))
-            {
-                this.Length = l;
             }
         }
     }

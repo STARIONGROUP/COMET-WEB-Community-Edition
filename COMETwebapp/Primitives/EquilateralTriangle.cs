@@ -27,36 +27,30 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
+    using COMETwebapp.Components.Viewer;
 
     /// <summary>
     /// Triangle primitive type
     /// </summary>
-    public class Triangle : BasicPrimitive
+    public class EquilateralTriangle : BasicPrimitive
     {
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "Triangle";
+        public override string Type { get; protected set; } = "EquilateralTriangle";
 
         /// <summary>
-        /// Base of the triangle
+        /// The radius of the cicumscribed circle
         /// </summary>
-        public double Base { get; set; }
+        public double Radius { get; set; }
 
         /// <summary>
-        /// Height of the triangle
+        /// Creates a new instance of type <see cref="EquilateralTriangle"/>
         /// </summary>
-        public double Height { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="Triangle"/>
-        /// </summary>
-        /// <param name="_base">the base of the <see cref="Triangle"/></param>
-        /// <param name="height">the height of the <see cref="Triangle"/></param>
-        public Triangle(double _base, double height)
+        /// <param name="radius">the size of the circumradius</param>
+        public EquilateralTriangle(double radius)
         {
-            this.Base = _base;
-            this.Height = height;
+            this.Radius = radius;
         }
 
         /// <summary>
@@ -67,17 +61,11 @@ namespace COMETwebapp.Primitives
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
         public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            var baseValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.WidthShortName);
-            var heightValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, Scene.HeightShortName);
+            var radiusValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
 
-            if (baseValueSet is not null && double.TryParse(baseValueSet.ActualValue.First(), out double b))
+            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double r))
             {
-                this.Base = b;
-            }
-
-            if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
-            {
-                this.Height = h;
+                this.Radius = r;
             }
         }
     }
