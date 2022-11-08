@@ -89,8 +89,13 @@ namespace COMETwebapp.Primitives
                     case "cylinder": return new Cylinder(0.1, 1);
                     case "sphere": return new Sphere(1);
                     case "torus": return new Torus(1, 1);
-
-
+                    case "triprism": return new TriangularPrism(1, 1, 1);
+                    case "disc": return new Disc(1);
+                    case "hexagonalprism": return new HexagonalPrism(1, 1);
+                    case "rectangle": return new Rectangle(1, 1);
+                    case "wedge": return new Wedge(1, 1, 1);
+                    case "triangle": return new Triangle(1, 1);
+                    
                     default: return new Cube(0.15, 0.15, 0.15); 
                 }
             }
