@@ -89,10 +89,8 @@ namespace COMETwebapp.Primitives
                     case "cylinder": return new Cylinder(0.1, 1);
                     case "sphere": return new Sphere(1);
                     case "torus": return new Torus(1, 1);
-                    case "triprism": throw new NotImplementedException();
-                    case "tetrahedron": throw new NotImplementedException();
-                    case "capsule": throw new NotImplementedException();
-                    
+
+
                     default: return new Cube(0.15, 0.15, 0.15); 
                 }
             }

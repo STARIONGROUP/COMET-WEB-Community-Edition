@@ -127,6 +127,62 @@ function CreateTorus(primitive, color) {
 }
 
 /**
+ * Creates a triangular prism primitive
+ * @param {any} primitive - the primitive in JSON format
+ * @param {any} color - the color in JSON format
+ */
+function CreateTriangularPrism(primitive, color) {
+    InitializePrimitiveData(mesh, primitive, color);
+}
+
+/**
+ * Creates a hexagonal prism primitive
+ * @param {any} primitive - the primitive in JSON format
+ * @param {any} color - the color in JSON format
+ */
+function CreateHexagonalPrism(primitive, color) {
+    InitializePrimitiveData(mesh, primitive, color);
+
+}
+
+/**
+ * Creates a disc primitive
+ * @param {any} primitive - the primitive in JSON format
+ * @param {any} color - the color in JSON format
+ */
+function CreateDisc(primitive, color) {
+    let mesh = BABYLON.MeshBuilder.CreateDisc("disc", {}, scene);
+    InitializePrimitiveData(mesh, primitive, color);
+}
+
+/**
+ * Creates a wedge primitive
+ * @param {any} primitive - the primitive in JSON format
+ * @param {any} color - the color in JSON format
+ */
+function CreateWedge(primitive, color) {
+    InitializePrimitiveData(mesh, primitive, color);
+}
+
+/**
+ * Creates a rectangle primitive
+ * @param {any} primitive - the primitive in JSON format
+ * @param {any} color - the color in JSON format
+ */
+function CreateRectangle(primitive, color) {
+    InitializePrimitiveData(mesh, primitive, color);
+}
+
+/**
+ * Creates a triangle primitive
+ * @param {any} primitive - the primitive in JSON format
+ * @param {any} color - the color in JSON format
+ */
+function CreateTriangle(primitive, color) {
+    InitializePrimitiveData(mesh, primitive, color);
+}
+
+/**
  * Creates a custom primitive
  * @param {any} primitive - the primitive in JSON format
  * @param {any} color - the color in JSON format
