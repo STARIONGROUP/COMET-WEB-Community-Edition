@@ -24,15 +24,16 @@
 
 namespace COMETwebapp.Primitives
 {
-
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-    using COMETwebapp.Components.Viewer;
-    using Newtonsoft.Json;
     using System.Numerics;
 
+    using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Components.Viewer;
+    
+    using Newtonsoft.Json;
+
     /// <summary>
-    /// Base class for the wrapper classes around JS objects. Represents an <see cref="CDP4Common.EngineeringModelData.ElementUsage"/> on the Scene.
+    /// Represents an <see cref="CDP4Common.EngineeringModelData.ElementUsage"/> on the Scene from the selected <see cref="Option"/> and <see cref="ActualFiniteState"/>
     /// </summary>
     public abstract class Primitive
     {

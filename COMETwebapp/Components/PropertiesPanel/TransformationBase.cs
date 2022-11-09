@@ -42,37 +42,37 @@ namespace COMETwebapp.Components.PropertiesPanel
         private BasicPrimitive primitive;
 
         /// <summary>
-        /// The translation of <see cref="Primitive"/> along the X axis 
+        /// The translation of <see cref="Primitives.Primitive"/> along the X axis 
         /// </summary>
         public double X { get; set; }
 
         /// <summary>
-        /// The translation of <see cref="Primitive"/> along the Y axis 
+        /// The translation of <see cref="Primitives.Primitive"/> along the Y axis 
         /// </summary>
         public double Y { get; set; }
 
         /// <summary>
-        /// The translation of <see cref="Primitive"/> along the Z axis 
+        /// The translation of <see cref="Primitives.Primitive"/> along the Z axis 
         /// </summary>
         public double Z { get; set; }
 
         /// <summary>
-        /// The rotation of <see cref="Primitive"/> around the X axis 
+        /// The rotation of <see cref="Primitives.Primitive"/> around the X axis 
         /// </summary>
         public double RX { get; set; }
 
         /// <summary>
-        /// The rotation of <see cref="Primitive"/> around the Y axis 
+        /// The rotation of <see cref="Primitives.Primitive"/> around the Y axis 
         /// </summary>
         public double RY { get; set; }
 
         /// <summary>
-        /// The rotation of <see cref="Primitive"/> around the Z axis 
+        /// The rotation of <see cref="Primitives.Primitive"/> around the Z axis 
         /// </summary>
         public double RZ { get; set; }
 
         /// <summary>
-        /// The selected primitive 
+        /// Gets/Sets the selected primitive for this component.
         /// </summary>
         [Parameter]
         public BasicPrimitive Primitive

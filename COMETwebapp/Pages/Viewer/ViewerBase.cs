@@ -31,7 +31,6 @@ namespace COMETwebapp.Pages.Viewer
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
-    using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
 
     using Microsoft.AspNetCore.Components;

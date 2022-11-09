@@ -60,13 +60,13 @@ namespace COMETwebapp.Componentes.Viewer
         public static string GetGUID() => Guid.NewGuid().ToString();
 
         /// <summary>
-        /// Shape factory for creating <see cref="Primitive"/> from <see cref="ElementUsage"/>
+        /// Shape factory for creating <see cref="Primitive"/> from a <see cref="ElementUsage"/>
         /// </summary>
         [Inject]
         public IShapeFactory? ShapeFactory { get; set; }
 
         /// <summary>
-        /// The babylon.js scene
+        /// The provider of the 3D Scene
         /// </summary>
         [Inject]
         public ISceneProvider SceneProvider { get; set; }
@@ -128,7 +128,7 @@ namespace COMETwebapp.Componentes.Viewer
                 this.SceneProvider.RaiseSelectionChanged(primitive);
             }
 
-            this.InvokeAsync(this.StateHasChanged);
+            await this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>

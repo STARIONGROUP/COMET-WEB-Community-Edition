@@ -34,7 +34,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     public class PropertiesBase : ComponentBase
     {
         /// <summary>
-        /// The <see cref="Primitive"/> to fill the panel with
+        /// The <see cref="COMETwebapp.Primitives.Primitive"/> to fill the panel with
         /// </summary>
         [Parameter]
         public Primitive Primitive { get; set; }       
