@@ -85,13 +85,15 @@ namespace COMETwebapp.Primitives
                 string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
                 switch (shapeKind)
                 {
-                    case "box": return new Cube(0.15,0.15,0.15);
-                    case "cylinder": return new Cylinder(0.1, 1);
+                    case "box": return new Cube(1,1,1);
+                    case "cylinder": return new Cylinder(1, 1);
                     case "sphere": return new Sphere(1);
                     case "torus": return new Torus(1, 1);
-                    case "triprism": throw new NotImplementedException();
-                    case "tetrahedron": throw new NotImplementedException();
-                    case "capsule": throw new NotImplementedException();
+                    case "triprism": return new TriangularPrism(1, 1);
+                    case "disc": return new Disc(1);
+                    case "hexagonalprism": return new HexagonalPrism(1, 1);
+                    case "rectangle": return new Rectangle(1, 1);
+                    case "triangle": return new EquilateralTriangle(1);
                     
                     default: return new Cube(0.15, 0.15, 0.15); 
                 }

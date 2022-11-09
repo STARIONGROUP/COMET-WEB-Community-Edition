@@ -189,9 +189,15 @@ function AddPrimitive(primitive, color) {
         case "Cylinder":        CreateCylinder(primitive, color); break;
         case "Cone":            CreateCone(primitive, color);     break;
         case "Torus":           CreateTorus(primitive, color);    break;
-        case "CustomPrimitive": LoadPrimitive(primitive, color);  break;
+        case "CustomPrimitive": LoadPrimitive(primitive, color); break;
+        case "TriangularPrism": CreateTriangularPrism(primitive, color); break;
+        case "Disc": CreateDisc(primitive, color); break;
+        case "HexagonalPrism": CreateHexagonalPrism(primitive, color); break;
+        case "Rectangle": CreateRectangle(primitive, color); break;
+        case "Wedge": CreateWedge(primitive, color); break;
+        case "EquilateralTriangle": CreateTriangle(primitive, color); break;
 
-        default: throw "The type of the primitive is not defined in the JS file";
+        default: throw `The type of the primitive [${primitive.Type}] is not defined in the JS file`;
     }
 }
 
