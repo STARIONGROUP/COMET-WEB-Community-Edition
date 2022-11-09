@@ -31,6 +31,7 @@ namespace COMETwebapp.Pages.Viewer
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
+    using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
@@ -44,7 +45,7 @@ namespace COMETwebapp.Pages.Viewer
         /// The reference to the <see cref="BabylonCanvas"/> component
         /// </summary>
         [Parameter]
-        public BabylonCanvas CanvasComponentReference { get; set; }
+        public BabylonCanvas? CanvasComponentReference { get; set; }
 
         /// <summary>
         /// The filter on option
@@ -77,7 +78,7 @@ namespace COMETwebapp.Pages.Viewer
         /// Injected property to get access to <see cref="ISessionAnchor"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor? SessionAnchor { get; set; }
+        public ISessionAnchor SessionAnchor { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IIterationService"/>
@@ -160,7 +161,7 @@ namespace COMETwebapp.Pages.Viewer
 
                 this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
                 {
-                    var node = this.TreeNodes.FirstOrDefault(x => x.Name == args.Primitive.ElementUsageName);
+                    var node = this.TreeNodes.FirstOrDefault(x => x.Name == args.Primitive.ElementUsage.Name);
                     this.UpdateTreeUI(node);
                 };
 
@@ -320,11 +321,12 @@ namespace COMETwebapp.Pages.Viewer
 
             primitivesOnScene.ForEach(x => x.IsSelected = false);
 
-            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == node.Name);
+            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == node.Name);
 
             if(selectedPrimitive is not null)
             {
                 selectedPrimitive.IsSelected = true;
+                this.CanvasComponentReference.SceneProvider.SelectedPrimitive = selectedPrimitive;
             }
         }
 
@@ -336,7 +338,7 @@ namespace COMETwebapp.Pages.Viewer
         {
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
 
-            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == node.Name);
+            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == node.Name);
             if(selectedPrimitive is not null)
             {
                 selectedPrimitive.IsVisible = node.IsVisible;

@@ -139,8 +139,6 @@ function InitCanvas(canvas) {
     }
 
     HighLightLayer = new BABYLON.HighlightLayer("highlightLayer", Scene);
-    HighLightLayer.blurHorizontalSize = 0.3;
-    HighLightLayer.blurVerticalSize = 0.3;
 
     CreateSkybox(Scene, SkyboxSize);
 
@@ -380,7 +378,7 @@ function SetSelection(ID, isSelected) {
             let mesh = data["mesh"];
             if (mesh != undefined) {
                 if (isSelected) {
-                    HighLightLayer.addMesh(mesh, BABYLON.Color3.Green());
+                    HighLightLayer.addMesh(mesh, new BABYLON.Color3(1,0.3,0));
                 }
                 else {
                     HighLightLayer.removeMesh(mesh);

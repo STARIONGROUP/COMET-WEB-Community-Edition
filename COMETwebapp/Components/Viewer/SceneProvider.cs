@@ -111,6 +111,11 @@ namespace COMETwebapp.Components.Viewer
         public event EventHandler<OnSelectionChangedEventArgs> OnSelectionChanged;
 
         /// <summary>
+        /// The primitive that is currently selected
+        /// </summary>
+        public Primitive SelectedPrimitive { get; set; }
+
+        /// <summary>
         /// Creates a new instance of class <see cref="SceneProvider"/>
         /// </summary>
         public SceneProvider(IJSRuntime JsRuntime)

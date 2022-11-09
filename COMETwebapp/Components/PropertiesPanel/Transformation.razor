@@ -1,0 +1,100 @@
+﻿@inherits TransformationBase
+<div class="section">
+    @{
+        var transParam = this.Primitive.GetTranslationParameter();
+        if (transParam is not null)
+        {
+            <div class="transformation-row">
+                <p>@transParam.ParameterType.Name</p>
+                <div class="coordinate-block" id="x-row">
+                    <p>X</p>
+                    <input type="text" id="x-input" name="xInput" class="input" value="@this.X" @oninput="@((args) => this.OnPositionChanged("X", args.Value))">
+                </div>
+                <div class="coordinate-block" id="y-row">
+                    <p>Y</p>
+                    <input type="text" id="y-input" name="yInput" class="input" value="@this.Y" @oninput="@((args) => this.OnPositionChanged("Y", args.Value))">
+                </div>
+                <div class="coordinate-block" id="z-row">
+                    <p>Z</p>
+                    <input type="text" id="z-input" name="zInput" class="input" value="@this.Z" @oninput="@((args) => this.OnPositionChanged("Z", args.Value))">
+                </div>
+            </div>
+        }
+
+        var orientParam = this.Primitive.GetOrientationParameter();
+
+        if (orientParam is not null)
+        {
+            <div class="transformation-row">
+                <p>@orientParam.ParameterType.Name</p>
+                <div class="coordinate-block" id="x-row">
+                    <p>X</p>
+                    <input type="text" id="x-input" name="xInput" class="input" value="@this.RX" @oninput="@((args) => this.OnRotationsChanged("RX", args.Value))">
+                </div>
+                <div class="coordinate-block" id="y-row">
+                    <p>Y</p>
+                    <input type="text" id="y-input" name="yInput" class="input" value="@this.RY" @oninput="@((args) => this.OnRotationsChanged("RY", args.Value))">
+                </div>
+                <div class="coordinate-block" id="z-row">
+                    <p>Z</p>
+                    <input type="text" id="z-input" name="zInput" class="input" value="@this.RZ" @oninput="@((args) => this.OnRotationsChanged("RZ", args.Value))">
+                </div>
+            </div>
+        }
+    }
+</div>
+
+
+<style>
+    #title-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        background: lightgray;
+    }
+
+        #title-row > button {
+            border: 0px;
+            padding: 2%;
+            height: auto;
+        }
+
+    .transformation-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: 2%;
+    }
+
+    .coordinate-block {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid gray;
+    }
+
+    #x-row {
+        background: red;
+        display: flex;
+    }
+
+    #y-row {
+        background: green;
+        display: flex;
+    }
+
+    #z-row {
+        background: blue;
+        display: flex;
+    }
+
+        #x-row > p, #y-row > p, #z-row > p {
+            color: white;
+            padding: 3%;
+            text-align: center;
+        }
+</style>

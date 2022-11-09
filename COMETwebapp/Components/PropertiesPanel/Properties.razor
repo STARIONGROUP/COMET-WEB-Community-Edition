@@ -1,0 +1,153 @@
+﻿@using COMETwebapp.Primitives
+@inherits PropertiesBase
+
+<div id="propertiesPanel">
+    @{
+        var title = "Properties";
+        if (this.Primitive is not null)
+        {
+            title = this.Primitive.ElementUsage.Name + " - Properties:";
+        }
+
+        <div id="properties-title">
+            <h6>@title</h6>
+            <button>Submit</button>
+        </div>
+    }
+
+    <BSAccordion>
+        <BSAccordionItem AlwaysOpen="true" DefaultShown="true">
+            <Header>Parameters</Header>
+            <Content>
+                <div id="parameters-section">
+                    @{
+                        if (this.Primitive is not null)
+                        {
+                            foreach (var parameter in this.Primitive.GetParameters())
+                            {
+                                <p class="parameter-item">@parameter.ParameterType.Name</p>
+                            }
+                        }
+                    }
+                </div>
+            </Content>
+        </BSAccordionItem>
+
+        @if (this.Primitive is BasicPrimitive basicPrim)
+        {
+            <BSAccordionItem AlwaysOpen="true" DefaultShown="true">
+                <Header>Transformations</Header>
+                <Content>
+                    <Transformation Primitive="basicPrim" />
+                </Content>
+            </BSAccordionItem>
+        }
+
+        <BSAccordionItem AlwaysOpen="true" DefaultShown="true">
+            <Header>Color</Header>
+            <Content>
+                <div id="color-section">
+                    <div id="color-rectangle">
+                    </div>
+                    <div>
+                        <div class="color-row">
+                            <label for="red">R:</label>
+                            <input type="text" id="red" name="red" value="255" class="input">
+                        </div>
+                        <div class="color-row">
+                            <label for="green">G:</label>
+                            <input type="text" id="green" name="green" value="255" class="input">
+                        </div>
+                        <div class="color-row">
+                            <label for="blue">B:</label>
+                            <input type="text" id="blue" name="blue" value="255" class="input">
+                        </div>
+                        <div class="color-row">
+                            <label for="alpha">A:</label>
+                            <input type="text" id="alpha" name="alpha" value="255" class="input">
+                        </div>
+                    </div>
+                </div>
+            </Content>
+        </BSAccordionItem>
+    </BSAccordion>
+</div>
+
+<style>
+    p {
+        margin: 0;
+    }
+
+    #properties-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0;
+        background: gray;
+        font-weight: bold;
+        padding: 2%;
+    }
+
+        #properties-title > h6 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+    #parameters-section {
+        display: flex;
+        align-items: start;
+        flex-wrap: wrap;
+    }
+
+    #transformations-section {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #color-section {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .parameter-item {
+        margin: 1%;
+        background: #EAECEE;
+        border-radius: 5px;
+        padding: 1%;
+        border: 1px solid gray;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .parameter-item:hover {
+            transform: scale(1.05,1.05);
+        }
+
+    .color-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #color-rectangle {
+        width: 100px;
+        height: 100px;
+        background: darkred;
+        margin: 2;
+        box-sizing: border-box;
+    }
+
+    #propertiesPanel {
+        border: 1px solid lightgray;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 5px;
+    }
+
+    .input {
+        max-width: 70px;
+    }
+</style>
