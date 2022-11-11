@@ -27,7 +27,6 @@ namespace COMETwebapp
     using BlazorStrap;
 
     using CDP4Dal;
-
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;

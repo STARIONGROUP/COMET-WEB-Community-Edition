@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Primitives
 {
+
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.Viewer;
@@ -148,41 +149,77 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Set the position of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="BasicPrimitive"/></param>
-        public void SetPositionFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states)
+        public void SetPositionFromElementUsageParameters()
         {
-            IValueSet? valueSet = null;
-
-            valueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.PositionShortName);
-
-            if (valueSet is not null &&
-                double.TryParse(valueSet.ActualValue[0], out var x) &&
-                double.TryParse(valueSet.ActualValue[1], out var y) &&
-                double.TryParse(valueSet.ActualValue[2], out var z))
-            {
-                this.SetTranslation(x, y, z);
-            }            
+            IValueSet? valueSet = this.GetValueSet(SceneProvider.PositionShortName);
+            var translation = this.ParseIValueToPosition(valueSet);
+            this.SetTranslation(translation[0], translation[1], translation[2]);        
         }
 
         /// <summary>
         /// Set the orientation of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to orient the <see cref="BasicPrimitive"/></param>
-        public void SetOrientationFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states)
+        public void SetOrientationFromElementUsageParameters()
         {
-            IValueSet? valueSet = null;
+            IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
+            var angles = this.ParseIValueToOrientation(valueSet);
+            this.SetRotation(angles[0], angles[1], angles[2]);
+        }
 
-            valueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.OrientationShortName);
+        /// <summary>
+        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
+        /// </summary>
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetTranslationParameter()
+        {
+            var param = this.ElementUsage.GetParametersInUse();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
+        }
+
+        /// <summary>
+        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
+        /// </summary>
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetOrientationParameter()
+        {
+            var param = this.ElementUsage.GetParametersInUse();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
+        }
+
+        /// <summary>
+        /// Parses an <see cref="IValueSet"/> to translations along main axes
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>An array of type [X,Y,Z]</returns>
+        private double[] ParseIValueToPosition(IValueSet? valueSet)
+        {
+            double x = 0, y = 0, z = 0;
+
+            if (valueSet is not null)
+            {
+                double.TryParse(valueSet.ActualValue[0], out x);
+                double.TryParse(valueSet.ActualValue[1], out y);
+                double.TryParse(valueSet.ActualValue[2], out z);
+                this.SetTranslation(x, y, z);
+            }
+            return new double[]{ x, y, z};
+        }
+        
+        /// <summary>
+        /// Parses an <see cref="IValueSet"/> to Euler Angles
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>And array of type [Rx,Ry,Rz]</returns>
+        private double[] ParseIValueToOrientation(IValueSet? valueSet)
+        {
+            double[] angles = new double[3];
 
             if (valueSet is not null)
             {
                 double[] rotMatrix = new double[9];
-
-                if(valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
+                if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
                 {
-                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;                    
+                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
                 }
                 else
                 {
@@ -194,38 +231,40 @@ namespace COMETwebapp.Primitives
 
                 if (rotMatrix.Length == 9)
                 {
-                    double[] angles = rotMatrix.ToEulerAngles();
-
-                    this.SetRotation(angles[0], angles[1], angles[2]);
+                    angles = rotMatrix.ToEulerAngles();
                 }
             }
+
+            return angles;
         }
 
         /// <summary>
-        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
+        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
         /// </summary>
-        /// <returns>the related parameter</returns>
-        public ParameterBase? GetTranslationParameter()
-        {
-            var param = this.GetParameters();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
-        }
+        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
+        /// <param name="newValue">the new value set</param>
+        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        {            
+            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
 
-        /// <summary>
-        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
-        /// </summary>
-        /// <returns>the related parameter</returns>
-        public ParameterBase? GetOrientationParameter()
-        {
-            var param = this.GetParameters();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
+            switch (parameterTypeShortName)
+            {
+                case SceneProvider.PositionShortName: 
+                    var translation = this.ParseIValueToPosition(newValue);
+                    this.SetTranslation(translation[0], translation[1], translation[2]);
+                    break;
+
+                case SceneProvider.OrientationShortName:
+                    var angles = this.ParseIValueToOrientation(newValue);
+                    this.SetRotation(angles[0], angles[1], angles[2]);
+                    break;
+
+            }
         }
 
         /// <summary>
         /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
-        public abstract void SetDimensionsFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states);
+        public abstract void SetDimensionsFromElementUsageParameters();
     }
 }

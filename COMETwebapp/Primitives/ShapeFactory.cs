@@ -27,8 +27,9 @@ namespace COMETwebapp.Primitives
     using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
-
+    
     using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// The factory used for creating basic shapes of type <see cref="Primitive"/>
@@ -48,6 +49,7 @@ namespace COMETwebapp.Primitives
             this.ShapeCreatorCollection = new Dictionary<string, Func<Primitive>>()
             {
                 {"box", () => new Cube(1, 1, 1) },
+                {"cone", () => new Cone(1, 1) },
                 {"cylinder", () => new Cylinder(1, 1) },
                 {"sphere", () => new Sphere(1) },
                 {"torus", () => new Torus(1, 1) },
@@ -66,65 +68,51 @@ namespace COMETwebapp.Primitives
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
         /// <returns>The created <see cref="Primitive"/></returns>
-        public Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        public Primitive? CreatePrimitiveFromElementUsage(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            ParameterBase? parameterBase = null;
             IValueSet? valueSet = null;
+            var parameters = elementUsage.GetParametersInUse();
             Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[SceneProvider.ShapeKindShortName];
+            var shapeKindParameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName && x.ParameterType.GetType() == parameterType);
 
+            Primitive? primitive = null;
 
-            if (elementUsage.ParameterOverride.Count > 0)
+            if (shapeKindParameter is not null)
             {
-                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName
-                                                                                   && x.ParameterType.GetType() == parameterType);
-            }
+                valueSet = shapeKindParameter.GetValueSetFromOptionAndStates(selectedOption, states);
 
-            if (parameterBase is null)
-            {
-                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName
-                                                                                             && x.ParameterType.GetType() == parameterType);
-            }
-
-            if (parameterBase is not null)
-            {
-                if (states.Count > 0)
+                if (valueSet is not null)
                 {
-                    foreach (var actualFiniteState in states)
+                    string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
+
+                    if (shapeKind is not null && this.ShapeCreatorCollection.ContainsKey(shapeKind))
                     {
-                        valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
-                        if (valueSet is not null)
-                        {
-                            break;
-                        }
+                        primitive = this.ShapeCreatorCollection[shapeKind].Invoke();
+                    }
+                    else
+                    {
+                        primitive = new Cube(0.15, 0.15, 0.15);
                     }
                 }
                 else
                 {
-                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, null);
+                    primitive = new Cube(0.15, 0.15, 0.15);
                 }
             }
 
-            Primitive primitive = null!;
-
-            if (valueSet is not null)
+            if (primitive is not null)
             {
-                string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
+                primitive.ElementUsage = elementUsage;
+                primitive.SelectedOption = selectedOption;
+                primitive.States = states;
 
-                if (this.ShapeCreatorCollection.ContainsKey(shapeKind))
+                if (primitive is BasicPrimitive basicPrimitive)
                 {
-                    return this.ShapeCreatorCollection[shapeKind].Invoke();
-                }
-                else
-                {
-                    return new Cube(0.15, 0.15, 0.15);
+                    basicPrimitive.SetOrientationFromElementUsageParameters();
+                    basicPrimitive.SetPositionFromElementUsageParameters();
+                    basicPrimitive.SetDimensionsFromElementUsageParameters();
                 }
             }
-            else
-            {
-                primitive = new Cube(0.15, 0.15, 0.15);
-            }
-
-            primitive.ElementUsage = elementUsage;
 
             return primitive;
         }

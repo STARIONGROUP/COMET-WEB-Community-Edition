@@ -38,6 +38,6 @@ namespace COMETwebapp.Primitives
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
         /// <returns>The created <see cref="Primitive"/></returns>
-        Primitive TryGetPrimitiveFromElementUsageParameter(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
+        Primitive? CreatePrimitiveFromElementUsage(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
     }
 }

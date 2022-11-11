@@ -87,6 +87,11 @@ namespace COMETwebapp.Components.Viewer
         public const string ThicknessShortName = "thickn";
 
         /// <summary>
+        /// Color parameter short name
+        /// </summary>
+        public const string ColorShortName = "color";
+
+        /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
         private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();
@@ -103,6 +108,7 @@ namespace COMETwebapp.Components.Viewer
             { HeightShortName, typeof(SpecializedQuantityKind) },
             { LengthShortName, typeof(SimpleQuantityKind) },
             { ThicknessShortName, typeof(SpecializedQuantityKind) },
+            { ColorShortName, typeof(TextParameterType) },
         };
 
         /// <summary>

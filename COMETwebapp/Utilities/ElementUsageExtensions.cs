@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="EquilateralTriangle.cs" company="RHEA System S.A.">
+// <copyright file="ElementUsageExtensions.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,47 +22,35 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Utilities
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
-
     /// <summary>
-    /// Equilateral Triangle primitive type
+    /// static extension methods for <see cref="ElementUsage"/>
     /// </summary>
-    public class EquilateralTriangle : BasicPrimitive
+    public static class ElementUsageExtensions
     {
         /// <summary>
-        /// Basic type name
+        /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementUsage"/> uses
         /// </summary>
-        public override string Type { get; protected set; } = "EquilateralTriangle";
-
-        /// <summary>
-        /// The radius of the cicumscribed circle
-        /// </summary>
-        public double Radius { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="EquilateralTriangle"/>
-        /// </summary>
-        /// <param name="radius">the size of the circumradius</param>
-        public EquilateralTriangle(double radius)
+        /// <param name="elementUsage">the element usage</param>
+        /// <returns>a <see cref="IEnumerable{T}"/> with the <see cref="ParameterBase"/></returns>
+        public static IEnumerable<ParameterBase> GetParametersInUse(this ElementUsage elementUsage)
         {
-            this.Radius = radius;
-        }
+            var parameters = new List<ParameterBase>();
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
+            parameters.AddRange(elementUsage.ParameterOverride);
 
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double r))
+            elementUsage.ElementDefinition.Parameter.ForEach(x =>
             {
-                this.Radius = r;
-            }
+                if (!parameters.Any(par => par.ParameterType.ShortName == x.ParameterType.ShortName))
+                {
+                    parameters.Add(x);
+                }
+            });
+
+            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
         }
     }
 }

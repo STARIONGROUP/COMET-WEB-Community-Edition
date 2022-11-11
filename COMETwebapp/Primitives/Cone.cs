@@ -24,10 +24,8 @@
 
 namespace COMETwebapp.Primitives
 {
-    using System.Collections.Generic;
-
     using CDP4Common.EngineeringModelData;
-    
+
     using COMETwebapp.Components.Viewer;
 
     /// <summary>
@@ -81,13 +79,10 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
-        public override void SetDimensionsFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states)
+        public override void SetDimensionsFromElementUsageParameters()
         {
-            var diameterValueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.DiameterShortName);
-            var heightValueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.HeightShortName);
+            var diameterValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
+            var heightValueSet = this.GetValueSet(SceneProvider.HeightShortName);
 
             if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {

@@ -67,7 +67,8 @@ namespace COMETwebapp.IterationServices
                     if(containedElement.ParameterOverride.Count == 0)
                     {
                         containedElement.ElementDefinition.Parameter.ForEach(p => result.AddRange(p.ValueSet));
-                    } else
+                    } 
+                    else
                     {
                         var associatedParameterValueSet = new List<ParameterValueSet>();
                         containedElement.ParameterOverride.ForEach(p => {

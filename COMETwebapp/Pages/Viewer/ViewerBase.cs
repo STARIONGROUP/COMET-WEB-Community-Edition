@@ -160,7 +160,8 @@ namespace COMETwebapp.Pages.Viewer
 
                 this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
                 {
-                    var node = this.TreeNodes.FirstOrDefault(x => x.Name == args.Primitive.ElementUsage.Name);
+                    var node = this.TreeNodes.FirstOrDefault(x => x.Name == args.Primitive?.ElementUsage.Name);
+
                     this.UpdateTreeUI(node);
                 };
 
@@ -302,7 +303,10 @@ namespace COMETwebapp.Pages.Viewer
         private void UpdateTreeUI(TreeNode selectedNode)
         {
             this.TreeNodes.ForEach(x => x.IsSelected = false);
-            selectedNode.IsSelected = true;
+            if(selectedNode is not null)
+            {
+                selectedNode.IsSelected = true;
+            }
             this.InvokeAsync(this.StateHasChanged);
         }
 
