@@ -118,10 +118,9 @@ namespace COMETwebapp.Componentes.Viewer
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
 
             var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
-
+            this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
             if (primitive is not null)
             {
-                this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
                 primitive.IsSelected = true;
                 this.SceneProvider.RaiseSelectionChanged(primitive);
             }
