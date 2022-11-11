@@ -47,6 +47,11 @@ namespace COMETwebapp.SessionManagement
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
+        /// Event for when the session has been refreshed.
+        /// </summary>
+        public event EventHandler OnSessionRefreshed;
+
+        /// <summary>
         /// Gets or sets the <see cref="ISession"/>
         /// </summary>
         public ISession Session { get; set; }
@@ -182,6 +187,8 @@ namespace COMETwebapp.SessionManagement
 
             CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpToDate);
             Console.WriteLine($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
+
+            this.OnSessionRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

@@ -126,5 +126,10 @@ namespace COMETwebapp.SessionManagement
         /// Gets ths <see cref="Participant"/> in the opened iteration
         /// </summary>
         Participant? GetParticipant();
+
+        /// <summary>
+        /// Event for when the session has been refreshed.
+        /// </summary>
+        event EventHandler OnSessionRefreshed;
     }
 }
