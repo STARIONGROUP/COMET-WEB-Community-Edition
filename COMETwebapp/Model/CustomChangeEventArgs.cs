@@ -36,6 +36,11 @@ namespace COMETwebapp.Model
         /// </summary>
         public object Sender { get; }
 
+        /// <summary>
+        /// Creates a new instance of type <see cref="CustomChangeEventArgs"/>
+        /// </summary>
+        /// <param name="sender">the sender of the event</param>
+        /// <param name="value">the value that is being raised</param>
         public CustomChangeEventArgs(object sender, object? value)
         {
             this.Sender = sender;
