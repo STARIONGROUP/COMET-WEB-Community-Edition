@@ -112,7 +112,7 @@ function CreateCylinder(primitive, color) {
  * @param {any} color - the color in JSON format
  */
 function CreateCone(primitive, color) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height, tessellation: 36 }, Scene);
     InitializePrimitiveData(mesh, primitive, color);
 }
 

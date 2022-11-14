@@ -24,7 +24,17 @@
 
 namespace COMETwebapp.Components.PropertiesPanel
 {
+    using System.Threading.Tasks;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    
+    using CDP4Dal;
+    
+    using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;
+    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
 
@@ -34,9 +44,128 @@ namespace COMETwebapp.Components.PropertiesPanel
     public class PropertiesBase : ComponentBase
     {
         /// <summary>
-        /// The <see cref="COMETwebapp.Primitives.Primitive"/> to fill the panel with
+        /// Backing field for the <see cref="SelectedPrimitive"/> property
+        /// </summary>
+        private Primitive primitive;
+
+        /// <summary>
+        /// Gets or sets the <see cref="Primitive"/> to fill the panel
         /// </summary>
         [Parameter]
-        public Primitive Primitive { get; set; }       
+        public Primitive SelectedPrimitive
+        {
+            get => primitive;
+            set
+            {
+                primitive = value;
+                this.InitPanelProperties();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
+        /// </summary>
+        [Parameter]
+        public ParameterBase SelectedParameter { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IIterationService"/>
+        /// </summary>
+        [Inject]
+        public IIterationService IterationService { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// </summary>
+        [Inject]
+        public ISessionAnchor SessionAnchor { get; set; }
+
+        /// <summary>
+        /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
+        /// </summary>
+        [Parameter]
+        public List<ParameterBase> ParametersInUse { get; set; }
+
+        /// <summary>
+        /// A reference to the <see cref="DetailsComponent"/>
+        /// </summary>
+        public DetailsComponent DetailsReference { get; set; }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                this.InitPanelProperties();
+            }
+        }
+
+        /// <summary>
+        /// Initializes the properties for the panel
+        /// </summary>
+        private void InitPanelProperties()
+        {
+            this.ParametersInUse = this.SelectedPrimitive.ElementUsage.GetParametersInUse().ToList();
+            this.ParameterChanged(ParametersInUse.First());
+        }
+
+        /// <summary>
+        /// When the button for submit changes is clicked
+        /// </summary>
+        public void OnSubmit()
+        {
+            var collection = this.SelectedPrimitive.GetValueSets();
+
+            foreach(var key in collection.Keys)
+            {
+                var valueSet = collection[key];
+
+                if(valueSet is not null && valueSet is ParameterValueSetBase parameterValueSetBase)
+                {
+                    if (!this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
+                    {
+                        this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
+                        CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(parameterValueSetBase.Iid));
+                    }
+                    var clonedParameterValueSet = parameterValueSetBase.Clone(false);
+
+                    var newValue = this.DetailsReference.GetValueSet(key).Manual;
+
+                    clonedParameterValueSet.Manual = newValue;
+
+                    this.SessionAnchor.UpdateThings(new List<Thing>()
+                    {
+                        clonedParameterValueSet
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event for when a parameter item has been clicked
+        /// </summary>
+        /// <param name="parameterBase">the parameter clicked</param>
+        public void ParameterChanged(ParameterBase parameterBase)
+        {
+            this.SelectedParameter = parameterBase;          
+            this.StateHasChanged();
+        }
     }
 }

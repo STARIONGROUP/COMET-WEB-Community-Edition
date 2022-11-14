@@ -125,10 +125,8 @@ namespace COMETwebapp.Componentes.Viewer
             {
                 primitive.IsSelected = true;
                 this.SceneProvider.SelectedPrimitive = primitive;
-                this.SceneProvider.RaiseSelectionChanged(primitive);
             }
-
-            await this.InvokeAsync(this.StateHasChanged);
+            this.SceneProvider.RaiseSelectionChanged(primitive);
         }
 
         /// <summary>
@@ -145,19 +143,10 @@ namespace COMETwebapp.Componentes.Viewer
 
             foreach (var elementUsage in elementUsages)
             {
-                var basicShape = this.ShapeFactory.TryGetPrimitiveFromElementUsageParameter(elementUsage, selectedOption, states);
+                var basicShape = this.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
 
                 if (basicShape is not null)
                 {
-                    basicShape.ElementUsage = elementUsage;
-
-                    if (basicShape is BasicPrimitive basicPrimitive)
-                    {                       
-                        basicPrimitive.SetOrientationFromElementUsageParameters(selectedOption, states);
-                        basicPrimitive.SetPositionFromElementUsageParameters(selectedOption, states);                        
-                        basicPrimitive.SetDimensionsFromElementUsageParameters(selectedOption, states);
-                    }
-
                     //TODO: When materiales can be added this should not be random. For now helps distinguish different shapes on scene.
                     int r = rand.Next(0, 225);
                     int g = rand.Next(0, 225);

@@ -56,6 +56,13 @@ Copyright (c) 2022 RHEA System S.A.
             <BabylonCanvas @ref=this.CanvasComponentReference />
 
             <div id="rightColumn">
+
+                @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SceneProvider is not null && this.CanvasComponentReference.SceneProvider.SelectedPrimitive is not null)
+                {
+                    var primitive = this.CanvasComponentReference.SceneProvider.SelectedPrimitive;
+                    <COMETwebapp.Components.PropertiesPanel.Properties SelectedPrimitive="primitive" />
+                }
+
                 @if (this.ListActualFiniteStateLists is not null)
                 {
                     <StateSelector ListActualFiniteStateLists="this.ListActualFiniteStateLists"

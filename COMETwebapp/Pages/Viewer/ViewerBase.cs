@@ -158,7 +158,12 @@ namespace COMETwebapp.Pages.Viewer
 
                 this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
                 {
-                    var node = this.RootNode.GetFlatListOfDescendants().FirstOrDefault(x => x.Name == args.Primitive.ElementUsageName);
+                    TreeNode node = null; 
+
+                    if (args.Primitive is not null)
+                    {
+                        node = this.RootNode.GetFlatListOfDescendants().FirstOrDefault(x => x.Name == args.Primitive.ElementUsage.Name);
+                    }
                     this.UpdateTreeUI(node);
                 };
 
@@ -317,7 +322,11 @@ namespace COMETwebapp.Pages.Viewer
         private void UpdateTreeUI(TreeNode selectedNode)
         {
             this.RootNode.GetFlatListOfDescendants().ForEach(x => x.IsSelected = false);
-            selectedNode.IsSelected = true;
+            
+            if(selectedNode is not null)
+            {
+                selectedNode.IsSelected = true;
+            }
             this.InvokeAsync(this.StateHasChanged);
         }
 
@@ -336,11 +345,12 @@ namespace COMETwebapp.Pages.Viewer
 
             foreach (var descendant in nodesToSelect)
             {
-                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == descendant.Name);
+                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
 
                 if (selectedPrimitive is not null)
                 {
                     selectedPrimitive.IsSelected = true;
+                    this.CanvasComponentReference.SceneProvider.SelectedPrimitive = selectedPrimitive;
                 }
             }
         }
@@ -358,7 +368,7 @@ namespace COMETwebapp.Pages.Viewer
 
             foreach (var descendant in nodesToToggleVisibility)
             {
-                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsageName == descendant.Name);
+                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
 
                 if (selectedPrimitive is not null)
                 {

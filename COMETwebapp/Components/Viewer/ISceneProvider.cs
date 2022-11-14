@@ -217,6 +217,6 @@ namespace COMETwebapp.Components.Viewer
         /// Raise the <see cref="OnSelectionChanged"/> event 
         /// </summary>
         /// <param name="primitive">The <see cref="Primitive"/> that triggers the event</param>
-        void RaiseSelectionChanged(Primitive primitive);
+        void RaiseSelectionChanged(Primitive? primitive);
     }
 }

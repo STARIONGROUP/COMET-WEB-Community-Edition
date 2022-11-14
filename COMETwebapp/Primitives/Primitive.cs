@@ -28,7 +28,7 @@ namespace COMETwebapp.Primitives
 
     using CDP4Common.EngineeringModelData;
     
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Utilities;
     
     using Newtonsoft.Json;
 
@@ -48,13 +48,25 @@ namespace COMETwebapp.Primitives
         private bool isVisible = true;
 
         /// <summary>
-        /// The element usage the primitive was created from
+        /// The <see cref="ElementUsage"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
         public ElementUsage ElementUsage { get; set; }
 
         /// <summary>
-        /// If the primitive is selected or not.
+        /// The <see cref="Option"/> for which the <see cref="Primitive"/> was created.
+        /// </summary>
+        [JsonIgnore]
+        public Option SelectedOption { get; set; }
+
+        /// <summary>
+        /// The <see cref="ActualFiniteState"/> for which the <see cref="Primitive"/> was created.
+        /// </summary>
+        [JsonIgnore]
+        public List<ActualFiniteState> States { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="Primitive"/> is selected or not
         /// </summary>
         public bool IsSelected
         {
@@ -67,7 +79,7 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// If the primitive is visible or not
+        /// Gets or sets if the <see cref="Primitive"/> is visible or not
         /// </summary>
         public bool IsVisible
         {
@@ -95,39 +107,12 @@ namespace COMETwebapp.Primitives
         public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
-        /// Sets the diffuse color of this primitive.
+        /// Sets the color of this <see cref="Primitive"/>.
         /// </summary>
         /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async Task SetPrimitiveDiffuseColor(Vector3 color)
+        public async Task SetPrimitiveColor(Vector3 color)
         {
-            await JSInterop.Invoke("SetDiffuseColor", this.ID, color.X, color.Y, color.Z);
-        }
-
-        /// <summary>
-        /// Sets the specular color of this primitive.
-        /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async Task SetPrimitiveSpecularColor(Vector3 color)
-        {
-            await JSInterop.Invoke("SetSpecularColor", this.ID, color.X, color.Y, color.Z);
-        }
-
-        /// <summary>
-        /// Sets the emissive color of this primitive.
-        /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async Task SetPrimitiveEmissiveColor(Vector3 color)
-        {
-            await JSInterop.Invoke("SetEmissiveColor", this.ID, color.X, color.Y, color.Z);
-        }
-
-        /// <summary>
-        /// Sets the ambient color of this primitive.
-        /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async Task SetPrimitiveAmbientColor(Vector3 color)
-        {
-            await JSInterop.Invoke("SetAmbientColor", this.ID, color.X, color.Y, color.Z);
+            await JSInterop.Invoke("SetMeshColor", this.ID, color.X, color.Y, color.Z);
         }
 
         /// <summary>
@@ -137,6 +122,64 @@ namespace COMETwebapp.Primitives
         public virtual string GetInfo()
         {
             return "Type: " + this.Type.ToString();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
+        /// </summary>
+        /// <returns>A collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/></returns>
+        public Dictionary<ParameterBase, IValueSet> GetValueSets()
+        {
+            var collection = new Dictionary<ParameterBase, IValueSet>();
+            var parameters = this.ElementUsage.GetParametersInUse();
+            IValueSet? valueSet = null;
+
+            foreach(var parameter in parameters)
+            {
+                valueSet = parameter.GetValueSetFromOptionAndStates(this.SelectedOption, this.States);
+                                
+                if(valueSet is not null)
+                {
+                    collection.Add(parameter, valueSet);
+                }
+            }
+
+            return collection;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
+        /// </summary>
+        /// <param name="parameterBase">the parameter asociated to the value set</param>
+        /// <returns>A value set if exists, null otherwise</returns>
+        protected IValueSet? GetValueSet(ParameterBase parameterBase)
+        {
+            var collection = this.GetValueSets();
+
+            if (collection.ContainsKey(parameterBase))
+            {
+                return collection[parameterBase];
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
+        /// </summary>
+        /// <param name="parameterTypeShortName">the short name of the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> asociated to the <see cref="ParameterBase"/></param>
+        /// <returns>A value set if exists, null otherwise</returns>
+        protected IValueSet? GetValueSet(string parameterTypeShortName)
+        {
+            var parameters = this.ElementUsage.GetParametersInUse();
+            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName, null);
+
+            if(parameter is not null)
+            {
+                return this.GetValueSet(parameter);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -161,50 +204,10 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Gets the value sets asociated to an element usage depending on the selected option and the available states
+        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for query the value set</param>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">The available states</param>
-        /// <returns></returns>
-        protected IValueSet? GetElementUsageValueSet(Option selectedOption, List<ActualFiniteState> states, string parameterTypeShortName)
-        {
-            ParameterBase? parameterBase = null;
-            IValueSet? valueSet = null;
-            Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[parameterTypeShortName];
-
-            if (this.ElementUsage.ParameterOverride.Count > 0)
-            {
-                parameterBase = this.ElementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
-                                                                                   && x.ParameterType.GetType() == parameterType);
-            }
-
-            if (parameterBase is null)
-            {
-                parameterBase = this.ElementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
-                                                                                             && x.ParameterType.GetType() == parameterType);
-            }
-
-            if (parameterBase is not null)
-            {
-                if (states.Count > 0)
-                {
-                    foreach (var actualFiniteState in states)
-                    {
-                        valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
-                        if (valueSet is not null)
-                        {
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, null);
-                }
-            }
-
-            return valueSet;
-        }
+        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
+        /// <param name="newValue">the new value set</param>
+        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue) { }
     }
 }
