@@ -149,7 +149,7 @@ namespace COMETwebapp.Tests.Viewer
             var posX = basicPrim.X;
             var posY = basicPrim.Y;
             var posZ = basicPrim.Z;
-            basicPrim.SetPositionFromElementUsageParameters(this.elementUsage, this.option, new List<ActualFiniteState>());
+            basicPrim.SetPositionFromElementUsageParameters(this.option, new List<ActualFiniteState>());
 
             Assert.AreNotEqual(posX, basicPrim.X);
             Assert.AreNotEqual(posY, basicPrim.Y);
@@ -167,7 +167,7 @@ namespace COMETwebapp.Tests.Viewer
             var orientX = basicPrim.RX;
             var orientY = basicPrim.RY;
             var orientZ = basicPrim.RZ;
-            basicPrim.SetOrientationFromElementUsageParameters(this.elementUsage, this.option, new List<ActualFiniteState>());
+            basicPrim.SetOrientationFromElementUsageParameters(this.option, new List<ActualFiniteState>());
 
             Assert.AreNotEqual(0, basicPrim.RX);
             Assert.AreNotEqual(0, basicPrim.RY);

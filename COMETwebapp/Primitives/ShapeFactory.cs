@@ -36,6 +36,30 @@ namespace COMETwebapp.Primitives
     public class ShapeFactory : IShapeFactory
     {
         /// <summary>
+        /// Dictionary used from the creation of shapes
+        /// </summary>
+        Dictionary<string, Func<Primitive>> ShapeCreatorCollection;
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ShapeFactory"/>
+        /// </summary>
+        public ShapeFactory()
+        {
+            this.ShapeCreatorCollection = new Dictionary<string, Func<Primitive>>()
+            {
+                {"box", () => new Cube(1, 1, 1) },
+                {"cylinder", () => new Cylinder(1, 1) },
+                {"sphere", () => new Sphere(1) },
+                {"torus", () => new Torus(1, 1) },
+                {"triprism", () => new TriangularPrism(1, 1) },
+                {"disc", () => new Disc(1) },
+                {"hexagonalprism", () => new HexagonalPrism(1, 1) },
+                {"rectangle", () => new Rectangle(1, 1) },
+                {"triangle", () => new EquilateralTriangle(1) },
+            };
+        }
+
+        /// <summary>
         /// Tries to create a <see cref="Primitive"/> from the data of a <see cref="ElementUsage"/>
         /// </summary>
         /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
@@ -80,28 +104,29 @@ namespace COMETwebapp.Primitives
                 }
             }
 
+            Primitive primitive = null!;
+
             if (valueSet is not null)
             {
                 string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
-                switch (shapeKind)
+
+                if (this.ShapeCreatorCollection.ContainsKey(shapeKind))
                 {
-                    case "box": return new Cube(1,1,1);
-                    case "cylinder": return new Cylinder(1, 1);
-                    case "sphere": return new Sphere(1);
-                    case "torus": return new Torus(1, 1);
-                    case "triprism": return new TriangularPrism(1, 1);
-                    case "disc": return new Disc(1);
-                    case "hexagonalprism": return new HexagonalPrism(1, 1);
-                    case "rectangle": return new Rectangle(1, 1);
-                    case "triangle": return new EquilateralTriangle(1);
-                    
-                    default: return new Cube(0.15, 0.15, 0.15); 
+                    return this.ShapeCreatorCollection[shapeKind].Invoke();
+                }
+                else
+                {
+                    return new Cube(0.15, 0.15, 0.15);
                 }
             }
             else
             {
-                return new Cube(0.15, 0.15, 0.15);
-            }      
+                primitive = new Cube(0.15, 0.15, 0.15);
+            }
+
+            primitive.ElementUsage = elementUsage;
+
+            return primitive;
         }
     }
 }

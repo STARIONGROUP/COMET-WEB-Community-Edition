@@ -43,32 +43,32 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Position along the X axis
         /// </summary>
-        public double X { get; set; }
+        public double X { get; protected set; }
 
         /// <summary>
         /// Position along the Y axis
         /// </summary>
-        public double Y { get; set; }
+        public double Y { get; protected set; }
 
         /// <summary>
         /// Position along the Z axis
         /// </summary>
-        public double Z { get; set; }
+        public double Z { get; protected set; }
 
         /// <summary>
         /// Angle of rotation (radians) around X axis.
         /// </summary>
-        public double RX { get; private set; }
+        public double RX { get; protected set; }
 
         /// <summary>
         /// Angle of rotation (radians) around Y axis.
         /// </summary>
-        public double RY { get; private set; }
+        public double RY { get; protected set; }
 
         /// <summary>
         /// Angle of rotation (radians) around Z axis.
         /// </summary>
-        public double RZ { get; private set; }
+        public double RZ { get; protected set; }
 
         /// <summary>
         /// Sets a NEW translation to the primitive. 
@@ -81,6 +81,7 @@ namespace COMETwebapp.Primitives
             this.X = x;
             this.Y = y;
             this.Z = z;
+            JSInterop.Invoke("SetPrimitivePosition", this.ID, this.X, this.Y, this.Z);
         }
 
         /// <summary>
@@ -94,6 +95,7 @@ namespace COMETwebapp.Primitives
             this.RX = rx;
             this.RY = ry;
             this.RZ = rz;
+            JSInterop.Invoke("SetPrimitiveRotation", this.ID, this.RX, this.RY, this.RZ);
         }
 
         /// <summary>
@@ -146,14 +148,13 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Set the position of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the positioning</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="BasicPrimitive"/></param>
-        public void SetPositionFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        public void SetPositionFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states)
         {
             IValueSet? valueSet = null;
 
-            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.PositionShortName);
+            valueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.PositionShortName);
 
             if (valueSet is not null &&
                 double.TryParse(valueSet.ActualValue[0], out var x) &&
@@ -167,14 +168,13 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Set the orientation of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the orientation</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to orient the <see cref="BasicPrimitive"/></param>
-        public void SetOrientationFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        public void SetOrientationFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states)
         {
             IValueSet? valueSet = null;
 
-            valueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.OrientationShortName);
+            valueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.OrientationShortName);
 
             if (valueSet is not null)
             {
@@ -202,58 +202,30 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Gets the value sets asociated to an element usage depending on the selected option and the available states
+        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for query the value set</param>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">The available states</param>
-        /// <returns></returns>
-        protected IValueSet? GetElementUsageValueSet(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states, string parameterTypeShortName)
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetTranslationParameter()
         {
-            ParameterBase? parameterBase = null;
-            IValueSet? valueSet = null;
-            Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[parameterTypeShortName];
+            var param = this.GetParameters();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
+        }
 
-            if (elementUsage.ParameterOverride.Count > 0)
-            {
-                parameterBase = elementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
-                                                                                   && x.ParameterType.GetType() == parameterType);
-            }
-
-            if (parameterBase is null)
-            {
-                parameterBase = elementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
-                                                                                             && x.ParameterType.GetType() == parameterType);
-            }
-
-            if (parameterBase is not null)
-            {
-                if(states.Count > 0)
-                {
-                    foreach (var actualFiniteState in states)
-                    {
-                        valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
-                        if (valueSet is not null)
-                        {
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, null);
-                }
-            }
-
-            return valueSet;
+        /// <summary>
+        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
+        /// </summary>
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetOrientationParameter()
+        {
+            var param = this.GetParameters();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
         }
 
         /// <summary>
         /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
-        public abstract void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
+        public abstract void SetDimensionsFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states);
     }
 }

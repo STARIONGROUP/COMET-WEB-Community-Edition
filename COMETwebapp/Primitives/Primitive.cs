@@ -26,8 +26,14 @@ namespace COMETwebapp.Primitives
 {
     using System.Numerics;
 
+    using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Components.Viewer;
+    
+    using Newtonsoft.Json;
+
     /// <summary>
-    /// Base class for the wrapper classes around JS objects. Represents an object on the Scene.
+    /// Represents an <see cref="CDP4Common.EngineeringModelData.ElementUsage"/> on the Scene from the selected <see cref="Option"/> and <see cref="ActualFiniteState"/>
     /// </summary>
     public abstract class Primitive
     {
@@ -42,9 +48,10 @@ namespace COMETwebapp.Primitives
         private bool isVisible = true;
 
         /// <summary>
-        /// The element usage name the primitive was created from
+        /// The element usage the primitive was created from
         /// </summary>
-        public string ElementUsageName { get; set; }
+        [JsonIgnore]
+        public ElementUsage ElementUsage { get; set; }
 
         /// <summary>
         /// If the primitive is selected or not.
@@ -130,6 +137,74 @@ namespace COMETwebapp.Primitives
         public virtual string GetInfo()
         {
             return "Type: " + this.Type.ToString();
+        }
+
+        /// <summary>
+        /// Gets a list of the parameters that this <see cref="Primitive"/> contains
+        /// </summary>
+        /// <returns></returns>
+        public List<ParameterBase> GetParameters()
+        {
+            var parameters = new List<ParameterBase>();
+    
+            parameters.AddRange(this.ElementUsage.ParameterOverride);
+
+            this.ElementUsage.ElementDefinition.Parameter.ForEach(x =>
+            {
+                if(!parameters.Any(par=>par.ParameterType.ShortName == x.ParameterType.ShortName))
+                {
+                    parameters.Add(x);
+                }
+            });
+                        
+            return parameters.OrderBy(x=>x.ParameterType.ShortName).ToList();
+        }
+
+        /// <summary>
+        /// Gets the value sets asociated to an element usage depending on the selected option and the available states
+        /// </summary>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> used for query the value set</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">The available states</param>
+        /// <returns></returns>
+        protected IValueSet? GetElementUsageValueSet(Option selectedOption, List<ActualFiniteState> states, string parameterTypeShortName)
+        {
+            ParameterBase? parameterBase = null;
+            IValueSet? valueSet = null;
+            Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[parameterTypeShortName];
+
+            if (this.ElementUsage.ParameterOverride.Count > 0)
+            {
+                parameterBase = this.ElementUsage.ParameterOverride.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
+                                                                                   && x.ParameterType.GetType() == parameterType);
+            }
+
+            if (parameterBase is null)
+            {
+                parameterBase = this.ElementUsage.ElementDefinition.Parameter.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName
+                                                                                             && x.ParameterType.GetType() == parameterType);
+            }
+
+            if (parameterBase is not null)
+            {
+                if (states.Count > 0)
+                {
+                    foreach (var actualFiniteState in states)
+                    {
+                        valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, actualFiniteState);
+                        if (valueSet is not null)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    valueSet = parameterBase.QueryParameterBaseValueSet(selectedOption, null);
+                }
+            }
+
+            return valueSet;
         }
     }
 }

@@ -60,13 +60,13 @@ namespace COMETwebapp.Componentes.Viewer
         public static string GetGUID() => Guid.NewGuid().ToString();
 
         /// <summary>
-        /// Shape factory for creating <see cref="Primitive"/> from <see cref="ElementUsage"/>
+        /// Shape factory for creating <see cref="Primitive"/> from a <see cref="ElementUsage"/>
         /// </summary>
         [Inject]
         public IShapeFactory? ShapeFactory { get; set; }
 
         /// <summary>
-        /// The babylon.js scene
+        /// The provider of the 3D Scene
         /// </summary>
         [Inject]
         public ISceneProvider SceneProvider { get; set; }
@@ -119,11 +119,16 @@ namespace COMETwebapp.Componentes.Viewer
 
             var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
             this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
+            this.SceneProvider.SelectedPrimitive = null;
+
             if (primitive is not null)
             {
                 primitive.IsSelected = true;
+                this.SceneProvider.SelectedPrimitive = primitive;
                 this.SceneProvider.RaiseSelectionChanged(primitive);
             }
+
+            await this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
@@ -144,13 +149,13 @@ namespace COMETwebapp.Componentes.Viewer
 
                 if (basicShape is not null)
                 {
-                    basicShape.ElementUsageName = elementUsage.Name;
+                    basicShape.ElementUsage = elementUsage;
 
                     if (basicShape is BasicPrimitive basicPrimitive)
                     {                       
-                        basicPrimitive.SetOrientationFromElementUsageParameters(elementUsage, selectedOption, states);
-                        basicPrimitive.SetPositionFromElementUsageParameters(elementUsage, selectedOption, states);                        
-                        basicPrimitive.SetDimensionsFromElementUsageParameters(elementUsage, selectedOption, states);
+                        basicPrimitive.SetOrientationFromElementUsageParameters(selectedOption, states);
+                        basicPrimitive.SetPositionFromElementUsageParameters(selectedOption, states);                        
+                        basicPrimitive.SetDimensionsFromElementUsageParameters(selectedOption, states);
                     }
 
                     //TODO: When materiales can be added this should not be random. For now helps distinguish different shapes on scene.

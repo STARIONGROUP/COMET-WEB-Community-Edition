@@ -60,9 +60,9 @@ namespace COMETwebapp.Primitives
         /// <param name="elementUsage">the <see cref="ElementUsage"/> used for the dimensioning</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to dimensioning the <see cref="BasicPrimitive"/></param>
-        public override void SetDimensionsFromElementUsageParameters(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        public override void SetDimensionsFromElementUsageParameters(Option selectedOption, List<ActualFiniteState> states)
         {
-            var radiusValueSet = this.GetElementUsageValueSet(elementUsage, selectedOption, states, SceneProvider.DiameterShortName);
+            var radiusValueSet = this.GetElementUsageValueSet(selectedOption, states, SceneProvider.DiameterShortName);
 
             if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double r))
             {

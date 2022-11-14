@@ -77,7 +77,7 @@ namespace COMETwebapp.Pages.Viewer
         /// Injected property to get access to <see cref="ISessionAnchor"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor? SessionAnchor { get; set; }
+        public ISessionAnchor SessionAnchor { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IIterationService"/>
