@@ -39,7 +39,6 @@ Copyright (c) 2022 RHEA System S.A.
         </div>
         <div id="gridParent">
             <div id="leftColumn">
-                <h3>Product Tree</h3>
                 @{
                     var name = string.Empty;
 
@@ -47,97 +46,22 @@ Copyright (c) 2022 RHEA System S.A.
                     {
                         name = this.Elements.First().Name;
                     }
+                    <ProductTree RootNode="this.RootNode"
+                             OnTreeSelectionChanged="@((node)=>TreeSelectionChanged(node))"
+                             OnTreeNodeVisibilityChanged="@((node)=>TreeNodeVisibilityChanged(node))" />
 
-                    <h6 id="rootElement">@name</h6>
-                    <ul>
-                        @if (this.TreeNodes is not null && this.TreeNodes.Count > 0)
-                        {
-                            @foreach (var node in this.TreeNodes.OrderBy(x => x.Name))
-                            {
-                                var nodeClasses = "treeNode";
-
-                                if (node.IsSelected)
-                                {
-                                    nodeClasses += " active";
-                                }
-
-                                <div class="@nodeClasses" onclick="@(()=>TreeSelectionChanged(node))">
-                                    <p>@node.Name</p>
-
-                                    @if (node.IsVisible)
-                                    {
-                                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ node.IsVisible = false; this.TreeNodeVisibilityChanged(node);})" />
-                                    }
-                                    else
-                                    {
-                                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ node.IsVisible = true; this.TreeNodeVisibilityChanged(node); })" />
-                                    }
-                                </div>
-                            }
-                        }
-                    </ul>
                 }
             </div>
 
             <BabylonCanvas @ref=this.CanvasComponentReference />
 
             <div id="rightColumn">
-
-                @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SceneProvider is not null && this.CanvasComponentReference.SceneProvider.SelectedPrimitive is not null)
-                {
-                    var primitive = this.CanvasComponentReference.SceneProvider.SelectedPrimitive;
-
-                    <COMETwebapp.Components.PropertiesPanel.Properties Primitive="primitive" />
-                }
-
-                <h3>States</h3>
-
                 @if (this.ListActualFiniteStateLists is not null)
                 {
-                    foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
-                    {
-                        <div class="actualFiniteStateList">
-                            <input type="checkbox"
-                           id="@actualFiniteStateList.Name"
-                           name="@actualFiniteStateList.Name"
-                           value="@actualFiniteStateList.Name"
-                           onchange="@((ChangeEventArgs args) => OnActualFiniteStateList_SelectionChanged(actualFiniteStateList,args))">
-
-                            <label for="@actualFiniteStateList.Name">
-                                @actualFiniteStateList.Name
-                            </label>
-                        </div>
-
-                        @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
-                        {
-                            <div class="actualFiniteState">
-
-                                @if (actualFiniteState.IsDefault)
-                                {
-                                    <input type="radio"
-                           id="@actualFiniteState.Name"
-                           name="@actualFiniteStateList.Name"
-                           value="@actualFiniteState.Name"
-                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))"
-                           checked>
-                                }
-                                else
-                                {
-                                    <input type="radio"
-                           id="@actualFiniteState.Name"
-                           name="@actualFiniteStateList.Name"
-                           value="@actualFiniteState.Name"
-                           onchange="@((ChangeEventArgs args) => OnActualFiniteState_SelectionChanged(actualFiniteState,args))">
-                                }
-
-                                <label for="@actualFiniteState.Name">
-                                    @actualFiniteState.Name
-                                </label>
-                            </div>
-                        }
-                    }
+                    <StateSelector ListActualFiniteStateLists="this.ListActualFiniteStateLists"
+                               OnActualFiniteStateList_SelectionChanged="@((ce)=>this.OnActualFiniteStateList_SelectionChanged(ce.Sender,ce))"
+                               OnActualFiniteState_SelectionChanged="@((ce)=>this.OnActualFiniteState_SelectionChanged(ce.Sender,ce))" />
                 }
-
             </div>
         </div>
     </Body>
@@ -166,40 +90,7 @@ Copyright (c) 2022 RHEA System S.A.
         margin-left: 2%;
     }
 
-    .treeNode {
-        cursor: pointer;
-        padding: 2%;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        margin-left: 0;
-        margin-right: 5%;
-        display: flex;
-        justify-content: start;
-        align-items: center;
-        overflow: hidden;
-    }
 
-        .treeNode > p {
-            margin: 0;
-        }
-
-        .treeNode:hover {
-            background: #EEE;
-        }
-
-    .active {
-        background: lightgray;
-    }
-
-    .treeIcon {
-        margin-left: 5px;
-        width: 1.5rem;
-        height: auto;
-    }
-
-    .NonVisible {
-        display: none;
-    }
 
     .actualFiniteStateList {
         margin: 0;
