@@ -19,9 +19,9 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
 @{
-    @if(this.CurrentNode is null){
+    @if (this.CurrentNode is null)
+    {
         return;
     }
 
@@ -67,9 +67,9 @@
             {
                 var level = this.Level + 1;
                 <NodeComponent CurrentNode="@child"
-                               Level="level" 
-                               OnTreeNodeVisibilityChanged="@((node)=>this.TreeNodeVisibilityChanged(node))"
-                               OnTreeSelectionChanged="@((node)=>this.TreeSelectionChanged(node))" />
+                   Level="level"
+                   OnTreeNodeVisibilityChanged="@((node)=>this.TreeNodeVisibilityChanged(node))"
+                   OnTreeSelectionChanged="@((node)=>this.TreeSelectionChanged(node))" />
             }
         </div>
     }
@@ -138,6 +138,7 @@
         flex-direction: column;
         justify-content: start;
         align-items: start;
+        overflow: hidden;
     }
 
         .treeNode > p {

@@ -99,5 +99,26 @@ namespace COMETwebapp.Model
                 this.GetListOfDescendantsRecursively(child, ref descendants);
             }
         }
+
+        /// <summary>
+        /// Sort all descendants of this node by the <see cref="Name"/>
+        /// </summary>
+        public void OrderAllDescendantsByShortName()
+        {
+            this.OrderChildrenByShortNameHelper(this);
+        }
+
+        /// <summary>
+        /// Helper method for <see cref="OrderAllDescendantsByShortName"/>
+        /// </summary>
+        /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
+        private void OrderChildrenByShortNameHelper(TreeNode current)
+        {
+            current.Children = current.Children.OrderBy(x => x.Name).ToList();
+            foreach (var child in current.Children)
+            {
+                this.OrderChildrenByShortNameHelper(child);
+            }
+        }
     }
 }
