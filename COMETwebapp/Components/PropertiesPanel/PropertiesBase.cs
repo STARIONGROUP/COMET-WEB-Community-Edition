@@ -35,7 +35,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>

@@ -109,9 +109,9 @@ namespace COMETwebapp.Pages.Viewer
         private Dictionary<ActualFiniteStateList, ActualFiniteStateListFilterData> CheckboxStates_ActualFiniteStateList;
 
         /// <summary>
-        /// The nodes of the tree
+        /// Represents the RootNode of the tree
         /// </summary>
-        public List<TreeNode> TreeNodes { get; set; }
+        public TreeNode RootNode { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -154,15 +154,25 @@ namespace COMETwebapp.Pages.Viewer
                     this.CheckboxStates_ActualFiniteStateList.Add(x, data);
                 });
 
-                this.TreeNodes = new List<TreeNode>();
-
                 this.States = iteration?.ActualFiniteStateList.SelectMany(x => x.ActualState.Select(s => s.Name)).ToList();
 
                 this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
                 {
-                    var node = this.TreeNodes.FirstOrDefault(x => x.Name == args.Primitive?.ElementUsage.Name);
+                    TreeNode node = null; 
 
+                    if (args.Primitive is not null)
+                    {
+                        node = this.RootNode.GetFlatListOfDescendants().FirstOrDefault(x => x.Name == args.Primitive.ElementUsage.Name);
+                    }
                     this.UpdateTreeUI(node);
+                };
+
+                this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
+                {
+                    this.Elements.Clear();
+                    this.InitializeElements();
+                    var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+                    this.RepopulateScene(elementsOnScene);
                 };
 
                 this.StateHasChanged();
@@ -192,33 +202,48 @@ namespace COMETwebapp.Pages.Viewer
         /// <returns>the <see cref="ElementUsage"/> used in the scene</returns>
         private List<ElementUsage> CreateElementUsagesForScene(List<ElementBase> elements)
         {
-            var optionId = this.SessionAnchor?.OpenIteration?.DefaultOption?.Iid;
-
-            if(this.OptionSelected != null)
-            {
-                optionId = this.SessionAnchor?.OpenIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
-            }
-
-            var nestedElements = this.IterationService?.GetNestedElementsByOption(this.SessionAnchor?.OpenIteration, optionId);
-
-            var associatedElements = new List<ElementUsage>();
-            nestedElements?.ForEach(element =>
-            {
-                associatedElements.AddRange(element.ElementUsage);
-            });
-            associatedElements = associatedElements.Distinct().ToList();
-
-            var elementsToRemove = new List<ElementBase>();
-            elements.ForEach(e =>
-            {
-                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
-                {
-                    elementsToRemove.Add(e);
-                }
-            });
-            elements.RemoveAll(e => elementsToRemove.Contains(e));
+            var topElement = elements.First();
+            this.RootNode = new TreeNode(topElement.Name);
+            this.CreateTreeRecursively(topElement, this.RootNode, null);
 
             return elements.OfType<ElementUsage>().ToList();
+        }
+
+        /// <summary>
+        /// Creates a tree structure recursively from the elements provided
+        /// </summary>
+        /// <param name="elementBase">the top element</param>
+        /// <param name="current">current node used in the iteration</param>
+        /// <param name="parent">parent of the current node</param>
+        private void CreateTreeRecursively(ElementBase elementBase, TreeNode current, TreeNode? parent)
+        {
+            if (elementBase is ElementDefinition elementDefinition)
+            {
+                current.Parent = parent;
+                if(parent is not null)
+                {
+                    parent.Children.Add(current);
+                }
+                
+                foreach (var child in elementDefinition.ContainedElement)
+                {
+                    this.CreateTreeRecursively(child, new TreeNode(child.Name), current);
+                }
+            }
+            else if (elementBase is ElementUsage elementUsage)
+            {
+                //this.TreeNodes.Add(new TreeNode(elementUsage.Name));
+                current.Parent = parent;
+                if (parent is not null)
+                {
+                    parent.Children.Add(current);
+                }
+
+                foreach (var child in elementUsage.ElementDefinition.ContainedElement)
+                {
+                    this.CreateTreeRecursively(child, new TreeNode(child.Name), current);
+                }
+            }
         }
 
         /// <summary>
@@ -239,12 +264,6 @@ namespace COMETwebapp.Pages.Viewer
             List<ActualFiniteState> states = this.CheckboxStates_ActualFiniteStateList.Values.Select(x => x.GetStateToUse()).ToList();
 
             this.CanvasComponentReference?.RepopulateScene(elementUsages, option, states);
-            
-            this.TreeNodes.Clear();
-            foreach(var elementUsage in elementUsages)
-            {
-                this.TreeNodes.Add(new TreeNode(elementUsage.Name));
-            }
 
             this.StateHasChanged();
         }
@@ -302,7 +321,8 @@ namespace COMETwebapp.Pages.Viewer
         /// </summary>
         private void UpdateTreeUI(TreeNode selectedNode)
         {
-            this.TreeNodes.ForEach(x => x.IsSelected = false);
+            this.RootNode.GetFlatListOfDescendants().ForEach(x => x.IsSelected = false);
+            
             if(selectedNode is not null)
             {
                 selectedNode.IsSelected = true;
@@ -316,20 +336,22 @@ namespace COMETwebapp.Pages.Viewer
         /// <param name="node">the selected node</param>
         public void TreeSelectionChanged(TreeNode node)
         {
-            //TODO: Update details panel and select a primitive in model and clears selection
-
             this.UpdateTreeUI(node);
-
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
-
             primitivesOnScene.ForEach(x => x.IsSelected = false);
 
-            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == node.Name);
+            var nodesToSelect = node.GetFlatListOfDescendants();
+            nodesToSelect.Add(node);
 
-            if(selectedPrimitive is not null)
+            foreach (var descendant in nodesToSelect)
             {
-                selectedPrimitive.IsSelected = true;
-                this.CanvasComponentReference.SceneProvider.SelectedPrimitive = selectedPrimitive;
+                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
+
+                if (selectedPrimitive is not null)
+                {
+                    selectedPrimitive.IsSelected = true;
+                    this.CanvasComponentReference.SceneProvider.SelectedPrimitive = selectedPrimitive;
+                }
             }
         }
 
@@ -341,11 +363,19 @@ namespace COMETwebapp.Pages.Viewer
         {
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
 
-            var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == node.Name);
-            if(selectedPrimitive is not null)
+            var nodesToToggleVisibility = node.GetFlatListOfDescendants();
+            nodesToToggleVisibility.Add(node);
+
+            foreach (var descendant in nodesToToggleVisibility)
             {
-                selectedPrimitive.IsVisible = node.IsVisible;
+                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
+
+                if (selectedPrimitive is not null)
+                {
+                    selectedPrimitive.IsVisible = node.IsVisible;
+                }
             }
+
             this.InvokeAsync(this.StateHasChanged);
         }
     }

@@ -58,11 +58,10 @@ Copyright (c) 2022 RHEA System S.A.
                             }
                         }
                     }
+
                 </div>
-                <div>
-                    <h5 id="details-title">Details</h5>
-                    <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" PrimitiveSelected="this.SelectedPrimitive" />
-                </div>
+                <h5 id="details-title">Details</h5>
+                <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" PrimitiveSelected="this.SelectedPrimitive" />
             </Content>
         </BSAccordionItem>
     </BSAccordion>
@@ -112,10 +111,22 @@ Copyright (c) 2022 RHEA System S.A.
         box-shadow: 0 0 0 3px #008bd2;
     }
 
+    #color-rectangle {
+        width: 100px;
+        height: 100px;
+        background: darkred;
+        margin: 2;
+        box-sizing: border-box;
+    }
+
     #propertiesPanel {
         border: 1px solid lightgray;
         overflow-y: auto;
         overflow-x: hidden;
         border-radius: 5px;
+    }
+
+    .input {
+        max-width: 70px;
     }
 </style>

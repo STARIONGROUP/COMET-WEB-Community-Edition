@@ -32,6 +32,11 @@ namespace COMETwebapp.Model
     public class TreeNode
     {
         /// <summary>
+        /// If the node is expanded or not
+        /// </summary>
+        public bool IsExpanded { get; set; } = true;
+
+        /// <summary>
         /// If the node is the current selected node
         /// </summary>
         public bool IsSelected { get; set; }
@@ -47,12 +52,52 @@ namespace COMETwebapp.Model
         public string Name { get; set; }
 
         /// <summary>
+        /// The parent of this <see cref="TreeNode"/>
+        /// </summary>
+        public TreeNode? Parent { get; set; }
+
+        /// <summary>
+        /// The children of this <see cref="TreeNode"/>
+        /// </summary>
+        public List<TreeNode> Children { get; set; }
+
+        /// <summary>
         /// Creates a new instance of the <see cref="TreeNode"/>
         /// </summary>
         /// <param name="name">Name of the <see cref="ElementUsage"/> asociated to this node</param>
         public TreeNode(string name)
         {
             this.Name = name;
+            this.Children = new List<TreeNode>();
+        }
+
+        /// <summary>
+        /// Gets a flat list of the descendants of this node
+        /// </summary>
+        /// <returns>the flat list</returns>
+        public List<TreeNode> GetFlatListOfDescendants()
+        {
+            var descendants = new List<TreeNode>();
+            this.GetListOfDescendantsRecursively(this, ref descendants);
+            return descendants;
+        }
+
+        /// <summary>
+        /// Helper method for <see cref="GetFlatListOfDescendants"/>
+        /// </summary>
+        /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
+        /// <param name="descendants">the list of descendants till this moment</param>
+        private void GetListOfDescendantsRecursively(TreeNode current, ref List<TreeNode> descendants)
+        {
+            if (!descendants.Contains(current))
+            {
+                descendants.Add(current);
+            }
+
+            foreach(var child in current.Children)
+            {
+                this.GetListOfDescendantsRecursively(child, ref descendants);
+            }
         }
     }
 }
