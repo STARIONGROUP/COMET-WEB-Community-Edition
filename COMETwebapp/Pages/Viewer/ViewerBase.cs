@@ -162,6 +162,14 @@ namespace COMETwebapp.Pages.Viewer
                     this.UpdateTreeUI(node);
                 };
 
+                this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
+                {
+                    this.Elements.Clear();
+                    this.InitializeElements();
+                    var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+                    this.RepopulateScene(elementsOnScene);
+                };
+
                 this.StateHasChanged();
             }
         }
