@@ -134,32 +134,28 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatPrimiteCanBeCreatedByElementUsage()
         {
-            var basicShape = this.shapeFactory.TryGetPrimitiveFromElementUsageParameter(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Assert.IsNotNull(basicShape);
         }
 
         [Test]
         public void VerifyThatPrimitiveCanBePositionedByElementUsage()
         {
-            var basicShape = this.shapeFactory.TryGetPrimitiveFromElementUsageParameter(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Assert.IsNotNull(basicShape);
             Assert.IsTrue(basicShape is BasicPrimitive);
 
             var basicPrim = basicShape as BasicPrimitive;
-            var posX = basicPrim.X;
-            var posY = basicPrim.Y;
-            var posZ = basicPrim.Z;
-            basicPrim.SetPositionFromElementUsageParameters(this.option, new List<ActualFiniteState>());
 
-            Assert.AreNotEqual(posX, basicPrim.X);
-            Assert.AreNotEqual(posY, basicPrim.Y);
-            Assert.AreNotEqual(posZ, basicPrim.Z);
+            Assert.AreNotEqual(0, basicPrim.X);
+            Assert.AreNotEqual(0, basicPrim.Y);
+            Assert.AreNotEqual(0, basicPrim.Z);
         }
 
         [Test]
         public void VerifyThatPrimitiveCanBeRotatedByElementUsage()
         {
-            var basicShape = this.shapeFactory.TryGetPrimitiveFromElementUsageParameter(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Assert.IsNotNull(basicShape);
             Assert.IsTrue(basicShape is BasicPrimitive);
 
@@ -167,7 +163,7 @@ namespace COMETwebapp.Tests.Viewer
             var orientX = basicPrim.RX;
             var orientY = basicPrim.RY;
             var orientZ = basicPrim.RZ;
-            basicPrim.SetOrientationFromElementUsageParameters(this.option, new List<ActualFiniteState>());
+            basicPrim.SetOrientationFromElementUsageParameters();
 
             Assert.AreNotEqual(0, basicPrim.RX);
             Assert.AreNotEqual(0, basicPrim.RY);

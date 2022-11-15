@@ -78,27 +78,7 @@ namespace COMETwebapp.Utilities
         /// <returns>the parsed color</returns>
         public static Vector3 ParseToColorVector(this string text)
         {
-            Color color;
-
-            if (text.StartsWith("#"))
-            {
-                color = ColorTranslator.FromHtml(text);
-            }
-            else if (text.Contains(":"))
-            {
-                var textSplitted = text.Split(':');
-
-                int.TryParse(textSplitted[0], out var r);
-                int.TryParse(textSplitted[1], out var g);
-                int.TryParse(textSplitted[2], out var b);
-
-                color = Color.FromArgb(r, g, b);
-            }
-            else
-            {
-                color = Color.FromName(text);
-            }
-
+            Color color = text.ParseToColor();
             return new Vector3(color.R, color.G, color.B);
         }
 
@@ -141,7 +121,8 @@ namespace COMETwebapp.Utilities
         public static string ParseToHexColor(this string text)
         {
             var color = text.ParseToColor();
-            return ColorTranslator.ToHtml(color);
+            var colorRGB = Color.FromArgb(color.R, color.G, color.B);
+            return ColorTranslator.ToHtml(colorRGB);
         }
     }
 }
