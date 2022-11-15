@@ -427,7 +427,7 @@ function SetMeshColor(ID,r,g,b) {
         if (data != undefined) {
             let mesh = data["mesh"];
             if (mesh != undefined) {
-                
+                mesh.material.diffuseColor = new BABYLON.Color3(r/255.0, g/255.0, b/255.0);
             }
         }
     }

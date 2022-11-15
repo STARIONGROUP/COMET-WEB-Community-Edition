@@ -27,6 +27,7 @@ namespace COMETwebapp.Utilities
     using System;
     using System.Drawing;
     using System.Numerics;
+    using System.Runtime.CompilerServices;
     using System.Text;
 
     /// <summary>
@@ -81,8 +82,7 @@ namespace COMETwebapp.Utilities
 
             if (text.StartsWith("#"))
             {
-                //TODO: Use ColorTranslator instead
-                color = Color.Red;
+                color = ColorTranslator.FromHtml(text);
             }
             else if (text.Contains(":"))
             {
@@ -100,6 +100,48 @@ namespace COMETwebapp.Utilities
             }
 
             return new Vector3(color.R, color.G, color.B);
+        }
+
+        /// <summary>
+        /// Tries to parse this string into a color in format R,G,B
+        /// </summary>
+        /// <param name="text">the text to parse into color</param>
+        /// <returns>the parsed color</returns>
+        public static Color ParseToColor(this string text)
+        {
+            Color color;
+
+            if (text.StartsWith("#"))
+            {
+                color = ColorTranslator.FromHtml(text);
+            }
+            else if (text.Contains(":"))
+            {
+                var textSplitted = text.Split(':');
+
+                int.TryParse(textSplitted[0], out var r);
+                int.TryParse(textSplitted[1], out var g);
+                int.TryParse(textSplitted[2], out var b);
+
+                color = Color.FromArgb(r, g, b);
+            }
+            else
+            {
+                color = Color.FromName(text);
+            }
+
+            return color;
+        }
+
+        /// <summary>
+        /// Tries to parse this string into a color in hexadecimal format
+        /// </summary>
+        /// <param name="text">the text to parse into color</param>
+        /// <returns>a string of the color in hexadecimal format</returns>
+        public static string ParseToHexColor(this string text)
+        {
+            var color = text.ParseToColor();
+            return ColorTranslator.ToHtml(color);
         }
     }
 }

@@ -67,6 +67,11 @@ namespace COMETwebapp.Primitives
         public List<ActualFiniteState> States { get; set; }
 
         /// <summary>
+        /// The default color if the <see cref="Color"/> has not been defined.
+        /// </summary>
+        public static Vector3 DefaultColor { get; } = new Vector3(210, 210, 210);
+
+        /// <summary>
         /// Gets or sets if the <see cref="Primitive"/> is selected or not
         /// </summary>
         public bool IsSelected
@@ -110,7 +115,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Sets the color of this <see cref="Primitive"/>.
         /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,1]</param>
+        /// <param name="color">The color in rgb format with values range [0,255]</param>
         public void SetColor(Vector3 color)
         {
             this.Color = color;
@@ -120,9 +125,9 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Sets the color of this <see cref="Primitive"/>.
         /// </summary>
-        /// <param name="r">red component of the color in range </param>
-        /// <param name="g">green component of the color</param>
-        /// <param name="b">blue component of the color</param>
+        /// <param name="r">red component of the color in range [0,255]</param>
+        /// <param name="g">green component of the color in range [0,255]</param>
+        /// <param name="b">blue component of the color in range [0,255]</param>
         /// <returns></returns>
         public void SetColor(float r, float g, float b)
         {
@@ -224,13 +229,16 @@ namespace COMETwebapp.Primitives
         {
             IValueSet? valueSet = this.GetValueSet(SceneProvider.ColorShortName);
 
-            Random rand = new Random();
-
-            int r = rand.Next(0, 225);
-            int g = rand.Next(0, 225);
-            int b = rand.Next(0, 225);
-
-            this.SetColor(r, g, b);
+            if(valueSet is not null)
+            {
+                string textColor = valueSet.ActualValue.First();
+                Vector3 color = textColor.ParseToColorVector();
+                this.SetColor(color);
+            }
+            else
+            {
+                this.SetColor(Primitive.DefaultColor);
+            }
         }
 
         /// <summary>
@@ -238,6 +246,16 @@ namespace COMETwebapp.Primitives
         /// </summary>
         /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
         /// <param name="newValue">the new value set</param>
-        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue) { }
+        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        {
+            switch (parameterTypeShortName)
+            {
+                case SceneProvider.ColorShortName:
+                    string textColor = newValue.ActualValue.First();
+                    Vector3 color = textColor.ParseToColorVector();
+                    this.SetColor(color);
+                    break;
+            }
+        }
     }
 }

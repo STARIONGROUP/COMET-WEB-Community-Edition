@@ -51,30 +51,14 @@ Copyright (c) 2022 RHEA System S.A.
     }
     else if (scalarType is TextParameterType textType)
     {
+        var colorText = this.GetValueSet().ActualValue.First();
+        var colorValue = colorText.ParseToHexColor();
+
         if (textType.ShortName == SceneProvider.ColorShortName)
         {           
             <div id="color-section">
-                <div class="color-inner-section">
-                    <div id="actual-color"></div>
-                </div>
-                <div class="color-inner-section">
-                    <div class="parameter-row">
-                        <p>R:</p>
-                        <BSInput InputType="InputType.Text" Value="255" Class="parameter-input" />
-                    </div>
-                    <div class="parameter-row">
-                        <p>G:</p>
-                        <BSInput InputType="InputType.Text" Value="255" Class="parameter-input" />
-                    </div>
-                    <div class="parameter-row">
-                        <p>B:</p>
-                        <BSInput InputType="InputType.Text" Value="255" Class="parameter-input" />
-                    </div>
-                    <div class="parameter-row">
-                        <p>@textType.Name</p>
-                        <BSInput InputType="InputType.Text" IsReadonly="true" Value="this.GetValueSet().ActualValue.First()" Class="parameter-input" @onchange="(e)=>this.OnParameterValueChange(0,e)"/>
-                    </div>
-                </div>
+                <input type="color" id="color" name="color" value="@colorValue" @onchange="(e)=>this.OnParameterValueChange(0,e)">
+                <label for="color" id="color-text">Color</label>
             </div>
         }
         else
@@ -156,19 +140,7 @@ else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundT
         justify-content: flex-start;
     }
 
-    #color-section{
-        display: flex;
-        flex-direction: row;
+    #color-text{
+        margin-left: 2%;
     }
-
-    .color-inner-section{
-        width:50%;
-    }
-
-    #actual-color{
-        width: 100px;
-        height: 100px;
-        background: darkred;
-    }
-
 </style>
