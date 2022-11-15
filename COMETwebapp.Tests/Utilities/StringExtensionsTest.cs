@@ -49,7 +49,6 @@ namespace COMETwebapp.Tests.Utilities
             string rgbColor = "255:15:120";
             string nameColor = "darkred";
 
-
             Color hexParsedColor = hexColor.ParseToColor();
             Color rgbParsedColor = rgbColor.ParseToColor();
             Color nameParsedColor = nameColor.ParseToColor();
