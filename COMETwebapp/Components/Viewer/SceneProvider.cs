@@ -153,13 +153,16 @@ namespace COMETwebapp.Components.Viewer
         {
             float size = 700;
             Line xAxis = new Line(-size, 0, 0, size, 0, 0);
-            await this.AddPrimitive(xAxis, Color.Red);
+            xAxis.SetColor(255, 0, 0);
+            await this.AddPrimitive(xAxis);
 
             Line yAxis = new Line(0, -size, 0, 0, size, 0);
-            await this.AddPrimitive(yAxis, Color.Green);
+            yAxis.SetColor(0, 255, 0);
+            await this.AddPrimitive(yAxis);
 
             Line zAxis = new Line(0, 0, -size, 0, 0, size);
-            await this.AddPrimitive(zAxis, Color.Blue);
+            zAxis.SetColor(0, 0, 255);
+            await this.AddPrimitive(zAxis);
         }
 
         /// <summary>
@@ -191,22 +194,9 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="primitive">The primitive to add</param>
         public async Task AddPrimitive(Primitive primitive)
         {
-            await AddPrimitive(primitive, Color.LightGray);
-        }
-
-        /// <summary>
-        /// Adds a primitive to the scene with the specified color
-        /// </summary>
-        /// <param name="primitive">the primitive to add</param>
-        /// <param name="color">the color of the primitive</param>
-        public async Task AddPrimitive(Primitive primitive, Color color)
-        {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
-            Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
-            string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
-
             primitivesCollection.Add(primitive.ID, primitive);
-            await JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
+            await JSInterop.Invoke("AddPrimitive", jsonPrimitive);
         }
 
         /// <summary>

@@ -116,13 +116,6 @@ namespace COMETwebapp.Components.Viewer
         Task AddPrimitive(Primitive primitive);
 
         /// <summary>
-        /// Adds a primitive to the scene with the specified color
-        /// </summary>
-        /// <param name="primitive">the primitive to add</param>
-        /// <param name="color">the color of the primitive</param>
-        Task AddPrimitive(Primitive primitive, Color color);
-
-        /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
         Task ClearPrimitives();

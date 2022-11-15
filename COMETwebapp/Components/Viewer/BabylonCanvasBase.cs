@@ -139,20 +139,13 @@ namespace COMETwebapp.Componentes.Viewer
         {
             await this.SceneProvider.ClearPrimitives();
 
-            Random rand = new Random();
-
             foreach (var elementUsage in elementUsages)
             {
                 var basicShape = this.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
 
                 if (basicShape is not null)
                 {
-                    //TODO: When materiales can be added this should not be random. For now helps distinguish different shapes on scene.
-                    int r = rand.Next(0, 225);
-                    int g = rand.Next(0, 225);
-                    int b = rand.Next(0, 225);
-
-                    await this.SceneProvider.AddPrimitive(basicShape, Color.FromArgb(r,g,b));
+                    await this.SceneProvider.AddPrimitive(basicShape);
                 }
             }
         }

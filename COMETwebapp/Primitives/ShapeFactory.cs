@@ -106,6 +106,8 @@ namespace COMETwebapp.Primitives
                 primitive.SelectedOption = selectedOption;
                 primitive.States = states;
 
+                primitive.SetColorFromElementUsageParameters();
+                
                 if (primitive is BasicPrimitive basicPrimitive)
                 {
                     basicPrimitive.SetOrientationFromElementUsageParameters();

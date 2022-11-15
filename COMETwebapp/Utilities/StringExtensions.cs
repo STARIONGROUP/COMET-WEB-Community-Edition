@@ -25,6 +25,8 @@
 namespace COMETwebapp.Utilities
 {
     using System;
+    using System.Drawing;
+    using System.Numerics;
     using System.Text;
 
     /// <summary>
@@ -66,6 +68,38 @@ namespace COMETwebapp.Utilities
             var decodedString = Encoding.UTF8.GetString(bytes);
 
             return decodedString;
+        }
+
+        /// <summary>
+        /// Tries to parse this string into a vector that represents a color in format R,G,B
+        /// </summary>
+        /// <param name="text">the text to parse into color</param>
+        /// <returns>the parsed color</returns>
+        public static Vector3 ParseToColorVector(this string text)
+        {
+            Color color;
+
+            if (text.StartsWith("#"))
+            {
+                //TODO: Use ColorTranslator instead
+                color = Color.Red;
+            }
+            else if (text.Contains(":"))
+            {
+                var textSplitted = text.Split(':');
+
+                int.TryParse(textSplitted[0], out var r);
+                int.TryParse(textSplitted[1], out var g);
+                int.TryParse(textSplitted[2], out var b);
+
+                color = Color.FromArgb(r, g, b);
+            }
+            else
+            {
+                color = Color.FromName(text);
+            }
+
+            return new Vector3(color.R, color.G, color.B);
         }
     }
 }
