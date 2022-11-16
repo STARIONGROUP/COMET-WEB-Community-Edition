@@ -37,7 +37,7 @@ namespace COMETwebapp.Primitives
     /// Represents an <see cref="CDP4Common.EngineeringModelData.ElementUsage"/> on the Scene from the selected <see cref="Option"/> and <see cref="ActualFiniteState"/>
     /// </summary>
     public abstract class Primitive
-    {
+    {        
         /// <summary>
         /// Backing field for the property <see cref="IsSelected"/>
         /// </summary>
@@ -49,10 +49,15 @@ namespace COMETwebapp.Primitives
         private bool isVisible = true;
 
         /// <summary>
+        /// Rendering group of this <see cref="Primitive"/>. Default is 0. Valid Range[0,4].
+        /// </summary>
+        public int RenderingGroup { get; set; } 
+
+        /// <summary>
         /// The <see cref="ElementUsage"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public ElementUsage ElementUsage { get; set; }
+        public ElementUsage ElementUsage { get; set; } 
 
         /// <summary>
         /// The <see cref="Option"/> for which the <see cref="Primitive"/> was created.
@@ -239,6 +244,16 @@ namespace COMETwebapp.Primitives
             {
                 this.SetColor(Primitive.DefaultColor);
             }
+        }
+
+        /// <summary>
+        /// Creates a clone of this <see cref="Primitive"/>
+        /// </summary>
+        /// <returns></returns>
+        public Primitive Clone()
+        {
+            var shapeFactory = new ShapeFactory();
+            return shapeFactory.CreatePrimitiveFromElementUsage(this.ElementUsage, this.SelectedOption, this.States)!;
         }
 
         /// <summary>

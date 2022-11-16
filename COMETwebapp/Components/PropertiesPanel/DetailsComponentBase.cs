@@ -26,7 +26,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -61,7 +61,7 @@ namespace COMETwebapp.Components.PropertiesPanel
             set
             {
                 if (this.primitiveSelected != value)
-                {
+                {                   
                     this.primitiveSelected = value;
                     this.InitValueSet();
                 }
@@ -80,20 +80,11 @@ namespace COMETwebapp.Components.PropertiesPanel
                 if (this.parameterSelected != value)
                 {
                     this.parameterSelected = value;
-                    this.InitValueSet();
                 }
             }
         }
 
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.InitValueSet();
-        }
+
 
         /// <summary>
         /// Inits the <see cref="ValueSetsCollection"/>

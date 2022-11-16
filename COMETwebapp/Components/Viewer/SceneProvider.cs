@@ -97,6 +97,11 @@ namespace COMETwebapp.Components.Viewer
         private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();
 
         /// <summary>
+        /// Collection of temporary <see cref="Primitive"/> in the Scene
+        /// </summary>
+        private static Dictionary<Guid, Primitive> TemporaryPrimitivesCollection = new Dictionary<Guid, Primitive>();
+
+        /// <summary>
         /// Collection for transform from a parameter short name to a parameter type
         /// </summary>
         public static Dictionary<string, Type> ParameterShortNameToTypeDictionary = new Dictionary<string, Type>()
@@ -200,6 +205,21 @@ namespace COMETwebapp.Components.Viewer
         }
 
         /// <summary>
+        /// Adds a temporary primitive to the scene
+        /// </summary>
+        /// <param name="primitive">the primitive to add</param>
+        public async Task AddTemporaryPrimitive(Primitive primitive)
+        {
+            string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
+            var color = Color.FromArgb(112,87,255);
+            Vector3 colorVectorized = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
+            string jsonColor = JsonConvert.SerializeObject(colorVectorized, Formatting.Indented);
+
+            TemporaryPrimitivesCollection.Add(primitive.ID, primitive);
+            await JSInterop.Invoke("AddPrimitive", jsonPrimitive, jsonColor);
+        }
+
+        /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
         public async Task ClearPrimitives()
@@ -210,6 +230,19 @@ namespace COMETwebapp.Components.Viewer
                 await JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
+        }
+
+        /// <summary>
+        /// Clears the scene deleting the temporary primitives that contains
+        /// </summary>
+        public async Task ClearTemporaryPrimitives()
+        {
+            var keys = TemporaryPrimitivesCollection.Keys.ToList();
+            foreach (var id in keys)
+            {
+                await JSInterop.Invoke("Dispose", id);
+            }
+            TemporaryPrimitivesCollection.Clear();
         }
 
         /// <summary>

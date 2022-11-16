@@ -29,8 +29,6 @@ namespace COMETwebapp.Components.Viewer
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -116,7 +114,7 @@ namespace COMETwebapp.Components.Viewer
         {
             this.IsMouseDown = false;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
-
+            await this.SceneProvider.ClearTemporaryPrimitives();
             var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
             this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
             this.SceneProvider.SelectedPrimitive = null;
