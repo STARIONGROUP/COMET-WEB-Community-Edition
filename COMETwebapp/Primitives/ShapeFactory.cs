@@ -72,9 +72,6 @@ namespace COMETwebapp.Primitives
         {
             IValueSet? valueSet = null;
             var parameters = elementUsage.GetParametersInUse();
-            //Type parameterType = SceneProvider.ParameterShortNameToTypeDictionary[SceneProvider.ShapeKindShortName];
-            //var shapeKindParameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName && x.ParameterType.GetType() == parameterType);
-
             var shapeKindParameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName, null);
 
             Primitive? primitive = null;
