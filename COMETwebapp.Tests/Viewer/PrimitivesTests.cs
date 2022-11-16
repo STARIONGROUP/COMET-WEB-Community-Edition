@@ -160,14 +160,10 @@ namespace COMETwebapp.Tests.Viewer
             Assert.IsTrue(basicShape is BasicPrimitive);
 
             var basicPrim = basicShape as BasicPrimitive;
-            var orientX = basicPrim.RX;
-            var orientY = basicPrim.RY;
-            var orientZ = basicPrim.RZ;
-            basicPrim.SetOrientationFromElementUsageParameters();
 
-            Assert.AreNotEqual(0.0, basicPrim.RX);
+            Assert.AreEqual(0.0, basicPrim.RX);
             Assert.AreNotEqual(0.0, basicPrim.RY);
-            Assert.AreNotEqual(0.0, basicPrim.RZ);
+            Assert.AreEqual(0.0, basicPrim.RZ);
         }
 
         [Test]

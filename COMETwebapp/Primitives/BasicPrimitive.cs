@@ -30,6 +30,7 @@ namespace COMETwebapp.Primitives
     using COMETwebapp.Components.Viewer;
 
     using COMETwebapp.Utilities;
+    using System.Globalization;
 
     /// <summary>
     /// Class fot primitives that can be positioned and rotated in space
@@ -162,7 +163,7 @@ namespace COMETwebapp.Primitives
         public void SetOrientationFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
-            var angles = this.ParseIValueToOrientation(valueSet);
+            var angles = this.ParseIValueToEulerAngles(valueSet);
             this.SetRotation(angles[0], angles[1], angles[2]);
         }
 
@@ -210,23 +211,18 @@ namespace COMETwebapp.Primitives
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        private double[] ParseIValueToOrientation(IValueSet? valueSet)
+        private double[] ParseIValueToEulerAngles(IValueSet? valueSet)
         {
             double[] angles = new double[3];
 
             if (valueSet is not null)
             {
                 double[] rotMatrix = new double[9];
-                if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
+
+                for (int i = 0; i < 9; i++)
                 {
-                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
-                }
-                else
-                {
-                    for (int i = 0; i < 9; i++)
-                    {
-                        rotMatrix[i] = double.Parse(valueSet.ActualValue[i]);
-                    }
+                    double.TryParse(valueSet.ActualValue[i], NumberStyles.Any, CultureInfo.InvariantCulture , out double value);
+                    rotMatrix[i] = value;
                 }
 
                 if (rotMatrix.Length == 9)
@@ -255,7 +251,7 @@ namespace COMETwebapp.Primitives
                     break;
 
                 case SceneProvider.OrientationShortName:
-                    var angles = this.ParseIValueToOrientation(newValue);
+                    var angles = this.ParseIValueToEulerAngles(newValue);
                     this.SetRotation(angles[0], angles[1], angles[2]);
                     break;
 
