@@ -26,7 +26,7 @@ namespace COMETwebapp.Tests.Utilities
 {
     using NUnit.Framework;
     using COMETwebapp.Utilities;
-
+    using System.Drawing;
 
     [TestFixture]
     public class StringExtensionsTest
@@ -41,5 +41,54 @@ namespace COMETwebapp.Tests.Utilities
             Assert.That(decodedText.Base64Encode(), Is.EqualTo(encodedText));
             Assert.That(encodedText.Base64Decode(), Is.EqualTo(decodedText));
         }
+
+        [Test]
+        public void VerifyThatTextCanBeParsedIntoColor()
+        {
+            string hexColor = "#444333";
+            string rgbColor = "255:15:120";
+            string nameColor = "darkred";
+
+            Color hexParsedColor = hexColor.ParseToColor();
+            Color rgbParsedColor = rgbColor.ParseToColor();
+            Color nameParsedColor = nameColor.ParseToColor();
+
+            Assert.AreEqual(ColorTranslator.FromHtml(hexColor).ToArgb(), hexParsedColor.ToArgb());
+            Assert.AreEqual(Color.FromArgb(255, 15, 120).ToArgb(), rgbParsedColor.ToArgb());
+            Assert.AreEqual(Color.FromName(nameColor).ToArgb(), nameParsedColor.ToArgb());
+        }
+
+        [Test]
+        public void VerifyThatTextCanBeParsedIntoHexColor()
+        {
+            string hexColor = "#ff0000";
+            string rgbColor = "255:0:0";
+            string nameColor = "Red";
+
+            string hexParsedColor = hexColor.ParseToHexColor();
+            string rgbParsedColor = rgbColor.ParseToHexColor();
+            string nameParsedColor = nameColor.ParseToHexColor();
+
+            StringAssert.AreEqualIgnoringCase(hexColor, hexParsedColor);
+            StringAssert.AreEqualIgnoringCase(hexColor, rgbParsedColor);
+            StringAssert.AreEqualIgnoringCase(hexColor, nameParsedColor);           
+        }
+
+        [Test]
+        public void VerifyThatTextRefersToSameColor()
+        {
+            string hexColor = "#ff0000";
+            string rgbColor = "255:0:0";
+            string nameColor = "Red";
+
+            Color hexParsedColor = hexColor.ParseToColor();
+            Color rgbParsedColor = rgbColor.ParseToColor();
+            Color nameParsedColor = nameColor.ParseToColor();
+
+            Assert.AreEqual(hexParsedColor.ToArgb(), rgbParsedColor.ToArgb());
+            Assert.AreEqual(hexParsedColor.ToArgb(), nameParsedColor.ToArgb());
+            Assert.AreEqual(nameParsedColor.ToArgb(), rgbParsedColor.ToArgb());
+        }
+
     }
 }

@@ -27,7 +27,8 @@ namespace COMETwebapp.Primitives
     using System.Numerics;
 
     using CDP4Common.EngineeringModelData;
-    
+
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Utilities;
     
     using Newtonsoft.Json;
@@ -66,6 +67,11 @@ namespace COMETwebapp.Primitives
         public List<ActualFiniteState> States { get; set; }
 
         /// <summary>
+        /// The default color if the <see cref="Color"/> has not been defined.
+        /// </summary>
+        public static Vector3 DefaultColor { get; } = new Vector3(210, 210, 210);
+
+        /// <summary>
         /// Gets or sets if the <see cref="Primitive"/> is selected or not
         /// </summary>
         public bool IsSelected
@@ -94,7 +100,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// The base color of the primitive
         /// </summary>
-        public Vector3 Color { get; set; }
+        public Vector3 Color { get; private set; }
 
         /// <summary>
         /// Property that defined the exact type of pritimive. Used in JS.
@@ -109,10 +115,23 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Sets the color of this <see cref="Primitive"/>.
         /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,1]</param>
-        public async Task SetPrimitiveColor(Vector3 color)
+        /// <param name="color">The color in rgb format with values range [0,255]</param>
+        public void SetColor(Vector3 color)
         {
-            await JSInterop.Invoke("SetMeshColor", this.ID, color.X, color.Y, color.Z);
+            this.Color = color;
+            JSInterop.Invoke("SetMeshColor", this.ID, color.X, color.Y, color.Z);
+        }
+
+        /// <summary>
+        /// Sets the color of this <see cref="Primitive"/>.
+        /// </summary>
+        /// <param name="r">red component of the color in range [0,255]</param>
+        /// <param name="g">green component of the color in range [0,255]</param>
+        /// <param name="b">blue component of the color in range [0,255]</param>
+        /// <returns></returns>
+        public void SetColor(float r, float g, float b)
+        {
+            this.SetColor(new Vector3(r, g, b));
         }
 
         /// <summary>
@@ -183,10 +202,60 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
+        /// Gets a list of the parameters that this <see cref="Primitive"/> contains
+        /// </summary>
+        /// <returns></returns>
+        public List<ParameterBase> GetParameters()
+        {
+            var parameters = new List<ParameterBase>();
+    
+            parameters.AddRange(this.ElementUsage.ParameterOverride);
+
+            this.ElementUsage.ElementDefinition.Parameter.ForEach(x =>
+            {
+                if(!parameters.Any(par=>par.ParameterType.ShortName == x.ParameterType.ShortName))
+                {
+                    parameters.Add(x);
+                }
+            });
+                        
+            return parameters.OrderBy(x=>x.ParameterType.ShortName).ToList();
+        }
+
+        /// <summary>
+        /// Set the color of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        public void SetColorFromElementUsageParameters()
+        {
+            IValueSet? valueSet = this.GetValueSet(SceneProvider.ColorShortName);
+
+            if(valueSet is not null)
+            {
+                string textColor = valueSet.ActualValue.First();
+                Vector3 color = textColor.ParseToColorVector();
+                this.SetColor(color);
+            }
+            else
+            {
+                this.SetColor(Primitive.DefaultColor);
+            }
+        }
+
+        /// <summary>
         /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
         /// </summary>
         /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
         /// <param name="newValue">the new value set</param>
-        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue) { }
+        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        {
+            switch (parameterTypeShortName)
+            {
+                case SceneProvider.ColorShortName:
+                    string textColor = newValue.ActualValue.First();
+                    Vector3 color = textColor.ParseToColorVector();
+                    this.SetColor(color);
+                    break;
+            }
+        }
     }
 }

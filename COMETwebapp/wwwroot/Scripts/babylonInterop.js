@@ -171,29 +171,28 @@ function GetCanvasSize() {
  * @param {any} primitive - a JSON string representation of the primitive.
  * @param {any} color - a JSON string representation of the color.
  */
-function AddPrimitive(primitive, color) {
+function AddPrimitive(primitive) {
     //Convert to JSON the parameters
     primitive = JSON.parse(primitive);
-    color = JSON.parse(color);
 
     if (!primitive.hasOwnProperty("Type")) {
         throw "The parameter don't have the Type property, make sure that the object is of type Primitive and that Type property is overriden";
     }
 
     switch (primitive.Type) {
-        case "Line":            CreateLine(primitive, color);     break;
-        case "Cube":            CreateBox(primitive, color);      break;
-        case "Sphere":          CreateSphere(primitive, color);   break;
-        case "Cylinder":        CreateCylinder(primitive, color); break;
-        case "Cone":            CreateCone(primitive, color);     break;
-        case "Torus":           CreateTorus(primitive, color);    break;
-        case "CustomPrimitive": LoadPrimitive(primitive, color); break;
-        case "TriangularPrism": CreateTriangularPrism(primitive, color); break;
-        case "Disc": CreateDisc(primitive, color); break;
-        case "HexagonalPrism": CreateHexagonalPrism(primitive, color); break;
-        case "Rectangle": CreateRectangle(primitive, color); break;
-        case "Wedge": CreateWedge(primitive, color); break;
-        case "EquilateralTriangle": CreateTriangle(primitive, color); break;
+        case "Line":            CreateLine(primitive);     break;
+        case "Cube":            CreateBox(primitive);      break;
+        case "Sphere":          CreateSphere(primitive);   break;
+        case "Cylinder":        CreateCylinder(primitive); break;
+        case "Cone":            CreateCone(primitive);     break;
+        case "Torus":           CreateTorus(primitive);    break;
+        case "CustomPrimitive": LoadPrimitive(primitive); break;
+        case "TriangularPrism": CreateTriangularPrism(primitive); break;
+        case "Disc": CreateDisc(primitive); break;
+        case "HexagonalPrism": CreateHexagonalPrism(primitive); break;
+        case "Rectangle": CreateRectangle(primitive); break;
+        case "Wedge": CreateWedge(primitive); break;
+        case "EquilateralTriangle": CreateTriangle(primitive); break;
 
         default: throw `The type of the primitive [${primitive.Type}] is not defined in the JS file`;
     }
@@ -410,6 +409,25 @@ function SetMeshVisibility(ID, isVisible) {
             let mesh = data["mesh"];
             if (mesh != undefined) {
                 mesh.setEnabled(isVisible);
+            }
+        }
+    }
+}
+
+/**
+ * Sets the mesh color
+ * @param {any} ID - the ID of the primitive to change the color
+ * @param {any} r - the red component in range [0,1]
+ * @param {any} g - the green component in range [0,1]
+ * @param {any} b - the blue component in range [0,1]
+ */
+function SetMeshColor(ID,r,g,b) {
+    if (Primitives.size > 0) {
+        let data = Primitives.get(ID);
+        if (data != undefined) {
+            let mesh = data["mesh"];
+            if (mesh != undefined) {
+                mesh.material.diffuseColor = new BABYLON.Color3(r/255.0, g/255.0, b/255.0);
             }
         }
     }
