@@ -83,7 +83,7 @@ namespace COMETwebapp.Primitives
                     }
                     break;
             }
-            this.Regen();
+            this.Regenerate();
         }
     }
 }

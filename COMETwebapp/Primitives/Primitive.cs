@@ -115,7 +115,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Regenerates the <see cref="Primitive"/>. This updates the scene with the data of the the <see cref="Primitive"/>
         /// </summary>
-        public void Regen()
+        public void Regenerate()
         {
             string jsonPrimitive = JsonConvert.SerializeObject(this, Formatting.Indented);
             JSInterop.Invoke("RegenMesh", jsonPrimitive);

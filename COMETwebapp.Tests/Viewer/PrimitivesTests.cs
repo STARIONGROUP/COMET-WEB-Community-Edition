@@ -147,9 +147,9 @@ namespace COMETwebapp.Tests.Viewer
 
             var basicPrim = basicShape as BasicPrimitive;
 
-            Assert.AreNotEqual(0, basicPrim.X);
-            Assert.AreNotEqual(0, basicPrim.Y);
-            Assert.AreNotEqual(0, basicPrim.Z);
+            Assert.AreNotEqual(0.0, basicPrim.X);
+            Assert.AreNotEqual(0.0, basicPrim.Y);
+            Assert.AreNotEqual(0.0, basicPrim.Z);
         }
 
         [Test]
@@ -165,9 +165,9 @@ namespace COMETwebapp.Tests.Viewer
             var orientZ = basicPrim.RZ;
             basicPrim.SetOrientationFromElementUsageParameters();
 
-            Assert.AreNotEqual(0, basicPrim.RX);
-            Assert.AreNotEqual(0, basicPrim.RY);
-            Assert.AreNotEqual(0, basicPrim.RZ);
+            Assert.AreNotEqual(0.0, basicPrim.RX);
+            Assert.AreNotEqual(0.0, basicPrim.RY);
+            Assert.AreNotEqual(0.0, basicPrim.RZ);
         }
 
         [Test]
@@ -184,15 +184,15 @@ namespace COMETwebapp.Tests.Viewer
         {
             foreach (var primitive in this.positionables)
             {
-                Assert.AreEqual(0, primitive.X);
-                Assert.AreEqual(0, primitive.Y);
-                Assert.AreEqual(0, primitive.Z);
+                Assert.AreEqual(0.0, primitive.X);
+                Assert.AreEqual(0.0, primitive.Y);
+                Assert.AreEqual(0.0, primitive.Z);
 
-                primitive.SetTranslation(1, 1, 1);
+                primitive.SetTranslation(1.0, 1.0, 1.0);
 
-                Assert.AreEqual(1, primitive.X);
-                Assert.AreEqual(1, primitive.Y);
-                Assert.AreEqual(1, primitive.Z);
+                Assert.AreEqual(1.0, primitive.X);
+                Assert.AreEqual(1.0, primitive.Y);
+                Assert.AreEqual(1.0, primitive.Z);
             }
         }
 
@@ -201,35 +201,35 @@ namespace COMETwebapp.Tests.Viewer
         {
             foreach (var primitive in this.positionables)
             {
-                Assert.AreEqual(0, primitive.RX);
-                Assert.AreEqual(0, primitive.RY);
-                Assert.AreEqual(0, primitive.RZ);
+                Assert.AreEqual(0.0, primitive.RX);
+                Assert.AreEqual(0.0, primitive.RY);
+                Assert.AreEqual(0.0, primitive.RZ);
 
-                primitive.SetRotation(1, 1, 1);
+                primitive.SetRotation(1.0, 1.0, 1.0);
 
-                Assert.AreEqual(1, primitive.RX);
-                Assert.AreEqual(1, primitive.RY);
-                Assert.AreEqual(1, primitive.RZ);
+                Assert.AreEqual(1.0, primitive.RX);
+                Assert.AreEqual(1.0, primitive.RY);
+                Assert.AreEqual(1.0, primitive.RZ);
             }
         }
 
         [Test]
         public void VerifyThatTransformationsCanBeReseted()
         {
-            var cube = new Cube(1, 1, 1);
-            Assert.AreEqual(0, cube.X);
-            Assert.AreEqual(0, cube.Y);
-            Assert.AreEqual(0, cube.Z);
+            var cube = new Cube(1.0, 1.0, 1.0);
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
 
-            cube.SetTranslation(1, 2, 3);
-            Assert.AreEqual(1, cube.X);
-            Assert.AreEqual(2, cube.Y);
-            Assert.AreEqual(3, cube.Z);
+            cube.SetTranslation(1.0, 2.0, 3.0);
+            Assert.AreEqual(1.0, cube.X);
+            Assert.AreEqual(2.0, cube.Y);
+            Assert.AreEqual(3.0, cube.Z);
 
             cube.ResetTransformations();
-            Assert.AreEqual(0, cube.X);
-            Assert.AreEqual(0, cube.Y);
-            Assert.AreEqual(0, cube.Z);
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
         }
     }
 }
