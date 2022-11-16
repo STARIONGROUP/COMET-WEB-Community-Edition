@@ -207,27 +207,6 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Gets a list of the parameters that this <see cref="Primitive"/> contains
-        /// </summary>
-        /// <returns></returns>
-        public List<ParameterBase> GetParameters()
-        {
-            var parameters = new List<ParameterBase>();
-    
-            parameters.AddRange(this.ElementUsage.ParameterOverride);
-
-            this.ElementUsage.ElementDefinition.Parameter.ForEach(x =>
-            {
-                if(!parameters.Any(par=>par.ParameterType.ShortName == x.ParameterType.ShortName))
-                {
-                    parameters.Add(x);
-                }
-            });
-                        
-            return parameters.OrderBy(x=>x.ParameterType.ShortName).ToList();
-        }
-
-        /// <summary>
         /// Set the color of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
         public void SetColorFromElementUsageParameters()

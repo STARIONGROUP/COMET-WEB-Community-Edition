@@ -167,26 +167,6 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
-        /// </summary>
-        /// <returns>the related parameter</returns>
-        public ParameterBase? GetTranslationParameter()
-        {
-            var param = this.ElementUsage.GetParametersInUse();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
-        }
-
-        /// <summary>
-        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
-        /// </summary>
-        /// <returns>the related parameter</returns>
-        public ParameterBase? GetOrientationParameter()
-        {
-            var param = this.ElementUsage.GetParametersInUse();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
-        }
-
-        /// <summary>
         /// Parses an <see cref="IValueSet"/> to translations along main axes
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
