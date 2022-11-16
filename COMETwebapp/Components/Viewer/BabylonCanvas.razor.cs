@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Componentes.Viewer
+namespace COMETwebapp.Components.Viewer
 {
     using System;
     using System.Drawing;
@@ -40,7 +40,7 @@ namespace COMETwebapp.Componentes.Viewer
     /// <summary>
     /// Support class for the <see cref="BabylonCanvas.razor"/>
     /// </summary>
-    public class BabylonCanvasBase : ComponentBase
+    public partial class BabylonCanvas 
     {
         /// <summary>
         /// Reference to the HTML5 canvas

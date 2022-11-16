@@ -59,9 +59,9 @@ namespace COMETwebapp.Primitives
         {
             var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
 
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double r))
+            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
             {
-                this.Radius = r;
+                this.Radius = d/2.0;
             }
         }
     }

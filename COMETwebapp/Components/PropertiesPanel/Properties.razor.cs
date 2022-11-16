@@ -41,7 +41,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     /// <summary>
     /// The properties component used for displaying data about the selected primitive
     /// </summary>
-    public class PropertiesBase : ComponentBase
+    public partial class Properties 
     {
         /// <summary>
         /// Backing field for the <see cref="SelectedPrimitive"/> property
@@ -122,7 +122,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         private void InitPanelProperties()
         {
-            this.ParametersInUse = this.SelectedPrimitive.ElementUsage.GetParametersInUse().ToList();
+            this.ParametersInUse = this.SelectedPrimitive.ElementUsage.GetParametersInUse().OrderBy(x=>x.ParameterType.ShortName).ToList();
             this.ParameterChanged(ParametersInUse.First());
         }
 

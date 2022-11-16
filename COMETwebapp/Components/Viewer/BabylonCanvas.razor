@@ -20,11 +20,9 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@using COMETwebapp.Componentes.Viewer
-@inherits BabylonCanvasBase
 <div id="canvas-wrap">
-    <canvas @ref=CanvasReference
-            id="babylon-canvas" 
+    <canvas @ref="@this.CanvasReference"
+            id="babylon-canvas"
             touch-action="none"
             @onpointerdown="@OnMouseDown"
             @onpointerup="@OnMouseUp">
