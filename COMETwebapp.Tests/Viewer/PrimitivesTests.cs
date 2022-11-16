@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Viewer
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
+
     using Bunit;
 
     using CDP4Common.CommonData;
@@ -40,6 +41,7 @@ namespace COMETwebapp.Tests.Viewer
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;

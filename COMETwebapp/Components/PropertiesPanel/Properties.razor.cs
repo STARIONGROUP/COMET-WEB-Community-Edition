@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PropertiesBase.cs" company="RHEA System S.A.">
+// <copyright file="Properties.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -30,6 +30,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     
     using CDP4Dal;
+
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;

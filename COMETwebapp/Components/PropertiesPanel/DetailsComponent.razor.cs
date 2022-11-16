@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PropertiesBase.cs" company="RHEA System S.A.">
+// <copyright file="DetailsComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -26,7 +26,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    using COMETwebapp.Components.Viewer;
+
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -34,7 +34,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     /// <summary>
     /// The component used for showing the details of the <see cref="PrimitiveSelected"/>
     /// </summary>
-    public class DetailsComponentBase : ComponentBase
+    public partial class DetailsComponent
     {
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
@@ -83,8 +83,6 @@ namespace COMETwebapp.Components.PropertiesPanel
                 }
             }
         }
-
-
 
         /// <summary>
         /// Inits the <see cref="ValueSetsCollection"/>
