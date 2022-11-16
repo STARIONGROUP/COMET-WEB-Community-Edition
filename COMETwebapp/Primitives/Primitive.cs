@@ -183,27 +183,6 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Gets a list of the parameters that this <see cref="Primitive"/> contains
-        /// </summary>
-        /// <returns></returns>
-        public List<ParameterBase> GetParameters()
-        {
-            var parameters = new List<ParameterBase>();
-    
-            parameters.AddRange(this.ElementUsage.ParameterOverride);
-
-            this.ElementUsage.ElementDefinition.Parameter.ForEach(x =>
-            {
-                if(!parameters.Any(par=>par.ParameterType.ShortName == x.ParameterType.ShortName))
-                {
-                    parameters.Add(x);
-                }
-            });
-                        
-            return parameters.OrderBy(x=>x.ParameterType.ShortName).ToList();
-        }
-
-        /// <summary>
         /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
         /// </summary>
         /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
