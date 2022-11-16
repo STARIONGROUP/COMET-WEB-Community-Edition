@@ -38,7 +38,7 @@ namespace COMETwebapp.Pages.Viewer
     /// <summary>
     /// Support class for the <see cref="Viewer"/>
     /// </summary>
-    public class ViewerBase : ComponentBase
+    public  partial class Viewer 
     {
         /// <summary>
         /// The reference to the <see cref="BabylonCanvas"/> component
@@ -205,6 +205,7 @@ namespace COMETwebapp.Pages.Viewer
             var topElement = elements.First();
             this.RootNode = new TreeNode(topElement.Name);
             this.CreateTreeRecursively(topElement, this.RootNode, null);
+            this.RootNode.OrderAllDescendantsByShortName();
 
             return elements.OfType<ElementUsage>().ToList();
         }
@@ -295,6 +296,7 @@ namespace COMETwebapp.Pages.Viewer
                     this.CheckboxStates_ActualFiniteStateList[actualFiniteStateList].IsFilterActive = value;                    
                 }                
             }
+
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
             this.RepopulateScene(elementsOnScene);
         }

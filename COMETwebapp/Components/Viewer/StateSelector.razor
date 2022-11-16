@@ -20,53 +20,58 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<h3>States</h3>
-@if (this.ListActualFiniteStateLists is not null)
-{
-    foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
+<div id="state-selector-container">
+    <h4 id="state-selector-title">States</h4>
+    @if (this.ListActualFiniteStateLists is not null)
     {
-        <div class="actualFiniteStateList">
-            <input type="checkbox"
-                   id="@actualFiniteStateList.Name"
-                   name="@actualFiniteStateList.Name"
-                   value="@actualFiniteStateList.Name"
-                   onchange="@((ChangeEventArgs args) => this.ActualFiniteStateList_SelectionChanged(actualFiniteStateList,args))">
-
-            <label for="@actualFiniteStateList.Name">
-                @actualFiniteStateList.Name
-            </label>
-        </div>
-
-        @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+        foreach (ActualFiniteStateList actualFiniteStateList in this.ListActualFiniteStateLists)
         {
-            <div class="actualFiniteState">
+            var afsl = actualFiniteStateList;
 
-                @if (actualFiniteState.IsDefault)
-                {
-                    <input type="radio"
-                           id="@actualFiniteState.Name"
-                           name="@actualFiniteStateList.Name"
-                           value="@actualFiniteState.Name"
-                           onchange="@((ChangeEventArgs args) => this.ActualFiniteState_SelectionChanged(actualFiniteState,args))"
-                           checked>
-                }
-                else
-                {
-                    <input type="radio"
-                           id="@actualFiniteState.Name"
-                           name="@actualFiniteStateList.Name"
-                           value="@actualFiniteState.Name"
-                           onchange="@((ChangeEventArgs args) => this.ActualFiniteState_SelectionChanged(actualFiniteState,args))">
-                }
+            <div class="actualFiniteStateList">
+                <input type="checkbox"
+                       id="@actualFiniteStateList.Name"
+                       name="@actualFiniteStateList.Name"
+                       value="@actualFiniteStateList.Name"
+                       onchange="@((ChangeEventArgs args) => this.ActualFiniteStateList_SelectionChanged(afsl,args))">
 
-                <label for="@actualFiniteState.Name">
-                    @actualFiniteState.Name
+                <label for="@actualFiniteStateList.Name">
+                    @actualFiniteStateList.Name
                 </label>
             </div>
+
+            @foreach (ActualFiniteState actualFiniteState in actualFiniteStateList.ActualState)
+            {
+                var afs = actualFiniteState;
+
+                <div class="actualFiniteState">
+
+                    @if (actualFiniteState.IsDefault)
+                    {
+                        <input type="radio"
+                               id="@actualFiniteState.Name"
+                               name="@actualFiniteStateList.Name"
+                               value="@actualFiniteState.Name"
+               onchange="@((ChangeEventArgs args) => this.ActualFiniteState_SelectionChanged(afs,args))"
+                               checked>
+                    }
+                    else
+                    {
+                        <input type="radio"
+                               id="@actualFiniteState.Name"
+                               name="@actualFiniteStateList.Name"
+                               value="@actualFiniteState.Name"
+                               onchange="@((ChangeEventArgs args) => this.ActualFiniteState_SelectionChanged(afs,args))">
+                    }
+
+                    <label for="@actualFiniteState.Name">
+                        @actualFiniteState.Name
+                    </label>
+                </div>
+            }
         }
     }
-}
-
+</div>
 
 @code {
     /// <summary>
@@ -92,7 +97,7 @@
     /// </summary>
     private void ActualFiniteStateList_SelectionChanged(ActualFiniteStateList actualFiniteStateList, ChangeEventArgs e)
     {
-        this.OnActualFiniteStateList_SelectionChanged.InvokeAsync(new CustomChangeEventArgs(actualFiniteStateList,e.Value));
+        this.OnActualFiniteStateList_SelectionChanged.InvokeAsync(new CustomChangeEventArgs(actualFiniteStateList, e.Value));
     }
 
     /// <summary>
@@ -100,6 +105,35 @@
     /// </summary>
     private void ActualFiniteState_SelectionChanged(ActualFiniteState actualFiniteState, ChangeEventArgs e)
     {
-        this.OnActualFiniteStateList_SelectionChanged.InvokeAsync(new CustomChangeEventArgs(actualFiniteState, e.Value));
+        this.OnActualFiniteState_SelectionChanged.InvokeAsync(new CustomChangeEventArgs(actualFiniteState, e.Value));
     }
 }
+
+<style>
+    #state-selector-title {
+        background: #eaecee;
+        padding:2%;
+    }
+
+    #state-selector-container {
+        border: 1px solid #eaecee;
+        margin: 0;
+        padding: 0;
+    }
+
+    .actualFiniteStateList {
+        margin : 0 5px;
+    }
+
+    .actualFiniteState{
+        width : auto;
+        margin : 0 15px;
+    }
+
+    .actualFiniteStateList > label,
+    .actualFiniteState > label {
+        margin-left : 2%;
+        cursor: pointer;
+    }
+
+</style>

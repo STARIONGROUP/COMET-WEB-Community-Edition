@@ -142,7 +142,7 @@ function CreateTriangularPrism(primitive) {
  * @param {any} color - the color in JSON format
  */
 function CreateHexagonalPrism(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius, tessellation: 6 }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 6 }, Scene);
     InitializePrimitiveData(mesh, primitive);
 }
 

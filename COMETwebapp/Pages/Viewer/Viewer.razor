@@ -20,7 +20,6 @@ Copyright (c) 2022 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @page "/3DViewer"
-@inherits ViewerBase
 
 <ApplicationTemplate Title="3D Viewer">
     <Body>
@@ -39,10 +38,11 @@ Copyright (c) 2022 RHEA System S.A.
         </div>
         <div id="gridParent">
             <div id="leftColumn">
-                @{
+                @if (this.OptionSelected != null)
+                {
                     var name = string.Empty;
 
-                    @if (this.Elements.Count > 0 && this.OptionSelected != null)
+                    @if (this.Elements.Count > 0)
                     {
                         name = this.Elements.First().Name;
                     }
@@ -56,18 +56,20 @@ Copyright (c) 2022 RHEA System S.A.
             <BabylonCanvas @ref=this.CanvasComponentReference />
 
             <div id="rightColumn">
-
-                @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SceneProvider is not null && this.CanvasComponentReference.SceneProvider.SelectedPrimitive is not null)
+                @if(this.OptionSelected != null)
                 {
-                    var primitive = this.CanvasComponentReference.SceneProvider.SelectedPrimitive;
-                    <COMETwebapp.Components.PropertiesPanel.Properties SelectedPrimitive="primitive" />
-                }
+                    @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SceneProvider is not null && this.CanvasComponentReference.SceneProvider.SelectedPrimitive is not null)
+                    {
+                        var primitive = this.CanvasComponentReference.SceneProvider.SelectedPrimitive;
+                        <COMETwebapp.Components.PropertiesPanel.Properties SelectedPrimitive="primitive" />
+                    }
 
-                @if (this.ListActualFiniteStateLists is not null)
-                {
-                    <StateSelector ListActualFiniteStateLists="this.ListActualFiniteStateLists"
-                               OnActualFiniteStateList_SelectionChanged="@((ce)=>this.OnActualFiniteStateList_SelectionChanged(ce.Sender,ce))"
-                               OnActualFiniteState_SelectionChanged="@((ce)=>this.OnActualFiniteState_SelectionChanged(ce.Sender,ce))" />
+                    @if (this.ListActualFiniteStateLists is not null)
+                    {
+                        <StateSelector ListActualFiniteStateLists="this.ListActualFiniteStateLists"
+                                   OnActualFiniteStateList_SelectionChanged="@((ce)=>this.OnActualFiniteStateList_SelectionChanged(ce.Sender,ce))"
+                                   OnActualFiniteState_SelectionChanged="@((ce)=>this.OnActualFiniteState_SelectionChanged(ce.Sender,ce))" />
+                    }
                 }
             </div>
         </div>
@@ -95,21 +97,5 @@ Copyright (c) 2022 RHEA System S.A.
         grid-area: 1 / 3 / 2 / 4;
         margin: 0;
         margin-left: 2%;
-    }
-
-
-
-    .actualFiniteStateList {
-        margin: 0;
-        margin-left: 20px;
-    }
-
-    .actualFiniteState {
-        margin: 0;
-        margin-left: 40px;
-    }
-
-    h1 {
-        margin-left: 20px;
     }
 </style>

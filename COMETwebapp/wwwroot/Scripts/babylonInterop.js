@@ -377,7 +377,7 @@ function SetSelection(ID, isSelected) {
             let mesh = data["mesh"];
             if (mesh != undefined) {
                 if (isSelected) {
-                    HighLightLayer.addMesh(mesh, new BABYLON.Color3(1,0.3,0));
+                    HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0,0.3,0));
                 }
                 else {
                     HighLightLayer.removeMesh(mesh);

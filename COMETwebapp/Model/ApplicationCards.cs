@@ -77,7 +77,7 @@ namespace COMETwebapp.Model
             {
                 Name = "3D Viewer",
                 Color = "#76fd98",
-                Icon = "brush",
+                Icon = "eye",
                 Description = "Show 3D Viewer"
             }
         };
