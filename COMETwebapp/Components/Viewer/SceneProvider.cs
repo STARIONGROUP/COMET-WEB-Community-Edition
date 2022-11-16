@@ -109,7 +109,7 @@ namespace COMETwebapp.Components.Viewer
             { LengthShortName, typeof(SimpleQuantityKind) },
             { ThicknessShortName, typeof(SpecializedQuantityKind) },
             { ColorShortName, typeof(TextParameterType) },
-        };
+        };               
 
         /// <summary>
         /// Event for when selection has changed;

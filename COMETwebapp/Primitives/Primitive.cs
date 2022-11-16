@@ -32,6 +32,7 @@ namespace COMETwebapp.Primitives
     using COMETwebapp.Utilities;
     
     using Newtonsoft.Json;
+    using static DevExpress.Utils.HashCodeHelper;
 
     /// <summary>
     /// Represents an <see cref="CDP4Common.EngineeringModelData.ElementUsage"/> on the Scene from the selected <see cref="Option"/> and <see cref="ActualFiniteState"/>
@@ -111,6 +112,13 @@ namespace COMETwebapp.Primitives
         /// ID of the property. Used to identify the primitive between the interop C#-JS
         /// </summary>
         public Guid ID { get; } = Guid.NewGuid();
+
+
+        public void Regen()
+        {
+            string jsonPrimitive = JsonConvert.SerializeObject(this, Formatting.Indented);
+            JSInterop.Invoke("RegenMesh", jsonPrimitive);
+        }
 
         /// <summary>
         /// Sets the color of this <see cref="Primitive"/>.
