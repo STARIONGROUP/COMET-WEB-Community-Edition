@@ -152,7 +152,7 @@ namespace COMETwebapp.Primitives
         public void SetPositionFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneProvider.PositionShortName);
-            var translation = this.ParseIValueToPosition(valueSet);
+            var translation = valueSet.ParseIValueToPosition();
             this.SetTranslation(translation[0], translation[1], translation[2]);        
         }
 
@@ -162,7 +162,7 @@ namespace COMETwebapp.Primitives
         public void SetOrientationFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
-            var angles = this.ParseIValueToOrientation(valueSet);
+            var angles = valueSet.ParseIValueToEulerAngles();
             this.SetRotation(angles[0], angles[1], angles[2]);
         }
 
@@ -187,58 +187,6 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Parses an <see cref="IValueSet"/> to translations along main axes
-        /// </summary>
-        /// <param name="valueSet">the value set to parse</param>
-        /// <returns>An array of type [X,Y,Z]</returns>
-        private double[] ParseIValueToPosition(IValueSet? valueSet)
-        {
-            double x = 0, y = 0, z = 0;
-
-            if (valueSet is not null)
-            {
-                double.TryParse(valueSet.ActualValue[0], out x);
-                double.TryParse(valueSet.ActualValue[1], out y);
-                double.TryParse(valueSet.ActualValue[2], out z);
-                this.SetTranslation(x, y, z);
-            }
-            return new double[]{ x, y, z};
-        }
-        
-        /// <summary>
-        /// Parses an <see cref="IValueSet"/> to Euler Angles
-        /// </summary>
-        /// <param name="valueSet">the value set to parse</param>
-        /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        private double[] ParseIValueToOrientation(IValueSet? valueSet)
-        {
-            double[] angles = new double[3];
-
-            if (valueSet is not null)
-            {
-                double[] rotMatrix = new double[9];
-                if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
-                {
-                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
-                }
-                else
-                {
-                    for (int i = 0; i < 9; i++)
-                    {
-                        rotMatrix[i] = double.Parse(valueSet.ActualValue[i]);
-                    }
-                }
-
-                if (rotMatrix.Length == 9)
-                {
-                    angles = rotMatrix.ToEulerAngles();
-                }
-            }
-
-            return angles;
-        }
-
-        /// <summary>
         /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
         /// </summary>
         /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
@@ -249,13 +197,13 @@ namespace COMETwebapp.Primitives
 
             switch (parameterTypeShortName)
             {
-                case SceneProvider.PositionShortName: 
-                    var translation = this.ParseIValueToPosition(newValue);
+                case SceneProvider.PositionShortName:
+                    var translation = newValue.ParseIValueToPosition();
                     this.SetTranslation(translation[0], translation[1], translation[2]);
                     break;
 
                 case SceneProvider.OrientationShortName:
-                    var angles = this.ParseIValueToOrientation(newValue);
+                    var angles = newValue.ParseIValueToEulerAngles();
                     this.SetRotation(angles[0], angles[1], angles[2]);
                     break;
 
