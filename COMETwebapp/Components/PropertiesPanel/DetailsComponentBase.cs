@@ -134,21 +134,8 @@ namespace COMETwebapp.Components.PropertiesPanel
         {
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];
 
-            List<string> newValueValues = new List<string>();
-
-            for (int i = 0; i < valueSet.ActualValue.Count; i++)
-            {
-                if (i == changedIndex)
-                {
-                    newValueValues.Add((string)e.Value);
-                }
-                else
-                {
-                    newValueValues.Add(valueSet.ActualValue[i]);
-                }
-            }
-
-            ValueArray<string> newValueArray = new ValueArray<string>(newValueValues);
+            ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
+            newValueArray[changedIndex] = e.Value as string;
 
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {
