@@ -32,6 +32,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     using COMETwebapp.Utilities;
     
     using Microsoft.AspNetCore.Components;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The component used to change the orientation of the selected mesh.
