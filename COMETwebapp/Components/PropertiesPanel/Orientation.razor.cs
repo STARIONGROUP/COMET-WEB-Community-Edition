@@ -17,9 +17,12 @@
         [Parameter]
         public CompoundParameterType? OrientationParameterType { get; set; }
 
+        [Parameter]
+        public DetailsComponentBase? DetailsComponent { get; set; }
+
         public string AngleFormat { get; set; } = "Degrees";
 
-        public double[] OrientationMatrix { get; set; } 
+        public double[]? OrientationMatrix { get; set; } 
 
         public double Rx { get; set; }
         public double Ry { get; set; }
@@ -41,11 +44,14 @@
             }
         }
 
-        public void OnEulerAnglesChanged(CustomChangeEventArgs e)
+        public void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
         {
-            if(double.TryParse(e.Value.ToString(), out var value))
+            var type = e.Value.GetType();
+            var valueText = e.Value as string;
+
+            if(double.TryParse(valueText, out var value))
             {
-                switch (e.Sender)
+                switch (sender)
                 {
                     case "Rx": this.Rx = value; break;
                     case "Ry": this.Ry = value; break;
@@ -54,19 +60,16 @@
             }
 
             var eulerAngles = new double[] { this.Rx, this.Ry, this.Rz };
-            this.OrientationMatrix = eulerAngles.ToRotationMatrix(Utilities.AngleFormat.Degrees);
+
+            Enum.TryParse<Utilities.AngleFormat>(this.AngleFormat, out var angleFormat);
+            this.OrientationMatrix = eulerAngles.ToRotationMatrix(angleFormat);
 
             for(int i = 0; i< this.OrientationMatrix.Length; i++)
             {
-                this.ValueSet.ActualValue[i] = this.OrientationMatrix[i].ToString();
+                this.DetailsComponent.OnParameterValueChange(i, new ChangeEventArgs() { Value = this.OrientationMatrix[i].ToString() });
             }
 
             this.StateHasChanged();
-        }
-
-        public void OnMatrixChanged(int changedIndex, ChangeEventArgs e)
-        {
-            //Recalculate Rx,Ry,Rz
         }
 
         public void OnAngleFormatChanged(ChangeEventArgs e)
