@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.Viewer
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
@@ -35,7 +36,7 @@ namespace COMETwebapp.Components.Viewer
     using Microsoft.JSInterop;
 
     /// <summary>
-    /// Support class for the <see cref="BabylonCanvas.razor"/>
+    /// Partial class for the <see cref="BabylonCanvas"/> component
     /// </summary>
     public partial class BabylonCanvas 
     {

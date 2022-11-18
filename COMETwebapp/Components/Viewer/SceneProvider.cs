@@ -29,8 +29,6 @@ namespace COMETwebapp.Components.Viewer
     using System.Numerics;
     using System.Threading.Tasks;
 
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
