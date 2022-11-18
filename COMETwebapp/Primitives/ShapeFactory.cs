@@ -68,7 +68,7 @@ namespace COMETwebapp.Primitives
         /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
         /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
         /// <returns>The created <see cref="Primitive"/></returns>
-        public Primitive? CreatePrimitiveFromElementUsage(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
+        public Primitive? CreatePrimitiveFromElementUsage(ElementUsage? elementUsage, Option? selectedOption, List<ActualFiniteState>? states)
         {
             IValueSet? valueSet = null;
             var parameters = elementUsage.GetParametersInUse();
@@ -105,12 +105,19 @@ namespace COMETwebapp.Primitives
                 primitive.SelectedOption = selectedOption;
                 primitive.States = states;
 
-                primitive.SetColorFromElementUsageParameters();
+                foreach(var parameter in parameters)
+                {
+                    var shortName = parameter.ParameterType.ShortName;
+                    primitive.FireAction(shortName);
+                }
+
+                //primitive.SetColorFromElementUsageParameters();
+                //primitive.SetTransparencyFromElementUsageParameters();
                 
                 if (primitive is BasicPrimitive basicPrimitive)
                 {
-                    basicPrimitive.SetOrientationFromElementUsageParameters();
-                    basicPrimitive.SetPositionFromElementUsageParameters();
+                    //basicPrimitive.SetOrientationFromElementUsageParameters();
+                    //basicPrimitive.SetPositionFromElementUsageParameters();
                     basicPrimitive.SetDimensionsFromElementUsageParameters();
                 }
             }

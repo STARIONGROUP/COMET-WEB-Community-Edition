@@ -43,6 +43,7 @@ function CreateScene(engine, canvas) {
     Camera.wheelPrecision = CameraZoomSensibility;
 
     let light1 = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0), scene);
+    scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
     return scene;
 };
@@ -218,10 +219,10 @@ function InitializePrimitiveData(mesh, primitive) {
         Z: primitive.Color.Z / 255.0
     }
 
-    let babylonMaterial = CreateMaterial(primitiveColor, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
+    let babylonMaterial = CreateMaterial(primitiveColor, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, 1.0, "DefaultMaterial", Scene);
     mesh.material = babylonMaterial;
     mesh.material.useLogarithmicDepth = true;
-    mesh.renderingGroupId = primitive.RenderingGroup;
+    mesh.material.alpha = primitive.Alpha;
 
     mesh.actionManager = new BABYLON.ActionManager(Scene);
     RegisterMeshActions(mesh);
@@ -229,6 +230,11 @@ function InitializePrimitiveData(mesh, primitive) {
     //Custom properties for the object
     mesh.CometID = primitive.ID;
     mesh.Materials = [mesh.material, PickingMaterial];
+
+    if (primitive.HasHalo)
+    {
+        HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
+    }
 
     Primitives.set(primitive.ID, { "mesh": mesh, "primitive": primitive });
 }
@@ -243,12 +249,13 @@ function InitializePrimitiveData(mesh, primitive) {
  * @param {BABYLON.js scene} scene - the scene to add the material to.
  * @returns {BABYLON.js Material} 
  */
-function CreateMaterial(diffuse, specular, emissive, ambient, materialName, scene) {
+function CreateMaterial(diffuse, specular, emissive, ambient, alpha, materialName, scene) {
     let babylonMaterial = new BABYLON.StandardMaterial(materialName, scene);
     babylonMaterial.diffuseColor = new BABYLON.Color3(diffuse.X, diffuse.Y, diffuse.Z);
     babylonMaterial.specularColor = new BABYLON.Color3(specular.X, specular.Y, specular.Z);
     babylonMaterial.emissiveColor = new BABYLON.Color3(emissive.X, emissive.Y, emissive.Z);
     babylonMaterial.ambientColor = new BABYLON.Color3(ambient.X, ambient.Y, ambient.Z);
+    babylonMaterial.alpha = alpha;
     return babylonMaterial;
 }
 
@@ -274,10 +281,13 @@ function CreateSkybox(scene, size) {
  * @returns {BABYLON.js material} - the material to use.
  */
 function SetUpPickingMaterial() {
-    let pickingMaterial = new BABYLON.StandardMaterial("PickingMaterial", Scene);
-    pickingMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.35, 0.35);
-    pickingMaterial.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
-    pickingMaterial.emissiveColor = new BABYLON.Color3(0.15, 0.15, 0.15);
-    pickingMaterial.ambientColor = new BABYLON.Color3(0.5, 0.5, 0.5);
-    return pickingMaterial;
+
+    let diffuse  = { X: 0.8, Y: 0.35, Z: 0.35 };
+    let specular = { X: 1.0, Y: 1.0, Z: 1.0 };
+    let emissive = { X: 0.15, Y: 0.15, Z: 0.15 };
+    let ambient  = { X: 0.15, Y: 0.15, Z: 0.15 };
+
+    console.log(diffuse);
+
+    return CreateMaterial(diffuse, specular, emissive, ambient, 1.0, "PickingMaterial", Scene);
 }

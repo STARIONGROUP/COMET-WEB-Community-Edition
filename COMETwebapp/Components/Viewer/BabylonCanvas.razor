@@ -24,8 +24,11 @@ Copyright (c) 2022 RHEA System S.A.
     <canvas @ref="@this.CanvasReference"
             id="babylon-canvas"
             touch-action="none"
-            @onpointerdown="@OnMouseDown"
-            @onpointerup="@OnMouseUp">
+            @onpointerdown="@this.OnMouseDown"
+            @onpointerup="@this.OnMouseUp"
+            @onpointermove="@this.OnMouseMove"
+            @onkeydown="@this.OnKeyDown"
+            @onkeyup="@this.OnKeyUp">
     </canvas>
 </div>
 

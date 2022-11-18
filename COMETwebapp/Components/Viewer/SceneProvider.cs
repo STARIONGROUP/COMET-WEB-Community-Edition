@@ -91,6 +91,11 @@ namespace COMETwebapp.Components.Viewer
         public const string ColorShortName = "color";
 
         /// <summary>
+        /// Color parameter short name
+        /// </summary>
+        public const string TransparencyShortName = "alpha";
+
+        /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
         private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();           
@@ -108,7 +113,7 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// The primitive that is currently selected
         /// </summary>
-        public Primitive SelectedPrimitive { get; set; }
+        public Primitive? SelectedPrimitive { get; set; }
 
         /// <summary>
         /// Creates a new instance of class <see cref="SceneProvider"/>
@@ -116,13 +121,14 @@ namespace COMETwebapp.Components.Viewer
         public SceneProvider(IJSRuntime JsRuntime)
         {
             JSInterop.JsRuntime = JsRuntime;
+            this.SelectedPrimitive = null;
         }
 
         /// <summary>
         /// Raise the <see cref="OnSelectionChanged"/> event 
         /// </summary>
         /// <param name="primitive">The <see cref="Primitive"/> that triggers the event</param>
-        public void RaiseSelectionChanged(Primitive primitive)
+        public void RaiseSelectionChanged(Primitive? primitive)
         {
             OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(primitive));
         }
@@ -130,28 +136,28 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public async void InitCanvas(ElementReference canvas)
+        public void InitCanvas(ElementReference canvas)
         {
-            await JSInterop.Invoke("InitCanvas", canvas);
+            JSInterop.Invoke("InitCanvas", canvas);
         }
 
         /// <summary>
         /// Create the world axes and adds them to the scene
         /// </summary>
-        public async Task AddWorldAxes()
+        public void AddWorldAxes()
         {
             float size = 700;
             Line xAxis = new Line(-size, 0, 0, size, 0, 0);
             xAxis.SetColor(255, 0, 0);
-            await this.AddPrimitive(xAxis);
+            this.AddPrimitive(xAxis);
 
             Line yAxis = new Line(0, -size, 0, 0, size, 0);
             yAxis.SetColor(0, 255, 0);
-            await this.AddPrimitive(yAxis);
+            this.AddPrimitive(yAxis);
 
             Line zAxis = new Line(0, 0, -size, 0, 0, size);
             zAxis.SetColor(0, 0, 255);
-            await this.AddPrimitive(zAxis);
+            this.AddPrimitive(zAxis);
         }
 
         /// <summary>
@@ -181,33 +187,36 @@ namespace COMETwebapp.Components.Viewer
         /// Adds a primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        public async Task AddPrimitive(Primitive primitive)
+        public void AddPrimitive(Primitive primitive)
         {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             primitivesCollection.Add(primitive.ID, primitive);
-            await JSInterop.Invoke("AddPrimitive", jsonPrimitive);
+            JSInterop.Invoke("AddPrimitive", jsonPrimitive);
         }
 
         /// <summary>
         /// Adds a temporary primitive to the scene
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
-        public async Task AddTemporaryPrimitive(Primitive primitive)
-        {            
+        public void AddTemporaryPrimitive(Primitive primitive)
+        {
+            primitive.RenderingGroup = 0;
+            primitive.HasHalo = true;
+
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             TemporaryPrimitivesCollection.Add(primitive.ID, primitive);
-            await JSInterop.Invoke("AddPrimitive", jsonPrimitive);
+            JSInterop.Invoke("AddPrimitive", jsonPrimitive);
         }
 
         /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
-        public async Task ClearPrimitives()
+        public void ClearPrimitives()
         {
             var keys = primitivesCollection.Keys.ToList();
             foreach (var id in keys)
             {
-                await JSInterop.Invoke("Dispose", id);
+                JSInterop.Invoke("Dispose", id);
             }
             primitivesCollection.Clear();
         }
@@ -215,12 +224,12 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// Clears the scene deleting the temporary primitives that contains
         /// </summary>
-        public async Task ClearTemporaryPrimitives()
+        public void ClearTemporaryPrimitives()
         {
             var keys = TemporaryPrimitivesCollection.Keys.ToList();
             foreach (var id in keys)
             {
-                await JSInterop.Invoke("Dispose", id);
+                JSInterop.Invoke("Dispose", id);
             }
             TemporaryPrimitivesCollection.Clear();
         }
@@ -262,9 +271,9 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        public async void SetPrimitivePosition(Guid Id, double x, double y, double z)
+        public void SetPrimitivePosition(Guid Id, double x, double y, double z)
         {
-            await JSInterop.Invoke("SetPrimitivePosition", Id.ToString(), x, y, z);
+            JSInterop.Invoke("SetPrimitivePosition", Id.ToString(), x, y, z);
         }
 
         /// <summary>
@@ -286,9 +295,9 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="rx">rotation around X axis</param>
         /// <param name="ry">rotation around Y axis</param>
         /// <param name="rz">rotation around Z axis</param>
-        public async void SetPrimitiveRotation(Guid Id, double rx, double ry, double rz)
+        public void SetPrimitiveRotation(Guid Id, double rx, double ry, double rz)
         {
-            await JSInterop.Invoke("SetPrimitiveRotation", Id.ToString(), rx, ry, rz);
+            JSInterop.Invoke("SetPrimitiveRotation", Id.ToString(), rx, ry, rz);
         }
 
         /// <summary>
@@ -308,27 +317,27 @@ namespace COMETwebapp.Components.Viewer
         /// </summary>
         /// <param name="x">The x coordinate</param>
         /// <param name="y">The y coordinate</param>
-        public async void SetInfoPanelPosition(int x, int y)
+        public void SetInfoPanelPosition(int x, int y)
         {
-            await JSInterop.Invoke("SetPanelPosition", x, y);
+            JSInterop.Invoke("SetPanelPosition", x, y);
         }
 
         /// <summary>
         /// Sets the info panel visibility
         /// </summary>
         /// <param name="visible">true if the panel must be visible, false otherwise</param>
-        public async void SetInfoPanelVisibility(bool visible)
+        public void SetInfoPanelVisibility(bool visible)
         {
-            await JSInterop.Invoke("SetPanelVisibility", visible);
+            JSInterop.Invoke("SetPanelVisibility", visible);
         }
 
         /// <summary>
         /// Sets the info panel with the specified content
         /// </summary>
         /// <param name="info">The info that the panel must display</param>
-        public async void SetInfoPanelContent(string info)
+        public void SetInfoPanelContent(string info)
         {
-            await JSInterop.Invoke("SetPanelContent", info);
+            JSInterop.Invoke("SetPanelContent", info);
         }
 
         /// <summary>
@@ -364,17 +373,6 @@ namespace COMETwebapp.Components.Viewer
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Clears the scene selection
-        /// </summary>
-        public static void ClearSelection()
-        {
-            foreach(var primitive in primitivesCollection.Values)
-            {
-                primitive.IsSelected = false;
-            }
         }
     }
 }

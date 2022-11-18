@@ -72,6 +72,15 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public double RZ { get; protected set; }
 
+
+        public BasicPrimitive()
+        {
+            this.Actions.Add(SceneProvider.PositionShortName, this.SetPositionFromElementUsageParameters);
+            this.Actions.Add(SceneProvider.OrientationShortName, this.SetOrientationFromElementUsageParameters);
+            //this.Actions.Add(, this.SetDimensionsFromElementUsageParameters);
+        }
+
+
         /// <summary>
         /// Sets a NEW translation to the primitive. 
         /// </summary>

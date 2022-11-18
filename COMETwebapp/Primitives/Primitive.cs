@@ -29,6 +29,7 @@ namespace COMETwebapp.Primitives
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     
     using Newtonsoft.Json;
@@ -39,37 +40,37 @@ namespace COMETwebapp.Primitives
     public abstract class Primitive
     {        
         /// <summary>
-        /// Backing field for the property <see cref="IsSelected"/>
-        /// </summary>
-        private bool isSelected = false;
-
-        /// <summary>
         /// Backing field for the property <see cref="IsVisible"/>
         /// </summary>
         private bool isVisible = true;
 
         /// <summary>
-        /// Rendering group of this <see cref="Primitive"/>. Default is 0. Valid Range[0,4].
+        /// Backing field for the property <see cref="Alpha"/>
         /// </summary>
-        public int RenderingGroup { get; set; } 
+        private double alpha = 1;
+
+        /// <summary>
+        /// Rendering group of this <see cref="Primitive"/>. Default is 0. Range [0,4]
+        /// </summary>
+        public int RenderingGroup { get; set; } = 0;
 
         /// <summary>
         /// The <see cref="ElementUsage"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public ElementUsage ElementUsage { get; set; } = default!;
+        public ElementUsage? ElementUsage { get; set; } 
 
         /// <summary>
         /// The <see cref="Option"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public Option SelectedOption { get; set; } = default!;
+        public Option? SelectedOption { get; set; }
 
         /// <summary>
         /// The <see cref="ActualFiniteState"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public List<ActualFiniteState> States { get; set; } = default!;
+        public List<ActualFiniteState>? States { get; set; }
 
         /// <summary>
         /// The default color if the <see cref="Color"/> has not been defined.
@@ -77,17 +78,9 @@ namespace COMETwebapp.Primitives
         public static Vector3 DefaultColor { get; } = new Vector3(210, 210, 210);
 
         /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is selected or not
+        /// Gets or sets if the <see cref="Primitive"/> has an halo. When changed the <see cref="Primitive"/> needs a regeneration.
         /// </summary>
-        public bool IsSelected
-        {
-            get => isSelected;
-            set
-            {
-                isSelected = value;
-                JSInterop.Invoke("SetSelection", this.ID, value);
-            }
-        }
+        public bool HasHalo { get; set; }
 
         /// <summary>
         /// Gets or sets if the <see cref="Primitive"/> is visible or not
@@ -103,9 +96,22 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// The base color of the primitive
+        /// Gets or sets the base color of the primitive
         /// </summary>
         public Vector3 Color { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the alpha transparency for this primitive. Range [0,1]
+        /// </summary>
+        public double Alpha
+        {
+            get => alpha;
+            set
+            {
+                alpha = Math.Clamp(value,0,1.0);
+                JSInterop.Invoke("SetMaterialAlpha", this.ID, value);
+            }
+        }
 
         /// <summary>
         /// Property that defined the exact type of pritimive. Used in JS.
@@ -113,9 +119,27 @@ namespace COMETwebapp.Primitives
         public abstract string Type { get; protected set; }
 
         /// <summary>
-        /// ID of the property. Used to identify the primitive between the interop C#-JS
+        /// Gets ID of the property. Used to identify the primitive between the interop C#-JS
         /// </summary>
         public Guid ID { get; } = Guid.NewGuid();
+
+
+        protected Dictionary<string, Action> Actions = new Dictionary<string, Action>();
+
+
+        public Primitive()
+        {
+            this.Actions.Add(SceneProvider.ColorShortName, this.SetColorFromElementUsageParameters);
+            this.Actions.Add(SceneProvider.TransparencyShortName, this.SetTransparencyFromElementUsageParameters);
+        }
+
+        public void FireAction(string parameterTypeShortName)
+        {
+            if (this.Actions.ContainsKey(parameterTypeShortName))
+            {
+                this.Actions[parameterTypeShortName].Invoke();
+            }
+        }
 
         /// <summary>
         /// Regenerates the <see cref="Primitive"/>. This updates the scene with the data of the the <see cref="Primitive"/>
@@ -149,33 +173,28 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Gets info of the entity that can be used to show the user
-        /// </summary>
-        /// <returns>A string containing the info</returns>
-        public virtual string GetInfo()
-        {
-            return "Type: " + this.Type.ToString();
-        }
-
-        /// <summary>
         /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
         /// </summary>
         /// <returns>A collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/></returns>
         public Dictionary<ParameterBase, IValueSet> GetValueSets()
         {
             var collection = new Dictionary<ParameterBase, IValueSet>();
-            var parameters = this.ElementUsage.GetParametersInUse();
+            var parameters = this.ElementUsage?.GetParametersInUse();
             IValueSet? valueSet = null;
-
-            foreach(var parameter in parameters)
+            
+            if(parameters is not null)
             {
-                valueSet = parameter.GetValueSetFromOptionAndStates(this.SelectedOption, this.States);
-                                
-                if(valueSet is not null)
+                foreach (var parameter in parameters)
                 {
-                    collection.Add(parameter, valueSet);
+                    valueSet = parameter.GetValueSetFromOptionAndStates(this.SelectedOption, this.States);
+
+                    if (valueSet is not null)
+                    {
+                        collection.Add(parameter, valueSet);
+                    }
                 }
             }
+
 
             return collection;
         }
@@ -204,8 +223,8 @@ namespace COMETwebapp.Primitives
         /// <returns>A value set if exists, null otherwise</returns>
         protected IValueSet? GetValueSet(string parameterTypeShortName)
         {
-            var parameters = this.ElementUsage.GetParametersInUse();
-            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName, null);
+            var parameters = this.ElementUsage?.GetParametersInUse();
+            var parameter = parameters?.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName, null);
 
             if(parameter is not null)
             {
@@ -235,6 +254,24 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
+        /// Set the alpha of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        public void SetTransparencyFromElementUsageParameters()
+        {
+            IValueSet? valueSet = this.GetValueSet(SceneProvider.TransparencyShortName);
+
+            if (valueSet is not null)
+            {
+                string textTransparency = valueSet.ActualValue.First();
+                if (double.TryParse(textTransparency, out double a))
+                {
+                    this.Alpha = a;
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Creates a clone of this <see cref="Primitive"/>
         /// </summary>
         /// <returns></returns>
@@ -257,6 +294,14 @@ namespace COMETwebapp.Primitives
                     string textColor = newValue.ActualValue.First();
                     Vector3 color = textColor.ParseToColorVector();
                     this.SetColor(color);
+                    break;
+
+                case SceneProvider.TransparencyShortName:
+                    string textTransparency = newValue.ActualValue.First();
+                    if(double.TryParse(textTransparency, out double a))
+                    {
+                        this.Alpha = a;
+                    }
                     break;
             }
         }

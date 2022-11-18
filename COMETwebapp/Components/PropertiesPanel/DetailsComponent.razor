@@ -56,7 +56,7 @@ Copyright (c) 2022 RHEA System S.A.
         if (textType.ShortName == SceneProvider.ColorShortName)
         {           
             <div id="color-section">
-                <input type="color" id="color" name="color" value="@colorValue" @onchange="(e)=>this.OnParameterValueChange(0,e)">
+                <input type="color" id="color" name="color" value="@colorValue" @oninput="(e)=>this.OnParameterValueChange(0,e)">
                 <label for="color" id="color-text">Color</label>
             </div>
         }

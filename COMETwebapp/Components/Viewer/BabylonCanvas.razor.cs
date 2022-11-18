@@ -25,7 +25,6 @@
 namespace COMETwebapp.Components.Viewer
 {
     using System;
-    using System.Drawing;
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
@@ -46,12 +45,17 @@ namespace COMETwebapp.Components.Viewer
         public ElementReference CanvasReference { get; set; }
 
         /// <summary>
-        /// Tells if the mouse if pressed or not in the canvas component
+        /// Gets or sets if the mouse is down on the scene.
         /// </summary>
         public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
-        /// Invokable method from JS to get a GUID
+        /// Gets or sets if the scene is rotating.
+        /// </summary>
+        public bool IsRotating { get; private set; } = false;
+
+        /// <summary>
+        /// Invokable method from JS to get a GUID.
         /// </summary>
         /// <returns>the GUID in string format</returns>
         [JSInvokable]
@@ -92,7 +96,7 @@ namespace COMETwebapp.Components.Viewer
             if (firstRender)
             {               
                 this.SceneProvider.InitCanvas(this.CanvasReference);
-                await this.SceneProvider.AddWorldAxes();
+                this.SceneProvider.AddWorldAxes();
             }
         }
                
@@ -106,6 +110,11 @@ namespace COMETwebapp.Components.Viewer
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
         }
 
+        public void OnMouseMove(MouseEventArgs e)
+        {
+            this.IsRotating = this.IsMouseDown;
+        }
+
         /// <summary>
         /// Canvas on mouse up event
         /// </summary>
@@ -113,18 +122,45 @@ namespace COMETwebapp.Components.Viewer
         public async void OnMouseUp(MouseEventArgs e)
         {
             this.IsMouseDown = false;
-            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
-            await this.SceneProvider.ClearTemporaryPrimitives();
-            var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
-            this.SceneProvider.GetPrimitives().ForEach(x => x.IsSelected = false);
-            this.SceneProvider.SelectedPrimitive = null;
 
-            if (primitive is not null)
+            if (!this.IsRotating && e.Button != 1)
             {
-                primitive.IsSelected = true;
-                this.SceneProvider.SelectedPrimitive = primitive;
+                this.SceneProvider.ClearTemporaryPrimitives();
             }
-            this.SceneProvider.RaiseSelectionChanged(primitive);
+
+            //Left
+            if (!this.IsRotating && e.Button == 0) 
+            {
+                var primitive = await this.SceneProvider.GetPrimitiveUnderMouseAsync();
+                this.SceneProvider.SelectedPrimitive = null;
+
+                if (primitive is not null)
+                {
+                    this.SceneProvider.SelectedPrimitive = primitive;
+                }
+                this.SceneProvider.RaiseSelectionChanged(primitive);
+            }
+        }
+
+        /// <summary>
+        /// Canvas on key down event
+        /// </summary>
+        /// <param name="e">the keyboard args of the event</param>
+        public void OnKeyDown(KeyboardEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Canvas on key up event
+        /// </summary>
+        /// <param name="e">the keyboard args of the event</param>
+        public void OnKeyUp(KeyboardEventArgs e)
+        {
+            if(e.Key == "Escape")
+            {
+                this.SceneProvider.ClearTemporaryPrimitives();
+            }
         }
 
         /// <summary>
@@ -133,9 +169,9 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
-        public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
+        public void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
-            await this.SceneProvider.ClearPrimitives();
+            this.SceneProvider.ClearPrimitives();
 
             foreach (var elementUsage in elementUsages)
             {
@@ -143,7 +179,7 @@ namespace COMETwebapp.Components.Viewer
 
                 if (basicShape is not null)
                 {
-                    await this.SceneProvider.AddPrimitive(basicShape);
+                    this.SceneProvider.AddPrimitive(basicShape);
                 }
             }
         }

@@ -38,13 +38,13 @@ namespace COMETwebapp.Utilities
         /// <param name="option">the <see cref="Option"/> for that <see cref="ParameterBase"/></param>
         /// <param name="states">the states for that <see cref="ParameterBase"/></param>
         /// <returns>the value set if exists, null otherwise</returns>
-        public static IValueSet? GetValueSetFromOptionAndStates(this ParameterBase parameterBase, Option option, IEnumerable<ActualFiniteState> states)
+        public static IValueSet? GetValueSetFromOptionAndStates(this ParameterBase parameterBase, Option? option, IEnumerable<ActualFiniteState>? states)
         {
             IValueSet? valueSet = null;
 
             if (parameterBase is not null)
             {
-                if (states.Count() > 0)
+                if (states?.Count() > 0)
                 {
                     foreach (var actualFiniteState in states)
                     {

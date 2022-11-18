@@ -443,3 +443,20 @@ function SetMeshColor(ID,r,g,b) {
         }
     }
 }
+
+/**
+ * Sets the new alpha transparency for the material
+ * @param {any} ID - the ID of the primitive to change the alpha
+ * @param {any} alpha - the new alpha value
+ */
+function SetMaterialAlpha(ID,alpha) {
+    if (Primitives.size > 0) {
+        let data = Primitives.get(ID);
+        if (data != undefined) {
+            let mesh = data["mesh"];
+            if (mesh != undefined) {
+                mesh.material.alpha = alpha;
+            }
+        }
+    }
+}
