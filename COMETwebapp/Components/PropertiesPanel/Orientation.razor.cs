@@ -49,7 +49,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// Gets or sets the parent <see cref="DetailsComponent"/>
         /// </summary>
         [Parameter]
-        public DetailsComponentBase? DetailsComponent { get; set; }
+        public DetailsComponent? DetailsComponent { get; set; }
 
         /// <summary>
         /// Gets or sets the angle format. 

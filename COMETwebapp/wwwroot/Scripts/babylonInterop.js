@@ -138,7 +138,7 @@ function InitCanvas(canvas) {
         throw "The scene cannot be initialized";
     }
 
-    HighLightLayer = new BABYLON.HighlightLayer("highlightLayer", Scene);
+    HighLightLayer = new BABYLON.HighlightLayer("highlightLayer", Scene, {renderingGroupId:0});
 
     CreateSkybox(Scene, SkyboxSize);
 
@@ -412,6 +412,17 @@ function SetMeshVisibility(ID, isVisible) {
             }
         }
     }
+}
+
+/**
+ * Regenerates the mesh asociated to the primitive
+ * @param {object} Primitive - the pritimive to regenerate in JSON string format
+ */
+function RegenMesh(Primitive) {
+    console.log("Regen called");
+    let primitiveJSON = JSON.parse(Primitive);
+    Dispose(primitiveJSON.ID);
+    AddPrimitive(Primitive);
 }
 
 /**

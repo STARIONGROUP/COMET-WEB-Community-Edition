@@ -94,5 +94,32 @@ namespace COMETwebapp.Primitives
                 this.Thickness = t;
             }
         }
+
+        /// <summary>
+        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
+        /// </summary>
+        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
+        /// <param name="newValue">the new value set</param>
+        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        {
+            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
+
+            switch (parameterTypeShortName)
+            {
+                case SceneProvider.DiameterShortName:
+                    if (double.TryParse(newValue.ActualValue.First(), out double d))
+                    {
+                        this.Diameter = d;
+                    }
+                    break;
+                case SceneProvider.ThicknessShortName:
+                    if (double.TryParse(newValue.ActualValue.First(), out double t))
+                    {
+                        this.Thickness = t;
+                    }
+                    break;
+            }
+            this.Regenerate();
+        }
     }
 }

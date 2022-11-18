@@ -116,9 +116,20 @@ namespace COMETwebapp.Components.Viewer
         Task AddPrimitive(Primitive primitive);
 
         /// <summary>
+        /// Adds a temporary primitive to the scene
+        /// </summary>
+        /// <param name="primitive">the primitive to add</param>
+        Task AddTemporaryPrimitive(Primitive primitive);
+
+        /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
         Task ClearPrimitives();
+
+        /// <summary>
+        /// Clears the scene deleting the temporary primitives that contains
+        /// </summary>
+        Task ClearTemporaryPrimitives();
 
         /// <summary>
         /// Gets the primitive under the mouse cursor asyncronously

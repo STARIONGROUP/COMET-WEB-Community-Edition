@@ -220,6 +220,8 @@ function InitializePrimitiveData(mesh, primitive) {
 
     let babylonMaterial = CreateMaterial(primitiveColor, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
     mesh.material = babylonMaterial;
+    mesh.material.useLogarithmicDepth = true;
+    mesh.renderingGroupId = primitive.RenderingGroup;
 
     mesh.actionManager = new BABYLON.ActionManager(Scene);
     RegisterMeshActions(mesh);

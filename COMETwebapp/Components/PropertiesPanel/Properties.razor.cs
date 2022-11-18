@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PropertiesBase.cs" company="RHEA System S.A.">
+// <copyright file="Properties.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -30,7 +30,8 @@ namespace COMETwebapp.Components.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     
     using CDP4Dal;
-    
+
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
@@ -57,10 +58,18 @@ namespace COMETwebapp.Components.PropertiesPanel
             get => primitive;
             set
             {
-                primitive = value;
+                primitive = value.Clone();
+                this.ISceneProvider.ClearTemporaryPrimitives();
+                this.ISceneProvider.AddTemporaryPrimitive(this.primitive);
                 this.InitPanelProperties();
             }
         }
+
+        /// <summary>
+        /// The provider of the 3D Scene
+        /// </summary>
+        [Inject]
+        public ISceneProvider ISceneProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details

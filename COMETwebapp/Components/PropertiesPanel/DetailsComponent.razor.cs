@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PropertiesBase.cs" company="RHEA System S.A.">
+// <copyright file="DetailsComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -34,7 +34,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     /// <summary>
     /// The component used for showing the details of the <see cref="PrimitiveSelected"/>
     /// </summary>
-    public class DetailsComponentBase : ComponentBase
+    public partial class DetailsComponent
     {
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
@@ -61,7 +61,7 @@ namespace COMETwebapp.Components.PropertiesPanel
             set
             {
                 if (this.primitiveSelected != value)
-                {
+                {                   
                     this.primitiveSelected = value;
                     this.InitValueSet();
                 }
@@ -80,19 +80,8 @@ namespace COMETwebapp.Components.PropertiesPanel
                 if (this.parameterSelected != value)
                 {
                     this.parameterSelected = value;
-                    this.InitValueSet();
                 }
             }
-        }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.InitValueSet();
         }
 
         /// <summary>

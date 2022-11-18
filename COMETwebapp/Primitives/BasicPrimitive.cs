@@ -30,6 +30,7 @@ namespace COMETwebapp.Primitives
     using COMETwebapp.Components.Viewer;
 
     using COMETwebapp.Utilities;
+    using System.Globalization;
 
     /// <summary>
     /// Class fot primitives that can be positioned and rotated in space
