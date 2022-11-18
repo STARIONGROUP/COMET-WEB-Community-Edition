@@ -120,9 +120,12 @@ namespace COMETwebapp.Components.PropertiesPanel
             {
                 switch (sender)
                 {
-                    case "Rx": this.Rx = value; break;
-                    case "Ry": this.Ry = value; break;
-                    case "Rz": this.Rz = value; break;
+                    case "Rx": this.Rx = value; 
+                        break;
+                    case "Ry": this.Ry = value; 
+                        break;
+                    case "Rz": this.Rz = value; 
+                        break;
                 }
             }
 
@@ -133,7 +136,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 
             for(int i = 0; i< this.OrientationMatrix.Length; i++)
             {
-                this.DetailsComponent.OnParameterValueChange(i, new ChangeEventArgs() { Value = this.OrientationMatrix[i].ToString() });
+                this.DetailsComponent.ParameterChanged(i, this.OrientationMatrix[i].ToString());
             }
 
             this.StateHasChanged();
