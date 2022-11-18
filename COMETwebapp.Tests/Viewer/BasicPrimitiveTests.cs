@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PrimitiveTests.cs" company="RHEA System S.A.">
+// <copyright file="BasicPrimitiveTests.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -27,8 +27,6 @@ namespace COMETwebapp.Tests.Viewer
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Numerics;
 
     using Bunit;
 
@@ -40,7 +38,6 @@ namespace COMETwebapp.Tests.Viewer
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-    using COMETwebapp.Utilities;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -50,23 +47,21 @@ namespace COMETwebapp.Tests.Viewer
 
     using TestContext = Bunit.TestContext;
 
+
     /// <summary>
-    /// Primitives tests that verifies the correct behavior of JSInterop
+    /// Basic Primitives tests that verifies the correct behavior of JSInterop
     /// </summary>
     [TestFixture]
-    public class PrimitivesTests
+    public class BasicPrimitiveTests
     {
         private TestContext context;
         private List<BasicPrimitive> positionables;
-        private List<Primitive> primitives;
         private ElementDefinition elementDef;
         private ElementUsage elementUsage;
         private readonly Uri uri = new Uri("http://test.com");
         private DomainOfExpertise domain;
         private IShapeFactory shapeFactory;
         private Option option;
-
-        private double delta = 0.001;
 
         [SetUp]
         public void SetUp()
@@ -94,10 +89,6 @@ namespace COMETwebapp.Tests.Viewer
             this.positionables.Add(new Sphere(1));
             this.positionables.Add(new Torus(2, 1));
 
-            this.primitives = new List<Primitive>(this.positionables);
-            this.primitives.Add(new Line(new System.Numerics.Vector3(), new System.Numerics.Vector3(1, 1, 1)));
-            this.primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
-
             this.option = new Option(Guid.NewGuid(), cache, this.uri);
 
             var shapeKindParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
@@ -109,129 +100,112 @@ namespace COMETwebapp.Tests.Viewer
             var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = shapeKindParameterType };
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
-            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
             {
-                Manual = new ValueArray<string>(new List<string> { "255:155:25" }),
+                Manual = new ValueArray<string>(new List<string> { "1", "1", "1" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Color", ShortName = SceneProvider.ColorShortName, };
-            var colorParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = colorParameterType };
-            colorParameter.ValueSet.Add(colorParameterValueSet);
+            var positionParameterType = new CompoundParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Coordinates", ShortName = SceneProvider.PositionShortName, };
+            var positionParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = positionParameterType };
+            positionParameter.ValueSet.Add(positionParameterValueSet);
+
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "0.5", "0", "0.8660254", "0", "1", "0", "-0.8660254", "0", "0.5" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+            };
+            var orientationParameterType = new ArrayParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = SceneProvider.OrientationShortName, };
+            var orientationParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = orientationParameterType };
+            orientationParameter.ValueSet.Add(orientationParameterValueSet);
+
 
             this.elementDef = new ElementDefinition(Guid.NewGuid(), cache, this.uri) { Owner = this.domain };
             this.elementUsage = new ElementUsage(Guid.NewGuid(), cache, this.uri) { ElementDefinition = this.elementDef, Owner = this.domain };
             this.elementDef.ContainedElement.Add(this.elementUsage);
             this.elementDef.Parameter.Add(shapeKindParameter);
-            this.elementDef.Parameter.Add(colorParameter);
+            this.elementDef.Parameter.Add(positionParameter);
+            this.elementDef.Parameter.Add(orientationParameter);
         }
 
         [Test]
-        public void VerifyPrimitiveData()
-        {
-            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            Assert.IsNotNull(basicShape);
-            Assert.IsNotNull(basicShape.ElementUsage);
-            Assert.IsNotNull(basicShape.SelectedOption);
-            Assert.IsNotNull(basicShape.States);
-            Assert.IsTrue(basicShape.Type != string.Empty);
-        }
-
-        [Test]
-        public void VerifyThatPrimitiveCanBeCreatedByElementUsage()
+        public void VerifyThatPrimitiveCanBePositionedByElementUsage()
         {
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Assert.IsNotNull(basicShape);
             Assert.IsTrue(basicShape is BasicPrimitive);
+
+            var basicPrim = basicShape as BasicPrimitive;
+
+            Assert.AreNotEqual(0.0, basicPrim.X);
+            Assert.AreNotEqual(0.0, basicPrim.Y);
+            Assert.AreNotEqual(0.0, basicPrim.Z);
         }
 
         [Test]
-        public void VerifyThatPrimitivesHaveValidPropertyName()
+        public void VerifyThatPrimitiveCanBeRotatedByElementUsage()
         {
-            foreach (var primitive in this.primitives)
-            {
-                Assert.AreEqual(primitive.GetType().Name, primitive.Type);
-            }
-
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            var parameters = basicShape.ElementUsage.GetParametersInUse();
-            Assert.IsNotNull(parameters);
-            Assert.IsTrue(parameters.Count() > 0);
-            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName);
-            Assert.IsNotNull(parameter);
+            Assert.IsNotNull(basicShape);
+            Assert.IsTrue(basicShape is BasicPrimitive);
+
+            var basicPrim = basicShape as BasicPrimitive;
+
+            Assert.AreEqual(0.0, basicPrim.RX);
+            Assert.AreNotEqual(0.0, basicPrim.RY);
+            Assert.AreEqual(0.0, basicPrim.RZ);
         }
 
         [Test]
-        public void VerifyThatValueSetsCanBeRetrievedFromPrimitive()
+        public void VerifyThatPrimitivesCanBeTranslated()
         {
-            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            var valueSets = basicShape.GetValueSets();
-            Assert.IsNotNull(valueSets);
-            Assert.IsTrue(valueSets.Count > 0);
             foreach (var primitive in this.positionables)
             {
-                Assert.AreEqual(0.0, primitive.X, delta);
-                Assert.AreEqual(0.0, primitive.Y, delta);
-                Assert.AreEqual(0.0, primitive.Z, delta);
+                Assert.AreEqual(0.0, primitive.X);
+                Assert.AreEqual(0.0, primitive.Y);
+                Assert.AreEqual(0.0, primitive.Z);
 
-                primitive.SetTranslation(1.0, 1.0, 1.0);
+                primitive.SetTranslation(1, 1, 1);
 
-                Assert.AreEqual(1.0, primitive.X, delta);
-                Assert.AreEqual(1.0, primitive.Y, delta);
-                Assert.AreEqual(1.0, primitive.Z, delta);
+                Assert.AreEqual(1.0, primitive.X);
+                Assert.AreEqual(1.0, primitive.Y);
+                Assert.AreEqual(1.0, primitive.Z);
             }
-
         }
 
         [Test]
-        public void VerifyThatCanGetValueSets()
+        public void VerifyThatPrimitivesCanBeRotated()
         {
-            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            var valueSets = basicShape.GetValueSets();
-            Assert.IsNotNull(valueSets);
-        }
+            foreach (var primitive in this.positionables)
+            {
+                Assert.AreEqual(0.0, primitive.RX);
+                Assert.AreEqual(0.0, primitive.RY);
+                Assert.AreEqual(0.0, primitive.RZ);
 
-        [Test]
-        public void VerifyThatColorCanBeSetFromElementUsage()
-        {
-            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            basicShape.SetColorFromElementUsageParameters();
-            Assert.AreNotEqual(Primitive.DefaultColor, basicShape.Color);
-            Assert.AreEqual(new Vector3(255, 155, 25), basicShape.Color);
-        }
+                primitive.SetRotation(1, 1, 1);
 
-        [Test]
-        public void VerifyThatColorCanBeUpdated()
-        {
-
-            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            Mock<IValueSet> valueSet = new Mock<IValueSet>();
-            ValueArray<string> newValueArray = new ValueArray<string>(new List<string>() { "#CCCDDD" });
-            valueSet.Setup(x => x.ActualValue).Returns(newValueArray);
-
-            var colorBefore = basicShape.Color;
-
-            basicShape.UpdatePropertyWithParameterData(SceneProvider.ColorShortName, valueSet.Object);
-
-            Assert.AreNotEqual(colorBefore, basicShape.Color);
+                Assert.AreEqual(1.0, primitive.RX);
+                Assert.AreEqual(1.0, primitive.RY);
+                Assert.AreEqual(1.0, primitive.RZ);
+            }
         }
 
         [Test]
         public void VerifyThatTransformationsCanBeReseted()
         {
-            var cube = new Cube(1.0, 1.0, 1.0);
-            Assert.AreEqual(0.0, cube.X, delta);
-            Assert.AreEqual(0.0, cube.Y, delta);
-            Assert.AreEqual(0.0, cube.Z, delta);
+            var cube = new Cube(1, 1, 1);
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
 
-            cube.SetTranslation(1.0, 2.0, 3.0);
-            Assert.AreEqual(1.0, cube.X, delta);
-            Assert.AreEqual(2.0, cube.Y, delta);
-            Assert.AreEqual(3.0, cube.Z, delta);
+            cube.SetTranslation(1, 2, 3);
+            Assert.AreEqual(1.0, cube.X);
+            Assert.AreEqual(2.0, cube.Y);
+            Assert.AreEqual(3.0, cube.Z);
 
             cube.ResetTransformations();
-            Assert.AreEqual(0.0, cube.X, delta);
-            Assert.AreEqual(0.0, cube.Y, delta);
-            Assert.AreEqual(0.0, cube.Z, delta);
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
         }
     }
 }

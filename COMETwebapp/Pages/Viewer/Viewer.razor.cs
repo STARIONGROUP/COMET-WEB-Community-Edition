@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ViewerBase.cs" company="RHEA System S.A.">
+// <copyright file="Viewer.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -158,8 +158,7 @@ namespace COMETwebapp.Pages.Viewer
 
                 this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
                 {
-                    TreeNode node = null; 
-
+                    TreeNode node = null;
                     if (args.Primitive is not null)
                     {
                         node = this.RootNode.GetFlatListOfDescendants().FirstOrDefault(x => x.Name == args.Primitive.ElementUsage.Name);
@@ -339,6 +338,7 @@ namespace COMETwebapp.Pages.Viewer
         public void TreeSelectionChanged(TreeNode node)
         {
             this.UpdateTreeUI(node);
+            this.CanvasComponentReference.SceneProvider.ClearTemporaryPrimitives();
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
             primitivesOnScene.ForEach(x => x.IsSelected = false);
 
