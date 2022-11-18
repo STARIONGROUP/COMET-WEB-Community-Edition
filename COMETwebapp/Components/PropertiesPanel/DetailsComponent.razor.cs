@@ -144,6 +144,7 @@ namespace COMETwebapp.Components.PropertiesPanel
                 var clonedValueSetBase = parameterValueSetBase.Clone(false);
                 clonedValueSetBase.Manual = newValueArray;
                 this.ValueSetsCollection[this.ParameterSelected] = clonedValueSetBase;
+                //TODO: this should only be called if the validation succeed 
                 this.PrimitiveSelected.UpdatePropertyWithParameterData(this.ParameterSelected.ParameterType.ShortName, clonedValueSetBase);
             }
         }

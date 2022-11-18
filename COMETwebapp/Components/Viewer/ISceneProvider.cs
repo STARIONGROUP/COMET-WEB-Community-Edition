@@ -95,7 +95,7 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// Create the world axes and adds them to the scene
         /// </summary>
-        Task AddWorldAxes();
+        void AddWorldAxes();
 
         /// <summary>
         /// Get the canvas that contains the scene size
@@ -113,23 +113,23 @@ namespace COMETwebapp.Components.Viewer
         /// Adds a primitive to the scene
         /// </summary>
         /// <param name="primitive">The primitive to add</param>
-        Task AddPrimitive(Primitive primitive);
+        void AddPrimitive(Primitive primitive);
 
         /// <summary>
         /// Adds a temporary primitive to the scene
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
-        Task AddTemporaryPrimitive(Primitive primitive);
+        void AddTemporaryPrimitive(Primitive primitive);
 
         /// <summary>
         /// Clears the scene deleting the primitives that contains
         /// </summary>
-        Task ClearPrimitives();
+        void ClearPrimitives();
 
         /// <summary>
         /// Clears the scene deleting the temporary primitives that contains
         /// </summary>
-        Task ClearTemporaryPrimitives();
+        void ClearTemporaryPrimitives();
 
         /// <summary>
         /// Gets the primitive under the mouse cursor asyncronously

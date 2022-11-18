@@ -52,7 +52,7 @@ namespace COMETwebapp
         /// Invoke a void method from javascript
         /// </summary>
         /// <param name="methodName">The name of the method in the javascript file</param>
-        public static async Task Invoke(string methodName)
+        public static async void Invoke(string methodName)
         {
             await JsRuntime.InvokeVoidAsync(methodName);
         }
@@ -62,7 +62,7 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="methodName">The name of the method in the javascript file</param>
         /// <param name="args">The arguments expected for the method</param>
-        public static async Task Invoke(string methodName, params object[] args)
+        public static async void Invoke(string methodName, params object[] args)
         {
             await JsRuntime.InvokeVoidAsync(methodName, args);
         }
@@ -91,3 +91,4 @@ namespace COMETwebapp
         }
     }
 }
+

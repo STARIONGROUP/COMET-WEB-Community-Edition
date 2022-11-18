@@ -34,13 +34,13 @@ namespace COMETwebapp.Model
         /// <summary>
         /// The <see cref="Primitive"/> that triggers the selection changed
         /// </summary>
-        public Primitive Primitive { get; }
+        public Primitive? Primitive { get; }
 
         /// <summary>
         /// Creates a new instance of type <see cref="OnSelectionChangedEventArgs"/>
         /// </summary>
         /// <param name="primitive">the primitive that has been selected</param>
-        public OnSelectionChangedEventArgs(Primitive primitive)
+        public OnSelectionChangedEventArgs(Primitive? primitive)
         {
             this.Primitive = primitive;
         }

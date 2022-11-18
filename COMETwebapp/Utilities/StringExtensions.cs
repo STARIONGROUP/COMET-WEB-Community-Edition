@@ -99,9 +99,9 @@ namespace COMETwebapp.Utilities
             {
                 var textSplitted = text.Split(':');
 
-                int.TryParse(textSplitted[0], out var r);
-                int.TryParse(textSplitted[1], out var g);
-                int.TryParse(textSplitted[2], out var b);
+                _ = int.TryParse(textSplitted[0], out var r);
+                _ = int.TryParse(textSplitted[1], out var g);
+                _ = int.TryParse(textSplitted[2], out var b);
 
                 color = Color.FromArgb(r, g, b);
             }

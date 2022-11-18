@@ -207,5 +207,43 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(0.0, cube.Y);
             Assert.AreEqual(0.0, cube.Z);
         }
+
+        [Test]
+        public void VerifyThatTranslationCanBeAdded()
+        {
+            var cube = new Cube(1, 1, 1);
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
+
+            cube.AddTranslation(1, 2, 3);
+            Assert.AreEqual(1.0, cube.X);
+            Assert.AreEqual(2.0, cube.Y);
+            Assert.AreEqual(3.0, cube.Z);
+
+            cube.AddTranslation(1, 2, 3);
+            Assert.AreEqual(2.0, cube.X);
+            Assert.AreEqual(4.0, cube.Y);
+            Assert.AreEqual(6.0, cube.Z);
+        }
+
+        [Test]
+        public void VerifyThatRotationCanBeAdded()
+        {
+            var cube = new Cube(1, 1, 1);
+            Assert.AreEqual(0.0, cube.RX);
+            Assert.AreEqual(0.0, cube.RY);
+            Assert.AreEqual(0.0, cube.RZ);
+
+            cube.AddRotation(1, 2, 3);
+            Assert.AreEqual(1.0, cube.RX);
+            Assert.AreEqual(2.0, cube.RY);
+            Assert.AreEqual(3.0, cube.RZ);
+
+            cube.AddRotation(1, 2, 3);
+            Assert.AreEqual(2.0, cube.RX);
+            Assert.AreEqual(4.0, cube.RY);
+            Assert.AreEqual(6.0, cube.RZ);
+        }
     }
 }

@@ -59,11 +59,6 @@ namespace COMETwebapp.Pages.Viewer
         public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
 
         /// <summary>
-        /// All the <see cref="ElementUsage"/> that are on the 3D Scene
-        /// </summary>
-        public List<ElementUsage> ElementUsagesOnScreen { get; set; } = new List<ElementUsage>();
-
-        /// <summary>
         /// Name of the option selected
         /// </summary>
         public string? OptionSelected { get; set; }
@@ -77,7 +72,7 @@ namespace COMETwebapp.Pages.Viewer
         /// Injected property to get access to <see cref="ISessionAnchor"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
+        public ISessionAnchor? SessionAnchor { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IIterationService"/>
@@ -340,7 +335,6 @@ namespace COMETwebapp.Pages.Viewer
             this.UpdateTreeUI(node);
             this.CanvasComponentReference.SceneProvider.ClearTemporaryPrimitives();
             var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
-            primitivesOnScene.ForEach(x => x.IsSelected = false);
 
             var nodesToSelect = node.GetFlatListOfDescendants();
             nodesToSelect.Add(node);
@@ -351,7 +345,6 @@ namespace COMETwebapp.Pages.Viewer
 
                 if (selectedPrimitive is not null)
                 {
-                    selectedPrimitive.IsSelected = true;
                     this.CanvasComponentReference.SceneProvider.SelectedPrimitive = selectedPrimitive;
                 }
             }
