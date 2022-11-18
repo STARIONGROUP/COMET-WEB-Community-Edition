@@ -115,7 +115,7 @@ else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundT
 
     if (compoundType.ShortName == SceneProvider.OrientationShortName)
     {
-        <Orientation OrientationParameterType="compoundType" DetailsComponent="this"/>
+        <Orientation OrientationParameterType="compoundType" DetailsComponent="this" />
     }
     else
     {
@@ -124,10 +124,12 @@ else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundT
             var index = i;
             var comp = compoundType.Component[i];
 
-        <div class="parameter-row">
-            <p>@comp.ShortName</p>
-            <BSInput InputType="InputType.Text" Value="valueSet.ActualValue[i]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(index,e)" />
-            <p>@comp.Scale.ShortName</p>
-        </div>
+
+            <div class="parameter-row">
+                <p>@comp.ShortName</p>
+                <BSInput InputType="InputType.Text" Value="valueSet.ActualValue[i]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(index,e)" />
+                <p>@comp.Scale.ShortName</p>
+            </div>
+        }
     }
 }
