@@ -45,34 +45,52 @@ namespace COMETwebapp.Tests.Viewer
         {
             identity = new double[] { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
             matrix1 = new double[]  { 0.5, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.5 };
-            matrix2 = new double[]  { 0.3894127, -0.4119121, 0.8238241, 0.4119121,  0.8778825,  0.2442349, -0.8238241,  0.2442349,  0.5115302  };
+            matrix2 = new double[]  { 0.6830127, 0.0540839, 0.7284014, 0.1830127,  0.9527706,  -0.2423521, -0.7071068,  0.2988362,  0.6408564  };
         }
 
         [Test]
         public void VerifyThatIdentityDontChangeOrientation()
         {
             var angles = identity.ToEulerAngles();
-            Assert.AreEqual(0, angles[0], delta);
-            Assert.AreEqual(0, angles[1], delta);
-            Assert.AreEqual(0, angles[2], delta);
+            Assert.AreEqual(0.0, angles[0], delta);
+            Assert.AreEqual(0.0, angles[1], delta);
+            Assert.AreEqual(0.0, angles[2], delta);
         }
 
         [Test]
         public void VerifyThatAnglesCanBeExtractedFromMatrix1()
         {
             var angles = matrix1.ToEulerAngles();
-            Assert.AreEqual(0, angles[0], delta);
+            Assert.AreEqual(0.0, angles[0], delta);
             Assert.AreEqual(1.0471976, angles[1], delta);
-            Assert.AreEqual(0, angles[2], delta);
+            Assert.AreEqual(0.0, angles[2], delta);
         }
 
         [Test]
         public void VerifyThatAnglesCanBeExtractedFromMatrix2()
         {
             var angles = matrix2.ToEulerAngles();
-            Assert.AreEqual(0.4454531, angles[0], delta);
-            Assert.AreEqual(0.9681246, angles[1], delta);
-            Assert.AreEqual(0.8134685, angles[2], delta);
+            Assert.AreEqual(0.4363323, angles[0], delta);
+            Assert.AreEqual(0.7853981, angles[1], delta);
+            Assert.AreEqual(0.2617994, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatAnglesCanBeExtractedFromMatrix3()
+        {
+            var angles = matrix1.ToEulerAngles(AngleFormat.Degrees);
+            Assert.AreEqual(0.0, angles[0], delta);
+            Assert.AreEqual(60.0, angles[1], delta);
+            Assert.AreEqual(0.0, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatAnglesCanBeExtractedFromMatrix4()
+        {
+            var angles = matrix2.ToEulerAngles(AngleFormat.Degrees);
+            Assert.AreEqual(25.0, angles[0], delta);
+            Assert.AreEqual(45.0, angles[1], delta);
+            Assert.AreEqual(15.0, angles[2], delta);
         }
     }
 }

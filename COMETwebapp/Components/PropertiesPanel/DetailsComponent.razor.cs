@@ -121,23 +121,23 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <param name="e">Supplies information about an change event that is being raised.</param>
         public void OnParameterValueChange(int changedIndex, ChangeEventArgs e)
         {
+            //TODO: Validate data 
+            this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);
+            
+        }
+
+        /// <summary>
+        /// Sets that a parameter has changed in the value array
+        /// </summary>
+        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
+        /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
+        public void ParameterChanged(int changedIndex, string value)
+        {
+
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];
 
-            List<string> newValueValues = new List<string>();
-
-            for (int i = 0; i < valueSet.ActualValue.Count; i++)
-            {
-                if (i == changedIndex)
-                {
-                    newValueValues.Add((string)e.Value);
-                }
-                else
-                {
-                    newValueValues.Add(valueSet.ActualValue[i]);
-                }
-            }
-
-            ValueArray<string> newValueArray = new ValueArray<string>(newValueValues);
+            ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
+            newValueArray[changedIndex] = value;
 
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {

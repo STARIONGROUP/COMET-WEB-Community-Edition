@@ -153,7 +153,7 @@ namespace COMETwebapp.Primitives
         public void SetPositionFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneProvider.PositionShortName);
-            var translation = this.ParseIValueToPosition(valueSet);
+            var translation = valueSet.ParseIValueToPosition();
             this.SetTranslation(translation[0], translation[1], translation[2]);        
         }
 
@@ -163,55 +163,28 @@ namespace COMETwebapp.Primitives
         public void SetOrientationFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
-            var angles = this.ParseIValueToEulerAngles(valueSet);
+            var angles = valueSet.ParseIValueToEulerAngles();
             this.SetRotation(angles[0], angles[1], angles[2]);
         }
 
         /// <summary>
-        /// Parses an <see cref="IValueSet"/> to translations along main axes
+        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
         /// </summary>
-        /// <param name="valueSet">the value set to parse</param>
-        /// <returns>An array of type [X,Y,Z]</returns>
-        private double[] ParseIValueToPosition(IValueSet? valueSet)
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetTranslationParameter()
         {
-            double x = 0, y = 0, z = 0;
-
-            if (valueSet is not null)
-            {
-                double.TryParse(valueSet.ActualValue[0], out x);
-                double.TryParse(valueSet.ActualValue[1], out y);
-                double.TryParse(valueSet.ActualValue[2], out z);
-                this.SetTranslation(x, y, z);
-            }
-            return new double[]{ x, y, z};
+            var param = this.ElementUsage.GetParametersInUse();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
         }
-        
+
         /// <summary>
-        /// Parses an <see cref="IValueSet"/> to Euler Angles
+        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
         /// </summary>
-        /// <param name="valueSet">the value set to parse</param>
-        /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        private double[] ParseIValueToEulerAngles(IValueSet? valueSet)
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetOrientationParameter()
         {
-            double[] angles = new double[3];
-
-            if (valueSet is not null)
-            {
-                double[] rotMatrix = new double[9];
-
-                for (int i = 0; i < 9; i++)
-                {
-                    double.TryParse(valueSet.ActualValue[i], NumberStyles.Any, CultureInfo.InvariantCulture , out double value);
-                    rotMatrix[i] = value;
-                }
-
-                if (rotMatrix.Length == 9)
-                {
-                    angles = rotMatrix.ToEulerAngles();
-                }
-            }
-
-            return angles;
+            var param = this.ElementUsage.GetParametersInUse();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
         }
 
         /// <summary>
@@ -225,13 +198,13 @@ namespace COMETwebapp.Primitives
 
             switch (parameterTypeShortName)
             {
-                case SceneProvider.PositionShortName: 
-                    var translation = this.ParseIValueToPosition(newValue);
+                case SceneProvider.PositionShortName:
+                    var translation = newValue.ParseIValueToPosition();
                     this.SetTranslation(translation[0], translation[1], translation[2]);
                     break;
 
                 case SceneProvider.OrientationShortName:
-                    var angles = this.ParseIValueToEulerAngles(newValue);
+                    var angles = newValue.ParseIValueToEulerAngles();
                     this.SetRotation(angles[0], angles[1], angles[2]);
                     break;
 
