@@ -415,6 +415,17 @@ function SetMeshVisibility(ID, isVisible) {
 }
 
 /**
+ * Regenerates the mesh asociated to the primitive
+ * @param {object} Primitive - the pritimive to regenerate in JSON string format
+ */
+function RegenMesh(Primitive) {
+    console.log("Regen called");
+    let primitiveJSON = JSON.parse(Primitive);
+    Dispose(primitiveJSON.ID);
+    AddPrimitive(Primitive);
+}
+
+/**
  * Sets the mesh color
  * @param {any} ID - the ID of the primitive to change the color
  * @param {any} r - the red component in range [0,1]

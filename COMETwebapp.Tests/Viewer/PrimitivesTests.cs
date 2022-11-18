@@ -103,7 +103,7 @@ namespace COMETwebapp.Tests.Viewer
                 Manual = new ValueArray<string>(new List<string> { "box" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName= SceneProvider.ShapeKindShortName, };
+            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName = SceneProvider.ShapeKindShortName, };
             var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = shapeKindParameterType };
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
@@ -134,12 +134,12 @@ namespace COMETwebapp.Tests.Viewer
             Assert.IsTrue(basicShape.Type != string.Empty);
         }
 
-
         [Test]
         public void VerifyThatPrimitiveCanBeCreatedByElementUsage()
         {
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Assert.IsNotNull(basicShape);
+            Assert.IsTrue(basicShape is BasicPrimitive);
         }
 
         [Test]
@@ -149,11 +149,7 @@ namespace COMETwebapp.Tests.Viewer
             {
                 Assert.AreEqual(primitive.GetType().Name, primitive.Type);
             }
-        }
 
-        [Test]
-        public void VerifyThatParametersCanBeRetrieved()
-        {
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             var parameters = basicShape.ElementUsage.GetParametersInUse();
             Assert.IsNotNull(parameters);
@@ -169,23 +165,45 @@ namespace COMETwebapp.Tests.Viewer
             var valueSets = basicShape.GetValueSets();
             Assert.IsNotNull(valueSets);
             Assert.IsTrue(valueSets.Count > 0);
+            foreach (var primitive in this.positionables)
+            {
+                Assert.AreEqual(0.0, primitive.X);
+                Assert.AreEqual(0.0, primitive.Y);
+                Assert.AreEqual(0.0, primitive.Z);
+
+                primitive.SetTranslation(1.0, 1.0, 1.0);
+
+                Assert.AreEqual(1.0, primitive.X);
+                Assert.AreEqual(1.0, primitive.Y);
+                Assert.AreEqual(1.0, primitive.Z);
+            }
+
+        }
+
+        [Test]
+        public void VerifyThatCanGetValueSets()
+        {
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var valueSets = basicShape.GetValueSets();
+            Assert.IsNotNull(valueSets);
         }
 
         [Test]
         public void VerifyThatColorCanBeSetFromElementUsage()
         {
-            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());            
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             basicShape.SetColorFromElementUsageParameters();
             Assert.AreNotEqual(Primitive.DefaultColor, basicShape.Color);
-            Assert.AreEqual(new Vector3(255,155,25),basicShape.Color);
+            Assert.AreEqual(new Vector3(255, 155, 25), basicShape.Color);
         }
 
         [Test]
-        public void VerifyThatAPropertyCanBeUpdatedWithParameterData()
+        public void VerifyThatColorCanBeUpdated()
         {
+
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Mock<IValueSet> valueSet = new Mock<IValueSet>();
-            ValueArray<string> newValueArray = new ValueArray<string>(new List<string>() {"#CCCDDD"});
+            ValueArray<string> newValueArray = new ValueArray<string>(new List<string>() { "#CCCDDD" });
             valueSet.Setup(x => x.ActualValue).Returns(newValueArray);
 
             var colorBefore = basicShape.Color;
@@ -193,6 +211,25 @@ namespace COMETwebapp.Tests.Viewer
             basicShape.UpdatePropertyWithParameterData(SceneProvider.ColorShortName, valueSet.Object);
 
             Assert.AreNotEqual(colorBefore, basicShape.Color);
+        }
+
+        [Test]
+        public void VerifyThatTransformationsCanBeReseted()
+        {
+            var cube = new Cube(1.0, 1.0, 1.0);
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
+
+            cube.SetTranslation(1.0, 2.0, 3.0);
+            Assert.AreEqual(1.0, cube.X);
+            Assert.AreEqual(2.0, cube.Y);
+            Assert.AreEqual(3.0, cube.Z);
+
+            cube.ResetTransformations();
+            Assert.AreEqual(0.0, cube.X);
+            Assert.AreEqual(0.0, cube.Y);
+            Assert.AreEqual(0.0, cube.Z);
         }
     }
 }

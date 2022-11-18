@@ -57,19 +57,19 @@ namespace COMETwebapp.Primitives
         /// The <see cref="ElementUsage"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public ElementUsage ElementUsage { get; set; } 
+        public ElementUsage ElementUsage { get; set; } = default!;
 
         /// <summary>
         /// The <see cref="Option"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public Option SelectedOption { get; set; }
+        public Option SelectedOption { get; set; } = default!;
 
         /// <summary>
         /// The <see cref="ActualFiniteState"/> for which the <see cref="Primitive"/> was created.
         /// </summary>
         [JsonIgnore]
-        public List<ActualFiniteState> States { get; set; }
+        public List<ActualFiniteState> States { get; set; } = default!;
 
         /// <summary>
         /// The default color if the <see cref="Color"/> has not been defined.
@@ -116,6 +116,15 @@ namespace COMETwebapp.Primitives
         /// ID of the property. Used to identify the primitive between the interop C#-JS
         /// </summary>
         public Guid ID { get; } = Guid.NewGuid();
+
+        /// <summary>
+        /// Regenerates the <see cref="Primitive"/>. This updates the scene with the data of the the <see cref="Primitive"/>
+        /// </summary>
+        public void Regenerate()
+        {
+            string jsonPrimitive = JsonConvert.SerializeObject(this, Formatting.Indented);
+            JSInterop.Invoke("RegenMesh", jsonPrimitive);
+        }
 
         /// <summary>
         /// Sets the color of this <see cref="Primitive"/>.
