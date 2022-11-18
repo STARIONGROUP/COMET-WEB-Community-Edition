@@ -26,7 +26,6 @@ namespace COMETwebapp.Components.Viewer
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.Numerics;
     using System.Threading.Tasks;
 
@@ -94,22 +93,7 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
-        private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();
-
-        /// <summary>
-        /// Collection for transform from a parameter short name to a parameter type
-        /// </summary>
-        public static Dictionary<string, Type> ParameterShortNameToTypeDictionary = new Dictionary<string, Type>()
-        {
-            { ShapeKindShortName, typeof(EnumerationParameterType) },
-            { OrientationShortName, typeof(ArrayParameterType) },
-            { PositionShortName, typeof(CompoundParameterType) },
-            { WidthShortName, typeof(SpecializedQuantityKind) },
-            { HeightShortName, typeof(SpecializedQuantityKind) },
-            { LengthShortName, typeof(SimpleQuantityKind) },
-            { ThicknessShortName, typeof(SpecializedQuantityKind) },
-            { ColorShortName, typeof(TextParameterType) },
-        };
+        private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();           
 
         /// <summary>
         /// Event for when selection has changed;
