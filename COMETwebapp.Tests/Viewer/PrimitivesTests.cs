@@ -66,6 +66,8 @@ namespace COMETwebapp.Tests.Viewer
         private IShapeFactory shapeFactory;
         private Option option;
 
+        private double delta = 0.001;
+
         [SetUp]
         public void SetUp()
         {
@@ -167,15 +169,15 @@ namespace COMETwebapp.Tests.Viewer
             Assert.IsTrue(valueSets.Count > 0);
             foreach (var primitive in this.positionables)
             {
-                Assert.AreEqual(0.0, primitive.X);
-                Assert.AreEqual(0.0, primitive.Y);
-                Assert.AreEqual(0.0, primitive.Z);
+                Assert.AreEqual(0.0, primitive.X, delta);
+                Assert.AreEqual(0.0, primitive.Y, delta);
+                Assert.AreEqual(0.0, primitive.Z, delta);
 
                 primitive.SetTranslation(1.0, 1.0, 1.0);
 
-                Assert.AreEqual(1.0, primitive.X);
-                Assert.AreEqual(1.0, primitive.Y);
-                Assert.AreEqual(1.0, primitive.Z);
+                Assert.AreEqual(1.0, primitive.X, delta);
+                Assert.AreEqual(1.0, primitive.Y, delta);
+                Assert.AreEqual(1.0, primitive.Z, delta);
             }
 
         }
@@ -217,19 +219,19 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatTransformationsCanBeReseted()
         {
             var cube = new Cube(1.0, 1.0, 1.0);
-            Assert.AreEqual(0.0, cube.X);
-            Assert.AreEqual(0.0, cube.Y);
-            Assert.AreEqual(0.0, cube.Z);
+            Assert.AreEqual(0.0, cube.X, delta);
+            Assert.AreEqual(0.0, cube.Y, delta);
+            Assert.AreEqual(0.0, cube.Z, delta);
 
             cube.SetTranslation(1.0, 2.0, 3.0);
-            Assert.AreEqual(1.0, cube.X);
-            Assert.AreEqual(2.0, cube.Y);
-            Assert.AreEqual(3.0, cube.Z);
+            Assert.AreEqual(1.0, cube.X, delta);
+            Assert.AreEqual(2.0, cube.Y, delta);
+            Assert.AreEqual(3.0, cube.Z, delta);
 
             cube.ResetTransformations();
-            Assert.AreEqual(0.0, cube.X);
-            Assert.AreEqual(0.0, cube.Y);
-            Assert.AreEqual(0.0, cube.Z);
+            Assert.AreEqual(0.0, cube.X, delta);
+            Assert.AreEqual(0.0, cube.Y, delta);
+            Assert.AreEqual(0.0, cube.Z, delta);
         }
     }
 }
