@@ -1,3 +1,18 @@
 ﻿#orientation-tab-content{
     margin-top: 2%;
 }
+
+.parameter-input {
+    margin: 2%;
+}
+
+.parameter-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+    .parameter-row > p {
+        margin: 0;
+    }

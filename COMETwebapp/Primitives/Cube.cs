@@ -56,91 +56,53 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Initializes a new instance of <see cref="Cube"/> class
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="depth"></param>
-        public Cube(double width, double height, double depth)
+        public Cube()
         {
-            this.Width = width; 
-            this.Height = height; 
-            this.Depth = depth;
+            this.ParameterActions.Add(SceneProvider.WidthShortName,  (vs) => this.SetWidth(vs));
+            this.ParameterActions.Add(SceneProvider.HeightShortName, (vs) => this.SetHeight(vs));
+            this.ParameterActions.Add(SceneProvider.LengthShortName, (vs) => this.SetDepth(vs));
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cube"/> class
+        /// Sets the width of the <see cref="Cube"/>
         /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="width">the width of the cube</param>
-        /// <param name="height">the height of the cube</param>
-        /// <param name="depth">the depth of the cube</param>
-        public Cube(double x, double y , double z, double width, double height, double depth)
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        private void SetWidth(IValueSet newValue = null)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Width = width;
-            this.Height = height;
-            this.Depth = depth;
-        }
+            var valueSet = newValue is null ? this.GetValueSet(SceneProvider.WidthShortName) : newValue;
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {            
-            var widthValueSet  = this.GetValueSet(SceneProvider.WidthShortName);
-            var heightValueSet = this.GetValueSet(SceneProvider.HeightShortName);
-            var lengthValueSet = this.GetValueSet(SceneProvider.LengthShortName);
-
-            if(widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
+            if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), out double w))
             {
                 this.Width = w;
             }
+        }
 
-            if(heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
+        /// <summary>
+        /// Sets the height of the <see cref="Cube"/>
+        /// </summary>
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        private void SetHeight(IValueSet newValue = null)
+        {
+            var valueSet = newValue is null ? this.GetValueSet(SceneProvider.HeightShortName) : newValue;
+
+            if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), out double h))
             {
                 this.Height = h;
-            }
-
-            if(lengthValueSet is not null && double.TryParse(lengthValueSet.ActualValue.First(), out double d))
-            {
-                this.Depth = d;
             }
         }
 
         /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
+        /// Sets the depth of the <see cref="Cube"/>
         /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        private void SetDepth(IValueSet newValue = null)
         {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
+            var lengthValueSet = newValue is null ? this.GetValueSet(SceneProvider.LengthShortName) : newValue;
 
-            switch (parameterTypeShortName)
+            if (lengthValueSet is not null && double.TryParse(lengthValueSet.ActualValue.First(), out double d))
             {
-                case SceneProvider.WidthShortName:
-                    if(double.TryParse(newValue.ActualValue.First(), out double w))
-                    {
-                        this.Width = w;
-                    }
-                    break;
-                case SceneProvider.HeightShortName:
-                    if(double.TryParse(newValue.ActualValue.First(), out double h))
-                    {
-                        this.Height = h;
-                    }
-                    break;
-                case SceneProvider.LengthShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Depth = d;
-                    }
-                    break;
+                this.Depth = d;
             }
-            this.Regenerate();
         }
     }
 }

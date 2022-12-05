@@ -51,56 +51,29 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Creates a new instance of type <see cref="Rectangle"/>
         /// </summary>
-        public Rectangle(double width, double height)
+        public Rectangle()
         {
-            this.Width = width;
-            this.Height = height;
+            this.ParameterActions.Add(SceneProvider.WidthShortName, (vs) => this.SetWidth(vs));
+            this.ParameterActions.Add(SceneProvider.HeightShortName, (vs) => this.SetHeight(vs));
         }
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        public void SetWidth(IValueSet newValue = null)
         {
-            var widthValueSet  = this.GetValueSet(SceneProvider.WidthShortName);
-            var heightValueSet = this.GetValueSet(SceneProvider.HeightShortName);
-
+            var widthValueSet = newValue is null ? this.GetValueSet(SceneProvider.WidthShortName) : newValue;
             if (widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
             {
                 this.Width = w;
             }
+        }
 
+        public void SetHeight(IValueSet newValue = null)
+        {
+            var heightValueSet = newValue is null ? this.GetValueSet(SceneProvider.HeightShortName) : newValue;
             if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
             {
                 this.Height = h;
             }
         }
 
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.WidthShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double w))
-                    {
-                        this.Width = w;
-                    }
-                    break;
-                case SceneProvider.HeightShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double h))
-                    {
-                        this.Height = h;
-                    }
-                    break;
-            }
-            this.Regenerate();
-        }
     }
 }

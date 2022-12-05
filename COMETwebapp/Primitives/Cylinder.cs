@@ -51,75 +51,36 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Initializes a new instance of <see cref="Cylinder"/> class
         /// </summary>
-        /// <param name="radius">the radius of the <see cref="Cylinder"/></param>
-        /// <param name="height">the height of the <see cref="Cylinder"/></param>
-        public Cylinder(double radius, double height)
+        public Cylinder()
         {
-            this.Radius = radius;
-            this.Height = height;
+            this.ParameterActions.Add(SceneProvider.DiameterShortName, (vs) => this.SetDiameter(vs));
+            this.ParameterActions.Add(SceneProvider.HeightShortName, (vs) => this.SetHeight(vs));
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cylinder"/> class
+        /// Sets the height of the <see cref="Cylinder"/>
         /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="radius">the radius of the <see cref="Cylinder"/></param>
-        /// <param name="height">the height of the <see cref="Cylinder"/></param>
-        public Cylinder(double x, double y, double z, double radius, double height)
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetHeight(IValueSet newValue = null)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Radius = radius;
-            this.Height = height;
-        }
-
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var diameterValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-            var heightValueSet   = this.GetValueSet(SceneProvider.HeightShortName);
-
-            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
-            {
-                this.Radius =  d/ 2.0;
-            }
-
-            if(heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
+            var heightValueSet = newValue is null ? this.GetValueSet(SceneProvider.HeightShortName) : newValue;
+            if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
             {
                 this.Height = h;
             }
         }
 
         /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
+        /// Sets the diameter of the <see cref="Cylinder"/>
         /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetDiameter(IValueSet newValue = null)
         {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
+            var diameterValueSet = newValue is null ? this.GetValueSet(SceneProvider.DiameterShortName) : newValue;
+            if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Radius = d/2.0;
-                    }
-                    break;
-                case SceneProvider.HeightShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double h))
-                    {
-                        this.Height = h;
-                    }
-                    break;
+                this.Radius = d / 2.0;
             }
-            this.Regenerate();
         }
     }
 }

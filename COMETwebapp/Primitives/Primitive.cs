@@ -25,9 +25,8 @@
 namespace COMETwebapp.Primitives
 {
     using System.Numerics;
-
     using CDP4Common.EngineeringModelData;
-
+    using CDP4Common.SiteDirectoryData;
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
@@ -48,11 +47,6 @@ namespace COMETwebapp.Primitives
         /// Backing field for the property <see cref="Alpha"/>
         /// </summary>
         private double alpha = 1;
-
-        /// <summary>
-        /// Rendering group of this <see cref="Primitive"/>. Default is 0. Range [0,4]
-        /// </summary>
-        public int RenderingGroup { get; set; } = 0;
 
         /// <summary>
         /// The <see cref="ElementUsage"/> for which the <see cref="Primitive"/> was created.
@@ -123,22 +117,39 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public Guid ID { get; } = Guid.NewGuid();
 
+        /// <summary>
+        /// Parameter actions used to create the final shape, position and orientation of the <see cref="Primitive"/>
+        /// </summary>
+        protected Dictionary<string, Action<IValueSet>> ParameterActions = new Dictionary<string, Action<IValueSet>>();
 
-        protected Dictionary<string, Action> Actions = new Dictionary<string, Action>();
-
-
+        /// <summary>
+        /// Creates a new instance of type <see cref="Primitive"/>
+        /// </summary>
         public Primitive()
         {
-            this.Actions.Add(SceneProvider.ColorShortName, this.SetColorFromElementUsageParameters);
-            this.Actions.Add(SceneProvider.TransparencyShortName, this.SetTransparencyFromElementUsageParameters);
+            this.ParameterActions.Add(SceneProvider.ColorShortName, (vs) => this.SetColor(vs));
+            this.ParameterActions.Add(SceneProvider.TransparencyShortName, (vs) => this.SetTransparency(vs));            
         }
 
-        public void FireAction(string parameterTypeShortName)
+        /// <summary>
+        /// Sets the parameter to the corresponding property
+        /// </summary>
+        /// <param name="parameterTypeShortName">short name of the parameter type</param>
+        public void SetParameter(string parameterTypeShortName)
         {
-            if (this.Actions.ContainsKey(parameterTypeShortName))
+            if (this.ParameterActions.ContainsKey(parameterTypeShortName))
             {
-                this.Actions[parameterTypeShortName].Invoke();
+                this.ParameterActions[parameterTypeShortName].Invoke(null);
             }
+        }
+
+        /// <summary>
+        /// Sets the parameter to the corresponding property
+        /// </summary>
+        /// <param name="parameterType">short name of the parameter</param>
+        public void SetParameter(ParameterType parameterType)
+        {
+            this.SetParameter(parameterType.ShortName);
         }
 
         /// <summary>
@@ -235,11 +246,12 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Set the color of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Sets the color of the <see cref="Primitive"/>
         /// </summary>
-        public void SetColorFromElementUsageParameters()
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetColor(IValueSet newValue = null)
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.ColorShortName);
+            IValueSet? valueSet = newValue is null ? this.GetValueSet(SceneProvider.ColorShortName) : newValue;
 
             if(valueSet is not null)
             {
@@ -254,22 +266,22 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Set the alpha of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Sets the transparency of the <see cref="Primitive"/>
         /// </summary>
-        public void SetTransparencyFromElementUsageParameters()
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetTransparency(IValueSet newValue = null)
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.TransparencyShortName);
+            IValueSet? valueSet = newValue is null ? this.GetValueSet(SceneProvider.TransparencyShortName) : newValue;
 
             if (valueSet is not null)
             {
                 string textTransparency = valueSet.ActualValue.First();
-                if (double.TryParse(textTransparency, out double a))
+                if (double.TryParse(textTransparency, out double alpha))
                 {
-                    this.Alpha = a;
+                    this.Alpha = alpha;
                 }
             }
         }
-
 
         /// <summary>
         /// Creates a clone of this <see cref="Primitive"/>
@@ -286,23 +298,12 @@ namespace COMETwebapp.Primitives
         /// </summary>
         /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
         /// <param name="newValue">the new value set</param>
-        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        public void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
         {
-            switch (parameterTypeShortName)
+            if (this.ParameterActions.ContainsKey(parameterTypeShortName))
             {
-                case SceneProvider.ColorShortName:
-                    string textColor = newValue.ActualValue.First();
-                    Vector3 color = textColor.ParseToColorVector();
-                    this.SetColor(color);
-                    break;
-
-                case SceneProvider.TransparencyShortName:
-                    string textTransparency = newValue.ActualValue.First();
-                    if(double.TryParse(textTransparency, out double a))
-                    {
-                        this.Alpha = a;
-                    }
-                    break;
+                this.ParameterActions[parameterTypeShortName].Invoke(newValue);
+                this.Regenerate();
             }
         }
     }

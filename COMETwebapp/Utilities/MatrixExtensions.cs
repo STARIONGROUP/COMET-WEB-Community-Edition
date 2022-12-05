@@ -72,7 +72,7 @@ namespace COMETwebapp.Utilities
                     Ry = -Math.PI / 2.0;
                     Rx = -Rz + Math.Atan2(-rotMatrix[1], -rotMatrix[2]);
                 }
-            }
+            }                   
 
             if(outputAngleFormat == AngleFormat.Radians)
             {

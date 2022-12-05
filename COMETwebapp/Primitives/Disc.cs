@@ -46,24 +46,23 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Creates a new instance of type <see cref="Disc"/>
         /// </summary>
-        /// <param name="radius">the radius of the disc</param>
-        public Disc(double radius)
+        public Disc()
         {
-            this.Radius = radius;
+            this.ParameterActions.Add(SceneProvider.DiameterShortName, (vs) => this.SetDiameter(vs));
         }
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Sets the diameter of the <see cref="Disc"/>
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetDiameter(IValueSet newValue = null)
         {
-            var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
+            var radiusValueSet = newValue is not null ? this.GetValueSet(SceneProvider.DiameterShortName) : newValue;
 
             if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
             {
-                this.Radius = d/2.0;
+                this.Radius = d / 2.0;
             }
         }
-
     }
 }

@@ -1,4 +1,5 @@
-﻿.parameter-input {
+﻿
+.parameter-input {
     margin: 2%;
 }
 
@@ -9,6 +10,6 @@
     justify-content: flex-start;
 }
 
-#color-text {
-    margin-left: 2%;
+.parameter-row > p {
+        margin: 0;
 }

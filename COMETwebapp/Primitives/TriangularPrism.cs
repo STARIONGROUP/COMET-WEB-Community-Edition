@@ -51,58 +51,27 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Creates a new instance of type <see cref="TriangularPrism"/>
         /// </summary>
-        /// <param name="radius">the size of the circumradius</param>
-        /// <param name="height">the height of the prism</param>
-        public TriangularPrism(double radius, double height)
+        public TriangularPrism()
         {
-            this.Radius = radius;
-            this.Height = height;
+
         }
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        public void SetDiameter(IValueSet newValue = null)
         {
-            var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-            var heightValueSet = this.GetValueSet(SceneProvider.HeightShortName);
-
+            var radiusValueSet = newValue is null ? this.GetValueSet(SceneProvider.DiameterShortName) : newValue;
             if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
             {
-                this.Radius = d/2.0;
+                this.Radius = d / 2.0;
             }
+        }
 
+        public void SetHeight(IValueSet newValue = null)
+        {
+            var heightValueSet = newValue is null ? this.GetValueSet(SceneProvider.HeightShortName) : newValue;
             if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
             {
                 this.Height = h;
             }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Radius = d/2.0;
-                    }
-                    break;
-                case SceneProvider.HeightShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double h))
-                    {
-                        this.Height = h;
-                    }
-                    break;
-            }
-            this.Regenerate();
         }
     }
 }

@@ -51,75 +51,28 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Initializes a new instance of <see cref="Torus"/> class
         /// </summary>
-        /// <param name="diameter">the diameter of the <see cref="Torus"/></param>
-        /// <param name="thickness">The thickness of the <see cref="Torus"/></param>
-        public Torus(double diameter, double thickness)
+        public Torus()
         {
-            this.Diameter = diameter;
-            this.Thickness = thickness;
+            this.ParameterActions.Add(SceneProvider.DiameterShortName, (vs) => this.SetDiameter(vs));
+            this.ParameterActions.Add(SceneProvider.ThicknessShortName, (vs) => this.SetThickness(vs));
         }
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="Torus"/> class
-        /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="diameter">the diameter of the <see cref="Torus"/></param>
-        /// <param name="thickness">The thickness of the <see cref="Torus"/></param>
-        public Torus(double x, double y, double z, double diameter, double thickness)
+        public void SetDiameter(IValueSet newValue = null)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Diameter = diameter;
-            this.Thickness = thickness;
-        }
-
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var diameterValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-            var thicknessValueSet = this.GetValueSet(SceneProvider.ThicknessShortName);
-            
-            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            var diameterValueSet = newValue is null ? this.GetValueSet(SceneProvider.DiameterShortName) : newValue;
+            if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {
                 this.Diameter = d;
             }
+        }
 
-            if(thicknessValueSet is not null && double.TryParse(thicknessValueSet.ActualValue.First(), out double t))
+        public void SetThickness(IValueSet newValue = null)
+        {
+            var thicknessValueSet = newValue is null ? this.GetValueSet(SceneProvider.ThicknessShortName) : newValue;
+            if (thicknessValueSet is not null && double.TryParse(thicknessValueSet.ActualValue.First(), out double t))
             {
                 this.Thickness = t;
             }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Diameter = d;
-                    }
-                    break;
-                case SceneProvider.ThicknessShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double t))
-                    {
-                        this.Thickness = t;
-                    }
-                    break;
-            }
-            this.Regenerate();
         }
     }
 }

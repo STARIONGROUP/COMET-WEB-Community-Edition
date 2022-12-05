@@ -46,44 +46,23 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Creates a new instance of type <see cref="EquilateralTriangle"/>
         /// </summary>
-        /// <param name="radius">the size of the circumradius</param>
-        public EquilateralTriangle(double radius)
+        public EquilateralTriangle()
         {
-            this.Radius = radius;
+            this.ParameterActions.Add(SceneProvider.DiameterShortName, (vs) => this.SetDiameter(vs));
         }
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Sets the diameter of the <see cref="EquilateralTriangle"/>
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetDiameter(IValueSet newValue = null)
         {
-            var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
+            var radiusValueSet = newValue is null ? this.GetValueSet(SceneProvider.DiameterShortName) : newValue;
 
             if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
             {
-                this.Radius = d/2.0;
+                this.Radius = d / 2.0;
             }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Radius = d/2.0;
-                    }
-                    break;
-            }
-            this.Regenerate();
         }
     }
 }

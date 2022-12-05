@@ -39,7 +39,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Dictionary used from the creation of shapes
         /// </summary>
-        Dictionary<string, Func<Primitive>> ShapeCreatorCollection;
+        private Dictionary<string, Func<Primitive>> ShapeCreatorCollection;
 
         /// <summary>
         /// Creates a new instance of type <see cref="ShapeFactory"/>
@@ -48,16 +48,16 @@ namespace COMETwebapp.Primitives
         {
             this.ShapeCreatorCollection = new Dictionary<string, Func<Primitive>>()
             {
-                {"box", () => new Cube(1, 1, 1) },
-                {"cone", () => new Cone(1, 1) },
-                {"cylinder", () => new Cylinder(1, 1) },
-                {"sphere", () => new Sphere(1) },
-                {"torus", () => new Torus(1, 1) },
-                {"triprism", () => new TriangularPrism(1, 1) },
-                {"disc", () => new Disc(1) },
-                {"hexagonalprism", () => new HexagonalPrism(1, 1) },
-                {"rectangle", () => new Rectangle(1, 1) },
-                {"triangle", () => new EquilateralTriangle(1) },
+                {"box", () => new Cube() },
+                {"cone", () => new Cone() },
+                {"cylinder", () => new Cylinder() },
+                {"sphere", () => new Sphere() },
+                {"torus", () => new Torus() },
+                {"triprism", () => new TriangularPrism() },
+                {"disc", () => new Disc() },
+                {"hexagonalprism", () => new HexagonalPrism() },
+                {"rectangle", () => new Rectangle() },
+                {"triangle", () => new EquilateralTriangle() },
             };
         }
 
@@ -90,12 +90,12 @@ namespace COMETwebapp.Primitives
                     }
                     else
                     {
-                        primitive = new Cube(0.15, 0.15, 0.15);
+                        primitive = new Cube();
                     }
                 }
                 else
                 {
-                    primitive = new Cube(0.15, 0.15, 0.15);
+                    primitive = new Cube();
                 }
             }
 
@@ -108,18 +108,8 @@ namespace COMETwebapp.Primitives
                 foreach(var parameter in parameters)
                 {
                     var shortName = parameter.ParameterType.ShortName;
-                    primitive.FireAction(shortName);
-                }
-
-                //primitive.SetColorFromElementUsageParameters();
-                //primitive.SetTransparencyFromElementUsageParameters();
-                
-                if (primitive is BasicPrimitive basicPrimitive)
-                {
-                    //basicPrimitive.SetOrientationFromElementUsageParameters();
-                    //basicPrimitive.SetPositionFromElementUsageParameters();
-                    basicPrimitive.SetDimensionsFromElementUsageParameters();
-                }
+                    primitive.SetParameter(shortName);
+                }               
             }
 
             return primitive;

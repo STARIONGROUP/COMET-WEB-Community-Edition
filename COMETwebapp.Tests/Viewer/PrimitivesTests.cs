@@ -89,10 +89,10 @@ namespace COMETwebapp.Tests.Viewer
             this.shapeFactory = renderer.Instance.ShapeFactory;
 
             this.positionables = new List<BasicPrimitive>();
-            this.positionables.Add(new Cube(1, 1, 1));
-            this.positionables.Add(new Cylinder(1, 1));
-            this.positionables.Add(new Sphere(1));
-            this.positionables.Add(new Torus(2, 1));
+            this.positionables.Add(new Cube());
+            this.positionables.Add(new Cylinder());
+            this.positionables.Add(new Sphere());
+            this.positionables.Add(new Torus());
 
             this.primitives = new List<Primitive>(this.positionables);
             this.primitives.Add(new Line(new System.Numerics.Vector3(), new System.Numerics.Vector3(1, 1, 1)));
@@ -173,7 +173,7 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.Y, delta);
                 Assert.AreEqual(0.0, primitive.Z, delta);
 
-                primitive.SetTranslation(1.0, 1.0, 1.0);
+                //primitive.SetTranslation(1.0, 1.0, 1.0);
 
                 Assert.AreEqual(1.0, primitive.X, delta);
                 Assert.AreEqual(1.0, primitive.Y, delta);
@@ -194,7 +194,7 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatColorCanBeSetFromElementUsage()
         {
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
-            basicShape.SetColorFromElementUsageParameters();
+            basicShape.SetColor();
             Assert.AreNotEqual(Primitive.DefaultColor, basicShape.Color);
             Assert.AreEqual(new Vector3(255, 155, 25), basicShape.Color);
         }
@@ -218,17 +218,17 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatTransformationsCanBeReseted()
         {
-            var cube = new Cube(1.0, 1.0, 1.0);
+            var cube = new Cube();
             Assert.AreEqual(0.0, cube.X, delta);
             Assert.AreEqual(0.0, cube.Y, delta);
             Assert.AreEqual(0.0, cube.Z, delta);
 
-            cube.SetTranslation(1.0, 2.0, 3.0);
+            //cube.SetTranslation(1.0, 2.0, 3.0);
             Assert.AreEqual(1.0, cube.X, delta);
             Assert.AreEqual(2.0, cube.Y, delta);
             Assert.AreEqual(3.0, cube.Z, delta);
 
-            cube.ResetTransformations();
+            //cube.ResetTransformations();
             Assert.AreEqual(0.0, cube.X, delta);
             Assert.AreEqual(0.0, cube.Y, delta);
             Assert.AreEqual(0.0, cube.Z, delta);

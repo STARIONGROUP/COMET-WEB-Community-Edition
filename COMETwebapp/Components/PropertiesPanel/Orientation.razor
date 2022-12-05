@@ -5,8 +5,7 @@
             <TabContent>
                 <div id="orientation-tab-content">
                     @{
-                        var types = new List<string>
-                        () { "Degrees", "Radians" };
+                        var types = new List<string>() { "Degrees", "Radians" };
                         <DxComboBox Data="types"
                             NullText="-"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
@@ -16,15 +15,21 @@
 
                         <div class="parameter-row">
                             <p>Rx:</p>
-                            <BSInput InputType="InputType.Text" Value="this.Rx" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rx",e))" />
+                            <span class="parameter-input">
+                                <BSInput InputType="InputType.Text" Value="this.Rx" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rx",e))" />
+                            </span>
                         </div>
                         <div class="parameter-row">
                             <p>Ry:</p>
-                            <BSInput InputType="InputType.Text" Value="this.Ry" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Ry",e))" />
+                            <span class="parameter-input">
+                                <BSInput InputType="InputType.Text" Value="this.Ry" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Ry",e))" />
+                            </span>
                         </div>
                         <div class="parameter-row">
                             <p>Rz:</p>
-                            <BSInput InputType="InputType.Text" Value="this.Rz" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rz",e))" />
+                            <span class="parameter-input">
+                                <BSInput InputType="InputType.Text" Value="this.Rz" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rz",e))" />
+                            </span>
                         </div>
                     }
                 </div>
@@ -43,7 +48,9 @@
 
                             <div class="parameter-row">
                                 <p>@comp.ShortName</p>
-                                <BSInput InputType="InputType.Text" Value="this.DetailsComponent.GetValueSet().ActualValue[i]" Class="parameter-input" @oninput="(e)=>this.DetailsComponent.OnParameterValueChange(index,e)" />
+                                <span class="parameter-input">
+                                    <BSInput InputType="InputType.Text" Value="this.DetailsComponent.GetValueSet().ActualValue[i]" Class="parameter-input" @oninput="(e)=>this.DetailsComponent.OnParameterValueChange(index,e)" />
+                                </span>
                             </div>
                         }
                     }

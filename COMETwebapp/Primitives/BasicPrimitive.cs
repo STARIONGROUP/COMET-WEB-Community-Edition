@@ -72,14 +72,14 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public double RZ { get; protected set; }
 
-
+        /// <summary>
+        /// Creates a new instance of type <see cref="BasicPrimitive"/>
+        /// </summary>
         public BasicPrimitive()
         {
-            this.Actions.Add(SceneProvider.PositionShortName, this.SetPositionFromElementUsageParameters);
-            this.Actions.Add(SceneProvider.OrientationShortName, this.SetOrientationFromElementUsageParameters);
-            //this.Actions.Add(, this.SetDimensionsFromElementUsageParameters);
+            this.ParameterActions.Add(SceneProvider.PositionShortName, (vs) => this.SetPosition(vs));
+            this.ParameterActions.Add(SceneProvider.OrientationShortName,(vs) => this.SetOrientation(vs));
         }
-
 
         /// <summary>
         /// Sets a NEW translation to the primitive. 
@@ -87,7 +87,7 @@ namespace COMETwebapp.Primitives
         /// <param name="x">translation along X axis</param>
         /// <param name="y">translation along Y axis</param>
         /// <param name="z">translation along Z axis</param>
-        public void SetTranslation(double x, double y, double z)
+        protected void SetTranslation(double x, double y, double z)
         {
             this.X = x;
             this.Y = y;
@@ -101,7 +101,7 @@ namespace COMETwebapp.Primitives
         /// <param name="rx">angle of rotation in radians around X axis</param>
         /// <param name="ry">angle of rotation in radians around Y axis</param>
         /// <param name="rz">angle of rotation in radians around Z axis</param>
-        public void SetRotation(double rx, double ry, double rz)
+        protected void SetRotation(double rx, double ry, double rz)
         {
             this.RX = rx;
             this.RY = ry;
@@ -112,7 +112,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Adds a translation to the primitive.
         /// </summary>
-        public void AddTranslation(double x, double y, double z) 
+        protected void AddTranslation(double x, double y, double z) 
         {
             this.X += x;
             this.Y += y;
@@ -123,7 +123,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Adds a rotation to the primitive
         /// </summary>
-        public void AddRotation(double rx, double ry, double rz)
+        protected void AddRotation(double rx, double ry, double rz)
         {
             this.RX += rx;
             this.RY += ry;
@@ -134,7 +134,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Reset all transformations of the primitive
         /// </summary>
-        public void ResetTransformations()
+        protected void ResetTransformations()
         {
             this.ResetRotation();
             this.ResetTranslation();
@@ -143,7 +143,7 @@ namespace COMETwebapp.Primitives
         /// <summary>
         /// Resets the translation of the primitive
         /// </summary>
-        public void ResetTranslation()
+        protected void ResetTranslation()
         {
             this.X = this.Y = this.Z = 0;
         }
@@ -155,74 +155,27 @@ namespace COMETwebapp.Primitives
         {
             this.RX = this.RY = this.RZ = 0;
         }
-
+                
         /// <summary>
-        /// Set the position of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Sets the position of the <see cref="BasicPrimitive"/>
         /// </summary>
-        public void SetPositionFromElementUsageParameters()
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetPosition(IValueSet newValue = null)
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.PositionShortName);
+            IValueSet? valueSet = newValue is null ? this.GetValueSet(SceneProvider.PositionShortName) : newValue;
             var translation = valueSet.ParseIValueToPosition();
             this.SetTranslation(translation[0], translation[1], translation[2]);        
         }
 
         /// <summary>
-        /// Set the orientation of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Sets the orientation of the <see cref="BasicPrimitive"/>
         /// </summary>
-        public void SetOrientationFromElementUsageParameters()
+        /// <param name="newValue">if the value is null the value it's computed from the asociated parameter</param>
+        public void SetOrientation(IValueSet newValue = null)
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
+            IValueSet? valueSet = newValue is null ? this.GetValueSet(SceneProvider.OrientationShortName) : newValue;
             var angles = valueSet.ParseIValueToEulerAngles();
             this.SetRotation(angles[0], angles[1], angles[2]);
         }
-
-        /// <summary>
-        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
-        /// </summary>
-        /// <returns>the related parameter</returns>
-        public ParameterBase? GetTranslationParameter()
-        {
-            var param = this.ElementUsage.GetParametersInUse();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
-        }
-
-        /// <summary>
-        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
-        /// </summary>
-        /// <returns>the related parameter</returns>
-        public ParameterBase? GetOrientationParameter()
-        {
-            var param = this.ElementUsage.GetParametersInUse();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {            
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.PositionShortName:
-                    var translation = newValue.ParseIValueToPosition();
-                    this.SetTranslation(translation[0], translation[1], translation[2]);
-                    break;
-
-                case SceneProvider.OrientationShortName:
-                    var angles = newValue.ParseIValueToEulerAngles();
-                    this.SetRotation(angles[0], angles[1], angles[2]);
-                    break;
-
-            }
-        }
-
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public abstract void SetDimensionsFromElementUsageParameters();
     }
 }

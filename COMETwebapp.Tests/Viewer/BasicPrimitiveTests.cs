@@ -84,10 +84,10 @@ namespace COMETwebapp.Tests.Viewer
             this.shapeFactory = renderer.Instance.ShapeFactory;
 
             this.positionables = new List<BasicPrimitive>();
-            this.positionables.Add(new Cube(1, 1, 1));
-            this.positionables.Add(new Cylinder(1, 1));
-            this.positionables.Add(new Sphere(1));
-            this.positionables.Add(new Torus(2, 1));
+            this.positionables.Add(new Cube());
+            this.positionables.Add(new Cylinder());
+            this.positionables.Add(new Sphere());
+            this.positionables.Add(new Torus());
 
             this.option = new Option(Guid.NewGuid(), cache, this.uri);
 
@@ -164,7 +164,7 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.Y);
                 Assert.AreEqual(0.0, primitive.Z);
 
-                primitive.SetTranslation(1, 1, 1);
+                //primitive.SetTranslation(1, 1, 1);
 
                 Assert.AreEqual(1.0, primitive.X);
                 Assert.AreEqual(1.0, primitive.Y);
@@ -181,7 +181,7 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.RY);
                 Assert.AreEqual(0.0, primitive.RZ);
 
-                primitive.SetRotation(1, 1, 1);
+                //primitive.SetRotation(1, 1, 1);
 
                 Assert.AreEqual(1.0, primitive.RX);
                 Assert.AreEqual(1.0, primitive.RY);
@@ -192,17 +192,17 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatTransformationsCanBeReseted()
         {
-            var cube = new Cube(1, 1, 1);
+            var cube = new Cube();
             Assert.AreEqual(0.0, cube.X);
             Assert.AreEqual(0.0, cube.Y);
             Assert.AreEqual(0.0, cube.Z);
 
-            cube.SetTranslation(1, 2, 3);
+            //cube.SetTranslation(1, 2, 3);
             Assert.AreEqual(1.0, cube.X);
             Assert.AreEqual(2.0, cube.Y);
             Assert.AreEqual(3.0, cube.Z);
 
-            cube.ResetTransformations();
+            //cube.ResetTransformations();
             Assert.AreEqual(0.0, cube.X);
             Assert.AreEqual(0.0, cube.Y);
             Assert.AreEqual(0.0, cube.Z);
@@ -211,17 +211,17 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatTranslationCanBeAdded()
         {
-            var cube = new Cube(1, 1, 1);
+            var cube = new Cube();
             Assert.AreEqual(0.0, cube.X);
             Assert.AreEqual(0.0, cube.Y);
             Assert.AreEqual(0.0, cube.Z);
 
-            cube.AddTranslation(1, 2, 3);
+            //cube.AddTranslation(1, 2, 3);
             Assert.AreEqual(1.0, cube.X);
             Assert.AreEqual(2.0, cube.Y);
             Assert.AreEqual(3.0, cube.Z);
 
-            cube.AddTranslation(1, 2, 3);
+            //cube.AddTranslation(1, 2, 3);
             Assert.AreEqual(2.0, cube.X);
             Assert.AreEqual(4.0, cube.Y);
             Assert.AreEqual(6.0, cube.Z);
@@ -230,17 +230,17 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatRotationCanBeAdded()
         {
-            var cube = new Cube(1, 1, 1);
+            var cube = new Cube();
             Assert.AreEqual(0.0, cube.RX);
             Assert.AreEqual(0.0, cube.RY);
             Assert.AreEqual(0.0, cube.RZ);
 
-            cube.AddRotation(1, 2, 3);
+            //cube.AddRotation(1, 2, 3);
             Assert.AreEqual(1.0, cube.RX);
             Assert.AreEqual(2.0, cube.RY);
             Assert.AreEqual(3.0, cube.RZ);
 
-            cube.AddRotation(1, 2, 3);
+            //cube.AddRotation(1, 2, 3);
             Assert.AreEqual(2.0, cube.RX);
             Assert.AreEqual(4.0, cube.RY);
             Assert.AreEqual(6.0, cube.RZ);

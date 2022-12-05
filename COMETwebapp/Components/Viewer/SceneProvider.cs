@@ -198,8 +198,8 @@ namespace COMETwebapp.Components.Viewer
         /// <param name="primitive">the primitive to add</param>
         public void AddTemporaryPrimitive(Primitive primitive)
         {
-            primitive.RenderingGroup = 0;
             primitive.HasHalo = true;
+            primitive.Alpha = 0.7;
 
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             TemporaryPrimitivesCollection.Add(primitive.ID, primitive);

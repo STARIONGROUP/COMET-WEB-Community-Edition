@@ -78,7 +78,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatPrimitiveCanBeRetrievedById()
         {
-            var primitive = new Cube(1, 1, 1);
+            var primitive = new Cube();
             this.scene.AddPrimitive(primitive);
             var retrieved = this.scene.GetPrimitiveById(primitive.ID);
             Assert.IsNotNull(retrieved);
@@ -90,9 +90,9 @@ namespace COMETwebapp.Tests.Viewer
         {
             this.scene.ClearPrimitives();
 
-            var primitive1 = new Cube(1, 1, 1);
-            var primitive2 = new Sphere(1);
-            var primitive3 = new Cone(1, 1);
+            var primitive1 = new Cube();
+            var primitive2 = new Sphere();
+            var primitive3 = new Cone();
 
             this.scene.AddPrimitive(primitive1);
             this.scene.AddPrimitive(primitive2);
@@ -114,7 +114,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatPrimitivesAreAddedToScene()
         {
-            Cube cube = new Cube(0, 0, 0, 1, 1, 1);
+            Cube cube = new Cube();
             this.scene.AddPrimitive(cube);
             var prim = this.scene.GetPrimitiveById(cube.ID);
             Assert.AreEqual(cube, prim);
@@ -123,8 +123,8 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatSetPositionWorks()
         {
-            Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            cube.SetTranslation(1, 1, 1);
+            Cube cube = new Cube();
+            //cube.SetTranslation(1, 1, 1);
             Assert.AreEqual(1, cube.X);
             Assert.AreEqual(1, cube.Y);
             Assert.AreEqual(1, cube.Z);
@@ -133,8 +133,8 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatSetRotationWorks()
         {
-            Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            cube.SetRotation(1, 1, 1);
+            Cube cube = new Cube();
+            //cube.SetRotation(1, 1, 1);
             Assert.AreEqual(1, cube.RX);
             Assert.AreEqual(1, cube.RY);
             Assert.AreEqual(1, cube.RZ);
@@ -143,8 +143,8 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatSceneCanBeCleared()
         {
-            var cube1 = new Cube(1, 1, 1);
-            var cube2 = new Cube(1, 1, 1);
+            var cube1 = new Cube();
+            var cube2 = new Cube();
             this.scene.ClearPrimitives();
             this.scene.AddPrimitive(cube1);
             this.scene.AddPrimitive(cube2);

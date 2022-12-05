@@ -47,58 +47,19 @@ namespace COMETwebapp.Primitives
         /// Initializes a new instance of <see cref="Sphere"/> class
         /// </summary>
         /// <param name="radius"></param>
-        public Sphere(double radius)
+        public Sphere()
         {
-            this.Radius = radius;
+            this.ParameterActions.Add(SceneProvider.DiameterShortName, (vs) => this.SetDiameter(vs));
         }
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="Sphere"/> class
-        /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="radius">the radius of the sphere</param>
-        public Sphere(double x, double y, double z, double radius)
+        public void SetDiameter(IValueSet newValue = null)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.Radius = radius;
-        }
+            var diameterValueSet = newValue is null ? this.GetValueSet(SceneProvider.DiameterShortName) : newValue; 
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var diameterValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-            
-            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            if (diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {
-                this.Radius =  d/ 2.0;
+                this.Radius = d / 2.0;
             }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Radius = d/2.0;
-                    }
-                    break;
-            }
-            this.Regenerate();
         }
     }
 }

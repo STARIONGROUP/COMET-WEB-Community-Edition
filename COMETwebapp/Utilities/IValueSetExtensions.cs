@@ -42,10 +42,16 @@ namespace COMETwebapp.Utilities
 
             if (valueSet is not null)
             {
-                double.TryParse(valueSet.ActualValue[0], out x);
-                double.TryParse(valueSet.ActualValue[1], out y);
-                double.TryParse(valueSet.ActualValue[2], out z);
+                if (valueSet.ActualValue.Count < 3)
+                {
+                    throw new ArgumentException("The value set must contain 3 values in order to compute the position");
+                }
+
+                _ = double.TryParse(valueSet.ActualValue[0], out x);
+                _ = double.TryParse(valueSet.ActualValue[1], out y);
+                _ = double.TryParse(valueSet.ActualValue[2], out z);
             }
+
             return new double[] { x, y, z };
         }
 
@@ -60,16 +66,18 @@ namespace COMETwebapp.Utilities
 
             if (valueSet is not null)
             {
-
-                if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
+                if(valueSet.ActualValue.Count < 9)
                 {
-                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
+                    throw new ArgumentException("The value set must contain 9 values in order to compute the rotation matrix");
                 }
-                else
+
+                rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
+
+                for (int i = 0; i < 9; i++)
                 {
-                    for (int i = 0; i < 9; i++)
+                    if(double.TryParse(valueSet.ActualValue[i], out var value))
                     {
-                        rotMatrix[i] = double.Parse(valueSet.ActualValue[i]);
+                        rotMatrix[i] = value;
                     }
                 }
             }
@@ -86,7 +94,5 @@ namespace COMETwebapp.Utilities
         {
             return valueSet.ParseIValueToRotationMatrix().ToEulerAngles();
         }
-
-
     }
 }
