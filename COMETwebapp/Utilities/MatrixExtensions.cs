@@ -24,14 +24,9 @@
 
 namespace COMETwebapp.Utilities
 {
-    /// <summary>
-    /// The format of the angle
-    /// </summary>
-    public enum AngleFormat
-    {
-        Degrees,
-        Radians,
-    }
+    using COMETwebapp.Enumerations;
+    using COMETwebapp.Model;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Static extension methods 
@@ -39,16 +34,47 @@ namespace COMETwebapp.Utilities
     public static class MatrixExtensions
     {
         /// <summary>
+        /// Transforms a set of doubles to a <see cref="Orientation"/>
+        /// </summary>
+        /// <param name="values">values to transform</param>
+        /// <param name="isMatrix">true if the values corresponds to a rotation matrix, false if correspond to euler angles</param>
+        /// <param name="angleFormat">the format of the angle</param>
+        /// <returns>the orientation</returns>
+        /// <exception cref="ArgumentException">if the rotation matrix or euler angles don't have the correct format.</exception>
+        public static Orientation ToOrientation(this IList<double> values, bool isMatrix, AngleFormat angleFormat)
+        {
+            if (isMatrix)
+            {
+                if(values.Count != 9)
+                {
+                    throw new ArgumentException("A matrix must have 9 values");
+                }
+
+                var eulerAngles = ToEulerAngles(values, angleFormat);
+                return new Orientation(eulerAngles[0], eulerAngles[1], eulerAngles[2]) { AngleFormat = angleFormat };
+            }
+            else
+            {
+                if (values.Count() != 3)
+                {
+                    throw new ArgumentException("Euler angles must be 3 values");
+                }
+
+                return new Orientation(values[0], values[1], values[2]) { AngleFormat = angleFormat };
+            }
+        }
+
+        /// <summary>
         /// Transforms the <param name="rotMatrix"/> that represents a rotation matrix of 3x3 to the rotation expressed in Euler Angles
         /// </summary>
         /// <param name="rotMatrix">the rotation matrix 3x3 stored in row-major order. For more info <see cref="https://en.wikipedia.org/wiki/Row-_and_column-major_order"/></param>
         /// <returns>The Euler Angles in form [Rx,Ry,Rz]</returns>
         /// <exception cref="ArgumentException">If the <paramref name="rotMatrix"/> can't be expressed as a 3x3 matrix </exception>
-        public static double[] ToEulerAngles(this double[] rotMatrix, AngleFormat outputAngleFormat = AngleFormat.Radians)
+        public static double[] ToEulerAngles(this IList<double> rotMatrix, AngleFormat outputAngleFormat = AngleFormat.Radians)
         {
             double Rx = 0, Ry = 0, Rz = 0;
 
-            if (rotMatrix.Length < 9)
+            if (rotMatrix.Count < 9)
             {
                 throw new ArgumentException("The rotation Matrix needs to be at least 3x3 so at least an Array of 9 numbers is needed");
             }
@@ -82,54 +108,6 @@ namespace COMETwebapp.Utilities
             {
                 return new double[] { Math.Round(Rx * 180.0/Math.PI,3), Math.Round(Ry * 180.0 / Math.PI,3), Math.Round(Rz * 180.0 / Math.PI,3) };
             }
-        }
-
-        /// <summary>
-        /// Transforms the euler angles into a 3x3 rotation matrix.
-        /// </summary>
-        /// <param name="eulerAngles">euler angles in the expressed format</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException">If the <paramref name="eulerAngles"/> can't be expressed as euler angles</exception>
-        public static double[] ToRotationMatrix(this double[] eulerAngles, AngleFormat inputAngleFormat = AngleFormat.Radians)
-        {
-            if(eulerAngles.Length < 3)
-            {
-                throw new ArgumentException("To create a rotation matrix at least 3 angles are needed");
-            }
-
-            double[] rotMatrix = new double[9];
-
-            double a1 = eulerAngles[0];
-            double a2 = eulerAngles[1];
-            double a3 = eulerAngles[2];
-
-            if(inputAngleFormat == AngleFormat.Degrees)
-            {
-                a1 = a1 * Math.PI / 180.0;
-                a2 = a2 * Math.PI / 180.0;
-                a3 = a3 * Math.PI / 180.0;
-            }
-
-            double c1 = Math.Cos(a1);
-            double c2 = Math.Cos(a2);
-            double c3 = Math.Cos(a3);
-
-            double s1 = Math.Sin(a1);
-            double s2 = Math.Sin(a2);
-            double s3 = Math.Sin(a3);
-
-            //ZYX -> First x, Second Y, Third Z
-            rotMatrix[0] = c2 * c3;
-            rotMatrix[1] = s1 * s2 * c3 - c1 * s3;
-            rotMatrix[2] = c1 * s2 * c3 + s1 * s3;
-            rotMatrix[3] = c2 * s3;
-            rotMatrix[4] = s1 * s2 * s3 + c1 * c3;
-            rotMatrix[5] = c1 * s2 * s3 - s1 * c3;
-            rotMatrix[6] = -s2;
-            rotMatrix[7] = s1 * c2;
-            rotMatrix[8] = c1 * c2;
-
-            return rotMatrix;
         }
     }
 }

@@ -29,11 +29,12 @@ namespace COMETwebapp.Tests.Shared
     using COMETwebapp.Components;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
+    using COMETwebapp.Tests.Utilities;
     using COMETwebapp.Utilities;
     using DevExpress.Blazor.Internal;
 
     using Microsoft.Extensions.DependencyInjection;
-
+    using Microsoft.JSInterop;
     using Moq;
 
     using NUnit.Framework;
@@ -59,6 +60,11 @@ namespace COMETwebapp.Tests.Shared
         public void Verify_that_when_not_authorized_login_button_is_visible_and_refresh_is_invisible()
         {
             using var ctx = new Bunit.TestContext();
+            
+            ctx.AddDevExpressBlazorTesting();
+            ctx.ConfigureDevExpressBlazor();
+            ctx.JSInterop.Setup<IJSObjectReference>("DxBlazor.Modal.getReference", _ => true);
+
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
 

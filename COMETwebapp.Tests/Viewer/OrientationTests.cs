@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ApplicationEvent.cs" company="RHEA System S.A.">
+// <copyright file="OrientationTests.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,25 +22,34 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Utilities
+namespace COMETwebapp.Tests.Viewer
 {
-    /// <summary>
-    /// Event when active application changes
-    /// </summary>
-    public class ApplicationEvent
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ApplicationEvent"/> class.
-        /// </summary>
-        /// <param name="applicationName">Name of the active application</param>
-        public ApplicationEvent(string? applicationName)
-        {
-            this.ApplicationName = applicationName;
-        }
+    using COMETwebapp.Model;
 
-        /// <summary>
-        /// Name of the active application
-        /// </summary>
-        public string? ApplicationName { get; set; }
+    using NUnit.Framework;
+
+    /// <summary>
+    /// Matrix tests that verifies the correct behavior of the extension methods
+    /// </summary>
+    [TestFixture]
+    public class OrientationTests
+    {
+        [Test]
+        public void VerifyThatMatrixIsComputedFromOrientation()
+        {
+            var orientation = new Orientation(0,0,0);
+            Assert.Multiple(() =>
+            {
+                Assert.That(1.0, Is.EqualTo(orientation.Matrix[0]));
+                Assert.That(0.0, Is.EqualTo(orientation.Matrix[1]));
+                Assert.That(0.0, Is.EqualTo(orientation.Matrix[2]));
+                Assert.That(0.0, Is.EqualTo(orientation.Matrix[3]));
+                Assert.That(1.0, Is.EqualTo(orientation.Matrix[4]));
+                Assert.That(0.0, Is.EqualTo(orientation.Matrix[5]));
+                Assert.That(0.0, Is.EqualTo(orientation.Matrix[6]));
+                Assert.That(0.0, Is.EqualTo(orientation.Matrix[7]));
+                Assert.That(1.0, Is.EqualTo(orientation.Matrix[8]));
+            });
+        }
     }
 }

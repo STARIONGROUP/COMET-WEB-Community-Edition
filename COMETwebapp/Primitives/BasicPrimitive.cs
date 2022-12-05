@@ -174,8 +174,8 @@ namespace COMETwebapp.Primitives
         public void SetOrientation(IValueSet newValue = null)
         {
             IValueSet? valueSet = newValue is null ? this.GetValueSet(SceneProvider.OrientationShortName) : newValue;
-            var angles = valueSet.ParseIValueToEulerAngles();
-            this.SetRotation(angles[0], angles[1], angles[2]);
+            var orientation = valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
+            this.SetRotation(orientation.X, orientation.Y, orientation.Z);
         }
     }
 }

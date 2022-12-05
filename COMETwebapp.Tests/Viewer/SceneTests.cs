@@ -25,7 +25,9 @@
 namespace COMETwebapp.Tests.Viewer
 {
     using Bunit;
-
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
@@ -35,7 +37,8 @@ namespace COMETwebapp.Tests.Viewer
     using Moq;
 
     using NUnit.Framework;
-
+    using System;
+    using System.Collections.Concurrent;
     using TestContext = Bunit.TestContext;
 
     /// <summary>
@@ -46,6 +49,8 @@ namespace COMETwebapp.Tests.Viewer
     {
         private TestContext context;
         private ISceneProvider scene;
+        private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
+        private readonly Uri uri = new Uri("http://test.com");
 
         [SetUp]
         public void SetUp()
@@ -53,6 +58,8 @@ namespace COMETwebapp.Tests.Viewer
             this.context = new TestContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             JSInterop.JsRuntime = context.JSInterop.JSRuntime;
+
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
 
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
@@ -124,7 +131,16 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatSetPositionWorks()
         {
             Cube cube = new Cube();
-            //cube.SetTranslation(1, 1, 1);
+
+            ValueArray<string> valueArray = new ValueArray<string>(new string[] { "1", "1", "1" });
+
+            var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = valueArray,
+            };
+            cube.SetPosition(parameterValueSet);
+
             Assert.AreEqual(1, cube.X);
             Assert.AreEqual(1, cube.Y);
             Assert.AreEqual(1, cube.Z);
@@ -134,7 +150,16 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatSetRotationWorks()
         {
             Cube cube = new Cube();
-            //cube.SetRotation(1, 1, 1);
+
+            ValueArray<string> valueArray = new ValueArray<string>(new string[] { "1", "1", "1" });
+
+            var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = valueArray,
+            };
+            cube.SetOrientation(parameterValueSet);
+
             Assert.AreEqual(1, cube.RX);
             Assert.AreEqual(1, cube.RY);
             Assert.AreEqual(1, cube.RZ);

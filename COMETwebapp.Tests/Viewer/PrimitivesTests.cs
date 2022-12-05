@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.Viewer
     using Bunit;
 
     using CDP4Common.CommonData;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
@@ -65,13 +66,13 @@ namespace COMETwebapp.Tests.Viewer
         private DomainOfExpertise domain;
         private IShapeFactory shapeFactory;
         private Option option;
-
+        private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private double delta = 0.001;
 
         [SetUp]
         public void SetUp()
         {
-            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             this.domain = new DomainOfExpertise(Guid.NewGuid(), cache, this.uri) { Name = "domain" };
 
             this.context = new TestContext();
@@ -173,7 +174,14 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.Y, delta);
                 Assert.AreEqual(0.0, primitive.Z, delta);
 
-                //primitive.SetTranslation(1.0, 1.0, 1.0);
+                ValueArray<string> valueArray = new ValueArray<string>(new string[] { "1", "1", "1" });
+
+                var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+                {
+                    ValueSwitch = ParameterSwitchKind.MANUAL,
+                    Manual = valueArray,
+                };
+                primitive.SetPosition(parameterValueSet);
 
                 Assert.AreEqual(1.0, primitive.X, delta);
                 Assert.AreEqual(1.0, primitive.Y, delta);
@@ -223,12 +231,28 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(0.0, cube.Y, delta);
             Assert.AreEqual(0.0, cube.Z, delta);
 
-            //cube.SetTranslation(1.0, 2.0, 3.0);
+            ValueArray<string> valueArray = new ValueArray<string>(new string[] { "1", "2", "3" });
+
+            var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = valueArray,
+            };
+            cube.SetPosition(parameterValueSet);
+
             Assert.AreEqual(1.0, cube.X, delta);
             Assert.AreEqual(2.0, cube.Y, delta);
             Assert.AreEqual(3.0, cube.Z, delta);
 
-            //cube.ResetTransformations();
+            valueArray = new ValueArray<string>(new string[] { "0", "0", "0" });
+
+            parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = valueArray,
+            };
+            cube.SetPosition(parameterValueSet);
+
             Assert.AreEqual(0.0, cube.X, delta);
             Assert.AreEqual(0.0, cube.Y, delta);
             Assert.AreEqual(0.0, cube.Z, delta);

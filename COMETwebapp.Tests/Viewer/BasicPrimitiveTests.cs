@@ -62,11 +62,12 @@ namespace COMETwebapp.Tests.Viewer
         private DomainOfExpertise domain;
         private IShapeFactory shapeFactory;
         private Option option;
+        private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
 
         [SetUp]
         public void SetUp()
         {
-            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             this.domain = new DomainOfExpertise(Guid.NewGuid(), cache, this.uri) { Name = "domain" };
 
             this.context = new TestContext();
@@ -164,7 +165,14 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.Y);
                 Assert.AreEqual(0.0, primitive.Z);
 
-                //primitive.SetTranslation(1, 1, 1);
+                ValueArray<string> valueArray = new ValueArray<string>(new string[] {"1","1","1"});
+
+                var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+                {
+                    ValueSwitch = ParameterSwitchKind.MANUAL,
+                    Manual = valueArray,
+                };
+                primitive.SetPosition(parameterValueSet);
 
                 Assert.AreEqual(1.0, primitive.X);
                 Assert.AreEqual(1.0, primitive.Y);
@@ -181,7 +189,15 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.RY);
                 Assert.AreEqual(0.0, primitive.RZ);
 
-                //primitive.SetRotation(1, 1, 1);
+                ValueArray<string> valueArray = new ValueArray<string>(new string[] { "1", "1", "1" });
+
+                var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+                {
+                    ValueSwitch = ParameterSwitchKind.MANUAL,
+                    Manual = valueArray,
+                };
+
+                primitive.SetOrientation(parameterValueSet);
 
                 Assert.AreEqual(1.0, primitive.RX);
                 Assert.AreEqual(1.0, primitive.RY);
@@ -197,53 +213,34 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(0.0, cube.Y);
             Assert.AreEqual(0.0, cube.Z);
 
-            //cube.SetTranslation(1, 2, 3);
+            ValueArray<string> valueArray = new ValueArray<string>(new string[] { "1", "2", "3" });
+
+            var parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = valueArray,
+            };
+
+            cube.SetPosition(parameterValueSet);
+
             Assert.AreEqual(1.0, cube.X);
             Assert.AreEqual(2.0, cube.Y);
             Assert.AreEqual(3.0, cube.Z);
 
-            //cube.ResetTransformations();
+            valueArray = new ValueArray<string>(new string[] { "0", "0", "0" });
+
+            parameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = valueArray,
+            };
+
+            cube.SetPosition(parameterValueSet);
+
             Assert.AreEqual(0.0, cube.X);
             Assert.AreEqual(0.0, cube.Y);
             Assert.AreEqual(0.0, cube.Z);
         }
 
-        [Test]
-        public void VerifyThatTranslationCanBeAdded()
-        {
-            var cube = new Cube();
-            Assert.AreEqual(0.0, cube.X);
-            Assert.AreEqual(0.0, cube.Y);
-            Assert.AreEqual(0.0, cube.Z);
-
-            //cube.AddTranslation(1, 2, 3);
-            Assert.AreEqual(1.0, cube.X);
-            Assert.AreEqual(2.0, cube.Y);
-            Assert.AreEqual(3.0, cube.Z);
-
-            //cube.AddTranslation(1, 2, 3);
-            Assert.AreEqual(2.0, cube.X);
-            Assert.AreEqual(4.0, cube.Y);
-            Assert.AreEqual(6.0, cube.Z);
-        }
-
-        [Test]
-        public void VerifyThatRotationCanBeAdded()
-        {
-            var cube = new Cube();
-            Assert.AreEqual(0.0, cube.RX);
-            Assert.AreEqual(0.0, cube.RY);
-            Assert.AreEqual(0.0, cube.RZ);
-
-            //cube.AddRotation(1, 2, 3);
-            Assert.AreEqual(1.0, cube.RX);
-            Assert.AreEqual(2.0, cube.RY);
-            Assert.AreEqual(3.0, cube.RZ);
-
-            //cube.AddRotation(1, 2, 3);
-            Assert.AreEqual(2.0, cube.RX);
-            Assert.AreEqual(4.0, cube.RY);
-            Assert.AreEqual(6.0, cube.RZ);
-        }
     }
 }
