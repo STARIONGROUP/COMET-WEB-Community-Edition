@@ -63,7 +63,6 @@ namespace COMETwebapp.Tests.Shared
             {
                 using var ctx = new Bunit.TestContext();
 
-                ctx.AddDevExpressBlazorTesting();
                 ctx.ConfigureDevExpressBlazor();
                 ctx.JSInterop.Setup<IJSObjectReference>("DxBlazor.Modal.getReference", _ => true);
 
