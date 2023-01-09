@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Disc.cs" company="RHEA System S.A.">
+// <copyright file="IJSInterop.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -21,49 +21,41 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Interoperability
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.CanvasComponent;
-
     /// <summary>
-    /// Disc primitive type
+    /// Interface used for the interoperability between C# and JS
     /// </summary>
-    public class Disc : Primitive
+    public interface IJSInterop
     {
         /// <summary>
-        /// Basic type name
+        /// Invoke a void method from javascript
         /// </summary>
-        public override string Type { get; protected set; } = "Disc";
+        /// <param name="methodName">The name of the method in the javascript file</param>
+        Task Invoke(string methodName);
 
         /// <summary>
-        /// Radius of the disc
+        /// Invoke a void method from javascript with the specified parameters
         /// </summary>
-        public double Radius { get; set; }
+        /// <param name="methodName">The name of the method in the javascript file</param>
+        /// <param name="args">The arguments expected for the method</param>
+        Task Invoke(string methodName, params object[] args);
 
         /// <summary>
-        /// Creates a new instance of type <see cref="Disc"/>
+        /// Invoke a method from javascript
         /// </summary>
-        /// <param name="radius">the radius of the disc</param>
-        public Disc(double radius)
-        {
-            this.Radius = radius;
-        }
+        /// <typeparam name="T">The type of the spected return value</typeparam>
+        /// <param name="methodName">The name of the method in the javascript file</param>
+        /// <returns>A task of type of the spected return value</returns>
+        Task<T> Invoke<T>(string methodName);
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Invoke a method from javascript with the specified parameters
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var radiusValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
-
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
-            {
-                this.Radius = d/2.0;
-            }
-        }
-
+        /// <typeparam name="T">The type of the spected return value</typeparam>
+        /// <param name="methodName">The name of the method in the javascript file</param>
+        /// <param name="args">The arguments expected for the method</param>
+        /// <returns>A task of the type spected return value</returns>
+        Task<T> Invoke<T>(string methodName, params object[] args);
     }
 }

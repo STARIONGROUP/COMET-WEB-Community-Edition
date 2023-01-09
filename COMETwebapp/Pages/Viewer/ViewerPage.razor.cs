@@ -28,7 +28,8 @@ namespace COMETwebapp.Pages.Viewer
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Interoperability;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
@@ -38,8 +39,14 @@ namespace COMETwebapp.Pages.Viewer
     /// <summary>
     /// Support class for the <see cref="Viewer"/>
     /// </summary>
-    public  partial class Viewer 
+    public partial class ViewerPage
     {
+        /// <summary>
+        /// Gets or sets the property used for the Interoperability
+        /// </summary>
+        [Inject]
+        public IJSInterop JSInterop { get; set; }
+
         /// <summary>
         /// The reference to the <see cref="BabylonCanvas"/> component
         /// </summary>
@@ -156,7 +163,7 @@ namespace COMETwebapp.Pages.Viewer
 
                 this.States = iteration?.ActualFiniteStateList.SelectMany(x => x.ActualState.Select(s => s.Name)).ToList();
 
-                this.CanvasComponentReference.SceneProvider.OnSelectionChanged += (sender, args) =>
+                this.CanvasComponentReference.OnSelectionChanged += (sender, args) =>
                 {
                     TreeNode node = null;
                     if (args.Primitive is not null)
@@ -335,12 +342,12 @@ namespace COMETwebapp.Pages.Viewer
         /// Event for when a <see cref="TreeNode"/> in the tree is selected
         /// </summary>
         /// <param name="node">the selected node</param>
-        public void TreeSelectionChanged(TreeNode node)
+        public async void TreeSelectionChanged(TreeNode node)
         {
             this.UpdateTreeUI(node);
-            this.CanvasComponentReference.SceneProvider.ClearTemporaryPrimitives();
-            var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
-            primitivesOnScene.ForEach(x => x.IsSelected = false);
+            this.CanvasComponentReference.ClearTemporaryPrimitives();
+            var primitivesOnScene = this.CanvasComponentReference.GetPrimitives();
+            primitivesOnScene.ForEach(async x => { x.IsSelected = false; await JSInterop.Invoke("SetSelection", x.ID, false); });
 
             var nodesToSelect = node.GetFlatListOfDescendants();
             nodesToSelect.Add(node);
@@ -352,7 +359,8 @@ namespace COMETwebapp.Pages.Viewer
                 if (selectedPrimitive is not null)
                 {
                     selectedPrimitive.IsSelected = true;
-                    this.CanvasComponentReference.SceneProvider.SelectedPrimitive = selectedPrimitive;
+                    await JSInterop.Invoke("SetSelection", selectedPrimitive.ID, true);
+                    this.CanvasComponentReference.SelectedPrimitive = selectedPrimitive;
                 }
             }
         }
@@ -363,7 +371,7 @@ namespace COMETwebapp.Pages.Viewer
         /// <param name="node">the node that visibility has changed</param>
         public void TreeNodeVisibilityChanged(TreeNode node)
         {
-            var primitivesOnScene = this.CanvasComponentReference.SceneProvider.GetPrimitives();
+            var primitivesOnScene = this.CanvasComponentReference.GetPrimitives();
 
             var nodesToToggleVisibility = node.GetFlatListOfDescendants();
             nodesToToggleVisibility.Add(node);
@@ -375,6 +383,7 @@ namespace COMETwebapp.Pages.Viewer
                 if (selectedPrimitive is not null)
                 {
                     selectedPrimitive.IsVisible = node.IsVisible;
+                    JSInterop.Invoke("SetMeshVisibility", selectedPrimitive, node.IsVisible);
                 }
             }
 

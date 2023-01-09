@@ -24,14 +24,7 @@
 
 namespace COMETwebapp.Utilities
 {
-    /// <summary>
-    /// The format of the angle
-    /// </summary>
-    public enum AngleFormat
-    {
-        Degrees,
-        Radians,
-    }
+    using COMETwebapp.Enumerations;
 
     /// <summary>
     /// Static extension methods 

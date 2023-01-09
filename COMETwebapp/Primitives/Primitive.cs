@@ -28,7 +28,7 @@ namespace COMETwebapp.Primitives
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.Utilities;
     
     using Newtonsoft.Json;
@@ -38,16 +38,6 @@ namespace COMETwebapp.Primitives
     /// </summary>
     public abstract class Primitive
     {        
-        /// <summary>
-        /// Backing field for the property <see cref="IsSelected"/>
-        /// </summary>
-        private bool isSelected = false;
-
-        /// <summary>
-        /// Backing field for the property <see cref="IsVisible"/>
-        /// </summary>
-        private bool isVisible = true;
-
         /// <summary>
         /// Rendering group of this <see cref="Primitive"/>. Default is 0. Valid Range[0,4].
         /// </summary>
@@ -77,37 +67,6 @@ namespace COMETwebapp.Primitives
         public static Vector3 DefaultColor { get; } = new Vector3(210, 210, 210);
 
         /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is selected or not
-        /// </summary>
-        public bool IsSelected
-        {
-            get => isSelected;
-            set
-            {
-                isSelected = value;
-                JSInterop.Invoke("SetSelection", this.ID, value);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is visible or not
-        /// </summary>
-        public bool IsVisible
-        {
-            get => isVisible;
-            set
-            {
-                isVisible = value;
-                JSInterop.Invoke("SetMeshVisibility", this.ID, value);
-            }
-        }
-
-        /// <summary>
-        /// The base color of the primitive
-        /// </summary>
-        public Vector3 Color { get; private set; }
-
-        /// <summary>
         /// Property that defined the exact type of pritimive. Used in JS.
         /// </summary>
         public abstract string Type { get; protected set; }
@@ -118,34 +77,49 @@ namespace COMETwebapp.Primitives
         public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
+        /// Gets or sets if the <see cref="Primitive"/> is selected or not
+        /// </summary>
+        public bool IsSelected { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="Primitive"/> is visible or not
+        /// </summary>
+        public bool IsVisible { get; set; } = true;
+
+        /// <summary>
+        /// The base color of the primitive
+        /// </summary>
+        public Vector3 Color { get; set; }
+
+        /// <summary>
         /// Position along the X axis
         /// </summary>
-        public double X { get; protected set; }
+        public double X { get; set; }
 
         /// <summary>
         /// Position along the Y axis
         /// </summary>
-        public double Y { get; protected set; }
+        public double Y { get; set; }
 
         /// <summary>
         /// Position along the Z axis
         /// </summary>
-        public double Z { get; protected set; }
+        public double Z { get; set; }
 
         /// <summary>
         /// Angle of rotation (radians) around X axis.
         /// </summary>
-        public double RX { get; protected set; }
+        public double RX { get; set; }
 
         /// <summary>
         /// Angle of rotation (radians) around Y axis.
         /// </summary>
-        public double RY { get; protected set; }
+        public double RY { get; set; }
 
         /// <summary>
         /// Angle of rotation (radians) around Z axis.
         /// </summary>
-        public double RZ { get; protected set; }
+        public double RZ { get; set; }
 
         /// <summary>
         /// Reset all transformations of the primitive
@@ -173,53 +147,6 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Regenerates the <see cref="Primitive"/>. This updates the scene with the data of the the <see cref="Primitive"/>
-        /// </summary>
-        public void Regenerate()
-        {
-            string jsonPrimitive = JsonConvert.SerializeObject(this, Formatting.Indented);
-            JSInterop.Invoke("RegenMesh", jsonPrimitive);
-        }
-
-        /// <summary>
-        /// Sets a NEW translation to the primitive. 
-        /// </summary>
-        /// <param name="x">translation along X axis</param>
-        /// <param name="y">translation along Y axis</param>
-        /// <param name="z">translation along Z axis</param>
-        public void SetTranslation(double x, double y, double z)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            JSInterop.Invoke("SetPrimitivePosition", this.ID, this.X, this.Y, this.Z);
-        }
-
-        /// <summary>
-        /// Sets a NEW rotation to the primitive. 
-        /// </summary>
-        /// <param name="rx">angle of rotation in radians around X axis</param>
-        /// <param name="ry">angle of rotation in radians around Y axis</param>
-        /// <param name="rz">angle of rotation in radians around Z axis</param>
-        public void SetRotation(double rx, double ry, double rz)
-        {
-            this.RX = rx;
-            this.RY = ry;
-            this.RZ = rz;
-            JSInterop.Invoke("SetPrimitiveRotation", this.ID, this.RX, this.RY, this.RZ);
-        }
-
-        /// <summary>
-        /// Sets the color of this <see cref="Primitive"/>.
-        /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,255]</param>
-        public void SetColor(Vector3 color)
-        {
-            this.Color = color;
-            JSInterop.Invoke("SetMeshColor", this.ID, color.X, color.Y, color.Z);
-        }
-
-        /// <summary>
         /// Sets the color of this <see cref="Primitive"/>.
         /// </summary>
         /// <param name="r">red component of the color in range [0,255]</param>
@@ -228,7 +155,7 @@ namespace COMETwebapp.Primitives
         /// <returns></returns>
         public void SetColor(float r, float g, float b)
         {
-            this.SetColor(new Vector3(r, g, b));
+            this.Color = new Vector3(r, g, b);
         }
 
         /// <summary>
@@ -305,7 +232,7 @@ namespace COMETwebapp.Primitives
         public ParameterBase? GetTranslationParameter()
         {
             var param = this.ElementUsage.GetParametersInUse();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.PositionShortName);
         }
 
         /// <summary>
@@ -315,7 +242,7 @@ namespace COMETwebapp.Primitives
         public ParameterBase? GetOrientationParameter()
         {
             var param = this.ElementUsage.GetParametersInUse();
-            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.OrientationShortName);
         }
 
         /// <summary>
@@ -323,17 +250,16 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public void SetColorFromElementUsageParameters()
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.ColorShortName);
+            IValueSet? valueSet = this.GetValueSet(SceneSettings.ColorShortName);
 
             if(valueSet is not null)
             {
                 string textColor = valueSet.ActualValue.First();
-                Vector3 color = textColor.ParseToColorVector();
-                this.SetColor(color);
+                this.Color = textColor.ParseToColorVector();
             }
             else
             {
-                this.SetColor(Primitive.DefaultColor);
+                this.Color = Primitive.DefaultColor;
             }
         }
 
@@ -342,9 +268,14 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public void SetPositionFromElementUsageParameters()
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.PositionShortName);
+            IValueSet? valueSet = this.GetValueSet(SceneSettings.PositionShortName);
             var translation = valueSet.ParseIValueToPosition();
-            this.SetTranslation(translation[0], translation[1], translation[2]);
+            if(translation is not null)
+            {
+                this.X = translation[0];
+                this.Y = translation[1];
+                this.Z = translation[2];
+            }
         }
 
         /// <summary>
@@ -352,9 +283,14 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public void SetOrientationFromElementUsageParameters()
         {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
+            IValueSet? valueSet = this.GetValueSet(SceneSettings.OrientationShortName);
             var angles = valueSet.ParseIValueToEulerAngles();
-            this.SetRotation(angles[0], angles[1], angles[2]);
+            if(angles is not null)
+            {
+                this.RX = angles[0];
+                this.RY = angles[1];
+                this.RZ = angles[2];
+            }
         }
 
         /// <summary>
@@ -376,20 +312,23 @@ namespace COMETwebapp.Primitives
         {
             switch (parameterTypeShortName)
             {
-                case SceneProvider.ColorShortName:
+                case SceneSettings.ColorShortName:
                     string textColor = newValue.ActualValue.First();
-                    Vector3 color = textColor.ParseToColorVector();
-                    this.SetColor(color);
+                    this.Color = textColor.ParseToColorVector();
                     break;
 
-                case SceneProvider.PositionShortName:
+                case SceneSettings.PositionShortName:
                     var translation = newValue.ParseIValueToPosition();
-                    this.SetTranslation(translation[0], translation[1], translation[2]);
+                    this.X = translation[0];
+                    this.Y = translation[1];
+                    this.Z = translation[2];
                     break;
 
-                case SceneProvider.OrientationShortName:
+                case SceneSettings.OrientationShortName:
                     var angles = newValue.ParseIValueToEulerAngles();
-                    this.SetRotation(angles[0], angles[1], angles[2]);
+                    this.RX = angles[0];
+                    this.RY = angles[1];
+                    this.RZ = angles[2];
                     break;
             }
         }

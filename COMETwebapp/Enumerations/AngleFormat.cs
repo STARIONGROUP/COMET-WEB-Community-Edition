@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Disc.cs" company="RHEA System S.A.">
+// <copyright file="AngleFormat.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,48 +22,21 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Enumerations
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.CanvasComponent;
-
     /// <summary>
-    /// Disc primitive type
+    /// The format of the angle
     /// </summary>
-    public class Disc : Primitive
+    public enum AngleFormat
     {
         /// <summary>
-        /// Basic type name
+        /// The angle format is degrees. π Radians -> 180°
         /// </summary>
-        public override string Type { get; protected set; } = "Disc";
+        Degrees = 0,
 
         /// <summary>
-        /// Radius of the disc
+        /// The angle format is radians. π Radians -> 180°
         /// </summary>
-        public double Radius { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="Disc"/>
-        /// </summary>
-        /// <param name="radius">the radius of the disc</param>
-        public Disc(double radius)
-        {
-            this.Radius = radius;
-        }
-
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var radiusValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
-
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
-            {
-                this.Radius = d/2.0;
-            }
-        }
-
+        Radians = 1,
     }
 }

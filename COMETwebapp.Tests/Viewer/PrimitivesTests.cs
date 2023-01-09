@@ -37,7 +37,8 @@ namespace COMETwebapp.Tests.Viewer
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Interoperability;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
@@ -76,13 +77,13 @@ namespace COMETwebapp.Tests.Viewer
 
             this.context = new TestContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            JSInterop.JsRuntime = this.context.JSInterop.JSRuntime;
 
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
 
-            this.context.Services.AddTransient<ISceneProvider, SceneProvider>();
+            this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddSingleton<IShapeFactory>(new ShapeFactory());
+            this.context.Services.AddTransient<IJSInterop, JSInterop>();
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
 
@@ -105,7 +106,7 @@ namespace COMETwebapp.Tests.Viewer
                 Manual = new ValueArray<string>(new List<string> { "box" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName = SceneProvider.ShapeKindShortName, };
+            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName = SceneSettings.ShapeKindShortName, };
             var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = shapeKindParameterType };
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
@@ -114,7 +115,7 @@ namespace COMETwebapp.Tests.Viewer
                 Manual = new ValueArray<string>(new List<string> { "255:155:25" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Color", ShortName = SceneProvider.ColorShortName, };
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
             var colorParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
@@ -141,7 +142,6 @@ namespace COMETwebapp.Tests.Viewer
         {
             var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
             Assert.IsNotNull(basicShape);
-            Assert.IsTrue(basicShape is BasicPrimitive);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace COMETwebapp.Tests.Viewer
             var parameters = basicShape.ElementUsage.GetParametersInUse();
             Assert.IsNotNull(parameters);
             Assert.IsTrue(parameters.Count() > 0);
-            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName);
+            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
             Assert.IsNotNull(parameter);
         }
 
@@ -173,7 +173,9 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.AreEqual(0.0, primitive.Y, delta);
                 Assert.AreEqual(0.0, primitive.Z, delta);
 
-                primitive.SetTranslation(1.0, 1.0, 1.0);
+                primitive.X = 1.0;
+                primitive.Y = 1.0;
+                primitive.Z = 1.0;
 
                 Assert.AreEqual(1.0, primitive.X, delta);
                 Assert.AreEqual(1.0, primitive.Y, delta);
@@ -210,7 +212,7 @@ namespace COMETwebapp.Tests.Viewer
 
             var colorBefore = basicShape.Color;
 
-            basicShape.UpdatePropertyWithParameterData(SceneProvider.ColorShortName, valueSet.Object);
+            basicShape.UpdatePropertyWithParameterData(SceneSettings.ColorShortName, valueSet.Object);
 
             Assert.AreNotEqual(colorBefore, basicShape.Color);
         }
@@ -223,7 +225,10 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(0.0, cube.Y, delta);
             Assert.AreEqual(0.0, cube.Z, delta);
 
-            cube.SetTranslation(1.0, 2.0, 3.0);
+            cube.X = 1.0;
+            cube.Y = 2.0;
+            cube.Z = 3.0;
+
             Assert.AreEqual(1.0, cube.X, delta);
             Assert.AreEqual(2.0, cube.Y, delta);
             Assert.AreEqual(3.0, cube.Z, delta);

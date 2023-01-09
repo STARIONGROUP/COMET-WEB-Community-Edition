@@ -25,6 +25,7 @@
 namespace COMETwebapp.Utilities
 {
     using CDP4Common.EngineeringModelData;
+    using System.Globalization;
 
     /// <summary>
     /// Static extension methods for <see cref="IValueSet"/>
@@ -36,17 +37,20 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>An array of type [X,Y,Z]</returns>
-        public static double[] ParseIValueToPosition(this IValueSet? valueSet)
+        public static double[] ParseIValueToPosition(this IValueSet valueSet)
         {
-            double x = 0, y = 0, z = 0;
-
-            if (valueSet is not null)
+            if(valueSet.ActualValue.Count != 3)
             {
-                double.TryParse(valueSet.ActualValue[0], out x);
-                double.TryParse(valueSet.ActualValue[1], out y);
-                double.TryParse(valueSet.ActualValue[2], out z);
+                throw new ArgumentException("The value set must contain 3 values");
             }
-            return new double[] { x, y, z };
+            else if(valueSet.ToDoubles(out var result))
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return new double[] { 0,0,0 };
+            }
         }
 
         /// <summary>
@@ -60,7 +64,6 @@ namespace COMETwebapp.Utilities
 
             if (valueSet is not null)
             {
-
                 if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
                 {
                     rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
@@ -87,6 +90,31 @@ namespace COMETwebapp.Utilities
             return valueSet.ParseIValueToRotationMatrix().ToEulerAngles();
         }
 
+        /// <summary>
+        /// Parses the value set to doubles
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <param name="result">the result of the parse</param>
+        /// <returns>true if the parse succeed, false otherwise</returns>
+        public static bool ToDoubles(this IValueSet valueSet, out IEnumerable<double> result)
+        {
+            var values = new List<double>();
 
+            foreach (var value in valueSet.ActualValue)
+            {
+                if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var validValue))
+                {
+                    values.Add(validValue);
+                }
+                else
+                {
+                    result = new double[] { };
+                    return false;
+                }
+            }
+
+            result = values;
+            return true;
+        }
     }
 }

@@ -26,7 +26,8 @@ namespace COMETwebapp.Tests.Viewer
 {
     using Bunit;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Interoperability;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
 
@@ -45,60 +46,61 @@ namespace COMETwebapp.Tests.Viewer
     public class SceneTests
     {
         private TestContext context;
-        private ISceneProvider scene;
+        private ISceneSettings scene;
+        private BabylonCanvas canvas;
+        private IJSInterop JSInterop;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            JSInterop.JsRuntime = context.JSInterop.JSRuntime;
 
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
             var factory = new Mock<IShapeFactory>();
             this.context.Services.AddSingleton(factory.Object);
 
-            this.context.Services.AddTransient<ISceneProvider, SceneProvider>();
+            this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
+            this.context.Services.AddTransient<IJSInterop, JSInterop>();
 
             var renderer = this.context.RenderComponent<BabylonCanvas>();
-
-            this.scene = renderer.Instance.SceneProvider;
+            canvas = renderer.Instance;
         }
 
         [Test]
         public void VerifyThatAxesAreAddedToScene()
         {
-            this.scene.ClearPrimitives();
-            Assert.AreEqual(0, this.scene.GetPrimitives().Count);
-            this.scene.AddWorldAxes();
-            Assert.AreEqual(3, this.scene.GetPrimitives().Count);
+            this.canvas.ClearPrimitives();
+            Assert.AreEqual(0, this.canvas.GetPrimitives().Count);
+            this.canvas.AddWorldAxes();
+            Assert.AreEqual(3, this.canvas.GetPrimitives().Count);
         }
 
         [Test]
         public void VerifyThatPrimitiveCanBeRetrievedById()
         {
             var primitive = new Cube(1, 1, 1);
-            this.scene.AddPrimitive(primitive);
-            var retrieved = this.scene.GetPrimitiveById(primitive.ID);
+            this.canvas.AddPrimitive(primitive);
+            var retrieved = this.canvas.GetPrimitiveById(primitive.ID);
             Assert.IsNotNull(retrieved);
             Assert.AreEqual(primitive, retrieved);
         }
 
         [Test]
-        public void VerifyThatGetPrimitivesWorks()
+        public async void VerifyThatGetPrimitivesWorks()
         {
-            this.scene.ClearPrimitives();
+            await this.canvas.ClearPrimitives();
 
             var primitive1 = new Cube(1, 1, 1);
             var primitive2 = new Sphere(1);
             var primitive3 = new Cone(1, 1);
 
-            this.scene.AddPrimitive(primitive1);
-            this.scene.AddPrimitive(primitive2);
-            this.scene.AddPrimitive(primitive3);
+            await this.canvas.AddPrimitive(primitive1);
+            await this.canvas.AddPrimitive(primitive2);
+            await this.canvas.AddPrimitive(primitive3);
 
-            var primitives = this.scene.GetPrimitives();
+            var primitives = this.canvas.GetPrimitives();
 
             Assert.AreEqual(3, primitives.Count);
 
@@ -115,8 +117,8 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatPrimitivesAreAddedToScene()
         {
             Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            this.scene.AddPrimitive(cube).Wait();
-            var prim = this.scene.GetPrimitiveById(cube.ID);
+            this.canvas.AddPrimitive(cube).Wait();
+            var prim = this.canvas.GetPrimitiveById(cube.ID);
             Assert.AreEqual(cube, prim);
         }
 
@@ -124,7 +126,10 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatSetPositionWorks()
         {
             Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            cube.SetTranslation(1, 1, 1);
+            cube.X = 1;
+            cube.Y = 1;
+            cube.Z = 1;
+
             Assert.AreEqual(1, cube.X);
             Assert.AreEqual(1, cube.Y);
             Assert.AreEqual(1, cube.Z);
@@ -134,7 +139,10 @@ namespace COMETwebapp.Tests.Viewer
         public void VerifyThatSetRotationWorks()
         {
             Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            cube.SetRotation(1, 1, 1);
+            cube.RX = 1;
+            cube.RY = 1;
+            cube.RZ = 1;
+
             Assert.AreEqual(1, cube.RX);
             Assert.AreEqual(1, cube.RY);
             Assert.AreEqual(1, cube.RZ);
@@ -145,13 +153,13 @@ namespace COMETwebapp.Tests.Viewer
         {
             var cube1 = new Cube(1, 1, 1);
             var cube2 = new Cube(1, 1, 1);
-            this.scene.ClearPrimitives().Wait();
-            this.scene.AddPrimitive(cube1).Wait();
-            this.scene.AddPrimitive(cube2).Wait();
-            Assert.AreEqual(2, this.scene.GetPrimitives().Count);
+            this.canvas.ClearPrimitives().Wait();
+            this.canvas.AddPrimitive(cube1).Wait();
+            this.canvas.AddPrimitive(cube2).Wait();
+            Assert.AreEqual(2, this.canvas.GetPrimitives().Count);
 
-            this.scene.ClearPrimitives().Wait();
-            Assert.AreEqual(0, this.scene.GetPrimitives().Count);
+            this.canvas.ClearPrimitives().Wait();
+            Assert.AreEqual(0, this.canvas.GetPrimitives().Count);
         }
     }
 }

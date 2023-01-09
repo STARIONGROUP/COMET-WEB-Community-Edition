@@ -28,7 +28,7 @@ namespace COMETwebapp.Primitives
 
     using CDP4Common.EngineeringModelData;
     
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.Utilities;
 
     /// <summary>
@@ -72,7 +72,7 @@ namespace COMETwebapp.Primitives
         {
             IValueSet? valueSet = null;
             var parameters = elementUsage.GetParametersInUse();
-            var shapeKindParameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.ShapeKindShortName, null);
+            var shapeKindParameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName, null);
 
             Primitive? primitive = null;
 

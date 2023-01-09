@@ -26,7 +26,7 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
 
     /// <summary>
     /// Cylinder primitive type
@@ -81,8 +81,8 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public override void SetDimensionsFromElementUsageParameters()
         {
-            var diameterValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-            var heightValueSet   = this.GetValueSet(SceneProvider.HeightShortName);
+            var diameterValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
+            var heightValueSet   = this.GetValueSet(SceneSettings.HeightShortName);
 
             if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
             {
@@ -106,20 +106,19 @@ namespace COMETwebapp.Primitives
 
             switch (parameterTypeShortName)
             {
-                case SceneProvider.DiameterShortName:
+                case SceneSettings.DiameterShortName:
                     if (double.TryParse(newValue.ActualValue.First(), out double d))
                     {
                         this.Radius = d/2.0;
                     }
                     break;
-                case SceneProvider.HeightShortName:
+                case SceneSettings.HeightShortName:
                     if (double.TryParse(newValue.ActualValue.First(), out double h))
                     {
                         this.Height = h;
                     }
                     break;
             }
-            this.Regenerate();
         }
     }
 }

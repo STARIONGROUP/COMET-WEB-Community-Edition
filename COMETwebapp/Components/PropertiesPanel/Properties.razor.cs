@@ -31,7 +31,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     
     using CDP4Dal;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
@@ -47,7 +47,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <summary>
         /// Backing field for the <see cref="SelectedPrimitive"/> property
         /// </summary>
-        private Primitive primitive;
+        private Primitive selectedPrimitive;
 
         /// <summary>
         /// Gets or sets the <see cref="Primitive"/> to fill the panel
@@ -55,21 +55,21 @@ namespace COMETwebapp.Components.PropertiesPanel
         [Parameter]
         public Primitive SelectedPrimitive
         {
-            get => primitive;
+            get => selectedPrimitive;
             set
             {
-                primitive = value.Clone();
-                this.ISceneProvider.ClearTemporaryPrimitives();
-                this.ISceneProvider.AddTemporaryPrimitive(this.primitive);
+                selectedPrimitive = value.Clone();
+                this.BabylonCanvas.ClearTemporaryPrimitives();
+                this.BabylonCanvas.AddTemporaryPrimitive(this.selectedPrimitive);
                 this.InitPanelProperties();
             }
         }
 
         /// <summary>
-        /// The provider of the 3D Scene
+        /// Gets or sets the canvas where the 3D scene is drawn
         /// </summary>
-        [Inject]
-        public ISceneProvider ISceneProvider { get; set; }
+        [Parameter]
+        public BabylonCanvas BabylonCanvas { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
@@ -93,7 +93,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
         /// </summary>
         [Parameter]
-        public List<ParameterBase> ParametersInUse { get; set; }
+        public List<ParameterBase> ParametersInUse { get; set; } = new();
 
         /// <summary>
         /// A reference to the <see cref="DetailsComponent"/>

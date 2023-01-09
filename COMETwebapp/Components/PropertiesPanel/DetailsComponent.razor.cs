@@ -26,16 +26,23 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-
+    using COMETwebapp.Interoperability;
     using COMETwebapp.Primitives;
 
     using Microsoft.AspNetCore.Components;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// The component used for showing the details of the <see cref="PrimitiveSelected"/>
     /// </summary>
     public partial class DetailsComponent
     {
+        /// <summary>
+        /// Gets or sets the property used for the Interoperability
+        /// </summary>
+        [Inject]
+        public IJSInterop JSInterop { get; set; }
+
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
         /// </summary>
@@ -122,8 +129,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         public void OnParameterValueChange(int changedIndex, ChangeEventArgs e)
         {
             //TODO: Validate data 
-            this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);
-            
+            this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);            
         }
 
         /// <summary>
@@ -131,9 +137,8 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
         /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
-        public void ParameterChanged(int changedIndex, string value)
+        public async void ParameterChanged(int changedIndex, string value)
         {
-
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];
 
             ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
@@ -145,6 +150,9 @@ namespace COMETwebapp.Components.PropertiesPanel
                 clonedValueSetBase.Manual = newValueArray;
                 this.ValueSetsCollection[this.ParameterSelected] = clonedValueSetBase;
                 this.PrimitiveSelected.UpdatePropertyWithParameterData(this.ParameterSelected.ParameterType.ShortName, clonedValueSetBase);
+
+                string jsonPrimitive = JsonConvert.SerializeObject(this.primitiveSelected, Formatting.Indented);
+                await JSInterop.Invoke("RegenMesh", jsonPrimitive);
             }
         }
     }

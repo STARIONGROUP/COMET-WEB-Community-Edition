@@ -26,7 +26,7 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
 
     /// <summary>
     /// Equilateral Triangle primitive type
@@ -57,7 +57,7 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public override void SetDimensionsFromElementUsageParameters()
         {
-            var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
+            var radiusValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
 
             if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
             {
@@ -76,14 +76,13 @@ namespace COMETwebapp.Primitives
 
             switch (parameterTypeShortName)
             {
-                case SceneProvider.DiameterShortName:
+                case SceneSettings.DiameterShortName:
                     if (double.TryParse(newValue.ActualValue.First(), out double d))
                     {
                         this.Radius = d/2.0;
                     }
                     break;
             }
-            this.Regenerate();
         }
     }
 }

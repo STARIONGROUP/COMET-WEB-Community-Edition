@@ -99,7 +99,7 @@ namespace COMETwebapp.Components.PropertiesPanel
             if (firstRender)
             {
                 this.OrientationMatrix = this.DetailsComponent.GetValueSet().ParseIValueToRotationMatrix();
-                var eulerAngles = this.OrientationMatrix.ToEulerAngles(Utilities.AngleFormat.Degrees);
+                var eulerAngles = this.OrientationMatrix.ToEulerAngles(Enumerations.AngleFormat.Degrees);
                 this.Rx = eulerAngles[0];
                 this.Ry = eulerAngles[1];
                 this.Rz = eulerAngles[2];
@@ -131,7 +131,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 
             var eulerAngles = new double[] { this.Rx, this.Ry, this.Rz };
 
-            Enum.TryParse<Utilities.AngleFormat>(this.AngleFormat, out var angleFormat);
+            Enum.TryParse<Enumerations.AngleFormat>(this.AngleFormat, out var angleFormat);
             this.OrientationMatrix = eulerAngles.ToRotationMatrix(angleFormat);
 
             for(int i = 0; i< this.OrientationMatrix.Length; i++)

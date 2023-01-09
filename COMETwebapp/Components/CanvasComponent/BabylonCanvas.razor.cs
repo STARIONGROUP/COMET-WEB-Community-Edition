@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SceneProvider.cs" company="RHEA System S.A.">
+// <copyright file="BabylonCanvas.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,78 +22,67 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Viewer
+namespace COMETwebapp.Components.CanvasComponent
 {
     using System;
-    using System.Collections.Generic;
     using System.Numerics;
     using System.Threading.Tasks;
 
-    using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp;
+    using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
-
+    
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.JSInterop;
-
+    
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Class to access the resources of a Scene 
+    /// Support class for the <see cref="BabylonCanvas.razor"/>
     /// </summary>
-    public class SceneProvider : ISceneProvider
+    public partial class BabylonCanvas 
     {
         /// <summary>
-        /// Shape Kind parameter short name
+        /// Reference to the HTML5 canvas
         /// </summary>
-        public const string ShapeKindShortName = "kind";
+        public ElementReference CanvasReference { get; set; }
 
         /// <summary>
-        /// Orientation parameter short name
+        /// Tells if the mouse if pressed or not in the canvas component
         /// </summary>
-        public const string OrientationShortName = "orientation";
+        public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
-        /// Position parameter short name
+        /// Invokable method from JS to get a GUID
         /// </summary>
-        public const string PositionShortName = "coord";
+        /// <returns>the GUID in string format</returns>
+        [JSInvokable]
+        public static string GetGUID() => Guid.NewGuid().ToString();
 
         /// <summary>
-        /// Width parameter short name
+        /// Shape factory for creating <see cref="Primitive"/> from a <see cref="ElementUsage"/>
         /// </summary>
-        public const string WidthShortName = "wid_diameter";
+        [Inject]
+        public IShapeFactory? ShapeFactory { get; set; }
 
         /// <summary>
-        /// Diameter parameter short name
+        /// Gets or sets the property used for the Interoperability
         /// </summary>
-        public const string DiameterShortName = WidthShortName;
+        [Inject]
+        public IJSInterop JSInterop { get; set; }
 
         /// <summary>
-        /// Height parameter short name
+        /// Gets or sets the <see cref="Primitive"/> that is currently selected
         /// </summary>
-        public const string HeightShortName = "h";
-
-        /// <summary>
-        /// Length parameter short name
-        /// </summary>
-        public const string LengthShortName = "l";
-
-        /// <summary>
-        /// Thickness parameter short name
-        /// </summary>
-        public const string ThicknessShortName = "thickn";
-
-        /// <summary>
-        /// Color parameter short name
-        /// </summary>
-        public const string ColorShortName = "color";
+        public Primitive SelectedPrimitive { get; set; }
 
         /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
         /// </summary>
-        private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();           
+        private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();
 
         /// <summary>
         /// Collection of temporary <see cref="Primitive"/> in the Scene
@@ -106,16 +95,83 @@ namespace COMETwebapp.Components.Viewer
         public event EventHandler<OnSelectionChangedEventArgs> OnSelectionChanged;
 
         /// <summary>
-        /// The primitive that is currently selected
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
         /// </summary>
-        public Primitive SelectedPrimitive { get; set; }
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {               
+                this.InitCanvas(this.CanvasReference);
+                await this.AddWorldAxes();
+            }
+        }
+               
+        /// <summary>
+        /// Canvas on mouse down event
+        /// </summary>
+        /// <param name="e">the mouse args of the event</param>
+        public void OnMouseDown(MouseEventArgs e)
+        {
+            this.IsMouseDown = true;
+            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
+        }
 
         /// <summary>
-        /// Creates a new instance of class <see cref="SceneProvider"/>
+        /// Canvas on mouse up event
         /// </summary>
-        public SceneProvider(IJSRuntime JsRuntime)
+        /// <param name="e">the mouse args of the event</param>
+        public async void OnMouseUp(MouseEventArgs e)
         {
-            JSInterop.JsRuntime = JsRuntime;
+            this.IsMouseDown = false;
+            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
+            await this.ClearTemporaryPrimitives();
+            var primitive = await this.GetPrimitiveUnderMouseAsync();
+            this.GetPrimitives().ForEach(async x => { x.IsSelected = false; await JSInterop.Invoke("SetSelection", x.ID, false); });
+            this.SelectedPrimitive = null;
+
+            if (primitive is not null)
+            {
+                primitive.IsSelected = true;
+                await JSInterop.Invoke("SetSelection", primitive.ID, true);
+                this.SelectedPrimitive = primitive;
+            }
+            this.RaiseSelectionChanged(primitive);
+        }
+
+        /// <summary>
+        /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
+        /// </summary>
+        /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
+        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
+        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
+        public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
+        {
+            await this.ClearPrimitives();
+
+            foreach (var elementUsage in elementUsages)
+            {
+                var basicShape = this.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
+
+                if (basicShape is not null)
+                {
+                    await this.AddPrimitive(basicShape);
+                }
+            }
         }
 
         /// <summary>
@@ -193,7 +249,7 @@ namespace COMETwebapp.Components.Viewer
         /// </summary>
         /// <param name="primitive">the primitive to add</param>
         public async Task AddTemporaryPrimitive(Primitive primitive)
-        {            
+        {
             string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
             TemporaryPrimitivesCollection.Add(primitive.ID, primitive);
             await JSInterop.Invoke("AddPrimitive", jsonPrimitive);
@@ -364,17 +420,6 @@ namespace COMETwebapp.Components.Viewer
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Clears the scene selection
-        /// </summary>
-        public static void ClearSelection()
-        {
-            foreach(var primitive in primitivesCollection.Values)
-            {
-                primitive.IsSelected = false;
-            }
         }
     }
 }

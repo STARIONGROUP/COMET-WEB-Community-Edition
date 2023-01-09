@@ -26,7 +26,7 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
 
     /// <summary>
     /// Cube primitive type
@@ -90,9 +90,9 @@ namespace COMETwebapp.Primitives
         /// </summary>
         public override void SetDimensionsFromElementUsageParameters()
         {            
-            var widthValueSet  = this.GetValueSet(SceneProvider.WidthShortName);
-            var heightValueSet = this.GetValueSet(SceneProvider.HeightShortName);
-            var lengthValueSet = this.GetValueSet(SceneProvider.LengthShortName);
+            var widthValueSet  = this.GetValueSet(SceneSettings.WidthShortName);
+            var heightValueSet = this.GetValueSet(SceneSettings.HeightShortName);
+            var lengthValueSet = this.GetValueSet(SceneSettings.LengthShortName);
 
             if(widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
             {
@@ -121,26 +121,25 @@ namespace COMETwebapp.Primitives
 
             switch (parameterTypeShortName)
             {
-                case SceneProvider.WidthShortName:
+                case SceneSettings.WidthShortName:
                     if(double.TryParse(newValue.ActualValue.First(), out double w))
                     {
                         this.Width = w;
                     }
                     break;
-                case SceneProvider.HeightShortName:
+                case SceneSettings.HeightShortName:
                     if(double.TryParse(newValue.ActualValue.First(), out double h))
                     {
                         this.Height = h;
                     }
                     break;
-                case SceneProvider.LengthShortName:
+                case SceneSettings.LengthShortName:
                     if (double.TryParse(newValue.ActualValue.First(), out double d))
                     {
                         this.Depth = d;
                     }
                     break;
             }
-            this.Regenerate();
         }
     }
 }

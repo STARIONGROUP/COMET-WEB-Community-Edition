@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Disc.cs" company="RHEA System S.A.">
+// <copyright file="ISceneProvider.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,48 +22,59 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Components.CanvasComponent
 {
-    using CDP4Common.EngineeringModelData;
+    using System.Drawing;
+    using System.Numerics;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Model;
+    using COMETwebapp.Primitives;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Disc primitive type
+    /// Scene provider
     /// </summary>
-    public class Disc : Primitive
+    public interface ISceneSettings
     {
         /// <summary>
-        /// Basic type name
+        /// Shape Kind parameter short name
         /// </summary>
-        public override string Type { get; protected set; } = "Disc";
+        public const string ShapeKindShortName = "kind";
 
         /// <summary>
-        /// Radius of the disc
+        /// Orientation parameter short name
         /// </summary>
-        public double Radius { get; set; }
+        public const string OrientationShortName = "orientation";
 
         /// <summary>
-        /// Creates a new instance of type <see cref="Disc"/>
+        /// Position parameter short name
         /// </summary>
-        /// <param name="radius">the radius of the disc</param>
-        public Disc(double radius)
-        {
-            this.Radius = radius;
-        }
+        public const string PositionShortName = "coord";
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Width parameter short name
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {
-            var radiusValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
+        public const string WidthShortName = "wid_diameter";
 
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
-            {
-                this.Radius = d/2.0;
-            }
-        }
+        /// <summary>
+        /// Diameter parameter short name
+        /// </summary>
+        public const string DiameterShortName = WidthShortName;
 
+        /// <summary>
+        /// Height parameter short name
+        /// </summary>
+        public const string HeightShortName = "h";
+
+        /// <summary>
+        /// Length parameter short name
+        /// </summary>
+        public const string LengthShortName = "l";
+
+        /// <summary>
+        /// Thickness parameter short name
+        /// </summary>
+        public const string ThicknessShortName = "thickn";
     }
 }
