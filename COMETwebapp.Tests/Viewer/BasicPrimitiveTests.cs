@@ -197,8 +197,8 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(0.0, cube.Z);
 
             cube.X = 1;
-            cube.Y = 1;
-            cube.Z = 1;
+            cube.Y = 2;
+            cube.Z = 3;
 
             Assert.AreEqual(1.0, cube.X);
             Assert.AreEqual(2.0, cube.Y);

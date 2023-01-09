@@ -36,7 +36,7 @@ namespace COMETwebapp.Tests.Viewer
     using Moq;
 
     using NUnit.Framework;
-
+    using System.Threading.Tasks;
     using TestContext = Bunit.TestContext;
 
     /// <summary>
@@ -88,7 +88,7 @@ namespace COMETwebapp.Tests.Viewer
         }
 
         [Test]
-        public async void VerifyThatGetPrimitivesWorks()
+        public async Task VerifyThatGetPrimitivesWorks()
         {
             await this.canvas.ClearPrimitives();
 

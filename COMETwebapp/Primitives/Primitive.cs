@@ -223,7 +223,7 @@ namespace COMETwebapp.Primitives
             }
 
             return null;
-        }
+        }              
 
         /// <summary>
         /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
@@ -269,12 +269,15 @@ namespace COMETwebapp.Primitives
         public void SetPositionFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneSettings.PositionShortName);
-            var translation = valueSet.ParseIValueToPosition();
-            if(translation is not null)
+            if(valueSet is not null)
             {
-                this.X = translation[0];
-                this.Y = translation[1];
-                this.Z = translation[2];
+                var translation = valueSet.ParseIValueToPosition();
+                if (translation is not null)
+                {
+                    this.X = translation[0];
+                    this.Y = translation[1];
+                    this.Z = translation[2];
+                }
             }
         }
 
@@ -284,12 +287,16 @@ namespace COMETwebapp.Primitives
         public void SetOrientationFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneSettings.OrientationShortName);
-            var orientation = valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
-            if(orientation is not null)
+            if(valueSet is not null)
             {
-                this.RX = orientation.X;
-                this.RY = orientation.Y;
-                this.RZ = orientation.Z;
+                var orientation = valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
+
+                if (orientation is not null)
+                {
+                    this.RX = orientation.X;
+                    this.RY = orientation.Y;
+                    this.RZ = orientation.Z;
+                }
             }
         }
 
