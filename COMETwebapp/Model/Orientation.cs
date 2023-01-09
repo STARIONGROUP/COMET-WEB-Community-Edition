@@ -94,6 +94,11 @@ namespace COMETwebapp.Model
         public double[] Matrix { get; private set; }
 
         /// <summary>
+        /// Gets the euler angles represented in this orientation
+        /// </summary>
+        public double[] Angles => new double[] { X, Y, Z };
+
+        /// <summary>
         /// Creates a new instance of type <see cref="Orientation"/>
         /// </summary>
         /// <param name="x">angle around X axis</param>
@@ -131,7 +136,7 @@ namespace COMETwebapp.Model
             double s2 = Math.Sin(a2);
             double s3 = Math.Sin(a3);
 
-            //ZYX -> First x, Second Y, Third Z
+            //ZYX -> First X, Second Y, Third Z
             this.Matrix[0] = c2 * c3;
             this.Matrix[1] = s1 * s2 * c3 - c1 * s3;
             this.Matrix[2] = c1 * s2 * c3 + s1 * s3;

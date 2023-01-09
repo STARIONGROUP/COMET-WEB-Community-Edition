@@ -284,12 +284,12 @@ namespace COMETwebapp.Primitives
         public void SetOrientationFromElementUsageParameters()
         {
             IValueSet? valueSet = this.GetValueSet(SceneSettings.OrientationShortName);
-            var angles = valueSet.ParseIValueToEulerAngles();
-            if(angles is not null)
+            var orientation = valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
+            if(orientation is not null)
             {
-                this.RX = angles[0];
-                this.RY = angles[1];
-                this.RZ = angles[2];
+                this.RX = orientation.X;
+                this.RY = orientation.Y;
+                this.RZ = orientation.Z;
             }
         }
 
@@ -325,10 +325,13 @@ namespace COMETwebapp.Primitives
                     break;
 
                 case SceneSettings.OrientationShortName:
-                    var angles = newValue.ParseIValueToEulerAngles();
-                    this.RX = angles[0];
-                    this.RY = angles[1];
-                    this.RZ = angles[2];
+                    var orientation = newValue.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
+                    if (orientation is not null)
+                    {
+                        this.RX = orientation.X;
+                        this.RY = orientation.Y;
+                        this.RZ = orientation.Z;
+                    }
                     break;
             }
         }

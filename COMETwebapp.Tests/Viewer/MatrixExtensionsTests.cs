@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Utilities;
 
     using NUnit.Framework;

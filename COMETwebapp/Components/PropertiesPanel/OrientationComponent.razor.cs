@@ -28,7 +28,8 @@ namespace COMETwebapp.Components.PropertiesPanel
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
+    using COMETwebapp.Enumerations;
+    using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     
     using Microsoft.AspNetCore.Components;
@@ -37,7 +38,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     /// <summary>
     /// The component used to change the orientation of the selected mesh.
     /// </summary>
-    public partial class Orientation
+    public partial class OrientationComponent
     {
         /// <summary>
         /// Gets or sets the orientation parameter type.
@@ -98,11 +99,13 @@ namespace COMETwebapp.Components.PropertiesPanel
 
             if (firstRender)
             {
-                this.OrientationMatrix = this.DetailsComponent.GetValueSet().ParseIValueToRotationMatrix();
-                var eulerAngles = this.OrientationMatrix.ToEulerAngles(Enumerations.AngleFormat.Degrees);
-                this.Rx = eulerAngles[0];
-                this.Ry = eulerAngles[1];
-                this.Rz = eulerAngles[2];
+                var orientation = this.DetailsComponent.GetValueSet().ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
+                this.OrientationMatrix = orientation.Matrix;
+
+                this.Rx = orientation.X;
+                this.Ry = orientation.Y;
+                this.Rz = orientation.Z;
+
                 this.StateHasChanged();
             }
         }
@@ -129,10 +132,9 @@ namespace COMETwebapp.Components.PropertiesPanel
                 }
             }
 
-            var eulerAngles = new double[] { this.Rx, this.Ry, this.Rz };
-
-            Enum.TryParse<Enumerations.AngleFormat>(this.AngleFormat, out var angleFormat);
-            this.OrientationMatrix = eulerAngles.ToRotationMatrix(angleFormat);
+            Enum.TryParse<AngleFormat>(this.AngleFormat, out var angleFormat);
+            var orientation = new Orientation(this.Rx, this.Ry, this.Rz) { AngleFormat = angleFormat };
+            this.OrientationMatrix = orientation.Matrix;
 
             for(int i = 0; i< this.OrientationMatrix.Length; i++)
             {

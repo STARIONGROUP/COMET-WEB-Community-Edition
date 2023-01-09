@@ -25,6 +25,8 @@
 namespace COMETwebapp.Utilities
 {
     using CDP4Common.EngineeringModelData;
+    using COMETwebapp.Enumerations;
+    using COMETwebapp.Model;
     using System.Globalization;
 
     /// <summary>
@@ -58,36 +60,14 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        public static double[] ParseIValueToRotationMatrix(this IValueSet? valueSet)
+        public static Orientation ParseIValueToOrientation(this IValueSet valueSet, AngleFormat angleFormat)
         {
-            double[] rotMatrix = new double[9];
-
-            if (valueSet is not null)
+            if (valueSet.ToDoubles(out var result))
             {
-                if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
-                {
-                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
-                }
-                else
-                {
-                    for (int i = 0; i < 9; i++)
-                    {
-                        rotMatrix[i] = double.Parse(valueSet.ActualValue[i]);
-                    }
-                }
+                return result.ToArray().ToOrientation(valueSet.ActualValue.Count == 9, angleFormat);
             }
 
-            return rotMatrix;
-        }
-
-        /// <summary>
-        /// Parses an <see cref="IValueSet"/> to Euler Angles
-        /// </summary>
-        /// <param name="valueSet">the value set to parse</param>
-        /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        public static double[] ParseIValueToEulerAngles(this IValueSet? valueSet)
-        {
-            return valueSet.ParseIValueToRotationMatrix().ToEulerAngles();
+            return new Orientation(0, 0, 0);
         }
 
         /// <summary>
