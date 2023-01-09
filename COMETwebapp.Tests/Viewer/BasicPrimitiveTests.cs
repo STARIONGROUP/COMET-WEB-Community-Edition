@@ -55,7 +55,7 @@ namespace COMETwebapp.Tests.Viewer
     public class BasicPrimitiveTests
     {
         private TestContext context;
-        private List<BasicPrimitive> positionables;
+        private List<Primitive> positionables;
         private ElementDefinition elementDef;
         private ElementUsage elementUsage;
         private readonly Uri uri = new Uri("http://test.com");
@@ -83,7 +83,7 @@ namespace COMETwebapp.Tests.Viewer
 
             this.shapeFactory = renderer.Instance.ShapeFactory;
 
-            this.positionables = new List<BasicPrimitive>();
+            this.positionables = new List<Primitive>();
             this.positionables.Add(new Cube(1, 1, 1));
             this.positionables.Add(new Cylinder(1, 1));
             this.positionables.Add(new Sphere(1));
