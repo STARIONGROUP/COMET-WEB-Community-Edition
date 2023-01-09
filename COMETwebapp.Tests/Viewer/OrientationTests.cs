@@ -51,5 +51,21 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.That(1.0, Is.EqualTo(orientation.Matrix[8]));
             });
         }
+
+        [Test]
+        public void VerifyThatAnglesAreComputedFromOrientation()
+        {
+            var orientation = new Orientation(1, 2, 3);
+            Assert.Multiple(() =>
+            {
+                Assert.That(1.0, Is.EqualTo(orientation.X));
+                Assert.That(2.0, Is.EqualTo(orientation.Y));
+                Assert.That(3.0, Is.EqualTo(orientation.Z));
+                Assert.That(orientation.Angles.Length, Is.EqualTo(3));
+                Assert.That(1.0, Is.EqualTo(orientation.Angles[0]));
+                Assert.That(2.0, Is.EqualTo(orientation.Angles[1]));
+                Assert.That(3.0, Is.EqualTo(orientation.Angles[2]));
+            });
+        }
     }
 }

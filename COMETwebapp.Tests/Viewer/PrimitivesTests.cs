@@ -119,11 +119,31 @@ namespace COMETwebapp.Tests.Viewer
             var colorParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "0", "0", "0" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+            };
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
+            var positionParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = positionParameterType };
+            positionParameter.ValueSet.Add(positionParameterValueSet);
+
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "0", "0", "0" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+            };
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
+            var orientationParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = orientationParameterType };
+            orientationParameter.ValueSet.Add(orientationParameterValueSet);
+
             this.elementDef = new ElementDefinition(Guid.NewGuid(), cache, this.uri) { Owner = this.domain };
             this.elementUsage = new ElementUsage(Guid.NewGuid(), cache, this.uri) { ElementDefinition = this.elementDef, Owner = this.domain };
             this.elementDef.ContainedElement.Add(this.elementUsage);
             this.elementDef.Parameter.Add(shapeKindParameter);
             this.elementDef.Parameter.Add(colorParameter);
+            this.elementDef.Parameter.Add(positionParameter);
+            this.elementDef.Parameter.Add(orientationParameter);
         }
 
         [Test]
@@ -218,6 +238,51 @@ namespace COMETwebapp.Tests.Viewer
         }
 
         [Test]
+        public void VerifyThatPositionCanBeUpdated()
+        {
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
+            Mock<IValueSet> valueSet = new Mock<IValueSet>();
+            ValueArray<string> newValueArray = new ValueArray<string>(new List<string>() { "1", "2", "3" });
+            valueSet.Setup(x => x.ActualValue).Returns(newValueArray);
+
+            var x = basicShape.X;
+            var y = basicShape.Y;
+            var z = basicShape.Z;
+
+            basicShape.UpdatePropertyWithParameterData(SceneSettings.PositionShortName, valueSet.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(x, Is.Not.EqualTo(basicShape.X));
+                Assert.That(y, Is.Not.EqualTo(basicShape.Y));
+                Assert.That(z, Is.Not.EqualTo(basicShape.Z));
+            });
+        }
+
+        [Test]
+        public void VerifyThatOrientationCanBeUpdated()
+        {
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
+            Mock<IValueSet> valueSet = new Mock<IValueSet>();
+            ValueArray<string> newValueArray = new ValueArray<string>(new List<string>() { "1", "2", "3" });
+            valueSet.Setup(x => x.ActualValue).Returns(newValueArray);
+
+            var rx = basicShape.RX;
+            var ry = basicShape.RY;
+            var rz = basicShape.RZ;
+
+            basicShape.UpdatePropertyWithParameterData(SceneSettings.OrientationShortName, valueSet.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rx, Is.Not.EqualTo(basicShape.RX));
+                Assert.That(ry, Is.Not.EqualTo(basicShape.RY));
+                Assert.That(rz, Is.Not.EqualTo(basicShape.RZ));
+            });
+        }
+
+
+        [Test]
         public void VerifyThatTransformationsCanBeReseted()
         {
             var cube = new Cube(1.0, 1.0, 1.0);
@@ -237,6 +302,40 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(0.0, cube.X, delta);
             Assert.AreEqual(0.0, cube.Y, delta);
             Assert.AreEqual(0.0, cube.Z, delta);
+        }
+
+        [Test]
+        public void VerifyThatGetTransaltionParameterWorks()
+        {
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var translationParam = basicShape.GetTranslationParameter();
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNotNull(basicShape);
+                Assert.IsNotNull(translationParam);
+            });
+        }
+
+        [Test]
+        public void VerifyThatGetOrientationParameterWorks()
+        {
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var orientationParam = basicShape.GetOrientationParameter();
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNotNull(basicShape);
+                Assert.IsNotNull(orientationParam);
+            });
+        }
+
+        [Test]
+        public void VerifyThatPrimitiveCanBeCloned()
+        {
+            var basicShape = this.shapeFactory.CreatePrimitiveFromElementUsage(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var newShape = basicShape.Clone();
+            Assert.That(basicShape, Is.Not.EqualTo(newShape));
         }
     }
 }

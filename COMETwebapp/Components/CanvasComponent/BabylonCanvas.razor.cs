@@ -33,7 +33,7 @@ namespace COMETwebapp.Components.CanvasComponent
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
-    
+    using DevExpress.Data.Mask.Internal;
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.JSInterop;
@@ -56,13 +56,6 @@ namespace COMETwebapp.Components.CanvasComponent
         public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
-        /// Invokable method from JS to get a GUID
-        /// </summary>
-        /// <returns>the GUID in string format</returns>
-        [JSInvokable]
-        public static string GetGUID() => Guid.NewGuid().ToString();
-
-        /// <summary>
         /// Shape factory for creating <see cref="Primitive"/> from a <see cref="ElementUsage"/>
         /// </summary>
         [Inject]
@@ -78,6 +71,11 @@ namespace COMETwebapp.Components.CanvasComponent
         /// Gets or sets the <see cref="Primitive"/> that is currently selected
         /// </summary>
         public Primitive SelectedPrimitive { get; set; }
+
+        /// <summary>
+        /// Collection of scene objects in the scene.
+        /// </summary>
+        private Dictionary<Guid, SceneObject> SceneObjects = new Dictionary<Guid, SceneObject>();
 
         /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
@@ -165,6 +163,10 @@ namespace COMETwebapp.Components.CanvasComponent
 
             foreach (var elementUsage in elementUsages)
             {
+                var sceneObject = new SceneObject(this.ShapeFactory);
+                sceneObject.CreatePrimitive(elementUsage, selectedOption, states);
+                                
+
                 var basicShape = this.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
 
                 if (basicShape is not null)

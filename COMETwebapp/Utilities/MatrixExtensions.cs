@@ -73,9 +73,9 @@ namespace COMETwebapp.Utilities
         {
             double Rx = 0, Ry = 0, Rz = 0;
 
-            if (rotMatrix.Count < 9)
+            if (rotMatrix.Count != 9)
             {
-                throw new ArgumentException("The rotation Matrix needs to be at least 3x3 so at least an Array of 9 numbers is needed");
+                throw new ArgumentException("The rotation Matrix needs to be at least 3x3 so an Array of 9 numbers is needed");
             }
 
             if (rotMatrix[6] != 1 && rotMatrix[6] != -1)

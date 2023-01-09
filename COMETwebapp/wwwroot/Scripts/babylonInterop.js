@@ -65,6 +65,11 @@ let Scene;
 let Primitives = new Map();
 
 /**
+ * A map of the SceneObjects that the Scene contains. 
+ */
+let SceneObjects = new Map();
+
+/**
  * Picking material used when a primitive is hover with the mouse.
  * @type {BABYLON.js material}
  */
