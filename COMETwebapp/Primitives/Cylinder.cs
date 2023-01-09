@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Cylinder primitive type
     /// </summary>
-    public class Cylinder : BasicPrimitive
+    public class Cylinder : Primitive
     {
         /// <summary>
         /// Radius of the <see cref="Cylinder"/>

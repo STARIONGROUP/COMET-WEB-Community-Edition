@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Cube primitive type
     /// </summary>
-    public class Cube : BasicPrimitive
+    public class Cube : Primitive
     {
         /// <summary>
         /// The width of the cube

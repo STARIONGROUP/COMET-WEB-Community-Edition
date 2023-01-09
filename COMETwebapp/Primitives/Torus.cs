@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Torus primitive type
     /// </summary>
-    public class Torus : BasicPrimitive
+    public class Torus : Primitive
     {
         /// <summary>
         /// Basic type name

@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Triangular prism primitive type
     /// </summary>
-    public class TriangularPrism : BasicPrimitive
+    public class TriangularPrism : Primitive
     {
         /// <summary>
         /// Basic primitive type

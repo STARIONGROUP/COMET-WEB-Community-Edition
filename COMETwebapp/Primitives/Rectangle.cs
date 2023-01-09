@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Rectangle primitive type
     /// </summary>
-    public class Rectangle : BasicPrimitive
+    public class Rectangle : Primitive
     {
         /// <summary>
         /// Basic type name

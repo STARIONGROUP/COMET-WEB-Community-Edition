@@ -118,12 +118,95 @@ namespace COMETwebapp.Primitives
         public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
+        /// Position along the X axis
+        /// </summary>
+        public double X { get; protected set; }
+
+        /// <summary>
+        /// Position along the Y axis
+        /// </summary>
+        public double Y { get; protected set; }
+
+        /// <summary>
+        /// Position along the Z axis
+        /// </summary>
+        public double Z { get; protected set; }
+
+        /// <summary>
+        /// Angle of rotation (radians) around X axis.
+        /// </summary>
+        public double RX { get; protected set; }
+
+        /// <summary>
+        /// Angle of rotation (radians) around Y axis.
+        /// </summary>
+        public double RY { get; protected set; }
+
+        /// <summary>
+        /// Angle of rotation (radians) around Z axis.
+        /// </summary>
+        public double RZ { get; protected set; }
+
+        /// <summary>
+        /// Reset all transformations of the primitive
+        /// </summary>
+        public void ResetTransformations()
+        {
+            this.ResetRotation();
+            this.ResetTranslation();
+        }
+
+        /// <summary>
+        /// Resets the translation of the primitive
+        /// </summary>
+        public void ResetTranslation()
+        {
+            this.X = this.Y = this.Z = 0;
+        }
+
+        /// <summary>
+        /// Resets the rotation of the primitive
+        /// </summary>
+        public void ResetRotation()
+        {
+            this.RX = this.RY = this.RZ = 0;
+        }
+
+        /// <summary>
         /// Regenerates the <see cref="Primitive"/>. This updates the scene with the data of the the <see cref="Primitive"/>
         /// </summary>
         public void Regenerate()
         {
             string jsonPrimitive = JsonConvert.SerializeObject(this, Formatting.Indented);
             JSInterop.Invoke("RegenMesh", jsonPrimitive);
+        }
+
+        /// <summary>
+        /// Sets a NEW translation to the primitive. 
+        /// </summary>
+        /// <param name="x">translation along X axis</param>
+        /// <param name="y">translation along Y axis</param>
+        /// <param name="z">translation along Z axis</param>
+        public void SetTranslation(double x, double y, double z)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            JSInterop.Invoke("SetPrimitivePosition", this.ID, this.X, this.Y, this.Z);
+        }
+
+        /// <summary>
+        /// Sets a NEW rotation to the primitive. 
+        /// </summary>
+        /// <param name="rx">angle of rotation in radians around X axis</param>
+        /// <param name="ry">angle of rotation in radians around Y axis</param>
+        /// <param name="rz">angle of rotation in radians around Z axis</param>
+        public void SetRotation(double rx, double ry, double rz)
+        {
+            this.RX = rx;
+            this.RY = ry;
+            this.RZ = rz;
+            JSInterop.Invoke("SetPrimitiveRotation", this.ID, this.RX, this.RY, this.RZ);
         }
 
         /// <summary>
@@ -216,6 +299,26 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
+        /// Get the <see cref="ParameterBase"/> that translates this <see cref="Primitive"/>
+        /// </summary>
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetTranslationParameter()
+        {
+            var param = this.ElementUsage.GetParametersInUse();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.PositionShortName);
+        }
+
+        /// <summary>
+        /// Get the <see cref="ParameterBase"/> that orients this <see cref="Primitive"/>
+        /// </summary>
+        /// <returns>the related parameter</returns>
+        public ParameterBase? GetOrientationParameter()
+        {
+            var param = this.ElementUsage.GetParametersInUse();
+            return param.FirstOrDefault(x => x.ParameterType.ShortName == SceneProvider.OrientationShortName);
+        }
+
+        /// <summary>
         /// Set the color of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
         /// </summary>
         public void SetColorFromElementUsageParameters()
@@ -232,6 +335,26 @@ namespace COMETwebapp.Primitives
             {
                 this.SetColor(Primitive.DefaultColor);
             }
+        }
+
+        /// <summary>
+        /// Set the position of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        public void SetPositionFromElementUsageParameters()
+        {
+            IValueSet? valueSet = this.GetValueSet(SceneProvider.PositionShortName);
+            var translation = valueSet.ParseIValueToPosition();
+            this.SetTranslation(translation[0], translation[1], translation[2]);
+        }
+
+        /// <summary>
+        /// Set the orientation of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        public void SetOrientationFromElementUsageParameters()
+        {
+            IValueSet? valueSet = this.GetValueSet(SceneProvider.OrientationShortName);
+            var angles = valueSet.ParseIValueToEulerAngles();
+            this.SetRotation(angles[0], angles[1], angles[2]);
         }
 
         /// <summary>
@@ -258,7 +381,22 @@ namespace COMETwebapp.Primitives
                     Vector3 color = textColor.ParseToColorVector();
                     this.SetColor(color);
                     break;
+
+                case SceneProvider.PositionShortName:
+                    var translation = newValue.ParseIValueToPosition();
+                    this.SetTranslation(translation[0], translation[1], translation[2]);
+                    break;
+
+                case SceneProvider.OrientationShortName:
+                    var angles = newValue.ParseIValueToEulerAngles();
+                    this.SetRotation(angles[0], angles[1], angles[2]);
+                    break;
             }
         }
+
+        /// <summary>
+        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// </summary>
+        public virtual void SetDimensionsFromElementUsageParameters() { }
     }
 }

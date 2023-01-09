@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Equilateral Triangle primitive type
     /// </summary>
-    public class EquilateralTriangle : BasicPrimitive
+    public class EquilateralTriangle : Primitive
     {
         /// <summary>
         /// Basic type name

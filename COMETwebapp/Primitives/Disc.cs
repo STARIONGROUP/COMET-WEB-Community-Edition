@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Disc primitive type
     /// </summary>
-    public class Disc : BasicPrimitive
+    public class Disc : Primitive
     {
         /// <summary>
         /// Basic type name

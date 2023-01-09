@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Cone primitive type
     /// </summary>
-    public class Cone : BasicPrimitive
+    public class Cone : Primitive
     {
         /// <summary>
         /// The radius of the base of the cone

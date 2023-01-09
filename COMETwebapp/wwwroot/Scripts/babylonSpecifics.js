@@ -202,15 +202,13 @@ async function LoadPrimitive(primitive) {
  */
 function InitializePrimitiveData(mesh, primitive) {
 
-    if (primitive.hasOwnProperty("Subtype") && primitive.Subtype == "BasicPrimitive") {
-        mesh.position.x = primitive.X;
-        mesh.position.y = primitive.Y;
-        mesh.position.z = primitive.Z;
+    mesh.position.x = primitive.X;
+    mesh.position.y = primitive.Y;
+    mesh.position.z = primitive.Z;
 
-        mesh.rotation.x = primitive.RX;
-        mesh.rotation.y = primitive.RY;
-        mesh.rotation.z = primitive.RZ;
-    }
+    mesh.rotation.x = primitive.RX;
+    mesh.rotation.y = primitive.RY;
+    mesh.rotation.z = primitive.RZ;
 
     let primitiveColor = {
         X: primitive.Color.X / 255.0,

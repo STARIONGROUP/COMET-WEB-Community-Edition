@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Sphere primitive type
     /// </summary>
-    public class Sphere : BasicPrimitive
+    public class Sphere : Primitive
     {
         /// <summary>
         /// Basic type name

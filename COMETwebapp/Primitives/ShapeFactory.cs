@@ -106,13 +106,9 @@ namespace COMETwebapp.Primitives
                 primitive.States = states;
 
                 primitive.SetColorFromElementUsageParameters();
-                
-                if (primitive is BasicPrimitive basicPrimitive)
-                {
-                    basicPrimitive.SetOrientationFromElementUsageParameters();
-                    basicPrimitive.SetPositionFromElementUsageParameters();
-                    basicPrimitive.SetDimensionsFromElementUsageParameters();
-                }
+                primitive.SetOrientationFromElementUsageParameters();
+                primitive.SetPositionFromElementUsageParameters();
+                primitive.SetDimensionsFromElementUsageParameters();
             }
 
             return primitive;

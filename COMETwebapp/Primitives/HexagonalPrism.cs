@@ -31,7 +31,7 @@ namespace COMETwebapp.Primitives
     /// <summary>
     /// Hexagonal prism primitive type
     /// </summary>
-    public class HexagonalPrism : BasicPrimitive
+    public class HexagonalPrism : Primitive
     {
         /// <summary>
         /// Basic type name
