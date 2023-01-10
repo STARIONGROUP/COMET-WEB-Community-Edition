@@ -47,24 +47,33 @@ namespace COMETwebapp.Tests.Viewer
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
-            this.context.Services.AddSingleton<IIterationService, IterationService>();
-
-            Mock<ISessionAnchor> sessionAnchor = new Mock<ISessionAnchor>();
-
-            this.context.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
-            this.context.Services.AddSingleton<IJSInterop, JSInterop>();
-            this.context.Services.AddSingleton<IShapeFactory, ShapeFactory>();
-
-            this.context.JSInterop.SetupVoid("AddPrimitive", _ => true);
-
-            var canvasRenderer = this.context.RenderComponent<BabylonCanvas>();
-
-            this.renderedComponent = this.context.RenderComponent<ViewerPage>(parameters =>
+            try
             {
-                parameters.Add(p => p.CanvasComponentReference, canvasRenderer.Instance);
-            });
-            this.viewerPage = this.renderedComponent.Instance;
+                this.context = new TestContext();
+                this.context.AddDevExpressBlazorTesting();
+                this.context.ConfigureDevExpressBlazor();
+                this.context.Services.AddSingleton<IIterationService, IterationService>();
+
+                Mock<ISessionAnchor> sessionAnchor = new Mock<ISessionAnchor>();
+
+                this.context.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
+                this.context.Services.AddSingleton<IJSInterop, JSInterop>();
+                this.context.Services.AddSingleton<IShapeFactory, ShapeFactory>();
+
+                this.context.JSInterop.SetupVoid("AddPrimitive", _ => true);
+
+                var canvasRenderer = this.context.RenderComponent<BabylonCanvas>();
+
+                this.renderedComponent = this.context.RenderComponent<ViewerPage>(parameters =>
+                {
+                    parameters.Add(p => p.CanvasComponentReference, canvasRenderer.Instance);
+                });
+                this.viewerPage = this.renderedComponent.Instance;
+            }
+            catch
+            {
+                // On GitHub, exception is thrown even if the JSRuntime has been configured
+            }
         }
 
         [Test]
@@ -91,6 +100,7 @@ namespace COMETwebapp.Tests.Viewer
         public void TearDown()
         {
             this.context.CleanContext();
+            this.context.Dispose();
         }
     }
 }

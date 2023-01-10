@@ -19,9 +19,8 @@ namespace COMETwebapp.Tests.Utilities
     using System.Threading.Tasks;
 
     using Bunit;
-
     using DevExpress.Blazor.Internal;
-
+    using Microsoft.AspNetCore.Components.Rendering;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -143,6 +142,15 @@ namespace COMETwebapp.Tests.Utilities
         }
 
         /// <summary>
+        /// Initializes the runtime
+        /// </summary>
+        /// <returns></returns>
+        public Task InitializeRuntime()
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="MockEnvironmentInfo"/>
         /// </summary>
         /// <param name="isWasm">if the app is a Blazor WASM application</param>
@@ -159,6 +167,37 @@ namespace COMETwebapp.Tests.Utilities
         {
             return DateTimeNow;
         }
-                
+
+        /// <summary>
+        /// Render the scirpt loader
+        /// </summary>
+        /// <param name="builder">the render tree builder</param>
+        /// <param name="containerId">the guid of the container</param>
+        public void RenderScriptLoader(RenderTreeBuilder builder, Guid containerId)
+        {
+        }
+
+        /// <summary>
+        /// Resolves an URl
+        /// </summary>
+        /// <param name="url">url to resolve</param>
+        public string ResolveUrl(string url) { return url; }
+        
+        /// <summary>
+        /// Method called when a message is produced
+        /// </summary>
+        /// <param name="msg">the message error</param>
+        public void OnMessage(int msg)
+        {
+        }
+
+        /// <summary>
+        /// Dispose the resources asyncronously
+        /// </summary>
+        /// <returns></returns>
+        public ValueTask DisposeAsync()
+        {
+            return default;
+        }
     }
 }
