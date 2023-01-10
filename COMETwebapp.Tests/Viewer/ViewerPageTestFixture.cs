@@ -50,7 +50,6 @@ namespace COMETwebapp.Tests.Viewer
             try
             {
                 this.context = new TestContext();
-                this.context.AddDevExpressBlazorTesting();
                 this.context.ConfigureDevExpressBlazor();
 
                 this.context.Services.AddSingleton<IIterationService, IterationService>();
@@ -95,6 +94,12 @@ namespace COMETwebapp.Tests.Viewer
                 Assert.That(this.viewerPage.ListActualFiniteStateLists, Is.Null);
                 Assert.That(this.viewerPage.RootNode, Is.Null);
             });
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
         }
     }
 }
