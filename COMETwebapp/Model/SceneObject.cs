@@ -24,20 +24,13 @@
 
 namespace COMETwebapp.Model
 {
-    using CDP4Common.EngineeringModelData;
     using COMETwebapp.Primitives;
-    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Represents a object in the 3D Scene
     /// </summary>
     public class SceneObject
     {
-        /// <summary>
-        /// Gets the ID of the <see cref="SceneObject"/>
-        /// </summary>
-        public Guid ID { get; } = Guid.NewGuid();
-
         /// <summary>
         /// Gets or sets the <see cref="Primitives.Primitive"/> related to this <see cref="SceneObject"/>
         /// </summary>
@@ -51,6 +44,5 @@ namespace COMETwebapp.Model
         {
             this.Primitive = primitive;
         }
-
     }
 }

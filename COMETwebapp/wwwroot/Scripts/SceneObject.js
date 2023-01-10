@@ -1,7 +1,6 @@
 ﻿class SceneObject {
-    constructor(sceneObjectID, mesh, primitive) {
-        this.sceneObjectID = sceneObjectID;
-        this.mesh = mesh;
-        this.primitive = primitive;
+    constructor(mesh, primitive) {
+        this.Mesh = mesh;
+        this.Primitive = primitive;
     }
 }

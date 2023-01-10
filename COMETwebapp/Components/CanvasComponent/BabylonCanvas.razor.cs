@@ -34,6 +34,7 @@ namespace COMETwebapp.Components.CanvasComponent
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using DevExpress.Data.Mask.Internal;
+    using DevExpress.Utils.Zip;
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.JSInterop;
@@ -44,7 +45,7 @@ namespace COMETwebapp.Components.CanvasComponent
     /// Support class for the <see cref="BabylonCanvas.razor"/>
     /// </summary>
     public partial class BabylonCanvas 
-    {
+    {        
         /// <summary>
         /// Reference to the HTML5 canvas
         /// </summary>
@@ -78,14 +79,19 @@ namespace COMETwebapp.Components.CanvasComponent
         private List<SceneObject> SceneObjects = new List<SceneObject>();
 
         /// <summary>
-        /// Collection of the <see cref="Primitive"/> in the Scene
+        /// Collection of temporary scene objects in scene.
         /// </summary>
-        private static Dictionary<Guid, Primitive> primitivesCollection = new Dictionary<Guid, Primitive>();
+        private List<SceneObject> TemporarySceneObjects = new List<SceneObject>();
 
         /// <summary>
-        /// Collection of temporary <see cref="Primitive"/> in the Scene
+        /// ReadOnly collection of scene objects in the scene.
         /// </summary>
-        private static Dictionary<Guid, Primitive> TemporaryPrimitivesCollection = new Dictionary<Guid, Primitive>();
+        public List<SceneObject> AllSceneObjects => SceneObjects.AsReadOnly().ToList();
+
+        /// <summary>
+        /// ReadOnly collection of temporary scene objects in scene.
+        /// </summary>
+        public List<SceneObject> AllTemporarySceneObjects => TemporarySceneObjects.AsReadOnly().ToList();
 
         /// <summary>
         /// Event for when selection has changed;
@@ -114,8 +120,7 @@ namespace COMETwebapp.Components.CanvasComponent
 
             if (firstRender)
             {               
-                this.InitCanvas(this.CanvasReference);
-                await this.AddWorldAxes();
+                this.InitCanvas(this.CanvasReference, true);
             }
         }
                
@@ -137,10 +142,12 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             this.IsMouseDown = false;
             //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
-            await this.ClearTemporaryPrimitives();
-            var primitive = await this.GetPrimitiveUnderMouseAsync();
-            this.GetPrimitives().ForEach(async x => { x.IsSelected = false; await JSInterop.Invoke("SetSelection", x.ID, false); });
+            await this.ClearTemporarySceneObjects();
+
+            this.SceneObjects.ForEach(async x => { x.Primitive.IsSelected = false; await JSInterop.Invoke("SetSelection", x.Primitive.ID, false); });
             this.SelectedPrimitive = null;
+
+            var primitive = await this.GetPrimitiveUnderMouseAsync();
 
             if (primitive is not null)
             {
@@ -159,18 +166,12 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
         public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
-            await this.ClearPrimitives();
+            await this.ClearSceneObjects();
 
             foreach (var elementUsage in elementUsages)
             {
-                var basicShape = this.ShapeFactory?.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
-                var sceneObject = new SceneObject(basicShape);
-
-
-                if (basicShape is not null)
-                {
-                    await this.AddPrimitive(basicShape);
-                }
+                var basicShape = this.ShapeFactory?.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);               
+                this.AddSceneObject(new SceneObject(basicShape));
             }
         }
 
@@ -186,53 +187,15 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public async void InitCanvas(ElementReference canvas)
+        public async void InitCanvas(ElementReference canvas, bool addAxes)
         {
-            await JSInterop.Invoke("InitCanvas", canvas);
+            await JSInterop.Invoke("InitCanvas", canvas, addAxes);
         }
 
         /// <summary>
-        /// Create the world axes and adds them to the scene
+        /// Adds a selectable scene object into scene that contains a primitive
         /// </summary>
-        public async Task AddWorldAxes()
-        {
-            float size = 700;
-            Line xAxis = new Line(-size, 0, 0, size, 0, 0);
-            xAxis.SetColor(255, 0, 0);
-            await this.AddPrimitive(xAxis);
-
-            Line yAxis = new Line(0, -size, 0, 0, size, 0);
-            yAxis.SetColor(0, 255, 0);
-            await this.AddPrimitive(yAxis);
-
-            Line zAxis = new Line(0, 0, -size, 0, 0, size);
-            zAxis.SetColor(0, 0, 255);
-            await this.AddPrimitive(zAxis);
-        }
-
-        /// <summary>
-        /// Get the canvas that contains the scene size
-        /// </summary>
-        /// <returns>The canvas size</returns>
-        public async Task<Vector2> GetCanvasSize()
-        {
-            var result = await JSInterop.Invoke<float[]>("GetCanvasSize");
-            if (result != null && result.Length == 2)
-            {
-                return new Vector2(result[0], result[1]);
-            }
-            return new Vector2();
-        }
-
-        /// <summary>
-        /// Gets a copy of the current primitives on the scene.
-        /// </summary>
-        /// <returns>The list of primitives</returns>
-        public List<Primitive> GetPrimitives()
-        {
-            return primitivesCollection.Values.ToList();
-        }
-
+        /// <param name="sceneObject"></param>
         public void AddSceneObject(SceneObject sceneObject)
         {
             string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
@@ -241,51 +204,40 @@ namespace COMETwebapp.Components.CanvasComponent
         }
 
         /// <summary>
-        /// Adds a primitive to the scene
+        /// Adds a selectable temporary scene object into scene that contains a primitive
         /// </summary>
-        /// <param name="primitive">The primitive to add</param>
-        public async Task AddPrimitive(Primitive primitive)
+        /// <param name="sceneObject"></param>
+        public void AddTemporarySceneObject(SceneObject sceneObject)
         {
-            string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
-            primitivesCollection.Add(primitive.ID, primitive);
-            await JSInterop.Invoke("AddPrimitive", jsonPrimitive);
+            string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
+            this.TemporarySceneObjects.Add(sceneObject);
+            JSInterop.Invoke("AddSceneObject", sceneObjectJson);
         }
 
         /// <summary>
-        /// Adds a temporary primitive to the scene
+        /// Clears the scene deleting the scene objects that contains
         /// </summary>
-        /// <param name="primitive">the primitive to add</param>
-        public async Task AddTemporaryPrimitive(Primitive primitive)
+        public async Task ClearSceneObjects()
         {
-            string jsonPrimitive = JsonConvert.SerializeObject(primitive, Formatting.Indented);
-            TemporaryPrimitivesCollection.Add(primitive.ID, primitive);
-            await JSInterop.Invoke("AddPrimitive", jsonPrimitive);
-        }
-
-        /// <summary>
-        /// Clears the scene deleting the primitives that contains
-        /// </summary>
-        public async Task ClearPrimitives()
-        {
-            var keys = primitivesCollection.Keys.ToList();
-            foreach (var id in keys)
+            foreach(var sceneObj in this.SceneObjects)
             {
-                await JSInterop.Invoke("Dispose", id);
+                await JSInterop.Invoke("Dispose", sceneObj.Primitive.ID);
             }
-            primitivesCollection.Clear();
+
+            this.SceneObjects.Clear();
         }
 
         /// <summary>
-        /// Clears the scene deleting the temporary primitives that contains
+        /// Clears the scene deleting the scene objects that contains
         /// </summary>
-        public async Task ClearTemporaryPrimitives()
+        public async Task ClearTemporarySceneObjects()
         {
-            var keys = TemporaryPrimitivesCollection.Keys.ToList();
-            foreach (var id in keys)
+            foreach (var sceneObj in this.TemporarySceneObjects)
             {
-                await JSInterop.Invoke("Dispose", id);
+                await JSInterop.Invoke("Dispose", sceneObj.Primitive.ID);
             }
-            TemporaryPrimitivesCollection.Clear();
+
+            this.TemporarySceneObjects.Clear();
         }
 
         /// <summary>
@@ -310,13 +262,14 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
         public Primitive GetPrimitiveById(Guid id)
         {
-            if (!primitivesCollection.ContainsKey(id))
+            if (!this.SceneObjects.Exists(x => x.Primitive.ID == id))
             {
                 throw new ArgumentException("The specified Id dont exist in the scene");
             }
 
-            return primitivesCollection[id];
+            return this.SceneObjects.First(x => x.Primitive.ID == id).Primitive;
         }
+
 
         /// <summary>
         /// Sets the position of the primitive with the specified ID
@@ -364,69 +317,6 @@ namespace COMETwebapp.Components.CanvasComponent
         public void SetPrimitiveRotation(Primitive primitive, double rx, double ry, double rz)
         {
             SetPrimitiveRotation(primitive.ID, rx, ry, rz);
-        }
-
-        /// <summary>
-        /// Sets the info panel position in screen coordinates
-        /// </summary>
-        /// <param name="x">The x coordinate</param>
-        /// <param name="y">The y coordinate</param>
-        public async void SetInfoPanelPosition(int x, int y)
-        {
-            await JSInterop.Invoke("SetPanelPosition", x, y);
-        }
-
-        /// <summary>
-        /// Sets the info panel visibility
-        /// </summary>
-        /// <param name="visible">true if the panel must be visible, false otherwise</param>
-        public async void SetInfoPanelVisibility(bool visible)
-        {
-            await JSInterop.Invoke("SetPanelVisibility", visible);
-        }
-
-        /// <summary>
-        /// Sets the info panel with the specified content
-        /// </summary>
-        /// <param name="info">The info that the panel must display</param>
-        public async void SetInfoPanelContent(string info)
-        {
-            await JSInterop.Invoke("SetPanelContent", info);
-        }
-
-        /// <summary>
-        /// Tries to get the world coordinates from the specified screen coordinates. A ray is projected from the specified screen coordinates.
-        /// If the ray don't collide with a mesh it is not posible to compute the world coordinates. <see cref="https://learnopengl.com/Getting-started/Coordinate-Systems"/>
-        /// </summary>
-        /// <param name="x">the x coordinate in screen coordinates</param>
-        /// <param name="y">the y coordinate in screen coordinates</param>
-        public async Task<Vector3?> GetWorldCoordinates(double x, double y)
-        {
-            var result = await JSInterop.Invoke<float[]>("GetWorldCoordinates", x, y);
-            if (result != null && result.Length == 3)
-            {
-                return new Vector3(result[0], result[1], result[2]);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Tries to get the screen coordinates from the specified world coordinates.
-        /// </summary>
-        /// <param name="x">the x coordinate in world coordinates</param>
-        /// <param name="y">the y coordinate in world coordinates</param>
-        /// <param name="z">the z coordinate in world coordinates</param>
-        /// <returns></returns>
-        public async Task<Vector2?> GetScreenCoordinates(double x, double y, double z)
-        {
-            var result = await JSInterop.Invoke<float[]>("GetScreenCoordinates", x, y, z);
-            if (result != null && result.Length == 2)
-            {
-                return new Vector2(result[0], result[1]);
-            }
-
-            return null;
         }
     }
 }

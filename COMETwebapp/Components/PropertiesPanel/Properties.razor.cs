@@ -59,8 +59,8 @@ namespace COMETwebapp.Components.PropertiesPanel
             set
             {
                 selectedPrimitive = value.Clone();
-                this.BabylonCanvas.ClearTemporaryPrimitives();
-                this.BabylonCanvas.AddTemporaryPrimitive(this.selectedPrimitive);
+                this.BabylonCanvas.ClearTemporarySceneObjects();
+                this.BabylonCanvas.AddTemporarySceneObject(new Model.SceneObject(this.selectedPrimitive));
                 this.InitPanelProperties();
             }
         }

@@ -345,8 +345,8 @@ namespace COMETwebapp.Pages.Viewer
         public async void TreeSelectionChanged(TreeNode node)
         {
             this.UpdateTreeUI(node);
-            this.CanvasComponentReference.ClearTemporaryPrimitives();
-            var primitivesOnScene = this.CanvasComponentReference.GetPrimitives();
+            await this.CanvasComponentReference?.ClearTemporarySceneObjects();
+            var primitivesOnScene = this.CanvasComponentReference.AllSceneObjects.Select(x=>x.Primitive).ToList();
             primitivesOnScene.ForEach(async x => { x.IsSelected = false; await JSInterop.Invoke("SetSelection", x.ID, false); });
 
             var nodesToSelect = node.GetFlatListOfDescendants();
@@ -371,14 +371,14 @@ namespace COMETwebapp.Pages.Viewer
         /// <param name="node">the node that visibility has changed</param>
         public void TreeNodeVisibilityChanged(TreeNode node)
         {
-            var primitivesOnScene = this.CanvasComponentReference.GetPrimitives();
+            var primitivesOnScene = this.CanvasComponentReference?.AllSceneObjects.Select(x=>x.Primitive).ToList();
 
             var nodesToToggleVisibility = node.GetFlatListOfDescendants();
             nodesToToggleVisibility.Add(node);
 
             foreach (var descendant in nodesToToggleVisibility)
             {
-                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
+                var selectedPrimitive = primitivesOnScene?.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
 
                 if (selectedPrimitive is not null)
                 {
