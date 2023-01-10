@@ -203,6 +203,14 @@ function AddPrimitive(primitive) {
     }
 }
 
+function AddSceneObject(sceneObject) {
+    sceneObject = JSON.parse(sceneObject);
+
+    let primitive = sceneObject.Primitive;
+
+
+}
+
 /**
  * Removes the primitive with the specified ID from the scene.
  * @param {number} ID - the ID of the primitive to delete.

@@ -44,29 +44,13 @@ namespace COMETwebapp.Model
         public Primitive? Primitive { get; set; }
 
         /// <summary>
-        /// Gets or sets the factory used to create the <see cref="Primitive"/>
-        /// </summary>
-        [Inject]
-        public IShapeFactory ShapeFactory { get; set; }
-
-        /// <summary>
         /// Creates a new instance of type <see cref="SceneObject"/>
         /// </summary>
         /// <param name="shapeFactory">the factory used</param>
-        public SceneObject(IShapeFactory shapeFactory)
+        public SceneObject(Primitive? primitive)
         {
-            this.ShapeFactory = shapeFactory;
+            this.Primitive = primitive;
         }
 
-        /// <summary>
-        /// Creates the <see cref="Primitive"/> for this <see cref="SceneObject"/>
-        /// </summary>
-        /// <param name="elementUsage">the element usage with the data of the type of primitive</param>
-        /// <param name="option">the current selected option</param>
-        /// <param name="states">the states for this option</param>
-        public void CreatePrimitive(ElementUsage elementUsage, Option option, IEnumerable<ActualFiniteState> states)
-        {
-            this.Primitive = this.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, option, states.ToList());
-        }
     }
 }

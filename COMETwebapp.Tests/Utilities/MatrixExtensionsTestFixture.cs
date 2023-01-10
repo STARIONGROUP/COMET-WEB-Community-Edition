@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Utilities
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Utilities;
     using DevExpress.Data.Helpers;
     using Moq;
@@ -36,6 +37,65 @@ namespace COMETwebapp.Tests.Utilities
     [TestFixture]
     public class MatrixExtensionsTestFixture
     {
+        private double[] identity;
+        private double[] matrix1;
+        private double[] matrix2;
+
+        private const double delta = 0.01;
+
+        [SetUp]
+        public void SetUp()
+        {
+            identity = new double[] { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            matrix1 = new double[] { 0.5, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.5 };
+            matrix2 = new double[] { 0.6830127, 0.0540839, 0.7284014, 0.1830127, 0.9527706, -0.2423521, -0.7071068, 0.2988362, 0.6408564 };
+        }
+
+        [Test]
+        public void VerifyThatIdentityDontChangeOrientation()
+        {
+            var angles = identity.ToEulerAngles();
+            Assert.AreEqual(0.0, angles[0], delta);
+            Assert.AreEqual(0.0, angles[1], delta);
+            Assert.AreEqual(0.0, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatAnglesCanBeExtractedFromMatrix1()
+        {
+            var angles = matrix1.ToEulerAngles();
+            Assert.AreEqual(0.0, angles[0], delta);
+            Assert.AreEqual(1.0471976, angles[1], delta);
+            Assert.AreEqual(0.0, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatAnglesCanBeExtractedFromMatrix2()
+        {
+            var angles = matrix2.ToEulerAngles();
+            Assert.AreEqual(0.4363323, angles[0], delta);
+            Assert.AreEqual(0.7853981, angles[1], delta);
+            Assert.AreEqual(0.2617994, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatAnglesCanBeExtractedFromMatrix3()
+        {
+            var angles = matrix1.ToEulerAngles(AngleFormat.Degrees);
+            Assert.AreEqual(0.0, angles[0], delta);
+            Assert.AreEqual(60.0, angles[1], delta);
+            Assert.AreEqual(0.0, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatAnglesCanBeExtractedFromMatrix4()
+        {
+            var angles = matrix2.ToEulerAngles(AngleFormat.Degrees);
+            Assert.AreEqual(25.0, angles[0], delta);
+            Assert.AreEqual(45.0, angles[1], delta);
+            Assert.AreEqual(15.0, angles[2], delta);
+        }
+
         [Test]
         public void VerifyThatToOrientationWorks()
         {
@@ -57,7 +117,7 @@ namespace COMETwebapp.Tests.Utilities
                 Assert.That(matrixResult.Y, Is.EqualTo(0));
                 Assert.That(matrixResult.Z, Is.EqualTo(0));
 
-                Assert.Throws<ArgumentException>(() => invalidPositions.ToOrientation(true, Enumerations.AngleFormat.Degrees));
+                Assert.Throws<ArgumentException>(() => invalidPositions.ToOrientation(false, Enumerations.AngleFormat.Degrees));
                 Assert.Throws<ArgumentException>(() => invalidMatrix.ToOrientation(true, Enumerations.AngleFormat.Degrees));
             });
         }
@@ -67,14 +127,22 @@ namespace COMETwebapp.Tests.Utilities
         {
             var matrix = new List<double>() { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
             var invalidMatrix = new List<double>() { 1, 0, 0, 0, 1, 0 };
+            var matrix2 = new List<double>() { 1, 0, 0, 0, 1, 0, 1, 0, 1 };
 
             var eulerAngles = matrix.ToEulerAngles(Enumerations.AngleFormat.Degrees);
+            var eulerAngles2 = matrix2.ToEulerAngles(Enumerations.AngleFormat.Degrees);
 
             Assert.Multiple(() =>
             {
+                Assert.That(eulerAngles, Has.Length.EqualTo(3));
                 Assert.That(eulerAngles[0], Is.EqualTo(0));
                 Assert.That(eulerAngles[1], Is.EqualTo(0));
                 Assert.That(eulerAngles[2], Is.EqualTo(0));
+                Assert.That(eulerAngles, Has.Length.EqualTo(3));
+                Assert.That(eulerAngles2[0], Is.EqualTo(-180));
+                Assert.That(eulerAngles2[1], Is.EqualTo(-90));
+                Assert.That(eulerAngles2[2], Is.EqualTo(0));
+
                 Assert.Throws<ArgumentException>(() => invalidMatrix.ToEulerAngles(Enumerations.AngleFormat.Degrees));
             });
         }

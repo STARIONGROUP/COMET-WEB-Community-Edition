@@ -75,7 +75,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <summary>
         /// Collection of scene objects in the scene.
         /// </summary>
-        private Dictionary<Guid, SceneObject> SceneObjects = new Dictionary<Guid, SceneObject>();
+        private List<SceneObject> SceneObjects = new List<SceneObject>();
 
         /// <summary>
         /// Collection of the <see cref="Primitive"/> in the Scene
@@ -163,11 +163,9 @@ namespace COMETwebapp.Components.CanvasComponent
 
             foreach (var elementUsage in elementUsages)
             {
-                var sceneObject = new SceneObject(this.ShapeFactory);
-                sceneObject.CreatePrimitive(elementUsage, selectedOption, states);
-                                
+                var basicShape = this.ShapeFactory?.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
+                var sceneObject = new SceneObject(basicShape);
 
-                var basicShape = this.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);
 
                 if (basicShape is not null)
                 {
@@ -233,6 +231,13 @@ namespace COMETwebapp.Components.CanvasComponent
         public List<Primitive> GetPrimitives()
         {
             return primitivesCollection.Values.ToList();
+        }
+
+        public void AddSceneObject(SceneObject sceneObject)
+        {
+            string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
+            this.SceneObjects.Add(sceneObject);
+            JSInterop.Invoke("AddSceneObject", sceneObjectJson);
         }
 
         /// <summary>

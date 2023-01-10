@@ -282,7 +282,7 @@ namespace COMETwebapp.Pages.Viewer
         public void OnOptionFilterChange(string? option)
         {
             this.OptionSelected = option;
-            this.FilterOption = this.OptionSelected != null ? this.SessionAnchor?.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid : null;
+            this.FilterOption = this.OptionSelected != null ? this.SessionAnchor?.OpenIteration?.Option.ToList().FirstOrDefault(o => o.Name == option)?.Iid : null;
             this.Elements.Clear();
             this.InitializeElements();
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
