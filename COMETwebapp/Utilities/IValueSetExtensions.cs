@@ -28,6 +28,7 @@ namespace COMETwebapp.Utilities
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using System.Globalization;
+    using System.Numerics;
 
     /// <summary>
     /// Static extension methods for <see cref="IValueSet"/>
@@ -50,7 +51,7 @@ namespace COMETwebapp.Utilities
                 return result.ToArray();
             }
             else
-            {
+            {                
                 return new double[] { 0,0,0 };
             }
         }

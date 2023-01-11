@@ -27,6 +27,7 @@ namespace COMETwebapp.Primitives
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Torus primitive type
@@ -76,47 +77,16 @@ namespace COMETwebapp.Primitives
             this.Thickness = thickness;
         }
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            var diameterValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
-            var thicknessValueSet = this.GetValueSet(SceneSettings.ThicknessShortName);
-            
-            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
-            {
-                this.Diameter = d;
-            }
-
-            if(thicknessValueSet is not null && double.TryParse(thicknessValueSet.ActualValue.First(), out double t))
-            {
-                this.Thickness = t;
-            }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
+            base.ParseParameter(parameterBase, valueSet);
+            switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Diameter = d;
-                    }
+                    this.Diameter = ParameterParser.DoubleParser(valueSet);
                     break;
                 case SceneSettings.ThicknessShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double t))
-                    {
-                        this.Thickness = t;
-                    }
+                    this.Thickness = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

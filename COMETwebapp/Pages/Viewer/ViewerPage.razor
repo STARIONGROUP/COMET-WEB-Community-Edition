@@ -58,10 +58,10 @@ Copyright (c) 2022 RHEA System S.A.
             <div id="rightColumn">
                 @if(this.OptionSelected != null)
                 {
-                    @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SelectedPrimitive is not null)
+                    @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SelectedSceneObject is not null)
                     {
-                        var primitive = this.CanvasComponentReference.SelectedPrimitive;
-                        <COMETwebapp.Components.PropertiesPanel.Properties BabylonCanvas="this.CanvasComponentReference" SelectedPrimitive="primitive" />
+                        <COMETwebapp.Components.PropertiesPanel.Properties BabylonCanvas="this.CanvasComponentReference" 
+                                                                           SelectedSceneObject="this.CanvasComponentReference.SelectedSceneObject"/>
                     }
 
                     @if (this.ListActualFiniteStateLists is not null)

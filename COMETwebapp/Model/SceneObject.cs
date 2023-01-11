@@ -25,10 +25,12 @@
 namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
+    
     using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.Primitives;
     using COMETwebapp.Utilities;
-    using System.Runtime.CompilerServices;
+    
+    using Newtonsoft.Json;
 
     /// <summary>
     /// Represents a object in the 3D Scene
@@ -36,16 +38,89 @@ namespace COMETwebapp.Model
     public class SceneObject
     {
         /// <summary>
+        /// Backing field for the <see cref="Primitive"/> property
+        /// </summary>
+        private Primitive primitive;
+
+        /// <summary>
+        /// Gets the ID of the <see cref="SceneObject"/>. Used to identify the <see cref="SceneObject"/> between JS and C# interop.
+        /// </summary>
+        public Guid ID { get; } = Guid.NewGuid();
+
+        /// <summary>
         /// Gets or sets the <see cref="Primitives.Primitive"/> related to this <see cref="SceneObject"/>
         /// </summary>
-        public Primitive? Primitive { get; set; }
+        public Primitive? Primitive
+        {
+            get => this.primitive;
+            private set
+            {
+                this.primitive = value;
+                //TODO: Use the current selected SceneObj so the rest of the parameters are updated. If not uses the data in the server!
+                var restOfParameters = this.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
 
+                foreach (var parameter in restOfParameters)
+                {
+                    this.ParseParameter(parameter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="Primitive"/> have enough parameters to be created.
+        /// </summary>
         public bool PrimitiveCanBeCreated { get; private set; }
-        private ElementUsage ElementUsage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the element usage that contains the data for creating the <see cref="Primitive"/>
+        /// </summary>
+        [JsonIgnore]
+        public ElementUsage ElementUsage { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the selected option for this <see cref="SceneObject"/>
+        /// </summary>
+        [JsonIgnore]
         private Option Option { get; set; }
+
+        /// <summary>
+        /// Gets or sets the possible actual finite states for this <see cref="SceneObjects"/>
+        /// </summary>
+        [JsonIgnore]
         private List<ActualFiniteState> States { get; set; }
-        private IShapeFactory ShapeFactory { get; set; }
-        public IReadOnlyList<ParameterBase> ParametersAsociated { get; set; } 
+
+        /// <summary>
+        /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementUsage"/>
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<ParameterBase> ParametersAsociated
+        {
+            get
+            {
+                if(this.ElementUsage is null)
+                {
+                    return null;
+                }
+                return this.ElementUsage.GetParametersInUse().ToList();
+            }
+        }
+
+        /// <summary>
+        /// Collection that handles the relation between a primitive and the necessary parameters for creating that primitive.
+        /// </summary>
+        private Dictionary<Type, List<string>> ShapeAndParametersRelation = new Dictionary<Type, List<string>>()
+        {
+            { typeof(Cone), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings. HeightShortName } },
+            { typeof(Cube), new List<string>(){ SceneSettings.WidthShortName, SceneSettings.HeightShortName, SceneSettings.LengthShortName } },
+            { typeof(Cylinder), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Disc), new List<string>(){ SceneSettings.DiameterShortName } },
+            { typeof(EquilateralTriangle), new List<string>(){ SceneSettings.DiameterShortName } },
+            { typeof(HexagonalPrism), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Rectangle), new List<string>(){ SceneSettings.WidthShortName, SceneSettings.HeightShortName } },
+            { typeof(Sphere), new List<string>(){ SceneSettings.DiameterShortName } },
+            { typeof(Torus), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.ThicknessShortName} },
+            { typeof(TriangularPrism), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+        };
 
         /// <summary>
         /// Creates a new instance of type <see cref="SceneObject"/>
@@ -53,7 +128,7 @@ namespace COMETwebapp.Model
         private SceneObject() { }
 
         /// <summary>
-        /// Creates a new empty instance of type <see cref="SceneObject"/>. Used only for drawing the temporary scene objects and testing. 
+        /// Creates a new empty instance of type <see cref="SceneObject"/>. Used only for testing. 
         /// </summary>
         /// <param name="primitive">the primitive that contains</param>
         public SceneObject(Primitive primitive)
@@ -69,12 +144,23 @@ namespace COMETwebapp.Model
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
         /// <returns></returns>
-        public static SceneObject Create(IShapeFactory shapeFactory, ElementUsage elementUsage, Option option, List<ActualFiniteState> states)
+        public static SceneObject Create(ElementUsage elementUsage, Option option, List<ActualFiniteState> states)
         {
-            var sceneObj = new SceneObject() { ShapeFactory = shapeFactory, ElementUsage = elementUsage, Option = option, States = states };
-            sceneObj.Primitive =  sceneObj.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, option, states);
-            sceneObj.ParametersAsociated = elementUsage.GetParametersInUse().ToList();
+            var sceneObj = new SceneObject() { ElementUsage = elementUsage, Option = option, States = states };
+
+            //TODO: this needs a review of how to do it properly.
+            var shapeKindParameter = sceneObj.ParametersAsociated.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
+            sceneObj.ParseParameter(shapeKindParameter);
+
+            var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+            foreach (var parameter in restOfParameters)
+            {
+                sceneObj.ParseParameter(parameter);
+            }
+
             sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+
             return sceneObj;
         }
 
@@ -83,37 +169,71 @@ namespace COMETwebapp.Model
         /// </summary>
         public void CheckIfPrimitiveCanBeCreatedWithAvailableParameters()
         {
-            if(this.Primitive is not null)
+            if (this.Primitive is not null && this.ShapeAndParametersRelation.TryGetValue(this.Primitive.GetType(), out var namesOfNeededParameters))
             {
-                if (this.ShapeAndParametersRelation.TryGetValue(this.Primitive.GetType(), out var namesOfNeededParameters))
-                {
-                    var namesOfActualParameters = this.ParametersAsociated.Select(x => x.ParameterType.ShortName).ToList();
-                    this.PrimitiveCanBeCreated = true;
+                var namesOfActualParameters = this.ParametersAsociated.Select(x => x.ParameterType.ShortName).ToList();
+                this.PrimitiveCanBeCreated = true;
 
-                    foreach(var name in namesOfNeededParameters)
+                foreach (var name in namesOfNeededParameters)
+                {
+                    if (!namesOfActualParameters.Contains(name))
                     {
-                        if (!namesOfActualParameters.Contains(name))
-                        {
-                            this.PrimitiveCanBeCreated = false;
-                            break;
-                        }
+                        this.PrimitiveCanBeCreated = false;
+                        break;
                     }
                 }
             }
         }
 
-        private Dictionary<Type, List<string>> ShapeAndParametersRelation = new Dictionary<Type, List<string>>()
+        public void ParseParameter(ParameterBase parameterBase)
         {
-            { typeof(Cone), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings. HeightShortName } },
-            { typeof(Cube), new List<string>(){ SceneSettings.WidthShortName, SceneSettings.HeightShortName, SceneSettings.LengthShortName } },
-            { typeof(Cylinder), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
-            { typeof(Disc), new List<string>(){ SceneSettings.DiameterShortName } },
-            { typeof(EquilateralTriangle), new List<string>(){ SceneSettings.DiameterShortName } },
-            { typeof(HexagonalPrism), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
-            { typeof(Rectangle), new List<string>(){ SceneSettings.WidthShortName, SceneSettings.HeightShortName } },
-            { typeof(Sphere), new List<string>(){ SceneSettings.DiameterShortName } },
-            { typeof(Torus), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.ThicknessShortName} },
-            { typeof(TriangularPrism), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
-        };
+            var valueSet = parameterBase.GetValueSetFromOptionAndStates(this.Option, this.States);
+            UpdateParameter(parameterBase, valueSet);
+        }
+
+        public void UpdateParameter(ParameterBase parameterBase, IValueSet valueSet)
+        {
+            var parameterTypeShortName = parameterBase.ParameterType.ShortName;
+
+            switch (parameterTypeShortName)
+            {
+                case SceneSettings.ShapeKindShortName:
+                    this.Primitive = ParameterParser.ShapeKindParser(valueSet);
+                    break;
+                default:
+                    if (this.Primitive is not null)
+                    {
+                        this.Primitive.ParseParameter(parameterBase, valueSet);
+                    }
+                    break;
+            }
+        }
+
+        public Dictionary<ParameterBase,IValueSet> GetValueSets()
+        {
+            var collection = new Dictionary<ParameterBase, IValueSet>();
+            IValueSet? valueSet = null;
+
+            foreach (var parameter in this.ParametersAsociated)
+            {
+                valueSet = parameter.GetValueSetFromOptionAndStates(this.Option, this.States);
+
+                if (valueSet is not null)
+                {
+                    collection.Add(parameter, valueSet);
+                }
+            }
+
+            return collection;
+        }
+
+        /// <summary>
+        /// Creates a clone of this <see cref="SceneObject"/>
+        /// </summary>
+        /// <returns>the clone</returns>
+        public SceneObject Clone()
+        {
+            return Create(this.ElementUsage, this.Option, this.States);
+        }
     }
 }

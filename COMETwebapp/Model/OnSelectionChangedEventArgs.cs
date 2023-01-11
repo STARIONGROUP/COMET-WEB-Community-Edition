@@ -24,25 +24,23 @@
 
 namespace COMETwebapp.Model
 {
-    using COMETwebapp.Primitives;
-
     /// <summary>
     /// Arguments of the event
     /// </summary>
     public class OnSelectionChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// The <see cref="Primitive"/> that triggers the selection changed
+        /// The <see cref="SceneObject"/> that triggers the selection changed
         /// </summary>
-        public Primitive Primitive { get; }
+        public SceneObject SceneObject { get; }
 
         /// <summary>
         /// Creates a new instance of type <see cref="OnSelectionChangedEventArgs"/>
         /// </summary>
-        /// <param name="primitive">the primitive that has been selected</param>
-        public OnSelectionChangedEventArgs(Primitive primitive)
+        /// <param name="sceneObject">the <see cref="SceneObject"/> that has been selected</param>
+        public OnSelectionChangedEventArgs(SceneObject sceneObject)
         {
-            this.Primitive = primitive;
+            this.SceneObject = sceneObject;
         }
     }
 }

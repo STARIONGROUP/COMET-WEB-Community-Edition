@@ -27,6 +27,7 @@ namespace COMETwebapp.Primitives
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Equilateral Triangle primitive type
@@ -52,35 +53,13 @@ namespace COMETwebapp.Primitives
             this.Radius = radius;
         }
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            var radiusValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
-
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
-            {
-                this.Radius = d/2.0;
-            }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
+            base.ParseParameter(parameterBase, valueSet);
+            switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Radius = d/2.0;
-                    }
+                    this.Radius = ParameterParser.DoubleParser(valueSet)/2.0;
                     break;
             }
         }

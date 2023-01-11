@@ -27,6 +27,7 @@ namespace COMETwebapp.Primitives
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Disc primitive type
@@ -52,18 +53,15 @@ namespace COMETwebapp.Primitives
             this.Radius = radius;
         }
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            var radiusValueSet = this.GetValueSet(SceneSettings.DiameterShortName);
-
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
+            base.ParseParameter(parameterBase, valueSet);
+            switch (parameterBase.ParameterType.ShortName)
             {
-                this.Radius = d/2.0;
+                case SceneSettings.DiameterShortName:
+                    this.Radius = ParameterParser.DoubleParser(valueSet)/2.0;
+                    break;
             }
         }
-
     }
 }

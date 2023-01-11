@@ -210,7 +210,18 @@ function GetCanvasSize() {
 function AddSceneObject(sceneObject) {
     sceneObject = JSON.parse(sceneObject);
     let primitive = sceneObject.Primitive;
-    AddPrimitive(primitive);
+    let mesh = null;
+
+    if (primitive != null && primitive != undefined)
+    {
+        mesh = AddPrimitive(primitive);
+    }
+    
+    if (mesh != null) {
+        FillMeshWithPrimitiveData(mesh, primitive, sceneObject.ID);
+        let sceneObj = new SceneObject(sceneObject.ID, mesh, primitive);
+        SceneObjects.set(sceneObject.ID, sceneObj);
+    }
 }
 
 /**
@@ -238,11 +249,7 @@ function AddPrimitive(primitive) {
         default: throw `The type of the primitive [${primitive.Type}] is not defined in the JS file`;
     }
 
-    if (mesh != null) {
-        FillMeshWithPrimitiveData(mesh, primitive);
-        let sceneObj = new SceneObject(mesh, primitive);
-        SceneObjects.set(mesh.ObjectID, sceneObj);
-    }
+    return mesh;
 }
 
 /**
@@ -250,7 +257,7 @@ function AddPrimitive(primitive) {
  * @param {any} mesh - the mesh to fill the data with
  * @param {any} primitive - the primitive used for filling the data
  */
-function FillMeshWithPrimitiveData(mesh, primitive) {
+function FillMeshWithPrimitiveData(mesh, primitive, ID) {
 
     mesh.position.x = primitive.X;
     mesh.position.y = primitive.Y;
@@ -276,7 +283,7 @@ function FillMeshWithPrimitiveData(mesh, primitive) {
     RegisterMeshActions(mesh);
 
     //Custom properties for the object
-    mesh.ObjectID = primitive.ID;
+    mesh.ObjectID = ID;
     mesh.Materials = new MeshMaterial(mesh.material, PickingMaterial);
 }
 
@@ -288,9 +295,14 @@ function Dispose(ID) {
     if (SceneObjects.size > 0)
     {
         let sceneObj = SceneObjects.get(ID);
-        let mesh = sceneObj.Mesh;
-        mesh.dispose();
-        mesh = null;
+
+        if (sceneObj != null && sceneObj != undefined)
+        {
+            let mesh = sceneObj.Mesh;
+            mesh.dispose();
+            mesh = null;
+        }
+
         SceneObjects.delete(ID);
     }
 }
@@ -309,42 +321,6 @@ function GetPrimitiveIDUnderMouse() {
     }
 
     return null;
-}
-
-/**
- * Sets the translation of the primitive with the specified ID
- * @param {string} ID - the ID of the primitive to translate.
- * @param {number} x - translation along the X axis
- * @param {number} y - translation along the Y axis
- * @param {number} z - translation along the Z axis
- */
-function SetPrimitivePosition(ID, x, y, z) {
-
-    if (SceneObjects.size > 0) {
-        let sceneObj = SceneObjects.get(ID);
-        let mesh = sceneObj.Mesh;
-        mesh.position.x = x;
-        mesh.position.y = y;
-        mesh.position.z = z;
-    }
-}
-
-/**
- * Sets the rotation of the primitive with the specified ID
- * @param {string} ID - the ID of the primitive to rotate.
- * @param {number} rx - the rotation around X axis
- * @param {number} ry - the rotation around Y axis
- * @param {number} rz - the rotation around Z axis
- */
-function SetPrimitiveRotation(ID, rx, ry, rz) {
-
-    if (SceneObjects.size > 0) {
-        let sceneObj = SceneObjects.get(ID);
-        let mesh = sceneObj.Mesh;
-        mesh.rotation.x = rx;
-        mesh.rotation.y = ry;
-        mesh.rotation.z = rz;
-    }
 }
 
 /**
@@ -385,17 +361,16 @@ function SetMeshVisibility(ID, isVisible) {
 }
 
 /**
- * Regenerates the mesh asociated to the primitive
- * @param {object} Primitive - the pritimive to regenerate in JSON string format
+ * Regenerates the mesh asociated to the scene object
+ * @param {object} SceneObject - the scene object to regenerate in JSON string format
  */
-function RegenMesh(Primitive) {
-    let primitive = JSON.parse(Primitive);
-    let sceneObject = SceneObjects.get(primitive.ID);
+function RegenMesh(JsonSceneObject) {
+    let sceneFullObject = JSON.parse(JsonSceneObject);
 
-    if (sceneObject != null)
+    if (sceneFullObject != null)
     {
-        Dispose(primitive.ID);
-        AddPrimitive(primitive);
+        Dispose(sceneFullObject.ID);
+        AddSceneObject(JsonSceneObject);
     }
 }
 

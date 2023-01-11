@@ -113,6 +113,15 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
+        /// Returns a orientation that represents the identity matrix
+        /// </summary>
+        /// <returns>the orientation</returns>
+        public static Orientation Identity()
+        {
+            return new Orientation(0.0, 0.0, 0.0);
+        }
+
+        /// <summary>
         /// Recomputes <see cref="Matrix"/>
         /// </summary>
         public void RecomputeMatrix()

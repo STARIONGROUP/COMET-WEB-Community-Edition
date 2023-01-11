@@ -166,9 +166,9 @@ namespace COMETwebapp.Pages.Viewer
                 this.CanvasComponentReference.OnSelectionChanged += (sender, args) =>
                 {
                     TreeNode node = null;
-                    if (args.Primitive is not null)
+                    if (args.SceneObject is not null)
                     {
-                        node = this.RootNode.GetFlatListOfDescendants().FirstOrDefault(x => x.Name == args.Primitive.ElementUsage.Name);
+                        node = this.RootNode.GetFlatListOfDescendants().FirstOrDefault(x => x.Name == args.SceneObject.ElementUsage.Name);
                     }
                     this.UpdateTreeUI(node);
                 };
@@ -346,21 +346,21 @@ namespace COMETwebapp.Pages.Viewer
         {
             this.UpdateTreeUI(node);
             await this.CanvasComponentReference?.ClearTemporarySceneObjects();
-            var primitivesOnScene = this.CanvasComponentReference.AllSceneObjects.Select(x=>x.Primitive).ToList();
-            primitivesOnScene.ForEach(async x => { x.IsSelected = false; await JSInterop.Invoke("SetSelection", x.ID, false); });
+
+            this.CanvasComponentReference.AllSceneObjects.ForEach(async x => { x.Primitive.IsSelected = false; await JSInterop.Invoke("SetSelection", x.ID, false); });
 
             var nodesToSelect = node.GetFlatListOfDescendants();
             nodesToSelect.Add(node);
 
             foreach (var descendant in nodesToSelect)
             {
-                var selectedPrimitive = primitivesOnScene.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
+                var selectedSceneObject = this.CanvasComponentReference.AllSceneObjects.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
 
-                if (selectedPrimitive is not null)
+                if (selectedSceneObject is not null)
                 {
-                    selectedPrimitive.IsSelected = true;
-                    await JSInterop.Invoke("SetSelection", selectedPrimitive.ID, true);
-                    this.CanvasComponentReference.SelectedPrimitive = selectedPrimitive;
+                    selectedSceneObject.Primitive.IsSelected = true;
+                    await JSInterop.Invoke("SetSelection", selectedSceneObject.ID, true);
+                    this.CanvasComponentReference.SelectedSceneObject = selectedSceneObject;
                 }
             }
         }
@@ -371,6 +371,7 @@ namespace COMETwebapp.Pages.Viewer
         /// <param name="node">the node that visibility has changed</param>
         public void TreeNodeVisibilityChanged(TreeNode node)
         {
+            var sceneObjectsOnScene = this.CanvasComponentReference.AllSceneObjects;
             var primitivesOnScene = this.CanvasComponentReference?.AllSceneObjects.Select(x=>x.Primitive).ToList();
 
             var nodesToToggleVisibility = node.GetFlatListOfDescendants();
@@ -378,12 +379,12 @@ namespace COMETwebapp.Pages.Viewer
 
             foreach (var descendant in nodesToToggleVisibility)
             {
-                var selectedPrimitive = primitivesOnScene?.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
+                var selectedSceneObject = sceneObjectsOnScene?.FirstOrDefault(x => x.ElementUsage.Name == descendant.Name);
 
-                if (selectedPrimitive is not null)
+                if (selectedSceneObject is not null)
                 {
-                    selectedPrimitive.IsVisible = node.IsVisible;
-                    JSInterop.Invoke("SetMeshVisibility", selectedPrimitive, node.IsVisible);
+                    selectedSceneObject.Primitive.IsVisible = node.IsVisible;
+                    JSInterop.Invoke("SetMeshVisibility", selectedSceneObject, node.IsVisible);
                 }
             }
 

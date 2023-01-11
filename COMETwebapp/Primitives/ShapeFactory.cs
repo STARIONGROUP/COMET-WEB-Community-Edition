@@ -37,31 +37,6 @@ namespace COMETwebapp.Primitives
     public class ShapeFactory : IShapeFactory
     {
         /// <summary>
-        /// Dictionary used from the creation of shapes
-        /// </summary>
-        Dictionary<string, Func<Primitive>> ShapeCreatorCollection;
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="ShapeFactory"/>
-        /// </summary>
-        public ShapeFactory()
-        {
-            this.ShapeCreatorCollection = new Dictionary<string, Func<Primitive>>()
-            {
-                {"box", () => new Cube(1, 1, 1) },
-                {"cone", () => new Cone(1, 1) },
-                {"cylinder", () => new Cylinder(1, 1) },
-                {"sphere", () => new Sphere(1) },
-                {"torus", () => new Torus(1, 1) },
-                {"triprism", () => new TriangularPrism(1, 1) },
-                {"disc", () => new Disc(1) },
-                {"hexagonalprism", () => new HexagonalPrism(1, 1) },
-                {"rectangle", () => new Rectangle(1, 1) },
-                {"triangle", () => new EquilateralTriangle(1) },
-            };
-        }
-
-        /// <summary>
         /// Tries to create a <see cref="Primitive"/> from the data of a <see cref="ElementUsage"/>
         /// </summary>
         /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
@@ -70,7 +45,6 @@ namespace COMETwebapp.Primitives
         /// <returns>The created <see cref="Primitive"/></returns>
         public Primitive? CreatePrimitiveFromElementUsage(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states)
         {
-            IValueSet? valueSet = null;
             var parameters = elementUsage.GetParametersInUse();
             var shapeKindParameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName, null);
 
@@ -78,37 +52,7 @@ namespace COMETwebapp.Primitives
 
             if (shapeKindParameter is not null)
             {
-                valueSet = shapeKindParameter.GetValueSetFromOptionAndStates(selectedOption, states);
-
-                if (valueSet is not null)
-                {
-                    string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
-
-                    if (shapeKind is not null && this.ShapeCreatorCollection.ContainsKey(shapeKind))
-                    {
-                        primitive = this.ShapeCreatorCollection[shapeKind].Invoke();
-                    }
-                    else
-                    {
-                        primitive = new Cube(0.15, 0.15, 0.15);
-                    }
-                }
-                else
-                {
-                    primitive = new Cube(0.15, 0.15, 0.15);
-                }
-            }
-
-            if (primitive is not null)
-            {
-                primitive.ElementUsage = elementUsage;
-                primitive.SelectedOption = selectedOption;
-                primitive.States = states;
-
-                primitive.SetColorFromElementUsageParameters();
-                primitive.SetOrientationFromElementUsageParameters();
-                primitive.SetPositionFromElementUsageParameters();
-                primitive.SetDimensionsFromElementUsageParameters();
+                primitive = ParameterParser.ShapeKindParser(shapeKindParameter, selectedOption, states);
             }
 
             return primitive;

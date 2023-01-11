@@ -27,8 +27,9 @@ namespace COMETwebapp.Components.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
     using COMETwebapp.Interoperability;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
-
+    using DevExpress.Data.ODataLinq;
     using Microsoft.AspNetCore.Components;
     using Newtonsoft.Json;
 
@@ -54,22 +55,22 @@ namespace COMETwebapp.Components.PropertiesPanel
         private ParameterBase parameterSelected;
 
         /// <summary>
-        /// Backing field for the <see cref="PrimitiveSelected"/> property
+        /// Backing field for the <see cref="SelectedSceneObject"/> property
         /// </summary>
-        private Primitive primitiveSelected;
-
+        private SceneObject selectedSceneObject;
+                
         /// <summary>
-        /// Gets or sets the selected primitive used for the details
+        /// Gets or sets the selected scene object used for the details panel.
         /// </summary>
         [Parameter]
-        public Primitive PrimitiveSelected
+        public SceneObject SelectedSceneObject
         {
-            get => this.primitiveSelected;
+            get => this.selectedSceneObject;
             set
             {
-                if (this.primitiveSelected != value)
-                {                   
-                    this.primitiveSelected = value;
+                if(this.selectedSceneObject != value)
+                {
+                    this.selectedSceneObject = value;
                     this.InitValueSet();
                 }
             }
@@ -96,9 +97,9 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         private void InitValueSet()
         {
-            if (this.PrimitiveSelected is not null)
+            if (this.SelectedSceneObject is not null)
             {
-                this.ValueSetsCollection = this.PrimitiveSelected.GetValueSets();
+                this.ValueSetsCollection = this.SelectedSceneObject.GetValueSets();
             }
         }
 
@@ -149,10 +150,11 @@ namespace COMETwebapp.Components.PropertiesPanel
                 var clonedValueSetBase = parameterValueSetBase.Clone(false);
                 clonedValueSetBase.Manual = newValueArray;
                 this.ValueSetsCollection[this.ParameterSelected] = clonedValueSetBase;
-                this.PrimitiveSelected.UpdatePropertyWithParameterData(this.ParameterSelected.ParameterType.ShortName, clonedValueSetBase);
 
-                string jsonPrimitive = JsonConvert.SerializeObject(this.primitiveSelected, Formatting.Indented);
-                await JSInterop.Invoke("RegenMesh", jsonPrimitive);
+                this.SelectedSceneObject.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
+
+                string jsonSceneObject = JsonConvert.SerializeObject(this.SelectedSceneObject, Formatting.Indented);
+                await JSInterop.Invoke("RegenMesh", jsonSceneObject);
             }
         }
     }

@@ -27,6 +27,7 @@ namespace COMETwebapp.Primitives
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Cube primitive type
@@ -85,61 +86,22 @@ namespace COMETwebapp.Primitives
             this.Depth = depth;
         }
 
-        /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
-        {            
-            var widthValueSet  = this.GetValueSet(SceneSettings.WidthShortName);
-            var heightValueSet = this.GetValueSet(SceneSettings.HeightShortName);
-            var lengthValueSet = this.GetValueSet(SceneSettings.LengthShortName);
-
-            if(widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
-            {
-                this.Width = w;
-            }
-
-            if(heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
-            {
-                this.Height = h;
-            }
-
-            if(lengthValueSet is not null && double.TryParse(lengthValueSet.ActualValue.First(), out double d))
-            {
-                this.Depth = d;
-            }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
+            base.ParseParameter(parameterBase, valueSet);
 
-            switch (parameterTypeShortName)
+            switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.WidthShortName:
-                    if(double.TryParse(newValue.ActualValue.First(), out double w))
-                    {
-                        this.Width = w;
-                    }
+                    this.Width = ParameterParser.DoubleParser(valueSet);
                     break;
                 case SceneSettings.HeightShortName:
-                    if(double.TryParse(newValue.ActualValue.First(), out double h))
-                    {
-                        this.Height = h;
-                    }
+                    this.Height = ParameterParser.DoubleParser(valueSet);
                     break;
                 case SceneSettings.LengthShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Depth = d;
-                    }
+                    this.Depth = ParameterParser.DoubleParser(valueSet);
                     break;
-            }
+            }            
         }
     }
 }

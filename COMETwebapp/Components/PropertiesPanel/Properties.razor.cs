@@ -33,6 +33,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 
     using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
@@ -45,20 +46,20 @@ namespace COMETwebapp.Components.PropertiesPanel
     public partial class Properties 
     {
         /// <summary>
-        /// Backing field for the <see cref="SelectedPrimitive"/> property
+        /// Backing field for the <see cref="SelectedSceneObject"/> property
         /// </summary>
-        private Primitive selectedPrimitive;
+        private SceneObject selectedSceneObject;
 
         /// <summary>
         /// Gets or sets the <see cref="Primitive"/> to fill the panel
         /// </summary>
         [Parameter]
-        public Primitive SelectedPrimitive
+        public SceneObject SelectedSceneObject
         {
-            get => selectedPrimitive;
+            get => selectedSceneObject;
             set
             {
-                selectedPrimitive = value.Clone();
+                selectedSceneObject = value.Clone();
                 this.SelectedPrimitiveHasChanged();
                 this.InitPanelProperties();
             }
@@ -130,7 +131,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         private void InitPanelProperties()
         {
-            this.ParametersInUse = this.SelectedPrimitive.ElementUsage.GetParametersInUse().OrderBy(x=>x.ParameterType.ShortName).ToList();
+            this.ParametersInUse = this.SelectedSceneObject.ParametersAsociated.OrderBy(x=>x.ParameterType.ShortName).ToList();
             this.ParameterChanged(ParametersInUse.First());
         }
         
@@ -140,7 +141,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         private async void SelectedPrimitiveHasChanged()
         {
             await this.BabylonCanvas.ClearTemporarySceneObjects();
-            await this.BabylonCanvas.AddTemporarySceneObject(new Model.SceneObject(this.selectedPrimitive));
+            await this.BabylonCanvas.AddTemporarySceneObject(this.SelectedSceneObject);
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         public void OnSubmit()
         {
-            var collection = this.SelectedPrimitive.GetValueSets();
+            var collection = this.selectedSceneObject.GetValueSets();
 
             foreach(var key in collection.Keys)
             {

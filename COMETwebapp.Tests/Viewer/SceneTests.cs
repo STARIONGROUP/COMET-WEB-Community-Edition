@@ -71,12 +71,12 @@ namespace COMETwebapp.Tests.Viewer
         }
 
         [Test]
-        public void VerifyThatPrimitiveCanBeRetrievedById()
+        public async Task VerifyThatPrimitiveCanBeRetrievedById()
         {
             var primitive = new Cube(1, 1, 1);
             var sceneObj = new SceneObject(primitive);
 
-            this.canvas.AddSceneObject(sceneObj);
+            await this.canvas.AddSceneObject(sceneObj);
 
             var retrieved = this.canvas.GetPrimitiveById(primitive.ID);
             Assert.IsNotNull(retrieved);
@@ -92,9 +92,9 @@ namespace COMETwebapp.Tests.Viewer
             var primitive2 = new Sphere(1);
             var primitive3 = new Cone(1, 1);
 
-            this.canvas.AddSceneObject(new SceneObject(primitive1));
-            this.canvas.AddSceneObject(new SceneObject(primitive2));
-            this.canvas.AddSceneObject(new SceneObject(primitive3));
+            await this.canvas.AddSceneObject(new SceneObject(primitive1));
+            await this.canvas.AddSceneObject(new SceneObject(primitive2));
+            await this.canvas.AddSceneObject(new SceneObject(primitive3));
 
             var primitives = this.canvas.AllSceneObjects;
 

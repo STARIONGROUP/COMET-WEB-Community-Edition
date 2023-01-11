@@ -25,7 +25,6 @@
 namespace COMETwebapp.Components.CanvasComponent
 {
     using System;
-    using System.Numerics;
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
@@ -33,14 +32,13 @@ namespace COMETwebapp.Components.CanvasComponent
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
-    using DevExpress.Data.Mask.Internal;
-    using DevExpress.Utils.Zip;
+    using COMETwebapp.Utilities;
+    
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
-    using Microsoft.JSInterop;
     
     using Newtonsoft.Json;
-
+    
     /// <summary>
     /// Support class for the <see cref="BabylonCanvas.razor"/>
     /// </summary>
@@ -71,7 +69,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <summary>
         /// Gets or sets the <see cref="Primitive"/> that is currently selected
         /// </summary>
-        public Primitive SelectedPrimitive { get; set; }
+        public SceneObject SelectedSceneObject{ get; set; }
 
         /// <summary>
         /// Collection of scene objects in the scene.
@@ -120,7 +118,7 @@ namespace COMETwebapp.Components.CanvasComponent
 
             if (firstRender)
             {               
-                this.InitCanvas(this.CanvasReference, true);
+                await this.InitCanvas(this.CanvasReference, true);
             }
         }
                
@@ -131,7 +129,6 @@ namespace COMETwebapp.Components.CanvasComponent
         public void OnMouseDown(MouseEventArgs e)
         {
             this.IsMouseDown = true;
-            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
         }
 
         /// <summary>
@@ -141,21 +138,29 @@ namespace COMETwebapp.Components.CanvasComponent
         public async void OnMouseUp(MouseEventArgs e)
         {
             this.IsMouseDown = false;
-            //TODO: when the tools are ready here we are going to manage the different types of actions that a user can make.
             await this.ClearTemporarySceneObjects();
 
-            this.SceneObjects.ForEach(async x => { x.Primitive.IsSelected = false; await JSInterop.Invoke("SetSelection", x.Primitive.ID, false); });
-            this.SelectedPrimitive = null;
+            this.SceneObjects.ForEach(async x => 
+            { 
+                if(x.Primitive is not null)
+                {
+                    x.Primitive.IsSelected = false;
+                    await JSInterop.Invoke("SetSelection", x.ID, false);
+                }
+            });
 
-            var primitive = await this.GetPrimitiveUnderMouseAsync();
+            this.SelectedSceneObject = null;
 
-            if (primitive is not null)
+            var sceneObject = await this.GetSceneObjectUnderMouseAsync();
+
+            if (sceneObject is not null && sceneObject.Primitive is not null)
             {
-                primitive.IsSelected = true;
-                await JSInterop.Invoke("SetSelection", primitive.ID, true);
-                this.SelectedPrimitive = primitive;
+                sceneObject.Primitive.IsSelected = true;
+                await JSInterop.Invoke("SetSelection", sceneObject.ID, true);
+                this.SelectedSceneObject = sceneObject;
             }
-            this.RaiseSelectionChanged(primitive);
+
+            this.RaiseSelectionChanged(sceneObject);
         }
 
         /// <summary>
@@ -170,18 +175,18 @@ namespace COMETwebapp.Components.CanvasComponent
 
             foreach (var elementUsage in elementUsages)
             {
-                var sceneObject = SceneObject.Create(this.ShapeFactory, elementUsage, selectedOption, states);
-                this.AddSceneObject(sceneObject);
+                var sceneObject = SceneObject.Create(elementUsage, selectedOption, states);
+                await this.AddSceneObject(sceneObject);
             }
         }
 
         /// <summary>
         /// Raise the <see cref="OnSelectionChanged"/> event 
         /// </summary>
-        /// <param name="primitive">The <see cref="Primitive"/> that triggers the event</param>
-        public void RaiseSelectionChanged(Primitive primitive)
+        /// <param name="sceneObject">The <see cref="SceneObject"/> that triggers the event</param>
+        public void RaiseSelectionChanged(SceneObject sceneObject)
         {
-            OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(primitive));
+            OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(sceneObject));
         }
 
         /// <summary>
@@ -221,7 +226,7 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             foreach(var sceneObj in this.SceneObjects)
             {
-                await JSInterop.Invoke("Dispose", sceneObj.Primitive.ID);
+                await JSInterop.Invoke("Dispose", sceneObj.ID);
             }
 
             this.SceneObjects.Clear();
@@ -234,7 +239,7 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             foreach (var sceneObj in this.TemporarySceneObjects)
             {
-                await JSInterop.Invoke("Dispose", sceneObj.Primitive.ID);
+                await JSInterop.Invoke("Dispose", sceneObj.ID);
             }
 
             this.TemporarySceneObjects.Clear();
@@ -244,79 +249,30 @@ namespace COMETwebapp.Components.CanvasComponent
         /// Gets the primitive under the mouse cursor asyncronously
         /// </summary>
         /// <returns>The primitive under the mouse cursor</returns>
-        public async Task<Primitive> GetPrimitiveUnderMouseAsync()
+        public async Task<SceneObject> GetSceneObjectUnderMouseAsync()
         {
             var id = await JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
             if (id == null || !Guid.TryParse(id, out Guid ID))
             {
                 return null;
             }
-            return GetPrimitiveById(ID);
+            return GetSceneObjectById(ID);
         }
 
         /// <summary>
-        /// Gets the primitive asociated to an specific Id
+        /// Gets the scene object asociated to an specific Id
         /// </summary>
-        /// <param name="id">The Id of the entity</param>
+        /// <param name="id">The Id of the primitive asociated to the scene object</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        public Primitive GetPrimitiveById(Guid id)
+        public SceneObject GetSceneObjectById(Guid id)
         {
-            if (!this.SceneObjects.Exists(x => x.Primitive?.ID == id))
+            if (!this.SceneObjects.Exists(x => x.ID == id))
             {
                 throw new ArgumentException("The specified Id dont exist in the scene");
             }
 
-            return this.SceneObjects.First(x => x.Primitive.ID == id).Primitive;
-        }
-
-
-        /// <summary>
-        /// Sets the position of the primitive with the specified ID
-        /// </summary>
-        /// <param name="Id">the id of the primitive</param>
-        /// <param name="x">translation along X axis</param>
-        /// <param name="y">translation along Y axis</param>
-        /// <param name="z">translation along Z axis</param>
-        public async void SetPrimitivePosition(Guid Id, double x, double y, double z)
-        {
-            await JSInterop.Invoke("SetPrimitivePosition", Id.ToString(), x, y, z);
-        }
-
-        /// <summary>
-        /// Sets the position of the primitive 
-        /// </summary>
-        /// <param name="primitive">the primitive to sets the position to</param>
-        /// <param name="x">translation along X axis</param>
-        /// <param name="y">translation along Y axis</param>
-        /// <param name="z">translation along Z axis</param>
-        public void SetPrimitivePosition(Primitive primitive, double x, double y, double z)
-        {
-            SetPrimitivePosition(primitive.ID, x, y, z);
-        }
-
-        /// <summary>
-        /// Sets the rotation of the primitive with the specified ID
-        /// </summary>
-        /// <param name="Id">the id of the primitive</param>
-        /// <param name="rx">rotation around X axis</param>
-        /// <param name="ry">rotation around Y axis</param>
-        /// <param name="rz">rotation around Z axis</param>
-        public async void SetPrimitiveRotation(Guid Id, double rx, double ry, double rz)
-        {
-            await JSInterop.Invoke("SetPrimitiveRotation", Id.ToString(), rx, ry, rz);
-        }
-
-        /// <summary>
-        /// Sets the rotation of the primitive
-        /// </summary>
-        /// <param name="primitive">the primitive to sets the rotation to</param>
-        /// <param name="rx">rotation around X axis</param>
-        /// <param name="ry">rotation around Y axis</param>
-        /// <param name="rz">rotation around Z axis</param>
-        public void SetPrimitiveRotation(Primitive primitive, double rx, double ry, double rz)
-        {
-            SetPrimitiveRotation(primitive.ID, rx, ry, rz);
+            return this.SceneObjects.First(x => x.ID == id);
         }
     }
 }
