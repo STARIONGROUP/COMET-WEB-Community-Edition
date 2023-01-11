@@ -99,14 +99,6 @@ namespace COMETwebapp.Model
                         }
                     }
                 }
-                else
-                {
-                    this.PrimitiveCanBeCreated = false;
-                }
-            }
-            else
-            {
-                this.PrimitiveCanBeCreated = false;
             }
         }
 
