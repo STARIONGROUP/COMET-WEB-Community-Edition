@@ -159,15 +159,6 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Gets info of the entity that can be used to show the user
-        /// </summary>
-        /// <returns>A string containing the info</returns>
-        public virtual string GetInfo()
-        {
-            return "Type: " + this.Type.ToString();
-        }
-
-        /// <summary>
         /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
         /// </summary>
         /// <returns>A collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/></returns>

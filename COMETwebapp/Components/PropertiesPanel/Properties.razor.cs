@@ -59,8 +59,7 @@ namespace COMETwebapp.Components.PropertiesPanel
             set
             {
                 selectedPrimitive = value.Clone();
-                this.BabylonCanvas.ClearTemporarySceneObjects();
-                this.BabylonCanvas.AddTemporarySceneObject(new Model.SceneObject(this.selectedPrimitive));
+                this.SelectedPrimitiveHasChanged();
                 this.InitPanelProperties();
             }
         }
@@ -133,6 +132,15 @@ namespace COMETwebapp.Components.PropertiesPanel
         {
             this.ParametersInUse = this.SelectedPrimitive.ElementUsage.GetParametersInUse().OrderBy(x=>x.ParameterType.ShortName).ToList();
             this.ParameterChanged(ParametersInUse.First());
+        }
+        
+        /// <summary>
+        /// Method called when the selected primitive has changed
+        /// </summary>
+        private async void SelectedPrimitiveHasChanged()
+        {
+            await this.BabylonCanvas.ClearTemporarySceneObjects();
+            await this.BabylonCanvas.AddTemporarySceneObject(new Model.SceneObject(this.selectedPrimitive));
         }
 
         /// <summary>

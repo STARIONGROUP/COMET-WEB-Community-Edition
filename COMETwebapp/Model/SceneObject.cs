@@ -24,7 +24,11 @@
 
 namespace COMETwebapp.Model
 {
+    using CDP4Common.EngineeringModelData;
+    using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.Primitives;
+    using COMETwebapp.Utilities;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a object in the 3D Scene
@@ -36,13 +40,88 @@ namespace COMETwebapp.Model
         /// </summary>
         public Primitive? Primitive { get; set; }
 
+        public bool PrimitiveCanBeCreated { get; private set; }
+        private ElementUsage ElementUsage { get; set; }
+        private Option Option { get; set; }
+        private List<ActualFiniteState> States { get; set; }
+        private IShapeFactory ShapeFactory { get; set; }
+        public IReadOnlyList<ParameterBase> ParametersAsociated { get; set; } 
+
         /// <summary>
         /// Creates a new instance of type <see cref="SceneObject"/>
         /// </summary>
-        /// <param name="shapeFactory">the factory used</param>
-        public SceneObject(Primitive? primitive)
+        private SceneObject() { }
+
+        /// <summary>
+        /// Creates a new empty instance of type <see cref="SceneObject"/>. Used only for drawing the temporary scene objects and testing. 
+        /// </summary>
+        /// <param name="primitive">the primitive that contains</param>
+        public SceneObject(Primitive primitive)
         {
             this.Primitive = primitive;
         }
+
+        /// <summary>
+        /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene.
+        /// </summary>
+        /// <param name="shapeFactory">the factory used to create the primitives</param>
+        /// <param name="elementUsage">the <see cref="ElementUsage"/> that contains the data for creating the <see cref="Primitive"/></param>
+        /// <param name="option">the selected option</param>
+        /// <param name="states">the possible actual finite states</param>
+        /// <returns></returns>
+        public static SceneObject Create(IShapeFactory shapeFactory, ElementUsage elementUsage, Option option, List<ActualFiniteState> states)
+        {
+            var sceneObj = new SceneObject() { ShapeFactory = shapeFactory, ElementUsage = elementUsage, Option = option, States = states };
+            sceneObj.Primitive =  sceneObj.ShapeFactory.CreatePrimitiveFromElementUsage(elementUsage, option, states);
+            sceneObj.ParametersAsociated = elementUsage.GetParametersInUse().ToList();
+            sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+            return sceneObj;
+        }
+
+        /// <summary>
+        /// Checks if the <see cref="SceneObject"/> contains the necessary parameters to create the <see cref="Primitive"/>
+        /// </summary>
+        public void CheckIfPrimitiveCanBeCreatedWithAvailableParameters()
+        {
+            if(this.Primitive is not null)
+            {
+                if (this.ShapeAndParametersRelation.TryGetValue(this.Primitive.GetType(), out var namesOfNeededParameters))
+                {
+                    var namesOfActualParameters = this.ParametersAsociated.Select(x => x.ParameterType.ShortName).ToList();
+                    this.PrimitiveCanBeCreated = true;
+
+                    foreach(var name in namesOfNeededParameters)
+                    {
+                        if (!namesOfActualParameters.Contains(name))
+                        {
+                            this.PrimitiveCanBeCreated = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    this.PrimitiveCanBeCreated = false;
+                }
+            }
+            else
+            {
+                this.PrimitiveCanBeCreated = false;
+            }
+        }
+
+        private Dictionary<Type, List<string>> ShapeAndParametersRelation = new Dictionary<Type, List<string>>()
+        {
+            { typeof(Cone), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings. HeightShortName } },
+            { typeof(Cube), new List<string>(){ SceneSettings.WidthShortName, SceneSettings.HeightShortName, SceneSettings.LengthShortName } },
+            { typeof(Cylinder), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Disc), new List<string>(){ SceneSettings.DiameterShortName } },
+            { typeof(EquilateralTriangle), new List<string>(){ SceneSettings.DiameterShortName } },
+            { typeof(HexagonalPrism), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Rectangle), new List<string>(){ SceneSettings.WidthShortName, SceneSettings.HeightShortName } },
+            { typeof(Sphere), new List<string>(){ SceneSettings.DiameterShortName } },
+            { typeof(Torus), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.ThicknessShortName} },
+            { typeof(TriangularPrism), new List<string>(){ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+        };
     }
 }

@@ -170,8 +170,8 @@ namespace COMETwebapp.Components.CanvasComponent
 
             foreach (var elementUsage in elementUsages)
             {
-                var basicShape = this.ShapeFactory?.CreatePrimitiveFromElementUsage(elementUsage, selectedOption, states);               
-                this.AddSceneObject(new SceneObject(basicShape));
+                var sceneObject = SceneObject.Create(this.ShapeFactory, elementUsage, selectedOption, states);
+                this.AddSceneObject(sceneObject);
             }
         }
 
@@ -187,7 +187,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public async void InitCanvas(ElementReference canvas, bool addAxes)
+        public async Task InitCanvas(ElementReference canvas, bool addAxes)
         {
             await JSInterop.Invoke("InitCanvas", canvas, addAxes);
         }
@@ -196,22 +196,22 @@ namespace COMETwebapp.Components.CanvasComponent
         /// Adds a selectable scene object into scene that contains a primitive
         /// </summary>
         /// <param name="sceneObject"></param>
-        public void AddSceneObject(SceneObject sceneObject)
+        public async Task AddSceneObject(SceneObject sceneObject)
         {
             string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             this.SceneObjects.Add(sceneObject);
-            JSInterop.Invoke("AddSceneObject", sceneObjectJson);
+            await JSInterop.Invoke("AddSceneObject", sceneObjectJson);
         }
 
         /// <summary>
         /// Adds a selectable temporary scene object into scene that contains a primitive
         /// </summary>
         /// <param name="sceneObject"></param>
-        public void AddTemporarySceneObject(SceneObject sceneObject)
+        public async Task AddTemporarySceneObject(SceneObject sceneObject)
         {
             string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             this.TemporarySceneObjects.Add(sceneObject);
-            JSInterop.Invoke("AddSceneObject", sceneObjectJson);
+            await JSInterop.Invoke("AddSceneObject", sceneObjectJson);
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
         public Primitive GetPrimitiveById(Guid id)
         {
-            if (!this.SceneObjects.Exists(x => x.Primitive.ID == id))
+            if (!this.SceneObjects.Exists(x => x.Primitive?.ID == id))
             {
                 throw new ArgumentException("The specified Id dont exist in the scene");
             }
