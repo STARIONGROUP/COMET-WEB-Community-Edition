@@ -32,13 +32,13 @@ namespace COMETwebapp.Model
         /// <summary>
         /// The <see cref="SceneObject"/> that triggers the selection changed
         /// </summary>
-        public SceneObject SceneObject { get; }
+        public SceneObject? SceneObject { get; }
 
         /// <summary>
         /// Creates a new instance of type <see cref="OnSelectionChangedEventArgs"/>
         /// </summary>
         /// <param name="sceneObject">the <see cref="SceneObject"/> that has been selected</param>
-        public OnSelectionChangedEventArgs(SceneObject sceneObject)
+        public OnSelectionChangedEventArgs(SceneObject? sceneObject)
         {
             this.SceneObject = sceneObject;
         }

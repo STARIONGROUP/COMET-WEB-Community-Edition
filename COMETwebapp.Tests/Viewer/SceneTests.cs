@@ -37,8 +37,9 @@ namespace COMETwebapp.Tests.Viewer
     using Moq;
 
     using NUnit.Framework;
+    using System.Linq;
     using System.Threading.Tasks;
-    using static DevExpress.Utils.HashCodeHelper;
+
     using TestContext = Bunit.TestContext;
 
     /// <summary>
@@ -48,9 +49,7 @@ namespace COMETwebapp.Tests.Viewer
     public class SceneTests
     {
         private TestContext context;
-        private ISceneSettings scene;
         private BabylonCanvas canvas;
-        private IJSInterop JSInterop;
 
         [SetUp]
         public void SetUp()
@@ -73,49 +72,55 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatPrimitiveCanBeRetrievedById()
         {
-            var primitive = new Cube(1, 1, 1);
-            var sceneObj = new SceneObject(primitive);
+            var sceneObj = new SceneObject(new Cube(1, 1, 1));
 
             await this.canvas.AddSceneObject(sceneObj);
 
-            var retrieved = this.canvas.GetPrimitiveById(primitive.ID);
-            Assert.IsNotNull(retrieved);
-            Assert.AreEqual(primitive, retrieved);
+            var retrieved = this.canvas.GetSceneObjectById(sceneObj.ID);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(retrieved, Is.Not.Null);
+                Assert.That(sceneObj, Is.EqualTo(retrieved));
+            });
         }
 
         [Test]
-        public async Task VerifyThatGetPrimitivesWorks()
+        public async Task VerifyThatGetSceneObjectsWorks()
         {
             await this.canvas.ClearSceneObjects();
 
-            var primitive1 = new Cube(1, 1, 1);
-            var primitive2 = new Sphere(1);
-            var primitive3 = new Cone(1, 1);
+            var sceneObj1 = new SceneObject(new Cube(1, 1, 1));
+            var sceneObj2 = new SceneObject(new Sphere(1));
+            var sceneObj3 = new SceneObject(new Cone(1, 1));
 
-            await this.canvas.AddSceneObject(new SceneObject(primitive1));
-            await this.canvas.AddSceneObject(new SceneObject(primitive2));
-            await this.canvas.AddSceneObject(new SceneObject(primitive3));
+            await this.canvas.AddSceneObject(sceneObj1);
+            await this.canvas.AddSceneObject(sceneObj2);
+            await this.canvas.AddSceneObject(sceneObj3);
 
-            var primitives = this.canvas.AllSceneObjects;
+            var primitives = this.canvas.GetAllSceneObjects();
 
             Assert.AreEqual(3, primitives.Count);
 
-            var retrieved1 = primitives.Exists(x => x.Primitive == primitive1);
-            var retrieved2 = primitives.Exists(x => x.Primitive == primitive2);
-            var retrieved3 = primitives.Exists(x => x.Primitive == primitive3);
+            var retrieved1 = primitives.Any(x => x == sceneObj1);
+            var retrieved2 = primitives.Any(x => x == sceneObj2);
+            var retrieved3 = primitives.Any(x => x == sceneObj3);
 
-            Assert.IsTrue(retrieved1);
-            Assert.IsTrue(retrieved2);
-            Assert.IsTrue(retrieved3);
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(retrieved1);
+                Assert.IsTrue(retrieved2);
+                Assert.IsTrue(retrieved3);
+            });
         }
 
         [Test]
-        public void VerifyThatPrimitivesAreAddedToScene()
+        public async Task VerifyThatPrimitivesAreAddedToScene()
         {
-            Cube cube = new Cube(0, 0, 0, 1, 1, 1);
-            this.canvas.AddSceneObject(new SceneObject(cube));
-            var prim = this.canvas.GetPrimitiveById(cube.ID);
-            Assert.AreEqual(cube, prim);
+            var sceneObject = new SceneObject(new Cube(0, 0, 0, 1, 1, 1));
+            await this.canvas.AddSceneObject(sceneObject);
+            var sceneObjectRetrieved = this.canvas.GetSceneObjectById(sceneObject.ID);
+            Assert.That(sceneObject, Is.EqualTo(sceneObjectRetrieved));
         }
 
         [Test]
@@ -126,9 +131,12 @@ namespace COMETwebapp.Tests.Viewer
             cube.Y = 1;
             cube.Z = 1;
 
-            Assert.AreEqual(1, cube.X);
-            Assert.AreEqual(1, cube.Y);
-            Assert.AreEqual(1, cube.Z);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, cube.X);
+                Assert.AreEqual(1, cube.Y);
+                Assert.AreEqual(1, cube.Z);
+            });
         }
 
         [Test]
@@ -139,9 +147,12 @@ namespace COMETwebapp.Tests.Viewer
             cube.RY = 1;
             cube.RZ = 1;
 
-            Assert.AreEqual(1, cube.RX);
-            Assert.AreEqual(1, cube.RY);
-            Assert.AreEqual(1, cube.RZ);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, cube.RX);
+                Assert.AreEqual(1, cube.RY);
+                Assert.AreEqual(1, cube.RZ);
+            });
         }
 
         [Test]
@@ -150,12 +161,12 @@ namespace COMETwebapp.Tests.Viewer
             var cube1 = new Cube(1, 1, 1);
             var cube2 = new Cube(1, 1, 1);
             await this.canvas.ClearSceneObjects();
-            this.canvas.AddSceneObject(new SceneObject(cube1));
-            this.canvas.AddSceneObject(new SceneObject(cube2));
-            Assert.AreEqual(2, this.canvas.AllSceneObjects.Count);
+            await this.canvas.AddSceneObject(new SceneObject(cube1));
+            await this.canvas.AddSceneObject(new SceneObject(cube2));
+            Assert.AreEqual(2, this.canvas.GetAllSceneObjects().Count);
 
             await this.canvas.ClearSceneObjects();
-            Assert.AreEqual(0, this.canvas.AllSceneObjects.Count);
+            Assert.AreEqual(0, this.canvas.GetAllSceneObjects().Count);
         }
     }
 }

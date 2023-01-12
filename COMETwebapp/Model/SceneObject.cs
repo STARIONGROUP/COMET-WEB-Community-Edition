@@ -57,11 +57,14 @@ namespace COMETwebapp.Model
             {
                 this.primitive = value;
                 //TODO: Use the current selected SceneObj so the rest of the parameters are updated. If not uses the data in the server!
-                var restOfParameters = this.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
-                foreach (var parameter in restOfParameters)
+                if(this.primitive != null && this.ParametersAsociated != null)
                 {
-                    this.ParseParameter(parameter);
+                    var restOfParameters = this.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+                    foreach (var parameter in restOfParameters)
+                    {
+                        this.ParseParameter(parameter);
+                    }
                 }
             }
         }
@@ -81,13 +84,13 @@ namespace COMETwebapp.Model
         /// Gets or sets the selected option for this <see cref="SceneObject"/>
         /// </summary>
         [JsonIgnore]
-        private Option Option { get; set; }
+        public Option Option { get; private set; }
 
         /// <summary>
         /// Gets or sets the possible actual finite states for this <see cref="SceneObjects"/>
         /// </summary>
         [JsonIgnore]
-        private List<ActualFiniteState> States { get; set; }
+        public List<ActualFiniteState> States { get; private set; }
 
         /// <summary>
         /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementUsage"/>
@@ -131,7 +134,7 @@ namespace COMETwebapp.Model
         /// Creates a new empty instance of type <see cref="SceneObject"/>. Used only for testing. 
         /// </summary>
         /// <param name="primitive">the primitive that contains</param>
-        public SceneObject(Primitive primitive)
+        public SceneObject(Primitive? primitive)
         {
             this.Primitive = primitive;
         }

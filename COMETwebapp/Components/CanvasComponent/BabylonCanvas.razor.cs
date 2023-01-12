@@ -64,12 +64,12 @@ namespace COMETwebapp.Components.CanvasComponent
         /// Gets or sets the property used for the Interoperability
         /// </summary>
         [Inject]
-        public IJSInterop JSInterop { get; set; }
+        public IJSInterop? JSInterop { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="Primitive"/> that is currently selected
         /// </summary>
-        public SceneObject SelectedSceneObject{ get; set; }
+        public SceneObject? SelectedSceneObject{ get; set; }
 
         /// <summary>
         /// Collection of scene objects in the scene.
@@ -80,16 +80,6 @@ namespace COMETwebapp.Components.CanvasComponent
         /// Collection of temporary scene objects in scene.
         /// </summary>
         private List<SceneObject> TemporarySceneObjects = new List<SceneObject>();
-
-        /// <summary>
-        /// ReadOnly collection of scene objects in the scene.
-        /// </summary>
-        public List<SceneObject> AllSceneObjects => SceneObjects.AsReadOnly().ToList();
-
-        /// <summary>
-        /// ReadOnly collection of temporary scene objects in scene.
-        /// </summary>
-        public List<SceneObject> AllTemporarySceneObjects => TemporarySceneObjects.AsReadOnly().ToList();
 
         /// <summary>
         /// Event for when selection has changed;
@@ -142,7 +132,7 @@ namespace COMETwebapp.Components.CanvasComponent
 
             this.SceneObjects.ForEach(async x => 
             { 
-                if(x.Primitive is not null)
+                if(x.Primitive is not null && JSInterop is not null)
                 {
                     x.Primitive.IsSelected = false;
                     await JSInterop.Invoke("SetSelection", x.ID, false);
@@ -153,7 +143,7 @@ namespace COMETwebapp.Components.CanvasComponent
 
             var sceneObject = await this.GetSceneObjectUnderMouseAsync();
 
-            if (sceneObject is not null && sceneObject.Primitive is not null)
+            if (sceneObject is not null && sceneObject.Primitive is not null && JSInterop is not null)
             {
                 sceneObject.Primitive.IsSelected = true;
                 await JSInterop.Invoke("SetSelection", sceneObject.ID, true);
@@ -184,7 +174,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// Raise the <see cref="OnSelectionChanged"/> event 
         /// </summary>
         /// <param name="sceneObject">The <see cref="SceneObject"/> that triggers the event</param>
-        public void RaiseSelectionChanged(SceneObject sceneObject)
+        public void RaiseSelectionChanged(SceneObject? sceneObject)
         {
             OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(sceneObject));
         }
@@ -273,6 +263,24 @@ namespace COMETwebapp.Components.CanvasComponent
             }
 
             return this.SceneObjects.First(x => x.ID == id);
+        }
+
+        /// <summary>
+        /// Gets all the <see cref="SceneObject"/> in the scene
+        /// </summary>
+        /// <returns>the <see cref="SceneObject"/></returns>
+        public IReadOnlyList<SceneObject> GetAllSceneObjects()
+        {
+            return this.SceneObjects.AsReadOnly();
+        }
+
+        /// <summary>
+        /// Gets all the temporary <see cref="SceneObject"/> in the scene
+        /// </summary>
+        /// <returns>the temporary <see cref="SceneObject"/></returns>
+        public IReadOnlyList<SceneObject> GetAllTemporarySceneObjects()
+        {
+            return this.TemporarySceneObjects.AsReadOnly();
         }
     }
 }
