@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISceneProvider.cs" company="RHEA System S.A.">
+// <copyright file="ISceneSettings.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -24,14 +24,6 @@
 
 namespace COMETwebapp.Components.CanvasComponent
 {
-    using System.Drawing;
-    using System.Numerics;
-
-    using COMETwebapp.Model;
-    using COMETwebapp.Primitives;
-
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
     /// Scene provider
     /// </summary>

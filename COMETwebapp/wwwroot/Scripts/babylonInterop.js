@@ -59,12 +59,6 @@ const CameraInertia = 0.1;
 let Scene;
 
 /**
- * A list of the primitives that the scene contains.
- * @type {Map}
- */
-let Primitives = new Map();
-
-/**
  * A map of the SceneObjects that the Scene contains. 
  */
 let SceneObjects = new Map();
@@ -74,12 +68,6 @@ let SceneObjects = new Map();
  * @type {BABYLON.js material}
  */
 let PickingMaterial;
-
-/**
- * The panel used for displaying primitive's details in the window.
- * @type {HTMLElement}
- */
-let DetailsPanel;
 
 /**
  * Scene specular color. 
@@ -168,6 +156,9 @@ function InitCanvas(canvas,addAxes) {
     }
 };
 
+/*
+ * Adds the world axes to the scene
+ */
 function AddWorldAxes() {
     let size = SkyboxSize / 2.0;
     //X Axis

@@ -28,12 +28,12 @@ namespace COMETwebapp.Components.PropertiesPanel
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     
     using Microsoft.AspNetCore.Components;
-
 
     /// <summary>
     /// The component used to change the orientation of the selected mesh.

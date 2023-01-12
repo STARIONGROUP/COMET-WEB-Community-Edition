@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PrimitiveTests.cs" company="RHEA System S.A.">
+// <copyright file="SceneObjectTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -31,23 +31,22 @@ namespace COMETwebapp.Tests.Viewer
     using System.Numerics;
 
     using Bunit;
-
+    
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-
+    
     using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-    using COMETwebapp.Utilities;
-
+    
     using Microsoft.Extensions.DependencyInjection;
-
+    
     using Moq;
-
+    
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;

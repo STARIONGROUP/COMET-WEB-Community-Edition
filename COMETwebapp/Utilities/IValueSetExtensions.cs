@@ -24,11 +24,12 @@
 
 namespace COMETwebapp.Utilities
 {
+    using System.Globalization;
+
     using CDP4Common.EngineeringModelData;
+    
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
-    using System.Globalization;
-    using System.Numerics;
 
     /// <summary>
     /// Static extension methods for <see cref="IValueSet"/>

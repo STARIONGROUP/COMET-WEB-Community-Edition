@@ -24,6 +24,9 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+
     using Bunit;
 
     using COMETwebapp.Components.CanvasComponent;
@@ -37,8 +40,6 @@ namespace COMETwebapp.Tests.Viewer
     using Moq;
 
     using NUnit.Framework;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     using TestContext = Bunit.TestContext;
 

@@ -53,6 +53,12 @@ namespace COMETwebapp.Primitives
             this.Radius = radius;
         }
 
+        /// <summary>
+        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
+        /// </summary>
+        /// <param name="parameterBase">the parameter base related to the property</param>
+        /// <param name="valueSet">the value set to be parsed</param>
+
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);

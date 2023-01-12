@@ -26,11 +26,12 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
+    
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
-    using COMETwebapp.Primitives;
-    using DevExpress.Data.ODataLinq;
+    
     using Microsoft.AspNetCore.Components;
+    
     using Newtonsoft.Json;
 
     /// <summary>

@@ -24,13 +24,14 @@
 
 namespace COMETwebapp.Utilities
 {
+    using System.Globalization;
+    using System.Numerics;
+
     using CDP4Common.EngineeringModelData;
     
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
-    using System.Globalization;
-    using System.Numerics;
-
+    
     /// <summary>
     /// Class that contains the common parsers used for the <see cref="ParameterBase"/>
     /// </summary>
@@ -71,6 +72,11 @@ namespace COMETwebapp.Utilities
             return ShapeKindParser(valueSet);
         }
 
+        /// <summary>
+        /// Tries to parse the <see cref="IValueSet"/> into a <see cref="Primitive"/>
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>the primitive if the value can be parsed, null otherwise</returns>
         public static Primitive? ShapeKindParser(IValueSet? valueSet)
         {
             Primitive? primitive = null;
@@ -107,6 +113,11 @@ namespace COMETwebapp.Utilities
             return OrientationParser(valueSet);
         }
 
+        /// <summary>
+        /// Tries to parse the <see cref="IValueSet"/> into a <see cref="Orientation"/>
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>the Orientation if the value can be parsed, a Orientation.Identity otherwise</returns>
         public static Orientation OrientationParser(IValueSet? valueSet)
         {
             if (valueSet is not null)
@@ -136,6 +147,11 @@ namespace COMETwebapp.Utilities
             return PositionParser(valueSet);
         }
 
+        /// <summary>
+        /// Tries to parse the <see cref="IValueSet"/> into a <see cref="Vector3"/>
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>the <see cref="Vector3"/> if the value can be parsed, zero vector otherwise</returns>
         public static Vector3 PositionParser(IValueSet? valueSet)
         {
             if (valueSet is not null)
@@ -166,6 +182,11 @@ namespace COMETwebapp.Utilities
             return DoubleParser(valueSet);
         }
 
+        /// <summary>
+        /// Tries to parse the <see cref="IValueSet"/> into a <see cref="double"/>
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>the <see cref="double"/> if the value can be parsed, NaN otherwise</returns>
         public static double DoubleParser(IValueSet? valueSet)
         {
             if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
@@ -195,6 +216,11 @@ namespace COMETwebapp.Utilities
             return ColorParser(valueSet);
         }
 
+        /// <summary>
+        /// Tries to parse the <see cref="IValueSet"/> into a <see cref="Vector3"/>
+        /// </summary>
+        /// <param name="valueSet">the value set to parse</param>
+        /// <returns>the <see cref="Vector3"/> if the value can be parsed, zero vector otherwise</returns>
         public static Vector3 ColorParser(IValueSet? valueSet)
         {
             if (valueSet is not null)

@@ -132,7 +132,12 @@ namespace COMETwebapp.Primitives
         {
             this.Color = new Vector3(r, g, b);
         }
-                  
+
+        /// <summary>
+        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
+        /// </summary>
+        /// <param name="parameterBase">the parameter base related to the property</param>
+        /// <param name="valueSet">the value set to be parsed</param>
         public virtual void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             var parameterTypeShortName = parameterBase.ParameterType.ShortName;            
