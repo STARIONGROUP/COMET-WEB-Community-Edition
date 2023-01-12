@@ -24,7 +24,12 @@
 
 namespace COMETwebapp.Utilities
 {
+    using System.Globalization;
+
     using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.Enumerations;
+    using COMETwebapp.Model;
 
     /// <summary>
     /// Static extension methods for <see cref="IValueSet"/>
@@ -36,17 +41,20 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>An array of type [X,Y,Z]</returns>
-        public static double[] ParseIValueToPosition(this IValueSet? valueSet)
+        public static double[] ParseIValueToPosition(this IValueSet valueSet)
         {
-            double x = 0, y = 0, z = 0;
-
-            if (valueSet is not null)
+            if(valueSet.ActualValue.Count != 3)
             {
-                double.TryParse(valueSet.ActualValue[0], out x);
-                double.TryParse(valueSet.ActualValue[1], out y);
-                double.TryParse(valueSet.ActualValue[2], out z);
+                throw new ArgumentException("The value set must contain 3 values");
             }
-            return new double[] { x, y, z };
+            else if(valueSet.ToDoubles(out var result))
+            {
+                return result.ToArray();
+            }
+            else
+            {                
+                return new double[] { 0,0,0 };
+            }
         }
 
         /// <summary>
@@ -54,39 +62,41 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        public static double[] ParseIValueToRotationMatrix(this IValueSet? valueSet)
+        public static Orientation ParseIValueToOrientation(this IValueSet valueSet, AngleFormat angleFormat)
         {
-            double[] rotMatrix = new double[9];
-
-            if (valueSet is not null)
+            if (valueSet.ToDoubles(out var result))
             {
-
-                if (valueSet.ActualValue.Any(x => { return (x == "-" || x == string.Empty); }))
-                {
-                    rotMatrix[0] = rotMatrix[4] = rotMatrix[8] = 1.0;
-                }
-                else
-                {
-                    for (int i = 0; i < 9; i++)
-                    {
-                        rotMatrix[i] = double.Parse(valueSet.ActualValue[i]);
-                    }
-                }
+                return result.ToArray().ToOrientation(valueSet.ActualValue.Count == 9, angleFormat);
             }
 
-            return rotMatrix;
+            return new Orientation(0, 0, 0);
         }
 
         /// <summary>
-        /// Parses an <see cref="IValueSet"/> to Euler Angles
+        /// Parses the value set to doubles
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
-        /// <returns>And array of type [Rx,Ry,Rz]</returns>
-        public static double[] ParseIValueToEulerAngles(this IValueSet? valueSet)
+        /// <param name="result">the result of the parse</param>
+        /// <returns>true if the parse succeed, false otherwise</returns>
+        public static bool ToDoubles(this IValueSet valueSet, out IEnumerable<double> result)
         {
-            return valueSet.ParseIValueToRotationMatrix().ToEulerAngles();
+            var values = new List<double>();
+
+            foreach (var value in valueSet.ActualValue)
+            {
+                if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var validValue))
+                {
+                    values.Add(validValue);
+                }
+                else
+                {
+                    result = new double[] { };
+                    return false;
+                }
+            }
+
+            result = values;
+            return true;
         }
-
-
     }
 }

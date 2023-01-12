@@ -47,28 +47,28 @@ Copyright (c) 2022 RHEA System S.A.
                         name = this.Elements.First().Name;
                     }
                     <ProductTree RootNode="this.RootNode"
-                             OnTreeSelectionChanged="@((node)=>TreeSelectionChanged(node))"
-                             OnTreeNodeVisibilityChanged="@((node)=>TreeNodeVisibilityChanged(node))" />
+                                 OnTreeSelectionChanged="@((node)=>TreeSelectionChanged(node))"
+                                 OnTreeNodeVisibilityChanged="@((node)=>TreeNodeVisibilityChanged(node))" />
 
                 }
             </div>
 
-            <BabylonCanvas @ref=this.CanvasComponentReference />
+            <BabylonCanvas @ref=this.CanvasComponentReference/>
 
             <div id="rightColumn">
                 @if(this.OptionSelected != null)
                 {
-                    @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SceneProvider is not null && this.CanvasComponentReference.SceneProvider.SelectedPrimitive is not null)
+                    @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SelectedSceneObject is not null)
                     {
-                        var primitive = this.CanvasComponentReference.SceneProvider.SelectedPrimitive;
-                        <COMETwebapp.Components.PropertiesPanel.Properties SelectedPrimitive="primitive" />
+                        <COMETwebapp.Components.PropertiesPanel.Properties BabylonCanvas="this.CanvasComponentReference" 
+                                                                           SelectedSceneObject="this.CanvasComponentReference.SelectedSceneObject"/>
                     }
 
                     @if (this.ListActualFiniteStateLists is not null)
                     {
                         <StateSelector ListActualFiniteStateLists="this.ListActualFiniteStateLists"
-                                   OnActualFiniteStateList_SelectionChanged="@((ce)=>this.OnActualFiniteStateList_SelectionChanged(ce.Sender,ce))"
-                                   OnActualFiniteState_SelectionChanged="@((ce)=>this.OnActualFiniteState_SelectionChanged(ce.Sender,ce))" />
+                                       OnActualFiniteStateList_SelectionChanged="@((ce)=>this.OnActualFiniteStateList_SelectionChanged(ce.Sender,ce))"
+                                       OnActualFiniteState_SelectionChanged="@((ce)=>this.OnActualFiniteState_SelectionChanged(ce.Sender,ce))" />
                     }
                 }
             </div>

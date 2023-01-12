@@ -26,12 +26,13 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Equilateral Triangle primitive type
     /// </summary>
-    public class EquilateralTriangle : BasicPrimitive
+    public class EquilateralTriangle : Primitive
     {
         /// <summary>
         /// Basic type name
@@ -53,37 +54,20 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        /// <param name="parameterBase">the parameter base related to the property</param>
+        /// <param name="valueSet">the value set to be parsed</param>
+
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            var radiusValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-
-            if (radiusValueSet is not null && double.TryParse(radiusValueSet.ActualValue.First(), out double d))
+            base.ParseParameter(parameterBase, valueSet);
+            switch (parameterBase.ParameterType.ShortName)
             {
-                this.Radius = d/2.0;
-            }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Radius = d/2.0;
-                    }
+                case SceneSettings.DiameterShortName:
+                    this.Radius = ParameterParser.DoubleParser(valueSet)/2.0;
                     break;
             }
-            this.Regenerate();
         }
     }
 }

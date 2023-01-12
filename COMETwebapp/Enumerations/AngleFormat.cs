@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IShapeFactory.cs" company="RHEA System S.A.">
+// <copyright file="AngleFormat.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,22 +22,21 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Enumerations
 {
-    using CDP4Common.EngineeringModelData;
-
     /// <summary>
-    /// Factory for creating different basic shapes of type <see cref="Primitive"/>
+    /// The format of the angle
     /// </summary>
-    public interface IShapeFactory
+    public enum AngleFormat
     {
         /// <summary>
-        /// Tries to create a <see cref="Primitive"/> from the data of a <see cref="ElementUsage"/>
+        /// The angle format is degrees. π Radians -> 180°
         /// </summary>
-        /// <param name="elementUsage">The <see cref="ElementUsage"/> used for creating a <see cref="Primitive"/></param>
-        /// <param name="selectedOption">The current <see cref="Option"/> selected</param>
-        /// <param name="states">The list of <see cref="ActualFiniteState"/> that are active</param>
-        /// <returns>The created <see cref="Primitive"/></returns>
-        Primitive? CreatePrimitiveFromElementUsage(ElementUsage elementUsage, Option selectedOption, List<ActualFiniteState> states);
+        Degrees = 0,
+
+        /// <summary>
+        /// The angle format is radians. π Radians -> 180°
+        /// </summary>
+        Radians = 1,
     }
 }

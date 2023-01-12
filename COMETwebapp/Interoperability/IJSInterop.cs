@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OnSelectionChangedEventArgs.cs" company="RHEA System S.A.">
+// <copyright file="IJSInterop.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -21,26 +21,27 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-namespace COMETwebapp.Model
+namespace COMETwebapp.Interoperability
 {
     /// <summary>
-    /// Arguments of the event
+    /// Interface used for the interoperability between C# and JS
     /// </summary>
-    public class OnSelectionChangedEventArgs : EventArgs
+    public interface IJSInterop
     {
         /// <summary>
-        /// The <see cref="SceneObject"/> that triggers the selection changed
+        /// Invoke a void method from javascript with the specified parameters
         /// </summary>
-        public SceneObject? SceneObject { get; }
+        /// <param name="methodName">The name of the method in the javascript file</param>
+        /// <param name="args">The arguments expected for the method</param>
+        Task Invoke(string methodName, params object[] args);
 
         /// <summary>
-        /// Creates a new instance of type <see cref="OnSelectionChangedEventArgs"/>
+        /// Invoke a method from javascript with the specified parameters
         /// </summary>
-        /// <param name="sceneObject">the <see cref="SceneObject"/> that has been selected</param>
-        public OnSelectionChangedEventArgs(SceneObject? sceneObject)
-        {
-            this.SceneObject = sceneObject;
-        }
+        /// <typeparam name="T">The type of the spected return value</typeparam>
+        /// <param name="methodName">The name of the method in the javascript file</param>
+        /// <param name="args">The arguments expected for the method</param>
+        /// <returns>A task of the type spected return value</returns>
+        Task<T> Invoke<T>(string methodName, params object[] args);
     }
 }

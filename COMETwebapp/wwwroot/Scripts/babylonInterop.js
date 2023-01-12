@@ -59,22 +59,15 @@ const CameraInertia = 0.1;
 let Scene;
 
 /**
- * A list of the primitives that the scene contains.
- * @type {Map}
+ * A map of the SceneObjects that the Scene contains. 
  */
-let Primitives = new Map();
+let SceneObjects = new Map();
 
 /**
  * Picking material used when a primitive is hover with the mouse.
  * @type {BABYLON.js material}
  */
 let PickingMaterial;
-
-/**
- * The panel used for displaying primitive's details in the window.
- * @type {HTMLElement}
- */
-let DetailsPanel;
 
 /**
  * Scene specular color. 
@@ -119,7 +112,7 @@ let HighLightLayer;
  * Inits the babylon.js scene on the canvas, the asociated resources and starts the render loop.
  * @param {HTMLCanvasElement} canvas - the canvas the scene it's attached to.
  */
-function InitCanvas(canvas) {
+function InitCanvas(canvas,addAxes) {
 
     if (canvas == null || canvas == undefined) {
         throw "The canvas can't be null or undefined";
@@ -156,7 +149,42 @@ function InitCanvas(canvas) {
     window.addEventListener("resize", function () {
         BabylonEngine.resize();
     });
+
+    if (addAxes)
+    {
+        AddWorldAxes();
+    }
 };
+
+/*
+ * Adds the world axes to the scene
+ */
+function AddWorldAxes() {
+    let size = SkyboxSize / 2.0;
+    //X Axis
+    let lpoints = [
+        new BABYLON.Vector3(-size, 0, 0),
+        new BABYLON.Vector3(+size, 0, 0)
+    ];
+    let xaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    xaxis.color = new BABYLON.Color3(255,0,0);
+
+    //Y Axis
+    lpoints = [
+        new BABYLON.Vector3(0,-size,0),
+        new BABYLON.Vector3(0,+size,0)
+    ];
+    let yaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    yaxis.color = new BABYLON.Color3(0, 255, 0);
+
+    //Z Axis
+    lpoints = [
+        new BABYLON.Vector3(0,0,-size),
+        new BABYLON.Vector3(0,0,+size)
+    ];
+    let zaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    zaxis.color = new BABYLON.Color3(0,0,255);
+}
 
 /**
  * Gets the scene size
@@ -167,35 +195,87 @@ function GetCanvasSize() {
 }
 
 /**
- * Adds the primitive with the specified color to the scene.
- * @param {any} primitive - a JSON string representation of the primitive.
- * @param {any} color - a JSON string representation of the color.
+ * Adds to scene an scene object containing the primitive
+ * @param {any} sceneObject
+ */
+function AddSceneObject(sceneObject) {
+    sceneObject = JSON.parse(sceneObject);
+    let primitive = sceneObject.Primitive;
+    let mesh = null;
+
+    if (primitive != null && primitive != undefined)
+    {
+        mesh = AddPrimitive(primitive);
+    }
+    
+    if (mesh != null) {
+        FillMeshWithPrimitiveData(mesh, primitive, sceneObject.ID);
+        let sceneObj = new SceneObject(sceneObject.ID, mesh, primitive);
+        SceneObjects.set(sceneObject.ID, sceneObj);
+    }
+}
+
+/**
+ * Adds to scene an already parsed primitive. 
+ * @param {any} primitive - already parsed
  */
 function AddPrimitive(primitive) {
-    //Convert to JSON the parameters
-    primitive = JSON.parse(primitive);
-
-    if (!primitive.hasOwnProperty("Type")) {
-        throw "The parameter don't have the Type property, make sure that the object is of type Primitive and that Type property is overriden";
-    }
+    let mesh;
 
     switch (primitive.Type) {
-        case "Line":            CreateLine(primitive);     break;
-        case "Cube":            CreateBox(primitive);      break;
-        case "Sphere":          CreateSphere(primitive);   break;
-        case "Cylinder":        CreateCylinder(primitive); break;
-        case "Cone":            CreateCone(primitive);     break;
-        case "Torus":           CreateTorus(primitive);    break;
+        case "Line": mesh = CreateLine(primitive); break;
+        case "Cube": mesh = CreateBox(primitive); break;
+        case "Sphere": mesh = CreateSphere(primitive); break;
+        case "Cylinder": mesh = CreateCylinder(primitive); break;
+        case "Cone": mesh = CreateCone(primitive); break;
+        case "Torus": mesh = CreateTorus(primitive); break;
         case "CustomPrimitive": LoadPrimitive(primitive); break;
-        case "TriangularPrism": CreateTriangularPrism(primitive); break;
-        case "Disc": CreateDisc(primitive); break;
-        case "HexagonalPrism": CreateHexagonalPrism(primitive); break;
-        case "Rectangle": CreateRectangle(primitive); break;
-        case "Wedge": CreateWedge(primitive); break;
-        case "EquilateralTriangle": CreateTriangle(primitive); break;
+        case "TriangularPrism": mesh = CreateTriangularPrism(primitive); break;
+        case "Disc": mesh = CreateDisc(primitive); break;
+        case "HexagonalPrism": mesh = CreateHexagonalPrism(primitive); break;
+        case "Rectangle": mesh = CreateRectangle(primitive); break;
+        case "Wedge": mesh = CreateWedge(primitive); break;
+        case "EquilateralTriangle": mesh = CreateTriangle(primitive); break;
 
         default: throw `The type of the primitive [${primitive.Type}] is not defined in the JS file`;
     }
+
+    return mesh;
+}
+
+/**
+ * Fills the Babylon.JS mesh with the data of the C# Primitive
+ * @param {any} mesh - the mesh to fill the data with
+ * @param {any} primitive - the primitive used for filling the data
+ */
+function FillMeshWithPrimitiveData(mesh, primitive, ID) {
+
+    mesh.position.x = primitive.X;
+    mesh.position.y = primitive.Y;
+    mesh.position.z = primitive.Z;
+
+    mesh.rotation.x = primitive.RX;
+    mesh.rotation.y = primitive.RY;
+    mesh.rotation.z = primitive.RZ;
+
+    let primitiveColor =
+    {
+        X: primitive.Color.X / 255.0,
+        Y: primitive.Color.Y / 255.0,
+        Z: primitive.Color.Z / 255.0,
+    }
+
+    let babylonMaterial = CreateMaterial(primitiveColor, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
+    mesh.material = babylonMaterial;
+    mesh.material.useLogarithmicDepth = true;
+    mesh.renderingGroupId = primitive.RenderingGroup;
+
+    mesh.actionManager = new BABYLON.ActionManager(Scene);
+    RegisterMeshActions(mesh);
+
+    //Custom properties for the object
+    mesh.ObjectID = ID;
+    mesh.Materials = new MeshMaterial(mesh.material, PickingMaterial);
 }
 
 /**
@@ -203,16 +283,18 @@ function AddPrimitive(primitive) {
  * @param {number} ID - the ID of the primitive to delete.
  */
 function Dispose(ID) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(ID);
-        if (data != null && data != undefined) {
-            let mesh = data["mesh"];
-            if (mesh != null && mesh != undefined) {
-                mesh.dispose();
-                mesh = null;
-                Primitives.delete(ID);
-            }
+    if (SceneObjects.size > 0)
+    {
+        let sceneObj = SceneObjects.get(ID);
+
+        if (sceneObj != null && sceneObj != undefined)
+        {
+            let mesh = sceneObj.Mesh;
+            mesh.dispose();
+            mesh = null;
         }
+
+        SceneObjects.delete(ID);
     }
 }
 
@@ -224,145 +306,12 @@ function GetPrimitiveIDUnderMouse() {
     let hit = Scene.pick(Scene.pointerX, Scene.pointerY)
     let pickedMesh = hit.pickedMesh;
 
-    if (pickedMesh.CometID != "Skybox") {
-        let data = Primitives.get(pickedMesh.CometID);
-        if (data != undefined) {
-            let primitiveData = data["primitive"];
-            if (primitiveData != undefined) {
-                console.log(primitiveData.ElementUsageName);
-            }
-        }
-
-        return pickedMesh.CometID;
+    if (pickedMesh.Name != "skyBox")
+    {
+        return pickedMesh.ObjectID;
     }
 
     return null;
-}
-
-/**
- * Get the primitive by the ID
- * @param {any} Id - the Id of the primitive to retrieve
- * @returns {any} - the primitive if the ID is valid, null otherwise
- */
-function GetPrimitiveByID(Id) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(Id);
-        if (data != undefined) {
-            let primitiveData = data["primitive"];
-            let primitiveString = JSON.stringify(data["primitive"]);
-            return [primitiveData.Type, primitiveString];
-        }
-    }
-    return null;
-}
-
-/**
- * Sets the translation of the primitive with the specified ID
- * @param {string} ID - the ID of the primitive to translate.
- * @param {number} x - translation along the X axis
- * @param {number} y - translation along the Y axis
- * @param {number} z - translation along the Z axis
- */
-function SetPrimitivePosition(ID, x, y, z) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(ID);
-        if (data != undefined) {
-            let mesh = data["mesh"];
-            mesh.position.x = x;
-            mesh.position.y = y;
-            mesh.position.z = z;
-        }
-    }
-}
-
-/**
- * Sets the rotation of the primitive with the specified ID
- * @param {string} ID - the ID of the primitive to rotate.
- * @param {number} rx - the rotation around X axis
- * @param {number} ry - the rotation around Y axis
- * @param {number} rz - the rotation around Z axis
- */
-function SetPrimitiveRotation(ID, rx, ry, rz) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(ID);
-        if (data != undefined) {
-            let mesh = data["mesh"];
-            mesh.rotation.x = rx;
-            mesh.rotation.y = ry;
-            mesh.rotation.z = rz;
-        }
-    }
-}
-
-/**
- * Sets the position of the details panel.
- * @param {number} x - translation along X axis in screen coordinates (px)
- * @param {number} y - translation along Y axis in screen coordinates (px)
- */
-function SetPanelPosition(x, y) {
-    DetailsPanel.style.left = x + 'px';
-    DetailsPanel.style.top = y + 'px';
-}
-
-/**
- * Sets the visibility of the details panel.
- * @param {boolean} visible - the new visibility of the panel.
- */
-function SetPanelVisibility(visible) {
-    if (visible) {
-        DetailsPanel.style.display = 'block';
-    } else {
-        DetailsPanel.style.display = 'none';
-    }
-}
-
-/**
- * Sets the content of the panel.
- * @param {HTMLElement} content - the content of the panel in HTML5 format.
- */
-function SetPanelContent(content) {
-    DetailsPanel.innerHTML = content;
-}
-
-/**
- * Tries to get the world coordinates of the mouse cursor.
- * @param {number} x
- * @param {number} y
- * @returns {Array} - An array of type [x,y,z] if the transformation is done, null otherwi
- */
-function GetWorldCoordinates(x, y) {
-    let hit = Scene.pick(x, y);
-    if (hit.pickedMesh.CometID != 'Skybox') {
-        let pt = hit.pickedPoint;
-        return [pt._x, pt._y, pt._z];
-    }
-    return null;
-}
-
-/**
- * Get the screen coordinates by projecting the specified world coordinates
- * @param {number} x - the world X coordinate
- * @param {number} y - the world Y coordinate
- * @param {number} z - the world Z coordinate
- * @returns {Array} - Array of type [x,y] with the screen coordinates
- */
-function GetScreenCoordinates(x,y,z) {
-    let coordinates = BABYLON.Vector3.Project(new BABYLON.Vector3(x,y,z),
-        BABYLON.Matrix.Identity(),
-        Scene.getTransformMatrix(),
-        Camera.viewport.toGlobal(
-            BabylonEngine.getRenderWidth(),
-            BabylonEngine.getRenderHeight(),
-        ));
-    return [coordinates.x, coordinates.y];
-}
-
-/**
- * Clears all the meshes in the scene
- */
-function ClearScene() {
-    Scene.dispose();
-    Primitives = new Map();
 }
 
 /**
@@ -371,28 +320,18 @@ function ClearScene() {
  * @param {boolean} isSelected - the value of the new selection
  */
 function SetSelection(ID, isSelected) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(ID);
-        if (data != undefined) {
-            let mesh = data["mesh"];
-            if (mesh != undefined) {
-                if (isSelected) {
-                    HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0,0.3,0));
-                }
-                else {
-                    HighLightLayer.removeMesh(mesh);
-                }
-            }
-        }
-    }
-}
 
-/** Clears the selection of the scene */
-function ClearSelection() {
-    for (let [key, value] of Primitives) {
-        let mesh = value["mesh"];
-        if (mesh != undefined) {
-            mesh.material = mesh.Materials[0];
+    if (SceneObjects.size > 0)
+    {
+        let sceneObject = SceneObjects.get(ID);
+        let mesh = sceneObject.Mesh;
+        if (isSelected)
+        {
+            HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
+        }
+        else
+        {
+            HighLightLayer.removeMesh(mesh);
         }
     }
 }
@@ -403,43 +342,41 @@ function ClearSelection() {
  * @param {boolean} isVisible - the value of the new selection
  */
 function SetMeshVisibility(ID, isVisible) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(ID);
-        if (data != undefined) {
-            let mesh = data["mesh"];
-            if (mesh != undefined) {
-                mesh.setEnabled(isVisible);
-            }
-        }
+
+    if (SceneObjects.size > 0)
+    {
+        let sceneObj = SceneObjects.get(ID);
+        let mesh = sceneObj.Mesh;
+        mesh.setEnabled(isVisible);
     }
 }
 
 /**
- * Regenerates the mesh asociated to the primitive
- * @param {object} Primitive - the pritimive to regenerate in JSON string format
+ * Regenerates the mesh asociated to the scene object
+ * @param {object} SceneObject - the scene object to regenerate in JSON string format
  */
-function RegenMesh(Primitive) {
-    console.log("Regen called");
-    let primitiveJSON = JSON.parse(Primitive);
-    Dispose(primitiveJSON.ID);
-    AddPrimitive(Primitive);
+function RegenMesh(JsonSceneObject) {
+    let sceneFullObject = JSON.parse(JsonSceneObject);
+
+    if (sceneFullObject != null)
+    {
+        Dispose(sceneFullObject.ID);
+        AddSceneObject(JsonSceneObject);
+    }
 }
 
 /**
  * Sets the mesh color
  * @param {any} ID - the ID of the primitive to change the color
- * @param {any} r - the red component in range [0,1]
- * @param {any} g - the green component in range [0,1]
- * @param {any} b - the blue component in range [0,1]
+ * @param {any} r - the red component in range [0,255]
+ * @param {any} g - the green component in range [0,255]
+ * @param {any} b - the blue component in range [0,255]
  */
-function SetMeshColor(ID,r,g,b) {
-    if (Primitives.size > 0) {
-        let data = Primitives.get(ID);
-        if (data != undefined) {
-            let mesh = data["mesh"];
-            if (mesh != undefined) {
-                mesh.material.diffuseColor = new BABYLON.Color3(r/255.0, g/255.0, b/255.0);
-            }
-        }
+function SetMeshColor(ID, r, g, b) {
+
+    if (SceneObjects.size > 0) {
+        let sceneObj = SceneObjects.get(ID);
+        let mesh = sceneObj.Mesh;
+        mesh.material.diffuseColor = new BABYLON.Color3(r / 255.0, g / 255.0, b / 255.0);
     }
 }

@@ -26,12 +26,13 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Rectangle primitive type
     /// </summary>
-    public class Rectangle : BasicPrimitive
+    public class Rectangle : Primitive
     {
         /// <summary>
         /// Basic type name
@@ -58,49 +59,22 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        /// <param name="parameterBase">the parameter base related to the property</param>
+        /// <param name="valueSet">the value set to be parsed</param>
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            var widthValueSet  = this.GetValueSet(SceneProvider.WidthShortName);
-            var heightValueSet = this.GetValueSet(SceneProvider.HeightShortName);
-
-            if (widthValueSet is not null && double.TryParse(widthValueSet.ActualValue.First(), out double w))
+            base.ParseParameter(parameterBase, valueSet);
+            switch (parameterBase.ParameterType.ShortName)
             {
-                this.Width = w;
-            }
-
-            if (heightValueSet is not null && double.TryParse(heightValueSet.ActualValue.First(), out double h))
-            {
-                this.Height = h;
-            }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.WidthShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double w))
-                    {
-                        this.Width = w;
-                    }
+                case SceneSettings.WidthShortName:
+                    this.Width = ParameterParser.DoubleParser(valueSet);
                     break;
-                case SceneProvider.HeightShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double h))
-                    {
-                        this.Height = h;
-                    }
+                case SceneSettings.HeightShortName:
+                    this.Height = ParameterParser.DoubleParser(valueSet);
                     break;
             }
-            this.Regenerate();
         }
     }
 }

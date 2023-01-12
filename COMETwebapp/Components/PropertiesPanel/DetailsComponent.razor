@@ -53,7 +53,7 @@ Copyright (c) 2022 RHEA System S.A.
         var colorText = this.GetValueSet().ActualValue.First();
         var colorValue = colorText.ParseToHexColor();
 
-        if (textType.ShortName == SceneProvider.ColorShortName)
+        if (textType.ShortName == SceneSettings.ColorShortName)
         {
             <div id="color-section">
                 <input type="color" id="color" name="color" value="@colorValue" @onchange="(e)=>this.OnParameterValueChange(0,e)">
@@ -113,9 +113,9 @@ else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundT
 {
     var valueSet = this.GetValueSet();
 
-    if (compoundType.ShortName == SceneProvider.OrientationShortName)
+    if (compoundType.ShortName == SceneSettings.OrientationShortName)
     {
-        <Orientation OrientationParameterType="compoundType" DetailsComponent="this"/>
+        <OrientationComponent OrientationParameterType="compoundType" DetailsComponent="this"/>
     }
     else
     {

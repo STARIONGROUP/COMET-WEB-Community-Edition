@@ -27,7 +27,8 @@ namespace COMETwebapp
     using BlazorStrap;
 
     using CDP4Dal;
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Interoperability;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
@@ -62,8 +63,8 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IIterationService, IterationService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
-            builder.Services.AddSingleton<IShapeFactory, ShapeFactory>();
-            builder.Services.AddTransient<ISceneProvider, SceneProvider>();
+            builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
+            builder.Services.AddSingleton<IJSInterop, Interoperability.JSInterop>();
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();

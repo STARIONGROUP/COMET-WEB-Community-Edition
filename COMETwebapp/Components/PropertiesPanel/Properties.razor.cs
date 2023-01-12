@@ -31,11 +31,11 @@ namespace COMETwebapp.Components.PropertiesPanel
     
     using CDP4Dal;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-    using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
 
@@ -45,31 +45,30 @@ namespace COMETwebapp.Components.PropertiesPanel
     public partial class Properties 
     {
         /// <summary>
-        /// Backing field for the <see cref="SelectedPrimitive"/> property
+        /// Backing field for the <see cref="SelectedSceneObject"/> property
         /// </summary>
-        private Primitive primitive;
+        private SceneObject selectedSceneObject;
 
         /// <summary>
         /// Gets or sets the <see cref="Primitive"/> to fill the panel
         /// </summary>
         [Parameter]
-        public Primitive SelectedPrimitive
+        public SceneObject SelectedSceneObject
         {
-            get => primitive;
+            get => selectedSceneObject;
             set
             {
-                primitive = value.Clone();
-                this.ISceneProvider.ClearTemporaryPrimitives();
-                this.ISceneProvider.AddTemporaryPrimitive(this.primitive);
+                selectedSceneObject = value.Clone();
+                this.SelectedPrimitiveHasChanged();
                 this.InitPanelProperties();
             }
         }
 
         /// <summary>
-        /// The provider of the 3D Scene
+        /// Gets or sets the canvas where the 3D scene is drawn
         /// </summary>
-        [Inject]
-        public ISceneProvider ISceneProvider { get; set; }
+        [Parameter]
+        public BabylonCanvas BabylonCanvas { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
@@ -93,7 +92,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
         /// </summary>
         [Parameter]
-        public List<ParameterBase> ParametersInUse { get; set; }
+        public List<ParameterBase> ParametersInUse { get; set; } = new();
 
         /// <summary>
         /// A reference to the <see cref="DetailsComponent"/>
@@ -131,8 +130,17 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         private void InitPanelProperties()
         {
-            this.ParametersInUse = this.SelectedPrimitive.ElementUsage.GetParametersInUse().OrderBy(x=>x.ParameterType.ShortName).ToList();
+            this.ParametersInUse = this.SelectedSceneObject.ParametersAsociated.OrderBy(x=>x.ParameterType.ShortName).ToList();
             this.ParameterChanged(ParametersInUse.First());
+        }
+        
+        /// <summary>
+        /// Method called when the selected primitive has changed
+        /// </summary>
+        private async void SelectedPrimitiveHasChanged()
+        {
+            await this.BabylonCanvas.ClearTemporarySceneObjects();
+            await this.BabylonCanvas.AddTemporarySceneObject(this.SelectedSceneObject);
         }
 
         /// <summary>
@@ -140,7 +148,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         public void OnSubmit()
         {
-            var collection = this.SelectedPrimitive.GetValueSets();
+            var collection = this.selectedSceneObject.GetValueSets();
 
             foreach(var key in collection.Keys)
             {

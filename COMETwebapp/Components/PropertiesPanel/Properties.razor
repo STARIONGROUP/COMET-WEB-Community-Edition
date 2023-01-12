@@ -24,9 +24,9 @@ Copyright (c) 2022 RHEA System S.A.
 <div id="propertiesPanel">
     @{
         var title = "Properties";
-        if (this.SelectedPrimitive is not null)
+        if (this.SelectedSceneObject is not null)
         {
-            title = this.SelectedPrimitive.ElementUsage.Name + " - Properties:";
+            title = this.SelectedSceneObject.ElementUsage.Name + " - Properties:";
         }
 
         <div id="properties-title">
@@ -41,7 +41,7 @@ Copyright (c) 2022 RHEA System S.A.
             <Content>
                 <div id="parameters-section">
                     @{
-                        if (this.SelectedPrimitive is not null)
+                        if (this.SelectedSceneObject is not null)
                         {
                             var parameters = this.ParametersInUse;
                             @foreach (var parameter in parameters)
@@ -60,7 +60,7 @@ Copyright (c) 2022 RHEA System S.A.
 
                 </div>
                 <h5 id="details-title">Details</h5>
-                <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" PrimitiveSelected="this.SelectedPrimitive" />
+                <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" SelectedSceneObject="this.SelectedSceneObject"></DetailsComponent>
             </Content>
         </BSAccordionItem>
     </BSAccordion>
@@ -76,7 +76,7 @@ Copyright (c) 2022 RHEA System S.A.
         align-items: center;
         justify-content: space-between;
         margin: 0;
-        background: gray;
+        background: #eaecee;
         font-weight: bold;
         padding: 2%;
     }

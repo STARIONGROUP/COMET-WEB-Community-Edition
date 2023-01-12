@@ -26,12 +26,13 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Torus primitive type
     /// </summary>
-    public class Torus : BasicPrimitive
+    public class Torus : Primitive
     {
         /// <summary>
         /// Basic type name
@@ -77,49 +78,22 @@ namespace COMETwebapp.Primitives
         }
 
         /// <summary>
-        /// Set the dimensions of the <see cref="BasicPrimitive"/> from the <see cref="ElementUsage"/> parameters
+        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
         /// </summary>
-        public override void SetDimensionsFromElementUsageParameters()
+        /// <param name="parameterBase">the parameter base related to the property</param>
+        /// <param name="valueSet">the value set to be parsed</param>
+        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            var diameterValueSet = this.GetValueSet(SceneProvider.DiameterShortName);
-            var thicknessValueSet = this.GetValueSet(SceneProvider.ThicknessShortName);
-            
-            if(diameterValueSet is not null && double.TryParse(diameterValueSet.ActualValue.First(), out double d))
+            base.ParseParameter(parameterBase, valueSet);
+            switch (parameterBase.ParameterType.ShortName)
             {
-                this.Diameter = d;
-            }
-
-            if(thicknessValueSet is not null && double.TryParse(thicknessValueSet.ActualValue.First(), out double t))
-            {
-                this.Thickness = t;
-            }
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public override void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
-            base.UpdatePropertyWithParameterData(parameterTypeShortName, newValue);
-
-            switch (parameterTypeShortName)
-            {
-                case SceneProvider.DiameterShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double d))
-                    {
-                        this.Diameter = d;
-                    }
+                case SceneSettings.DiameterShortName:
+                    this.Diameter = ParameterParser.DoubleParser(valueSet);
                     break;
-                case SceneProvider.ThicknessShortName:
-                    if (double.TryParse(newValue.ActualValue.First(), out double t))
-                    {
-                        this.Thickness = t;
-                    }
+                case SceneSettings.ThicknessShortName:
+                    this.Thickness = ParameterParser.DoubleParser(valueSet);
                     break;
             }
-            this.Regenerate();
         }
     }
 }

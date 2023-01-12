@@ -74,6 +74,7 @@ function CreateLine(primitive) {
     ];
     let line = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
     line.color = new BABYLON.Color3(primitive.Color.X, primitive.Color.Y, primitive.Color.Z);
+    return line;
 }
 
 /**
@@ -83,7 +84,7 @@ function CreateLine(primitive) {
  */
 function CreateBox(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: primitive.Height, depth: primitive.Depth }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -93,7 +94,7 @@ function CreateBox(primitive) {
  */
 function CreateSphere(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: primitive.Radius * 2.0 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -103,7 +104,7 @@ function CreateSphere(primitive) {
  */
 function CreateCylinder(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -113,7 +114,7 @@ function CreateCylinder(primitive) {
  */
 function CreateCone(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height, tessellation: 36 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -123,7 +124,7 @@ function CreateCone(primitive) {
  */
 function CreateTorus(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateTorus("torus", { diameter: primitive.Diameter, thickness: primitive.Thickness, tessellation: 36 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -133,7 +134,7 @@ function CreateTorus(primitive) {
  */
 function CreateTriangularPrism(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 3 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -143,7 +144,7 @@ function CreateTriangularPrism(primitive) {
  */
 function CreateHexagonalPrism(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 6 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -153,7 +154,7 @@ function CreateHexagonalPrism(primitive) {
  */
 function CreateDisc(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Radius/100.0 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -164,7 +165,7 @@ function CreateDisc(primitive) {
 function CreateRectangle(primitive) {
     let minValue = Math.min(primitive.Width, primitive.Height);
     let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: minValue / 100.0, depth: primitive.Height }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -174,7 +175,7 @@ function CreateRectangle(primitive) {
  */
 function CreateTriangle(primitive) {
     let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Radius/100.0, diameter: primitive.Radius * 2.0, tessellation: 3 }, Scene);
-    InitializePrimitiveData(mesh, primitive);
+    return mesh;
 }
 
 /**
@@ -192,45 +193,6 @@ async function LoadPrimitive(primitive) {
     for (let i = 0; i < meshes.length; i++) {
         InitializePrimitiveData(meshes[i], primitive);
     }
-}
-
-/**
- * Initializes and creates custom important data for the primitives
- * @param {BABYLON.js mesh} mesh - the mesh to add the data to.
- * @param {any} primitive - the primitive in JSON format
- * @param {BABYLON.js color} color - the color in JSON format
- */
-function InitializePrimitiveData(mesh, primitive) {
-
-    if (primitive.hasOwnProperty("Subtype") && primitive.Subtype == "BasicPrimitive") {
-        mesh.position.x = primitive.X;
-        mesh.position.y = primitive.Y;
-        mesh.position.z = primitive.Z;
-
-        mesh.rotation.x = primitive.RX;
-        mesh.rotation.y = primitive.RY;
-        mesh.rotation.z = primitive.RZ;
-    }
-
-    let primitiveColor = {
-        X: primitive.Color.X / 255.0,
-        Y: primitive.Color.Y / 255.0,
-        Z: primitive.Color.Z / 255.0
-    }
-
-    let babylonMaterial = CreateMaterial(primitiveColor, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
-    mesh.material = babylonMaterial;
-    mesh.material.useLogarithmicDepth = true;
-    mesh.renderingGroupId = primitive.RenderingGroup;
-
-    mesh.actionManager = new BABYLON.ActionManager(Scene);
-    RegisterMeshActions(mesh);
-
-    //Custom properties for the object
-    mesh.CometID = primitive.ID;
-    mesh.Materials = [mesh.material, PickingMaterial];
-
-    Primitives.set(primitive.ID, { "mesh": mesh, "primitive": primitive });
 }
 
 /**

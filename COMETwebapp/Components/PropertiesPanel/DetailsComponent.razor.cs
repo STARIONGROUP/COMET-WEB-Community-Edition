@@ -26,16 +26,25 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-
-    using COMETwebapp.Primitives;
-
+    
+    using COMETwebapp.Interoperability;
+    using COMETwebapp.Model;
+    
     using Microsoft.AspNetCore.Components;
+    
+    using Newtonsoft.Json;
 
     /// <summary>
     /// The component used for showing the details of the <see cref="PrimitiveSelected"/>
     /// </summary>
     public partial class DetailsComponent
     {
+        /// <summary>
+        /// Gets or sets the property used for the Interoperability
+        /// </summary>
+        [Inject]
+        public IJSInterop JSInterop { get; set; }
+
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
         /// </summary>
@@ -47,22 +56,22 @@ namespace COMETwebapp.Components.PropertiesPanel
         private ParameterBase parameterSelected;
 
         /// <summary>
-        /// Backing field for the <see cref="PrimitiveSelected"/> property
+        /// Backing field for the <see cref="SelectedSceneObject"/> property
         /// </summary>
-        private Primitive primitiveSelected;
-
+        private SceneObject selectedSceneObject;
+                
         /// <summary>
-        /// Gets or sets the selected primitive used for the details
+        /// Gets or sets the selected scene object used for the details panel.
         /// </summary>
         [Parameter]
-        public Primitive PrimitiveSelected
+        public SceneObject SelectedSceneObject
         {
-            get => this.primitiveSelected;
+            get => this.selectedSceneObject;
             set
             {
-                if (this.primitiveSelected != value)
-                {                   
-                    this.primitiveSelected = value;
+                if(this.selectedSceneObject != value)
+                {
+                    this.selectedSceneObject = value;
                     this.InitValueSet();
                 }
             }
@@ -89,9 +98,9 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         private void InitValueSet()
         {
-            if (this.PrimitiveSelected is not null)
+            if (this.SelectedSceneObject is not null)
             {
-                this.ValueSetsCollection = this.PrimitiveSelected.GetValueSets();
+                this.ValueSetsCollection = this.SelectedSceneObject.GetValueSets();
             }
         }
 
@@ -122,8 +131,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         public void OnParameterValueChange(int changedIndex, ChangeEventArgs e)
         {
             //TODO: Validate data 
-            this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);
-            
+            this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);            
         }
 
         /// <summary>
@@ -131,9 +139,8 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
         /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
-        public void ParameterChanged(int changedIndex, string value)
+        public async void ParameterChanged(int changedIndex, string value)
         {
-
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];
 
             ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
@@ -144,7 +151,11 @@ namespace COMETwebapp.Components.PropertiesPanel
                 var clonedValueSetBase = parameterValueSetBase.Clone(false);
                 clonedValueSetBase.Manual = newValueArray;
                 this.ValueSetsCollection[this.ParameterSelected] = clonedValueSetBase;
-                this.PrimitiveSelected.UpdatePropertyWithParameterData(this.ParameterSelected.ParameterType.ShortName, clonedValueSetBase);
+
+                this.SelectedSceneObject.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
+
+                string jsonSceneObject = JsonConvert.SerializeObject(this.SelectedSceneObject, Formatting.Indented);
+                await JSInterop.Invoke("RegenMesh", jsonSceneObject);
             }
         }
     }

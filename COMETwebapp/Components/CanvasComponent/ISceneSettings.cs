@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Disc.cs" company="RHEA System S.A.">
+// <copyright file="ISceneSettings.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,52 +22,51 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Primitives
+namespace COMETwebapp.Components.CanvasComponent
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.CanvasComponent;
-    using COMETwebapp.Utilities;
-
     /// <summary>
-    /// Disc primitive type
+    /// Scene provider
     /// </summary>
-    public class Disc : Primitive
+    public interface ISceneSettings
     {
         /// <summary>
-        /// Basic type name
+        /// Shape Kind parameter short name
         /// </summary>
-        public override string Type { get; protected set; } = "Disc";
+        public const string ShapeKindShortName = "kind";
 
         /// <summary>
-        /// Radius of the disc
+        /// Orientation parameter short name
         /// </summary>
-        public double Radius { get; set; }
+        public const string OrientationShortName = "orientation";
 
         /// <summary>
-        /// Creates a new instance of type <see cref="Disc"/>
+        /// Position parameter short name
         /// </summary>
-        /// <param name="radius">the radius of the disc</param>
-        public Disc(double radius)
-        {
-            this.Radius = radius;
-        }
+        public const string PositionShortName = "coord";
 
         /// <summary>
-        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
+        /// Width parameter short name
         /// </summary>
-        /// <param name="parameterBase">the parameter base related to the property</param>
-        /// <param name="valueSet">the value set to be parsed</param>
+        public const string WidthShortName = "wid_diameter";
 
-        public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
-        {
-            base.ParseParameter(parameterBase, valueSet);
-            switch (parameterBase.ParameterType.ShortName)
-            {
-                case SceneSettings.DiameterShortName:
-                    this.Radius = ParameterParser.DoubleParser(valueSet)/2.0;
-                    break;
-            }
-        }
+        /// <summary>
+        /// Diameter parameter short name
+        /// </summary>
+        public const string DiameterShortName = WidthShortName;
+
+        /// <summary>
+        /// Height parameter short name
+        /// </summary>
+        public const string HeightShortName = "h";
+
+        /// <summary>
+        /// Length parameter short name
+        /// </summary>
+        public const string LengthShortName = "l";
+
+        /// <summary>
+        /// Thickness parameter short name
+        /// </summary>
+        public const string ThicknessShortName = "thickn";
     }
 }

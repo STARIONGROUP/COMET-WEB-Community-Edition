@@ -28,48 +28,18 @@ namespace COMETwebapp.Primitives
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Components.CanvasComponent;
     using COMETwebapp.Utilities;
     
-    using Newtonsoft.Json;
-
     /// <summary>
     /// Represents an <see cref="CDP4Common.EngineeringModelData.ElementUsage"/> on the Scene from the selected <see cref="Option"/> and <see cref="ActualFiniteState"/>
     /// </summary>
     public abstract class Primitive
     {        
         /// <summary>
-        /// Backing field for the property <see cref="IsSelected"/>
-        /// </summary>
-        private bool isSelected = false;
-
-        /// <summary>
-        /// Backing field for the property <see cref="IsVisible"/>
-        /// </summary>
-        private bool isVisible = true;
-
-        /// <summary>
         /// Rendering group of this <see cref="Primitive"/>. Default is 0. Valid Range[0,4].
         /// </summary>
         public int RenderingGroup { get; set; } 
-
-        /// <summary>
-        /// The <see cref="ElementUsage"/> for which the <see cref="Primitive"/> was created.
-        /// </summary>
-        [JsonIgnore]
-        public ElementUsage ElementUsage { get; set; } = default!;
-
-        /// <summary>
-        /// The <see cref="Option"/> for which the <see cref="Primitive"/> was created.
-        /// </summary>
-        [JsonIgnore]
-        public Option SelectedOption { get; set; } = default!;
-
-        /// <summary>
-        /// The <see cref="ActualFiniteState"/> for which the <see cref="Primitive"/> was created.
-        /// </summary>
-        [JsonIgnore]
-        public List<ActualFiniteState> States { get; set; } = default!;
 
         /// <summary>
         /// The default color if the <see cref="Color"/> has not been defined.
@@ -77,63 +47,78 @@ namespace COMETwebapp.Primitives
         public static Vector3 DefaultColor { get; } = new Vector3(210, 210, 210);
 
         /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is selected or not
-        /// </summary>
-        public bool IsSelected
-        {
-            get => isSelected;
-            set
-            {
-                isSelected = value;
-                JSInterop.Invoke("SetSelection", this.ID, value);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is visible or not
-        /// </summary>
-        public bool IsVisible
-        {
-            get => isVisible;
-            set
-            {
-                isVisible = value;
-                JSInterop.Invoke("SetMeshVisibility", this.ID, value);
-            }
-        }
-
-        /// <summary>
-        /// The base color of the primitive
-        /// </summary>
-        public Vector3 Color { get; private set; }
-
-        /// <summary>
         /// Property that defined the exact type of pritimive. Used in JS.
         /// </summary>
         public abstract string Type { get; protected set; }
 
         /// <summary>
-        /// ID of the property. Used to identify the primitive between the interop C#-JS
+        /// Gets or sets if the <see cref="Primitive"/> is selected or not
         /// </summary>
-        public Guid ID { get; } = Guid.NewGuid();
+        public bool IsSelected { get; set; }
 
         /// <summary>
-        /// Regenerates the <see cref="Primitive"/>. This updates the scene with the data of the the <see cref="Primitive"/>
+        /// Gets or sets if the <see cref="Primitive"/> is visible or not
         /// </summary>
-        public void Regenerate()
+        public bool IsVisible { get; set; } = true;
+
+        /// <summary>
+        /// The base color of the primitive
+        /// </summary>
+        public Vector3 Color { get; set; }
+
+        /// <summary>
+        /// Position along the X axis
+        /// </summary>
+        public double X { get; set; }
+
+        /// <summary>
+        /// Position along the Y axis
+        /// </summary>
+        public double Y { get; set; }
+
+        /// <summary>
+        /// Position along the Z axis
+        /// </summary>
+        public double Z { get; set; }
+
+        /// <summary>
+        /// Angle of rotation (radians) around X axis.
+        /// </summary>
+        public double RX { get; set; }
+
+        /// <summary>
+        /// Angle of rotation (radians) around Y axis.
+        /// </summary>
+        public double RY { get; set; }
+
+        /// <summary>
+        /// Angle of rotation (radians) around Z axis.
+        /// </summary>
+        public double RZ { get; set; }
+
+        /// <summary>
+        /// Reset all transformations of the primitive
+        /// </summary>
+        public void ResetTransformations()
         {
-            string jsonPrimitive = JsonConvert.SerializeObject(this, Formatting.Indented);
-            JSInterop.Invoke("RegenMesh", jsonPrimitive);
+            this.ResetRotation();
+            this.ResetTranslation();
         }
 
         /// <summary>
-        /// Sets the color of this <see cref="Primitive"/>.
+        /// Resets the translation of the primitive
         /// </summary>
-        /// <param name="color">The color in rgb format with values range [0,255]</param>
-        public void SetColor(Vector3 color)
+        public void ResetTranslation()
         {
-            this.Color = color;
-            JSInterop.Invoke("SetMeshColor", this.ID, color.X, color.Y, color.Z);
+            this.X = this.Y = this.Z = 0;
+        }
+
+        /// <summary>
+        /// Resets the rotation of the primitive
+        /// </summary>
+        public void ResetRotation()
+        {
+            this.RX = this.RY = this.RZ = 0;
         }
 
         /// <summary>
@@ -145,118 +130,35 @@ namespace COMETwebapp.Primitives
         /// <returns></returns>
         public void SetColor(float r, float g, float b)
         {
-            this.SetColor(new Vector3(r, g, b));
+            this.Color = new Vector3(r, g, b);
         }
 
         /// <summary>
-        /// Gets info of the entity that can be used to show the user
+        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
         /// </summary>
-        /// <returns>A string containing the info</returns>
-        public virtual string GetInfo()
+        /// <param name="parameterBase">the parameter base related to the property</param>
+        /// <param name="valueSet">the value set to be parsed</param>
+        public virtual void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
-            return "Type: " + this.Type.ToString();
-        }
+            var parameterTypeShortName = parameterBase.ParameterType.ShortName;            
 
-        /// <summary>
-        /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
-        /// </summary>
-        /// <returns>A collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/></returns>
-        public Dictionary<ParameterBase, IValueSet> GetValueSets()
-        {
-            var collection = new Dictionary<ParameterBase, IValueSet>();
-            var parameters = this.ElementUsage.GetParametersInUse();
-            IValueSet? valueSet = null;
-
-            foreach(var parameter in parameters)
-            {
-                valueSet = parameter.GetValueSetFromOptionAndStates(this.SelectedOption, this.States);
-                                
-                if(valueSet is not null)
-                {
-                    collection.Add(parameter, valueSet);
-                }
-            }
-
-            return collection;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
-        /// </summary>
-        /// <param name="parameterBase">the parameter asociated to the value set</param>
-        /// <returns>A value set if exists, null otherwise</returns>
-        protected IValueSet? GetValueSet(ParameterBase parameterBase)
-        {
-            var collection = this.GetValueSets();
-
-            if (collection.ContainsKey(parameterBase))
-            {
-                return collection[parameterBase];
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name of the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> asociated to the <see cref="ParameterBase"/></param>
-        /// <returns>A value set if exists, null otherwise</returns>
-        protected IValueSet? GetValueSet(string parameterTypeShortName)
-        {
-            var parameters = this.ElementUsage.GetParametersInUse();
-            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == parameterTypeShortName, null);
-
-            if(parameter is not null)
-            {
-                return this.GetValueSet(parameter);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Set the color of the <see cref="Primitive"/> from the <see cref="ElementUsage"/> parameters
-        /// </summary>
-        public void SetColorFromElementUsageParameters()
-        {
-            IValueSet? valueSet = this.GetValueSet(SceneProvider.ColorShortName);
-
-            if(valueSet is not null)
-            {
-                string textColor = valueSet.ActualValue.First();
-                Vector3 color = textColor.ParseToColorVector();
-                this.SetColor(color);
-            }
-            else
-            {
-                this.SetColor(Primitive.DefaultColor);
-            }
-        }
-
-        /// <summary>
-        /// Creates a clone of this <see cref="Primitive"/>
-        /// </summary>
-        /// <returns></returns>
-        public Primitive Clone()
-        {
-            var shapeFactory = new ShapeFactory();
-            return shapeFactory.CreatePrimitiveFromElementUsage(this.ElementUsage, this.SelectedOption, this.States)!;
-        }
-
-        /// <summary>
-        /// Updates a property of the <see cref="Primitive"/> with the data of the <see cref="IValueSet"/>
-        /// </summary>
-        /// <param name="parameterTypeShortName">the short name for the parameter type that needs an update</param>
-        /// <param name="newValue">the new value set</param>
-        public virtual void UpdatePropertyWithParameterData(string parameterTypeShortName, IValueSet newValue)
-        {
             switch (parameterTypeShortName)
             {
-                case SceneProvider.ColorShortName:
-                    string textColor = newValue.ActualValue.First();
-                    Vector3 color = textColor.ParseToColorVector();
-                    this.SetColor(color);
+                case SceneSettings.OrientationShortName:
+                    var orientation = ParameterParser.OrientationParser(valueSet);
+                    this.RX = orientation.X;
+                    this.RY = orientation.Y;
+                    this.RZ = orientation.Z;
+                    break;
+                case SceneSettings.PositionShortName:
+                    var position = ParameterParser.PositionParser(valueSet);
+                    this.X = position.X;
+                    this.Y = position.Y;
+                    this.Z = position.Z;
+                    break;
+
+                case SceneSettings.ColorShortName:
+                    this.Color = ParameterParser.ColorParser(valueSet);
                     break;
             }
         }

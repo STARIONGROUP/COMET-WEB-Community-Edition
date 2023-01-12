@@ -30,7 +30,7 @@ Copyright (c) 2022 RHEA System S.A.
                         AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true" />
         </DxChartDonutSeries>
-        <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
+        <DxChartLegend AllowToggleSeries="false" Orientation="DevExpress.Blazor.Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
         <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
                           ValueField="@(d => d.Value)"
                           ArgumentField="@(d => d.Argument)"

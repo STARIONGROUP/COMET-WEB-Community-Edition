@@ -50,7 +50,7 @@ namespace COMETwebapp.Utilities
                 }
             });
 
-            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
+            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();            
         }
     }
 }

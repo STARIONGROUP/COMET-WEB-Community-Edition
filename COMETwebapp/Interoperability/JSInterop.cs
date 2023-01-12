@@ -21,40 +21,27 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace COMETwebapp
+namespace COMETwebapp.Interoperability
 {
     using Microsoft.JSInterop;
 
     /// <summary>
     /// Class to invoke the JS interoperability 
     /// </summary>
-    public static class JSInterop
+    public class JSInterop : IJSInterop
     {
         /// <summary>
         /// Field for the <see cref="JsRuntime"/> property
         /// </summary>
-        private static IJSRuntime jsruntime;
+        private IJSRuntime JsRuntime { get; set; }
 
         /// <summary>
-        /// Used for the invoke of JS methods
+        /// Creates a new instance of type <see cref="JSInterop"/>
         /// </summary>
-        public static IJSRuntime JsRuntime
+        /// <param name="jsRuntime"></param>
+        public JSInterop(IJSRuntime jsRuntime)
         {
-            get => jsruntime;
-            set
-            {
-                if (jsruntime == null)
-                    jsruntime = value;
-            }
-        }
-
-        /// <summary>
-        /// Invoke a void method from javascript
-        /// </summary>
-        /// <param name="methodName">The name of the method in the javascript file</param>
-        public static async Task Invoke(string methodName)
-        {
-            await JsRuntime.InvokeVoidAsync(methodName);
+            this.JsRuntime = jsRuntime;
         }
 
         /// <summary>
@@ -62,20 +49,9 @@ namespace COMETwebapp
         /// </summary>
         /// <param name="methodName">The name of the method in the javascript file</param>
         /// <param name="args">The arguments expected for the method</param>
-        public static async Task Invoke(string methodName, params object[] args)
+        public async Task Invoke(string methodName, params object[] args)
         {
             await JsRuntime.InvokeVoidAsync(methodName, args);
-        }
-
-        /// <summary>
-        /// Invoke a method from javascript
-        /// </summary>
-        /// <typeparam name="T">The type of the spected return value</typeparam>
-        /// <param name="methodName">The name of the method in the javascript file</param>
-        /// <returns>A task of type of the spected return value</returns>
-        public static async Task<T> Invoke<T>(string methodName)
-        {
-            return await JsRuntime.InvokeAsync<T>(methodName);
         }
 
         /// <summary>
@@ -85,7 +61,7 @@ namespace COMETwebapp
         /// <param name="methodName">The name of the method in the javascript file</param>
         /// <param name="args">The arguments expected for the method</param>
         /// <returns>A task of the type spected return value</returns>
-        public static async Task<T> Invoke<T>(string methodName, params object[] args)
+        public async Task<T> Invoke<T>(string methodName, params object[] args)
         {
             return await JsRuntime.InvokeAsync<T>(methodName, args);
         }

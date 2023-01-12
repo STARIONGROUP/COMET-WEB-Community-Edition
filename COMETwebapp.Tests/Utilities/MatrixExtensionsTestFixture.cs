@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MatrixEstensionsTests.cs" company="RHEA System S.A.">
+// <copyright file="MatrixExtensionsTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,17 +22,20 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Viewer
+namespace COMETwebapp.Tests.Utilities
 {
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Utilities;
-
+    using DevExpress.Data.Helpers;
+    using Moq;
     using NUnit.Framework;
+    using System;
+    using System.Collections.Generic;
 
-    /// <summary>
-    /// Matrix tests that verifies the correct behavior of the extension methods
-    /// </summary>
     [TestFixture]
-    public class MatrixEstensionsTests
+    public class MatrixExtensionsTestFixture
     {
         private double[] identity;
         private double[] matrix1;
@@ -44,8 +47,8 @@ namespace COMETwebapp.Tests.Viewer
         public void SetUp()
         {
             identity = new double[] { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-            matrix1 = new double[]  { 0.5, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.5 };
-            matrix2 = new double[]  { 0.6830127, 0.0540839, 0.7284014, 0.1830127,  0.9527706,  -0.2423521, -0.7071068,  0.2988362,  0.6408564  };
+            matrix1 = new double[] { 0.5, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.5 };
+            matrix2 = new double[] { 0.6830127, 0.0540839, 0.7284014, 0.1830127, 0.9527706, -0.2423521, -0.7071068, 0.2988362, 0.6408564 };
         }
 
         [Test]
@@ -91,6 +94,57 @@ namespace COMETwebapp.Tests.Viewer
             Assert.AreEqual(25.0, angles[0], delta);
             Assert.AreEqual(45.0, angles[1], delta);
             Assert.AreEqual(15.0, angles[2], delta);
+        }
+
+        [Test]
+        public void VerifyThatToOrientationWorks()
+        {
+            var positions = new List<double>() { 1, 1, 1 };
+            var invalidPositions = new List<double>() { 1, 1 };
+            var matrix = new List<double>() { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            var invalidMatrix = new List<double> { 1, 1, 1 };
+
+            var positionsResult = positions.ToOrientation(false, Enumerations.AngleFormat.Degrees);            
+            var matrixResult = matrix.ToOrientation(true, Enumerations.AngleFormat.Degrees);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(positionsResult.X, Is.EqualTo(1));
+                Assert.That(positionsResult.Y, Is.EqualTo(1));
+                Assert.That(positionsResult.Z, Is.EqualTo(1));
+
+                Assert.That(matrixResult.X, Is.EqualTo(0));
+                Assert.That(matrixResult.Y, Is.EqualTo(0));
+                Assert.That(matrixResult.Z, Is.EqualTo(0));
+
+                Assert.Throws<ArgumentException>(() => invalidPositions.ToOrientation(false, Enumerations.AngleFormat.Degrees));
+                Assert.Throws<ArgumentException>(() => invalidMatrix.ToOrientation(true, Enumerations.AngleFormat.Degrees));
+            });
+        }
+
+        [Test]
+        public void VerifyThatToEulerAnglesWorks()
+        {
+            var matrix = new List<double>() { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            var invalidMatrix = new List<double>() { 1, 0, 0, 0, 1, 0 };
+            var matrix2 = new List<double>() { 1, 0, 0, 0, 1, 0, 1, 0, 1 };
+
+            var eulerAngles = matrix.ToEulerAngles(Enumerations.AngleFormat.Degrees);
+            var eulerAngles2 = matrix2.ToEulerAngles(Enumerations.AngleFormat.Degrees);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(eulerAngles, Has.Length.EqualTo(3));
+                Assert.That(eulerAngles[0], Is.EqualTo(0));
+                Assert.That(eulerAngles[1], Is.EqualTo(0));
+                Assert.That(eulerAngles[2], Is.EqualTo(0));
+                Assert.That(eulerAngles, Has.Length.EqualTo(3));
+                Assert.That(eulerAngles2[0], Is.EqualTo(-180));
+                Assert.That(eulerAngles2[1], Is.EqualTo(-90));
+                Assert.That(eulerAngles2[2], Is.EqualTo(0));
+
+                Assert.Throws<ArgumentException>(() => invalidMatrix.ToEulerAngles(Enumerations.AngleFormat.Degrees));
+            });
         }
     }
 }
