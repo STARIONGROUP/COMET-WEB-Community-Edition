@@ -82,10 +82,7 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddSingleton(session.Object);
 
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
-            this.context.Services.AddSingleton<IShapeFactory>(new ShapeFactory());
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
-
-            var renderer = this.context.RenderComponent<BabylonCanvas>();
 
             this.positionables = new List<Primitive>();
             this.positionables.Add(new Cube(1, 1, 1));

@@ -55,12 +55,6 @@ namespace COMETwebapp.Components.CanvasComponent
         public bool IsMouseDown { get; private set; } = false;
 
         /// <summary>
-        /// Shape factory for creating <see cref="Primitive"/> from a <see cref="ElementUsage"/>
-        /// </summary>
-        [Inject]
-        public IShapeFactory? ShapeFactory { get; set; }
-
-        /// <summary>
         /// Gets or sets the property used for the Interoperability
         /// </summary>
         [Inject]

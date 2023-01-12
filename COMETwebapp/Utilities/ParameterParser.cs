@@ -28,7 +28,7 @@ namespace COMETwebapp.Utilities
     
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
-    
+    using System.Globalization;
     using System.Numerics;
 
     /// <summary>
@@ -114,7 +114,7 @@ namespace COMETwebapp.Utilities
                 return valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
             }
 
-            return Orientation.Identity();
+            return Orientation.Identity(Enumerations.AngleFormat.Radians);
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace COMETwebapp.Utilities
 
         public static double DoubleParser(IValueSet? valueSet)
         {
-            if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), out double result))
+            if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
             {
                 return result;
             }

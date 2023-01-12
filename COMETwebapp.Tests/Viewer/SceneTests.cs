@@ -59,9 +59,6 @@ namespace COMETwebapp.Tests.Viewer
 
             var session = new Mock<ISessionAnchor>();
             this.context.Services.AddSingleton(session.Object);
-            var factory = new Mock<IShapeFactory>();
-            this.context.Services.AddSingleton(factory.Object);
-
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
 

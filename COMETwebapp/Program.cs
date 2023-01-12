@@ -63,7 +63,6 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IIterationService, IterationService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
-            builder.Services.AddSingleton<IShapeFactory, ShapeFactory>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<IJSInterop, Interoperability.JSInterop>();
 
