@@ -1,0 +1,242 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SystemRepresentation.razor.cs" company="RHEA System S.A.">
+//    Copyright (c) 2022 RHEA System S.A.
+//
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace COMETwebapp.Pages.SystemRepresentation
+{
+    using System.Threading.Tasks;
+
+    using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.IterationServices;
+    using COMETwebapp.Model;
+    using COMETwebapp.SessionManagement;
+
+    using Microsoft.AspNetCore.Components;
+
+    /// <summary>
+    /// Support class for the <see cref="SystemRepresentation"/>
+    /// </summary>
+    public partial class SystemRepresentation
+    {
+        /// <summary>
+        /// The filter on option
+        /// </summary>
+        [Parameter]
+        [SupplyParameterFromQuery]
+        public Guid? FilterOption { get; set; }
+
+        /// <summary>
+        /// All <see cref="ElementBase"> of the iteration
+        /// </summary>
+        public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
+
+        /// <summary>
+        /// Name of the option selected
+        /// </summary>
+        public string? OptionSelected { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// </summary>
+        [Inject]
+        public ISessionAnchor SessionAnchor { get; set; }
+
+        /// <summary>
+        /// List of the names of <see cref="Option"/> available
+        /// </summary>
+        [Parameter]
+        public List<string>? Options { get; set; }
+
+        /// <summary>
+        /// Represents the RootNode of the tree
+        /// </summary>
+        public TreeNode RootNode { get; set; }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                this.Elements.Clear();
+                this.InitializeElements();
+
+                this.Options = new List<string>();
+
+                var iteration = this.SessionAnchor?.OpenIteration;
+                iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => this.Options.Add(o.Name));
+
+                this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
+                {
+                    this.Elements.Clear();
+                    this.InitializeElements();
+                };
+
+                this.StateHasChanged();
+            }
+        }
+
+        /// <summary>
+        /// Initialize <see cref="ElementBase"> list
+        /// </summary>
+        private void InitializeElements()
+        {
+            var iteration = this.SessionAnchor?.OpenIteration;
+            if (iteration != null)
+            {
+                if (iteration.TopElement != null)
+                {
+                    this.Elements.Add(iteration.TopElement);
+                }
+                iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
+            }
+        }
+
+        /// <summary>
+        /// Creates the <see cref="ElementUsage"/> that need to be used fot populating the scene
+        /// </summary>
+        /// <param name="elements">the elements of the current <see cref="Iteration"/></param>
+        /// <returns>the <see cref="ElementUsage"/> used in the scene</returns>
+        private List<ElementUsage> CreateElementUsagesForScene(List<ElementBase> elements)
+        {
+            var topElement = elements.First();
+            this.RootNode = new TreeNode(topElement.Name);
+            this.CreateTreeRecursively(topElement, this.RootNode, null);
+            this.RootNode.OrderAllDescendantsByShortName();
+
+            return elements.OfType<ElementUsage>().ToList();
+        }
+
+        /// <summary>
+        /// Creates a tree structure recursively from the elements provided
+        /// </summary>
+        /// <param name="elementBase">the top element</param>
+        /// <param name="current">current node used in the iteration</param>
+        /// <param name="parent">parent of the current node</param>
+        private void CreateTreeRecursively(ElementBase elementBase, TreeNode current, TreeNode? parent)
+        {
+            if (elementBase is ElementDefinition elementDefinition)
+            {
+                current.Parent = parent;
+                if (parent is not null)
+                {
+                    parent.Children.Add(current);
+                }
+
+                foreach (var child in elementDefinition.ContainedElement)
+                {
+                    this.CreateTreeRecursively(child, new TreeNode(child.Name), current);
+                }
+            }
+            else if (elementBase is ElementUsage elementUsage)
+            {
+                current.Parent = parent;
+                if (parent is not null)
+                {
+                    parent.Children.Add(current);
+                }
+
+                foreach (var child in elementUsage.ElementDefinition.ContainedElement)
+                {
+                    this.CreateTreeRecursively(child, new TreeNode(child.Name), current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Repopulates the scene with the specified <see cref="ElementUsage"/>
+        /// </summary>
+        /// <param name="elementUsages">the element usages to populate the scene with</param>
+        private void RepopulateScene(List<ElementUsage> elementUsages)
+        {
+            var optionName = this.OptionSelected;
+
+            if (optionName is null)
+            {
+                optionName = this.SessionAnchor?.OpenIteration?.DefaultOption.Name;
+            }
+
+            var option = this.SessionAnchor?.OpenIteration?.Option.FirstOrDefault(opt => opt.Name == optionName);
+
+            this.StateHasChanged();
+        }
+
+        /// <summary>
+        /// Updates Elements list when a filter for option is selected
+        /// </summary>
+        /// <param name="option">Name of the Option selected</param>
+        public void OnOptionFilterChange(string? option)
+        {
+            this.OptionSelected = option;
+            this.FilterOption = this.OptionSelected != null ? this.SessionAnchor?.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid : null;
+            this.Elements.Clear();
+            this.InitializeElements();
+            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.RepopulateScene(elementsOnScene);
+        }
+
+        /// <summary>
+        /// Updates the tree UI so it matches the selected element
+        /// </summary>
+        private void UpdateTreeUI(TreeNode selectedNode)
+        {
+            this.RootNode.GetFlatListOfDescendants().ForEach(x => x.IsSelected = false);
+
+            if (selectedNode is not null)
+            {
+                selectedNode.IsSelected = true;
+            }
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Event for when a <see cref="TreeNode"/> in the tree is selected
+        /// </summary>
+        /// <param name="node">the selected node</param>
+        public void TreeSelectionChanged(TreeNode node)
+        {
+            this.UpdateTreeUI(node);
+
+            var nodesToSelect = node.GetFlatListOfDescendants();
+            nodesToSelect.Add(node);
+        }
+    }
+}
