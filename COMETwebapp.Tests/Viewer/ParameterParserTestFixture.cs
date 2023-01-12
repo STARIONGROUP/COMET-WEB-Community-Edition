@@ -155,8 +155,13 @@ namespace COMETwebapp.Tests.Viewer
             Assert.Multiple(() =>
             {
                 Assert.Throws<ArgumentNullException>(() => ParameterParser.OrientationParser(null, this.option, new List<ActualFiniteState>()));
-                Assert.That(orientation1, Is.EqualTo(Orientation.Identity(Enumerations.AngleFormat.Radians)));
-                Assert.That(orientation2, Is.EqualTo(Orientation.Identity(Enumerations.AngleFormat.Radians)));
+                Assert.That(orientation1.X, Is.EqualTo(0));
+                Assert.That(orientation1.Y, Is.EqualTo(0));
+                Assert.That(orientation1.Z, Is.EqualTo(0));
+
+                Assert.That(orientation2.X, Is.EqualTo(0));
+                Assert.That(orientation2.Y, Is.EqualTo(0));
+                Assert.That(orientation2.Z, Is.EqualTo(0));
             });
         }
 

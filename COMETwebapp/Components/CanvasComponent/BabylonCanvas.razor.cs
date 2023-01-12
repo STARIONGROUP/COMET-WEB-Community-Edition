@@ -170,7 +170,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <param name="sceneObject">The <see cref="SceneObject"/> that triggers the event</param>
         public void RaiseSelectionChanged(SceneObject? sceneObject)
         {
-            OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(sceneObject));
+            this.OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(sceneObject));
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// </summary>
         public async Task InitCanvas(ElementReference canvas, bool addAxes)
         {
-            await JSInterop.Invoke("InitCanvas", canvas, addAxes);
+            await this.JSInterop.Invoke("InitCanvas", canvas, addAxes);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             this.SceneObjects.Add(sceneObject);
-            await JSInterop.Invoke("AddSceneObject", sceneObjectJson);
+            await this.JSInterop.Invoke("AddSceneObject", sceneObjectJson);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             this.TemporarySceneObjects.Add(sceneObject);
-            await JSInterop.Invoke("AddSceneObject", sceneObjectJson);
+            await this.JSInterop.Invoke("AddSceneObject", sceneObjectJson);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             foreach(var sceneObj in this.SceneObjects)
             {
-                await JSInterop.Invoke("Dispose", sceneObj.ID);
+                await this.JSInterop.Invoke("Dispose", sceneObj.ID);
             }
 
             this.SceneObjects.Clear();
@@ -223,7 +223,7 @@ namespace COMETwebapp.Components.CanvasComponent
         {
             foreach (var sceneObj in this.TemporarySceneObjects)
             {
-                await JSInterop.Invoke("Dispose", sceneObj.ID);
+                await this.JSInterop.Invoke("Dispose", sceneObj.ID);
             }
 
             this.TemporarySceneObjects.Clear();
@@ -235,7 +235,7 @@ namespace COMETwebapp.Components.CanvasComponent
         /// <returns>The primitive under the mouse cursor</returns>
         public async Task<SceneObject> GetSceneObjectUnderMouseAsync()
         {
-            var id = await JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
+            var id = await this.JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
             if (id == null || !Guid.TryParse(id, out Guid ID))
             {
                 return null;

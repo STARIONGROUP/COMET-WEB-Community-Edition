@@ -24,11 +24,14 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
-    using COMETwebapp.Interoperability;
-    using Moq;
-    using NUnit.Framework;
     using System.Threading.Tasks;
 
+    using COMETwebapp.Interoperability;
+    
+    using Moq;
+    
+    using NUnit.Framework;
+    
     [TestFixture]
     public class JSInteropTestFixture
     {
@@ -39,15 +42,18 @@ namespace COMETwebapp.Tests.Viewer
         public void SetUp()
         {
             this.jsInteropMock = new Mock<IJSInterop>();
-            this.jsInteropMock.Setup(x=>x.Invoke("voidMethod")).Verifiable();
+            this.jsInteropMock.Setup(x => x.Invoke("voidMethod")).Verifiable();
             this.jsInteropMock.Setup(x => x.Invoke("method1")).Returns(()=>Task.FromResult(true));
             this.jsInteropMock.Setup(x => x.Invoke("method2", It.IsAny<string>())).Returns(() => Task.FromResult(true));
+            
+            this.jsInteropMock.Setup(x => x.Invoke<bool>("method3")).Returns(() => Task.FromResult(true));
+            this.jsInteropMock.Setup(x => x.Invoke<bool>("method4", It.IsAny<string>())).Returns(() => Task.FromResult(true));
 
             this.JSInterop = this.jsInteropMock.Object;
         }
 
         [Test]
-        public void VerifyThatInvokeMethodsCanBeCalled()
+        public void VerifyThatInvokeVoidMethodsCanBeCalled()
         {
             this.JSInterop.Invoke("voidMethod");
             this.jsInteropMock.Verify(x=> x.Invoke("voidMethod"),Times.Once());
@@ -57,6 +63,25 @@ namespace COMETwebapp.Tests.Viewer
 
             this.jsInteropMock.Verify(x => x.Invoke("method1"), Times.Once());
             this.jsInteropMock.Verify(x => x.Invoke("method2", It.IsAny<string>()), Times.Once());
+        }
+
+        [Test]
+        public async Task VerifyThatInvokeMethodsCanBeCalled()
+        {
+            await this.JSInterop.Invoke("voidMethod");
+            this.jsInteropMock.Verify(x => x.Invoke("voidMethod"), Times.Once());
+
+            var result1 = await this.JSInterop.Invoke<bool>("method3");
+            var result2 = await this.JSInterop.Invoke<bool>("method4", "param");
+
+            this.jsInteropMock.Verify(x => x.Invoke<bool>("method3"), Times.Once());
+            this.jsInteropMock.Verify(x => x.Invoke<bool>("method4", It.IsAny<string>()), Times.Once());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result1, Is.True);
+                Assert.That(result2, Is.True);
+            });
         }
     }
 }

@@ -45,15 +45,6 @@ namespace COMETwebapp.Interoperability
         }
 
         /// <summary>
-        /// Invoke a void method from javascript
-        /// </summary>
-        /// <param name="methodName">The name of the method in the javascript file</param>
-        public async Task Invoke(string methodName)
-        {
-            await JsRuntime.InvokeVoidAsync(methodName);
-        }
-
-        /// <summary>
         /// Invoke a void method from javascript with the specified parameters
         /// </summary>
         /// <param name="methodName">The name of the method in the javascript file</param>
@@ -61,17 +52,6 @@ namespace COMETwebapp.Interoperability
         public async Task Invoke(string methodName, params object[] args)
         {
             await JsRuntime.InvokeVoidAsync(methodName, args);
-        }
-
-        /// <summary>
-        /// Invoke a method from javascript
-        /// </summary>
-        /// <typeparam name="T">The type of the spected return value</typeparam>
-        /// <param name="methodName">The name of the method in the javascript file</param>
-        /// <returns>A task of type of the spected return value</returns>
-        public async Task<T> Invoke<T>(string methodName)
-        {
-            return await JsRuntime.InvokeAsync<T>(methodName);
         }
 
         /// <summary>

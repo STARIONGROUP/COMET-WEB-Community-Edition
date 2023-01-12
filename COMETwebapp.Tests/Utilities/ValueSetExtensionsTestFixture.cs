@@ -75,7 +75,6 @@ namespace COMETwebapp.Tests.Utilities
             Mock<IValueSet> numericValueSet = new Mock<IValueSet>();
             ValueArray<string> newValueArray1 = new ValueArray<string>(new List<string>() { "1", "2", "3" });
             numericValueSet.Setup(x => x.ActualValue).Returns(newValueArray1);
-
             var orientation = numericValueSet.Object.ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
 
             Assert.Multiple(() =>
@@ -85,6 +84,24 @@ namespace COMETwebapp.Tests.Utilities
                 Assert.That(orientation.Y, Is.EqualTo(2));
                 Assert.That(orientation.Z, Is.EqualTo(3));
             });          
+        }
+
+        [Test]
+        public void VerifyThatParseToOrientationWorksWithWrongData()
+        {
+            Mock<IValueSet> numericValueSet = new Mock<IValueSet>();
+            ValueArray<string> newValueArray1 = new ValueArray<string>(new List<string>() { "1", "A", "3" });
+            numericValueSet.Setup(x => x.ActualValue).Returns(newValueArray1);
+
+            var orientation = numericValueSet.Object.ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(orientation.AngleFormat, Is.EqualTo(Enumerations.AngleFormat.Degrees));
+                Assert.That(orientation.X, Is.EqualTo(0));
+                Assert.That(orientation.Y, Is.EqualTo(0));
+                Assert.That(orientation.Z, Is.EqualTo(0));
+            });
         }
 
         [Test]

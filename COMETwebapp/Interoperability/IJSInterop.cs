@@ -29,25 +29,11 @@ namespace COMETwebapp.Interoperability
     public interface IJSInterop
     {
         /// <summary>
-        /// Invoke a void method from javascript
-        /// </summary>
-        /// <param name="methodName">The name of the method in the javascript file</param>
-        Task Invoke(string methodName);
-
-        /// <summary>
         /// Invoke a void method from javascript with the specified parameters
         /// </summary>
         /// <param name="methodName">The name of the method in the javascript file</param>
         /// <param name="args">The arguments expected for the method</param>
         Task Invoke(string methodName, params object[] args);
-
-        /// <summary>
-        /// Invoke a method from javascript
-        /// </summary>
-        /// <typeparam name="T">The type of the spected return value</typeparam>
-        /// <param name="methodName">The name of the method in the javascript file</param>
-        /// <returns>A task of type of the spected return value</returns>
-        Task<T> Invoke<T>(string methodName);
 
         /// <summary>
         /// Invoke a method from javascript with the specified parameters

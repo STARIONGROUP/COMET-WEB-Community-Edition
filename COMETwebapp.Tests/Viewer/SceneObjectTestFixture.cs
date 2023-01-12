@@ -244,6 +244,9 @@ namespace COMETwebapp.Tests.Viewer
             basicShape.ParseParameter(colorParameter, colorParameterValueSet);
 
             Assert.AreNotEqual(colorBefore, basicShape.Color);
+
+            basicShape.SetColor(0, 0, 0);
+            Assert.That(basicShape.Color, Is.EqualTo(Vector3.Zero));
         }
 
         [Test]

@@ -188,12 +188,21 @@ namespace COMETwebapp.Model
             }
         }
 
+        /// <summary>
+        /// Parses the value of the <see cref="ParameterBase"/> into the corresponding property of this <see cref="SceneObject"/>
+        /// </summary>
+        /// <param name="parameterBase">the parameter used for the parse</param>
         public void ParseParameter(ParameterBase parameterBase)
         {
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(this.Option, this.States);
             UpdateParameter(parameterBase, valueSet);
         }
 
+        /// <summary>
+        /// Updates the properties of <see cref="SceneObject"/> that are related to the <paramref name="parameterBase"/>
+        /// </summary>
+        /// <param name="parameterBase">the parameter base used for updating the values</param>
+        /// <param name="valueSet">the new values set used to update</param>
         public void UpdateParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             var parameterTypeShortName = parameterBase.ParameterType.ShortName;
@@ -212,6 +221,10 @@ namespace COMETwebapp.Model
             }
         }
 
+        /// <summary>
+        /// Gets the value sets for this <see cref="SceneObject"/>
+        /// </summary>
+        /// <returns>a collection of <see cref="ParameterBase"/> and its related <see cref="IValueSet"/></returns>
         public Dictionary<ParameterBase,IValueSet> GetValueSets()
         {
             var collection = new Dictionary<ParameterBase, IValueSet>();

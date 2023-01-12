@@ -156,35 +156,5 @@ namespace COMETwebapp.Model
             this.Matrix[7] = s1 * c2;
             this.Matrix[8] = c1 * c2;
         }
-
-        /// <summary>
-        /// Override of the Equals method for object comparison
-        /// </summary>
-        /// <param name="obj">the object to check</param>
-        /// <returns>true if two objects are equal, false otherwise</returns>
-        public override bool Equals(object? obj)
-        {
-            var orientation = obj as Orientation;
-            if(orientation == null)
-            {
-                return false;
-            }
-
-            return this.X.Equals(orientation.X) && 
-                   this.Y.Equals(orientation.Y) && 
-                   this.Z.Equals(orientation.Z) && 
-                   this.AngleFormat.Equals(orientation.AngleFormat);
-        }
-
-        /// <summary>
-        /// Override of the GetHashCode for object comparison
-        /// </summary>
-        /// <returns>the HashCode</returns>
-        public override int GetHashCode()
-        {
-            return 13 * this.X.GetHashCode() * 
-                   7  * this.Y.GetHashCode() * 
-                   7  * this.Z.GetHashCode();
-        }
     }
 }
