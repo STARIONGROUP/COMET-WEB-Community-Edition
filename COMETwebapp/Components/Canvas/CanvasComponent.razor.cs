@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.CanvasComponent
+namespace COMETwebapp.Components.Canvas
 {
     using System;
     using System.Threading.Tasks;

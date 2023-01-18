@@ -26,7 +26,7 @@ namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
     
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Primitives;
     using COMETwebapp.Utilities;
     

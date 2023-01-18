@@ -124,6 +124,14 @@ namespace COMETwebapp.Components.PropertiesPanel
         }
 
         /// <summary>
+        /// Gets the value sets with the new values
+        /// </summary>
+        public Dictionary<ParameterBase,IValueSet> GetAllValueSets()
+        {
+            return this.ValueSetsCollection;
+        }
+
+        /// <summary>
         /// Event for when the value of a parameter has changed
         /// </summary>
         /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>

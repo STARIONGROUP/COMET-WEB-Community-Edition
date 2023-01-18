@@ -28,7 +28,7 @@ namespace COMETwebapp.Pages.Viewer
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;

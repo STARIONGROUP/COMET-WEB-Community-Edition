@@ -16,6 +16,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Components\PropertiesPanel\DetailsComponent.razor.css" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="Components\PropertiesPanel\DetailsComponent.razor.css" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 	

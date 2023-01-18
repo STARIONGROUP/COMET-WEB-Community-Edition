@@ -37,7 +37,7 @@ namespace COMETwebapp.Tests.Viewer
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
     
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;

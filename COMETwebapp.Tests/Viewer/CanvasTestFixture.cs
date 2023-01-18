@@ -25,7 +25,7 @@
 namespace COMETwebapp.Tests.Viewer
 {
     using Bunit;
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;

@@ -31,19 +31,24 @@ namespace COMETwebapp.Components.PropertiesPanel
     
     using CDP4Dal;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-
+    using COMETwebapp.Utilities;
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// The properties component used for displaying data about the selected primitive
     /// </summary>
-    public partial class Properties 
+    public partial class PropertiesComponent
     {
+        /// <summary>
+        /// Gets or sets the original scene object without changes
+        /// </summary>
+        private SceneObject OriginalSceneObject { get; set; }
+
         /// <summary>
         /// Backing field for the <see cref="SelectedSceneObject"/> property
         /// </summary>
@@ -55,10 +60,11 @@ namespace COMETwebapp.Components.PropertiesPanel
         [Parameter]
         public SceneObject SelectedSceneObject
         {
-            get => selectedSceneObject;
+            get => this.selectedSceneObject;
             set
             {
-                selectedSceneObject = value.Clone();
+                this.OriginalSceneObject = value;
+                this.selectedSceneObject = value.Clone();
                 this.SelectedPrimitiveHasChanged();
                 this.InitPanelProperties();
             }
@@ -97,7 +103,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <summary>
         /// A reference to the <see cref="DetailsComponent"/>
         /// </summary>
-        public DetailsComponent DetailsReference { get; set; }
+        public DetailsComponent? DetailsReference { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -148,31 +154,57 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         public void OnSubmit()
         {
-            var collection = this.selectedSceneObject.GetValueSets();
+            var changedParametersKeyValue = this.GetChangedParametersKeyValue();
 
-            foreach(var key in collection.Keys)
+            foreach (var keyValue in changedParametersKeyValue)
             {
-                var valueSet = collection[key];
+                var valueSet = keyValue.Value;
 
-                if(valueSet is not null && valueSet is ParameterValueSetBase parameterValueSetBase)
+                if (valueSet is ParameterValueSetBase parameterValueSetBase)
                 {
                     if (!this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
                     {
                         this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
                         CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(parameterValueSetBase.Iid));
                     }
+
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
-
-                    var newValue = this.DetailsReference.GetValueSet(key).Manual;
-
-                    clonedParameterValueSet.Manual = newValue;
-
-                    this.SessionAnchor.UpdateThings(new List<Thing>()
-                    {
-                        clonedParameterValueSet
-                    });
+                    var valueSetNewValue = valueSet.ActualValue;
+                    clonedParameterValueSet.Manual = valueSetNewValue;
+                    this.SessionAnchor.UpdateThings(new List<Thing>() { clonedParameterValueSet });
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the parameters that have changed from the original <see cref="SceneObject"/>
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<ParameterBase, IValueSet> GetChangedParametersKeyValue()
+        {
+            Dictionary<ParameterBase, IValueSet> collection = new();
+
+            if (this.DetailsReference is not null && this.OriginalSceneObject is not null)
+            {
+                var originalValueSetsCollection = this.OriginalSceneObject.GetValueSets();
+                var temporaryValueSetsCollection = this.DetailsReference.GetAllValueSets();
+
+                foreach (var originalValueSet in originalValueSetsCollection)
+                {
+                    var valueSet = originalValueSet.Value.ActualValue;
+
+                    if (temporaryValueSetsCollection.ContainsKey(originalValueSet.Key))
+                    {
+                        var temporarySet = temporaryValueSetsCollection[originalValueSet.Key].ActualValue;
+
+                        if (!valueSet.ContainsSameValues(temporarySet))
+                        {
+                            collection.Add(originalValueSet.Key, temporaryValueSetsCollection[originalValueSet.Key]);
+                        }
+                    }
+                }
+            }
+            return collection;
         }
 
         /// <summary>
