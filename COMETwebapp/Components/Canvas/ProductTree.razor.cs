@@ -36,41 +36,74 @@ namespace COMETwebapp.Components.Canvas
         public TreeNode? RootNode { get; set; }
 
         /// <summary>
-        /// Event for when a node selection changed
+        /// Gets or sets if the tree should show a complete tree
         /// </summary>
-        [Parameter]
-        public EventCallback<TreeNode> OnTreeSelectionChanged { get; set; }
+        public bool ShowNodesWithGeometry { get; private set; } = false;
 
         /// <summary>
-        /// Event for when a node visibility changed
+        /// Value in the search filter
         /// </summary>
-        [Parameter]
-        public EventCallback<TreeNode> OnTreeNodeVisibilityChanged { get; set; }
-
-        /// <summary>
-        /// Method for when a node is selected
-        /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
-        private void TreeSelectionChanged(TreeNode node)
-        {
-            this.OnTreeSelectionChanged.InvokeAsync(node);
-        }
-
-        /// <summary>
-        /// Method for when a node visibility changed
-        /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
-        private void TreeNodeVisibilityChanged(TreeNode node)
-        {
-            this.OnTreeNodeVisibilityChanged.InvokeAsync(node);
-        }
+        public string SearchValue { get; private set; } = string.Empty;
 
         /// <summary>
         /// Calls the StateHasChanged method to refresh this component
         /// </summary>
         public void Refresh()
         {
-            this.StateHasChanged();
+            this.InvokeAsync(() => this.StateHasChanged());
+        }
+
+        /// <summary>
+        /// Event for when the filter on the tree changes
+        /// </summary>
+        /// <param name="showNodeWithGeometry">if the tree should show a complete tree or just nodes with geometry</param>
+        public void OnFilterChanged(bool showNodeWithGeometry)
+        {
+            this.ShowNodesWithGeometry = showNodeWithGeometry;
+            var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
+            
+            if (this.ShowNodesWithGeometry && fullTree is not null)
+            {
+                foreach (var node in fullTree)
+                {
+                    node.IsDrawn = node.SceneObject.Primitive != null;
+                }
+            }
+            else
+            {
+                fullTree?.ForEach(x => x.IsDrawn = true);
+            }
+
+            this.Refresh();
+        }
+
+        /// <summary>
+        /// Event for when the text of the search filter is changing
+        /// </summary>
+        /// <param name="e">the args of the event</param>
+        public void OnSearchFilterChange(ChangeEventArgs e)
+        {
+            var text = e.Value as string ?? string.Empty;
+            var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
+
+            if (text == string.Empty)
+            {
+                fullTree?.ForEach(x => x.IsDrawn = true);
+            }
+            else
+            {
+                fullTree?.ForEach(x =>
+                {
+                    if (x.SceneObject.ElementUsage is not null && !x.SceneObject.ElementUsage.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        x.IsDrawn = false;
+                    }
+                    else
+                    {
+                        x.IsDrawn = true;
+                    }
+                });
+            }
         }
     }
 }

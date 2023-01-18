@@ -32,40 +32,43 @@
         nodeClasses += " active";
     }
 
-    <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.Node))" style="margin-left: calc(20px * @this.Level)">
-        <div class="node-inner-content">
+    @if(this.Node.IsDrawn)
+    {
+        <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.Node))" style="margin-left: calc(20px * @this.Level)">
+            <div class="node-inner-content">
 
-            @if (this.Node.Children.Count > 0)
-            {
-                @if (this.Node.IsExpanded)
+                @if (this.Node.Children.Count > 0)
                 {
-                    <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.Node.IsExpanded = false; })" />
+                    @if (this.Node.IsExpanded)
+                    {
+                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.Node.IsExpanded = false; })" />
+                    }
+                    else
+                    {
+                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.Node.IsExpanded = true; })" />
+                    }
+                }
+
+                @if (this.Node.SceneObject.ElementUsage is not null)
+                {
+                    <p class="node-text">@this.Node.SceneObject.ElementUsage.Name</p>
                 }
                 else
                 {
-                    <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.Node.IsExpanded = true; })" />
+                    <p class="node-text">Node</p>
                 }
-            }
 
-            @if(this.Node.SceneObject.ElementUsage is not null)
-            {
-                <p class="node-text">@this.Node.SceneObject.ElementUsage.Name</p>
-            }
-            else
-            {
-                <p class="node-text">Node</p>
-            }
-
-            @if (this.Node.IsVisible)
-            {
-                <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.Node.IsVisible = false; this.TreeNodeVisibilityChanged(this.Node);})" />
-            }
-            else
-            {
-                <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.Node.IsVisible = true; this.TreeNodeVisibilityChanged(this.Node); })" />
-            }
+                @if (this.Node.SceneObjectIsVisible)
+                {
+                    <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.Node.SceneObjectIsVisible = false; this.TreeNodeVisibilityChanged(this.Node);})" />
+                }
+                else
+                {
+                    <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.Node.SceneObjectIsVisible = true; this.TreeNodeVisibilityChanged(this.Node); })" />
+                }
+            </div>
         </div>
-    </div>
+    }    
 
     @if (this.Node.Children.Count > 0 && this.Node.IsExpanded)
     {

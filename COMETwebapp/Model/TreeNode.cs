@@ -42,9 +42,14 @@ namespace COMETwebapp.Model
         public bool IsSelected { get; set; }
 
         /// <summary>
-        /// If the node is visible 
+        /// If the <see cref="SceneObject"/> asociated to this node is visible 
         /// </summary>
-        public bool IsVisible { get; set; } = true;
+        public bool SceneObjectIsVisible { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets if this node is drawn in the <see cref="Components.Canvas.ProductTree"/>
+        /// </summary>
+        public bool IsDrawn { get; set; } = true;
 
         /// <summary>
         /// The <see cref="SceneObject"/> that this <see cref="TreeNode"/> represents
@@ -101,10 +106,14 @@ namespace COMETwebapp.Model
         /// Gets a flat list of the descendants of this node
         /// </summary>
         /// <returns>the flat list</returns>
-        public List<TreeNode> GetFlatListOfDescendants()
+        public List<TreeNode> GetFlatListOfDescendants(bool includeItself = false)
         {
             var descendants = new List<TreeNode>();
             this.GetListOfDescendantsRecursively(this, ref descendants);
+            if (includeItself && !descendants.Contains(this))
+            {
+                descendants.Add(this);
+            }
             return descendants;
         }
 

@@ -22,5 +22,17 @@
 
 <div id="product-tree-container">
     <h4 id="product-tree-title">Product Tree</h4>
+
+    <div id="product-tree-search-bar">
+        <BSDropdown id="tree-filter-drop-down">
+            <Toggler><BSToggle IsButton="true" Color="BSColor.Secondary">Filter</BSToggle></Toggler>
+            <Content>
+                <BSDropdownItem IsActive="!this.ShowNodesWithGeometry" OnClick="()=>this.OnFilterChanged(false)">Show Full Tree</BSDropdownItem>
+                <BSDropdownItem IsActive="this.ShowNodesWithGeometry" OnClick="()=>this.OnFilterChanged(true)">Show Nodes with geometry</BSDropdownItem>
+            </Content>
+        </BSDropdown>
+        <BSInput InputType="InputType.Text" placeholder="Search" Value="this.SearchValue" @oninput="(e)=>this.OnSearchFilterChange(e)"></BSInput>
+    </div>
+
     <NodeComponent Node="@this.RootNode" Level="0"/>
 </div>

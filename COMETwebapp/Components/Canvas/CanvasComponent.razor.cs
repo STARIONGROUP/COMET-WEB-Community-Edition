@@ -133,7 +133,7 @@ namespace COMETwebapp.Components.Canvas
 
                     foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
                     {
-                        await this.SetSceneObjectVisibility(sceneObject, node.IsVisible);
+                        await this.SetSceneObjectVisibility(sceneObject, node.SceneObjectIsVisible);
                     }
                 };
             }
