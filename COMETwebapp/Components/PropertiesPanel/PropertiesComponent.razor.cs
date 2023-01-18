@@ -74,7 +74,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// Gets or sets the canvas where the 3D scene is drawn
         /// </summary>
         [Parameter]
-        public BabylonCanvas BabylonCanvas { get; set; }
+        public CanvasComponent Canvas { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
@@ -145,8 +145,8 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         private async void SelectedPrimitiveHasChanged()
         {
-            await this.BabylonCanvas.ClearTemporarySceneObjects();
-            await this.BabylonCanvas.AddTemporarySceneObject(this.SelectedSceneObject);
+            await this.Canvas.ClearTemporarySceneObjects();
+            await this.Canvas.AddTemporarySceneObject(this.SelectedSceneObject);
         }
 
         /// <summary>

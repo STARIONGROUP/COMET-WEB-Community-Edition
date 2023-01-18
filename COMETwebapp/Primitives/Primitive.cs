@@ -52,14 +52,9 @@ namespace COMETwebapp.Primitives
         public abstract string Type { get; protected set; }
 
         /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is selected or not
+        /// Gets or sets if the primitive has halo
         /// </summary>
-        public bool IsSelected { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is visible or not
-        /// </summary>
-        public bool IsVisible { get; set; } = true;
+        public bool HasHalo { get; set; }
 
         /// <summary>
         /// The base color of the primitive

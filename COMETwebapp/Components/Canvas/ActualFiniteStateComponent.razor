@@ -1,0 +1,8 @@
+﻿<div class="actual-finite-state @(this.ActualFiniteStateListComponent.SelectedState == this.ActualFiniteState ? "selected-state":"")" @onclick="()=>this.OnClick(this.ActualFiniteState)">
+    <p>@this.ActualFiniteState.Name</p>
+    @if (this.ActualFiniteState.IsDefault)
+    {
+        <p class="default-state">- Default</p>
+    }
+</div>
+

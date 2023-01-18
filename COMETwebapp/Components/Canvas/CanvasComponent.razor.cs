@@ -31,6 +31,7 @@ namespace COMETwebapp.Components.Canvas
     
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
+    using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Primitives;
     using COMETwebapp.Utilities;
     
@@ -40,9 +41,9 @@ namespace COMETwebapp.Components.Canvas
     using Newtonsoft.Json;
     
     /// <summary>
-    /// Support class for the <see cref="BabylonCanvas.razor"/>
+    /// Support class for the <see cref="CanvasComponent.razor"/>
     /// </summary>
-    public partial class BabylonCanvas 
+    public partial class CanvasComponent 
     {        
         /// <summary>
         /// Reference to the HTML5 canvas
@@ -50,9 +51,20 @@ namespace COMETwebapp.Components.Canvas
         public ElementReference CanvasReference { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ViewerPage"/> that contains this <see cref="CanvasComponent"/>
+        /// </summary>
+        [Parameter]
+        public ViewerPage ViewerPage { get; set; }
+
+        /// <summary>
         /// Tells if the mouse if pressed or not in the canvas component
         /// </summary>
         public bool IsMouseDown { get; private set; } = false;
+
+        /// <summary>
+        /// Tells is the scene is being moved, rotated...
+        /// </summary>
+        public bool IsMovingScene { get; private set; }
 
         /// <summary>
         /// Gets or sets the property used for the Interoperability
@@ -76,9 +88,10 @@ namespace COMETwebapp.Components.Canvas
         private List<SceneObject> TemporarySceneObjects = new List<SceneObject>();
 
         /// <summary>
-        /// Event for when selection has changed;
+        /// Gets or sets the <see cref="ISelectionMediator"/>
         /// </summary>
-        public event EventHandler<OnSelectionChangedEventArgs> OnSelectionChanged;
+        [Inject]
+        public ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -103,6 +116,26 @@ namespace COMETwebapp.Components.Canvas
             if (firstRender)
             {               
                 await this.InitCanvas(this.CanvasReference, true);
+                this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
+                {
+                    await this.ClearTemporarySceneObjects();
+                    this.SelectedSceneObject = node.SceneObject;
+                    if (this.SelectedSceneObject.Primitive != null)
+                    {
+                        await this.AddTemporarySceneObject(this.SelectedSceneObject);
+                    }
+                    this.ViewerPage?.Refresh();
+                };
+
+                this.SelectionMediator.OnTreeVisibilityChanged += async (sender, node) =>
+                {
+                    var nodesAffected = node.GetFlatListOfDescendants();
+
+                    foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
+                    {
+                        await this.SetSceneObjectVisibility(sceneObject, node.IsVisible);
+                    }
+                };
             }
         }
                
@@ -121,31 +154,29 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="e">the mouse args of the event</param>
         public async void OnMouseUp(MouseEventArgs e)
         {
-            this.IsMouseDown = false;
-            await this.ClearTemporarySceneObjects();
-
-            this.SceneObjects.ForEach(async x => 
-            { 
-                if(x.Primitive is not null && JSInterop is not null)
-                {
-                    x.Primitive.IsSelected = false;
-                    await JSInterop.Invoke("SetSelection", x.ID, false);
-                }
-            });
-
-            this.SelectedSceneObject = null;
-
-            var sceneObject = await this.GetSceneObjectUnderMouseAsync();
-
-            if (sceneObject is not null && sceneObject.Primitive is not null && JSInterop is not null)
+            if (!this.IsMovingScene)
             {
-                sceneObject.Primitive.IsSelected = true;
-                await JSInterop.Invoke("SetSelection", sceneObject.ID, true);
-                this.SelectedSceneObject = sceneObject;
+                this.SelectedSceneObject = await this.GetSceneObjectUnderMouseAsync();
+                await this.ClearTemporarySceneObjects();
+                if (this.SelectedSceneObject != null)
+                {
+                    this.SelectionMediator.RaiseOnModelSelectionChanged(this.SelectedSceneObject);
+                    await this.AddTemporarySceneObject(this.SelectedSceneObject);
+                }
             }
 
-            this.RaiseSelectionChanged(sceneObject);
+            this.IsMouseDown = false;
         }
+
+        /// <summary>
+        /// Canvas on mouse move event
+        /// </summary>
+        /// <param name="e">the mouse args of the event</param>
+        public void OnMouseMove(MouseEventArgs e)
+        {
+            this.IsMovingScene = this.IsMouseDown;
+        }
+
 
         /// <summary>
         /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
@@ -153,7 +184,7 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
         /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
         /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
-        public async void RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
+        public async Task<List<SceneObject>> RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
             await this.ClearSceneObjects();
 
@@ -162,15 +193,8 @@ namespace COMETwebapp.Components.Canvas
                 var sceneObject = SceneObject.Create(elementUsage, selectedOption, states);
                 await this.AddSceneObject(sceneObject);
             }
-        }
 
-        /// <summary>
-        /// Raise the <see cref="OnSelectionChanged"/> event 
-        /// </summary>
-        /// <param name="sceneObject">The <see cref="SceneObject"/> that triggers the event</param>
-        public void RaiseSelectionChanged(SceneObject? sceneObject)
-        {
-            this.OnSelectionChanged?.Invoke(this, new OnSelectionChangedEventArgs(sceneObject));
+            return this.SceneObjects;
         }
 
         /// <summary>
@@ -198,6 +222,7 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="sceneObject"></param>
         public async Task AddTemporarySceneObject(SceneObject sceneObject)
         {
+            sceneObject.Primitive.HasHalo = true;
             string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             this.TemporarySceneObjects.Add(sceneObject);
             await this.JSInterop.Invoke("AddSceneObject", sceneObjectJson);
@@ -208,12 +233,12 @@ namespace COMETwebapp.Components.Canvas
         /// </summary>
         public async Task ClearSceneObjects()
         {
-            foreach(var sceneObj in this.SceneObjects)
-            {
-                await this.JSInterop.Invoke("Dispose", sceneObj.ID);
-            }
-
+            var ids = this.SceneObjects.Select(x => x.ID).ToList();
             this.SceneObjects.Clear();
+            foreach (var id in ids)
+            {
+                await this.JSInterop.Invoke("Dispose", id);
+            }
         }
 
         /// <summary>
@@ -221,12 +246,22 @@ namespace COMETwebapp.Components.Canvas
         /// </summary>
         public async Task ClearTemporarySceneObjects()
         {
-            foreach (var sceneObj in this.TemporarySceneObjects)
-            {
-                await this.JSInterop.Invoke("Dispose", sceneObj.ID);
-            }
-
+            var ids = this.TemporarySceneObjects.Select(x => x.ID).ToList();
             this.TemporarySceneObjects.Clear();
+            foreach (var id in ids)
+            {
+                await this.JSInterop.Invoke("Dispose", id);
+            }
+        }
+
+        /// <summary>
+        /// Sets the visibility for the scene object
+        /// </summary>
+        /// <param name="sceneObject">the scene object the visibility is set for</param>
+        /// <param name="visible">the visibility</param>
+        public async Task SetSceneObjectVisibility(SceneObject sceneObject, bool visible)
+        {
+            await this.JSInterop.Invoke("SetMeshVisibility", sceneObject.ID, visible);
         }
 
         /// <summary>
@@ -249,14 +284,9 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="id">The Id of the primitive asociated to the scene object</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        public SceneObject GetSceneObjectById(Guid id)
+        public SceneObject? GetSceneObjectById(Guid id)
         {
-            if (!this.SceneObjects.Exists(x => x.ID == id))
-            {
-                throw new ArgumentException("The specified Id dont exist in the scene");
-            }
-
-            return this.SceneObjects.First(x => x.ID == id);
+            return this.SceneObjects.FirstOrDefault(x => x.ID == id, null);
         }
 
         /// <summary>

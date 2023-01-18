@@ -20,160 +20,61 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @{
-    @if (this.CurrentNode is null)
+    @if (this.Node is null)
     {
         return;
     }
 
     var nodeClasses = "treeNode";
 
-    @if (this.CurrentNode.IsSelected)
+    @if (this.Node.IsSelected)
     {
         nodeClasses += " active";
     }
 
-    <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.CurrentNode))" style="margin-left: calc(20px * @this.Level)">
+    <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.Node))" style="margin-left: calc(20px * @this.Level)">
         <div class="node-inner-content">
 
-            @if (this.CurrentNode.Children.Count > 0)
+            @if (this.Node.Children.Count > 0)
             {
-                @if (this.CurrentNode.IsExpanded)
+                @if (this.Node.IsExpanded)
                 {
-                    <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.CurrentNode.IsExpanded = false; })" />
+                    <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.Node.IsExpanded = false; })" />
                 }
                 else
                 {
-                    <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.CurrentNode.IsExpanded = true; })" />
+                    <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.Node.IsExpanded = true; })" />
                 }
             }
 
-            <p class="node-text">@this.CurrentNode.Name</p>
-
-            @if (this.CurrentNode.IsVisible)
+            @if(this.Node.SceneObject.ElementUsage is not null)
             {
-                <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ CurrentNode.IsVisible = false; this.TreeNodeVisibilityChanged(this.CurrentNode);})" />
+                <p class="node-text">@this.Node.SceneObject.ElementUsage.Name</p>
             }
             else
             {
-                <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ CurrentNode.IsVisible = true; this.TreeNodeVisibilityChanged(this.CurrentNode); })" />
+                <p class="node-text">Node</p>
+            }
+
+            @if (this.Node.IsVisible)
+            {
+                <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.Node.IsVisible = false; this.TreeNodeVisibilityChanged(this.Node);})" />
+            }
+            else
+            {
+                <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.Node.IsVisible = true; this.TreeNodeVisibilityChanged(this.Node); })" />
             }
         </div>
     </div>
 
-    @if (this.CurrentNode.Children.Count > 0 && this.CurrentNode.IsExpanded)
+    @if (this.Node.Children.Count > 0 && this.Node.IsExpanded)
     {
         <div class="children">
-            @foreach (var child in this.CurrentNode.Children)
+            @foreach (var child in this.Node.Children)
             {
                 var level = this.Level + 1;
-                <NodeComponent CurrentNode="@child"
-                   Level="level"
-                   OnTreeNodeVisibilityChanged="@((node)=>this.TreeNodeVisibilityChanged(node))"
-                   OnTreeSelectionChanged="@((node)=>this.TreeSelectionChanged(node))" />
+                <NodeComponent Node="@child" Level="level"/>
             }
         </div>
     }
 }
-
-@code {
-
-    /// <summary>
-    /// Level of the tree. Increases by one for each nested element
-    /// </summary>
-    [Parameter]
-    public int Level { get; set; }
-
-    /// <summary>
-    /// Current node that this <see cref="NodeComponent" /> represents
-    /// </summary>
-    [Parameter]
-    public TreeNode CurrentNode { get; set; }
-
-    /// <summary>
-    /// Event for when a node selection changed
-    /// </summary>
-    [Parameter]
-    public EventCallback<TreeNode> OnTreeSelectionChanged { get; set; }
-
-    /// <summary>
-    /// Event for when a node visibility changed
-    /// </summary>
-    [Parameter]
-    public EventCallback<TreeNode> OnTreeNodeVisibilityChanged { get; set; }
-
-    /// <summary>
-    /// Method for when a node is selected
-    /// </summary>
-    /// <param name="node">the selected <see cref="TreeNode"/></param>
-    private void TreeSelectionChanged(TreeNode node)
-    {
-        this.OnTreeSelectionChanged.InvokeAsync(node);
-    }
-
-    /// <summary>
-    /// Method for when a node visibility changed
-    /// </summary>
-    /// <param name="node">the selected <see cref="TreeNode"/></param>
-    private void TreeNodeVisibilityChanged(TreeNode node)
-    {
-        this.OnTreeNodeVisibilityChanged.InvokeAsync(node);
-    }
-}
-
-<style>
-
-    .node-inner-content {
-        display: flex;
-        flex-direction: row;
-        justify-content: start;
-        align-items: center;
-    }
-
-    .treeNode {
-        cursor: pointer;
-        padding: 2%;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: start;
-        overflow: hidden;
-    }
-
-        .treeNode > p {
-            margin: 0;
-        }
-
-        .treeNode:hover {
-            background: #EEE;
-        }
-
-    .active {
-        background: lightgray;
-    }
-
-    .children {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .node-text {
-        margin: 0;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .expandIcon {
-        width: 1rem;
-        height: 1rem;
-    }
-
-    .treeIcon {
-        margin-left: 5px;
-        width: 1.5rem;
-        height: auto;
-        max-height: 1.5rem;
-        max-width: 1.5rem;
-    }
-</style>

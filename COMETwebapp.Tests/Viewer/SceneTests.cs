@@ -50,7 +50,7 @@ namespace COMETwebapp.Tests.Viewer
     public class SceneTests
     {
         private TestContext context;
-        private BabylonCanvas canvas;
+        private CanvasComponent canvas;
 
         [SetUp]
         public void SetUp()
@@ -63,7 +63,7 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
 
-            var renderer = this.context.RenderComponent<BabylonCanvas>();
+            var renderer = this.context.RenderComponent<CanvasComponent>();
             canvas = renderer.Instance;
         }
 

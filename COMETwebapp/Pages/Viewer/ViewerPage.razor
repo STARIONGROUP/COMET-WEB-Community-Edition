@@ -21,81 +21,52 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @page "/3DViewer"
 
+@using COMETwebapp.Components.PropertiesPanel;
+
 <ApplicationTemplate Title="3D Viewer">
     <Body>
         <div class="row">
             <div class="col">
-                <h6>Filter on Option:</h6>
                 <div class="width-fit-content">
-                    <DxComboBox Data="this.Options"
-                                AllowUserInput="true"
-                                NullText="--Select--"
-                                Value="this.OptionSelected"
-                                ValueChanged="@((string option) => OnOptionFilterChange(option))"
-                                FilteringMode="DataGridFilteringMode.Contains" />
+                    @{
+                        var options = this.TotalOptions != null ? this.TotalOptions.Select(x => x.Name).ToList() : new List<string>();
+                        <BSDropdown>
+                            <Toggler><BSToggle IsButton="true" Color="BSColor.Secondary">@(this.SelectedOption != null ? this.SelectedOption.Name : "---")</BSToggle></Toggler>
+                            <Content>
+                                @foreach (var option in options)
+                                {
+                                    <BSDropdownItem>@option</BSDropdownItem>
+                                }
+                            </Content>
+                        </BSDropdown>
+                    }
                 </div>
             </div>
         </div>
         <div id="gridParent">
             <div id="leftColumn">
-                @if (this.OptionSelected != null)
+                @if (this.SelectedOption != null)
                 {
-                    var name = string.Empty;
-
-                    @if (this.Elements.Count > 0)
-                    {
-                        name = this.Elements.First().Name;
-                    }
-                    <ProductTree RootNode="this.RootNode"
-                                 OnTreeSelectionChanged="@((node)=>TreeSelectionChanged(node))"
-                                 OnTreeNodeVisibilityChanged="@((node)=>TreeNodeVisibilityChanged(node))" />
-
+                    <ProductTree @ref=this.ProductTree RootNode="this.RootNode"/>
                 }
             </div>
 
-            <BabylonCanvas @ref=this.CanvasComponentReference/>
+            <CanvasComponent @ref=this.CanvasComponent ViewerPage="this"/>
 
             <div id="rightColumn">
-                @if(this.OptionSelected != null)
+                @if(this.SelectedOption != null)
                 {
-                    @if (this.CanvasComponentReference is not null && this.CanvasComponentReference.SelectedSceneObject is not null)
+                    @if (this.CanvasComponent is not null && this.CanvasComponent.SelectedSceneObject is not null)
                     {
-                        <COMETwebapp.Components.PropertiesPanel.Properties BabylonCanvas="this.CanvasComponentReference" 
-                                                                           SelectedSceneObject="this.CanvasComponentReference.SelectedSceneObject"/>
+                        <PropertiesComponent Canvas="this.CanvasComponent" 
+                                             SelectedSceneObject="this.CanvasComponent.SelectedSceneObject">
+                        </PropertiesComponent>
                     }
-
-                    @if (this.ListActualFiniteStateLists is not null)
-                    {
-                        <StateSelector ListActualFiniteStateLists="this.ListActualFiniteStateLists"
-                                       OnActualFiniteStateList_SelectionChanged="@((ce)=>this.OnActualFiniteStateList_SelectionChanged(ce.Sender,ce))"
-                                       OnActualFiniteState_SelectionChanged="@((ce)=>this.OnActualFiniteState_SelectionChanged(ce.Sender,ce))" />
-                    }
+                    <ActualFiniteStateSelectorComponent ListActualFiniteStateList="this.ListActualFiniteStateLists"
+                                                        OnActualFiniteStateChanged="this.ActualFiniteStateChanged">
+                    </ActualFiniteStateSelectorComponent>
                 }
             </div>
         </div>
     </Body>
 </ApplicationTemplate>
-
-<style>
-    #gridParent {
-        margin: 1% 0;
-        display: grid;
-        grid-template-columns: 0.15fr 1fr 0.23fr;
-        grid-template-rows: 1fr;
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-    }
-
-    #leftColumn {
-        grid-area: 1 / 1 / 2 / 2;
-        margin: 0;
-        margin-left: 2%;
-        margin-right: 2%;
-    }
-
-    #rightColumn {
-        grid-area: 1 / 3 / 2 / 4;
-        margin: 0;
-        margin-left: 2%;
-    }
-</style>

@@ -1,0 +1,12 @@
+﻿<div class="actual-finite-state-list">
+    <p>@this.ActualFiniteStateList.Name</p>
+</div>
+
+@{
+    foreach(var state in this.ActualFiniteStates)
+    {
+        <ActualFiniteStateComponent ActualFiniteState="state" 
+                                    ActualFiniteStateListComponent="this">
+        </ActualFiniteStateComponent>
+    }
+}

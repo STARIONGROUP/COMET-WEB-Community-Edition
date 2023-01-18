@@ -26,7 +26,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     
@@ -149,8 +149,8 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
         public async void ParameterChanged(int changedIndex, string value)
         {
+            //TODO: Validate data 
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];
-
             ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
             newValueArray[changedIndex] = value;
 
@@ -162,8 +162,18 @@ namespace COMETwebapp.Components.PropertiesPanel
 
                 this.SelectedSceneObject.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
 
+                if (this.ParameterSelected.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
+                {
+                    this.SelectedSceneObject.Primitive.HasHalo = true;
+                    var parameters = this.ValueSetsCollection.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+                    foreach (var parameter in parameters)
+                    {
+                        this.SelectedSceneObject.UpdateParameter(parameter, this.ValueSetsCollection[parameter]);
+                    }
+                }
+
                 string jsonSceneObject = JsonConvert.SerializeObject(this.SelectedSceneObject, Formatting.Indented);
-                await JSInterop.Invoke("RegenMesh", jsonSceneObject);
+                await this.JSInterop.Invoke("RegenMesh", jsonSceneObject);
             }
         }
     }

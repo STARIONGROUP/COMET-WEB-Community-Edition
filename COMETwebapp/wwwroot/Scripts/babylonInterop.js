@@ -276,6 +276,9 @@ function FillMeshWithPrimitiveData(mesh, primitive, ID) {
     //Custom properties for the object
     mesh.ObjectID = ID;
     mesh.Materials = new MeshMaterial(mesh.material, PickingMaterial);
+    if (primitive.HasHalo) {
+        HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
+    }
 }
 
 /**

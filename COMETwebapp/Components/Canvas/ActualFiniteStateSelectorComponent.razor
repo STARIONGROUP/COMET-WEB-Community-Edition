@@ -19,8 +19,17 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@if(this.ListActualFiniteStateList is not null){
+    <div id="state-selector-container">
+        <h6 id="state-selector-title">Actual Finite States</h6>
+        @{
+            foreach (var actualStateList in this.ListActualFiniteStateList)
+            {
+                <ActualFiniteStateListComponent ActualFiniteStateList="actualStateList"
+                                                OnSelectedStateChanged="this.OnActualFiniteStateSelected">
+                </ActualFiniteStateListComponent>
+            }
+        }
+    </div>
+}
 
-<div id="product-tree-container">
-    <h4 id="product-tree-title">Product Tree</h4>
-    <NodeComponent Node="@this.RootNode" Level="0"/>
-</div>
