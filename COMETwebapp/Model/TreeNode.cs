@@ -47,9 +47,9 @@ namespace COMETwebapp.Model
         public bool IsVisible { get; set; } = true;
 
         /// <summary>
-        /// The name of the <see cref="ElementUsage"/> represented by the node
+        /// The <see cref="SceneObject"/> that this <see cref="TreeNode"/> represents
         /// </summary>
-        public string Name { get; set; }
+        public SceneObject SceneObject { get; set; }
 
         /// <summary>
         /// The parent of this <see cref="TreeNode"/>
@@ -62,13 +62,39 @@ namespace COMETwebapp.Model
         public List<TreeNode> Children { get; set; }
 
         /// <summary>
+        /// Gets or sets the title of this <see cref="TreeNode"/>
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
         /// Creates a new instance of the <see cref="TreeNode"/>
         /// </summary>
-        /// <param name="name">Name of the <see cref="ElementUsage"/> asociated to this node</param>
-        public TreeNode(string name)
+        /// <param name="sceneObject">the <see cref="SceneObject"/> asociated to this node</param>
+        public TreeNode(SceneObject sceneObject)
         {
-            this.Name = name;
+            this.SceneObject = sceneObject;
             this.Children = new List<TreeNode>();
+            this.Title = this.SceneObject.ElementUsage?.Name;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy
+        /// </summary>
+        /// <returns>the <see cref="TreeNode"/> or this node if the RootNode can't be computed</returns>
+        public TreeNode GetRootNode()
+        {
+            var currentParent = this.Parent;
+
+            while (currentParent != null)
+            {
+                if (currentParent.Parent is null)
+                {
+                    return currentParent;
+                }
+                currentParent = currentParent.Parent;
+            }
+
+            return this;
         }
 
         /// <summary>
@@ -114,7 +140,7 @@ namespace COMETwebapp.Model
         /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
         private void OrderChildrenByShortNameHelper(TreeNode current)
         {
-            current.Children = current.Children.OrderBy(x => x.Name).ToList();
+            current.Children = current.Children.OrderBy(x => x.SceneObject.ElementUsage.Name).ToList();
             foreach (var child in current.Children)
             {
                 this.OrderChildrenByShortNameHelper(child);
