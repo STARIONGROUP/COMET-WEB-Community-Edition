@@ -34,7 +34,7 @@ namespace COMETwebapp.Tests.Viewer
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-
+    using COMETwebapp.Utilities;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -62,6 +62,7 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddSingleton(session.Object);
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
+            this.context.Services.AddTransient<ISelectionMediator, SelectionMediator>();
 
             var renderer = this.context.RenderComponent<CanvasComponent>();
             canvas = renderer.Instance;
