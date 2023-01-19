@@ -155,5 +155,34 @@ namespace COMETwebapp.Model
                 this.OrderChildrenByShortNameHelper(child);
             }
         }
+
+        /// <summary>
+        /// Overrides the equals method for equality checking
+        /// </summary>
+        /// <param name="obj">the object to check for equality</param>
+        /// <returns>true if the objects are the same, false otherwise</returns>
+        public override bool Equals(object? obj)
+        {
+            if(obj == null || obj is not TreeNode treeNode)
+            {
+                return false;
+            }
+
+            if(this.SceneObject.ID == treeNode.SceneObject.ID)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the hashcode of this <see cref="TreeNode"/>
+        /// </summary>
+        /// <returns>the hashcode</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() * this.SceneObject.ID.GetHashCode();
+        }
     }
 }

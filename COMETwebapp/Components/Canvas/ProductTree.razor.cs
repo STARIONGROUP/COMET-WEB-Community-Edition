@@ -83,10 +83,10 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="e">the args of the event</param>
         public void OnSearchFilterChange(ChangeEventArgs e)
         {
-            var text = e.Value as string ?? string.Empty;
+            this.SearchValue = e.Value as string ?? string.Empty;
             var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
 
-            if (text == string.Empty)
+            if (this.SearchValue == string.Empty)
             {
                 fullTree?.ForEach(x => x.IsDrawn = true);
             }
@@ -94,7 +94,7 @@ namespace COMETwebapp.Components.Canvas
             {
                 fullTree?.ForEach(x =>
                 {
-                    if (x.SceneObject.ElementUsage is not null && !x.SceneObject.ElementUsage.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase))
+                    if (x.Title.Contains(this.SearchValue, StringComparison.InvariantCultureIgnoreCase))
                     {
                         x.IsDrawn = false;
                     }
@@ -104,6 +104,8 @@ namespace COMETwebapp.Components.Canvas
                     }
                 });
             }
+
+            this.Refresh();
         }
     }
 }

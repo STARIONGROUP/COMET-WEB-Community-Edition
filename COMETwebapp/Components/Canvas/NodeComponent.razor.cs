@@ -91,7 +91,10 @@ namespace COMETwebapp.Components.Canvas
         private void TreeSelectionChanged(TreeNode node)
         {                       
             this.SelectionMediator.RaiseOnTreeSelectionChanged(node);
-            this.Node.IsSelected = true;
+            if(this.Node == node)
+            {
+                this.Node.IsSelected = true;
+            }
         }
 
         /// <summary>

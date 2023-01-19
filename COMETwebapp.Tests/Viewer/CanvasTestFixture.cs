@@ -27,9 +27,11 @@ namespace COMETwebapp.Tests.Viewer
     using Bunit;
     using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using DevExpress.DashboardWeb.Native;
     using Microsoft.Extensions.DependencyInjection;
     using Moq;
     using NUnit.Framework;
@@ -41,7 +43,8 @@ namespace COMETwebapp.Tests.Viewer
     {
         private TestContext context;
         private CanvasComponent canvas;
-
+        private ISelectionMediator selectionMediator;
+        
         [SetUp]
         public void SetUp()
         {
@@ -53,9 +56,46 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
             this.context.Services.AddTransient<ISelectionMediator, SelectionMediator>();
-
+           
             var renderer = this.context.RenderComponent<CanvasComponent>();
             this.canvas = renderer.Instance;
+            this.selectionMediator = this.canvas.SelectionMediator;
+        }
+
+        [Test]
+        public void VerifyThatMouseEventsWorks()
+        {
+            Assert.That(this.canvas.IsMouseDown, Is.False);
+            this.canvas.OnMouseDown(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.True);
+            this.canvas.OnMouseMove(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.EqualTo(this.canvas.IsMovingScene));
+            this.canvas.OnMouseUp(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.False);
+        }
+
+        [Test]
+        public void VerifyThatOnTreeVisibiliyChangedWorks()
+        {
+            var cube = new Cube(1, 1, 1);
+            var sceneObject = new SceneObject(cube);
+            var treeNode = new TreeNode(sceneObject);
+            var beforeSelectedObject = this.canvas.SelectedSceneObject;
+            this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
+            var afterSelectedObject = this.canvas.SelectedSceneObject;
+            Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
+        }
+
+        [Test]
+        public void VerifyThatOnTreeSelectionChangedWorks()
+        {
+            var cube = new Cube(1,1,1);
+            var sceneObject = new SceneObject(cube);
+            var treeNode = new TreeNode(sceneObject);
+            var beforeSelectedObject = this.canvas.SelectedSceneObject;
+            this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
+            var afterSelectedObject = this.canvas.SelectedSceneObject;
+            Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
         }
 
         [Test]
