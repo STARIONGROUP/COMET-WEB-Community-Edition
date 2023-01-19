@@ -21,6 +21,11 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Primitives
 
+@if (this.ParameterSelected is null || this.SelectedSceneObject is null)
+{
+    return;
+}
+
 @if (this.ParameterSelected.ParameterType is ScalarParameterType scalarType)
 {
     if (scalarType is EnumerationParameterType enumerationType)

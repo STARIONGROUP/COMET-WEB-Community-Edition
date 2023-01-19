@@ -1,0 +1,19 @@
+﻿@if(this.IsVisible)
+{
+    <div id="background-pop-up">
+        <div id="confirm-pop-up">
+            <div id="header-pop-up">
+                <p>Confirm Dialog</p>
+            </div>
+            <div id="body-pop-up">
+                <p>You are about to select another primitive. The changes on the previous one haven't been saved. Do you want to continue?'</p>
+            </div>
+            <div id="footer-pop-up">
+                <BSButton Color="BSColor.Primary" OnClick="this.ContinueButtonClicked">Continue</BSButton>
+                <BSButton Color="BSColor.Danger" OnClick="this.CancelButtonClicked">Cancel</BSButton>
+            </div>
+        </div>
+    </div>
+}
+
+

@@ -159,10 +159,10 @@ namespace COMETwebapp.Components.Canvas
                 this.SelectedSceneObject = await this.GetSceneObjectUnderMouseAsync();
                 await this.ClearTemporarySceneObjects();
                 if (this.SelectedSceneObject != null)
-                {
-                    this.SelectionMediator.RaiseOnModelSelectionChanged(this.SelectedSceneObject);
+                { 
                     await this.AddTemporarySceneObject(this.SelectedSceneObject);
                 }
+                this.SelectionMediator.RaiseOnModelSelectionChanged(this.SelectedSceneObject);
             }
 
             this.IsMouseDown = false;
@@ -222,10 +222,13 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="sceneObject"></param>
         public async Task AddTemporarySceneObject(SceneObject sceneObject)
         {
-            sceneObject.Primitive.HasHalo = true;
-            string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
-            this.TemporarySceneObjects.Add(sceneObject);
-            await this.JSInterop.Invoke("AddSceneObject", sceneObjectJson);
+            if(sceneObject.Primitive is not null)
+            {
+                sceneObject.Primitive.HasHalo = true;
+                string sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
+                this.TemporarySceneObjects.Add(sceneObject);
+                await this.JSInterop.Invoke("AddSceneObject", sceneObjectJson);
+            }
         }
 
         /// <summary>

@@ -32,11 +32,13 @@ namespace COMETwebapp.Components.PropertiesPanel
     using CDP4Dal;
 
     using COMETwebapp.Components.Canvas;
+    using COMETwebapp.Components.PopUps;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using DevExpress.XtraEditors.Filtering;
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -45,28 +47,30 @@ namespace COMETwebapp.Components.PropertiesPanel
     public partial class PropertiesComponent
     {
         /// <summary>
+        /// Gets or sets the possible next selected <see cref="SceneObject"/>
+        /// </summary>
+        private SceneObject? PossibleNextSelected { get; set; }
+
+        /// <summary>
         /// Gets or sets the original scene object without changes
         /// </summary>
-        private SceneObject OriginalSceneObject { get; set; }
+        private SceneObject? OriginalSceneObject { get; set; }
 
         /// <summary>
         /// Backing field for the <see cref="SelectedSceneObject"/> property
         /// </summary>
-        private SceneObject selectedSceneObject;
+        private SceneObject? selectedSceneObject;
 
         /// <summary>
         /// Gets or sets the <see cref="Primitive"/> to fill the panel
         /// </summary>
-        [Parameter]
-        public SceneObject SelectedSceneObject
+        public SceneObject? SelectedSceneObject
         {
             get => this.selectedSceneObject;
             set
             {
                 this.OriginalSceneObject = value;
-                this.selectedSceneObject = value.Clone();
-                this.SelectedPrimitiveHasChanged();
-                this.InitPanelProperties();
+                this.selectedSceneObject = value is not null ? value.Clone() : value;
             }
         }
 
@@ -75,6 +79,12 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// </summary>
         [Parameter]
         public CanvasComponent Canvas { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ConfirmChangeSelectionPopUp"/> component
+        /// </summary>
+        [Parameter]
+        public ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
@@ -106,6 +116,12 @@ namespace COMETwebapp.Components.PropertiesPanel
         public DetailsComponent? DetailsReference { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// </summary>
+        [Inject]
+        public ISelectionMediator SelectionMediator { get; set; }
+
+        /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
@@ -127,26 +143,65 @@ namespace COMETwebapp.Components.PropertiesPanel
 
             if (firstRender)
             {
-                this.InitPanelProperties();
+                this.ConfirmChangeSelectionPopUp.OnResponse += async (sender, response) =>
+                {
+                    if (response)
+                    {
+                        await this.OnSelectionMediatorReaction(this.PossibleNextSelected);
+                    }
+                    this.PossibleNextSelected = null;
+                };
+
+                this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
+                {
+                    if (this.CheckIfChangeSelectionIsSure())
+                    {
+                        await this.OnSelectionMediatorReaction(node.SceneObject);
+                    }
+                    else
+                    {
+                        this.ConfirmChangeSelectionPopUp.IsVisible = true;
+                        this.PossibleNextSelected = node.SceneObject;
+                    }
+                };
+                this.SelectionMediator.OnModelSelectionChanged += async (sender, sceneObject) =>
+                {
+                    if (this.CheckIfChangeSelectionIsSure())
+                    {
+                        await this.OnSelectionMediatorReaction(sceneObject);
+                    }
+                    else
+                    {
+                        this.ConfirmChangeSelectionPopUp.IsVisible = true;
+                        this.PossibleNextSelected = sceneObject;
+                    }
+                };
             }
         }
 
         /// <summary>
-        /// Initializes the properties for the panel
+        /// Checks if changin the selection is sure because the changes have been sent to server
         /// </summary>
-        private void InitPanelProperties()
+        private bool CheckIfChangeSelectionIsSure()
         {
-            this.ParametersInUse = this.SelectedSceneObject.ParametersAsociated.OrderBy(x=>x.ParameterType.ShortName).ToList();
-            this.ParameterChanged(ParametersInUse.First());
+            return !this.GetChangedParametersKeyValue().Any();
         }
-        
+
         /// <summary>
-        /// Method called when the selected primitive has changed
+        /// Called when the <see cref="ISelectionMediator"/> has reacted
         /// </summary>
-        private async void SelectedPrimitiveHasChanged()
+        /// <param name="sceneObject">the scene object that the <see cref="ISelectionMediator"/> has reacted to</param>
+        private async Task OnSelectionMediatorReaction(SceneObject? sceneObject)
         {
-            await this.Canvas.ClearTemporarySceneObjects();
-            await this.Canvas.AddTemporarySceneObject(this.SelectedSceneObject);
+            this.SelectedSceneObject = sceneObject;
+            if (this.SelectedSceneObject is not null)
+            {
+                await this.Canvas.ClearTemporarySceneObjects();
+                await this.Canvas.AddTemporarySceneObject(this.SelectedSceneObject);
+                this.ParametersInUse = this.SelectedSceneObject.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
+                this.ParameterChanged(ParametersInUse.First());
+            }
+            await this.InvokeAsync(() => this.StateHasChanged());
         }
 
         /// <summary>

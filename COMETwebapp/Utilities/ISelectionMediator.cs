@@ -62,6 +62,6 @@ namespace COMETwebapp.Utilities
         /// Raises the <see cref="OnModelSelectionChanged"/> event
         /// </summary>
         /// <param name="sceneObject"></param>
-        void RaiseOnModelSelectionChanged(SceneObject sceneObject);
+        void RaiseOnModelSelectionChanged(SceneObject? sceneObject);
     }
 }

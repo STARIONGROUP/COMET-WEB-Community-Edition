@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SelectionMediator.cs" company="RHEA System S.A.">
+// <copyright file="ConfirmSelectionPopUp.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,55 +22,53 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Utilities
+namespace COMETwebapp.Components.PopUps
 {
-    using COMETwebapp.Model;
-
+    
     /// <summary>
-    /// Class for controlling the selecetion of <see cref="SceneObject"/> in the Scene
+    /// Partial class for the <see cref="ConfirmChangeSelectionPopUp"/>
     /// </summary>
-    public class SelectionMediator : ISelectionMediator
+    public partial class ConfirmChangeSelectionPopUp
     {
         /// <summary>
-        /// Event for when the tree selection has changed
+        /// Backing field for the <see cref="IsVisible"/> property
         /// </summary>
-        public event EventHandler<TreeNode> OnTreeSelectionChanged;
+        private bool isVisible;
 
         /// <summary>
-        /// Event for when a node in the tree has changed his visibility
+        /// Gets or sets if the pop up is visible
         /// </summary>
-        public event EventHandler<TreeNode> OnTreeVisibilityChanged;
-
-        /// <summary>
-        /// Event for when the model selection has changed
-        /// </summary>
-        public event EventHandler<SceneObject> OnModelSelectionChanged;
-
-        /// <summary>
-        /// Raises the <see cref="OnTreeSelectionChanged"/> event
-        /// </summary>
-        /// <param name="node">the node that raised the event</param>
-        public void RaiseOnTreeSelectionChanged(TreeNode node)
+        public bool IsVisible
         {
-            this.OnTreeSelectionChanged?.Invoke(this, node);
+            get => this.isVisible;
+            set
+            {
+                this.isVisible = value;
+                this.StateHasChanged();
+            }
         }
 
         /// <summary>
-        /// Raises the <see cref="OnTreeVisibilityChanged"/> event
+        /// Gets or sets the event for the response when clicked the buttons
         /// </summary>
-        /// <param name="node"></param>
-        public void RaiseOnTreeVisibilityChanged(TreeNode node)
+        public event EventHandler<bool> OnResponse;
+
+        /// <summary>
+        /// Event for when the continue button is clicked
+        /// </summary>
+        private void ContinueButtonClicked()
         {
-            this.OnTreeVisibilityChanged?.Invoke(this, node);
+            this.isVisible = false;
+            this.OnResponse?.Invoke(this, true);
         }
 
         /// <summary>
-        /// Raises the <see cref="OnModelSelectionChanged"/> event
+        /// Event for when the cancel button is clicked
         /// </summary>
-        /// <param name="sceneObject"></param>
-        public void RaiseOnModelSelectionChanged(SceneObject? sceneObject)
+        private void CancelButtonClicked()
         {
-            this.OnModelSelectionChanged?.Invoke(this, sceneObject);
+            this.isVisible = false;
+            this.OnResponse?.Invoke(this, false);
         }
     }
 }

@@ -110,7 +110,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <returns>the set</returns>
         public IValueSet GetValueSet()
         {
-            return this.ValueSetsCollection[this.ParameterSelected];
+            return this.ValueSetsCollection.ContainsKey(this.ParameterSelected) ? this.ValueSetsCollection[this.ParameterSelected] : null;
         }
 
         /// <summary>
@@ -164,7 +164,10 @@ namespace COMETwebapp.Components.PropertiesPanel
 
                 if (this.ParameterSelected.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
                 {
-                    this.SelectedSceneObject.Primitive.HasHalo = true;
+                    if(this.SelectedSceneObject.Primitive is not null)
+                    {
+                        this.SelectedSceneObject.Primitive.HasHalo = true;
+                    }
                     var parameters = this.ValueSetsCollection.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
                     foreach (var parameter in parameters)
                     {

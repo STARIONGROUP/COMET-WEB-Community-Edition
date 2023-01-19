@@ -21,47 +21,52 @@ Copyright (c) 2022 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Primitives
 
-<div id="propertiesPanel">
-    @{
-        var title = "Properties";
-        if (this.SelectedSceneObject is not null)
-        {
-            title = this.SelectedSceneObject.ElementUsage.Name + " - Properties:";
+@if(this.SelectedSceneObject is not null)
+{
+    <div id="propertiesPanel">
+        @{
+            var title = "Properties";
+            if (this.SelectedSceneObject is not null)
+            {
+                title = this.SelectedSceneObject.ElementUsage.Name + " - Properties:";
+            }
+
+            <div id="properties-title">
+                <h6>@title</h6>
+                <button @onclick="()=>this.OnSubmit()" class="@(this.GetChangedParametersKeyValue().Any()?"submit-button button-blue":"submit-button")">Submit</button>
+            </div>
         }
 
-        <div id="properties-title">
-            <h6>@title</h6>
-            <button @onclick="()=>this.OnSubmit()" class="@(this.GetChangedParametersKeyValue().Any()?"submit-button button-blue":"submit-button")">Submit</button>
-        </div>
-    }
-
-    <BSAccordion>
-        <BSAccordionItem AlwaysOpen="true" DefaultShown="true">
-            <Header>Parameters</Header>
-            <Content>
-                <div id="parameters-section">
-                    @{
-                        if (this.SelectedSceneObject is not null)
-                        {
-                            var parameters = this.ParametersInUse;
-                            @foreach (var parameter in parameters)
+        <BSAccordion>
+            <BSAccordionItem AlwaysOpen="true" DefaultShown="true">
+                <Header>Parameters</Header>
+                <Content>
+                    <div id="parameters-section">
+                        @{
+                            if (this.SelectedSceneObject is not null)
                             {
-                                if (parameter == this.SelectedParameter)
+                                var parameters = this.ParametersInUse;
+                                @foreach (var parameter in parameters)
                                 {
-                                    <p class="parameter-item parameter-item-selected" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
-                                }
-                                else
-                                {
-                                    <p class="parameter-item" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
+                                    if (parameter == this.SelectedParameter)
+                                    {
+                                        <p class="parameter-item parameter-item-selected" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="parameter-item" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
+                                    }
                                 }
                             }
                         }
-                    }
 
-                </div>
-                <h5 id="details-title">Details</h5>
-                <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" SelectedSceneObject="this.SelectedSceneObject"></DetailsComponent>
-            </Content>
-        </BSAccordionItem>
-    </BSAccordion>
-</div>
+                    </div>
+                    <h5 id="details-title">Details</h5>
+                    <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" SelectedSceneObject="this.SelectedSceneObject"></DetailsComponent>
+                </Content>
+            </BSAccordionItem>
+        </BSAccordion>
+    </div>
+}
+
+

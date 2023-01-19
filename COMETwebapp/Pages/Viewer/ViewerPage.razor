@@ -50,17 +50,16 @@ Copyright (c) 2022 RHEA System S.A.
                     <ProductTree @ref=this.ProductTree RootNode="this.RootNode"/>
                 }
             </div>
-
-            <CanvasComponent @ref=this.CanvasComponent ViewerPage="this"/>
-
+            <div id="center-container">
+                <COMETwebapp.Components.PopUps.ConfirmChangeSelectionPopUp @ref=this.ConfirmChangeSelectionPopUp/>
+                <CanvasComponent @ref=this.CanvasComponent ViewerPage="this" />
+            </div>
             <div id="rightColumn">
                 @if(this.SelectedOption != null)
                 {
-                    @if (this.CanvasComponent is not null && this.CanvasComponent.SelectedSceneObject is not null)
+                    @if (this.CanvasComponent is not null)
                     {
-                        <PropertiesComponent Canvas="this.CanvasComponent" 
-                                             SelectedSceneObject="this.CanvasComponent.SelectedSceneObject">
-                        </PropertiesComponent>
+                        <PropertiesComponent Canvas="this.CanvasComponent" ConfirmChangeSelectionPopUp="this.ConfirmChangeSelectionPopUp"></PropertiesComponent>
                     }
                     <ActualFiniteStateSelectorComponent ListActualFiniteStateList="this.ListActualFiniteStateLists"
                                                         OnActualFiniteStateChanged="this.ActualFiniteStateChanged">

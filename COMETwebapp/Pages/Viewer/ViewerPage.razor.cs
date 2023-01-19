@@ -29,6 +29,7 @@ namespace COMETwebapp.Pages.Viewer
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.Canvas;
+    using COMETwebapp.Components.PopUps;
     using COMETwebapp.Interoperability;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
@@ -42,12 +43,6 @@ namespace COMETwebapp.Pages.Viewer
     public partial class ViewerPage
     {
         /// <summary>
-        /// Gets or sets the property used for the Interoperability
-        /// </summary>
-        [Inject]
-        public IJSInterop JSInterop { get; set; }
-
-        /// <summary>
         /// The reference to the <see cref="CanvasComponent"/> component
         /// </summary>
         public CanvasComponent? CanvasComponent { get; set; }
@@ -58,11 +53,9 @@ namespace COMETwebapp.Pages.Viewer
         public ProductTree? ProductTree { get; set; }
 
         /// <summary>
-        /// The filter on option
+        /// Gets or sets the reference of the <see cref="ConfirmChangeSelectionPopUp"/>
         /// </summary>
-        [Parameter]
-        [SupplyParameterFromQuery]
-        public Guid? FilterOption { get; set; }
+        public ConfirmChangeSelectionPopUp? ConfirmChangeSelectionPopUp { get; set; }
 
         /// <summary>
         /// All <see cref="ElementBase"> of the iteration
@@ -200,11 +193,11 @@ namespace COMETwebapp.Pages.Viewer
         /// <summary>
         /// Creates the product tree
         /// </summary>
-        /// <param name="elementUsages">the element usages used in the product tree</param>
-        private void CreateTree(List<ElementBase> elementUsages)
+        /// <param name="productTreeElements">the product tree elements</param>
+        private void CreateTree(List<ElementBase> productTreeElements)
         {
             //Order sceneObjects by the name
-            var topElement = elementUsages.First();
+            var topElement = productTreeElements.First();
             var topSceneObject = this.GetSceneObjectByElementBase(topElement);
             this.RootNode = new TreeNode(topSceneObject);
             this.CreateTreeRecursively(topElement, this.RootNode, null);
