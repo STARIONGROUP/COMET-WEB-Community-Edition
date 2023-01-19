@@ -78,7 +78,7 @@ namespace COMETwebapp.Tests.Viewer
             var nodesAfterFiltering = this.tree.FindAll(".treeNode");
             Assert.Multiple(() =>
             {
-                Assert.That(this.productTree, Is.True);
+                Assert.That(this.productTree.ShowNodesWithGeometry, Is.True);
                 Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
                 Assert.That(nodesAfterFiltering, Has.Count.EqualTo(4));
             });
