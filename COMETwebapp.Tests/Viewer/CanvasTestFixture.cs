@@ -31,7 +31,6 @@ namespace COMETwebapp.Tests.Viewer
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    using DevExpress.DashboardWeb.Native;
     using Microsoft.Extensions.DependencyInjection;
     using Moq;
     using NUnit.Framework;

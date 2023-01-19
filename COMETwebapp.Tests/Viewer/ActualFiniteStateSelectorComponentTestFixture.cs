@@ -27,7 +27,9 @@ namespace COMETwebapp.Tests.Viewer
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-
+    using System.ComponentModel;
+    using BlazorStrap;
+    using Bunit;
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
@@ -48,11 +50,13 @@ namespace COMETwebapp.Tests.Viewer
         private TestContext context;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private Uri uri = new Uri("http://www.rheagroup.com");
+        private IRenderedComponent<ActualFiniteStateSelectorComponent> rendererComponent;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
+            this.context.Services.AddBlazorStrap();
 
             var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
             var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
@@ -67,21 +71,16 @@ namespace COMETwebapp.Tests.Viewer
             actualFiniteStateList2.ActualState.Add(actualFiniteState4);
 
             var listOfActualStateList = new List<ActualFiniteStateList>() { actualFiniteStateList1, actualFiniteStateList2 };
-            
 
-            //var component = this.context.RenderComponent<ActualFiniteStateSelectorComponent>(parameters => 
-            //parameters.Add(p=>p.ListActualFiniteStateList, listOfActualStateList));
-
-            //var component = this.context.RenderComponent<ActualFiniteStateSelectorComponent>();
-
-            //var actualFiniteState = component.Find(".actual-finite-state");
-            //actualFiniteState.Click();
+            this.rendererComponent = this.context.RenderComponent<ActualFiniteStateSelectorComponent>(parameters => 
+            parameters.Add(p=>p.ListActualFiniteStateList, listOfActualStateList));
         }
 
         [Test]
-        public void VerifyComponent()
+        public void VerifyThatActualStateCanBeClicked()
         {
-
+            var actualFiniteState = this.rendererComponent.Find(".actual-finite-state");
+            actualFiniteState.Click();
         }
     }
 }
