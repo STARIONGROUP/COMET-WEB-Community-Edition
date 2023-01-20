@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Pages.Viewer
 {
+    using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
@@ -141,16 +142,16 @@ namespace COMETwebapp.Pages.Viewer
                 this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions?.First();
                 this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
                 this.SelectedActualFiniteStates = this.ListActualFiniteStateLists?.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
-
-                await this.RepopulateScene(elementUsages);
-
+                                
                 this.CreateTree(this.Elements);
+
+                await this.RepopulateScene(this.RootNode);
 
                 this.SessionAnchor.OnSessionRefreshed += async (sender, args) =>
                 {
                     this.Elements = this.InitializeElements();
-                    var elementsOnScene = this.Elements.OfType<ElementUsage>().ToList();
-                    await this.RepopulateScene(elementsOnScene);
+                    this.CreateTree(this.Elements);
+                    await this.RepopulateScene(this.RootNode);
                 };
 
                 this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
@@ -198,7 +199,7 @@ namespace COMETwebapp.Pages.Viewer
         {
             //Order sceneObjects by the name
             var topElement = productTreeElements.First();
-            var topSceneObject = this.GetSceneObjectByElementBase(topElement);
+            var topSceneObject = SceneObject.Create(topElement, this.SelectedOption, this.SelectedActualFiniteStates);
             this.RootNode = new TreeNode(topSceneObject);
             this.CreateTreeRecursively(topElement, this.RootNode, null);
             this.RootNode.OrderAllDescendantsByShortName();
@@ -225,7 +226,6 @@ namespace COMETwebapp.Pages.Viewer
 
             if (childsOfElementBase is not null)
             {
-                //current.Parent = parent;
                 if (parent is not null)
                 {
                     parent.AddChild(current);
@@ -233,7 +233,7 @@ namespace COMETwebapp.Pages.Viewer
 
                 foreach (var child in childsOfElementBase)
                 {
-                    var sceneObject = this.GetSceneObjectByElementBase(child);
+                    var sceneObject = SceneObject.Create(child, this.SelectedOption, this.SelectedActualFiniteStates);
                     if (sceneObject is not null)
                     {
                         this.CreateTreeRecursively(child, new TreeNode(sceneObject), current);
@@ -243,31 +243,18 @@ namespace COMETwebapp.Pages.Viewer
         }
 
         /// <summary>
-        /// Tries to get a scene object from the specified element base
+        /// Repopulates the scene starting from the passed <see cref="TreeNode"/> 
         /// </summary>
-        /// <param name="elementBase"></param>
-        /// <returns></returns>
-        private SceneObject? GetSceneObjectByElementBase(ElementBase elementBase)
+        /// <param name="rootNode">the top node of the hierarchy that needs to be on scene</param>
+        /// <returns>an asynchronous operation</returns>
+        private async Task RepopulateScene(TreeNode rootNode)
         {
-            if (elementBase is ElementDefinition elementDefinition)
-            {
-                return this.CanvasComponent.GetAllSceneObjects().FirstOrDefault(x => x.ElementBase.Iid == elementDefinition.Iid, new SceneObject(null));
-            }
-            else if (elementBase is ElementUsage elementUsage)
-            {
-                return this.CanvasComponent.GetAllSceneObjects().FirstOrDefault(x => x.ElementBase.Iid == elementUsage.Iid, new SceneObject(null));
-            }
+            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.SceneObject.Primitive is not null).Select(x=>x.SceneObject).ToList();
 
-            return new SceneObject(null);
-        }
-
-        /// <summary>
-        /// Repopulates the scene with the specified <see cref="ElementUsage"/>
-        /// </summary>
-        /// <param name="elementUsages">the element usages to populate the scene with</param>
-        private async Task<List<SceneObject>> RepopulateScene(List<ElementUsage> elementUsages)
-        {
-            return await this.CanvasComponent?.RepopulateScene(elementUsages, this.SelectedOption, this.SelectedActualFiniteStates);
+            foreach(var sceneObject in sceneObjects)
+            {
+                await this.CanvasComponent.AddSceneObject(sceneObject);
+            }
         }
 
         /// <summary>
@@ -280,8 +267,8 @@ namespace COMETwebapp.Pages.Viewer
             this.SelectedOption = this.TotalOptions?.FirstOrDefault(x => x.Name == option, defaultOption);
 
             this.Elements = this.InitializeElements();
-            var elementsOnScene = this.Elements.OfType<ElementUsage>().ToList();
-            await this.RepopulateScene(elementsOnScene);
+            this.CreateTree(this.Elements);
+            await this.RepopulateScene(this.RootNode);
             await this.InvokeAsync(() => this.StateHasChanged());
         }
 
@@ -292,9 +279,9 @@ namespace COMETwebapp.Pages.Viewer
         public async void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates)
         {
             this.Elements = this.InitializeElements();
+            this.CreateTree(this.Elements);
+            await this.RepopulateScene(this.RootNode);
             this.SelectedActualFiniteStates = selectedActiveFiniteStates;
-            var elementsOnScene = this.Elements.OfType<ElementUsage>().ToList();
-            await this.RepopulateScene(elementsOnScene);
         }
 
         /// <summary>

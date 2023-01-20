@@ -152,16 +152,19 @@ namespace COMETwebapp.Model
 
             //TODO: this needs a review of how to do it properly.
             var shapeKindParameter = sceneObj.ParametersAsociated.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
-            sceneObj.ParseParameter(shapeKindParameter);
-
-            var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
-            foreach (var parameter in restOfParameters)
+            if(shapeKindParameter is not null)
             {
-                sceneObj.ParseParameter(parameter);
-            }
+                sceneObj.ParseParameter(shapeKindParameter);
 
-            sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+                var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+                foreach (var parameter in restOfParameters)
+                {
+                    sceneObj.ParseParameter(parameter);
+                }
+
+                sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+            }
 
             return sceneObj;
         }

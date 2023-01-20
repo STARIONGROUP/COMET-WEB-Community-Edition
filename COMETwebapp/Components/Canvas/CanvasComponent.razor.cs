@@ -177,26 +177,6 @@ namespace COMETwebapp.Components.Canvas
             this.IsMovingScene = this.IsMouseDown;
         }
 
-
-        /// <summary>
-        /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
-        /// </summary>
-        /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
-        public async Task<List<SceneObject>> RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
-        {
-            await this.ClearSceneObjects();
-
-            foreach (var elementUsage in elementUsages)
-            {
-                var sceneObject = SceneObject.Create(elementUsage, selectedOption, states);
-                await this.AddSceneObject(sceneObject);
-            }
-
-            return this.SceneObjects;
-        }
-
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
