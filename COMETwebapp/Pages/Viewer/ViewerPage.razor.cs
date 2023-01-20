@@ -70,18 +70,18 @@ namespace COMETwebapp.Pages.Viewer
         /// <summary>
         /// Gets or sets the current selected <see cref="Option"/>
         /// </summary>
-        public Option SelectedOption { get; private set; }
+        public Option? SelectedOption { get; private set; }
 
         /// <summary>
         /// Gets or sets the total of options in this <see cref="Iteration"/>
         /// </summary>
-        public List<Option> TotalOptions { get; private set; }
+        public List<Option>? TotalOptions { get; private set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
+        public ISessionAnchor? SessionAnchor { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IIterationService"/>
@@ -97,18 +97,18 @@ namespace COMETwebapp.Pages.Viewer
         /// <summary>
         /// Gets or sets the Selected <see cref="ActualFiniteState"/>
         /// </summary>
-        public List<ActualFiniteState> SelectedActualFiniteStates { get; private set; }
+        public List<ActualFiniteState>? SelectedActualFiniteStates { get; private set; }
 
         /// <summary>
         /// Represents the RootNode of the tree
         /// </summary>
-        public TreeNode RootNode { get; set; }
+        public TreeNode? RootNode { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
         /// </summary>
         [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
+        public ISelectionMediator? SelectionMediator { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -138,9 +138,9 @@ namespace COMETwebapp.Pages.Viewer
                 var iteration = this.SessionAnchor?.OpenIteration;
                 this.TotalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
                 var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
-                this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions.First();
+                this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions?.First();
                 this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
-                this.SelectedActualFiniteStates = this.ListActualFiniteStateLists.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
+                this.SelectedActualFiniteStates = this.ListActualFiniteStateLists?.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
 
                 await this.RepopulateScene(elementUsages);
 
@@ -277,7 +277,7 @@ namespace COMETwebapp.Pages.Viewer
         public async void OnOptionFilterChange(string? option)
         {
             var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
-            this.SelectedOption = this.TotalOptions.FirstOrDefault(x => x.Name == option, defaultOption);
+            this.SelectedOption = this.TotalOptions?.FirstOrDefault(x => x.Name == option, defaultOption);
 
             this.Elements = this.InitializeElements();
             var elementsOnScene = this.Elements.OfType<ElementUsage>().ToList();

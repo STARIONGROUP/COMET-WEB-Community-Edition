@@ -59,6 +59,7 @@ namespace COMETwebapp.Tests.Viewer
         {
             this.context = new TestContext();
             this.context.Services.AddBlazorStrap();
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
 
             var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
             var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
