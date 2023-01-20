@@ -251,11 +251,11 @@ namespace COMETwebapp.Pages.Viewer
         {
             if (elementBase is ElementDefinition elementDefinition)
             {
-                return this.CanvasComponent.GetAllSceneObjects().FirstOrDefault(x => x.ElementUsage.ElementDefinition.Iid == elementDefinition.Iid, new SceneObject(null));
+                return this.CanvasComponent.GetAllSceneObjects().FirstOrDefault(x => x.ElementBase.Iid == elementDefinition.Iid, new SceneObject(null));
             }
             else if (elementBase is ElementUsage elementUsage)
             {
-                return this.CanvasComponent.GetAllSceneObjects().FirstOrDefault(x => x.ElementUsage.Iid == elementUsage.Iid, new SceneObject(null));
+                return this.CanvasComponent.GetAllSceneObjects().FirstOrDefault(x => x.ElementBase.Iid == elementUsage.Iid, new SceneObject(null));
             }
 
             return new SceneObject(null);

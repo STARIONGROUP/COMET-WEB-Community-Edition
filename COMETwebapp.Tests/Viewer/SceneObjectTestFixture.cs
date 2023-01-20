@@ -148,7 +148,7 @@ namespace COMETwebapp.Tests.Viewer
             Assert.Multiple(() =>
             {
                 Assert.That(sceneObject, Is.Not.Null);
-                Assert.That(sceneObject.ElementUsage, Is.Not.Null);
+                Assert.That(sceneObject.ElementBase, Is.Not.Null);
                 Assert.That(sceneObject.Option, Is.Not.Null);
                 Assert.That(sceneObject.States, Is.Not.Null);
                 Assert.That(sceneObject.Primitive, Is.Not.Null);
