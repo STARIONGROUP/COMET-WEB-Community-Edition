@@ -52,7 +52,6 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
             var rootNode = new TreeNode(new SceneObject(null)) { Title = "rootNode" };
-            rootNode.Parent = null;
 
             var node1 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
             var node2 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "second" };
@@ -60,11 +59,11 @@ namespace COMETwebapp.Tests.Viewer
             var node4 = new TreeNode(new SceneObject(null)) { Title = "fourth" };
             var node5 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fifth" };
 
-            node1.Children.Add(node2);
-            node1.Children.Add(node3);
-            node1.Children.Add(node4);
-            rootNode.Children.Add(node1);
-            rootNode.Children.Add(node5);
+            node1.AddChild(node2);
+            node1.AddChild(node3);
+            node1.AddChild(node4);
+            rootNode.AddChild(node1);
+            rootNode.AddChild(node5);
 
             this.tree = this.context.RenderComponent<ProductTree>(parameters => parameters.Add(p => p.RootNode, rootNode));
             this.productTree = this.tree.Instance;

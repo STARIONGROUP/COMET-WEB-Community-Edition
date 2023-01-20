@@ -34,17 +34,17 @@ namespace COMETwebapp.Utilities
         /// <summary>
         /// Event for when the tree selection has changed
         /// </summary>
-        public event EventHandler<TreeNode> OnTreeSelectionChanged;
+        public event EventHandler<TreeNode>? OnTreeSelectionChanged;
 
         /// <summary>
         /// Event for when a node in the tree has changed his visibility
         /// </summary>
-        public event EventHandler<TreeNode> OnTreeVisibilityChanged;
+        public event EventHandler<TreeNode>? OnTreeVisibilityChanged;
 
         /// <summary>
         /// Event for when the model selection has changed
         /// </summary>
-        public event EventHandler<SceneObject> OnModelSelectionChanged;
+        public event EventHandler<SceneObject?>? OnModelSelectionChanged;
 
         /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event

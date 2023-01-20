@@ -100,7 +100,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatSceneObjectCanBeAdded()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddSceneObject(sceneObject);
 
             Assert.That(this.canvas.GetAllSceneObjects(), Has.Count.EqualTo(1));
@@ -109,7 +109,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatTemporarySceneObjectCanBeAdded()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddTemporarySceneObject(sceneObject);
 
             Assert.That(this.canvas.GetAllTemporarySceneObjects(), Has.Count.EqualTo(1));
@@ -118,7 +118,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatSceneObjectsCanBeCleared()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddSceneObject(sceneObject);
             Assert.That(this.canvas.GetAllSceneObjects(), Has.Count.EqualTo(1));
 
@@ -129,7 +129,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatTemporarySceneObjectsCanBeCleared()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddTemporarySceneObject(sceneObject);
             Assert.That(this.canvas.GetAllTemporarySceneObjects(), Has.Count.EqualTo(1));
 
@@ -140,7 +140,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatSceneObjectCanBeRetrievedByID()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddSceneObject(sceneObject);
             var retrieved = this.canvas.GetSceneObjectById(sceneObject.ID);
             Assert.That(retrieved, Is.Not.Null);

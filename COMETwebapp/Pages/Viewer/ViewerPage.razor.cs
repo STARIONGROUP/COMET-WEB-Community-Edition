@@ -225,10 +225,10 @@ namespace COMETwebapp.Pages.Viewer
 
             if (childsOfElementBase is not null)
             {
-                current.Parent = parent;
+                //current.Parent = parent;
                 if (parent is not null)
                 {
-                    parent.Children.Add(current);
+                    parent.AddChild(current);
                 }
 
                 foreach (var child in childsOfElementBase)

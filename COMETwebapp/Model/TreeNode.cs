@@ -54,17 +54,17 @@ namespace COMETwebapp.Model
         /// <summary>
         /// The <see cref="SceneObject"/> that this <see cref="TreeNode"/> represents
         /// </summary>
-        public SceneObject SceneObject { get; set; }
+        public SceneObject SceneObject { get; private set; }
 
         /// <summary>
         /// The parent of this <see cref="TreeNode"/>
         /// </summary>
-        public TreeNode? Parent { get; set; }
+        private TreeNode? Parent { get; set; }
 
         /// <summary>
         /// The children of this <see cref="TreeNode"/>
         /// </summary>
-        public List<TreeNode> Children { get; set; }
+        private List<TreeNode> Children { get; set; }
 
         /// <summary>
         /// Gets or sets the title of this <see cref="TreeNode"/>
@@ -80,6 +80,36 @@ namespace COMETwebapp.Model
             this.SceneObject = sceneObject;
             this.Children = new List<TreeNode>();
             this.Title = this.SceneObject.ElementUsage?.Name;
+        }
+
+        /// <summary>
+        /// Adds a child to this node
+        /// </summary>
+        /// <param name="node">the node to add</param>
+        /// <returns>this node</returns>
+        public TreeNode AddChild(TreeNode node)
+        {
+            if(node is not null)
+            {
+                node.Parent = this;
+                this.Children.Add(node);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes a child from this node
+        /// </summary>
+        /// <param name="node">the node to remove</param>
+        /// <returns>this node</returns>
+        public TreeNode RemoveChild(TreeNode node)
+        {
+            if(node is not null)
+            {
+                this.Children.Remove(node);
+            }
+            return this;
         }
 
         /// <summary>
@@ -149,11 +179,29 @@ namespace COMETwebapp.Model
         /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
         private void OrderChildrenByShortNameHelper(TreeNode current)
         {
-            current.Children = current.Children.OrderBy(x => x.SceneObject.ElementUsage.Name).ToList();
+            current.Children = current.Children.OrderBy(x => x.Title).ToList();
             foreach (var child in current.Children)
             {
                 this.OrderChildrenByShortNameHelper(child);
             }
+        }
+
+        /// <summary>
+        /// Gets the parent node of this <see cref="TreeNode"/>
+        /// </summary>
+        /// <returns>the parent node</returns>
+        public TreeNode? GetParentNode()
+        {
+            return this.Parent;
+        }
+
+        /// <summary>
+        /// Gets the children of this <see cref="TreeNode"/>
+        /// </summary>
+        /// <returns>the children of the node</returns>
+        public IReadOnlyList<TreeNode> GetChildren()
+        {
+            return this.Children.AsReadOnly();
         }
 
         /// <summary>
@@ -163,7 +211,7 @@ namespace COMETwebapp.Model
         /// <returns>true if the objects are the same, false otherwise</returns>
         public override bool Equals(object? obj)
         {
-            if(obj == null || obj is not TreeNode treeNode)
+            if(obj is not TreeNode treeNode)
             {
                 return false;
             }
@@ -182,7 +230,7 @@ namespace COMETwebapp.Model
         /// <returns>the hashcode</returns>
         public override int GetHashCode()
         {
-            return base.GetHashCode() * this.SceneObject.ID.GetHashCode();
+            return this.SceneObject.ID.GetHashCode();
         }
     }
 }

@@ -37,7 +37,7 @@
         <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.Node))" style="margin-left: calc(20px * @this.Level)">
             <div class="node-inner-content">
 
-                @if (this.Node.Children.Count > 0)
+                @if (this.Node.GetChildren().Count > 0)
                 {
                     @if (this.Node.IsExpanded)
                     {
@@ -70,10 +70,10 @@
         </div>
     }    
 
-    @if (this.Node.Children.Count > 0 && this.Node.IsExpanded)
+    @if (this.Node.GetChildren().Count > 0 && this.Node.IsExpanded)
     {
         <div class="children">
-            @foreach (var child in this.Node.Children)
+            @foreach (var child in this.Node.GetChildren())
             {
                 var level = this.Level + 1;
                 <NodeComponent Node="@child" Level="level"/>

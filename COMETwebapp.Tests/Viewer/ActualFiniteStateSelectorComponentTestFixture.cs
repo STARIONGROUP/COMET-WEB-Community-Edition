@@ -27,9 +27,11 @@ namespace COMETwebapp.Tests.Viewer
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.ComponentModel;
+
     using BlazorStrap;
+    
     using Bunit;
+    
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
@@ -37,7 +39,7 @@ namespace COMETwebapp.Tests.Viewer
     using COMETwebapp.Components.Canvas;
     
     using NUnit.Framework;
-        
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
