@@ -24,17 +24,23 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
+    using System.Threading.Tasks;
+    
     using Bunit;
+    
     using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    
     using Microsoft.Extensions.DependencyInjection;
+    
     using Moq;
+    
     using NUnit.Framework;
-    using System.Threading.Tasks;
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]

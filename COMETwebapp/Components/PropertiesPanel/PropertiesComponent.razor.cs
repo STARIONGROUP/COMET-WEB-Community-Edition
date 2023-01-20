@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Properties.razor.cs" company="RHEA System S.A.">
+// <copyright file="PropertiesComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -30,7 +30,7 @@ namespace COMETwebapp.Components.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     
     using CDP4Dal;
-
+    
     using COMETwebapp.Components.Canvas;
     using COMETwebapp.Components.PopUps;
     using COMETwebapp.IterationServices;
@@ -38,9 +38,9 @@ namespace COMETwebapp.Components.PropertiesPanel
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    using DevExpress.XtraEditors.Filtering;
+    
     using Microsoft.AspNetCore.Components;
-
+    
     /// <summary>
     /// The properties component used for displaying data about the selected primitive
     /// </summary>

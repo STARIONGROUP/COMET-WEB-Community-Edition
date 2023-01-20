@@ -24,29 +24,55 @@
 
 namespace COMETwebapp.Components.Canvas
 {
-    using CDP4Common.EngineeringModelData;
-    
-    using COMETwebapp.Model;
-    
-    using Microsoft.AspNetCore.Components;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
+    using CDP4Common.EngineeringModelData;
+
+    using Microsoft.AspNetCore.Components;
+    
     /// <summary>
     /// Class for the state selector component
     /// </summary>
     public partial class ActualFiniteStateSelectorComponent
     {
+        /// <summary>
+        /// Gets or sets the list of <see cref="ActualFiniteStateList"/> used by the <see cref="ActualFiniteStateSelectorComponent"/>
+        /// </summary>
         [Parameter]
         public List<ActualFiniteStateList> ListActualFiniteStateList { get; set; } = new();
 
+        /// <summary>
+        /// Field for keeping track of the selection state of the <see cref="ActualFiniteState"/>
+        /// </summary>
         private Dictionary<ActualFiniteState, bool> SelectedActualFiniteStates = new();
 
+        /// <summary>
+        /// All the <see cref="ActualFiniteState"/> that the <see cref="ActualFiniteStateSelectorComponent"/> contains
+        /// </summary>
         private List<ActualFiniteState> TotalActualFiniteStates = new();
 
+        /// <summary>
+        /// Event callback for when an <see cref="ActualFiniteState"/> has been selected
+        /// </summary>
         [Parameter]
         public EventCallback<List<ActualFiniteState>> OnActualFiniteStateChanged { get; set; }
 
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
@@ -57,6 +83,9 @@ namespace COMETwebapp.Components.Canvas
             }
         }
 
+        /// <summary>
+        /// Resets the dictionary and fills it with the default states
+        /// </summary>
         private void ResetDictionary()
         {
             this.SelectedActualFiniteStates.Clear();
@@ -67,6 +96,10 @@ namespace COMETwebapp.Components.Canvas
             }
         }
 
+        /// <summary>
+        /// Event for when a <see cref="ActualFiniteState"/> has been selected
+        /// </summary>
+        /// <param name="actualFiniteState">the selected <see cref="ActualFiniteState"/></param>
         public void OnActualFiniteStateSelected(ActualFiniteState actualFiniteState)
         {
             if(actualFiniteState.Container is ActualFiniteStateList AFSlist)

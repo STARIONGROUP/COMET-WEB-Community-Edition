@@ -24,11 +24,13 @@
 
 namespace COMETwebapp.Components.Canvas
 {
-    using COMETwebapp.Model;
-    using COMETwebapp.Utilities;
-    using Microsoft.AspNetCore.Components;
     using System.Threading.Tasks;
 
+    using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
+    
+    using Microsoft.AspNetCore.Components;
+    
     /// <summary>
     /// Class for the node component
     /// </summary>

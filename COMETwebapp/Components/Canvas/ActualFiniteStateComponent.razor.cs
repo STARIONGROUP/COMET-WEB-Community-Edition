@@ -24,11 +24,12 @@
 
 namespace COMETwebapp.Components.Canvas
 {
-    using CDP4Common.EngineeringModelData;
-    using COMETwebapp.Components.Canvas;
-    using Microsoft.AspNetCore.Components;
     using System.Threading.Tasks;
-
+    
+    using CDP4Common.EngineeringModelData;
+    
+    using Microsoft.AspNetCore.Components;
+    
     /// <summary>
     /// partial class for the <see cref="ActualFiniteStateComponent"/>
     /// </summary>
