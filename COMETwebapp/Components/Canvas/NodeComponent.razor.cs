@@ -46,13 +46,13 @@ namespace COMETwebapp.Components.Canvas
         /// Current node that this <see cref="NodeComponent" /> represents
         /// </summary>
         [Parameter]
-        public TreeNode Node { get; set; }
+        public TreeNode? Node { get; set; }
 
         /// <summary>
         /// Gets or set the <see cref="ISelectionMediator"/>
         /// </summary>
         [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
+        public ISelectionMediator? SelectionMediator { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -77,7 +77,7 @@ namespace COMETwebapp.Components.Canvas
             {
                 this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
                 {
-                    if(sender != this)
+                    if(sender != this && this.Node is not null)
                     {
                         this.Node.IsSelected = false;
                         await this.InvokeAsync(() => this.StateHasChanged());
@@ -92,7 +92,7 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="node">the selected <see cref="TreeNode"/></param>
         private void TreeSelectionChanged(TreeNode node)
         {                       
-            this.SelectionMediator.RaiseOnTreeSelectionChanged(node);
+            this.SelectionMediator?.RaiseOnTreeSelectionChanged(node);
             if(this.Node == node)
             {
                 this.Node.IsSelected = true;
@@ -105,7 +105,7 @@ namespace COMETwebapp.Components.Canvas
         /// <param name="node">the selected <see cref="TreeNode"/></param>
         private void TreeNodeVisibilityChanged(TreeNode node)
         {
-            this.SelectionMediator.RaiseOnTreeVisibilityChanged(node);
+            this.SelectionMediator?.RaiseOnTreeVisibilityChanged(node);
         }
     }
 }

@@ -40,12 +40,57 @@ namespace COMETwebapp.Components.PropertiesPanel
     using COMETwebapp.Utilities;
     
     using Microsoft.AspNetCore.Components;
-    
+
     /// <summary>
     /// The properties component used for displaying data about the selected primitive
     /// </summary>
     public partial class PropertiesComponent
     {
+        /// <summary>
+        /// Gets or sets the canvas where the 3D scene is drawn
+        /// </summary>
+        [Parameter]
+        public CanvasComponent? Canvas { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ConfirmChangeSelectionPopUp"/> component
+        /// </summary>
+        [Parameter]
+        public ConfirmChangeSelectionPopUp? ConfirmChangeSelectionPopUp { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IIterationService"/>
+        /// </summary>
+        [Inject]
+        public IIterationService? IterationService { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// </summary>
+        [Inject]
+        public ISessionAnchor? SessionAnchor { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// </summary>
+        [Inject]
+        public ISelectionMediator? SelectionMediator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
+        /// </summary>
+        public ParameterBase? SelectedParameter { get; set; }
+
+        /// <summary>
+        /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
+        /// </summary>
+        public List<ParameterBase> ParametersInUse { get; set; } = new();
+
+        /// <summary>
+        /// A reference to the <see cref="DetailsComponent"/>
+        /// </summary>
+        public DetailsComponent? DetailsReference { get; set; }
+
         /// <summary>
         /// Gets or sets the possible next selected <see cref="SceneObject"/>
         /// </summary>
@@ -75,53 +120,6 @@ namespace COMETwebapp.Components.PropertiesPanel
         }
 
         /// <summary>
-        /// Gets or sets the canvas where the 3D scene is drawn
-        /// </summary>
-        [Parameter]
-        public CanvasComponent Canvas { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ConfirmChangeSelectionPopUp"/> component
-        /// </summary>
-        [Parameter]
-        public ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
-        /// </summary>
-        [Parameter]
-        public ParameterBase SelectedParameter { get; set; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="IIterationService"/>
-        /// </summary>
-        [Inject]
-        public IIterationService IterationService { get; set; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
-        /// </summary>
-        [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
-
-        /// <summary>
-        /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
-        /// </summary>
-        [Parameter]
-        public List<ParameterBase> ParametersInUse { get; set; } = new();
-
-        /// <summary>
-        /// A reference to the <see cref="DetailsComponent"/>
-        /// </summary>
-        public DetailsComponent? DetailsReference { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
-        /// </summary>
-        [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
-
-        /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
@@ -149,42 +147,41 @@ namespace COMETwebapp.Components.PropertiesPanel
                     {
                         await this.OnSelectionMediatorReaction(this.PossibleNextSelected);
                     }
+                    else
+                    {
+                        await this.Canvas.ClearTemporarySceneObjects();
+                        await this.Canvas.AddTemporarySceneObject(this.SelectedSceneObject);
+                    }
                     this.PossibleNextSelected = null;
                 };
 
                 this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
                 {
-                    if (this.CheckIfChangeSelectionIsSure())
-                    {
-                        await this.OnSelectionMediatorReaction(node.SceneObject);
-                    }
-                    else
-                    {
-                        this.ConfirmChangeSelectionPopUp.IsVisible = true;
-                        this.PossibleNextSelected = node.SceneObject;
-                    }
+                    await this.OnSelectionChanged(node.SceneObject);
                 };
                 this.SelectionMediator.OnModelSelectionChanged += async (sender, sceneObject) =>
                 {
-                    if (this.CheckIfChangeSelectionIsSure())
-                    {
-                        await this.OnSelectionMediatorReaction(sceneObject);
-                    }
-                    else
-                    {
-                        this.ConfirmChangeSelectionPopUp.IsVisible = true;
-                        this.PossibleNextSelected = sceneObject;
-                    }
+                    await this.OnSelectionChanged(sceneObject);
                 };
             }
         }
 
         /// <summary>
-        /// Checks if changin the selection is sure because the changes have been sent to server
+        /// Called when the selection of a <see cref="SceneObject"/> has changed
         /// </summary>
-        private bool CheckIfChangeSelectionIsSure()
+        /// <param name="sceneObject">the changed object</param>
+        /// <returns>an asynchronous operation</returns>
+        private async Task OnSelectionChanged(SceneObject sceneObject)
         {
-            return !this.GetChangedParametersKeyValue().Any();
+            if (!this.GetChangedParametersKeyValue().Any())
+            {
+                await this.OnSelectionMediatorReaction(sceneObject);
+            }
+            else
+            {
+                this.ConfirmChangeSelectionPopUp.IsVisible = true;
+                this.PossibleNextSelected = sceneObject;
+            }
         }
 
         /// <summary>
@@ -207,7 +204,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <summary>
         /// When the button for submit changes is clicked
         /// </summary>
-        public void OnSubmit()
+        private void OnSubmit()
         {
             var changedParametersKeyValue = this.GetChangedParametersKeyValue();
 
@@ -215,13 +212,10 @@ namespace COMETwebapp.Components.PropertiesPanel
             {
                 var valueSet = keyValue.Value;
 
-                if (valueSet is ParameterValueSetBase parameterValueSetBase)
+                if (valueSet is ParameterValueSetBase parameterValueSetBase && !this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
                 {
-                    if (!this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
-                    {
-                        this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
-                        CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(parameterValueSetBase.Iid));
-                    }
+                    this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
+                    CDPMessageBus.Current.SendMessage(new NewUpdateEvent(parameterValueSetBase.Iid));
 
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
@@ -235,20 +229,20 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// Gets the parameters that have changed from the original <see cref="SceneObject"/>
         /// </summary>
         /// <returns></returns>
-        public Dictionary<ParameterBase, IValueSet> GetChangedParametersKeyValue()
+        private Dictionary<ParameterBase, IValueSet> GetChangedParametersKeyValue()
         {
             Dictionary<ParameterBase, IValueSet> collection = new();
 
             if (this.DetailsReference is not null && this.OriginalSceneObject is not null)
             {
-                var originalValueSetsCollection = this.OriginalSceneObject.GetValueSets();
+                var originalValueSetsCollection = this.OriginalSceneObject.GetParameterValueSetRelations();
                 var temporaryValueSetsCollection = this.DetailsReference.GetAllValueSets();
 
                 foreach (var originalValueSet in originalValueSetsCollection)
                 {
                     var valueSet = originalValueSet.Value.ActualValue;
 
-                    if (temporaryValueSetsCollection.ContainsKey(originalValueSet.Key))
+                    if (temporaryValueSetsCollection is not null && temporaryValueSetsCollection.ContainsKey(originalValueSet.Key))
                     {
                         var temporarySet = temporaryValueSetsCollection[originalValueSet.Key].ActualValue;
 
@@ -266,7 +260,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// Event for when a parameter item has been clicked
         /// </summary>
         /// <param name="parameterBase">the parameter clicked</param>
-        public void ParameterChanged(ParameterBase parameterBase)
+        private void ParameterChanged(ParameterBase parameterBase)
         {
             this.SelectedParameter = parameterBase;          
             this.StateHasChanged();

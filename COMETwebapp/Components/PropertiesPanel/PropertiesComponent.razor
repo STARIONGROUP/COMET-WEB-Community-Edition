@@ -25,15 +25,13 @@ Copyright (c) 2022 RHEA System S.A.
 {
     <div id="propertiesPanel">
         @{
-            var title = "Properties";
-            if (this.SelectedSceneObject is not null)
-            {
-                title = this.SelectedSceneObject.ElementBase.Name + " - Properties:";
-            }
-
+            var title = this.SelectedSceneObject is not null ? this.SelectedSceneObject.ElementBase.Name + " - Properties:" :  "Properties";
+            var isDisabled = !this.GetChangedParametersKeyValue().Any();
+            var buttonClass = !isDisabled ? "submit-button button-blue" : "submit-button";
+            
             <div id="properties-title">
                 <h6>@title</h6>
-                <button @onclick="()=>this.OnSubmit()" class="@(this.GetChangedParametersKeyValue().Any()?"submit-button button-blue":"submit-button")">Submit</button>
+                <button @onclick="()=>this.OnSubmit()" class="@buttonClass" disabled="@isDisabled">Submit</button>
             </div>
         }
 
@@ -43,26 +41,18 @@ Copyright (c) 2022 RHEA System S.A.
                 <Content>
                     <div id="parameters-section">
                         @{
-                            if (this.SelectedSceneObject is not null)
+                            var parameters = this.ParametersInUse;
+                            @foreach (var parameter in parameters)
                             {
-                                var parameters = this.ParametersInUse;
-                                @foreach (var parameter in parameters)
-                                {
-                                    if (parameter == this.SelectedParameter)
-                                    {
-                                        <p class="parameter-item parameter-item-selected" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
-                                    }
-                                    else
-                                    {
-                                        <p class="parameter-item" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
-                                    }
-                                }
+                                var classNames = parameter == this.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
+                                <p class="@classNames" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
                             }
                         }
-
                     </div>
                     <h5 id="details-title">Details</h5>
-                    <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" SelectedSceneObject="this.SelectedSceneObject"></DetailsComponent>
+                    <DetailsComponent @ref=this.DetailsReference 
+                                      ParameterSelected="this.SelectedParameter">
+                    </DetailsComponent>
                 </Content>
             </BSAccordionItem>
         </BSAccordion>

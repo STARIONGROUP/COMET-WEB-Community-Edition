@@ -24,14 +24,12 @@
 
 namespace COMETwebapp.Pages.Viewer
 {
-    using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.Canvas;
     using COMETwebapp.Components.PopUps;
-    using COMETwebapp.Interoperability;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
@@ -47,11 +45,6 @@ namespace COMETwebapp.Pages.Viewer
         /// The reference to the <see cref="CanvasComponent"/> component
         /// </summary>
         public CanvasComponent? CanvasComponent { get; set; }
-
-        /// <summary>
-        /// Gets or sets the reference of the <see cref="ProductTree"/>
-        /// </summary>
-        public ProductTree? ProductTree { get; set; }
 
         /// <summary>
         /// Gets or sets the reference of the <see cref="ConfirmChangeSelectionPopUp"/>
@@ -132,10 +125,11 @@ namespace COMETwebapp.Pages.Viewer
             await base.OnAfterRenderAsync(firstRender);
 
             if (firstRender)
-            {
-                this.Elements = this.InitializeElements();
-                var elementUsages = this.Elements.OfType<ElementUsage>().ToList();
+            {                
+                await this.CanvasComponent.InitCanvas(true);
 
+                this.Elements = this.InitializeElements();
+   
                 var iteration = this.SessionAnchor?.OpenIteration;
                 this.TotalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
                 var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
@@ -261,11 +255,12 @@ namespace COMETwebapp.Pages.Viewer
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="option">Name of the Option selected</param>
-        public async void OnOptionFilterChange(string? option)
+        public async Task OnOptionFilterChange(string? option)
         {
             var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
             this.SelectedOption = this.TotalOptions?.FirstOrDefault(x => x.Name == option, defaultOption);
 
+            await this.CanvasComponent.ClearScene();
             this.Elements = this.InitializeElements();
             this.CreateTree(this.Elements);
             await this.RepopulateScene(this.RootNode);
@@ -276,12 +271,13 @@ namespace COMETwebapp.Pages.Viewer
         /// Event raised when an actual finite state has changed
         /// </summary>
         /// <param name="selectedActiveFiniteStates"></param>
-        public async void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates)
+        public async Task ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates)
         {
+            this.SelectedActualFiniteStates = selectedActiveFiniteStates;
+            await this.CanvasComponent.ClearScene();
             this.Elements = this.InitializeElements();
             this.CreateTree(this.Elements);
-            await this.RepopulateScene(this.RootNode);
-            this.SelectedActualFiniteStates = selectedActiveFiniteStates;
+            await this.RepopulateScene(this.RootNode); 
         }
 
         /// <summary>

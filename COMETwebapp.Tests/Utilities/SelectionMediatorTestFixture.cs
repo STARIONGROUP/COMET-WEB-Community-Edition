@@ -25,10 +25,8 @@ namespace COMETwebapp.Tests.Utilities
 {
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
-    using Moq;
+
     using NUnit.Framework;
-    using System;
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SelectionMediatorTestFixture
@@ -46,6 +44,9 @@ namespace COMETwebapp.Tests.Utilities
         {
             var treeNode = new TreeNode(new SceneObject(null));
             TreeNode result = null;
+
+            Assert.DoesNotThrow(() => this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode));
+
             this.selectionMediator.OnTreeSelectionChanged += (sender, node) => { result = node; };
 
             this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
@@ -58,6 +59,9 @@ namespace COMETwebapp.Tests.Utilities
         {
             var sceneObject = new SceneObject(null);
             SceneObject result = null;
+
+            Assert.DoesNotThrow(() => this.selectionMediator.RaiseOnModelSelectionChanged(sceneObject));
+
             this.selectionMediator.OnModelSelectionChanged += (sender, sceneObject) => { result = sceneObject;  };
 
             this.selectionMediator.RaiseOnModelSelectionChanged(sceneObject);
@@ -70,6 +74,9 @@ namespace COMETwebapp.Tests.Utilities
         {
             var treeNode = new TreeNode(new SceneObject(null));
             TreeNode result = null;
+
+            Assert.DoesNotThrow(() => this.selectionMediator.RaiseOnTreeVisibilityChanged(treeNode));
+
             this.selectionMediator.OnTreeVisibilityChanged += (sender, node) => { result = node; };
 
             this.selectionMediator.RaiseOnTreeVisibilityChanged(treeNode);

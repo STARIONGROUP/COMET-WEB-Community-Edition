@@ -33,20 +33,20 @@ Copyright (c) 2022 RHEA System S.A.
         <DxComboBox Data="enumerationType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name).ToList()"
             NullText="-"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-            Value="this.GetValueSet().ActualValue.First()"
+            Value="this.GetSelectedParameterValueSet().ActualValue.First()"
             ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
     }
     else if (scalarType is BooleanParameterType booleanType)
     {
         <DxComboBox Data="@(new string[] {"-", "true", "false" })"
             AllowUserInput="true"
-            Value="this.GetValueSet().ActualValue.First()"
+            Value="this.GetSelectedParameterValueSet().ActualValue.First()"
             ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))"
             FilteringMode="DataGridFilteringMode.Contains" />
     }
     else if (scalarType is DateParameterType dateType)
     {
-        DateTime.TryParse(this.GetValueSet().ActualValue.First(), out DateTime date);
+        DateTime.TryParse(this.GetSelectedParameterValueSet().ActualValue.First(), out DateTime date);
 
         <DxDateEdit Date="date"
             DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
@@ -55,7 +55,7 @@ Copyright (c) 2022 RHEA System S.A.
     }
     else if (scalarType is TextParameterType textType)
     {
-        var colorText = this.GetValueSet().ActualValue.First();
+        var colorText = this.GetSelectedParameterValueSet().ActualValue.First();
         var colorValue = colorText.ParseToHexColor();
 
         if (textType.ShortName == SceneSettings.ColorShortName)
@@ -69,13 +69,13 @@ Copyright (c) 2022 RHEA System S.A.
         {
             <div class="parameter-row">
                 <p>@textType.Name</p>
-                <BSInput InputType="InputType.Text" Value="this.GetValueSet().ActualValue.First()" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" />
+                <BSInput InputType="InputType.Text" Value="this.GetSelectedParameterValueSet().ActualValue.First()" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" />
             </div>
         }
     }
     else if (scalarType is DateTimeParameterType dateTimeType)
     {
-        var dateTimeString = this.GetValueSet().ActualValue.First();
+        var dateTimeString = this.GetSelectedParameterValueSet().ActualValue.First();
         var dateTimeStringSplitted = dateTimeString.Split('T');
 
         DateTime.TryParse(dateTimeStringSplitted[0], out DateTime date);
@@ -96,7 +96,7 @@ Copyright (c) 2022 RHEA System S.A.
     }
     else if (scalarType is TimeOfDayParameterType timeOfDayType)
     {
-        var timeString = this.GetValueSet().ActualValue.First();
+        var timeString = this.GetSelectedParameterValueSet().ActualValue.First();
         var values = timeString.Split(':');
 
         <div class="parameter-row">
@@ -109,14 +109,14 @@ Copyright (c) 2022 RHEA System S.A.
     {
         <div class="parameter-row">
             <p>@quantityKind.Name</p>
-            <BSInput InputType="InputType.Text" Value="this.GetValueSet().ActualValue.First()" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" />
+            <BSInput InputType="InputType.Text" Value="this.GetSelectedParameterValueSet().ActualValue.First()" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" />
             <p>@quantityKind.DefaultScale.ShortName</p>
         </div>
     }
 }
 else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundType)
 {
-    var valueSet = this.GetValueSet();
+    var valueSet = this.GetSelectedParameterValueSet();
 
     if (compoundType.ShortName == SceneSettings.OrientationShortName)
     {

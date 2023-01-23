@@ -227,7 +227,7 @@ namespace COMETwebapp.Model
         /// Gets the value sets for this <see cref="SceneObject"/>
         /// </summary>
         /// <returns>a collection of <see cref="ParameterBase"/> and its related <see cref="IValueSet"/></returns>
-        public Dictionary<ParameterBase,IValueSet> GetValueSets()
+        public Dictionary<ParameterBase,IValueSet> GetParameterValueSetRelations()
         {
             var collection = new Dictionary<ParameterBase, IValueSet>();
             IValueSet? valueSet = null;

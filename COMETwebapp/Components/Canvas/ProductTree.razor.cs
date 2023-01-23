@@ -94,7 +94,7 @@ namespace COMETwebapp.Components.Canvas
             {
                 fullTree?.ForEach(x =>
                 {
-                    if (x.Title.Contains(this.SearchValue, StringComparison.InvariantCultureIgnoreCase))
+                    if (!x.Title.Contains(this.SearchValue, StringComparison.InvariantCultureIgnoreCase))
                     {
                         x.IsDrawn = false;
                     }

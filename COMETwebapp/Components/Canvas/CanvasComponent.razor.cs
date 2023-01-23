@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BabylonCanvas.razor.cs" company="RHEA System S.A.">
+// <copyright file="CanvasComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2022 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -26,8 +26,6 @@ namespace COMETwebapp.Components.Canvas
 {
     using System;
     using System.Threading.Tasks;
-
-    using CDP4Common.EngineeringModelData;
     
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
@@ -49,12 +47,6 @@ namespace COMETwebapp.Components.Canvas
         /// Reference to the HTML5 canvas
         /// </summary>
         public ElementReference CanvasReference { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ViewerPage"/> that contains this <see cref="CanvasComponent"/>
-        /// </summary>
-        [Parameter]
-        public ViewerPage ViewerPage { get; set; }
 
         /// <summary>
         /// Tells if the mouse if pressed or not in the canvas component
@@ -115,7 +107,6 @@ namespace COMETwebapp.Components.Canvas
 
             if (firstRender)
             {               
-                await this.InitCanvas(this.CanvasReference, true);
                 this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
                 {
                     await this.ClearTemporarySceneObjects();
@@ -124,7 +115,6 @@ namespace COMETwebapp.Components.Canvas
                     {
                         await this.AddTemporarySceneObject(this.SelectedSceneObject);
                     }
-                    this.ViewerPage?.Refresh();
                 };
 
                 this.SelectionMediator.OnTreeVisibilityChanged += async (sender, node) =>
@@ -180,9 +170,9 @@ namespace COMETwebapp.Components.Canvas
         /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public async Task InitCanvas(ElementReference canvas, bool addAxes)
+        public async Task InitCanvas(bool addAxes)
         {
-            await this.JSInterop.Invoke("InitCanvas", canvas, addAxes);
+            await this.JSInterop.Invoke("InitCanvas", this.CanvasReference, addAxes);
         }
 
         /// <summary>
@@ -212,16 +202,23 @@ namespace COMETwebapp.Components.Canvas
         }
 
         /// <summary>
+        /// Clears the scene deleting the <see cref="SceneObjects"/> and <see cref="TemporarySceneObjects"/> lists
+        /// </summary>
+        /// <returns>an asynchronous task</returns>
+        public async Task ClearScene()
+        {
+            await this.ClearSceneObjects();
+            await this.ClearTemporarySceneObjects();
+        }
+
+        /// <summary>
         /// Clears the scene deleting the scene objects that contains
         /// </summary>
         public async Task ClearSceneObjects()
         {
             var ids = this.SceneObjects.Select(x => x.ID).ToList();
             this.SceneObjects.Clear();
-            foreach (var id in ids)
-            {
-                await this.JSInterop.Invoke("Dispose", id);
-            }
+            await this.JSInterop.Invoke("DisposeAll", ids.ToArray());
         }
 
         /// <summary>
@@ -231,10 +228,7 @@ namespace COMETwebapp.Components.Canvas
         {
             var ids = this.TemporarySceneObjects.Select(x => x.ID).ToList();
             this.TemporarySceneObjects.Clear();
-            foreach (var id in ids)
-            {
-                await this.JSInterop.Invoke("Dispose", id);
-            }
+            await this.JSInterop.Invoke("DisposeAll", ids.ToArray());
         }
 
         /// <summary>
@@ -251,14 +245,14 @@ namespace COMETwebapp.Components.Canvas
         /// Gets the primitive under the mouse cursor asyncronously
         /// </summary>
         /// <returns>The primitive under the mouse cursor</returns>
-        public async Task<SceneObject> GetSceneObjectUnderMouseAsync()
+        public async Task<SceneObject?> GetSceneObjectUnderMouseAsync()
         {
             var id = await this.JSInterop.Invoke<string>("GetPrimitiveIDUnderMouse");
             if (id == null || !Guid.TryParse(id, out Guid ID))
             {
                 return null;
             }
-            return GetSceneObjectById(ID);
+            return this.GetSceneObjectById(ID);
         }
 
         /// <summary>

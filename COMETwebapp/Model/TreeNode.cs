@@ -79,7 +79,7 @@ namespace COMETwebapp.Model
         {
             this.SceneObject = sceneObject;
             this.Children = new List<TreeNode>();
-            this.Title = this.SceneObject.ElementBase?.Name;
+            this.Title = this.SceneObject.ElementBase is not null ? this.SceneObject.ElementBase.Name : string.Empty;
         }
 
         /// <summary>

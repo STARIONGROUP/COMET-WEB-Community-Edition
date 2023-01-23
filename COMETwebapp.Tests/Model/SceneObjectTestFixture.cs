@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Viewer
+namespace COMETwebapp.Tests.Model
 {
     using System;
     using System.Collections.Concurrent;
@@ -31,22 +31,22 @@ namespace COMETwebapp.Tests.Viewer
     using System.Numerics;
 
     using Bunit;
-    
+
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-    
+
     using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-    
+
     using Microsoft.Extensions.DependencyInjection;
-    
+
     using Moq;
-    
+
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -71,79 +71,79 @@ namespace COMETwebapp.Tests.Viewer
         [SetUp]
         public void SetUp()
         {
-            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
-            this.domain = new DomainOfExpertise(Guid.NewGuid(), cache, this.uri) { Name = "domain" };
+            cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            domain = new DomainOfExpertise(Guid.NewGuid(), cache, uri) { Name = "domain" };
 
-            this.context = new TestContext();
-            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            context = new TestContext();
+            context.JSInterop.Mode = JSRuntimeMode.Loose;
 
             var session = new Mock<ISessionAnchor>();
-            this.context.Services.AddSingleton(session.Object);
+            context.Services.AddSingleton(session.Object);
 
-            this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
-            this.context.Services.AddTransient<IJSInterop, JSInterop>();
+            context.Services.AddTransient<ISceneSettings, SceneSettings>();
+            context.Services.AddTransient<IJSInterop, JSInterop>();
 
-            this.positionables = new List<Primitive>();
-            this.positionables.Add(new Cube(1, 1, 1));
-            this.positionables.Add(new Cylinder(1, 1));
-            this.positionables.Add(new Sphere(1));
-            this.positionables.Add(new Torus(2, 1));
+            positionables = new List<Primitive>();
+            positionables.Add(new Cube(1, 1, 1));
+            positionables.Add(new Cylinder(1, 1));
+            positionables.Add(new Sphere(1));
+            positionables.Add(new Torus(2, 1));
 
-            this.primitives = new List<Primitive>(this.positionables);
-            this.primitives.Add(new Line(new System.Numerics.Vector3(), new System.Numerics.Vector3(1, 1, 1)));
-            this.primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
+            primitives = new List<Primitive>(positionables);
+            primitives.Add(new Line(new Vector3(), new Vector3(1, 1, 1)));
+            primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
 
-            this.option = new Option(Guid.NewGuid(), cache, this.uri);
+            option = new Option(Guid.NewGuid(), cache, uri);
 
-            var shapeKindParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var shapeKindParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "box" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Shape Kind", ShortName = SceneSettings.ShapeKindShortName, };
-            var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = shapeKindParameterType };
+            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, uri) { Name = "Shape Kind", ShortName = SceneSettings.ShapeKindShortName, };
+            var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = shapeKindParameterType };
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
-            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "255:155:25" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
-            var colorParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = colorParameterType };
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
+            var colorParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
-            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "0", "0", "0" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
-            var positionParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = positionParameterType };
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
+            var positionParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = positionParameterType };
             positionParameter.ValueSet.Add(positionParameterValueSet);
 
-            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "0", "0", "0" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
-            var orientationParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = orientationParameterType };
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
+            var orientationParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 
-            this.elementDef = new ElementDefinition(Guid.NewGuid(), cache, this.uri) { Owner = this.domain };
-            this.elementUsage = new ElementUsage(Guid.NewGuid(), cache, this.uri) { ElementDefinition = this.elementDef, Owner = this.domain };
-            this.elementDef.ContainedElement.Add(this.elementUsage);
-            this.elementDef.Parameter.Add(shapeKindParameter);
-            this.elementDef.Parameter.Add(colorParameter);
-            this.elementDef.Parameter.Add(positionParameter);
-            this.elementDef.Parameter.Add(orientationParameter);
+            elementDef = new ElementDefinition(Guid.NewGuid(), cache, uri) { Owner = domain };
+            elementUsage = new ElementUsage(Guid.NewGuid(), cache, uri) { ElementDefinition = elementDef, Owner = domain };
+            elementDef.ContainedElement.Add(elementUsage);
+            elementDef.Parameter.Add(shapeKindParameter);
+            elementDef.Parameter.Add(colorParameter);
+            elementDef.Parameter.Add(positionParameter);
+            elementDef.Parameter.Add(orientationParameter);
         }
 
         [Test]
         public void VerifySceneObjectData()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
 
             Assert.Multiple(() =>
             {
@@ -158,19 +158,19 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatSceneObjectCanBeCreatedByElementUsage()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
             Assert.That(sceneObject, Is.Not.Null);
         }
 
         [Test]
         public void VerifyThatPrimitivesHaveValidPropertyName()
         {
-            foreach (var primitive in this.primitives)
+            foreach (var primitive in primitives)
             {
                 Assert.AreEqual(primitive.GetType().Name, primitive.Type);
             }
 
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
             var parameters = sceneObject.ParametersAsociated;
             Assert.IsNotNull(parameters);
             Assert.IsTrue(parameters.Count() > 0);
@@ -181,12 +181,12 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatValueSetsCanBeRetrievedFromSceneObjects()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
-            var valueSets = sceneObject.GetValueSets();
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var valueSets = sceneObject.GetParameterValueSetRelations();
 
             Assert.IsNotNull(valueSets);
             Assert.IsTrue(valueSets.Count > 0);
-            foreach (var primitive in this.positionables)
+            foreach (var primitive in positionables)
             {
                 Assert.AreEqual(0.0, primitive.X, delta);
                 Assert.AreEqual(0.0, primitive.Y, delta);
@@ -206,36 +206,36 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatCanGetValueSets()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
-            var valueSets = sceneObject.GetValueSets();
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var valueSets = sceneObject.GetParameterValueSetRelations();
             Assert.IsNotNull(valueSets);
         }
 
         [Test]
         public void VerifyThatColorCanBeSetFromElementUsage()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
 
             Assert.Multiple(() =>
             {
                 Assert.AreNotEqual(Primitive.DefaultColor, sceneObject.Primitive.Color);
                 Assert.AreEqual(new Vector3(255, 155, 25), sceneObject.Primitive.Color);
-            });         
+            });
         }
 
         [Test]
         public void VerifyThatColorCanBeUpdated()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
             var basicShape = sceneObject.Primitive;
 
-            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "#CCCDDD" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
-            var colorParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = colorParameterType };
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
+            var colorParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
             var colorBefore = basicShape.Color;
@@ -251,16 +251,16 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatPositionCanBeUpdated()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
             var basicShape = sceneObject.Primitive;
 
-            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "1", "1", "1" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
-            var positionParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = positionParameterType };
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
+            var positionParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = positionParameterType };
             positionParameter.ValueSet.Add(positionParameterValueSet);
 
             var x = basicShape.X;
@@ -280,16 +280,16 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatOrientationCanBeUpdated()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
             var basicShape = sceneObject.Primitive;
 
-            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, this.uri)
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "1", "1", "1" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
-            var orientationParameter = new Parameter(Guid.NewGuid(), cache, this.uri) { ParameterType = orientationParameterType };
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
+            var orientationParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 
             var rx = basicShape.RX;
@@ -342,7 +342,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public void VerifyThatSceneObjectCanBeCloned()
         {
-            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
             var newSceneObject = sceneObject.Clone();
 
             Assert.That(sceneObject, Is.Not.EqualTo(newSceneObject));

@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Tests.Utilities
 {
+    using System;
     using System.Collections.Generic;
 
     using CDP4Common.Types;
@@ -50,6 +51,7 @@ namespace COMETwebapp.Tests.Utilities
                 Assert.That(valueArray1.ContainsSameValues(valueArray3), Is.False);
                 Assert.That(valueArray1.ContainsSameValues(valueArray4), Is.False);
                 Assert.That(valueArray1.ContainsSameValues(valueArray5), Is.False);
+                Assert.Throws<ArgumentNullException>(() => valueArray1.ContainsSameValues(null));
             });
         }
     }

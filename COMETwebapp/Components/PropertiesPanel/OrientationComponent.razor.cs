@@ -99,7 +99,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 
             if (firstRender)
             {
-                var orientation = this.DetailsComponent.GetValueSet().ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
+                var orientation = this.DetailsComponent.GetSelectedParameterValueSet().ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
                 this.OrientationMatrix = orientation.Matrix;
 
                 this.Rx = orientation.X;

@@ -51,7 +51,7 @@ namespace COMETwebapp.Components.PopUps
         /// <summary>
         /// Gets or sets the event for the response when clicked the buttons
         /// </summary>
-        public event EventHandler<bool> OnResponse;
+        public event EventHandler<bool>? OnResponse;
 
         /// <summary>
         /// Event for when the continue button is clicked
