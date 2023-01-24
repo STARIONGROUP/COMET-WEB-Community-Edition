@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
       <TargetFramework>net6.0</TargetFramework>
 	  <LangVersion>latest</LangVersion>
 	  <Description>Unit tests for the COMET Web Application</Description>
 	  <Company>RHEA System S.A.</Company>
-	  <Copyright>Copyright 2022 RHEA System S.A.</Copyright>
+	  <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
 	  <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
 	  <RepositoryType>Git</RepositoryType>
 	  <Nullable>disable</Nullable>

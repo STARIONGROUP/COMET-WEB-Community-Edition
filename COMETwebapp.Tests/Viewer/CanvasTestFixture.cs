@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CanvasTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -24,23 +24,32 @@
 
 namespace COMETwebapp.Tests.Viewer
 {
+    using System.Threading.Tasks;
+    
     using Bunit;
-    using COMETwebapp.Components.CanvasComponent;
+    
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
+    using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
+    using COMETwebapp.Utilities;
+    
     using Microsoft.Extensions.DependencyInjection;
+    
     using Moq;
+    
     using NUnit.Framework;
-    using System.Threading.Tasks;
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CanvasTestFixture
     {
         private TestContext context;
-        private BabylonCanvas canvas;
-
+        private CanvasComponent canvas;
+        private ISelectionMediator selectionMediator;
+        
         [SetUp]
         public void SetUp()
         {
@@ -51,15 +60,53 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddSingleton(session.Object);
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
-
-            var renderer = this.context.RenderComponent<BabylonCanvas>();
+            this.context.Services.AddTransient<ISelectionMediator, SelectionMediator>();
+           
+            var renderer = this.context.RenderComponent<CanvasComponent>();
             this.canvas = renderer.Instance;
+            this.selectionMediator = this.canvas.SelectionMediator;
+        }
+
+        [Test]
+        public void VerifyThatMouseEventsWorks()
+        {
+            Assert.That(this.canvas.IsMouseDown, Is.False);
+            this.canvas.OnMouseDown(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.True);
+            this.canvas.OnMouseMove(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.EqualTo(this.canvas.IsMovingScene));
+            this.canvas.OnMouseUp(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.False);
+        }
+
+        [Test]
+        public void VerifyThatOnTreeVisibiliyChangedWorks()
+        {
+            var cube = new Cube(1, 1, 1);
+            var sceneObject = new SceneObject(cube);
+            var treeNode = new TreeNode(sceneObject);
+            var beforeSelectedObject = this.canvas.SelectedSceneObject;
+            this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
+            var afterSelectedObject = this.canvas.SelectedSceneObject;
+            Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
+        }
+
+        [Test]
+        public void VerifyThatOnTreeSelectionChangedWorks()
+        {
+            var cube = new Cube(1,1,1);
+            var sceneObject = new SceneObject(cube);
+            var treeNode = new TreeNode(sceneObject);
+            var beforeSelectedObject = this.canvas.SelectedSceneObject;
+            this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
+            var afterSelectedObject = this.canvas.SelectedSceneObject;
+            Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
         }
 
         [Test]
         public async Task VerifyThatSceneObjectCanBeAdded()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddSceneObject(sceneObject);
 
             Assert.That(this.canvas.GetAllSceneObjects(), Has.Count.EqualTo(1));
@@ -68,7 +115,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatTemporarySceneObjectCanBeAdded()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddTemporarySceneObject(sceneObject);
 
             Assert.That(this.canvas.GetAllTemporarySceneObjects(), Has.Count.EqualTo(1));
@@ -77,7 +124,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatSceneObjectsCanBeCleared()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddSceneObject(sceneObject);
             Assert.That(this.canvas.GetAllSceneObjects(), Has.Count.EqualTo(1));
 
@@ -88,7 +135,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatTemporarySceneObjectsCanBeCleared()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddTemporarySceneObject(sceneObject);
             Assert.That(this.canvas.GetAllTemporarySceneObjects(), Has.Count.EqualTo(1));
 
@@ -99,7 +146,7 @@ namespace COMETwebapp.Tests.Viewer
         [Test]
         public async Task VerifyThatSceneObjectCanBeRetrievedByID()
         {
-            var sceneObject = new Model.SceneObject(new Cube(1, 1, 1));
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await this.canvas.AddSceneObject(sceneObject);
             var retrieved = this.canvas.GetSceneObjectById(sceneObject.ID);
             Assert.That(retrieved, Is.Not.Null);

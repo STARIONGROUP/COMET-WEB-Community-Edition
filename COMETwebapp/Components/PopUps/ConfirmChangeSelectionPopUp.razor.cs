@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISceneSettings.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+// <copyright file="ConfirmSelectionPopUp.razor.cs" company="RHEA System S.A.">
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -22,51 +22,53 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.CanvasComponent
+namespace COMETwebapp.Components.PopUps
 {
+    
     /// <summary>
-    /// Scene provider
+    /// Partial class for the <see cref="ConfirmChangeSelectionPopUp"/>
     /// </summary>
-    public interface ISceneSettings
+    public partial class ConfirmChangeSelectionPopUp
     {
         /// <summary>
-        /// Shape Kind parameter short name
+        /// Backing field for the <see cref="IsVisible"/> property
         /// </summary>
-        public const string ShapeKindShortName = "kind";
+        private bool isVisible;
 
         /// <summary>
-        /// Orientation parameter short name
+        /// Gets or sets if the pop up is visible
         /// </summary>
-        public const string OrientationShortName = "orientation";
+        public bool IsVisible
+        {
+            get => this.isVisible;
+            set
+            {
+                this.isVisible = value;
+                this.StateHasChanged();
+            }
+        }
 
         /// <summary>
-        /// Position parameter short name
+        /// Gets or sets the event for the response when clicked the buttons
         /// </summary>
-        public const string PositionShortName = "coord";
+        public event EventHandler<bool> OnResponse;
 
         /// <summary>
-        /// Width parameter short name
+        /// Event for when the continue button is clicked
         /// </summary>
-        public const string WidthShortName = "wid_diameter";
+        private void ContinueButtonClicked()
+        {
+            this.isVisible = false;
+            this.OnResponse?.Invoke(this, true);
+        }
 
         /// <summary>
-        /// Diameter parameter short name
+        /// Event for when the cancel button is clicked
         /// </summary>
-        public const string DiameterShortName = WidthShortName;
-
-        /// <summary>
-        /// Height parameter short name
-        /// </summary>
-        public const string HeightShortName = "h";
-
-        /// <summary>
-        /// Length parameter short name
-        /// </summary>
-        public const string LengthShortName = "l";
-
-        /// <summary>
-        /// Thickness parameter short name
-        /// </summary>
-        public const string ThicknessShortName = "thickn";
+        private void CancelButtonClicked()
+        {
+            this.isVisible = false;
+            this.OnResponse?.Invoke(this, false);
+        }
     }
 }

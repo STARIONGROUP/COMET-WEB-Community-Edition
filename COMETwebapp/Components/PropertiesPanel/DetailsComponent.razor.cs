@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DetailsComponent.razor.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -26,7 +26,7 @@ namespace COMETwebapp.Components.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     
@@ -110,7 +110,7 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <returns>the set</returns>
         public IValueSet GetValueSet()
         {
-            return this.ValueSetsCollection[this.ParameterSelected];
+            return this.ValueSetsCollection.ContainsKey(this.ParameterSelected) ? this.ValueSetsCollection[this.ParameterSelected] : null;
         }
 
         /// <summary>
@@ -121,6 +121,14 @@ namespace COMETwebapp.Components.PropertiesPanel
         public IValueSet GetValueSet(ParameterBase parameterBase)
         {
             return this.ValueSetsCollection[parameterBase];
+        }
+
+        /// <summary>
+        /// Gets the value sets with the new values
+        /// </summary>
+        public Dictionary<ParameterBase,IValueSet> GetAllValueSets()
+        {
+            return this.ValueSetsCollection;
         }
 
         /// <summary>
@@ -141,8 +149,8 @@ namespace COMETwebapp.Components.PropertiesPanel
         /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
         public async void ParameterChanged(int changedIndex, string value)
         {
+            //TODO: Validate data 
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];
-
             ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
             newValueArray[changedIndex] = value;
 
@@ -154,8 +162,21 @@ namespace COMETwebapp.Components.PropertiesPanel
 
                 this.SelectedSceneObject.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
 
+                if (this.ParameterSelected.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
+                {
+                    if(this.SelectedSceneObject.Primitive is not null)
+                    {
+                        this.SelectedSceneObject.Primitive.HasHalo = true;
+                    }
+                    var parameters = this.ValueSetsCollection.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+                    foreach (var parameter in parameters)
+                    {
+                        this.SelectedSceneObject.UpdateParameter(parameter, this.ValueSetsCollection[parameter]);
+                    }
+                }
+
                 string jsonSceneObject = JsonConvert.SerializeObject(this.SelectedSceneObject, Formatting.Indented);
-                await JSInterop.Invoke("RegenMesh", jsonSceneObject);
+                await this.JSInterop.Invoke("RegenMesh", jsonSceneObject);
             }
         }
     }

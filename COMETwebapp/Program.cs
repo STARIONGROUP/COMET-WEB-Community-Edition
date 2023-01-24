@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Program.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 //
@@ -27,7 +27,7 @@ namespace COMETwebapp
     using BlazorStrap;
 
     using CDP4Dal;
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Primitives;
@@ -64,7 +64,8 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
-            builder.Services.AddSingleton<IJSInterop, Interoperability.JSInterop>();
+            builder.Services.AddSingleton<IJSInterop, JSInterop>();
+            builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();

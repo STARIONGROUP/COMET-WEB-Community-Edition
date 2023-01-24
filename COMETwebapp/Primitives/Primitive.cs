@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Primitive.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -28,7 +28,7 @@ namespace COMETwebapp.Primitives
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Utilities;
     
     /// <summary>
@@ -52,14 +52,9 @@ namespace COMETwebapp.Primitives
         public abstract string Type { get; protected set; }
 
         /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is selected or not
+        /// Gets or sets if the primitive has halo
         /// </summary>
-        public bool IsSelected { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> is visible or not
-        /// </summary>
-        public bool IsVisible { get; set; } = true;
+        public bool HasHalo { get; set; }
 
         /// <summary>
         /// The base color of the primitive

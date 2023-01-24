@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ParameterParseTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -34,8 +34,7 @@ namespace COMETwebapp.Tests.Viewer
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
     
-    using COMETwebapp.Components.CanvasComponent;
-    using COMETwebapp.Model;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Utilities;
     
     using NUnit.Framework;

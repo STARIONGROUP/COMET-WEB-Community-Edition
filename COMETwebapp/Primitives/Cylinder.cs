@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Cylinder.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -26,7 +26,7 @@ namespace COMETwebapp.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Utilities;
 
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PrimitivesTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -33,7 +33,7 @@ namespace COMETwebapp.Tests.Viewer
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Primitives;
 
     using NUnit.Framework;

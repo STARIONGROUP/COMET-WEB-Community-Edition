@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="babylonInterop.js" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -276,6 +276,9 @@ function FillMeshWithPrimitiveData(mesh, primitive, ID) {
     //Custom properties for the object
     mesh.ObjectID = ID;
     mesh.Materials = new MeshMaterial(mesh.material, PickingMaterial);
+    if (primitive.HasHalo) {
+        HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
+    }
 }
 
 /**

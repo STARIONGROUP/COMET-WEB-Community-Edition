@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TreeNode.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -42,43 +42,108 @@ namespace COMETwebapp.Model
         public bool IsSelected { get; set; }
 
         /// <summary>
-        /// If the node is visible 
+        /// If the <see cref="SceneObject"/> asociated to this node is visible 
         /// </summary>
-        public bool IsVisible { get; set; } = true;
+        public bool SceneObjectIsVisible { get; set; } = true;
 
         /// <summary>
-        /// The name of the <see cref="ElementUsage"/> represented by the node
+        /// Gets or sets if this node is drawn in the <see cref="Components.Canvas.ProductTree"/>
         /// </summary>
-        public string Name { get; set; }
+        public bool IsDrawn { get; set; } = true;
+
+        /// <summary>
+        /// The <see cref="SceneObject"/> that this <see cref="TreeNode"/> represents
+        /// </summary>
+        public SceneObject SceneObject { get; private set; }
 
         /// <summary>
         /// The parent of this <see cref="TreeNode"/>
         /// </summary>
-        public TreeNode? Parent { get; set; }
+        private TreeNode? Parent { get; set; }
 
         /// <summary>
         /// The children of this <see cref="TreeNode"/>
         /// </summary>
-        public List<TreeNode> Children { get; set; }
+        private List<TreeNode> Children { get; set; }
+
+        /// <summary>
+        /// Gets or sets the title of this <see cref="TreeNode"/>
+        /// </summary>
+        public string Title { get; set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="TreeNode"/>
         /// </summary>
-        /// <param name="name">Name of the <see cref="ElementUsage"/> asociated to this node</param>
-        public TreeNode(string name)
+        /// <param name="sceneObject">the <see cref="SceneObject"/> asociated to this node</param>
+        public TreeNode(SceneObject sceneObject)
         {
-            this.Name = name;
+            this.SceneObject = sceneObject;
             this.Children = new List<TreeNode>();
+            this.Title = this.SceneObject.ElementUsage?.Name;
+        }
+
+        /// <summary>
+        /// Adds a child to this node
+        /// </summary>
+        /// <param name="node">the node to add</param>
+        /// <returns>this node</returns>
+        public TreeNode AddChild(TreeNode node)
+        {
+            if(node is not null)
+            {
+                node.Parent = this;
+                this.Children.Add(node);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes a child from this node
+        /// </summary>
+        /// <param name="node">the node to remove</param>
+        /// <returns>this node</returns>
+        public TreeNode RemoveChild(TreeNode node)
+        {
+            if(node is not null)
+            {
+                this.Children.Remove(node);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy
+        /// </summary>
+        /// <returns>the <see cref="TreeNode"/> or this node if the RootNode can't be computed</returns>
+        public TreeNode GetRootNode()
+        {
+            var currentParent = this.Parent;
+
+            while (currentParent != null)
+            {
+                if (currentParent.Parent is null)
+                {
+                    return currentParent;
+                }
+                currentParent = currentParent.Parent;
+            }
+
+            return this;
         }
 
         /// <summary>
         /// Gets a flat list of the descendants of this node
         /// </summary>
         /// <returns>the flat list</returns>
-        public List<TreeNode> GetFlatListOfDescendants()
+        public List<TreeNode> GetFlatListOfDescendants(bool includeItself = false)
         {
             var descendants = new List<TreeNode>();
             this.GetListOfDescendantsRecursively(this, ref descendants);
+            if (includeItself && !descendants.Contains(this))
+            {
+                descendants.Add(this);
+            }
             return descendants;
         }
 
@@ -114,11 +179,58 @@ namespace COMETwebapp.Model
         /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
         private void OrderChildrenByShortNameHelper(TreeNode current)
         {
-            current.Children = current.Children.OrderBy(x => x.Name).ToList();
+            current.Children = current.Children.OrderBy(x => x.Title).ToList();
             foreach (var child in current.Children)
             {
                 this.OrderChildrenByShortNameHelper(child);
             }
+        }
+
+        /// <summary>
+        /// Gets the parent node of this <see cref="TreeNode"/>
+        /// </summary>
+        /// <returns>the parent node</returns>
+        public TreeNode? GetParentNode()
+        {
+            return this.Parent;
+        }
+
+        /// <summary>
+        /// Gets the children of this <see cref="TreeNode"/>
+        /// </summary>
+        /// <returns>the children of the node</returns>
+        public IReadOnlyList<TreeNode> GetChildren()
+        {
+            return this.Children.AsReadOnly();
+        }
+
+        /// <summary>
+        /// Overrides the equals method for equality checking
+        /// </summary>
+        /// <param name="obj">the object to check for equality</param>
+        /// <returns>true if the objects are the same, false otherwise</returns>
+        public override bool Equals(object? obj)
+        {
+            if(obj is not TreeNode treeNode)
+            {
+                return false;
+            }
+
+            if(this.SceneObject.ID == treeNode.SceneObject.ID)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the hashcode of this <see cref="TreeNode"/>
+        /// </summary>
+        /// <returns>the hashcode</returns>
+        public override int GetHashCode()
+        {
+            return this.SceneObject.ID.GetHashCode();
         }
     }
 }

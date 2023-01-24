@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SceneTests.cs" company="RHEA System S.A.">
-//    Copyright (c) 2022 RHEA System S.A.
+//    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
@@ -29,12 +29,12 @@ namespace COMETwebapp.Tests.Viewer
 
     using Bunit;
 
-    using COMETwebapp.Components.CanvasComponent;
+    using COMETwebapp.Components.Canvas;
     using COMETwebapp.Interoperability;
     using COMETwebapp.Model;
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
-
+    using COMETwebapp.Utilities;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -50,7 +50,7 @@ namespace COMETwebapp.Tests.Viewer
     public class SceneTests
     {
         private TestContext context;
-        private BabylonCanvas canvas;
+        private CanvasComponent canvas;
 
         [SetUp]
         public void SetUp()
@@ -62,8 +62,9 @@ namespace COMETwebapp.Tests.Viewer
             this.context.Services.AddSingleton(session.Object);
             this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
             this.context.Services.AddTransient<IJSInterop, JSInterop>();
+            this.context.Services.AddTransient<ISelectionMediator, SelectionMediator>();
 
-            var renderer = this.context.RenderComponent<BabylonCanvas>();
+            var renderer = this.context.RenderComponent<CanvasComponent>();
             canvas = renderer.Instance;
         }
 
