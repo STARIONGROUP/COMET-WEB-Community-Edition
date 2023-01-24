@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Pages.Viewer;
@@ -45,13 +46,12 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// <summary>
         /// Reference to the HTML5 canvas
         /// </summary>
-        public ElementReference CanvasReference { get; set; }
+        private ElementReference CanvasReference { get; set; }
 
-        /// <summary>
-        /// Gets or sets the <see cref="ViewerPage"/> that contains this <see cref="CanvasComponent"/>
-        /// </summary>
-        [Parameter]
-        public ViewerPage ViewerPage { get; set; }
+        /// <summary> 
+        /// Gets or sets the PopUp that ask the user if he wants to change the selected primitive before submiting changes 
+        /// </summary> 
+        private ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
 
         /// <summary>
         /// Tells if the mouse if pressed or not in the canvas component
@@ -68,11 +68,6 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// </summary>
         [Inject]
         public IJSRuntime? JSInterop { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Primitive"/> that is currently selected
-        /// </summary>
-        public SceneObject? SelectedSceneObject { get; set; }
 
         /// <summary>
         /// Collection of scene objects in the scene.
@@ -117,14 +112,10 @@ namespace COMETwebapp.Components.Viewer.Canvas
                 this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
                 {
                     await this.ClearTemporarySceneObjects();
-                    this.SelectedSceneObject = node.SceneObject;
-
-                    if (this.SelectedSceneObject.Primitive != null)
+                    if (node.SceneObject is not null && node.SceneObject.Primitive is not null)
                     {
-                        await this.AddTemporarySceneObject(this.SelectedSceneObject);
+                        await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
                     }
-
-                    this.ViewerPage?.Refresh();
                 };
 
                 this.SelectionMediator.OnTreeVisibilityChanged += async (sender, node) =>
@@ -134,6 +125,14 @@ namespace COMETwebapp.Components.Viewer.Canvas
                     foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
                     {
                         await this.SetSceneObjectVisibility(sceneObject, node.SceneObjectIsVisible);
+                    }
+                };
+
+                this.ConfirmChangeSelectionPopUp.OnResponse += async (sender, response) =>
+                {
+                    if (response)
+                    {
+                        await this.SelectSceneObjectUnderMouse();
                     }
                 };
             }
@@ -156,15 +155,21 @@ namespace COMETwebapp.Components.Viewer.Canvas
         {
             if (!this.IsMovingScene)
             {
-                this.SelectedSceneObject = await this.GetSceneObjectUnderMouseAsync();
-                await this.ClearTemporarySceneObjects();
-
-                if (this.SelectedSceneObject != null)
+                if (this.SelectionMediator.SelectedSceneObject is not null)
                 {
-                    await this.AddTemporarySceneObject(this.SelectedSceneObject);
+                    if (this.SelectionMediator.SceneObjectHasChanges)
+                    {
+                        this.ConfirmChangeSelectionPopUp.Show();
+                    }
+                    else
+                    {
+                        await this.SelectSceneObjectUnderMouse();
+                    }
                 }
-
-                this.SelectionMediator.RaiseOnModelSelectionChanged(this.SelectedSceneObject);
+                else
+                {
+                    await this.SelectSceneObjectUnderMouse();
+                }
             }
 
             this.IsMouseDown = false;
@@ -177,6 +182,22 @@ namespace COMETwebapp.Components.Viewer.Canvas
         public void OnMouseMove(MouseEventArgs e)
         {
             this.IsMovingScene = this.IsMouseDown;
+        }
+
+        /// <summary> 
+        /// Tries to select a <see cref="SceneObject"/> under the mouse 
+        /// </summary> 
+        /// <returns>an asynchronous operation</returns> 
+        private async Task SelectSceneObjectUnderMouse()
+        {
+            var sceneObject = await this.GetSceneObjectUnderMouseAsync();
+            this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
+
+            await this.ClearTemporarySceneObjects();
+            if (this.SelectionMediator.SelectedSceneObjectClone is not null && this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
+            {
+                await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
+            }
         }
 
         /// <summary>

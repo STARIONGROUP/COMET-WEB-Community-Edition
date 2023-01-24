@@ -9,6 +9,24 @@
     margin: auto;
     margin: 0;
     padding: 0;
+    height: 100%;
+}
+
+#product-tree-nodes-section {
     overflow-x: auto;
     overflow-y: auto;
+}
+
+#product-tree-search-bar {
+    display: flex;
+    margin: 3%;
+}
+
+::deep #tree-filter-drop-down {
+    margin: 4%;
+}
+
+::deep #tree-search-filter {
+    width: 90%;
+    margin-left: 2%;
 }
