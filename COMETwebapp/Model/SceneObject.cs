@@ -70,6 +70,11 @@ namespace COMETwebapp.Model
             }
         }
 
+        /// <summary> 
+        /// Gets or sets if this SceneObject is a clone of other <see cref="SceneObject"/> 
+        /// </summary> 
+        public bool IsClone { get; private set; }
+
         /// <summary>
         /// Gets or sets if the <see cref="Primitive"/> have enough parameters to be created.
         /// </summary>
@@ -79,7 +84,7 @@ namespace COMETwebapp.Model
         /// Gets or sets the element usage that contains the data for creating the <see cref="Primitive"/>
         /// </summary>
         [JsonIgnore]
-        public ElementUsage ElementUsage { get; private set; }
+        public ElementBase ElementBase { get; private set; }
 
         /// <summary>
         /// Gets or sets the selected option for this <see cref="SceneObject"/>
@@ -94,18 +99,18 @@ namespace COMETwebapp.Model
         public List<ActualFiniteState> States { get; private set; }
 
         /// <summary>
-        /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementUsage"/>
+        /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementBase"/>
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<ParameterBase> ParametersAsociated
         {
             get
             {
-                if(this.ElementUsage is null)
+                if(this.ElementBase is null)
                 {
                     return null;
                 }
-                return this.ElementUsage.GetParametersInUse().ToList();
+                return this.ElementBase.GetParametersInUse().ToList();
             }
         }
 
@@ -144,13 +149,13 @@ namespace COMETwebapp.Model
         /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene.
         /// </summary>
         /// <param name="shapeFactory">the factory used to create the primitives</param>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> that contains the data for creating the <see cref="Primitive"/></param>
+        /// <param name="elementUsage">the <see cref="ElementBase"/> that contains the data for creating the <see cref="Primitive"/></param>
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
         /// <returns></returns>
         public static SceneObject Create(ElementUsage elementUsage, Option option, List<ActualFiniteState> states)
         {
-            var sceneObj = new SceneObject() { ElementUsage = elementUsage, Option = option, States = states };
+            var sceneObj = new SceneObject() { ElementBase = elementUsage, Option = option, States = states };
 
             //TODO: this needs a review of how to do it properly.
             var shapeKindParameter = sceneObj.ParametersAsociated.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
@@ -251,7 +256,9 @@ namespace COMETwebapp.Model
         /// <returns>the clone</returns>
         public SceneObject Clone()
         {
-            return Create(this.ElementUsage, this.Option, this.States);
+            var sceneObject = Create(this.ElementBase, this.Option, this.States);
+            sceneObject.IsClone = true;
+            return sceneObject;
         }
     }
 }

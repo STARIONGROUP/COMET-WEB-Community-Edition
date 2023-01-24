@@ -31,20 +31,35 @@ namespace COMETwebapp.Utilities
     /// </summary>
     public class SelectionMediator : ISelectionMediator
     {
+        /// <summary> 
+        /// Gets or sets if the current <see cref="SelectedSceneObject"/> has changes 
+        /// </summary> 
+        public bool SceneObjectHasChanges { get; set; }
+
+        /// <summary> 
+        /// Gets the current selected scene object 
+        /// </summary> 
+        public SceneObject SelectedSceneObject { get; private set; }
+
+        /// <summary> 
+        /// Gets the current selected scene object clone 
+        /// </summary> 
+        public SceneObject SelectedSceneObjectClone { get; private set; }
+
         /// <summary>
         /// Event for when the tree selection has changed
         /// </summary>
-        public event EventHandler<TreeNode>? OnTreeSelectionChanged;
+        public event EventHandler<TreeNode> OnTreeSelectionChanged;
 
         /// <summary>
         /// Event for when a node in the tree has changed his visibility
         /// </summary>
-        public event EventHandler<TreeNode>? OnTreeVisibilityChanged;
+        public event EventHandler<TreeNode> OnTreeVisibilityChanged;
 
         /// <summary>
         /// Event for when the model selection has changed
         /// </summary>
-        public event EventHandler<SceneObject?>? OnModelSelectionChanged;
+        public event EventHandler<SceneObject> OnModelSelectionChanged;
 
         /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
@@ -52,6 +67,8 @@ namespace COMETwebapp.Utilities
         /// <param name="node">the node that raised the event</param>
         public void RaiseOnTreeSelectionChanged(TreeNode node)
         {
+            this.SelectedSceneObject = node.SceneObject;
+            this.SelectedSceneObjectClone = node.SceneObject?.Clone();
             this.OnTreeSelectionChanged?.Invoke(this, node);
         }
 
@@ -68,8 +85,10 @@ namespace COMETwebapp.Utilities
         /// Raises the <see cref="OnModelSelectionChanged"/> event
         /// </summary>
         /// <param name="sceneObject"></param>
-        public void RaiseOnModelSelectionChanged(SceneObject? sceneObject)
+        public void RaiseOnModelSelectionChanged(SceneObject sceneObject)
         {
+            this.SelectedSceneObject = sceneObject;
+            this.SelectedSceneObjectClone = sceneObject?.Clone();
             this.OnModelSelectionChanged?.Invoke(this, sceneObject);
         }
     }
