@@ -219,7 +219,6 @@ namespace COMETwebapp.Pages.Viewer
 
             if (childsOfElementBase is not null)
             {
-                //current.Parent = parent;
                 if (parent is not null)
                 {
                     parent.AddChild(current);
