@@ -22,7 +22,7 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.Extensions
 @using CDP4Common.SiteDirectoryData
 
-@if (this.ParameterSelected is null || this.SelectedSceneObject is null)
+@if (!this.IsVisible)
 {
     return;
 }
@@ -31,28 +31,36 @@ Copyright (c) 2023 RHEA System S.A.
 {
     if (scalarType is EnumerationParameterType enumerationType)
     {
-        <DxComboBox Data="enumerationType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name).ToList()"
-            NullText="-"
-            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-            Value="this.GetValueSet().ActualValue.First()"
-            ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
+        <div class="parameter-row-centered">
+            <DxComboBox Data="enumerationType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name).ToList()"
+                NullText="-"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                Value="this.GetSelectedParameterValueSet().ActualValue.First()"
+                ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
+        </div>
     }
     else if (scalarType is BooleanParameterType booleanType)
     {
-        <DxComboBox Data="@(new string[] {"-", "true", "false" })"
-            AllowUserInput="true"
-            Value="this.GetValueSet().ActualValue.First()"
-            ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))"
-            FilteringMode="DataGridFilteringMode.Contains" />
+        <div class="parameter-row-centered">
+            @{
+                var data = new List<string>() { "-", "true", "false" };
+                <DxComboBox Data="data"
+                NullText="-"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                Value="this.GetSelectedParameterValueSet().ActualValue.First()"
+                ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
+            }
+        </div>
     }
     else if (scalarType is DateParameterType dateType)
     {
         DateTime.TryParse(this.GetValueSet().ActualValue.First(), out DateTime date);
-
-        <DxDateEdit Date="date"
-            DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
-            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-            NullText="Select a date..." />
+        <div class="parameter-row">
+            <DxDateEdit Date="date"
+                DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                NullText="Select a date..." />
+        </div>
     }
     else if (scalarType is TextParameterType textType)
     {
@@ -61,7 +69,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if (textType.ShortName == SceneSettings.ColorShortName)
         {
-            <div id="color-section">
+            <div class="parameter-row" id="color-section">
                 <input type="color" id="color" name="color" value="@colorValue" @onchange="(e)=>this.OnParameterValueChange(0,e)">
                 <label for="color" id="color-text">Color</label>
             </div>
@@ -81,10 +89,12 @@ Copyright (c) 2023 RHEA System S.A.
 
         DateTime.TryParse(dateTimeStringSplitted[0], out DateTime date);
 
-        <DxDateEdit Date="date"
-            DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
-            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-            NullText="Select a date..." />
+        <div class="parameter-row">
+            <DxDateEdit Date="date"
+                DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                NullText="Select a date..." />
+        </div>
 
         var timeString = dateTimeStringSplitted[1];
         var values = timeString.Split(':');

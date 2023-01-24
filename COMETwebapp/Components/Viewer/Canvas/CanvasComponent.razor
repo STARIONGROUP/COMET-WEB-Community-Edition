@@ -20,7 +20,10 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@using COMETwebapp.Components.Viewer.PopUps;
+
 <div id="canvas-wrap">
+    <ConfirmChangeSelectionPopUp @ref="@this.ConfirmChangeSelectionPopUp"/>
     <canvas @ref="@this.CanvasReference"
             id="babylon-canvas"
             touch-action="none"
