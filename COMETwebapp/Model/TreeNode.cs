@@ -26,6 +26,8 @@ namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer.Canvas;
+
     /// <summary>
     /// Represents data of the tree in the <see cref="Pages.Viewer.Viewer"/>
     /// </summary>
@@ -47,7 +49,7 @@ namespace COMETwebapp.Model
         public bool SceneObjectIsVisible { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets if this node is drawn in the <see cref="Components.Canvas.ProductTree"/>
+        /// Gets or sets if this node is drawn in the <see cref="ProductTree"/>
         /// </summary>
         public bool IsDrawn { get; set; } = true;
 

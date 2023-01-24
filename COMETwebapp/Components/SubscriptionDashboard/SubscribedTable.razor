@@ -19,10 +19,17 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using CDP4Common.EngineeringModelData
+@using CDP4Dal
+@using CDP4Dal.Events
+@using COMETwebapp.IterationServices
+@using COMETwebapp.Model
+@using COMETwebapp.SessionManagement
 
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
 @inject NavigationManager NavigationManager
+
 @implements IDisposable
 
 <div>

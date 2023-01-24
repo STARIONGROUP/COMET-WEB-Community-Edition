@@ -19,8 +19,12 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.SessionManagement
+@using COMETwebapp.Utilities
+@using CDP4Dal
 
 @inject ISessionAnchor ISessionAnchor
+
 @implements IDisposable
 
 <nav class="navbar header-navbar p-0">
@@ -39,7 +43,7 @@
         </div>
     }
 
-    <div class="header">
+    <div class="comet-header">
 
         <div class="container-fluid">
             <div class="row">

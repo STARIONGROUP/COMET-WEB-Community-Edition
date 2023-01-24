@@ -25,7 +25,7 @@
     width: 2rem;
 }
 
-.header {
+.comet-header {
     width: 100%;
     display: flex;
     justify-content: space-between;

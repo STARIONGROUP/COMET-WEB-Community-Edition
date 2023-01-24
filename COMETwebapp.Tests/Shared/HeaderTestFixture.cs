@@ -26,10 +26,12 @@ namespace COMETwebapp.Tests.Shared
 {
     using Bunit;
     using Bunit.TestDoubles;
-    using COMETwebapp.Components;
+
+    using COMETwebapp.Components.Shared;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
-    using COMETwebapp.Utilities;
+    using COMETwebapp.Tests.Helpers;
+
     using DevExpress.Blazor.Internal;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +40,8 @@ namespace COMETwebapp.Tests.Shared
 
     using NUnit.Framework;
 
+    using TestContext = Bunit.TestContext;
+
     /// <summary>
     /// Suite of tests for the <see cref="Header"/> component
     /// </summary>
@@ -45,27 +49,33 @@ namespace COMETwebapp.Tests.Shared
     public class HeaderTestFixture
     {
         private Mock<ISessionAnchor> sessionAnchor;
-
         private Mock<IEnvironmentInfo> environmentInfo;
+        private TestContext context;
 
         [SetUp]
         public void SetUp()
         {
             this.sessionAnchor = new Mock<ISessionAnchor>();
             this.environmentInfo = new Mock<IEnvironmentInfo>();
+            this.context = new TestContext();
+            this.context.Services.AddSingleton(this.sessionAnchor.Object);
+            this.context.Services.AddSingleton(this.environmentInfo.Object);
+            this.context.ConfigureDevExpressBlazor();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.context.CleanContext();
         }
 
         [Test]
         public void Verify_that_when_not_authorized_login_button_is_visible_and_refresh_is_invisible()
         {
-            using var ctx = new Bunit.TestContext();
-            ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
-            ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
-
-            var authContext = ctx.AddTestAuthorization();
+            var authContext = this.context.AddTestAuthorization();
             authContext.SetNotAuthorized();
             
-            var renderComponent = ctx.RenderComponent<Header>(parameters => parameters.Add(p => p.renderCanvas, false));
+            var renderComponent = this.context.RenderComponent<Header>(parameters => parameters.Add(p => p.renderCanvas, false));
 
             Assert.Throws<ElementNotFoundException>(() => renderComponent.Find("#refresh-button"));
         }
@@ -73,14 +83,10 @@ namespace COMETwebapp.Tests.Shared
         [Test]
         public void Verify_that_when_authorized_and_when_the_refresh_button_is_clicked_Session_is_refreshed()
         {
-            using var ctx = new Bunit.TestContext();
-            ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
-            ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
-
-            var authContext = ctx.AddTestAuthorization();
+            var authContext = this.context.AddTestAuthorization();
             authContext.SetAuthorized("TEST USER");
 
-            var renderComponent = ctx.RenderComponent<RefreshButton>();
+            var renderComponent = this.context.RenderComponent<RefreshButton>();
             
             var refreshButton = renderComponent.Find("#refresh-button");
 
