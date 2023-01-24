@@ -24,17 +24,15 @@
 
 namespace COMETwebapp.Pages.Viewer
 {
-    using System.Threading.Tasks;
-
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Canvas;
-    using COMETwebapp.Components.PopUps;
-    using COMETwebapp.Interoperability;
+    using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -60,12 +58,12 @@ namespace COMETwebapp.Pages.Viewer
         /// <summary>
         /// All <see cref="ElementBase"> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
+        public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
         /// All the <see cref="ElementUsage"/> that are on the 3D Scene
         /// </summary>
-        public List<ElementUsage> ElementUsagesOnScreen { get; set; } = new List<ElementUsage>();
+        public List<ElementUsage> ElementUsagesOnScreen { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the current selected <see cref="Option"/>
@@ -157,14 +155,17 @@ namespace COMETwebapp.Pages.Viewer
                 {
                     var treeNodes = this.RootNode.GetFlatListOfDescendants();
                     treeNodes.ForEach(x => x.IsSelected = false);
-                    if(sceneObject != null)
+
+                    if (sceneObject != null)
                     {
                         var node = treeNodes.FirstOrDefault(x => x.SceneObject == sceneObject);
+
                         if (node is not null)
                         {
                             node.IsSelected = true;
                         }
-                    } 
+                    }
+
                     this.Refresh();
                 };
 
@@ -179,14 +180,17 @@ namespace COMETwebapp.Pages.Viewer
         {
             var elements = new List<ElementBase>();
             var iteration = this.SessionAnchor?.OpenIteration;
+
             if (iteration != null)
             {
                 if (iteration.TopElement != null)
                 {
                     elements.Add(iteration.TopElement);
                 }
-                iteration.Element.ForEach(e => elements.AddRange(e.ContainedElement));              
+
+                iteration.Element.ForEach(e => elements.AddRange(e.ContainedElement));
             }
+
             return elements;
         }
 
@@ -234,6 +238,7 @@ namespace COMETwebapp.Pages.Viewer
                 foreach (var child in childsOfElementBase)
                 {
                     var sceneObject = this.GetSceneObjectByElementBase(child);
+
                     if (sceneObject is not null)
                     {
                         this.CreateTreeRecursively(child, new TreeNode(sceneObject), current);

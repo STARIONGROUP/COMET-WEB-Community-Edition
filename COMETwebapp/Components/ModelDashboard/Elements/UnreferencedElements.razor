@@ -19,11 +19,15 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.SessionManagement
+@using COMETwebapp.IterationServices
+@using CDP4Dal
+@using CDP4Common.EngineeringModelData
 
-@using DevExpress.Blazor
 @inject NavigationManager NavigationManager
 @inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
+
 @implements IDisposable
 
 @if (this.Data != null && this.UnReferencedElements != null)

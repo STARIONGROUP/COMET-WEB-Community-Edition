@@ -21,8 +21,6 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @page "/3DViewer"
 
-@using COMETwebapp.Components.PropertiesPanel;
-
 <ApplicationTemplate Title="3D Viewer">
     <Body>
         <div class="row">
@@ -51,7 +49,7 @@ Copyright (c) 2023 RHEA System S.A.
                 }
             </div>
             <div id="center-container">
-                <COMETwebapp.Components.PopUps.ConfirmChangeSelectionPopUp @ref=this.ConfirmChangeSelectionPopUp/>
+                <ConfirmChangeSelectionPopUp @ref=this.ConfirmChangeSelectionPopUp/>
                 <CanvasComponent @ref=this.CanvasComponent ViewerPage="this" />
             </div>
             <div id="rightColumn">
