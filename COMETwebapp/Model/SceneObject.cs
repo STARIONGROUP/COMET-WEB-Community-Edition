@@ -267,10 +267,6 @@ namespace COMETwebapp.Model
                 PrimitiveCanBeCreated = this.PrimitiveCanBeCreated,
                 Primitive = this.Primitive
             };
-
-            //var sceneObject = Create(this.ElementBase, this.Option, this.States);
-            //sceneObject.IsClone = true;
-            //return sceneObject;
         }
     }
 }

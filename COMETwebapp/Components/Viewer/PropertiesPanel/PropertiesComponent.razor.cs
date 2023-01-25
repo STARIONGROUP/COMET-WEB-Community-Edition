@@ -60,12 +60,6 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         public IIterationService IterationService { get; set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
-        /// </summary>
-        [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
-
-        /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
         /// </summary>
         [Inject]
@@ -160,6 +154,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
             this.SelectionMediator.SceneObjectHasChanges = false;
             this.ParameterHaveChanges = false;
             this.IterationService.NewUpdates.Clear();
+            
             foreach (var keyValue in changedParametersKeyValue)
             {
                 var valueSet = keyValue.Value;
