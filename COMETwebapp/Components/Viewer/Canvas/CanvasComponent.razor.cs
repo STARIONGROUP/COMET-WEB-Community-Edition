@@ -24,12 +24,8 @@
 
 namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
-    using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
@@ -67,7 +63,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// Gets or sets the property used for the Interoperability
         /// </summary>
         [Inject]
-        public IJSRuntime? JSInterop { get; set; }
+        public IJSRuntime JSInterop { get; set; }
 
         /// <summary>
         /// Collection of scene objects in the scene.
@@ -107,8 +103,6 @@ namespace COMETwebapp.Components.Viewer.Canvas
 
             if (firstRender)
             {
-                await this.InitCanvas(this.CanvasReference, true);
-
                 this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
                 {
                     await this.ClearTemporarySceneObjects();
@@ -120,7 +114,8 @@ namespace COMETwebapp.Components.Viewer.Canvas
 
                 this.SelectionMediator.OnTreeVisibilityChanged += async (sender, node) =>
                 {
-                    var nodesAffected = node.GetFlatListOfDescendants();
+                    await this.ClearTemporarySceneObjects();
+                    var nodesAffected = node.GetFlatListOfDescendants().Where(x => x.SceneObject.Primitive is not null).ToList();
 
                     foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
                     {
@@ -201,30 +196,11 @@ namespace COMETwebapp.Components.Viewer.Canvas
         }
 
         /// <summary>
-        /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
-        /// </summary>
-        /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
-        public async Task<List<SceneObject>> RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
-        {
-            await this.ClearSceneObjects();
-
-            foreach (var elementUsage in elementUsages)
-            {
-                var sceneObject = SceneObject.Create(elementUsage, selectedOption, states);
-                await this.AddSceneObject(sceneObject);
-            }
-
-            return this.SceneObjects;
-        }
-
-        /// <summary>
         /// Inits the scene, the asociated resources and the render loop.
         /// </summary>
-        public async Task InitCanvas(ElementReference canvas, bool addAxes)
+        public async Task InitCanvas(bool addAxes)
         {
-            await this.JSInterop.InvokeVoidAsync("InitCanvas", canvas, addAxes);
+            await this.JSInterop.InvokeVoidAsync("InitCanvas", this.CanvasReference, addAxes);
         }
 
         /// <summary>
@@ -253,6 +229,16 @@ namespace COMETwebapp.Components.Viewer.Canvas
             }
         }
 
+        /// <summary> 
+        /// Clears the scene deleting the <see cref="SceneObjects"/> and <see cref="TemporarySceneObjects"/> lists 
+        /// </summary> 
+        /// <returns>an asynchronous task</returns> 
+        public async Task ClearScene()
+        {
+            await this.ClearSceneObjects();
+            await this.ClearTemporarySceneObjects();
+        }
+
         /// <summary>
         /// Clears the scene deleting the scene objects that contains
         /// </summary>
@@ -260,11 +246,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         {
             var ids = this.SceneObjects.Select(x => x.ID).ToList();
             this.SceneObjects.Clear();
-
-            foreach (var id in ids)
-            {
-                await this.JSInterop.InvokeVoidAsync("Dispose", id);
-            }
+            await this.JSInterop.InvokeVoidAsync("DisposeAll", ids.ToArray());
         }
 
         /// <summary>
@@ -274,11 +256,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         {
             var ids = this.TemporarySceneObjects.Select(x => x.ID).ToList();
             this.TemporarySceneObjects.Clear();
-
-            foreach (var id in ids)
-            {
-                await this.JSInterop.InvokeVoidAsync("Dispose", id);
-            }
+            await this.JSInterop.InvokeVoidAsync("DisposeAll", ids.ToArray());
         }
 
         /// <summary>
@@ -313,7 +291,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// <param name="id">The Id of the primitive asociated to the scene object</param>
         /// <returns>The primitive</returns>
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
-        public SceneObject? GetSceneObjectById(Guid id)
+        public SceneObject GetSceneObjectById(Guid id)
         {
             return this.SceneObjects.FirstOrDefault(x => x.ID == id, null);
         }

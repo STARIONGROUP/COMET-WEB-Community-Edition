@@ -187,14 +187,6 @@ function AddWorldAxes() {
 }
 
 /**
- * Gets the scene size
- * @returns the size in the format [width,height]
- */
-function GetCanvasSize() {
-    return [BabylonCanvas.width, BabylonCanvas.height];
-}
-
-/**
  * Adds to scene an scene object containing the primitive
  * @param {any} sceneObject
  */
@@ -281,6 +273,18 @@ function FillMeshWithPrimitiveData(mesh, primitive, ID) {
     }
 }
 
+/** 
+ * Dispose all the scene objects with the specified ids 
+ * @param {any} IDs - a collection of ids  
+ */
+function DisposeAll(IDs) {
+    if (IDs != null && IDs != undefined) {
+        for (let i = 0; i < IDs.length; i++) {
+            Dispose(IDs[i]);
+        }
+    }
+} 
+
 /**
  * Removes the primitive with the specified ID from the scene.
  * @param {number} ID - the ID of the primitive to delete.
@@ -318,28 +322,6 @@ function GetPrimitiveIDUnderMouse() {
 }
 
 /**
- * Sets the selection of the primitive
- * @param {string} ID - the ID of the primitive to select
- * @param {boolean} isSelected - the value of the new selection
- */
-function SetSelection(ID, isSelected) {
-
-    if (SceneObjects.size > 0)
-    {
-        let sceneObject = SceneObjects.get(ID);
-        let mesh = sceneObject.Mesh;
-        if (isSelected)
-        {
-            HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
-        }
-        else
-        {
-            HighLightLayer.removeMesh(mesh);
-        }
-    }
-}
-
-/**
  * Sets the visibility of the primitive
  * @param {string} ID - the ID of the primitive to select
  * @param {boolean} isVisible - the value of the new selection
@@ -349,8 +331,12 @@ function SetMeshVisibility(ID, isVisible) {
     if (SceneObjects.size > 0)
     {
         let sceneObj = SceneObjects.get(ID);
-        let mesh = sceneObj.Mesh;
-        mesh.setEnabled(isVisible);
+        if (sceneObj != null && sceneObj != undefined) {
+            let mesh = sceneObj.Mesh;
+            if (mesh != null && mesh != undefined) {
+                mesh.setEnabled(isVisible);
+            }
+        } 
     }
 }
 
@@ -365,21 +351,5 @@ function RegenMesh(JsonSceneObject) {
     {
         Dispose(sceneFullObject.ID);
         AddSceneObject(JsonSceneObject);
-    }
-}
-
-/**
- * Sets the mesh color
- * @param {any} ID - the ID of the primitive to change the color
- * @param {any} r - the red component in range [0,255]
- * @param {any} g - the green component in range [0,255]
- * @param {any} b - the blue component in range [0,255]
- */
-function SetMeshColor(ID, r, g, b) {
-
-    if (SceneObjects.size > 0) {
-        let sceneObj = SceneObjects.get(ID);
-        let mesh = sceneObj.Mesh;
-        mesh.material.diffuseColor = new BABYLON.Color3(r / 255.0, g / 255.0, b / 255.0);
     }
 }

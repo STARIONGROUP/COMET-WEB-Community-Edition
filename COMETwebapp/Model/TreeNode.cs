@@ -61,7 +61,7 @@ namespace COMETwebapp.Model
         /// <summary>
         /// The parent of this <see cref="TreeNode"/>
         /// </summary>
-        private TreeNode? Parent { get; set; }
+        private TreeNode Parent { get; set; }
 
         /// <summary>
         /// The children of this <see cref="TreeNode"/>

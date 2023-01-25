@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// The root node of the tree
         /// </summary>
         [Parameter]
-        public TreeNode? RootNode { get; set; }
+        public TreeNode RootNode { get; set; }
 
         /// <summary>
         /// Gets or sets if the tree should show a complete tree
@@ -98,7 +98,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
             {
                 fullTree?.ForEach(x =>
                 {
-                    if (x.Title.Contains(this.SearchValue, StringComparison.InvariantCultureIgnoreCase))
+                    if (!x.Title.Contains(this.SearchValue, StringComparison.InvariantCultureIgnoreCase))
                     {
                         x.IsDrawn = false;
                     }
