@@ -25,12 +25,11 @@ Copyright (c) 2023 RHEA System S.A.
     @if (this.IsVisible)
     {
         var title = this.SelectionMediator?.SelectedSceneObject is not null ? this.SelectionMediator?.SelectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
-        var isDisabled = !this.GetParameterValueSetRelationsChanges().Any();
-        var buttonClass = !isDisabled ? "submit-button button-blue" : "submit-button";
+        var buttonClass = this.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
 
         <div id="properties-header">
             <h6>@title</h6>
-            <button @onclick="()=>this.OnSubmit()" class="@buttonClass" disabled="@isDisabled">Submit</button>
+            <button @onclick="()=>this.OnSubmit()" class="@buttonClass" disabled="@(!this.ParameterHaveChanges)">Submit</button>
         </div>
 
         <div id="parameters-section">

@@ -258,9 +258,19 @@ namespace COMETwebapp.Model
         /// <returns>the clone</returns>
         public SceneObject Clone()
         {
-            var sceneObject = Create(this.ElementBase, this.Option, this.States);
-            sceneObject.IsClone = true;
-            return sceneObject;
+            return new SceneObject()
+            {
+                ElementBase = this.ElementBase,
+                Option = this.Option,
+                States = this.States,
+                IsClone = true,
+                PrimitiveCanBeCreated = this.PrimitiveCanBeCreated,
+                Primitive = this.Primitive
+            };
+
+            //var sceneObject = Create(this.ElementBase, this.Option, this.States);
+            //sceneObject.IsClone = true;
+            //return sceneObject;
         }
     }
 }
