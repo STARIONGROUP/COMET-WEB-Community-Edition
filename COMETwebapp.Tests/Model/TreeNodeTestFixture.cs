@@ -100,6 +100,34 @@ namespace COMETwebapp.Tests.Model
         }
 
         [Test]
+        public void VerifyThatGetParentWorks()
+        {
+            var parent1 = this.rootNode.GetParentNode();
+            var parent2 = this.node3.GetParentNode();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(parent1, Is.Null);
+                Assert.That(parent2, Is.EqualTo(this.node2));
+            });
+        }
+
+        [Test]
+        public void VerifyThatGetChildrenWorks()
+        {
+            var children1 = this.rootNode.GetChildren();
+            var children2 = this.node3.GetChildren();
+            var children3 = this.node4.GetChildren();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(children1, Has.Count.EqualTo(3));
+                Assert.That(children2, Has.Count.EqualTo(1));
+                Assert.That(children3, Has.Count.EqualTo(0));
+            });
+        }
+
+        [Test]
         public void VerifyThatOverideEqualsWorks()
         {
             var newNode = new TreeNode(this.rootNode.SceneObject);

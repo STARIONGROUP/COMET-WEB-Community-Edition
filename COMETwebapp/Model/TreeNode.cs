@@ -192,7 +192,7 @@ namespace COMETwebapp.Model
         /// Gets the parent node of this <see cref="TreeNode"/>
         /// </summary>
         /// <returns>the parent node</returns>
-        public TreeNode? GetParentNode()
+        public TreeNode GetParentNode()
         {
             return this.Parent;
         }
@@ -211,7 +211,7 @@ namespace COMETwebapp.Model
         /// </summary>
         /// <param name="obj">the object to check for equality</param>
         /// <returns>true if the objects are the same, false otherwise</returns>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if(obj is not TreeNode treeNode)
             {
