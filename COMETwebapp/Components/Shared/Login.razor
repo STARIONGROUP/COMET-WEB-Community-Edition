@@ -22,108 +22,44 @@
 @using COMETwebapp.Enumerations
 @using COMETwebapp.Model.DTO
 @using COMETwebapp.SessionManagement
+@inherits DisposableComponent
 
-<EditForm Model="AuthenticationDto" OnValidSubmit="ExecuteLogin">
+<EditForm Model="this.ViewModel.AuthenticationDto" OnValidSubmit="this.ViewModel.ExecuteLogin">
     <DataAnnotationsValidator />
     
     <div class="form-group row">
         <label for="ur" class="text-align-start">Source Address:</label>
         <div class="col-md-15 m-top-3px">
-            <InputText id="sourceaddress" class="form-control" @bind-Value="AuthenticationDto.SourceAddress" />
+            <InputText id="sourceaddress" class="form-control" @bind-Value="this.ViewModel.AuthenticationDto.SourceAddress" />
         </div>
     </div>
     <div class="form-group row m-top-10px">
         <label for="username" class="text-align-start">Username:</label>
         <div class="col-md-15 m-top-3px">
-            <InputText id="username" class="form-control" @bind-Value="AuthenticationDto.UserName" />
+            <InputText id="username" class="form-control" @bind-Value="this.ViewModel.AuthenticationDto.UserName" />
         </div>
     </div>
     <div class="form-group row m-top-10px">
         <label for="password" class="text-align-start">Password:</label>
         <div class="col-md-15 m-top-3px">
-            <InputText type="password" id="password" class="form-control" @bind-Value="AuthenticationDto.Password" />
+            <InputText type="password" id="password" class="form-control" @bind-Value="this.ViewModel.AuthenticationDto.Password" />
         </div>
     </div>
     
     <ValidationSummary />
 
-    @if (this.AuthenticationState == AuthenticationStateKind.Fail)
+    @if (!string.IsNullOrEmpty(this.ErrorMessage))
     {
         <div class="form-group row m-top-10px">
-            <label class="text-danger">Login Failed.</label>
-        </div>
-    }
-
-    @if (this.AuthenticationState == AuthenticationStateKind.ServerFail)
-    {
-        <div class="form-group row m-top-10px">
-            <label class="text-danger">The Server could not be reached.</label>
+            <label class="text-danger">this.ErrorMessage</label>
         </div>
     }
 
     <div class="row">
         <div class="col-md-12 text-center">
-
-            @switch(this.AuthenticationState)
-                {
-                    case AuthenticationStateKind.None:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px">Connect</button>            
-                        break;
-                    case AuthenticationStateKind.Authenticating:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px" disabled>Connecting</button>            
-                        break;
-                    case AuthenticationStateKind.Fail:
-                    case AuthenticationStateKind.ServerFail:
-                        <button id="connectbtn" type="submit" class="btn btn-connect m-top-10px" >Retry</button>            
-                        break;
-                }
+	        <DxButton Id="connectbtn" Text="@this.LoginButtonDisplayText" CssClass="btn btn-connect m-top-10px"  Enabled="@(this.ViewModel.AuthenticationState != AuthenticationStateKind.Authenticating)"
+	                  SubmitFormOnClick="true"/>
         </div>
     </div>
 
 </EditForm>
-
-@code{
-    /// <summary>
-    /// Gets or sets the (injected) IAuthenticationService used to authenticate against the selected datasource
-    /// </summary>
-    [Inject]
-    public IAuthenticationService? AuthenticationService { get; set; }
-
-    /// <summary>
-    /// Gets or sets the (injected) NavigationManager used to navigate between pages
-    /// </summary>
-    [Inject]
-    public NavigationManager? NavigationManager { get; set; }
-
-    /// <summary>
-    /// Gets or sets the <see cref="AuthenticationStateKind"/>
-    /// </summary>
-    public AuthenticationStateKind AuthenticationState { get; set; }
-
-    /// <summary>
-    /// Initializes the AuthenticatioDto object completed with the EditForm
-    /// </summary>
-    private AuthenticationDto AuthenticationDto = new AuthenticationDto();
-
-    /// <summary>
-    /// Open the <see cref="ISession" /> and update the <see cref="ISessionAnchor" />
-    /// </summary>
-    /// <returns>
-    /// an awaitable task
-    /// </returns>
-    public async Task ExecuteLogin()
-    {
-        this.AuthenticationState = AuthenticationStateKind.Authenticating;
-        StateHasChanged();
-
-        if (this.AuthenticationService != null)
-        {
-            this.AuthenticationState = await AuthenticationService.Login(AuthenticationDto);
-        }
-
-        if (this.NavigationManager != null && this.AuthenticationState == AuthenticationStateKind.Success)
-        {
-            NavigationManager.NavigateTo("/");
-        }
-    }
-}
