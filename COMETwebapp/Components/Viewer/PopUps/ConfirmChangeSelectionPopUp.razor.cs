@@ -32,7 +32,7 @@ namespace COMETwebapp.Components.Viewer.PopUps
         /// <summary>
         /// Gets or sets if the pop up is visible
         /// </summary>
-        private bool IsVisible { get; set; }
+        public bool IsVisible { get; private set; }
 
         /// <summary>
         /// Gets or sets the event for the response when clicked the buttons
@@ -45,7 +45,7 @@ namespace COMETwebapp.Components.Viewer.PopUps
         public void Show()
         {
             this.IsVisible = true;
-            this.StateHasChanged();
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace COMETwebapp.Components.Viewer.PopUps
         public void Hide()
         {
             this.IsVisible = false;
-            this.StateHasChanged();
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>

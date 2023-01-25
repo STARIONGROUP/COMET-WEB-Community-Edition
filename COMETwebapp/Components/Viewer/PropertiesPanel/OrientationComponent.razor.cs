@@ -114,7 +114,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="e">the args of the event</param>
-        public void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
+        private void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
         {
             var valueText = e.Value as string;
 

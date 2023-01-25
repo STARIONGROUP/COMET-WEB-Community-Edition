@@ -20,52 +20,46 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<BSNav IsTabs="true">
-    <BSNavItem IsActive="true">
-        <TabLabel>Euler</TabLabel>
-        <TabContent>
-            <div id="orientation-tab-content">
-                @{
-                    <BSDropdown>
-                        <Toggler><BSToggle IsButton="true" Color="BSColor.Secondary">@this.AngleFormat</BSToggle></Toggler>
-                        <Content>
-                            <BSDropdownItem @onclick="@(() => this.OnAngleFormatChanged("Degrees"))">Degrees</BSDropdownItem>
-                            <BSDropdownItem @onclick="@(() => this.OnAngleFormatChanged("Radians"))">Radians</BSDropdownItem>
-                        </Content>
-                    </BSDropdown>
+<DxTabs>
+    <DxTabPage Text="Euler">
+        <div id="orientation-tab-content">
+            @{            
+                <BSDropdown>
+                    <Toggler><BSToggle IsButton="true" Color="BSColor.Secondary">@this.AngleFormat</BSToggle></Toggler>
+                    <Content>
+                        <BSDropdownItem @onclick="@(() => this.OnAngleFormatChanged("Degrees"))">Degrees</BSDropdownItem>
+                        <BSDropdownItem @onclick="@(() => this.OnAngleFormatChanged("Radians"))">Radians</BSDropdownItem>
+                    </Content>
+                </BSDropdown>
 
-                    <div class="parameter-row">
-                        <p>Rx:</p>
-                        <BSInput InputType="InputType.Text" Value="this.Rx" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rx",e))" />
-                    </div>
-                    <div class="parameter-row">
-                        <p>Ry:</p>
-                        <BSInput InputType="InputType.Text" Value="this.Ry" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Ry",e))" />
-                    </div>
-                    <div class="parameter-row">
-                        <p>Rz:</p>
-                        <BSInput InputType="InputType.Text" Value="this.Rz" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rz",e))" />
-                    </div>
-                }
-            </div>
-        </TabContent>
-    </BSNavItem>
-    <BSNavItem>
-        <TabLabel>Matrix</TabLabel>
-        <TabContent>
-            @if (this.OrientationParameterType is not null)
-            {
-                for (int i = 0; i < this.OrientationParameterType.Component.Count; i++)
-                {
-                    var index = i;
-                    var comp = this.OrientationParameterType.Component[i];
-
-                    <div class="parameter-row">
-                        <p>@comp.ShortName</p>
-                        <BSInput InputType="InputType.Text" Value="this.OrientationMatrix[i]" Class="parameter-input" @oninput="(e)=>this.OnMatrixValuesChanged(index,e)" />
-                    </div>
-                }
+                <div class="parameter-row">
+                    <p>Rx:</p>
+                    <BSInput InputType="InputType.Text" Value="this.Rx" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rx",e))" />
+                </div>
+                <div class="parameter-row">
+                    <p>Ry:</p>
+                    <BSInput InputType="InputType.Text" Value="this.Ry" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Ry",e))" />
+                </div>
+                <div class="parameter-row">
+                    <p>Rz:</p>
+                    <BSInput InputType="InputType.Text" Value="this.Rz" Class="parameter-input" @oninput="@((e) => this.OnEulerAnglesChanged("Rz",e))" />
+                </div>
             }
-        </TabContent>
-    </BSNavItem>
-</BSNav>
+        </div>
+    </DxTabPage>
+    <DxTabPage Text="Matrix">
+        @if (this.OrientationParameterType is not null)
+        {
+            for (int i = 0; i < this.OrientationParameterType.Component.Count; i++)
+            {
+                var index = i;
+                var comp = this.OrientationParameterType.Component[i];
+
+                <div class="parameter-row">
+                    <p>@comp.ShortName</p>
+                    <BSInput InputType="InputType.Text" Value="this.OrientationMatrix[i]" Class="parameter-input" @oninput="(e)=>this.OnMatrixValuesChanged(index,e)" />
+                </div>
+            }
+        }
+    </DxTabPage>
+</DxTabs>
