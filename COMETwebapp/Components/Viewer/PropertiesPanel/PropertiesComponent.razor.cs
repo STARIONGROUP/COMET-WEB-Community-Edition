@@ -170,7 +170,6 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
                     this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { clonedParameterValueSet });
                 }
             }
-            this.SelectionMediator.SceneObjectHasChanges = false;
         }
 
         /// <summary>
