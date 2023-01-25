@@ -145,30 +145,32 @@ namespace COMETwebapp.Model
             this.Primitive = primitive;
         }
 
-        /// <summary>
-        /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene.
-        /// </summary>
-        /// <param name="shapeFactory">the factory used to create the primitives</param>
-        /// <param name="elementUsage">the <see cref="ElementBase"/> that contains the data for creating the <see cref="Primitive"/></param>
-        /// <param name="option">the selected option</param>
-        /// <param name="states">the possible actual finite states</param>
-        /// <returns></returns>
-        public static SceneObject Create(ElementUsage elementUsage, Option option, List<ActualFiniteState> states)
+        /// <summary> 
+        /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene. 
+        /// </summary> 
+        /// <param name="elementBase">the <see cref="ElementBase"/> that contains the data for creating the <see cref="Primitive"/></param> 
+        /// <param name="option">the selected option</param> 
+        /// <param name="states">the possible actual finite states</param> 
+        /// <returns>the <see cref="SceneObject"/></returns> 
+        public static SceneObject Create(ElementBase elementBase, Option option, List<ActualFiniteState> states)
         {
-            var sceneObj = new SceneObject() { ElementBase = elementUsage, Option = option, States = states };
+            var sceneObj = new SceneObject() { ElementBase = elementBase, Option = option, States = states };
 
             //TODO: this needs a review of how to do it properly.
             var shapeKindParameter = sceneObj.ParametersAsociated.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
-            sceneObj.ParseParameter(shapeKindParameter);
-
-            var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
-            foreach (var parameter in restOfParameters)
+            if (shapeKindParameter is not null)
             {
-                sceneObj.ParseParameter(parameter);
-            }
+                sceneObj.ParseParameter(shapeKindParameter);
 
-            sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+                var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+                foreach (var parameter in restOfParameters)
+                {
+                    sceneObj.ParseParameter(parameter);
+                }
+
+                sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+            }
 
             return sceneObj;
         }
@@ -232,7 +234,7 @@ namespace COMETwebapp.Model
         /// Gets the value sets for this <see cref="SceneObject"/>
         /// </summary>
         /// <returns>a collection of <see cref="ParameterBase"/> and its related <see cref="IValueSet"/></returns>
-        public Dictionary<ParameterBase,IValueSet> GetValueSets()
+        public Dictionary<ParameterBase,IValueSet> GetParameterValueSetRelations()
         {
             var collection = new Dictionary<ParameterBase, IValueSet>();
             IValueSet? valueSet = null;

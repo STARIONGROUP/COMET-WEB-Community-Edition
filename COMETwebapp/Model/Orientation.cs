@@ -104,12 +104,29 @@ namespace COMETwebapp.Model
         /// <param name="x">angle around X axis</param>
         /// <param name="y">angle around Y axis</param>
         /// <param name="z">angle around Z axis</param>
-        public Orientation(double x, double y, double z)
+        /// <param name="angleFormat">the angle format for computing the angles</param> 
+        public Orientation(double x, double y, double z, AngleFormat angleFormat = AngleFormat.Degrees)
         {
             this.Matrix = new double[9];
             this.X = x;
             this.Y = y;
             this.Z = z;
+            this.AngleFormat = angleFormat;
+        }
+
+        /// <summary> 
+        /// Creates a new instance of type <see cref="Orientation"/> 
+        /// </summary> 
+        /// <param name="matrix">the orientation matrix</param> 
+        /// <param name="angleFormat">the angle format for computing the angles</param> 
+        public Orientation(double[] matrix, AngleFormat angleFormat = AngleFormat.Degrees)
+        {
+            this.Matrix = new double[9];
+            var eulerValues = ExtractAnglesFromMatrix(matrix, angleFormat);
+            this.X = eulerValues[0];
+            this.Y = eulerValues[1];
+            this.Z = eulerValues[2];
+            this.AngleFormat = angleFormat;
         }
 
         /// <summary>
@@ -121,10 +138,63 @@ namespace COMETwebapp.Model
             return new Orientation(0.0, 0.0, 0.0) { AngleFormat = angleFormat };
         }
 
+        /// <summary> 
+        /// Extract the angles from the orientation matrix 
+        /// </summary> 
+        /// <param name="matrix">the orientation matrix</param> 
+        /// <param name="outputAngleFormat">the output format of the angles</param> 
+        /// <returns>the angles in an array of type [Rx,Ry,Rz]</returns> 
+        /// <exception cref="ArgumentNullException">if the matrix is null</exception> 
+        /// <exception cref="ArgumentException">if the matrix don't have the correct size</exception> 
+        public static double[] ExtractAnglesFromMatrix(double[] matrix, AngleFormat outputAngleFormat = AngleFormat.Degrees)
+        {
+            double Rx = 0, Ry = 0, Rz = 0;
+
+            if (matrix == null)
+            {
+                throw new ArgumentNullException("Matrix can't be null");
+            }
+
+            if (matrix.Length != 9)
+            {
+                throw new ArgumentException("The Matrix needs to have 9 values");
+            }
+
+            if (matrix[6] != 1 && matrix[6] != -1)
+            {
+                Ry = -Math.Asin(matrix[6]);
+                Rx = Math.Atan2(matrix[7] / Math.Cos(Ry), matrix[8] / Math.Cos(Ry));
+                Rz = Math.Atan2(matrix[3] / Math.Cos(Ry), matrix[0] / Math.Cos(Ry));
+            }
+            else
+            {
+                Rz = 0;
+                if (matrix[6] == -1)
+                {
+                    Ry = Math.PI / 2.0;
+                    Rx = Rz + Math.Atan2(matrix[1], matrix[2]);
+                }
+                else
+                {
+                    Ry = -Math.PI / 2.0;
+                    Rx = -Rz + Math.Atan2(-matrix[1], -matrix[2]);
+                }
+            }
+
+            if (outputAngleFormat == AngleFormat.Radians)
+            {
+                return new double[] { Rx, Ry, Rz };
+            }
+            else
+            {
+                return new double[] { Math.Round(Rx * 180.0 / Math.PI, 3), Math.Round(Ry * 180.0 / Math.PI, 3), Math.Round(Rz * 180.0 / Math.PI, 3) };
+            }
+        }
+
         /// <summary>
         /// Recomputes <see cref="Matrix"/>
         /// </summary>
-        public void RecomputeMatrix()
+        private void RecomputeMatrix()
         {
             double a1 = X;
             double a2 = Y;

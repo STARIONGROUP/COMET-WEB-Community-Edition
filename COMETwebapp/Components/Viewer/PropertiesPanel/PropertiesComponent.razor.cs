@@ -26,7 +26,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
-
+    using CDP4Common.Types;
     using CDP4Dal;
 
     using COMETwebapp.Components.Viewer.Canvas;
@@ -47,50 +47,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     public partial class PropertiesComponent
     {
         /// <summary>
-        /// Gets or sets the possible next selected <see cref="SceneObject"/>
-        /// </summary>
-        private SceneObject? PossibleNextSelected { get; set; }
-
-        /// <summary>
-        /// Gets or sets the original scene object without changes
-        /// </summary>
-        private SceneObject? OriginalSceneObject { get; set; }
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedSceneObject"/> property
-        /// </summary>
-        private SceneObject? selectedSceneObject;
-
-        /// <summary>
-        /// Gets or sets the <see cref="Primitive"/> to fill the panel
-        /// </summary>
-        public SceneObject? SelectedSceneObject
-        {
-            get => this.selectedSceneObject;
-            set
-            {
-                this.OriginalSceneObject = value;
-                this.selectedSceneObject = value is not null ? value.Clone() : value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the canvas where the 3D scene is drawn
         /// </summary>
         [Parameter]
         public CanvasComponent Canvas { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ConfirmChangeSelectionPopUp"/> component
-        /// </summary>
-        [Parameter]
-        public ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
-        /// </summary>
-        [Parameter]
-        public ParameterBase SelectedParameter { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IIterationService"/>
@@ -105,21 +65,30 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         public ISessionAnchor SessionAnchor { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// </summary>
+        [Inject]
+        public ISelectionMediator SelectionMediator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
+        /// </summary>
+        public ParameterBase SelectedParameter { get; set; }
+
+        /// <summary>
         /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
         /// </summary>
-        [Parameter]
         public List<ParameterBase> ParametersInUse { get; set; } = new();
 
         /// <summary>
         /// A reference to the <see cref="DetailsComponent"/>
         /// </summary>
-        public DetailsComponent? DetailsReference { get; set; }
+        public DetailsComponent DetailsReference { get; set; }
 
-        /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
-        /// </summary>
-        [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
+        /// <summary> 
+        /// Gets or sets if this component is visible 
+        /// </summary> 
+        private bool IsVisible { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -143,69 +112,31 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 
             if (firstRender)
             {
-                this.ConfirmChangeSelectionPopUp.OnResponse += async (sender, response) =>
+                this.SelectionMediator.OnTreeSelectionChanged += (sender, node) =>
                 {
-                    if (response)
-                    {
-                        await this.OnSelectionMediatorReaction(this.PossibleNextSelected);
-                    }
-
-                    this.PossibleNextSelected = null;
+                    this.OnSelectionChanged(node.SceneObject);
                 };
-
-                this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
+                this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
                 {
-                    if (this.CheckIfChangeSelectionIsSure())
-                    {
-                        await this.OnSelectionMediatorReaction(node.SceneObject);
-                    }
-                    else
-                    {
-                        this.ConfirmChangeSelectionPopUp.IsVisible = true;
-                        this.PossibleNextSelected = node.SceneObject;
-                    }
-                };
-
-                this.SelectionMediator.OnModelSelectionChanged += async (sender, sceneObject) =>
-                {
-                    if (this.CheckIfChangeSelectionIsSure())
-                    {
-                        await this.OnSelectionMediatorReaction(sceneObject);
-                    }
-                    else
-                    {
-                        this.ConfirmChangeSelectionPopUp.IsVisible = true;
-                        this.PossibleNextSelected = sceneObject;
-                    }
+                    this.OnSelectionChanged(sceneObject);
                 };
             }
         }
 
-        /// <summary>
-        /// Checks if changin the selection is sure because the changes have been sent to server
-        /// </summary>
-        private bool CheckIfChangeSelectionIsSure()
+        /// <summary> 
+        /// Called when the selection of a <see cref="SceneObject"/> has changed 
+        /// </summary> 
+        /// <param name="sceneObject">the changed object</param> 
+        /// <returns>an asynchronous operation</returns> 
+        private void OnSelectionChanged(SceneObject sceneObject)
         {
-            return !this.GetChangedParametersKeyValue().Any();
-        }
-
-        /// <summary>
-        /// Called when the <see cref="ISelectionMediator"/> has reacted
-        /// </summary>
-        /// <param name="sceneObject">the scene object that the <see cref="ISelectionMediator"/> has reacted to</param>
-        private async Task OnSelectionMediatorReaction(SceneObject? sceneObject)
-        {
-            this.SelectedSceneObject = sceneObject;
-
-            if (this.SelectedSceneObject is not null)
+            this.IsVisible = sceneObject is not null ? true : false;
+            if(this.SelectionMediator.SelectedSceneObjectClone is not null)
             {
-                await this.Canvas.ClearTemporarySceneObjects();
-                await this.Canvas.AddTemporarySceneObject(this.SelectedSceneObject);
-                this.ParametersInUse = this.SelectedSceneObject.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
-                this.ParameterChanged(this.ParametersInUse.First());
+                this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone?.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
+                this.SelectedParameterChanged(ParametersInUse.First());
             }
-
-            await this.InvokeAsync(() => this.StateHasChanged());
+            this.StateHasChanged();
         }
 
         /// <summary>
@@ -213,19 +144,16 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         public void OnSubmit()
         {
-            var changedParametersKeyValue = this.GetChangedParametersKeyValue();
+            var changedParametersKeyValue = GetParameterValueSetRelationsChanges();
 
             foreach (var keyValue in changedParametersKeyValue)
             {
                 var valueSet = keyValue.Value;
 
-                if (valueSet is ParameterValueSetBase parameterValueSetBase)
+                if (valueSet is ParameterValueSetBase parameterValueSetBase && !this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
                 {
-                    if (!this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
-                    {
-                        this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
-                        CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(parameterValueSetBase.Iid));
-                    }
+                    this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
+                    CDPMessageBus.Current.SendMessage(new NewUpdateEvent(parameterValueSetBase.Iid));
 
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
@@ -233,48 +161,43 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
                     this.SessionAnchor.UpdateThings(new List<Thing>() { clonedParameterValueSet });
                 }
             }
+            this.SelectionMediator.SceneObjectHasChanges = false;
         }
 
         /// <summary>
-        /// Gets the parameters that have changed from the original <see cref="SceneObject"/>
+        /// Gets the values that have changed for two ParameterValueSetRelation
         /// </summary>
-        /// <returns></returns>
-        public Dictionary<ParameterBase, IValueSet> GetChangedParametersKeyValue()
+        /// <returns>the values changed</returns>
+        private Dictionary<ParameterBase, IValueSet> GetParameterValueSetRelationsChanges()
         {
-            Dictionary<ParameterBase, IValueSet> collection = new();
+            var relation1 = this.SelectionMediator.SelectedSceneObject?.GetParameterValueSetRelations();
+            var relation2 = this.DetailsReference.GetParameterValueSetRelations();
 
-            if (this.DetailsReference is not null && this.OriginalSceneObject is not null)
+            if(relation1 != null && relation2 != null)
             {
-                var originalValueSetsCollection = this.OriginalSceneObject.GetValueSets();
-                var temporaryValueSetsCollection = this.DetailsReference.GetAllValueSets();
-
-                foreach (var originalValueSet in originalValueSetsCollection)
-                {
-                    var valueSet = originalValueSet.Value.ActualValue;
-
-                    if (temporaryValueSetsCollection.ContainsKey(originalValueSet.Key))
-                    {
-                        var temporarySet = temporaryValueSetsCollection[originalValueSet.Key].ActualValue;
-
-                        if (!valueSet.ContainsSameValues(temporarySet))
-                        {
-                            collection.Add(originalValueSet.Key, temporaryValueSetsCollection[originalValueSet.Key]);
-                        }
-                    }
-                }
+                var changes = relation1.GetChangesOnParameters(relation2);
+                this.SelectionMediator.SceneObjectHasChanges = changes.Any();
+                return changes;
             }
 
-            return collection;
+            return new();
         }
 
         /// <summary>
-        /// Event for when a parameter item has been clicked
+        /// Event for when a parameter has changed it's value
         /// </summary>
-        /// <param name="parameterBase">the parameter clicked</param>
-        public void ParameterChanged(ParameterBase parameterBase)
+        private void OnParameterValueChanged()
+        {
+            this.StateHasChanged();
+        }
+
+        /// <summary> 
+        /// Event for when a parameter item has been clicked 
+        /// </summary> 
+        /// <param name="parameterBase">the parameter clicked</param> 
+        private void SelectedParameterChanged(ParameterBase parameterBase)
         {
             this.SelectedParameter = parameterBase;
-            this.StateHasChanged();
         }
     }
 }
