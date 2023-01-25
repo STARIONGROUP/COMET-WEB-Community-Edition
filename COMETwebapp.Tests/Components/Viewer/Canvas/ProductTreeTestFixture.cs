@@ -77,12 +77,15 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         {
             var nodesBeforeFiltering = tree.FindAll(".treeNode");
             productTree.OnFilterChanged(true);
-            var nodesAfterFiltering = tree.FindAll(".treeNode");
+            var nodesAfterFiltering1 = tree.FindAll(".treeNode");
+            productTree.OnFilterChanged(false);
+            var nodesAfterFiltering2 = tree.FindAll(".treeNode");
             Assert.Multiple(() =>
             {
-                Assert.That(productTree.ShowNodesWithGeometry, Is.True);
+                Assert.That(productTree.ShowNodesWithGeometry, Is.False);
                 Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
-                Assert.That(nodesAfterFiltering, Has.Count.EqualTo(4));
+                Assert.That(nodesAfterFiltering1, Has.Count.EqualTo(4));
+                Assert.That(nodesAfterFiltering2, Has.Count.EqualTo(6));
             });
         }
 
@@ -92,11 +95,17 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var nodesBeforeFiltering = tree.FindAll(".treeNode");
             productTree.OnSearchFilterChange(new Microsoft.AspNetCore.Components.ChangeEventArgs() { Value = "th" });
             var nodesAfterFiltering = tree.FindAll(".treeNode");
+
+            Assert.That(productTree.SearchValue, Is.EqualTo("th"));
+
+            productTree.OnSearchFilterChange(new Microsoft.AspNetCore.Components.ChangeEventArgs() { Value = string.Empty });
+            var nodesAfterFiltering2 = tree.FindAll(".treeNode");
             Assert.Multiple(() =>
             {
-                Assert.That(productTree.SearchValue, Is.EqualTo("th"));
+                Assert.That(productTree.SearchValue, Is.EqualTo(string.Empty));
                 Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
                 Assert.That(nodesAfterFiltering, Has.Count.EqualTo(3));
+                Assert.That(nodesAfterFiltering2, Has.Count.EqualTo(6));
             });
         }
     }

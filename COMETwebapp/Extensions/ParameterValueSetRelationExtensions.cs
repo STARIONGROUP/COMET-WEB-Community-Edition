@@ -33,17 +33,6 @@ namespace COMETwebapp.Utilities
     public static class ParameterValueSetRelationExtensionscs
     {
         /// <summary> 
-        /// Gets if <paramref name="relation1"/> and <paramref name="relation2"/> have different values for the same <see cref="ParameterBase"/> 
-        /// </summary> 
-        /// <param name="sceneObject1">the first relation</param> 
-        /// <param name="sceneObject2">the second relation</param> 
-        /// <returns>true if the objects have changes in their values, false otherwise</returns> 
-        public static bool HasChangesOnParameters(this Dictionary<ParameterBase, IValueSet> relation1, Dictionary<ParameterBase, IValueSet> relation2)
-        {
-            return GetChangesOnParameters(relation1, relation2).Any();
-        }
-
-        /// <summary> 
         /// Gets the parameters and values of the <paramref name="relation2"/> that are different from <paramref name="relation1"/> for the same <see cref="ParameterBase"/> 
         /// </summary> 
         /// <param name="relation1">the first relation</param> 
