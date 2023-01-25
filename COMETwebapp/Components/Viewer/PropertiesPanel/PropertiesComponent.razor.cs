@@ -91,6 +91,11 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         private bool IsVisible { get; set; }
 
         /// <summary>
+        /// Gets or sets if the parameters have changes
+        /// </summary>
+        private bool ParameterHaveChanges { get; set; }
+
+        /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
@@ -143,9 +148,11 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// When the button for submit changes is clicked
         /// </summary>
         public void OnSubmit()
-        {
+        {            
             var changedParametersKeyValue = GetParameterValueSetRelationsChanges();
-
+            this.SelectionMediator.SceneObjectHasChanges = false;
+            this.ParameterHaveChanges = false;
+            this.IterationService.NewUpdates.Clear();
             foreach (var keyValue in changedParametersKeyValue)
             {
                 var valueSet = keyValue.Value;
@@ -161,7 +168,6 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
                     this.SessionAnchor.UpdateThings(new List<Thing>() { clonedParameterValueSet });
                 }
             }
-            this.SelectionMediator.SceneObjectHasChanges = false;
         }
 
         /// <summary>
@@ -188,6 +194,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         private void OnParameterValueChanged()
         {
+            this.ParameterHaveChanges = this.GetParameterValueSetRelationsChanges().Any();
             this.StateHasChanged();
         }
 

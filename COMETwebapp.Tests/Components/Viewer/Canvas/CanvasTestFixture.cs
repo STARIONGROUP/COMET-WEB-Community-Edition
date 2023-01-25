@@ -83,9 +83,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var cube = new Cube(1, 1, 1);
             var sceneObject = new SceneObject(cube);
             var treeNode = new TreeNode(sceneObject);
-            var beforeSelectedObject = canvas.SelectedSceneObject;
+            var beforeSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
-            var afterSelectedObject = canvas.SelectedSceneObject;
+            var afterSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
         }
 
@@ -95,9 +95,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var cube = new Cube(1, 1, 1);
             var sceneObject = new SceneObject(cube);
             var treeNode = new TreeNode(sceneObject);
-            var beforeSelectedObject = canvas.SelectedSceneObject;
+            var beforeSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
-            var afterSelectedObject = canvas.SelectedSceneObject;
+            var afterSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
         }
 

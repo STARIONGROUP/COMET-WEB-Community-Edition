@@ -180,7 +180,7 @@ namespace COMETwebapp.Tests.Model
         public void VerifyThatValueSetsCanBeRetrievedFromSceneObjects()
         {
             var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            var valueSets = sceneObject.GetValueSets();
+            var valueSets = sceneObject.GetParameterValueSetRelations();
 
             Assert.IsNotNull(valueSets);
             Assert.IsTrue(valueSets.Count > 0);
@@ -205,7 +205,7 @@ namespace COMETwebapp.Tests.Model
         public void VerifyThatCanGetValueSets()
         {
             var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            var valueSets = sceneObject.GetValueSets();
+            var valueSets = sceneObject.GetParameterValueSetRelations();
             Assert.IsNotNull(valueSets);
         }
 
