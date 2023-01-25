@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
@@ -186,24 +184,6 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// </summary> 
         /// <returns>an asynchronous operation</returns> 
         private async Task SelectSceneObjectUnderMouse()
-        {
-            var sceneObject = await this.GetSceneObjectUnderMouseAsync();
-            this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
-
-            await this.ClearTemporarySceneObjects();
-            if (this.SelectionMediator.SelectedSceneObjectClone is not null && this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
-            {
-                await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
-            }
-        }
-
-        /// <summary>
-        /// Clears the scene and populates again with the <see cref="ElementUsage"/> 
-        /// </summary>
-        /// <param name="elementUsages">the <see cref="ElementUsage"/> used for the population</param>
-        /// <param name="selectedOption">the current <see cref="Option"/> selected</param>
-        /// <param name="states">the <see cref="ActualFiniteState"/> that are going to be used to position the <see cref="Primitive"/></param>
-        public async Task<List<SceneObject>> RepopulateScene(List<ElementUsage> elementUsages, Option selectedOption, List<ActualFiniteState> states)
         {
             var sceneObject = await this.GetSceneObjectUnderMouseAsync();
             this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
