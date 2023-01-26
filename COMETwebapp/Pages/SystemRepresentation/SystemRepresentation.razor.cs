@@ -25,9 +25,8 @@
 namespace COMETwebapp.Pages.SystemRepresentation
 {
     using System.Threading.Tasks;
-
     using CDP4Common.EngineeringModelData;
-
+    using CDP4Common.SiteDirectoryData;
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
@@ -48,6 +47,13 @@ namespace COMETwebapp.Pages.SystemRepresentation
         public Guid? FilterOption { get; set; }
 
         /// <summary>
+        /// The filter on domain
+        /// </summary>
+        [Parameter]
+        [SupplyParameterFromQuery]
+        public Guid? FilterDomain { get; set; }
+
+        /// <summary>
         /// All <see cref="ElementBase"> of the iteration
         /// </summary>
         public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
@@ -56,6 +62,11 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// Name of the option selected
         /// </summary>
         public string? OptionSelected { get; set; }
+
+        /// <summary>
+        /// Name of the domain selected
+        /// </summary>
+        public DomainOfExpertise DomainSelected { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
@@ -68,6 +79,12 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// </summary>
         [Parameter]
         public List<string>? Options { get; set; }
+
+        /// <summary>
+        /// List of the names of <see cref="Option"/> available
+        /// </summary>
+        [Parameter]
+        public List<string>? Domains { get; set; }
 
         /// <summary>
         /// Represents the RootNode of the tree
@@ -100,9 +117,15 @@ namespace COMETwebapp.Pages.SystemRepresentation
                 this.InitializeElements();
 
                 this.Options = new List<string>();
+                this.Domains = new List<string>();
+
+                var engineeringModelSetup = this.SessionAnchor.GetSiteDirectory().Model.Find(m => m.Name.Equals(this.SessionAnchor.CurrentEngineeringModelName));
+                var domains = this.SessionAnchor.GetModelDomains(engineeringModelSetup);
+                this.Domains.AddRange(domains.Select(d => d.Name));
 
                 var iteration = this.SessionAnchor?.OpenIteration;
                 iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => this.Options.Add(o.Name));
+
 
                 this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
                 {
@@ -208,6 +231,21 @@ namespace COMETwebapp.Pages.SystemRepresentation
             this.OptionSelected = option;
             this.FilterOption = this.OptionSelected != null ? this.SessionAnchor?.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid : null;
             this.Elements.Clear();
+            this.InitializeElements();
+            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.RepopulateScene(elementsOnScene);
+        }
+
+        /// <summary>
+        /// Updates Elements list when a filter for option is selected
+        /// </summary>
+        /// <param name="option">Name of the Option selected</param>
+        public void OnDomainFilterChange(DomainOfExpertise? domain)
+        {
+            this.DomainSelected = domain;
+            this.FilterDomain = this.DomainSelected != null ? domain.Iid : null;
+            this.Elements.Clear();
+            this.SessionAnchor.SwitchDomain(domain);
             this.InitializeElements();
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
             this.RepopulateScene(elementsOnScene);

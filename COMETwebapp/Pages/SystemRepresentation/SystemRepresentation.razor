@@ -35,6 +35,15 @@ Copyright (c) 2022 RHEA System S.A.
                                 ValueChanged="@((string option) => OnOptionFilterChange(option))"
                                 FilteringMode="DataGridFilteringMode.Contains" />
                 </div>
+                <h6>Filter on Domain:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="this.Domains"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.DomainSelected"
+                                ValueChanged="@((DomainOfExpertise domain) => OnDomainFilterChange(domain))"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+                </div>
             </div>
         </div>
        <div id="gridParent">
@@ -65,7 +74,7 @@ Copyright (c) 2022 RHEA System S.A.
     }
 
     #leftColumn {
-        grid-area: 1 / 1 / 2 / 3;
+        grid-area: 1 / 1 / 2 / 2;
         margin: 0;
         margin-left: 2%;
         margin-right: 2%;
