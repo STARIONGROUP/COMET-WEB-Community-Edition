@@ -24,14 +24,8 @@
     <h4 id="product-tree-title">Product Tree</h4>
 
     <div id="product-tree-search-bar">
-        <BSDropdown id="tree-filter-drop-down">
-            <Toggler><BSToggle IsButton="true" Color="BSColor.Secondary">Filter</BSToggle></Toggler>
-            <Content>
-                <BSDropdownItem IsActive="!this.ShowNodesWithGeometry" OnClick="()=>this.OnFilterChanged(false)">Show Full Tree</BSDropdownItem>
-                <BSDropdownItem IsActive="this.ShowNodesWithGeometry" OnClick="()=>this.OnFilterChanged(true)">Show Nodes with geometry</BSDropdownItem>
-            </Content>
-        </BSDropdown>
-        <BSInput id="tree-search-filter" InputType="InputType.Text" placeholder="Search" Value="this.SearchValue" @oninput="(e)=>this.OnSearchFilterChange(e)"></BSInput>
+        <DxComboBox Data="this.ViewModel.TreeFilters" @bind-Value="@this.ViewModel.SelectedFilter"></DxComboBox>
+        <DxTextBox NullText="Search..." @bind-Text="@this.ViewModel.SearchText" BindValueMode="BindValueMode.OnInput"></DxTextBox>
     </div>
 
     <div id="product-tree-nodes-section">

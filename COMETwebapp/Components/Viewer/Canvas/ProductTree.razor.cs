@@ -25,8 +25,10 @@
 namespace COMETwebapp.Components.Viewer.Canvas
 {
     using COMETwebapp.Model;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Partial class that represents the <see cref="ProductTree"/>
@@ -34,82 +36,43 @@ namespace COMETwebapp.Components.Viewer.Canvas
     public partial class ProductTree
     {
         /// <summary>
+        /// Gets or sets the <see cref="IProductTreeViewModel"/>
+        /// </summary>
+        [Inject]
+        public IProductTreeViewModel ViewModel { get; set; }
+
+        /// <summary>
         /// The root node of the tree
         /// </summary>
         [Parameter]
         public TreeNode RootNode { get; set; }
 
         /// <summary>
-        /// Gets or sets if the tree should show a complete tree
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
         /// </summary>
-        public bool ShowNodesWithGeometry { get; private set; } = false;
-
-        /// <summary>
-        /// Value in the search filter
-        /// </summary>
-        public string SearchValue { get; private set; } = string.Empty;
-
-        /// <summary>
-        /// Calls the StateHasChanged method to refresh this component
-        /// </summary>
-        public void Refresh()
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            this.InvokeAsync(() => this.StateHasChanged());
-        }
+            await base.OnAfterRenderAsync(firstRender);
 
-        /// <summary>
-        /// Event for when the filter on the tree changes
-        /// </summary>
-        /// <param name="showNodeWithGeometry">if the tree should show a complete tree or just nodes with geometry</param>
-        public void OnFilterChanged(bool showNodeWithGeometry)
-        {
-            this.ShowNodesWithGeometry = showNodeWithGeometry;
-            var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
-            
-            if (this.ShowNodesWithGeometry && fullTree is not null)
+            if (firstRender)
             {
-                foreach (var node in fullTree)
-                {
-                    node.IsDrawn = node.SceneObject.Primitive != null;
-                }
+                this.ViewModel.RootNode = this.RootNode;
+                this.WhenAnyValue(x => x.ViewModel.SelectedFilter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
-            else
-            {
-                fullTree?.ForEach(x => x.IsDrawn = true);
-            }
-
-            this.Refresh();
-        }
-
-        /// <summary>
-        /// Event for when the text of the search filter is changing
-        /// </summary>
-        /// <param name="e">the args of the event</param>
-        public void OnSearchFilterChange(ChangeEventArgs e)
-        {
-            this.SearchValue = e.Value as string ?? string.Empty;
-            var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
-
-            if (this.SearchValue == string.Empty)
-            {
-                fullTree?.ForEach(x => x.IsDrawn = true);
-            }
-            else
-            {
-                fullTree?.ForEach(x =>
-                {
-                    if (!x.Title.Contains(this.SearchValue, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        x.IsDrawn = false;
-                    }
-                    else
-                    {
-                        x.IsDrawn = true;
-                    }
-                });
-            }
-
-            this.Refresh();
         }
     }
 }

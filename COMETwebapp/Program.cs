@@ -84,6 +84,11 @@ namespace COMETwebapp
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
+            builder.Services.AddTransient<IViewerViewModel, ViewerViewModel>();
+            builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
+            builder.Services.AddTransient<IProductTreeViewModel,ProductTreeViewModel>();
+            builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
+
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddBlazorStrap();
         }

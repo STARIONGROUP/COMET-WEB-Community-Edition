@@ -24,11 +24,11 @@
 
 namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using System.Threading.Tasks;
-
     using CDP4Common.EngineeringModelData;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Class for the state selector component
@@ -36,20 +36,16 @@ namespace COMETwebapp.Components.Viewer.Canvas
     public partial class ActualFiniteStateSelectorComponent
     {
         /// <summary>
+        /// Gets or sets the <see cref="IActualFiniteStateSelectorViewModel"/>
+        /// </summary>
+        [Inject]
+        public IActualFiniteStateSelectorViewModel ViewModel { get; set; }
+
+        /// <summary>
         /// Gets or sets the list of <see cref="ActualFiniteStateList"/> used by the <see cref="ActualFiniteStateSelectorComponent"/>
         /// </summary>
         [Parameter]
-        public List<ActualFiniteStateList> ListActualFiniteStateList { get; set; } = new();
-
-        /// <summary>
-        /// Field for keeping track of the selection state of the <see cref="ActualFiniteState"/>
-        /// </summary>
-        private Dictionary<ActualFiniteState, bool> SelectedActualFiniteStates = new();
-
-        /// <summary>
-        /// All the <see cref="ActualFiniteState"/> that the <see cref="ActualFiniteStateSelectorComponent"/> contains
-        /// </summary>
-        private List<ActualFiniteState> TotalActualFiniteStates = new();
+        public List<ActualFiniteStateList> ActualFiniteStateListsCollection { get; set; } = new();
 
         /// <summary>
         /// Event callback for when an <see cref="ActualFiniteState"/> has been selected
@@ -78,45 +74,10 @@ namespace COMETwebapp.Components.Viewer.Canvas
             await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
-                this.TotalActualFiniteStates = this.ListActualFiniteStateList.SelectMany(x => x.ActualState).ToList();
-                this.ResetDictionary();
+                this.ViewModel.ActualFiniteStateListsCollection = this.ActualFiniteStateListsCollection;
+                this.ViewModel.InitializeViewModel();
+                this.WhenAnyValue(x=>x.ViewModel.SelectedStates).Subscribe(states=> this.OnActualFiniteStateChanged.InvokeAsync(states));               
             }
-        }
-
-        /// <summary>
-        /// Resets the dictionary and fills it with the default states
-        /// </summary>
-        private void ResetDictionary()
-        {
-            this.SelectedActualFiniteStates.Clear();
-
-            foreach (var actualFS in this.TotalActualFiniteStates)
-            {
-                this.SelectedActualFiniteStates.TryAdd(actualFS, actualFS.IsDefault);
-            }
-        }
-
-        /// <summary>
-        /// Event for when a <see cref="ActualFiniteState"/> has been selected
-        /// </summary>
-        /// <param name="actualFiniteState">the selected <see cref="ActualFiniteState"/></param>
-        public void OnActualFiniteStateSelected(ActualFiniteState actualFiniteState)
-        {
-            if(actualFiniteState.Container is ActualFiniteStateList AFSlist)
-            {
-                foreach(var finiteState in AFSlist.ActualState)
-                {
-                    if (this.SelectedActualFiniteStates.ContainsKey(finiteState))
-                    {
-                        this.SelectedActualFiniteStates[finiteState] = false;
-                    }
-                }
-            }
-
-            this.SelectedActualFiniteStates[actualFiniteState] = true;
-
-            var selectedStates = this.SelectedActualFiniteStates.Where(x => x.Value).Select(x => x.Key).ToList();
-            this.OnActualFiniteStateChanged.InvokeAsync(selectedStates);
         }
     }
 }

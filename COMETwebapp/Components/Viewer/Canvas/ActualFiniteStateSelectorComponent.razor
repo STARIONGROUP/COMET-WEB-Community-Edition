@@ -20,17 +20,29 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@if(this.ListActualFiniteStateList is not null){
+@if(this.ActualFiniteStateListsCollection is not null){
     <div id="state-selector-container">
         <h6 id="state-selector-title">Actual Finite States</h6>
-        @{
-            foreach (var actualStateList in this.ListActualFiniteStateList)
+        @foreach (var actualStateList in this.ActualFiniteStateListsCollection)
+        {
+            <div class="actual-finite-state-list">
+                <p>@actualStateList.Name</p>
+            </div>
+            @foreach(var actualState in actualStateList.ActualState)
             {
-                <ActualFiniteStateListComponent ActualFiniteStateList="actualStateList"
-                                                OnSelectedStateChanged="this.OnActualFiniteStateSelected">
-                </ActualFiniteStateListComponent>
+                if(this.ViewModel.SelectionStateActualFiniteState.ContainsKey(actualState))
+                {
+                    var selectionState = this.ViewModel.SelectionStateActualFiniteState[actualState];
+                    <div class="actual-finite-state @(selectionState ? "selected-state":"")" @onclick="()=>this.ViewModel.OnActualFiniteStateSelected(actualState)">
+                        <p>@actualState.Name</p>
+                        @if (actualState.IsDefault)
+                        {
+                            <p class="default-state">- Default</p>
+                        }
+                    </div>
+                }
             }
-        }
+        }        
     </div>
-}
+} 
 

@@ -26,40 +26,23 @@ Copyright (c) 2023 RHEA System S.A.
     <Body> 
         <div class="row"> 
             <div class="col"> 
-                <div class="width-fit-content"> 
-                    @{ 
-                        var options = this.TotalOptions != null ? this.TotalOptions.Select(x => x.Name).ToList() : new List<string>(); 
-                        <BSDropdown> 
-                            <Toggler><BSToggle IsButton="true" Color="BSColor.Secondary">@(this.SelectedOption != null ? this.SelectedOption.Name : "- - -")</BSToggle></Toggler> 
-                            <Content> 
-                                @foreach (var option in options) 
-                                { 
-                                    <BSDropdownItem>@option</BSDropdownItem> 
-                                } 
-                            </Content> 
-                        </BSDropdown> 
-                    } 
+                <div class="width-fit-content">
+                    <DxComboBox Data="@this.ViewModel.TotalOptions" TextFieldName="@nameof(CDP4Common.EngineeringModelData.Option.Name)" @bind-Value="@this.ViewModel.SelectedOption"></DxComboBox>
                 </div> 
             </div> 
         </div> 
         <div id="gridParent"> 
-            <div id="leftColumn"> 
-                @if (this.SelectedOption != null) 
-                { 
-                    <ProductTree RootNode="this.RootNode"/> 
-                } 
+            <div id="leftColumn">
+                <ProductTree RootNode="this.ViewModel.RootNode" />
             </div> 
             <div id="center-container"> 
                 <CanvasComponent @ref=this.CanvasComponent /> 
             </div> 
-            <div id="rightColumn"> 
-                @if(this.SelectedOption != null) 
-                {
-                    <PropertiesComponent Canvas="this.CanvasComponent"/>
-                    <ActualFiniteStateSelectorComponent ListActualFiniteStateList="this.ListActualFiniteStateLists" 
-                                                        OnActualFiniteStateChanged="this.ActualFiniteStateChanged"> 
-                    </ActualFiniteStateSelectorComponent> 
-                } 
+            <div id="rightColumn">
+                <PropertiesComponent Canvas="this.CanvasComponent" />
+                <ActualFiniteStateSelectorComponent ActualFiniteStateListsCollection="@this.ViewModel.ListActualFiniteStateLists"
+                                                    OnActualFiniteStateChanged="this.ViewModel.ActualFiniteStateChanged">
+                </ActualFiniteStateSelectorComponent>
             </div> 
         </div> 
     </Body> 

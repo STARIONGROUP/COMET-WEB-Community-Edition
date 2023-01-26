@@ -24,3 +24,40 @@
         margin-left: 2%;
         cursor: pointer;
     }
+
+.actual-finite-state {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: whitesmoke;
+    margin-left: 20px;
+    margin-bottom: 4px;
+}
+
+    .actual-finite-state:hover {
+        cursor: pointer;
+        background-color: #e3e2e2;
+    }
+
+    .actual-finite-state.selected-state {
+        box-shadow: 0 0 0 2px #008bd2;
+    }
+
+p {
+    padding: 0;
+    margin: 2%;
+    text-align: center;
+}
+
+.default-state {
+    margin-left: 0;
+}
+
+.actual-finite-state-list {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: #EEEEEE;
+    margin-bottom: 6px;
+    box-shadow: 0 0 0 2px #EEEEEE;
+}
