@@ -24,16 +24,12 @@
 
 namespace COMETwebapp.Components.Viewer.PropertiesPanel
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.Types;
-
-    using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Model;
-    using COMETwebapp.Utilities;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+    
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
-
-    using Newtonsoft.Json;
+    
+    using ReactiveUI;
 
     /// <summary>
     /// The component used for showing the details of the <see cref="PrimitiveSelected"/>
@@ -41,54 +37,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     public partial class DetailsComponent
     {
         /// <summary>
-        /// Gets or sets the property used for the Interoperability
-        /// </summary>
-        [Inject]
-        public IJSRuntime JSInterop { get; set; }
-
-        /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
-        /// </summary>
-        private Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the component is visible
+        /// Gets or sets the <see cref="IDetailsComponentViewModel"/>
         /// </summary>
         [Parameter]
-        public bool IsVisible { get; set; }
-
-        /// <summary>
-        /// Backing field for the <see cref="parameterSelected"/> property
-        /// </summary>
-        private ParameterBase parameterSelected;
-
-        /// <summary>
-        /// Gets or sets the selected parameter used for the details
-        /// </summary>
-        [Parameter]
-        public ParameterBase ParameterSelected
-        {
-            get => this.parameterSelected;
-            set
-            {
-                if (this.parameterSelected != value)
-                {
-                    this.parameterSelected = value;
-                }
-            }
-        }
-
-        /// <summary> 
-        /// Gets or sets the <see cref="ISelectionMediator"/> 
-        /// </summary> 
-        [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
-
-        /// <summary> 
-        /// Event callback for when a value of the <see cref="ParameterSelected"/> has changed 
-        /// </summary> 
-        [Parameter]
-        public EventCallback OnParameterValueChanged { get; set; }
+        public IDetailsComponentViewModel ViewModel { get; set; }
 
         /// <summary> 
         /// Method invoked after each time the component has been rendered. Note that the component does 
@@ -111,107 +63,18 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
             await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
-                this.SelectionMediator.OnTreeSelectionChanged += (sender, node) =>
-                {
-                    this.OnSelectionChanged();
-                };
-                this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
-                {
-                    this.OnSelectionChanged();
-                };
-            }
-        }
-
-        /// <summary> 
-        /// Callback method for when a new <see cref="SceneObject"/> has been selected 
-        /// </summary> 
-        private void OnSelectionChanged()
-        {
-            if (this.SelectionMediator.SelectedSceneObjectClone != null)
-            {
-                this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
+                this.WhenAnyValue(x => x.ViewModel.SelectedParameter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
         }
 
         /// <summary>
-        /// Gets the <see cref="IValueSet"/> asociated to the <see cref="ParameterSelected"/> property
+        /// Creates a new <see cref="IOrientationViewModel"/>
         /// </summary>
-        /// <returns>the set</returns>
-        public IValueSet GetSelectedParameterValueSet()
+        /// <returns>the <see cref="IOrientationViewModel"/></returns>
+        public IOrientationViewModel CreateOrientationViewModel()
         {
-            if(this.ParameterValueSetRelations is not null)
-            {
-                return this.ParameterValueSetRelations.ContainsKey(this.ParameterSelected) ? this.ParameterValueSetRelations[this.ParameterSelected] : null;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the value sets with the new values
-        /// </summary>
-        public Dictionary<ParameterBase, IValueSet> GetParameterValueSetRelations()
-        {
-            return this.ParameterValueSetRelations;
-        }
-
-        /// <summary>
-        /// Event for when the value of a parameter has changed
-        /// </summary>
-        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
-        /// <param name="e">Supplies information about an change event that is being raised.</param>
-        public Task OnParameterValueChange(int changedIndex, ChangeEventArgs e)
-        {
-            //TODO: Validate data 
-            return this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);
-        }
-
-        /// <summary>
-        /// Sets that a parameter has changed in the value array
-        /// </summary>
-        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
-        /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
-        public async Task ParameterChanged(int changedIndex, string value)
-        {
-            //TODO: Validate data  
-            var valueSet = this.ParameterValueSetRelations[this.ParameterSelected];
-            ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
-            newValueArray[changedIndex] = value;
-
-            if (valueSet is ParameterValueSetBase parameterValueSetBase)
-            {
-                var clonedValueSetBase = parameterValueSetBase.Clone(false);
-                clonedValueSetBase.Manual = newValueArray;
-                this.ParameterValueSetRelations[this.ParameterSelected] = clonedValueSetBase;
-
-                this.SelectionMediator?.SelectedSceneObjectClone?.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
-
-                if (this.ParameterSelected.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
-                {
-                    if (this.SelectionMediator?.SelectedSceneObjectClone?.Primitive is not null)
-                    {
-                        this.SelectionMediator.SelectedSceneObjectClone.Primitive.HasHalo = true;
-                    }
-                    var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-                    foreach (var parameter in parameters)
-                    {
-                        this.SelectionMediator?.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
-                    }
-                }
-
-                string jsonSceneObject = JsonConvert.SerializeObject(this.SelectionMediator?.SelectedSceneObjectClone, Formatting.Indented);
-                await this.JSInterop.InvokeVoidAsync("RegenMesh", jsonSceneObject);
-            }
-
-            await this.ParameterValueChanged();
-        }
-
-        /// <summary> 
-        /// Calls the eventcallback <see cref="OnParameterValueChanged"/> 
-        /// </summary> 
-        /// <returns>an asynchronous operation</returns> 
-        public async Task ParameterValueChanged()
-        {
-            await this.OnParameterValueChanged.InvokeAsync();
+            var orientation = this.ViewModel.CurrentValueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
+            return new OrientationViewModel(orientation, this.ViewModel.CurrentValueSet, this.ViewModel.SelectedParameter, this.ViewModel.OnParameterValueChanged);
         }
     }
 }

@@ -31,8 +31,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     using COMETwebapp.Enumerations;
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
-
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+    
     using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
 
     /// <summary>
     /// The component used to change the orientation of the selected mesh.
@@ -40,41 +42,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     public partial class OrientationComponent
     {
         /// <summary>
-        /// Gets or sets the orientation parameter type.
+        /// Gets or sets the <see cref="IOrientationViewModel"/>
         /// </summary>
         [Parameter]
-        public CompoundParameterType OrientationParameterType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the parent <see cref="DetailsComponent"/>
-        /// </summary>
-        [Parameter]
-        public DetailsComponent DetailsComponent { get; set; }
-
-        /// <summary>
-        /// Gets or sets the angle format. 
-        /// </summary>
-        public string AngleFormat { get; set; } = "Degrees";
-
-        /// <summary>
-        /// Gets or sets the orientation matrix computed by the euler angles.
-        /// </summary>
-        public double[] OrientationMatrix { get; set; } 
-
-        /// <summary>
-        /// Gets or sets the rotation around the X axis
-        /// </summary>
-        public double Rx { get; set; }
-
-        /// <summary>
-        /// Gets or sets the rotation around the Y axis
-        /// </summary>
-        public double Ry { get; set; }
-
-        /// <summary>
-        /// Gets or sets the rotation around the Z axis
-        /// </summary>
-        public double Rz { get; set; }
+        public IOrientationViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -98,91 +69,8 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 
             if (firstRender)
             {
-                var orientation = this.DetailsComponent.GetSelectedParameterValueSet().ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
-                this.OrientationMatrix = orientation.Matrix;
-
-                this.Rx = orientation.X;
-                this.Ry = orientation.Y;
-                this.Rz = orientation.Z;
-
-                this.StateHasChanged();
+                this.WhenAnyValue(x => x.ViewModel.AngleFormat).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
-        }
-
-        /// <summary>
-        /// Event for when the euler angles changed
-        /// </summary>
-        /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
-        /// <param name="e">the args of the event</param>
-        private void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
-        {
-            var valueText = e.Value as string;
-
-            if(double.TryParse(valueText, out var value))
-            {
-                switch (sender)
-                {
-                    case "Rx": this.Rx = value; 
-                        break;
-                    case "Ry": this.Ry = value; 
-                        break;
-                    case "Rz": this.Rz = value; 
-                        break;
-                }
-            }
-
-            Enum.TryParse<AngleFormat>(this.AngleFormat, out var angleFormat);
-            var orientation = new Orientation(this.Rx, this.Ry, this.Rz) { AngleFormat = angleFormat };
-            this.OrientationMatrix = orientation.Matrix;
-
-            for(int i = 0; i< this.OrientationMatrix.Length; i++)
-            {
-                this.DetailsComponent.ParameterChanged(i, this.OrientationMatrix[i].ToString());
-            }
-
-            this.StateHasChanged();
-        }
-
-        /// <summary> 
-        /// Event for when the matrix values changed 
-        /// </summary> 
-        private void OnMatrixValuesChanged(int index, ChangeEventArgs e)
-        {
-            var valueText = e.Value as string;
-
-            if (double.TryParse(valueText, out var value))
-            {
-                this.OrientationMatrix[index] = value;
-                Enum.TryParse<AngleFormat>(this.AngleFormat, out var enumAngleFormat);
-                var orientation = new Orientation(this.OrientationMatrix, enumAngleFormat);
-                this.Rx = orientation.X;
-                this.Ry = orientation.Y;
-                this.Rz = orientation.Z;
-            }
-
-            for (int i = 0; i < this.OrientationMatrix.Length; i++)
-            {
-                this.DetailsComponent.ParameterChanged(i, this.OrientationMatrix[i].ToString());
-            }
-
-            this.StateHasChanged();
-        }
-
-        /// <summary> 
-        /// Event for when the angle format has changed 
-        /// </summary> 
-        /// <param name="angleFormat"></param> 
-        private void OnAngleFormatChanged(string angleFormat)
-        {
-            this.AngleFormat = angleFormat;
-
-            Enum.TryParse<AngleFormat>(this.AngleFormat, out var enumAngleFormat);
-            var orientation = this.DetailsComponent.GetSelectedParameterValueSet().ParseIValueToOrientation(enumAngleFormat);
-            this.OrientationMatrix = orientation.Matrix;
-
-            this.Rx = orientation.X;
-            this.Ry = orientation.Y;
-            this.Rz = orientation.Z;
         }
     }
 }

@@ -22,31 +22,28 @@ Copyright (c) 2023 RHEA System S.A.
 
 <div id="propertiesPanel">
 
-    @if (this.IsVisible)
+    @if (this.ViewModel.IsVisible)
     {
-        var title = this.SelectionMediator?.SelectedSceneObject is not null ? this.SelectionMediator?.SelectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
-        var buttonClass = this.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
+        var selectedSceneObject = this.ViewModel.SelectionMediator.SelectedSceneObject;
+        var title = selectedSceneObject is not null ? selectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
+        var buttonClass = this.ViewModel.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
 
         <div id="properties-header">
             <h6>@title</h6>
-            <button @onclick="()=>this.OnSubmit()" class="@buttonClass" disabled="@(!this.ParameterHaveChanges)">Submit</button>
+            <button @onclick="()=>this.ViewModel.OnSubmit()" class="@buttonClass" disabled="@(!this.ViewModel.ParameterHaveChanges)">Submit</button>
         </div>
 
         <div id="parameters-section">
             @{
-                var parameters = this.ParametersInUse;
+                var parameters = this.ViewModel.ParametersInUse is not null ? this.ViewModel.ParametersInUse : new List<CDP4Common.EngineeringModelData.ParameterBase>();
                 @foreach (var parameter in parameters)
                 {
-                    var classNames = parameter == this.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
-                    <p class="@classNames" @onclick="()=> this.SelectedParameterChanged(parameter)">@parameter.ParameterType.Name</p>
+                    var classNames = parameter == this.ViewModel.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
+                    <p class="@classNames" @onclick="()=> this.ViewModel.OnParameterClick(parameter)">@parameter.ParameterType.Name</p>
                 }
             }
         </div>
     }
 
-    <DetailsComponent @ref=this.DetailsReference
-                      ParameterSelected="this.SelectedParameter"
-                      IsVisible="this.IsVisible"
-                      OnParameterValueChanged="this.OnParameterValueChanged">
-    </DetailsComponent>
+    <DetailsComponent ViewModel="this.CreateDetailsComponentViewModel()"/>
 </div>

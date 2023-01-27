@@ -19,26 +19,27 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+
 @using COMETwebapp.Extensions
 @using CDP4Common.SiteDirectoryData
 
-@if (!this.IsVisible)
+@if (!this.ViewModel.IsVisible || this.ViewModel.SelectedParameter is null)
 {
     return;
 }
 
-@if (this.ParameterSelected.ParameterType is ScalarParameterType scalarType)
+@if (this.ViewModel.SelectedParameter.ParameterType is ScalarParameterType scalarType)
 {
-    var value = this.GetSelectedParameterValueSet() is not null ? this.GetSelectedParameterValueSet().ActualValue.First() : "";
+    var value = this.ViewModel.CurrentValueSet is not null ? this.ViewModel.CurrentValueSet.ActualValue.First() : "";
 
     if (scalarType is EnumerationParameterType enumerationType)
     {
         <div class="parameter-row-centered">
             <DxComboBox Data="enumerationType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name).ToList()"
-                NullText="-"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-                Value="@value"
-                ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
+                        NullText="-"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                        Value="@value"
+                        ValueChanged="@((string value)=>this.ViewModel.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
         </div>
     }
     else if (scalarType is BooleanParameterType booleanType)
@@ -47,10 +48,10 @@ Copyright (c) 2023 RHEA System S.A.
             @{
                 var data = new List<string>() { "-", "true", "false" };
                 <DxComboBox Data="data"
-                NullText="-"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-                Value="@value"
-                ValueChanged="@((string value)=>this.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
+                            NullText="-"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                            Value="@value"
+                            ValueChanged="@((string value)=>this.ViewModel.OnParameterValueChange(0,new ChangeEventArgs(){Value = value}))" />
             }
         </div>
     }
@@ -59,9 +60,9 @@ Copyright (c) 2023 RHEA System S.A.
         DateTime.TryParse(@value, out DateTime date);
         <div class="parameter-row">
             <DxDateEdit Date="date"
-                DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                NullText="Select a date..." />
+                        DateChanged="@((DateTime? date) => this.ViewModel.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        NullText="Select a date..." />
         </div>
     }
     else if (scalarType is TextParameterType textType)
@@ -71,7 +72,7 @@ Copyright (c) 2023 RHEA System S.A.
         if (textType.ShortName == SceneSettings.ColorShortName)
         {
             <div class="parameter-row" id="color-section">
-                <input type="color" id="color" name="color" value="@colorValue" @onchange="(e)=>this.OnParameterValueChange(0,e)">
+                <input type="color" id="color" name="color" value="@colorValue" @onchange="(e)=>this.ViewModel.OnParameterValueChange(0,e)">
                 <label for="color" id="color-text">Color</label>
             </div>
         }
@@ -79,7 +80,7 @@ Copyright (c) 2023 RHEA System S.A.
         {
             <div class="parameter-row">
                 <p>@textType.Name</p>
-                <BSInput InputType="InputType.Text" Value="@value" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" />
+                <DxTextBox Text="@value" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(0,e)"></DxTextBox>
             </div>
         }
     }
@@ -90,7 +91,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         <div class="parameter-row">
             <DxDateEdit Date="date"
-                DateChanged="@((DateTime? date) => this.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
+                DateChanged="@((DateTime? date) => this.ViewModel.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString()}))"
                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                 NullText="Select a date..." />
         </div>
@@ -99,9 +100,9 @@ Copyright (c) 2023 RHEA System S.A.
         var values = timeString.Split(':');
 
         <div class="parameter-row">
-            <BSInput InputType="InputType.Text" Value="values[0]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" /> <p>:</p>
-            <BSInput InputType="InputType.Text" Value="values[1]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(1,e)" /> <p>:</p>
-            <BSInput InputType="InputType.Text" Value="values[2]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(2,e)" />
+            <DxTextBox Text="@values[0]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(0,e)"></DxTextBox> <p>:</p>
+            <DxTextBox Text="@values[1]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(1,e)"></DxTextBox> <p>:</p>
+            <DxTextBox Text="@values[2]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(2,e)"></DxTextBox>
         </div>
     }
     else if (scalarType is TimeOfDayParameterType timeOfDayType)
@@ -109,28 +110,27 @@ Copyright (c) 2023 RHEA System S.A.
         var values = value.Split(':');
 
         <div class="parameter-row">
-            <BSInput InputType="InputType.Text" Value="values[0]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" /> <p>:</p>
-            <BSInput InputType="InputType.Text" Value="values[1]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(1,e)" /> <p>:</p>
-            <BSInput InputType="InputType.Text" Value="values[2]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(2,e)" />
+            <DxTextBox Text="@values[0]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(0,e)"></DxTextBox> <p>:</p>
+            <DxTextBox Text="@values[1]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(1,e)"></DxTextBox> <p>:</p>
+            <DxTextBox Text="@values[2]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(2,e)"></DxTextBox>
         </div>
     }
     else if (scalarType is QuantityKind quantityKind)
     {
         <div class="parameter-row">
             <p>@quantityKind.Name</p>
-
-            <BSInput InputType="InputType.Text" Value="@value" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(0,e)" />
+            <DxTextBox Text="@value" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(0,e)"></DxTextBox>
             <p>@quantityKind.DefaultScale.ShortName</p>
         </div>
     }
 }
-else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundType)
+else if (this.ViewModel.SelectedParameter.ParameterType is CompoundParameterType compoundType)
 {
-    var valueSet = this.GetSelectedParameterValueSet();
+    var valueSet = this.ViewModel.CurrentValueSet;
 
     if (compoundType.ShortName == SceneSettings.OrientationShortName && valueSet is not null)
     {
-        <OrientationComponent OrientationParameterType="compoundType" DetailsComponent="this"/>
+        <OrientationComponent ViewModel="this.CreateOrientationViewModel()"/>
     }
     else if (valueSet is not null)
     {
@@ -141,7 +141,7 @@ else if (this.ParameterSelected.ParameterType is CompoundParameterType compoundT
 
             <div class="parameter-row">
                 <p>@comp.ShortName</p>
-                <BSInput InputType="InputType.Text" Value="valueSet?.ActualValue[i]" Class="parameter-input" @oninput="(e)=>this.OnParameterValueChange(index,e)" />
+                <DxTextBox Text="@valueSet?.ActualValue[i]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(index,e)"></DxTextBox>
                 <p>@comp.Scale.ShortName</p>
             </div>
         }

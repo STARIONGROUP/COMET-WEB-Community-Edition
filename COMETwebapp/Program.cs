@@ -34,6 +34,9 @@ namespace COMETwebapp
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+    using COMETwebapp.ViewModels.Pages.Viewer;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
@@ -88,6 +91,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
             builder.Services.AddTransient<IProductTreeViewModel,ProductTreeViewModel>();
             builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
+            builder.Services.AddTransient<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
 
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddBlazorStrap();
