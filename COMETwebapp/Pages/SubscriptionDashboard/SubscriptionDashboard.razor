@@ -22,9 +22,10 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.SessionManagement
 @using CDP4Dal
 @using CDP4Dal.Events
+@using COMETwebapp.Services.SessionManagement
 
 @page "/SubscriptionDashboard"
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 
 @implements IDisposable
 
@@ -104,8 +105,8 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     public void LoadTitles()
     {
-        this.SubscribedTableViewTitle = $"Parameters {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain subscribed to";
-        this.DomainOfExpertiseSubscriptionTableViewTitle = $"Parameters owned by {this.ISessionAnchor.CurrentDomainOfExpertise?.Name} domain, subscribed to by other domains";
+        this.SubscribedTableViewTitle = $"Parameters {this.SessionService.CurrentDomainOfExpertise?.Name} domain subscribed to";
+        this.DomainOfExpertiseSubscriptionTableViewTitle = $"Parameters owned by {this.SessionService.CurrentDomainOfExpertise?.Name} domain, subscribed to by other domains";
     }
 
     /// <summary>
@@ -125,10 +126,10 @@ Copyright (c) 2023 RHEA System S.A.
         this.FilterOption = FilterOption ?? null;
         if(this.FilterOption != null)
         {
-            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
+            this.optionSelected = this.SessionService.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
         } else
         {
-            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
+            this.optionSelected = this.SessionService.OpenIteration?.Option.First().Name;
         }
     }
 }

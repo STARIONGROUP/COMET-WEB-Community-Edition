@@ -24,9 +24,10 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Dal.Events
 @using COMETwebapp.IterationServices
 @using COMETwebapp.Model
+@using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
 
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 @inject NavigationManager NavigationManager
 
@@ -69,7 +70,7 @@ Copyright (c) 2023 RHEA System S.A.
                         </div>
                     </div>  
                     @{
-                        var iteration = this.ISessionAnchor.OpenIteration;
+                        var iteration = this.SessionService.OpenIteration;
                     }
                     @if (iteration != null && iteration.Option.ToList().Count > 1)
                     {
@@ -125,7 +126,7 @@ Copyright (c) 2023 RHEA System S.A.
                                     <BSTD Class="width-1400">
                                         <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
                                             <BSTBody>
-                                                @foreach(var parameterSubscription in this.FilterParameter(this.IterationService.GetParameterSubscriptionsByElement(element, this.ISessionAnchor.CurrentDomainOfExpertise)))
+                                                @foreach(var parameterSubscription in this.FilterParameter(this.IterationService.GetParameterSubscriptionsByElement(element, this.SessionService.CurrentDomainOfExpertise)))
                                                 {
                                                     var associatedParameter = (ParameterOrOverrideBase)parameterSubscription.Container;
                                                     @foreach(var parameterSubscriptionValueSet in this.FilterParameterSubscriptionValueSet(parameterSubscription.IsOptionDependent, parameterSubscription.ValueSet))
@@ -195,7 +196,7 @@ Copyright (c) 2023 RHEA System S.A.
     {
         this.LoadElements();
         this.ParameterTypeNames.Clear();
-        this.IterationService.GetParameterTypes(this.ISessionAnchor.OpenIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
+        this.IterationService.GetParameterTypes(this.SessionService.OpenIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
@@ -237,12 +238,12 @@ Copyright (c) 2023 RHEA System S.A.
     private void LoadElements()
     {
         this.Elements.Clear();
-        var iteration = this.ISessionAnchor.OpenIteration;
+        var iteration = this.SessionService.OpenIteration;
         if (iteration != null)
         {
             if (iteration.TopElement != null)
             {
-                var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(iteration.TopElement, this.ISessionAnchor.CurrentDomainOfExpertise);
+                var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(iteration.TopElement, this.SessionService.CurrentDomainOfExpertise);
                 if (parameterSubscriptions?.Count != 0)
                 {
                     this.Elements.Add(iteration.TopElement);
@@ -250,7 +251,7 @@ Copyright (c) 2023 RHEA System S.A.
             }
 
             this.Elements.AddRange(iteration.Element.SelectMany(e => e.ContainedElement)
-                .Where(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0));
+                .Where(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.SessionService.CurrentDomainOfExpertise).Count != 0));
         }
     }
 
@@ -263,8 +264,8 @@ Copyright (c) 2023 RHEA System S.A.
     {
         if(this.OptionSelected != null)
         {
-            var option = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
-            var nestedElements = this.IterationService.GetNestedElementsByOption(this.ISessionAnchor.OpenIteration, option);
+            var option = this.SessionService.OpenIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
+            var nestedElements = this.IterationService.GetNestedElementsByOption(this.SessionService.OpenIteration, option);
 
             var associatedElements = new List<ElementUsage>();
             nestedElements.ForEach(element =>
@@ -318,7 +319,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.isOnlyUpdates == true)
         {
-            elements.RemoveAll(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.ISessionAnchor.CurrentDomainOfExpertise)
+            elements.RemoveAll(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.SessionService.CurrentDomainOfExpertise)
                 .SelectMany(p => p.ValueSet).Where(p => this.isParameterSubscriptionValueSetUpdated(p)).Count() == 0);
         }
 
@@ -338,7 +339,7 @@ Copyright (c) 2023 RHEA System S.A.
     public void OnOptionFilterChange(string option)
     {
         this.OptionSelected = option;
-        var iid = this.ISessionAnchor.OpenIteration?.Option.SingleOrDefault(o => o.Name.Equals(this.OptionSelected))?.Iid;
+        var iid = this.SessionService.OpenIteration?.Option.SingleOrDefault(o => o.Name.Equals(this.OptionSelected))?.Iid;
         this.NavigationManager.NavigateTo($"/SubscriptionDashboard/?filteroption={iid}");
     }
 
@@ -383,7 +384,7 @@ Copyright (c) 2023 RHEA System S.A.
     {
         this.Filter(this.Elements).ToList().ForEach(e =>
         {
-            var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(e, this.ISessionAnchor.CurrentDomainOfExpertise);
+            var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(e, this.SessionService.CurrentDomainOfExpertise);
             parameterSubscriptions.ForEach(p =>
             {
                 this.FilterParameterSubscriptionValueSet(p.IsOptionDependent, p.ValueSet).ForEach(v =>
@@ -401,9 +402,9 @@ Copyright (c) 2023 RHEA System S.A.
     /// <param name="parameterSubscriptionValueSet">The <see cref="ParameterSubscriptionValueSet"> change to save </param>
     private void UpdateValidation(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
-        if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
+        if(this.SessionService.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.CurrentDomainOfExpertise, out var list))
         {
-            var previousVersion = this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Find(element => element.Iid == parameterSubscriptionValueSet.Iid);
+            var previousVersion = this.IterationService.ValidatedUpdates[this.SessionService.CurrentDomainOfExpertise].Find(element => element.Iid == parameterSubscriptionValueSet.Iid);
             if(previousVersion != null)
             {
                 previousVersion.RevisionNumber = parameterSubscriptionValueSet.RevisionNumber;
@@ -411,16 +412,16 @@ Copyright (c) 2023 RHEA System S.A.
 
             } else
             {
-                this.IterationService.ValidatedUpdates[this.ISessionAnchor.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
+                this.IterationService.ValidatedUpdates[this.SessionService.CurrentDomainOfExpertise].Add(new ParameterSubscriptionViewModel()
                 {
                     Iid = parameterSubscriptionValueSet.Iid,
                     RevisionNumber = parameterSubscriptionValueSet.RevisionNumber,
                     SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber
                 });
             }
-        } else if (this.ISessionAnchor.CurrentDomainOfExpertise != null)
+        } else if (this.SessionService.CurrentDomainOfExpertise != null)
         {
-            this.IterationService.ValidatedUpdates.Add(this.ISessionAnchor.CurrentDomainOfExpertise, new List<ParameterSubscriptionViewModel>()
+            this.IterationService.ValidatedUpdates.Add(this.SessionService.CurrentDomainOfExpertise, new List<ParameterSubscriptionViewModel>()
             {
                 new ParameterSubscriptionViewModel()
                 {
@@ -484,7 +485,7 @@ Copyright (c) 2023 RHEA System S.A.
     private bool isUpdateAlreadyValidated(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
         var isValidated = false;
-        if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
+        if(this.SessionService.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.CurrentDomainOfExpertise, out var list))
         {
             var existingValidatedParameter = list.Find(p => p.Iid == parameterSubscriptionValueSet.Iid);
             if(existingValidatedParameter != null && parameterSubscriptionValueSet.RevisionNumber == existingValidatedParameter.RevisionNumber && parameterSubscriptionValueSet.ValueSwitch != ParameterSwitchKind.COMPUTED)

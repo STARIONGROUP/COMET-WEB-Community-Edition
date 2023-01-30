@@ -49,6 +49,5 @@ namespace COMETwebapp.Model.DTO
         /// </summary>
         [Required]
         public string Password { get; set; }
-
     }
 }

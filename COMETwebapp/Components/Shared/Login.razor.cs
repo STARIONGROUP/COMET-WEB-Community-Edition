@@ -25,7 +25,7 @@
 namespace COMETwebapp.Components.Shared
 {
     using COMETwebapp.Enumerations;
-    using COMETwebapp.ViewModels.Components.Shared.Login;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     using Microsoft.AspNetCore.Components;
 
@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.Shared
     public partial class Login
     {
         /// <summary>
-        /// The <see cref="ILoginViewModel"/>
+        /// The <see cref="ILoginViewModel" />
         /// </summary>
         [Inject]
         public ILoginViewModel ViewModel { get; set; }
@@ -48,6 +48,16 @@ namespace COMETwebapp.Components.Shared
         public string LoginButtonDisplayText { get; private set; }
 
         /// <summary>
+        /// An error message to display after a login failure
+        /// </summary>
+        public string ErrorMessage { get; private set; }
+
+        /// <summary>
+        /// Value indicating if the login button is enabled or not
+        /// </summary>
+        public bool LoginEnabled { get; set; } = true;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -56,11 +66,11 @@ namespace COMETwebapp.Components.Shared
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.AuthenticationState)
-                .Subscribe(_ =>this.ComputeDisplayProperties()));
+                .Subscribe(_ => this.ComputeDisplayProperties()));
         }
 
         /// <summary>
-        /// Compute display properties based on the <see cref="ILoginViewModel.AuthenticationState"/>
+        /// Compute display properties based on the <see cref="ILoginViewModel.AuthenticationState" />
         /// </summary>
         private void ComputeDisplayProperties()
         {
@@ -83,8 +93,14 @@ namespace COMETwebapp.Components.Shared
         }
 
         /// <summary>
-        /// An error message to display after a login failure
+        /// Executes the login process
         /// </summary>
-        public string ErrorMessage { get; private set; }
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ExecuteLogin()
+        {
+            this.LoginEnabled = false;
+            await this.ViewModel.ExecuteLogin();
+            this.LoginEnabled = true;
+        }
     }
 }

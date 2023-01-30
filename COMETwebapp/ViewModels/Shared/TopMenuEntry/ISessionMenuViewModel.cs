@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ILoginViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ISessionMenuViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,30 +22,43 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Login
+namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 {
-    using COMETwebapp.Enumerations;
-    using COMETwebapp.Model.DTO;
+    using CDP4Dal;
+
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.SessionManagement;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     /// <summary>
-    /// Interface definition for <see cref="LoginViewModel" />
+    /// Interface definition for <see cref="SessionMenuViewModel" />
     /// </summary>
-    public interface ILoginViewModel
+    public interface ISessionMenuViewModel : IDisposableViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="AuthenticationStateKind" />
+        /// Gets the <see cref="ISessionService" />
         /// </summary>
-        AuthenticationStateKind AuthenticationState { get; set; }
+        ISessionService SessionService { get; }
 
         /// <summary>
-        /// The <see cref="AuthenticationDto" /> used for perfoming a login
+        /// Gets the <see cref="IAutoRefreshService" />
         /// </summary>
-        AuthenticationDto AuthenticationDto { get; }
+        IAutoRefreshService AutoRefreshService { get; }
 
         /// <summary>
-        /// Attempt to login to a COMET Server
+        /// Gets the <see cref="AuthenticationService" />
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task ExecuteLogin();
+        IAuthenticationService AuthenticationService { get; }
+
+        /// <summary>
+        /// Value indiciating that the <see cref="ISession" /> is currently refreshing
+        /// </summary>
+        bool IsRefreshing { get; set; }
+
+        /// <summary>
+        /// Refreshes the current <see cref="ISession"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        Task RefreshSession();
     }
 }

@@ -23,9 +23,10 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.IterationServices
 @using CDP4Dal
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Services.SessionManagement
 
 @inject NavigationManager NavigationManager
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 
 @implements IDisposable
@@ -44,7 +45,7 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
         </div>
         @{
-            var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
+            var participantRole = this.SessionService.GetParticipant()?.Role;
         }
         @if (participantRole != null && participantRole.Name.Equals("Model Administrator"))
         {
@@ -124,7 +125,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeUnreferencedElements()
     {
-        this.UnReferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
+        this.UnReferencedElements = this.IterationService.GetUnreferencedElements(this.SessionService.OpenIteration);
     }
 
     /// <summary>
@@ -154,6 +155,6 @@ Copyright (c) 2023 RHEA System S.A.
     /// <param name="elements"><see cref="ElementDefinition">s to filter</param>
     public List<ElementDefinition>? FilterDomain(List<ElementDefinition>? elements)
     {
-        return elements?.FindAll(e => e.Owner == this.ISessionAnchor.CurrentDomainOfExpertise);
+        return elements?.FindAll(e => e.Owner == this.SessionService.CurrentDomainOfExpertise);
     }
 }

@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Components\Shared\" />
     <Folder Include="Pages\" />
   </ItemGroup>
 

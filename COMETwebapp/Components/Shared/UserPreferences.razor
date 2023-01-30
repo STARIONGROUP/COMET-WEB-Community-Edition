@@ -23,8 +23,9 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.IterationServices
 @using CDP4Dal
 @using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Services.SessionManagement
 
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IAutoRefreshService AutoRefreshService
 @inject IIterationService IterationService
 @inject IAuthenticationService AuthenticationService
@@ -46,29 +47,29 @@ Copyright (c) 2023 RHEA System S.A.
             <div class="row justify-content-center">
                 @Username
             </div>
-            @if(ISessionAnchor.CurrentEngineeringModelName != null)
+            @if(this.SessionService.CurrentEngineeringModelName != null)
             {
                 <div class="row justify-content-center model-name-popover">
-                    @ISessionAnchor.CurrentEngineeringModelName
+                    @this.SessionService.CurrentEngineeringModelName
                 </div>
             }
             <div class="row justify-content-center font-size-smaller">
-                @ISessionAnchor.Session.DataSourceUri
+                @this.SessionService.Session.DataSourceUri
             </div>
         </div>
     </Header>
     <Content>
         <div class="container-fluid p-0">
-            @if(this.ISessionAnchor.GetParticipant()?.Domain.Count > 1)
+            @if(this.SessionService.GetParticipant()?.Domain.Count > 1)
             {
                 <div class="row justify-content-center p-2">
-                    @if(this.ISessionAnchor.OpenIteration is not null)
+                    @if(this.SessionService.OpenIteration is not null)
 			        {
-                        var IterationDomains = this.ISessionAnchor.Session.QueryDomainOfExpertise(this.ISessionAnchor.OpenIteration).OrderBy(i => i.Name);
+                        var IterationDomains = this.SessionService.Session.QueryDomainOfExpertise(this.SessionService.OpenIteration).OrderBy(i => i.Name);
                         <DxComboBox Data="@IterationDomains"
                                 TextFieldName="@nameof(DomainOfExpertise.Name)"
                                 AllowUserInput="true"
-                                Value="this.ISessionAnchor.CurrentDomainOfExpertise"
+                                Value="this.SessionService.CurrentDomainOfExpertise"
                                 ValueChanged="@((DomainOfExpertise domain) => this.OnSwitchDomain(domain))"
                                 FilteringMode="DataGridFilteringMode.Contains"/>
 			        }
@@ -103,7 +104,7 @@ Copyright (c) 2023 RHEA System S.A.
                 </div>
             </div>
             <div class="row text-align-center m-top-35px">
-                @if (this.ISessionAnchor.OpenIteration is not null)
+                @if (this.SessionService.OpenIteration is not null)
                 {
                     <div class="col-7">
                         <CloseModelButton/>
@@ -159,7 +160,7 @@ Copyright (c) 2023 RHEA System S.A.
         {
             this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
             {
-                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.SessionService.OpenIteration, this.SessionService.CurrentDomainOfExpertise);
                 this.StateHasChanged();
             }));
         }
@@ -168,7 +169,7 @@ Copyright (c) 2023 RHEA System S.A.
         {
             this.listeners.Add("UpdatesAreValidated", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpdatesAreValidated).Subscribe(x =>
             {
-                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.SessionService.OpenIteration, this.SessionService.CurrentDomainOfExpertise);
                 this.StateHasChanged();
             }));
         }
@@ -177,7 +178,7 @@ Copyright (c) 2023 RHEA System S.A.
         {
             this.listeners.Add("ValidateUpdate", CDPMessageBus.Current.Listen<ValidateUpdate>().Subscribe(x =>
             {
-                this.numberUpdates = this.IterationService.GetNumberUpdates(this.ISessionAnchor.OpenIteration, this.ISessionAnchor.CurrentDomainOfExpertise);
+                this.numberUpdates = this.IterationService.GetNumberUpdates(this.SessionService.OpenIteration, this.SessionService.CurrentDomainOfExpertise);
                 this.StateHasChanged();
             }));
         }
@@ -221,11 +222,11 @@ Copyright (c) 2023 RHEA System S.A.
         {
             return;
         }
-        this.ISessionAnchor.SwitchDomain(domain);
+        this.SessionService.SwitchDomain(domain);
     }
 
     /// <summary>
-    /// Close the <see cref="ISession" /> and update the <see cref="ISessionAnchor" />
+    /// Close the <see cref="ISession" /> and update the <see cref="SessionService" />
     /// </summary>
     public async void Logout()
     {

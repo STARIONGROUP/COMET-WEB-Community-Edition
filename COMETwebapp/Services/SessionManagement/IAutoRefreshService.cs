@@ -22,10 +22,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.SessionManagement
+namespace COMETwebapp.Services.SessionManagement
 {
-    using System.Timers;
-
     /// <summary>
     /// Service to enable auto-refresh of the opened session
     /// </summary>

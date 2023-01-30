@@ -24,51 +24,56 @@
 
 namespace COMETwebapp.Tests.Services.SessionManagement
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
     using CDP4Dal.Exceptions;
+
     using COMETwebapp.Enumerations;
+    using COMETwebapp.IterationServices;
+    using COMETwebapp.Model;
     using COMETwebapp.Model.DTO;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
 
     using Moq;
+
     using NUnit.Framework;
 
     [TestFixture]
     public class AuthenticationServiceTestFixture
     {
         private Mock<ISession> session;
-
-        private Mock<ISessionAnchor> sessionAnchor;
-
+        private Mock<ISessionService> sessionAnchor;
+        private Mock<IIterationService> iterationService;
         private CometWebAuthStateProvider cometWebAuthStateProvider;
-
         private AuthenticationDto authenticationDto;
-
         private Person person;
 
         [SetUp]
         public void SetUp()
         {
-            session = new Mock<ISession>();
-            sessionAnchor = new Mock<ISessionAnchor>();
+            this.session = new Mock<ISession>();
+            this.iterationService = new Mock<IIterationService>();
+            this.iterationService.Setup(x => x.ValidatedUpdates).Returns(new Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>>());
+            this.sessionAnchor = new Mock<ISessionService>();
 
-            sessionAnchor.Setup(x => x.Session).Returns(session.Object);
-            sessionAnchor.SetupProperty(x => x.IsSessionOpen);
+            this.sessionAnchor.Setup(x => x.Session).Returns(this.session.Object);
+            this.sessionAnchor.SetupProperty(x => x.IsSessionOpen);
 
-            cometWebAuthStateProvider = new CometWebAuthStateProvider(sessionAnchor.Object);
+            this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionAnchor.Object);
 
-            authenticationDto = new AuthenticationDto
+            this.authenticationDto = new AuthenticationDto
             {
                 SourceAddress = "https://www.rheagroup.com",
                 UserName = "John Doe",
                 Password = "secret"
             };
 
-            person = new Person
+            this.person = new Person
             {
                 GivenName = "John",
                 Surname = "Doe"
@@ -76,13 +81,27 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         }
 
         [Test]
-        public async Task Verify_that_when_the_source_address_is_null_authentication_fails()
+        public async Task Verify_that_a_logged_in_user_can_logout()
         {
-            authenticationDto.SourceAddress = null;
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
 
-            var authenticationService = new AuthenticationService(sessionAnchor.Object, cometWebAuthStateProvider);
+            await authenticationService.Logout();
 
-            var loginResult = await authenticationService.Login(authenticationDto);
+            this.sessionAnchor.Verify(x => x.Close(), Times.Once);
+        }
+
+        [Test]
+        public async Task Verify_that_a_nonauthorized_user_cannot_login()
+        {
+            this.session.Setup(x => x.ActivePerson).Returns(this.person);
+
+            SiteDirectory siteDirectory = null;
+
+            this.sessionAnchor.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+
+            var loginResult = await authenticationService.Login(this.authenticationDto);
 
             Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
         }
@@ -90,58 +109,32 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         [Test]
         public async Task Verify_that_an_authorized_user_can_login()
         {
-            session.Setup(x => x.ActivePerson).Returns(person);
+            this.session.Setup(x => x.ActivePerson).Returns(this.person);
 
             var siteDirectory = new SiteDirectory();
 
-            sessionAnchor.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.sessionAnchor.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
-            var authenticationService = new AuthenticationService(sessionAnchor.Object, cometWebAuthStateProvider);
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
 
-            var loginResult = await authenticationService.Login(authenticationDto);
+            var loginResult = await authenticationService.Login(this.authenticationDto);
 
             Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Success));
         }
 
         [Test]
-        public async Task Verify_that_when_the_server_returns_an_error_the_login_fails()
-        {
-            session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
-
-            var authenticationService = new AuthenticationService(sessionAnchor.Object, cometWebAuthStateProvider);
-
-            var loginResult = await authenticationService.Login(authenticationDto);
-
-            Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
-        }
-
-        [Test]
         public async Task Verify_that_when_the_server_cannot_be_reached_the_login_fails()
         {
-            session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
+            this.session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
 
-            var authenticationService = new AuthenticationService(sessionAnchor.Object, cometWebAuthStateProvider);
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+
             var authenticationDto = new AuthenticationDto
             {
                 SourceAddress = "https://www.rheagroup",
                 UserName = "John Doe",
                 Password = "secret"
             };
-            var loginResult = await authenticationService.Login(authenticationDto);
-
-            Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
-        }
-
-        [Test]
-        public async Task Verify_that_a_nonauthorized_user_cannot_login()
-        {
-            session.Setup(x => x.ActivePerson).Returns(person);
-
-            SiteDirectory siteDirectory = null;
-
-            sessionAnchor.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-
-            var authenticationService = new AuthenticationService(sessionAnchor.Object, cometWebAuthStateProvider);
 
             var loginResult = await authenticationService.Login(authenticationDto);
 
@@ -149,13 +142,27 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         }
 
         [Test]
-        public async Task Verify_that_a_logged_in_user_can_logout()
+        public async Task Verify_that_when_the_server_returns_an_error_the_login_fails()
         {
-            var authenticationService = new AuthenticationService(sessionAnchor.Object, cometWebAuthStateProvider);
+            this.session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
 
-            await authenticationService.Logout();
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
 
-            sessionAnchor.Verify(x => x.Close(), Times.Once);
+            var loginResult = await authenticationService.Login(this.authenticationDto);
+
+            Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
+        }
+
+        [Test]
+        public async Task Verify_that_when_the_source_address_is_null_authentication_fails()
+        {
+            this.authenticationDto.SourceAddress = null;
+
+            var authenticationService = new AuthenticationService(this.sessionAnchor.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+
+            var loginResult = await authenticationService.Login(this.authenticationDto);
+
+            Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
         }
     }
 }

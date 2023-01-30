@@ -27,8 +27,9 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.SessionManagement
 @using CDP4Common.CommonData
 @using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Services.SessionManagement
 
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 @implements IDisposable
 
@@ -486,7 +487,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private bool IsEditable()
     {
-        if(this.ParameterValueSet?.Owner == this.ISessionAnchor.CurrentDomainOfExpertise)
+        if(this.ParameterValueSet?.Owner == this.SessionService.CurrentDomainOfExpertise)
         {
             return true;
         } else
@@ -508,7 +509,7 @@ Copyright (c) 2023 RHEA System S.A.
             }
             var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
-            this.ISessionAnchor.UpdateThings(new List<Thing>()
+            this.SessionService.UpdateThings(new List<Thing>()
             {
                 clonedParameterValueSet
             });

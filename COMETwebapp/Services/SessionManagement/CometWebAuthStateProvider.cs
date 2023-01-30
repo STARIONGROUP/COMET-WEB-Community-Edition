@@ -28,6 +28,8 @@ namespace COMETwebapp.SessionManagement
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Services.SessionManagement;
+
     using Microsoft.AspNetCore.Components.Authorization;
     
     /// <summary>
@@ -36,19 +38,19 @@ namespace COMETwebapp.SessionManagement
     public class CometWebAuthStateProvider : AuthenticationStateProvider
     {
         /// <summary>
-        /// The <see cref="ISessionAnchor"/> used to get access to the <see cref="ISession"/>
+        /// The <see cref="ISessionService"/> used to get access to the <see cref="ISession"/>
         /// </summary>
-        private readonly ISessionAnchor sessionAnchor;
+        private readonly ISessionService sessionService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CometWebAuthStateProvider"/>
         /// </summary>
-        /// <param name="sessionAnchor">
-        /// The (injected) <see cref="ISessionAnchor"/> used to get access to the <see cref="ISession"/>
+        /// <param name="sessionService">
+        /// The (injected) <see cref="ISessionService"/> used to get access to the <see cref="ISession"/>
         /// </param>
-        public CometWebAuthStateProvider(ISessionAnchor sessionAnchor)
+        public CometWebAuthStateProvider(ISessionService sessionService)
         {
-            this.sessionAnchor = sessionAnchor;
+            this.sessionService = sessionService;
         }
 
         /// <summary>
@@ -60,13 +62,14 @@ namespace COMETwebapp.SessionManagement
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             ClaimsIdentity identity;
-            if (!this.sessionAnchor.IsSessionOpen)
+
+            if (!this.sessionService.IsSessionOpen)
             {
                 identity = new ClaimsIdentity();
             }
             else
             {
-                var person = this.sessionAnchor.Session.ActivePerson;
+                var person = this.sessionService.Session.ActivePerson;
                 identity = CreateClaimsIdentity(person);
             }
 

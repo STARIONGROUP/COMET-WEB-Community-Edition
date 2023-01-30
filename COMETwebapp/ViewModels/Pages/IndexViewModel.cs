@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="LoginViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IndexViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,18 +22,18 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Login
+namespace COMETwebapp.ViewModels.Pages
 {
-    using COMETwebapp.Enumerations;
-    using COMETwebapp.Model.DTO;
+    using CDP4Dal;
+
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
 
-    using ReactiveUI;
-
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Shared.Login" /> component
+    /// View Model that handles the home page
     /// </summary>
-    public class LoginViewModel : ReactiveObject, ILoginViewModel
+    public class IndexViewModel : IIndexViewModel
     {
         /// <summary>
         /// The <see cref="IAuthenticationService" />
@@ -41,41 +41,35 @@ namespace COMETwebapp.ViewModels.Components.Shared.Login
         private readonly IAuthenticationService authenticationService;
 
         /// <summary>
-        /// Backing field for <see cref="AuthenticationState" />
+        /// Initializes a new instance of the <see cref="IndexViewModel" /> class.
         /// </summary>
-        private AuthenticationStateKind authenticationState;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
-        /// </summary>
+        /// <param name="versionService">The <see cref="IVersionService" /></param>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        public LoginViewModel(IAuthenticationService authenticationService)
+        public IndexViewModel(IVersionService versionService, ISessionService sessionService, IAuthenticationService authenticationService)
         {
+            this.SessionService = sessionService;
             this.authenticationService = authenticationService;
+            this.Version = versionService.GetVersion();
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="AuthenticationStateKind" />
+        /// The <see cref="ISessionService" />
         /// </summary>
-        public AuthenticationStateKind AuthenticationState
-        {
-            get => this.authenticationState;
-            set => this.RaiseAndSetIfChanged(ref this.authenticationState, value);
-        }
+        public ISessionService SessionService { get; }
 
         /// <summary>
-        /// The <see cref="AuthenticationDto" /> used for perfoming a login
+        /// The version of the running application
         /// </summary>
-        public AuthenticationDto AuthenticationDto { get; private set; } = new();
+        public string Version { get; private set; }
 
         /// <summary>
-        /// Attempt to login to a COMET Server
+        /// Close the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task ExecuteLogin()
+        public Task Logout()
         {
-            this.AuthenticationState = AuthenticationStateKind.Authenticating;
-            this.AuthenticationState = await this.authenticationService.Login(this.AuthenticationDto);
+            return this.authenticationService.Logout();
         }
     }
 }

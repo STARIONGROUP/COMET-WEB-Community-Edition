@@ -1,0 +1,18 @@
+﻿.header {
+    background: lightgray;
+    padding: 5px;
+}
+
+.session_content {
+    font-size: 6px;
+}
+
+.content__autorefresh {
+    display: block;
+    font-size: 12px;
+}
+
+.content__spin {
+    width: 50px !important;
+    height: 40px !important;
+}

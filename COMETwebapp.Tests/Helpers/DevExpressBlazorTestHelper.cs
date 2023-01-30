@@ -24,15 +24,22 @@
 
 namespace COMETwebapp.Tests.Helpers
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
+    using System.Threading.Tasks;
+
     using Bunit;
 
     using DevExpress.Blazor.Internal;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
 
     /// <summary>
     /// Helper class that configures a <see cref="TestContext" /> to be able to test DevExpress components
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class DevExpressBlazorTestHelper
     {
         /// <summary>
@@ -41,7 +48,12 @@ namespace COMETwebapp.Tests.Helpers
         /// <param name="context">The <see cref="TestContext" /></param>
         public static void ConfigureDevExpressBlazor(this TestContext context)
         {
-            context.Services.AddDevExpressBlazor(_ => ConfigureJSInterop(context.JSInterop));
+            context.Services.TryAddScoped<IEnvironmentInfoFactory, MockEnvironmentInfoFactory>();
+            context.Services.TryAddScoped<IEnvironmentInfo, MockEnvironmentInfo>();
+            context.Services.AddOptions();
+            context.Services.AddLogging();
+            context.Services.TryAddComponentRequiredServices();
+            context.Services.AddDevExpressBlazor(_ => ConfigureJsInterop(context.JSInterop));
         }
 
         /// <summary>
@@ -58,7 +70,7 @@ namespace COMETwebapp.Tests.Helpers
         /// Configure the <see cref="BunitJSInterop" /> for DevExpress
         /// </summary>
         /// <param name="interop">The <see cref="BunitJSInterop" /> to configure</param>
-        private static void ConfigureJSInterop(BunitJSInterop interop)
+        private static void ConfigureJsInterop(BunitJSInterop interop)
         {
             interop.Mode = JSRuntimeMode.Loose;
 
@@ -68,5 +80,86 @@ namespace COMETwebapp.Tests.Helpers
             rootModule.Setup<DeviceInfo>("getDeviceInfo", _ => true)
                 .SetResult(new DeviceInfo(false));
         }
+    }
+
+    /// <summary>
+    /// Mocked class for the <see cref="EnvironmentInfoFactory" />
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    internal sealed class MockEnvironmentInfoFactory : IEnvironmentInfoFactory
+    {
+        /// <summary>
+        /// The cacehd <see cref="IEnvironmentInfo" />
+        /// </summary>
+        private readonly IEnvironmentInfo cached;
+
+        /// <summary>
+        /// Initializes a new <see cref="MockEnvironmentInfoFactory" />
+        /// </summary>
+        /// <param name="isWasm">If the environment is WebAssembly</param>
+        public MockEnvironmentInfoFactory(bool isWasm = false)
+        {
+            this.cached = new MockEnvironmentInfo(isWasm);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IEnvironmentInfo" />
+        /// </summary>
+        /// <returns>The <see cref="IEnvironmentInfo" /></returns>
+        public IEnvironmentInfo CreateEnvironmentInfo()
+        {
+            return this.cached;
+        }
+    }
+
+    /// <summary>
+    /// Mocked the <see cref="IEnvironmentInfo" />
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    public class MockEnvironmentInfo : IEnvironmentInfo
+    {
+        /// <summary>
+        /// The <see cref="DateTime" />
+        /// </summary>
+        public static readonly DateTime DateTimeNow = DateTime.Now.Date;
+
+        /// <summary>
+        /// Initializes a new <see cref="MockEnvironmentInfo" />
+        /// </summary>
+        /// <param name="isWasm">If the environment is WebAssembly</param>
+        public MockEnvironmentInfo(bool isWasm = false)
+        {
+            this.IsWasm = isWasm;
+            this.CurrentCulture = CultureInfo.CurrentCulture;
+        }
+
+        /// <summary>
+        /// Value asserting if the environment is WebAssembly
+        /// </summary>
+        public bool IsWasm { get; }
+
+        /// <summary>
+        /// Gets the <see cref="CultureInfo" />
+        /// </summary>
+        public CultureInfo CurrentCulture { get; }
+
+        /// <summary>
+        /// Gets the <see cref="DateTime" />
+        /// </summary>
+        /// <returns>The now <see cref="DateTime" /></returns>
+        public DateTime GetDateTimeNow()
+        {
+            return DateTimeNow;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ApiScheme" />
+        /// </summary>
+        Task<ApiScheme> IEnvironmentInfo.ApiScheme => Task.FromResult(new ApiScheme(true));
+
+        /// <summary>
+        /// Gets the <see cref="DeviceInfo" />
+        /// </summary>
+        Task<DeviceInfo> IEnvironmentInfo.DeviceInfo => Task.FromResult(new DeviceInfo(false));
     }
 }

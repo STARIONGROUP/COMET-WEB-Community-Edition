@@ -22,19 +22,35 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.SessionManagement
+namespace COMETwebapp.Services.SessionManagement
 {
     using System.Timers;
+
+    using CDP4Dal;
+
+    using DynamicData.Binding;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Service to enable auto-refresh of the opened session
     /// </summary>
-    public class AutoRefreshService : IAutoRefreshService, IDisposable
+    public sealed class AutoRefreshService : ReactiveObject, IAutoRefreshService, IDisposable
     {
         /// <summary>
-        /// The <see cref="ISessionAnchor"/> used to get access to the <see cref="ISession"/>
+        /// The <see cref="ISessionService" /> used to get access to the <see cref="ISession" />
         /// </summary>
-        private readonly ISessionAnchor sessionAnchor;
+        private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// The <see cref="Timer" />
+        /// </summary>
+        private readonly Timer timer;
+
+        /// <summary>
+        /// Backing field for <see cref="AutoRefreshInterval" />
+        /// </summary>
+        private int autoRefreshInterval = 60;
 
         /// <summary>
         /// Define seconds left in the timer before the next refresh
@@ -42,32 +58,48 @@ namespace COMETwebapp.SessionManagement
         private int autoRefreshSecondsLeft;
 
         /// <summary>
-        /// The timer
+        /// A collection of <see cref="IDisposable" />
         /// </summary>
-        private Timer timer { get; set; }
+        private readonly List<IDisposable> disposables = new();
+
+        /// <summary>
+        /// Backing field for <see cref="IsAutoRefreshEnabled" />
+        /// </summary>
+        private bool isAutoRefreshEnabled;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutoRefreshService" />
+        /// </summary>
+        /// <param name="sessionService">
+        /// The (injected) <see cref="ISessionService" /> to automatically refresh
+        /// </param>
+        public AutoRefreshService(ISessionService sessionService)
+        {
+            this.sessionService = sessionService;
+            this.timer = new Timer(1000);
+            this.timer.Elapsed += this.OnTimerElapsed;
+
+            this.disposables.Add(this.WhenAnyPropertyChanged(nameof(this.IsAutoRefreshEnabled),
+                nameof(this.AutoRefreshInterval)).Subscribe(_ => this.SetTimer()));
+        }
 
         /// <summary>
         /// Enable / disable auto-refresh for the ISession
         /// </summary>
-        public bool IsAutoRefreshEnabled { get; set; }
+        public bool IsAutoRefreshEnabled
+        {
+            get => this.isAutoRefreshEnabled;
+            set => this.RaiseAndSetIfChanged(ref this.isAutoRefreshEnabled, value);
+        }
 
         /// <summary>
         /// Define the interval in sec to auto-refresh the session
         /// Set to 60s by default
         /// </summary>
-        public int AutoRefreshInterval { get; set; } = 60;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AutoRefreshService"/>
-        /// </summary>
-        /// <param name="sessionAnchor">
-        /// The (injected) <see cref="ISessionAnchor"/> to automatically refresh
-        /// </param>
-        public AutoRefreshService(ISessionAnchor sessionAnchor)
+        public int AutoRefreshInterval
         {
-            this.sessionAnchor = sessionAnchor;
-            this.timer = new Timer(1000);
-            this.timer.Elapsed += this.OntTimerElapsed;
+            get => this.autoRefreshInterval;
+            set => this.RaiseAndSetIfChanged(ref this.autoRefreshInterval, value);
         }
 
         /// <summary>
@@ -80,9 +112,25 @@ namespace COMETwebapp.SessionManagement
                 this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
                 this.timer.Start();
             }
-            else 
+            else
             {
                 this.timer.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            try
+            {
+                this.timer.Elapsed -= this.OnTimerElapsed;
+                this.timer.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
@@ -91,30 +139,17 @@ namespace COMETwebapp.SessionManagement
         /// </summary>
         /// <param name="sender">The sender</param>
         /// <param name="e">The event arguments.</param>
-        private async void OntTimerElapsed(object? sender, EventArgs? e)
+        private async void OnTimerElapsed(object sender, EventArgs e)
         {
             this.autoRefreshSecondsLeft -= 1;
 
             if (this.autoRefreshSecondsLeft == 0)
             {
                 this.timer.Stop();
-                await this.sessionAnchor.RefreshSession();
+                await this.sessionService.RefreshSession();
 
                 this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
                 this.timer.Start();
-            }
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                this.timer.Elapsed -= this.OntTimerElapsed;
-                this.timer.Dispose();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
             }
         }
     }

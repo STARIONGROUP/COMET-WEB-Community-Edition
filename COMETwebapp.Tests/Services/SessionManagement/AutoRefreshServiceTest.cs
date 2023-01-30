@@ -32,17 +32,19 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     using System.Reactive.Linq;
     using System.Threading;
 
+    using COMETwebapp.Services.SessionManagement;
+
     [TestFixture]
     internal class AutoRefreshServiceTest
     {
-        private Mock<ISessionAnchor> sessionAnchor;
+        private Mock<ISessionService> sessionAnchor;
         private AutoRefreshService autoRefreshService;
 
         [SetUp]
         public void Setup()
         {
 
-            sessionAnchor = new Mock<ISessionAnchor>();
+            sessionAnchor = new Mock<ISessionService>();
 
             autoRefreshService = new AutoRefreshService(sessionAnchor.Object);
         }

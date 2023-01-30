@@ -30,6 +30,7 @@ namespace COMETwebapp.Pages.Viewer
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
 
@@ -76,10 +77,10 @@ namespace COMETwebapp.Pages.Viewer
         public List<Option>? TotalOptions { get; private set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// Injected property to get access to <see cref="ISessionService"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor? SessionAnchor { get; set; }
+        public ISessionService? SessionAnchor { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IIterationService"/>

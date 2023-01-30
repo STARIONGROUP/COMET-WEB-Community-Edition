@@ -23,10 +23,11 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Common.SiteDirectoryData
 @using CDP4Dal
 @using COMETwebapp.IterationServices
+@using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
 
 @page "/ModelDashboard/ParametersDetails"
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 @implements IDisposable
 
@@ -276,7 +277,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.SessionService.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 var valueSets = nestedParameters.Select(x => x.ValueSet).ToList();
@@ -294,7 +295,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
         {
-            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.OpenIteration, this.FilterParameterType);
+            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.SessionService.OpenIteration, this.FilterParameterType);
             parameterValueSets.RemoveAll(d => !parameterValueSetsByParameterType.Contains(d));
         }
 
@@ -306,7 +307,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeParameterValueSets()
     {
-        var iteration = this.ISessionAnchor.OpenIteration;
+        var iteration = this.SessionService.OpenIteration;
         if (this.Criteria is not null && this.Domain is not null && iteration != null)
         {
             var parameterValueSets = this.IterationService.GetParameterValueSetBase(iteration);
