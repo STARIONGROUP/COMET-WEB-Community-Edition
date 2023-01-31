@@ -22,7 +22,7 @@ Copyright (c) 2023 RHEA System S.A.
 @page "/"
 @inherits DisposableComponent
 
-@if (this.ViewModel.SessionService.IsSessionOpen && this.ViewModel.SessionService.OpenIteration != null)
+@if (this.ViewModel.SessionService.IsSessionOpen && this.ViewModel.SessionService.OpenIterations.Items.Any())
 {
 	<Dashboard/>
 }

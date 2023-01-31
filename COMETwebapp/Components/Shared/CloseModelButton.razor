@@ -36,7 +36,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void CloseIteration()
     {
-        this.SessionService.CloseIteration();
+        this.SessionService.CloseIterations();
         this.IterationService.ValidatedUpdates.Clear();
         CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpdatesAreValidated);
         this.NavigationManager.NavigateTo("/");

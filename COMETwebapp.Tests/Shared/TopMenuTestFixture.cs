@@ -44,6 +44,8 @@ namespace COMETwebapp.Tests.Shared
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -61,6 +63,7 @@ namespace COMETwebapp.Tests.Shared
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
         private Mock<IAuthenticationService> authenticationService;
+        private SourceList<Iteration> sourceList;
 
         [SetUp]
         public void Setup()
@@ -70,6 +73,8 @@ namespace COMETwebapp.Tests.Shared
             this.stateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
             this.authenticationService = new Mock<IAuthenticationService>();
             this.autoRefreshService = new Mock<IAutoRefreshService>();
+            this.sourceList = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
 
             this.context.Services.AddSingleton<AuthenticationStateProvider>(this.stateProvider);
             this.context.Services.AddSingleton(this.sessionService.Object);
@@ -131,7 +136,7 @@ namespace COMETwebapp.Tests.Shared
 
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.sessionService.Setup(x => x.OpenIteration).Returns(iteration);
+            this.sessionService.Setup(x => x.DefaultIteration).Returns(iteration);
 
             var systemDomain = new DomainOfExpertise
             {
@@ -151,8 +156,8 @@ namespace COMETwebapp.Tests.Shared
                     systemDomain, thermoDomain
                 });
 
-            this.sessionService.Setup(x => x.CurrentDomainOfExpertise).Returns(systemDomain);
-            renderer.Render();
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(systemDomain);
+            this.sourceList.Add(iteration);
 
             var modelMenuEntry = authorizedMenuEntries[1];
             var modelMenuInstance = (ModelMenu)modelMenuEntry.Instance;

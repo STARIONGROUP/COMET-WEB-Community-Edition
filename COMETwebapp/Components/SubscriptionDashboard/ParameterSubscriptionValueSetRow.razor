@@ -384,7 +384,7 @@ Copyright (c) 2023 RHEA System S.A.
             }
             var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
-            this.SessionService.UpdateThings(new List<Thing>()
+            this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
             {
                 clonedParameterValueSet
             });
@@ -444,7 +444,7 @@ Copyright (c) 2023 RHEA System S.A.
     private bool isUpdateAlreadyValidated()
     {
         var isValidated = false;
-        if (this.SessionService.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.CurrentDomainOfExpertise, out var list))
+        if (this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration), out var list))
         {
             var existingValidatedParameter = list.Find(p => p.Iid == this.ParameterSubscriptionValueSet?.Iid);
             if(existingValidatedParameter != null && this.ParameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber && this.ParameterSubscriptionValueSet?.ValueSwitch != ParameterSwitchKind.COMPUTED)

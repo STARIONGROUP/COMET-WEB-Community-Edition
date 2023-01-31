@@ -324,7 +324,7 @@ else if (this.Value != null && this.ValueType != null)
             {
                 clonedParameterValueSet.Reference[this.IndexInValueSet] = newValue;
             }
-            this.SessionService.UpdateThings(new List<Thing>()
+            this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
             {
                 clonedParameterValueSet
             });
@@ -352,7 +352,7 @@ else if (this.Value != null && this.ValueType != null)
             {
                 clonedParameterSubscriptionValueSet.Reference[this.IndexInValueSet] = newValue;
             }
-            this.SessionService.UpdateThings(new List<Thing>()
+            this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
             {
                 clonedParameterSubscriptionValueSet
             });

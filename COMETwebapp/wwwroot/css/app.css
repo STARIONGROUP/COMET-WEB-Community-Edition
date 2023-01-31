@@ -396,3 +396,7 @@ html, body, #app {
 .icon-folder {
     background-image: url(SVG/icons/folder.svg)
 }
+
+.icon-check {
+    background-image: url(SVG/icons/check.svg)
+}

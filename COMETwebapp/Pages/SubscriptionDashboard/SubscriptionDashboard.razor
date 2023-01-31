@@ -105,8 +105,8 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     public void LoadTitles()
     {
-        this.SubscribedTableViewTitle = $"Parameters {this.SessionService.CurrentDomainOfExpertise?.Name} domain subscribed to";
-        this.DomainOfExpertiseSubscriptionTableViewTitle = $"Parameters owned by {this.SessionService.CurrentDomainOfExpertise?.Name} domain, subscribed to by other domains";
+        this.SubscribedTableViewTitle = $"Parameters {this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name} domain subscribed to";
+        this.DomainOfExpertiseSubscriptionTableViewTitle = $"Parameters owned by {this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name} domain, subscribed to by other domains";
     }
 
     /// <summary>
@@ -126,10 +126,10 @@ Copyright (c) 2023 RHEA System S.A.
         this.FilterOption = FilterOption ?? null;
         if(this.FilterOption != null)
         {
-            this.optionSelected = this.SessionService.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
+            this.optionSelected = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
         } else
         {
-            this.optionSelected = this.SessionService.OpenIteration?.Option.First().Name;
+            this.optionSelected = this.SessionService.DefaultIteration?.Option.First().Name;
         }
     }
 }

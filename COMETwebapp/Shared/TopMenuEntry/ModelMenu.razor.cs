@@ -51,10 +51,15 @@ namespace COMETwebapp.Shared.TopMenuEntry
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SessionService.OpenIteration)
+            this.Disposables.Add(this.ViewModel);
+
+            this.Disposables.Add(this.ViewModel.SessionService.OpenIterations.CountChanged
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnSwitchDomainMode)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnOpenIterationMode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }

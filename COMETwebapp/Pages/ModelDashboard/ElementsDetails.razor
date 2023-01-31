@@ -121,10 +121,10 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.OpenIteration);
-        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.SessionService.OpenIteration);
+        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.DefaultIteration);
+        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.SessionService.DefaultIteration);
 
-        var iteration = this.SessionService.OpenIteration;
+        var iteration = this.SessionService.DefaultIteration;
         if (Criteria is not null && Domain is not null && iteration != null)
         {
             var elements = new List<ElementDefinition>();

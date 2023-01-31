@@ -45,7 +45,7 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
         </div>
         @{
-            var participantRole = this.SessionService.GetParticipant()?.Role;
+            var participantRole = this.SessionService.GetParticipant(this.SessionService.DefaultIteration)?.Role;
         }
         @if(participantRole != null && participantRole.Name.Equals("Model Administrator"))
         {
@@ -125,7 +125,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeUnusedElements()
     {
-        this.UnUsedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.OpenIteration);
+        this.UnUsedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.DefaultIteration);
     }
 
     /// <summary>
@@ -155,6 +155,6 @@ Copyright (c) 2023 RHEA System S.A.
     /// <param name="elements"><see cref="ElementDefinition">s to filter</param>
     public List<ElementDefinition>? FilterDomain(List<ElementDefinition>? elements)
     {
-        return elements?.FindAll(e => e.Owner == this.SessionService.CurrentDomainOfExpertise);
+        return elements?.FindAll(e => e.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
     }
 }

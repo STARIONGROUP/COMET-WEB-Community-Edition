@@ -78,7 +78,7 @@ Copyright (c) 2023 RHEA System S.A.
     private List<DataChart> GetChartData(List<ParameterValueSetBase>? data)
     {
         List<DataChart> donutData = new List<DataChart>();
-        var iteration = this.SessionService.OpenIteration;
+        var iteration = this.SessionService.DefaultIteration;
         if (iteration != null && data != null)
         {
             var domains = this.SessionService.Session.QueryDomainOfExpertise(iteration).ToList();

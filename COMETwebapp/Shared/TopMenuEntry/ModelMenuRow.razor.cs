@@ -40,5 +40,20 @@ namespace COMETwebapp.Shared.TopMenuEntry
         /// </summary>
         [Parameter]
         public ModelMenuRowViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Value asserting if the current <see cref="Iteration"/> is the default one
+        /// </summary>
+        [Parameter]
+        public bool IsDefault { get; set; }
+
+        /// <summary>
+        /// Gets the css class of the Icon
+        /// </summary>
+        /// <returns>The css class</returns>
+        private string GetIconCssClass()
+        {
+            return this.IsDefault ? "icon icon-check" : string.Empty;
+        }
     }
 }

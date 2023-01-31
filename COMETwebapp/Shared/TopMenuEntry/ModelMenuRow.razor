@@ -19,9 +19,9 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-<DxMenuItem Text="@this.ViewModel.IterationName">
+<DxMenuItem Text="@(this.ViewModel.IterationName)" IconCssClass="@(this.GetIconCssClass())">
 	<Items>
-		<DxMenuItem Text="Close Iteration" Click="@(this.ViewModel.CloseIteration)"/>
 		<DxMenuItem Text="Switch Domain" Click="@(this.ViewModel.SwitchDomain)"/>
+		<DxMenuItem Text="Close Iteration" Click="@(this.ViewModel.CloseIteration)"/>
 	</Items>
 </DxMenuItem>

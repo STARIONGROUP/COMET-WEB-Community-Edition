@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Components.Shared
 
     using Bunit;
 
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Shared;
@@ -39,6 +40,8 @@ namespace COMETwebapp.Tests.Components.Shared
     using COMETwebapp.ViewModels.Components.Shared;
 
     using DevExpress.Blazor;
+
+    using DynamicData;
 
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
@@ -111,6 +114,7 @@ namespace COMETwebapp.Tests.Components.Shared
                 }
             };
 
+            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(engineeringModels);
             var renderer = this.context.RenderComponent<OpenModel>();
             var layoutItems = renderer.FindComponents<DxFormLayoutItem>();

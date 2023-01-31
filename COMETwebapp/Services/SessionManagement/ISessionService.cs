@@ -30,59 +30,61 @@ namespace COMETwebapp.Services.SessionManagement
 
     using CDP4Dal;
 
+    using DynamicData;
+
     /// <summary>
     /// The <see cref="ISessionService"/> interface provides access to an <see cref="ISession"/>
     /// </summary>
     public interface ISessionService
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISession"/>
+        /// Event for when the session has been refreshed.
+        /// </summary>
+        event EventHandler OnSessionRefreshed;
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISession" />
         /// </summary>
         ISession Session { get; set; }
 
         /// <summary>
-        /// The opened <see cref="Iteration"/>
+        /// A reactive collection of opened <see cref="Iteration"/>
         /// </summary>
-        Iteration OpenIteration { get; }
+        SourceList<Iteration> OpenIterations { get; }
 
         /// <summary>
-        /// True if the <see cref="ISession"/> is opened
+        /// True if the <see cref="ISession" /> is opened
         /// </summary>
         bool IsSessionOpen { get; set; }
 
         /// <summary>
-        /// The <see cref="DomainOfExpertise"/> selected to open a model
+        /// The <see cref="Iteration" /> that is selected by default
         /// </summary>
-        DomainOfExpertise CurrentDomainOfExpertise { get;  }
+        Iteration DefaultIteration { get; set; }
 
         /// <summary>
-        /// Name of the opened Engineering Model
+        /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
         /// </summary>
-        string CurrentEngineeringModelName { get; }
+        /// <returns>The <see cref="SiteDirectory" /></returns>
+        SiteDirectory GetSiteDirectory();
 
         /// <summary>
         /// Close the ISession
         /// </summary>
-        /// <returns>a <see cref="Task"/></returns>
+        /// <returns>a <see cref="Task" /></returns>
         Task Close();
 
         /// <summary>
-        /// Retrieves the <see cref="SiteDirectory"/> that is loaded in the <see cref="ISession"/>
+        /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
-        /// <returns>The <see cref="SiteDirectory"/></returns>
-        SiteDirectory GetSiteDirectory();
-
-        /// <summary>
-        /// Open the iteration with the selected <see cref="EngineeringModelSetup"/> and <see cref="IterationSetup"/>
-        /// </summary>
-        /// <param name="iterationSetup">The selected <see cref="IterationSetup"/></param>
+        /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise"/></param>
         Task ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
 
         /// <summary>
-        /// Close the <see cref="ReadIteration"/>
+        /// Close all the opened <see cref="Iteration"/>
         /// </summary>
-        void CloseIteration();
+        void CloseIterations();
 
         /// <summary>
         /// Closes an <see cref="Iteration"/>
@@ -91,19 +93,20 @@ namespace COMETwebapp.Services.SessionManagement
         void CloseIteration(Iteration iteration);
 
         /// <summary>
-        /// Get <see cref="EngineeringModelSetup"/> available for the ActivePerson
+        /// Get <see cref="EngineeringModelSetup" /> available for the ActivePerson
         /// </summary>
         /// <returns>
-        /// A container of <see cref="EngineeringModelSetup"/>
+        /// A container of <see cref="EngineeringModelSetup" />
         /// </returns>
         IEnumerable<EngineeringModelSetup> GetParticipantModels();
 
         /// <summary>
-        /// Get <see cref="DomainOfExpertise"/> available in the selected <see cref="EngineeringModelSetup"/>
+        /// Get <see cref="DomainOfExpertise" /> available for the active person in the selected
+        /// <see cref="EngineeringModelSetup" />
         /// </summary>
-        /// <param name="modelSetup">The selected <see cref="EngineeringModelSetup"/></param>
+        /// <param name="modelSetup">The selected <see cref="EngineeringModelSetup" /></param>
         /// <returns>
-        /// A container of <see cref="DomainOfExpertise"/>
+        /// A container of <see cref="DomainOfExpertise" /> accessible for the active person
         /// </returns>
         IEnumerable<DomainOfExpertise> GetModelDomains(EngineeringModelSetup modelSetup);
 
@@ -113,38 +116,37 @@ namespace COMETwebapp.Services.SessionManagement
         Task RefreshSession();
 
         /// <summary>
-        /// Switches the current domain for the opened iteration
-        /// </summary>
-        /// <param name="domainOfExpertise">The domain</param>
-        void SwitchDomain(DomainOfExpertise domainOfExpertise);
-
-        /// <summary>
-        /// Write new Things in the session
-        /// </summary>
-        /// <param name="thingsToCreate">List of Things to create in the session</param>
-        Task CreateThings(IEnumerable<Thing> thingsToCreate);
-
-        /// <summary>
-        /// Write updated Things in the session
-        /// </summary>
-        /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        Task UpdateThings(IEnumerable<Thing> thingsToUpdate);
-
-        /// <summary>
-        /// Gets ths <see cref="Participant"/> in the opened iteration
-        /// </summary>
-        Participant GetParticipant();
-
-        /// <summary>
-        /// Event for when the session has been refreshed.
-        /// </summary>
-        event EventHandler OnSessionRefreshed;
-
-        /// <summary>
         /// Switches the current domain for an opened iteration
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration"/></param>
         /// <param name="domainOfExpertise">The domain</param>
         void SwitchDomain(Iteration iteration, DomainOfExpertise domainOfExpertise);
+
+        /// <summary>
+        /// Write new Things in an <see cref="Iteration"/>
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> where the <see cref="Thing"/>s should be created</param>
+        /// <param name="thingsToCreate">List of Things to create in the session</param>
+        Task CreateThings(Iteration iteration, IEnumerable<Thing> thingsToCreate);
+
+        /// <summary>
+        /// Write updated Things in an <see cref="Iteration"/>
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration"/> where the <see cref="Thing"/>s should be updated</param>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        Task UpdateThings(Iteration iteration, IEnumerable<Thing> thingsToUpdate);
+
+        /// <summary>
+        /// Gets the <see cref="ParticipantRole" /> inside an iteration
+        /// </summary>
+        Participant GetParticipant(Iteration iteration);
+
+        /// <summary>
+        /// Gets the <see cref="DomainOfExpertise" /> for an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>The <see cref="DomainOfExpertise" /></returns>
+        /// <exception cref="ArgumentException">If the <see cref="Iteration" /> is not opened</exception>
+        DomainOfExpertise GetDomainOfExpertise(Iteration iteration);
     }
 }

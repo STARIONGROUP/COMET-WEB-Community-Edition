@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.ViewModels.Components.Shared;
@@ -40,7 +41,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         ISessionService SessionService { get; }
 
         /// <summary>
-        /// The <see cref="IConfirmCancelPopupViewModel"/> for closing an <see cref="Iteration"/>
+        /// The <see cref="IConfirmCancelPopupViewModel" /> for closing an <see cref="Iteration" />
         /// </summary>
         IConfirmCancelPopupViewModel ConfirmCancelViewModel { get; set; }
 
@@ -55,10 +56,20 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         ISwitchDomainViewModel SwitchDomainViewModel { get; }
 
         /// <summary>
+        /// Value asserting that the user is asked to open a new <see cref="Iteration" />
+        /// </summary>
+        bool IsOnOpenIterationMode { get; set; }
+
+        /// <summary>
         /// Creates a new instance of <see cref="ModelMenuRowViewModel" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> for the <see cref="ModelMenuRowViewModel" /></param>
         /// <returns>The newly created <see cref="ModelMenuRowViewModel" /></returns>
         ModelMenuRowViewModel CreateRowViewModel(Iteration iteration);
+
+        /// <summary>
+        /// Asks the user to open a new <see cref="Iteration" />
+        /// </summary>
+        void AskToOpenIteration();
     }
 }

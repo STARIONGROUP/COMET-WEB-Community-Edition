@@ -22,15 +22,20 @@
 @inherits AuthorizedMenuEntry
 <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelViewModel)" />
 
-<DxPopup Visible="@this.ViewModel.IsOnSwitchDomainMode" CloseOnOutsideClick="false" HeaderText="Switch domain" ShowCloseButton="true">
+<DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode" CloseOnOutsideClick="false" HeaderText="Switch domain" ShowCloseButton="true">
 	<SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
+</DxPopup>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnOpenIterationMode" CloseOnOutsideClick="false" HeaderText="Open a new Model" ShowCloseButton="true">
+	<OpenModel />
 </DxPopup>
 
 <DxMenuItem Text="Models" IconCssClass="icon icon-folder" Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)">
 	<Items>
-		@if (this.ViewModel.SessionService.OpenIteration != null)
+		<DxMenuItem Text="Open Model" Click="@this.ViewModel.AskToOpenIteration" />
+		@foreach (var iteration in this.ViewModel.SessionService.OpenIterations.Items)
 		{
-			<ModelMenuRow ViewModel="@(this.ViewModel.CreateRowViewModel(this.ViewModel.SessionService.OpenIteration))"/>
+			<ModelMenuRow ViewModel="@(this.ViewModel.CreateRowViewModel(iteration))" IsDefault="@(this.ViewModel.SessionService.DefaultIteration.Iid == iteration.Iid)"/>
 		}
 	</Items>
 </DxMenuItem>

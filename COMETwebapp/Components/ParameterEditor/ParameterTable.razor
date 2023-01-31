@@ -161,7 +161,7 @@ Copyright (c) 2023 RHEA System S.A.
         var filteredParameters = new List<Parameter>();
         if(this.IsOwnedParameters == true)
         {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.CurrentDomainOfExpertise));
+            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
         } else
         {
             filteredParameters.AddRange(parameters);
@@ -183,7 +183,7 @@ Copyright (c) 2023 RHEA System S.A.
         var filteredParameters = new List<ParameterOverride>();
         if(this.IsOwnedParameters == true)
         {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.CurrentDomainOfExpertise));
+            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
         } else
         {
             filteredParameters.AddRange(parameters);

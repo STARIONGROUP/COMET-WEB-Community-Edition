@@ -149,7 +149,10 @@ namespace COMETwebapp.ViewModels.Components.Shared
             this.SelectedEngineeringModel = null;
             this.SelectedIterationSetup = null;
             this.IsOpeningSession = false;
-            this.AvailableEngineeringModelSetups = this.sessionService.GetParticipantModels().OrderBy(x => x.Name);
+
+            this.AvailableEngineeringModelSetups = this.sessionService.GetParticipantModels()
+                .Where(x => x.IterationSetup.Any(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
+                .OrderBy(x => x.Name);
         }
 
         /// <summary>
@@ -186,7 +189,9 @@ namespace COMETwebapp.ViewModels.Components.Shared
             {
                 this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
-                this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup.OrderBy(x => x.IterationNumber)
+                this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
+                    .Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
+                    .OrderBy(x => x.IterationNumber)
                     .Select(x => new IterationData(x));
             }
         }

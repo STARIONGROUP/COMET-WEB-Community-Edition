@@ -134,9 +134,9 @@ namespace COMETwebapp.Pages.Viewer
                 this.Elements = this.InitializeElements();
                 var elementUsages = this.Elements.OfType<ElementUsage>().ToList();
 
-                var iteration = this.SessionAnchor?.OpenIteration;
+                var iteration = this.SessionAnchor?.DefaultIteration;
                 this.TotalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
-                var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
+                var defaultOption = this.SessionAnchor?.DefaultIteration?.DefaultOption;
                 this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions?.First();
                 this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
                 this.SelectedActualFiniteStates = this.ListActualFiniteStateLists?.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
@@ -180,7 +180,7 @@ namespace COMETwebapp.Pages.Viewer
         private List<ElementBase> InitializeElements()
         {
             var elements = new List<ElementBase>();
-            var iteration = this.SessionAnchor?.OpenIteration;
+            var iteration = this.SessionAnchor?.DefaultIteration;
 
             if (iteration != null)
             {
@@ -282,7 +282,7 @@ namespace COMETwebapp.Pages.Viewer
         /// <param name="option">Name of the Option selected</param>
         public async void OnOptionFilterChange(string? option)
         {
-            var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
+            var defaultOption = this.SessionAnchor?.DefaultIteration?.DefaultOption;
             this.SelectedOption = this.TotalOptions?.FirstOrDefault(x => x.Name == option, defaultOption);
 
             this.Elements = this.InitializeElements();

@@ -164,8 +164,8 @@ namespace COMETwebapp.Tests.Services.SessionManagement
 
             this.sessionService.IsSessionOpen = true;
             this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
-            this.session.Setup(x => x.CloseIterationSetup(this.sessionService.OpenIteration.IterationSetup)).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => this.sessionService.CloseIteration());
+            this.session.Setup(x => x.CloseIterationSetup(It.IsAny<IterationSetup>())).Returns(Task.CompletedTask);
+            Assert.DoesNotThrow(() => this.sessionService.CloseIterations());
         }
 
         [Test]
@@ -175,9 +175,9 @@ namespace COMETwebapp.Tests.Services.SessionManagement
             var thingsToCreate = new List<ElementDefinition>();
             var element = new ElementDefinition();
             element.Name = "Battery";
-            element.Owner = this.sessionService.CurrentDomainOfExpertise;
+            element.Owner = this.sessionService.GetDomainOfExpertise(this.iteration);
             thingsToCreate.Add(element.Clone(false));
-            Assert.DoesNotThrow(() => this.sessionService.CreateThings(thingsToCreate));
+            Assert.DoesNotThrow(() => this.sessionService.CreateThings(this.iteration, thingsToCreate));
         }
 
         [Test]
@@ -191,7 +191,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         {
             this.sessionService.IsSessionOpen = true;
             this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
-            Assert.That(this.sessionService.GetParticipant(), Is.EqualTo(this.participant));
+            Assert.That(this.sessionService.GetParticipant(this.iteration), Is.EqualTo(this.participant));
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         [Test]
         public void VerifySwitchDomain()
         {
-            Assert.DoesNotThrow(() => this.sessionService.SwitchDomain(this.domain));
+            Assert.DoesNotThrow(() => this.sessionService.SwitchDomain(this.iteration, this.domain));
 
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
             {
@@ -226,8 +226,8 @@ namespace COMETwebapp.Tests.Services.SessionManagement
             this.sessionService.IsSessionOpen = true;
             this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
 
-            this.sessionService.SwitchDomain(this.domain);
-            Assert.That(this.sessionService.CurrentDomainOfExpertise, Is.EqualTo(this.domain));
+            this.sessionService.SwitchDomain(this.iteration, this.domain);
+            Assert.That(this.sessionService.GetDomainOfExpertise(this.iteration), Is.EqualTo(this.domain));
         }
 
         [Test]
@@ -237,12 +237,12 @@ namespace COMETwebapp.Tests.Services.SessionManagement
             this.sessionService.IsSessionOpen = true;
             var element = new ElementDefinition();
             element.Name = "Battery";
-            element.Owner = this.sessionService.CurrentDomainOfExpertise;
+            element.Owner = this.sessionService.GetDomainOfExpertise(this.iteration);
 
             var clone = element.Clone(false);
             clone.Name = "Satellite";
             thingsToUpdate.Add(clone);
-            Assert.DoesNotThrow(() => this.sessionService.UpdateThings(thingsToUpdate));
+            Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
         }
     }
 }

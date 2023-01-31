@@ -53,6 +53,11 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         private readonly EventCallback<Iteration> switchDomainCallback;
 
         /// <summary>
+        /// Backing field <see cref="IsOnOpenIterationMode" />
+        /// </summary>
+        private bool isOnOpenIterationMode;
+
+        /// <summary>
         /// Backing field for <see cref="IsOnSwitchDomainMode" />
         /// </summary>
         private bool isOnSwitchDomainMode;
@@ -85,6 +90,17 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
             {
                 OnSubmit = new EventCallbackFactory().Create<DomainOfExpertise>(this, this.SwitchDomain)
             };
+
+            this.Disposables.Add(this.SessionService.OpenIterations.CountChanged.Subscribe(_ => { this.IsOnOpenIterationMode = false; }));
+        }
+
+        /// <summary>
+        /// Value asserting that the user is asked to open a new <see cref="Iteration" />
+        /// </summary>
+        public bool IsOnOpenIterationMode
+        {
+            get => this.isOnOpenIterationMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnOpenIterationMode, value);
         }
 
         /// <summary>
@@ -122,6 +138,14 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         }
 
         /// <summary>
+        /// Asks the user to open a new <see cref="Iteration" />
+        /// </summary>
+        public void AskToOpenIteration()
+        {
+            this.IsOnOpenIterationMode = true;
+        }
+
+        /// <summary>
         /// Switch the <see cref="DomainOfExpertise" /> for the currently selected <see cref="Iteration" />
         /// </summary>
         /// <param name="domainOfExpertise">The selected <see cref="DomainOfExpertise" /></param>
@@ -149,7 +173,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         {
             this.selectedIteration = iteration;
             this.SwitchDomainViewModel.AvailableDomains = this.SessionService.GetModelDomains((EngineeringModelSetup)iteration.IterationSetup.Container);
-            this.SwitchDomainViewModel.SelectedDomainOfExpertise = this.SessionService.CurrentDomainOfExpertise;
+            this.SwitchDomainViewModel.SelectedDomainOfExpertise = this.SessionService.GetDomainOfExpertise(this.selectedIteration);
             this.IsOnSwitchDomainMode = true;
         }
 

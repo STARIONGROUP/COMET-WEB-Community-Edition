@@ -32,7 +32,6 @@ namespace COMETwebapp.Tests.Pages
     using CDP4Dal;
 
     using COMETwebapp.Components.Shared;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Pages;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.VersionService;
@@ -40,6 +39,9 @@ namespace COMETwebapp.Tests.Pages
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Pages;
+
+    using DynamicData;
+
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -57,6 +59,7 @@ namespace COMETwebapp.Tests.Pages
         private Mock<ISessionService> sessionService;
         private Mock<IAuthenticationService> authenticationService;
         private TestAuthorizationContext authorization;
+        private SourceList<Iteration> sourceList;
 
         [SetUp]
         public void Setup()
@@ -64,6 +67,9 @@ namespace COMETwebapp.Tests.Pages
             this.context = new TestContext();
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
+            this.sourceList = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
+
             this.authenticationService = new Mock<IAuthenticationService>();
 
             this.viewModel = new IndexViewModel(this.versionService.Object, this.sessionService.Object, this.authenticationService.Object);
@@ -100,8 +106,7 @@ namespace COMETwebapp.Tests.Pages
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             var renderer = this.context.RenderComponent<Index>();
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
-            this.sessionService.Setup(x => x.OpenIteration).Returns(new Iteration());
-            renderer.Render();
+            this.sourceList.Add(new Iteration());
             Assert.That(() => renderer.FindComponent<Dashboard>(), Throws.Nothing);
         }
     }

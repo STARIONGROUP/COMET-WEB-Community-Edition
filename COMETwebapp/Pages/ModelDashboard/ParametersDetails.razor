@@ -277,7 +277,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            var nestedParameters = this.IterationService.GetNestedParameters(this.SessionService.OpenIteration, this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.SessionService.DefaultIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 var valueSets = nestedParameters.Select(x => x.ValueSet).ToList();
@@ -295,7 +295,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
         {
-            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.SessionService.OpenIteration, this.FilterParameterType);
+            var parameterValueSetsByParameterType = this.IterationService.GetParameterValueSetsByParameterType(this.SessionService.DefaultIteration, this.FilterParameterType);
             parameterValueSets.RemoveAll(d => !parameterValueSetsByParameterType.Contains(d));
         }
 
@@ -307,7 +307,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeParameterValueSets()
     {
-        var iteration = this.SessionService.OpenIteration;
+        var iteration = this.SessionService.DefaultIteration;
         if (this.Criteria is not null && this.Domain is not null && iteration != null)
         {
             var parameterValueSets = this.IterationService.GetParameterValueSetBase(iteration);

@@ -23,7 +23,7 @@
 
 <DxMenuItem Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
 	<SubMenuTemplate>
-		<div class="header centered">
+		<div class="session__header">
 			<div class="row justify-content-center">
 				@(this.AuthorizedMenuEntryViewModel.UserName)
 			</div>
@@ -36,13 +36,14 @@
 			<div class="content__autorefresh">
 				<DxCheckBox @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
 				Refresh every
+				<span></span>
 				<DxSpinEdit CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
 				            BindValueMode="BindValueMode.OnInput" MinValue="1"/>
 				sec
 			</div>
-			<div class="centered">
-				<DxButton CssClass="btn btn-connect" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession" />
-				<DxButton CssClass="btn btn-connect"  Text="Log out" Click="@this.Logout"/>
+			<div class="session__buttons">
+				<DxButton CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession" />
+				<DxButton CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout" />
 			</div>
 		</div>
 	</SubMenuTemplate>

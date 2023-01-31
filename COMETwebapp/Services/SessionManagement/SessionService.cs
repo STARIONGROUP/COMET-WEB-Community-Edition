@@ -36,6 +36,8 @@ namespace COMETwebapp.Services.SessionManagement
 
     using COMETwebapp.SessionManagement;
 
+    using DynamicData;
+
     using NLog;
 
     using ReactiveUI;
@@ -52,9 +54,18 @@ namespace COMETwebapp.Services.SessionManagement
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Backing field for <see cref="OpenIteration" />
+        /// Backing field for <see cref="DefaultIteration" />
         /// </summary>
-        private Iteration openIteration;
+        private Iteration defaultIteration;
+
+        /// <summary>
+        /// The <see cref="Iteration" /> that is selected by default
+        /// </summary>
+        public Iteration DefaultIteration
+        {
+            get => this.defaultIteration;
+            set => this.RaiseAndSetIfChanged(ref this.defaultIteration, value);
+        }
 
         /// <summary>
         /// Event for when the session has been refreshed.
@@ -67,28 +78,14 @@ namespace COMETwebapp.Services.SessionManagement
         public ISession Session { get; set; }
 
         /// <summary>
-        /// The opened <see cref="Iteration" />
+        /// A reactive collection of opened <see cref="Iteration" />
         /// </summary>
-        public Iteration OpenIteration
-        {
-            get => this.openIteration;
-            private set => this.RaiseAndSetIfChanged(ref this.openIteration, value);
-        }
+        public SourceList<Iteration> OpenIterations { get; private set; } = new();
 
         /// <summary>
         /// True if the <see cref="ISession" /> is opened
         /// </summary>
         public bool IsSessionOpen { get; set; }
-
-        /// <summary>
-        /// The <see cref="DomainOfExpertise" /> selected to open a model
-        /// </summary>
-        public DomainOfExpertise CurrentDomainOfExpertise { get; set; }
-
-        /// <summary>
-        /// Name of the opened Engineering Model
-        /// </summary>
-        public string CurrentEngineeringModelName { get; set; }
 
         /// <summary>
         /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
@@ -107,14 +104,14 @@ namespace COMETwebapp.Services.SessionManagement
         {
             await this.Session.Close();
             this.IsSessionOpen = false;
-            this.CloseIteration();
+            this.CloseIterations();
         }
 
         /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
-        /// <param name="domain"></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
         public async Task ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain)
         {
             if (iterationSetup == null)
@@ -122,9 +119,7 @@ namespace COMETwebapp.Services.SessionManagement
                 throw new ArgumentNullException(nameof(iterationSetup));
             }
 
-            this.CurrentDomainOfExpertise = domain;
             var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
-            this.CurrentEngineeringModelName = modelSetup.Name;
 
             var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
             var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
@@ -132,14 +127,16 @@ namespace COMETwebapp.Services.SessionManagement
 
             try
             {
-                await this.Session.Read(iteration, this.CurrentDomainOfExpertise);
+                await this.Session.Read(iteration, domain);
 
-                if (!this.Session.OpenIterations.Any())
+                if (this.Session.OpenIterations.All(x => x.Key.Iid != iterationSetup.IterationIid))
                 {
-                    throw new InvalidOperationException("At first an Iteration should be opened");
+                    throw new InvalidOperationException("The requested iteration could not be opened");
                 }
 
-                this.OpenIteration = this.Session.OpenIterations.FirstOrDefault().Key;
+                var openedIteration = this.Session.OpenIterations.FirstOrDefault(x => x.Key.Iid == iterationSetup.IterationIid).Key;
+                this.DefaultIteration = openedIteration;
+                this.OpenIterations.Add(openedIteration);
 
                 CDPMessageBus.Current.SendMessage(SessionStateKind.IterationOpened);
             }
@@ -151,31 +148,28 @@ namespace COMETwebapp.Services.SessionManagement
         }
 
         /// <summary>
-        /// Close the ReadIteration
+        /// Close all the opened <see cref="Iteration" />
         /// </summary>
-        public void CloseIteration()
+        public void CloseIterations()
         {
-            this.Session.CloseIterationSetup(this.OpenIteration?.IterationSetup);
-            this.CurrentDomainOfExpertise = null;
-            this.CurrentEngineeringModelName = null;
-            this.OpenIteration = null;
-            CDPMessageBus.Current.SendMessage(SessionStateKind.IterationClosed);
+            foreach (var iteration in this.OpenIterations.Items.ToList())
+            {
+                this.CloseIteration(iteration);
+            }
         }
 
         /// <summary>
-        /// Closes an <see cref="Iteration"/>
+        /// Closes an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/></param>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
         public void CloseIteration(Iteration iteration)
         {
             this.Session.CloseIterationSetup(iteration.IterationSetup);
+            this.OpenIterations.Remove(this.OpenIterations.Items.First(x => x.Iid == iteration.Iid));
 
-            if (this.OpenIteration.Iid == iteration.Iid)
+            if (this.DefaultIteration.Iid == iteration.Iid)
             {
-                this.CurrentDomainOfExpertise = null;
-                this.CurrentEngineeringModelName = null;
-                this.OpenIteration = null;
-                CDPMessageBus.Current.SendMessage(SessionStateKind.IterationClosed);
+                this.DefaultIteration = this.OpenIterations.Items.FirstOrDefault();
             }
         }
 
@@ -223,38 +217,23 @@ namespace COMETwebapp.Services.SessionManagement
         }
 
         /// <summary>
-        /// Switches the current domain for the opened iteration
-        /// </summary>
-        /// <param name="domainOfExpertise">The domain</param>
-        public void SwitchDomain(DomainOfExpertise domainOfExpertise)
-        {
-            if (this.OpenIteration != null)
-            {
-                this.CurrentDomainOfExpertise = domainOfExpertise;
-                this.Session.SwitchDomain(this.OpenIteration.Iid, domainOfExpertise);
-            }
-        }
-
-        /// <summary>
         /// Switches the current domain for an opened iteration
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/></param>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <param name="domainOfExpertise">The domain</param>
         public void SwitchDomain(Iteration iteration, DomainOfExpertise domainOfExpertise)
         {
-            this.CurrentDomainOfExpertise = domainOfExpertise;
             this.Session.SwitchDomain(iteration.Iid, domainOfExpertise);
         }
 
         /// <summary>
-        /// Write new Things in the session
+        /// Write new Things in an <see cref="Iteration" />
         /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
-        public async Task CreateThings(IEnumerable<Thing> thingsToCreate)
+        public async Task CreateThings(Iteration iteration, IEnumerable<Thing> thingsToCreate)
         {
-            var openedIteration = this.OpenIteration;
-
-            if (openedIteration == null)
+            if (iteration == null)
             {
                 throw new InvalidOperationException("At first an iteration should be opened");
             }
@@ -265,7 +244,7 @@ namespace COMETwebapp.Services.SessionManagement
             }
 
             // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
-            var iterationClone = openedIteration.Clone(false);
+            var iterationClone = iteration.Clone(false);
 
             // set the context of the transaction to the iteration changes need to be added to.
             var context = TransactionContextResolver.ResolveContext(iterationClone);
@@ -290,15 +269,15 @@ namespace COMETwebapp.Services.SessionManagement
         }
 
         /// <summary>
-        /// Write updated Things in the session
+        /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        public async Task UpdateThings(IEnumerable<Thing> thingsToUpdate)
+        public async Task UpdateThings(Iteration iteration, IEnumerable<Thing> thingsToUpdate)
         {
             var sw = Stopwatch.StartNew();
-            var openedIteration = this.OpenIteration;
 
-            if (openedIteration == null)
+            if (iteration == null)
             {
                 throw new InvalidOperationException("At first an iteration should be opened");
             }
@@ -309,7 +288,7 @@ namespace COMETwebapp.Services.SessionManagement
             }
 
             // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
-            var iterationClone = openedIteration.Clone(false);
+            var iterationClone = iteration.Clone(false);
 
             // set the context of the transaction to the iteration changes need to be added to.
             var context = TransactionContextResolver.ResolveContext(iterationClone);
@@ -334,12 +313,28 @@ namespace COMETwebapp.Services.SessionManagement
         }
 
         /// <summary>
-        /// Gets the <see cref="ParticipantRole" /> in the opened iteration
+        /// Gets the <see cref="ParticipantRole" /> inside an iteration
         /// </summary>
-        public Participant GetParticipant()
+        public Participant GetParticipant(Iteration iteration)
         {
-            return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(this.OpenIteration?.IterationSetup))?
+            return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(iteration.IterationSetup))?
                 .Participant.Find(p => p.Person.Iid == this.Session.ActivePerson.Iid);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="DomainOfExpertise" /> for an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>The <see cref="DomainOfExpertise" /></returns>
+        /// <exception cref="ArgumentException">If the <see cref="Iteration" /> is not opened</exception>
+        public DomainOfExpertise GetDomainOfExpertise(Iteration iteration)
+        {
+            if (!this.Session.OpenIterations.TryGetValue(iteration, out var participantInformation))
+            {
+                throw new ArgumentException("The requested iteration is not opened");
+            }
+
+            return participantInformation.Item1;
         }
     }
 }

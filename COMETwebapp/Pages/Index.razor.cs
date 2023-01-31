@@ -28,8 +28,6 @@ namespace COMETwebapp.Pages
 
     using Microsoft.AspNetCore.Components;
 
-    using ReactiveUI;
-
     /// <summary>
     /// Home page of the website
     /// </summary>
@@ -49,7 +47,7 @@ namespace COMETwebapp.Pages
         {
             base.OnInitialized();
             
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SessionService.OpenIteration)
+            this.Disposables.Add(this.ViewModel.SessionService.OpenIterations.CountChanged
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
