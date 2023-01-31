@@ -25,10 +25,14 @@
 namespace COMETwebapp.ViewModels.Pages.Viewer
 {
     using CDP4Common.EngineeringModelData;
+    
     using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    
     using Microsoft.AspNetCore.Components;
+    
     using ReactiveUI;
 
     /// <summary>
@@ -63,17 +67,17 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         }
 
         /// <summary>
-        /// Backing field for the <see cref="RootNode"/>
+        /// Backing field for the <see cref="RootNodeViewModel"/>
         /// </summary>
-        private TreeNode rootNode;
+        private INodeComponentViewModel rootNodeViewModel;
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
+        /// Gets or sets the root VM of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
         /// </summary>
-        public TreeNode RootNode
+        public INodeComponentViewModel RootNodeViewModel
         {
-            get => this.rootNode;
-            set => this.RaiseAndSetIfChanged(ref this.rootNode, value);
+            get => this.rootNodeViewModel;
+            set => this.RaiseAndSetIfChanged(ref this.rootNodeViewModel, value);
         }
 
         /// <summary>
@@ -82,7 +86,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         public List<Option> TotalOptions { get; set; }
 
         /// <summary>
-        /// All <see cref="ElementBase"> of the iteration
+        /// All <see cref="ElementBase"/> of the iteration
         /// </summary>
         public List<ElementBase> Elements { get; set; } = new();
 
@@ -102,18 +106,8 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// <param name="sessionAnchor">the <see cref="ISessionAnchor"/></param>
         public ViewerViewModel(ISessionAnchor sessionAnchor, ISelectionMediator selectionMediator)
         {
-            if(sessionAnchor == null)
-            {
-                throw new ArgumentNullException("sessionAnchor");
-            }
-
-            if(selectionMediator == null)
-            {
-                throw new ArgumentNullException("selectionMediator");
-            }
-
-            this.SessionAnchor = sessionAnchor;
-            this.SelectionMediator = selectionMediator;
+            this.SessionAnchor = sessionAnchor ?? throw new ArgumentNullException(nameof(sessionAnchor));
+            this.SelectionMediator = selectionMediator ?? throw new ArgumentNullException(nameof(selectionMediator));
 
             this.Elements = this.InitializeElements();
 
@@ -134,11 +128,13 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
 
             this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
             {
-                var treeNodes = this.RootNode.GetFlatListOfDescendants();
+                var treeNodes = this.RootNodeViewModel.GetFlatListOfDescendants();
                 treeNodes.ForEach(x => x.IsSelected = false);
+                
                 if (sceneObject != null)
                 {
-                    var node = treeNodes.FirstOrDefault(x => x.SceneObject == sceneObject);
+                    var node = treeNodes.FirstOrDefault(x => x.Node.SceneObject == sceneObject);
+                    
                     if (node is not null)
                     {
                         node.IsSelected = true;
@@ -150,7 +146,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         }
 
         /// <summary>
-        /// Initialize <see cref="ElementBase"> list
+        /// Initialize <see cref="ElementBase"/> list
         /// </summary>
         private List<ElementBase> InitializeElements()
         {
@@ -174,13 +170,13 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// Creates the product tree
         /// </summary>
         /// <param name="productTreeElements">the product tree elements</param>
-        private void CreateTree(List<ElementBase> productTreeElements)
+        private void CreateTree(IEnumerable<ElementBase> productTreeElements)
         {
             var topElement = productTreeElements.First();
             var topSceneObject = SceneObject.Create(topElement, this.SelectedOption, this.SelectedActualFiniteStates);
-            this.RootNode = new TreeNode(topSceneObject);
-            this.CreateTreeRecursively(topElement, this.RootNode, null);
-            this.RootNode.OrderAllDescendantsByShortName();
+            this.RootNodeViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
+            this.CreateTreeRecursively(topElement, this.RootNodeViewModel, null);
+            this.RootNodeViewModel.OrderAllDescendantsByShortName();
         }
 
         /// <summary>
@@ -189,7 +185,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// <param name="elementBase"></param>
         /// <param name="current"></param>
         /// <param name="parent"></param>
-        private void CreateTreeRecursively(ElementBase elementBase, TreeNode current, TreeNode parent)
+        private void CreateTreeRecursively(ElementBase elementBase, INodeComponentViewModel current, INodeComponentViewModel parent)
         {
             List<ElementUsage> childsOfElementBase = null;
 
@@ -214,7 +210,8 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
                     var sceneObject = SceneObject.Create(child, this.SelectedOption, this.SelectedActualFiniteStates);
                     if (sceneObject is not null)
                     {
-                        this.CreateTreeRecursively(child, new TreeNode(sceneObject), current);
+                        var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
+                        this.CreateTreeRecursively(child, nodeViewModel, current);
                     }
                 }
             }

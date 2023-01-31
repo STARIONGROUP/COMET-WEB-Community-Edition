@@ -25,7 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using CDP4Common.EngineeringModelData;
-    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
@@ -107,7 +107,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                 }
             }
 
-            this.SelectionStateActualFiniteState[actualFiniteState] = true;
+            if (this.SelectionStateActualFiniteState.ContainsKey(actualFiniteState))
+            {
+                this.SelectionStateActualFiniteState[actualFiniteState] = true;
+            }
+
             this.SelectedStates = this.SelectionStateActualFiniteState.Where(x => x.Value).Select(x => x.Key).ToList();
         }
     }

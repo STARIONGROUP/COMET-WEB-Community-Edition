@@ -27,7 +27,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
+    
     using CDP4Dal;
+    
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.IterationServices;
@@ -35,10 +37,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.Services.IterationServices;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    
+
     using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
+    
     using Newtonsoft.Json;
+    
     using ReactiveUI;
 
     /// <summary>
@@ -68,10 +72,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// Gets or sets the property used for the Interoperability
         /// </summary>
         [Inject]
-        public IJSRuntime JSInterop { get; set; }
+        public IJSRuntime JsInterop { get; set; }
 
         /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
+        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the selected <see cref="SceneObject"/>
         /// </summary>
         public Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
 
@@ -95,7 +99,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         private List<ParameterBase> parametersInUse;
 
         /// <summary>
-        /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
+        /// The list of parameters that the selected <see cref="SceneObject"/> uses
         /// </summary>
         public List<ParameterBase> ParametersInUse
         {
@@ -150,7 +154,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
         public PropertiesComponentViewModel(IJSRuntime jsRuntime, IIterationService iterationService, ISessionAnchor sessionAnchor, ISelectionMediator selectionMediator)
         {
-            this.JSInterop = jsRuntime;
+            this.JsInterop = jsRuntime;
             this.IterationService = iterationService;
             this.SessionAnchor = sessionAnchor;
             this.SelectionMediator = selectionMediator;
@@ -178,12 +182,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <returns>an asynchronous operation</returns> 
         private void OnSelectionChanged(SceneObject sceneObject)
         {
-            this.IsVisible = sceneObject is not null ? true : false;
+            this.IsVisible = sceneObject is not null;
+            
             if (this.SelectionMediator.SelectedSceneObjectClone is not null)
             {
                 this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
                 this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
-                this.SelectedParameter = ParametersInUse.First();
+                this.SelectedParameter = this.ParametersInUse.First();
             }
         }
 
@@ -242,7 +247,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <param name="valueSet"></param>
         public async Task ParameterValueSetChanged(IValueSet valueSet)
         {
-            ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
+            var newValueArray = new ValueArray<string>(valueSet.ActualValue);
 
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {
@@ -258,15 +263,17 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     {
                         this.SelectionMediator.SelectedSceneObjectClone.Primitive.HasHalo = true;
                     }
+                    
                     var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+                    
                     foreach (var parameter in parameters)
                     {
                         this.SelectionMediator?.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
                     }
                 }
 
-                string jsonSceneObject = JsonConvert.SerializeObject(this.SelectionMediator?.SelectedSceneObjectClone, Formatting.Indented);
-                await this.JSInterop.InvokeVoidAsync("RegenMesh", jsonSceneObject);
+                var jsonSceneObject = JsonConvert.SerializeObject(this.SelectionMediator?.SelectedSceneObjectClone, Formatting.Indented);
+                await this.JsInterop.InvokeVoidAsync("RegenMesh", jsonSceneObject);
             }
         }
 

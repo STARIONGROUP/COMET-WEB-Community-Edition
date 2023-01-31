@@ -81,7 +81,7 @@ namespace COMETwebapp.Model
         {
             this.SceneObject = sceneObject;
             this.Children = new List<TreeNode>();
-            this.Title = this.SceneObject.ElementBase?.Name;
+            this.Title = this.SceneObject?.ElementBase?.Name;
         }
 
         /// <summary>
@@ -109,6 +109,7 @@ namespace COMETwebapp.Model
         {
             if(node is not null)
             {
+                node.Parent = null;
                 this.Children.Remove(node);
             }
             return this;
@@ -117,7 +118,7 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy
         /// </summary>
-        /// <returns>the <see cref="TreeNode"/> or this node if the RootNode can't be computed</returns>
+        /// <returns>the <see cref="TreeNode"/> or this node if the RootViewModel can't be computed</returns>
         public TreeNode GetRootNode()
         {
             var currentParent = this.Parent;
@@ -138,11 +139,11 @@ namespace COMETwebapp.Model
         /// Gets a flat list of the descendants of this node
         /// </summary>
         /// <returns>the flat list</returns>
-        public List<TreeNode> GetFlatListOfDescendants(bool includeItself = false)
+        public List<TreeNode> GetFlatListOfDescendants(bool includeSelf = false)
         {
             var descendants = new List<TreeNode>();
             this.GetListOfDescendantsRecursively(this, ref descendants);
-            if (includeItself && !descendants.Contains(this))
+            if (includeSelf && !descendants.Contains(this))
             {
                 descendants.Add(this);
             }

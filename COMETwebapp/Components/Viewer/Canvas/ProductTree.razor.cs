@@ -24,10 +24,12 @@
 
 namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    
     using Microsoft.AspNetCore.Components;
+    
     using ReactiveUI;
+    
     using System.Threading.Tasks;
 
     /// <summary>
@@ -45,7 +47,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// The root node of the tree
         /// </summary>
         [Parameter]
-        public TreeNode RootNode { get; set; }
+        public INodeComponentViewModel RootViewModel { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -62,14 +64,14 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
         /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
         /// once.
-        /// </remarks>
+        /// </remarks> 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
 
             if (firstRender)
             {
-                this.ViewModel.RootNode = this.RootNode;
+                this.ViewModel.RootViewModel = this.RootViewModel;
                 this.WhenAnyValue(x => x.ViewModel.SelectedFilter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
                 this.WhenAnyValue(x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }

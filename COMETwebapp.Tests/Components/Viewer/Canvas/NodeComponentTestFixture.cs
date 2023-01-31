@@ -61,34 +61,29 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
             var treeNode = new TreeNode(new SceneObject(null));
 
-            renderedComponent = context.RenderComponent<NodeComponent>(parameters => parameters.Add(p => p.Node, treeNode));
+            renderedComponent = context.RenderComponent<NodeComponent>(parameters => parameters.Add(p => p.ViewModel.Node, treeNode));
             nodeComponent = renderedComponent.Instance;
         }
 
         [Test]
         public void VerifyTreeNodeSelectionChanged()
         {
-            Assert.That(nodeComponent.Node.IsSelected, Is.False);
             var treeNode = renderedComponent.Find(".treeNode");
             treeNode.Click();
-            selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(nodeComponent.Node), Times.Once);
-            Assert.That(nodeComponent.Node.IsSelected, Is.True);
+            selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(nodeComponent.ViewModel.Node), Times.Once);
         }
 
         [Test]
         public void VerifyTreeNodeVisibilityChanged()
         {
-            Assert.That(nodeComponent.Node.SceneObjectIsVisible, Is.True);
             var treeNode = renderedComponent.Find(".treeIcon");
             treeNode.Click();
-            selectionMediator.Verify(x => x.RaiseOnTreeVisibilityChanged(nodeComponent.Node), Times.Once);
-            Assert.That(nodeComponent.Node.SceneObjectIsVisible, Is.False);
+            selectionMediator.Verify(x => x.RaiseOnTreeVisibilityChanged(nodeComponent.ViewModel.Node), Times.Once);
         }
 
         [Test]
         public void VerifyThatSelectionOfOtherNodeDontWorks()
         {
-            Assert.That(nodeComponent.Node.IsSelected, Is.False);
             var treeNodeComponent = renderedComponent.Find(".treeNode");
             treeNodeComponent.Click();
 

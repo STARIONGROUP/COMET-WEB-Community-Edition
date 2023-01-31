@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Pages
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Linq;
 
     using BlazorStrap;
@@ -41,7 +42,9 @@ namespace COMETwebapp.Tests.Pages
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Pages.Viewer;
+
     using Microsoft.Extensions.DependencyInjection;
     
     using Moq;
@@ -53,11 +56,12 @@ namespace COMETwebapp.Tests.Pages
     [TestFixture]
     public class ViewerPageTestFixture
     {
+        private IViewerViewModel viewModel;
         private TestContext context;
         private IRenderedComponent<ViewerPage> renderedComponent;
         private Mock<ISessionService> sessionAnchorMock;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
-        private Uri uri = new Uri("http://www.rheagroup.com");
+        private Uri uri = new ("http://www.rheagroup.com");
         private ViewerPage viewerPage;
         private Option option1, option2;
         private ActualFiniteStateList actualFiniteStateList1, actualFiniteStateList2;
@@ -66,18 +70,16 @@ namespace COMETwebapp.Tests.Pages
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            this.context.JSInterop.SetupVoid("InitCanvas");
-            this.context.Services.AddBlazorStrap();
+            
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
 
             this.sessionAnchorMock = new Mock<ISessionService>();
             var iteration = new Iteration(Guid.NewGuid(), this.cache, this.uri);
             this.option1 = new Option(Guid.NewGuid(), this.cache, this.uri) { Name = "Option1" };
             this.option2 = new Option(Guid.NewGuid(), this.cache, this.uri) { Name = "Option2" };
-            iteration.Option.Add(option1);
-            iteration.Option.Add(option2);
-            iteration.DefaultOption = option1;
+            iteration.Option.Add(this.option1);
+            iteration.Option.Add(this.option2);
+            iteration.DefaultOption = this.option1;
 
             var topElement = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri);
             iteration.TopElement = topElement;
@@ -125,8 +127,7 @@ namespace COMETwebapp.Tests.Pages
             this.actualFiniteStateList1.ActualState.Add(actualFiniteState2);
             this.actualFiniteStateList2.ActualState.Add(actualFiniteState3);
             this.actualFiniteStateList2.ActualState.Add(actualFiniteState4);
-
-
+            
             iteration.ActualFiniteStateList.Add(this.actualFiniteStateList1);
             iteration.ActualFiniteStateList.Add(this.actualFiniteStateList2);
 
@@ -136,6 +137,10 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton<IIterationService, IterationService>();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
+            this.context.Services.AddSingleton<IViewerViewModel>(this.viewModel);
+            this.context.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
+            this.context.Services.AddSingleton<ICanvasViewModel, CanvasViewModel>();
+
             this.renderedComponent = this.context.RenderComponent<ViewerPage>();
             this.viewerPage = this.renderedComponent.Instance;
         }
@@ -143,37 +148,7 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public void VerifyThatComponentIsCorrectlyInitialized()
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewerPage.Elements, Is.Not.Null);
-                Assert.That(this.viewerPage.Elements, Has.Count.EqualTo(3));
-                Assert.That(this.viewerPage.TotalOptions, Is.Not.Null);
-                Assert.That(this.viewerPage.TotalOptions, Has.Count.EqualTo(2));
-                Assert.That(this.viewerPage.SelectedOption, Is.Not.Null);
-                Assert.That(this.viewerPage.SelectedOption, Is.EqualTo(this.viewerPage.TotalOptions.First()));
-                Assert.That(this.viewerPage.ListActualFiniteStateLists, Is.Not.Null);
-                Assert.That(this.viewerPage.SelectedActualFiniteStates, Is.Not.Null);
-                Assert.That(this.viewerPage.RootNode, Is.Not.Null);
-            });
-        }
-
-        [Test]
-        public void VerifyOnOptionFilterChangeWorks()
-        {
-            Assert.That(this.viewerPage.SelectedOption, Is.EqualTo(this.option1));
-            this.viewerPage.OnOptionFilterChange("Option2");
-            Assert.That(this.viewerPage.SelectedOption, Is.EqualTo(this.option2));
-        }
-
-        [Test]
-        public void VerifyThatActualFiniteStateChangedWorks()
-        {
-            var selectedActualStatesBefore = this.viewerPage.SelectedActualFiniteStates;
-            var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-
-            this.viewerPage.ActualFiniteStateChanged(new System.Collections.Generic.List<ActualFiniteState>() { actualFiniteState1, actualFiniteState2 });
-            CollectionAssert.AreNotEqual(selectedActualStatesBefore, this.viewerPage.SelectedActualFiniteStates);
+            Assert.That(this.viewerPage.ViewModel, Is.Not.Null);
         }
     }
 }

@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
 {
     using CDP4Common.EngineeringModelData;
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     /// <summary>
     /// Interface for the <see cref="ViewerViewModel"/>
@@ -43,9 +44,9 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         List<Option> TotalOptions { get; set; }
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
+        /// Gets or sets the root VM of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
         /// </summary>
-        TreeNode RootNode { get; set; }
+        INodeComponentViewModel RootNodeViewModel { get; set; }
 
         /// <summary>
         /// List of the of <see cref="ActualFiniteStateList"/> 

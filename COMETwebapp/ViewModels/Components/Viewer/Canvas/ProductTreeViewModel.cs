@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using System.Linq;
 
     using COMETwebapp.Enumerations;
-    using COMETwebapp.Model;
     
     using ReactiveUI;
 
@@ -57,12 +56,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
         /// </summary>
-        public TreeNode RootNode { get; set; }
+        public INodeComponentViewModel RootViewModel { get; set; }
 
         /// <summary>
         /// Backing field for the <see cref="SearchText"/>
         /// </summary>
-        private string searchText;
+        private string searchText = string.Empty;
 
         /// <summary>
         /// Gets or sets the search text used for filtering the tree
@@ -89,23 +88,19 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Event for when the filter on the tree changes
         /// </summary>
-        /// <param name="showNodeWithGeometry">if the tree should show a complete tree or just nodes with geometry</param>
         public void OnFilterChanged()
         {
-            var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
+            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
 
             if(fullTree is not null)
             {
                 if(this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
                 {
-                    foreach (var node in fullTree)
-                    {
-                        node.IsDrawn = node.SceneObject.Primitive != null;
-                    }
+                    fullTree.ForEach(x => x.IsDrawn = x.Node.SceneObject.Primitive != null);
                 }
                 else
                 {
-                    fullTree?.ForEach(x => x.IsDrawn = true);
+                    fullTree.ForEach(x => x.IsDrawn = true);
                 }
             }
         }
@@ -113,10 +108,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Event for when the text of the search filter is changing
         /// </summary>
-        /// <param name="e">the args of the event</param>
         public void OnSearchFilterChange()
         {
-            var fullTree = this.RootNode?.GetFlatListOfDescendants(true);
+            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
 
             if (this.SearchText == string.Empty)
             {
@@ -126,14 +120,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             {
                 fullTree?.ForEach(x =>
                 {
-                    if (!x.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        x.IsDrawn = false;
-                    }
-                    else
-                    {
-                        x.IsDrawn = true;
-                    }
+                    x.IsDrawn = x.Node.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase);
                 });
             }
         }

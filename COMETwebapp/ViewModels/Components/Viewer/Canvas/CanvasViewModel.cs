@@ -86,6 +86,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         public void InitializeViewModel()
         {
+            this.SelectionMediator.SceneObjectHasChanges = false;
             this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
             {
                 await this.ClearTemporarySceneObjects();
@@ -121,6 +122,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>an asynchronous operation</returns> 
         private async Task SelectSceneObjectUnderMouse()
         {
+            this.SelectionMediator.SceneObjectHasChanges = false;
             var sceneObject = await this.GetSceneObjectUnderMouseAsync();
             this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
 

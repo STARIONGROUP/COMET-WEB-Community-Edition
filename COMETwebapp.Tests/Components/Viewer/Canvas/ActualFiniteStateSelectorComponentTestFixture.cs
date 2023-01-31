@@ -45,8 +45,6 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     [TestFixture]
     public class ActualFiniteStateSelectorComponentTestFixture
     {
-        private ActualFiniteStateComponent actualFiniteStateComponent;
-        private ActualFiniteStateListComponent actualFiniteStateListComponent;
         private ActualFiniteStateSelectorComponent actualFiniteStateSelectorComponent;
 
         private TestContext context;
@@ -75,8 +73,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
             var listOfActualStateList = new List<ActualFiniteStateList>() { actualFiniteStateList1, actualFiniteStateList2 };
 
-            rendererComponent = context.RenderComponent<ActualFiniteStateSelectorComponent>(parameters =>
-            parameters.Add(p => p.ListActualFiniteStateList, listOfActualStateList));
+            rendererComponent = context.RenderComponent<ActualFiniteStateSelectorComponent>();
         }
 
         [Test]

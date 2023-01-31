@@ -20,56 +20,59 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @{
-    @if (this.Node is null)
+    @if (this.ViewModel.Node is null)
     {
         return;
     }
 
     var nodeClasses = "treeNode";
 
-    @if (this.Node.IsSelected)
+    @if (this.ViewModel.Node.IsSelected)
     {
         nodeClasses += " active";
     }
 
-    @if(this.Node.IsDrawn)
+    @if (this.ViewModel.Node.IsDrawn)
     {
-        <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.Node))" style="margin-left: calc(20px * @this.Level)">
+        <div class="@nodeClasses" onclick="@(()=>this.ViewModel.TreeSelectionChanged(this.ViewModel.Node))" style="margin-left: calc(20px * @this.ViewModel.Level)">
             <div class="node-inner-content">
 
-                @if (this.Node.GetChildren().Count > 0)
+                @if (this.ViewModel.Node.GetChildren().Count > 0)
                 {
-                    @if (this.Node.IsExpanded)
+                    @if (this.ViewModel.Node.IsExpanded)
                     {
-                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.Node.IsExpanded = false; })" />
+                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.ViewModel.Node.IsExpanded = false; })" />
                     }
                     else
                     {
-                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.Node.IsExpanded = true; })" />
+                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.ViewModel.Node.IsExpanded = true; })" />
                     }
                 }
 
-                <p class="node-text">@this.Node.Title</p>
-
-                @if (this.Node.SceneObjectIsVisible)
+                <p class="node-text">@this.ViewModel.Node.Title</p>
+                
+                @if (this.ViewModel.Node.SceneObject.Primitive is not null)
                 {
-                    <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.Node.SceneObjectIsVisible = false; this.TreeNodeVisibilityChanged(this.Node);})" />
-                }
-                else
-                {
-                    <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.Node.SceneObjectIsVisible = true; this.TreeNodeVisibilityChanged(this.Node); })" />
+                    @if (this.ViewModel.Node.SceneObjectIsVisible)
+                    {
+                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.Node.SceneObjectIsVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel.Node);})" />
+                    }
+                    else
+                    {
+                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.Node.SceneObjectIsVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel.Node); })" />
+                    }
                 }
             </div>
         </div>
     }    
 
-    @if (this.Node.GetChildren().Count > 0 && this.Node.IsExpanded)
+    @if (this.ViewModel.Node.GetChildren().Count > 0 && this.ViewModel.Node.IsExpanded)
     {
         <div class="children">
-            @foreach (var child in this.Node.GetChildren())
+            @foreach (var child in this.ViewModel.GetChildren())
             {
-                var level = this.Level + 1;
-                <NodeComponent Node="@child" Level="level"/>
+                var level = this.ViewModel.Level + 1;
+                <NodeComponent ViewModel="@child" Level="@level"/>
             }
         </div>
     }

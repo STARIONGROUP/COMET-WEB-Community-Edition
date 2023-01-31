@@ -24,17 +24,16 @@
 
 namespace COMETwebapp.Pages.Viewer
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Components.Viewer.PopUps;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Pages.Viewer;
+    
     using Microsoft.AspNetCore.Components;
+    
     using ReactiveUI;
 
     /// <summary>
@@ -51,7 +50,7 @@ namespace COMETwebapp.Pages.Viewer
         /// <summary>
         /// The reference to the <see cref="CanvasComponent"/> component
         /// </summary>
-        public CanvasComponent CanvasComponent { get; set; }
+        private CanvasComponent CanvasComponent { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -77,10 +76,10 @@ namespace COMETwebapp.Pages.Viewer
             {
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
 
-                this.WhenAnyValue(x => x.ViewModel.RootNode).Subscribe(async _ =>
+                this.WhenAnyValue(x => x.ViewModel.RootNodeViewModel).Subscribe(async _ =>
                 {
                     await this.CanvasComponent.ViewModel.ClearScene();
-                    await this.RepopulateScene(this.ViewModel.RootNode);
+                    await this.RepopulateScene(this.ViewModel.RootNodeViewModel);
                 });
             }
         }
@@ -90,9 +89,11 @@ namespace COMETwebapp.Pages.Viewer
         /// </summary> 
         /// <param name="rootNode">the top node of the hierarchy that needs to be on scene</param> 
         /// <returns>an asynchronous operation</returns> 
-        private async Task RepopulateScene(TreeNode rootNode)
+        private async Task RepopulateScene(INodeComponentViewModel rootNode)
         {
-            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.SceneObject.Primitive is not null).Select(x => x.SceneObject).ToList();
+            await this.CanvasComponent.ViewModel.ClearScene();
+
+            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.Node.SceneObject.Primitive is not null).Select(x => x.Node.SceneObject).ToList();
 
             foreach (var sceneObject in sceneObjects)
             {

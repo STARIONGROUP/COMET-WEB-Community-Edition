@@ -24,9 +24,11 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
+    
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -37,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Gets or sets the angle format. 
         /// </summary>
-        Enumerations.AngleFormat AngleFormat { get; set; } 
+        AngleFormat AngleFormat { get; set; } 
 
         /// <summary>
         /// Gets or sets the <see cref="Orientation"/>
@@ -45,11 +47,40 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         Orientation Orientation { get; set; }
 
         /// <summary>
+        /// Gets or sets the selected parameter used for the details
+        /// </summary>
+        ParameterBase SelectedParameter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current value set
+        /// </summary>
+        IValueSet CurrentValueSet { get; set; }
+
+        /// <summary> 
+        /// Event callback for when a value of the <see cref="SelectedParameter"/> has changed 
+        /// </summary> 
+        EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Event for when the euler angles changed
+        /// </summary>
+        /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
+        /// <param name="value">the value of the changed property</param>
+        void OnEulerAnglesChanged(string sender, string value);
+
+        /// <summary>
         /// Event for when the euler angles changed
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="e">the args of the event</param>
         void OnEulerAnglesChanged(string sender, ChangeEventArgs e);
+
+        /// <summary>
+        /// Event for when the matrix values changed
+        /// </summary>
+        /// <param name="index">the index of the matrix changed</param>
+        /// <param name="value">the new value for that index</param>
+        void OnMatrixValuesChanged(int index, string value);
 
         /// <summary> 
         /// Event for when the matrix values changed 

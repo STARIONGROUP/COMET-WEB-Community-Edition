@@ -26,7 +26,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     /// <summary>
     /// Interface for the <see cref="CanvasViewModel"/>
@@ -37,6 +39,16 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Reference to the HTML5 canvas
         /// </summary>
         ElementReference CanvasReference { get; set; }
+
+        /// <summary>
+        /// Gets or sets the property used for the Interoperability
+        /// </summary>
+        IJSRuntime JSInterop { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// </summary>
+        ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary> 
         /// Gets or sets the PopUp that ask the user if he wants to change the selected primitive before submiting changes 

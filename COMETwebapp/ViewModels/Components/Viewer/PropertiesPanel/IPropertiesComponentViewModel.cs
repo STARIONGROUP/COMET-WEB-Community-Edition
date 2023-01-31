@@ -22,23 +22,33 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using CDP4Common.EngineeringModelData;
-using COMETwebapp.Components.Viewer.PropertiesPanel;
-using COMETwebapp.Utilities;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.Utilities;
+    using COMETwebapp.Model;
+    
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
+    
+    using COMETwebapp.IterationServices;
+    using COMETwebapp.SessionManagement;
+
     /// <summary>
     /// Interface for the <see cref="PropertiesComponentViewModel"/>
     /// </summary>
     public interface IPropertiesComponentViewModel
     {
         /// <summary>
-        /// Gets or sets the property used for the Interoperability
+        /// Injected property to get access to <see cref="IIterationService"/>
         /// </summary>
-        public IJSRuntime JSInterop { get; set; }
+        IIterationService IterationService { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// </summary>
+        ISessionAnchor SessionAnchor { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
@@ -46,12 +56,17 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
+        /// Gets or sets the property used for the Interoperability
+        /// </summary>
+        IJSRuntime JsInterop { get; set; }
+        
+        /// <summary>
+        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the selected <see cref="SceneObject"/>
         /// </summary>
         Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
 
         /// <summary>
-        /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
+        /// The list of parameters that the selected <see cref="SceneObject"/> uses
         /// </summary>
         List<ParameterBase> ParametersInUse { get; set; }
 

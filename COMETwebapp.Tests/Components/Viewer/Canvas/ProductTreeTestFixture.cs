@@ -32,7 +32,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Utilities;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using Microsoft.Extensions.DependencyInjection;
 
     using NUnit.Framework;
@@ -47,12 +47,17 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         private ProductTree productTree;
         private IRenderedComponent<ProductTree> tree;
 
+        private IProductTreeViewModel viewModel;
+
         [SetUp]
         public void SetUp()
         {
             context = new TestContext();
             context.Services.AddBlazorStrap();
             context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+
+            this.viewModel = new ProductTreeViewModel();
+            context.Services.AddSingleton(this.viewModel);
 
             var rootNode = new TreeNode(new SceneObject(null)) { Title = "rootNode" };
 
@@ -68,21 +73,23 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             rootNode.AddChild(node1);
             rootNode.AddChild(node5);
 
-            tree = context.RenderComponent<ProductTree>(parameters => parameters.Add(p => p.RootNode, rootNode));
+            tree = context.RenderComponent<ProductTree>();
             productTree = tree.Instance;
+
+
+            
         }
 
         [Test]
         public void VerifyOnFilterChanged()
         {
             var nodesBeforeFiltering = tree.FindAll(".treeNode");
-            productTree.OnFilterChanged(true);
+            this.viewModel.SelectedFilter = Enumerations.TreeFilter.ShowFullTree;
             var nodesAfterFiltering1 = tree.FindAll(".treeNode");
-            productTree.OnFilterChanged(false);
+            this.viewModel.SelectedFilter = Enumerations.TreeFilter.ShowNodesWithGeometry;
             var nodesAfterFiltering2 = tree.FindAll(".treeNode");
             Assert.Multiple(() =>
             {
-                Assert.That(productTree.ShowNodesWithGeometry, Is.False);
                 Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
                 Assert.That(nodesAfterFiltering1, Has.Count.EqualTo(4));
                 Assert.That(nodesAfterFiltering2, Has.Count.EqualTo(6));
@@ -93,16 +100,16 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         public void VerifyThatSearchWorks()
         {
             var nodesBeforeFiltering = tree.FindAll(".treeNode");
-            productTree.OnSearchFilterChange(new Microsoft.AspNetCore.Components.ChangeEventArgs() { Value = "th" });
+            this.viewModel.OnSearchFilterChange();
             var nodesAfterFiltering = tree.FindAll(".treeNode");
 
-            Assert.That(productTree.SearchValue, Is.EqualTo("th"));
+            Assert.That(this.viewModel.SearchText, Is.EqualTo("th"));
 
-            productTree.OnSearchFilterChange(new Microsoft.AspNetCore.Components.ChangeEventArgs() { Value = string.Empty });
+            this.viewModel.OnSearchFilterChange();
             var nodesAfterFiltering2 = tree.FindAll(".treeNode");
             Assert.Multiple(() =>
             {
-                Assert.That(productTree.SearchValue, Is.EqualTo(string.Empty));
+                Assert.That(this.viewModel.SearchText, Is.EqualTo(string.Empty));
                 Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
                 Assert.That(nodesAfterFiltering, Has.Count.EqualTo(3));
                 Assert.That(nodesAfterFiltering2, Has.Count.EqualTo(6));

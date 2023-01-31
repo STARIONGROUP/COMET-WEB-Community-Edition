@@ -17,10 +17,18 @@
     overflow-y: auto;
 }
 
-#product-tree-search-bar {
+#product-tree-top-section {
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     margin: 3%;
+}
+
+#product-tree-filters {
+    margin-bottom: 1%;
+}
+
+#product-tree-search-bar {
+    margin-top: 1%;
 }
 
 ::deep #tree-filter-drop-down {

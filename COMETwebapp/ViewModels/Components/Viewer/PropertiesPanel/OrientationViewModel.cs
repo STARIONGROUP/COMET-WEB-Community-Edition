@@ -85,10 +85,36 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public OrientationViewModel(Orientation orientation, IValueSet currentValueSet, ParameterBase selectedParameter, 
             EventCallback<Dictionary<ParameterBase, IValueSet>> onParameterValueSetChanged)
         {
-            this.Orientation = orientation;
+            this.Orientation = orientation ?? throw new ArgumentNullException(nameof(orientation)); 
             this.CurrentValueSet = currentValueSet;
             this.SelectedParameter = selectedParameter;
             this.OnParameterValueChanged = onParameterValueSetChanged;
+        }
+
+        /// <summary>
+        /// Event for when the euler angles changed
+        /// </summary>
+        /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
+        /// <param name="value">the value of the changed property</param>
+        public void OnEulerAnglesChanged(string sender, string value)
+        {
+            if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var valueParsed))
+            {
+                switch (sender)
+                {
+                    case "Rx":
+                        this.Orientation.X = valueParsed;
+                        break;
+                    case "Ry":
+                        this.Orientation.Y = valueParsed;
+                        break;
+                    case "Rz":
+                        this.Orientation.Z = valueParsed;
+                        break;
+                }
+            }
+
+            this.SendMatrixBack();
         }
 
         /// <summary>
@@ -99,40 +125,36 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
         {
             var valueText = e.Value as string;
-            if (double.TryParse(valueText, out var value))
+            this.OnEulerAnglesChanged(sender, valueText);
+        }
+
+        /// <summary>
+        /// Event for when the matrix values changed
+        /// </summary>
+        /// <param name="index">the index of the matrix changed</param>
+        /// <param name="value">the new value for that index</param>
+        public void OnMatrixValuesChanged(int index, string value)
+        {
+            var orientationMatrix = this.Orientation.Matrix;
+
+            if (double.TryParse(value, out var valueParsed))
             {
-                switch (sender)
-                {
-                    case "Rx":
-                        this.Orientation.X = value;
-                        break;
-                    case "Ry":
-                        this.Orientation.Y = value;
-                        break;
-                    case "Rz":
-                        this.Orientation.Z = value;
-                        break;
-                }
+                orientationMatrix[index] = valueParsed;
+                this.Orientation = new Orientation(orientationMatrix, this.AngleFormat);
             }
 
             this.SendMatrixBack();
         }
 
-        /// <summary> 
-        /// Event for when the matrix values changed 
-        /// </summary> 
+        /// <summary>
+        /// Event for when the matrix values changed
+        /// </summary>
+        /// <param name="index">the index of the matrix changed</param>
+        /// <param name="e">the args of the events</param>
         public void OnMatrixValuesChanged(int index, ChangeEventArgs e)
         {
             var valueText = e.Value as string;
-            var orientationMatrix = this.Orientation.Matrix;
-
-            if (double.TryParse(valueText, out var value))
-            {
-                orientationMatrix[index] = value;
-                this.Orientation  = new Orientation(orientationMatrix, this.AngleFormat);
-            }
-
-            this.SendMatrixBack();
+            this.OnMatrixValuesChanged(index, valueText);
         }
 
         /// <summary>
@@ -140,20 +162,20 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         private async void SendMatrixBack()
         {
-            ValueArray<string> modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
+            var modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
             
-            for (int i = 0; i<this.Orientation.Matrix.Length; i++)
+            for (var i = 0; i<this.Orientation.Matrix.Length; i++)
             {
                 modifiedValueArray[i] = this.Orientation.Matrix[i].ToString(CultureInfo.InvariantCulture);
             }
+
             await this.SendChangesBack(modifiedValueArray);
         }
 
         /// <summary>
         /// Send the changes back to the parent components
         /// </summary>
-        /// <param name="index">the index of the value changed</param>
-        /// <param name="valueText">the new value for the value set</param>
+        /// <param name="modifiedValueArray">the value array to send back</param>
         /// <returns>an asynchronous operation</returns>
         private async Task SendChangesBack(ValueArray<string> modifiedValueArray)
         {
@@ -167,6 +189,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 {
                     {this.SelectedParameter, sendingParameterValueSetBase},
                 };
+
                 await this.OnParameterValueChanged.InvokeAsync(parameterValueSetRelations);
             }
         }
@@ -174,11 +197,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary> 
         /// Event for when the angle format has changed 
         /// </summary> 
-        /// <param name="angleFormat"></param> 
-        public void OnAngleFormatChanged(AngleFormat angleFormat)
+        /// <param name="format">the new format for the angle</param> 
+        public void OnAngleFormatChanged(AngleFormat format)
         {
-            this.AngleFormat = angleFormat;
-            this.Orientation.AngleFormat = angleFormat;
+            this.AngleFormat = format;
+            this.Orientation.AngleFormat = format;
         }
     }
 }

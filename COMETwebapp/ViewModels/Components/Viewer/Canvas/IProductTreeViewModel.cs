@@ -25,7 +25,6 @@
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using COMETwebapp.Enumerations;
-    using COMETwebapp.Model;
 
     /// <summary>
     /// Interface for the <see cref="ProductTreeViewModel"/>
@@ -50,6 +49,16 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
         /// </summary>
-        public TreeNode RootNode { get; set; }
+        INodeComponentViewModel RootViewModel { get; set; }
+
+        /// <summary>
+        /// Event for when the filter on the tree changes
+        /// </summary>
+        void OnFilterChanged();
+
+        /// <summary>
+        /// Event for when the text of the search filter is changing
+        /// </summary>
+        void OnSearchFilterChange();
     }
 }

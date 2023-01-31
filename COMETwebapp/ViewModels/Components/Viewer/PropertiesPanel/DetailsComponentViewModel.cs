@@ -26,11 +26,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -39,7 +37,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     public class DetailsComponentViewModel : ReactiveObject, IDetailsComponentViewModel
     {
         /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
+        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> 
         /// </summary>
         private Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
 
@@ -66,19 +64,46 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Creates a new instance of type <see cref="DetailsComponentViewModel"/>
         /// </summary>
-        /// <param name="jsRuntime">the <see cref="IJSRuntime"/></param>
-        /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
+        /// <param name="isVisible">if the component is visible/></param>
+        /// <param name="selectedParameter">the selected parameter</param>
+        /// <param name="parameterValueSetRelations">the relations between the <see cref="ParameterBase"/> and the <see cref="IValueSet"/></param>
+        /// <param name="onParameterValueSetChanged">event callback for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed</param>
         public DetailsComponentViewModel(bool isVisible, ParameterBase selectedParameter, Dictionary<ParameterBase, IValueSet> parameterValueSetRelations,
             EventCallback<Dictionary<ParameterBase,IValueSet>> onParameterValueSetChanged)
         {
             this.IsVisible = isVisible;
             this.SelectedParameter = selectedParameter;
-            this.OnParameterValueChanged = onParameterValueSetChanged;
             this.ParameterValueSetRelations = parameterValueSetRelations;
+            this.OnParameterValueChanged = onParameterValueSetChanged;
 
-            if(this.ParameterValueSetRelations is not null && this.SelectedParameter is not null)
+            if (this.ParameterValueSetRelations is not null && this.SelectedParameter is not null)
             {
                 this.CurrentValueSet = this.ParameterValueSetRelations.ContainsKey(this.SelectedParameter) ? this.ParameterValueSetRelations[this.SelectedParameter] : null;
+            }
+        }
+
+        /// <summary>
+        /// Event for when the value of the parameter has changed
+        /// </summary>
+        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
+        /// <param name="value">the value of the <see cref="IValueSet"/> changed</param>
+        public async void OnParameterValueChange(int changedIndex, string value)
+        {
+            var modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
+            modifiedValueArray[changedIndex] = value;
+
+            if (this.CurrentValueSet is ParameterValueSetBase parameterValueSetBase)
+            {
+                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
+                sendingParameterValueSetBase.Manual = modifiedValueArray;
+                sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
+
+                var parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>()
+                {
+                    {this.SelectedParameter, sendingParameterValueSetBase},
+                };
+
+                await this.OnParameterValueChanged.InvokeAsync(parameterValueSetRelations);
             }
         }
 
@@ -89,23 +114,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <param name="e">Supplies information about an change event that is being raised.</param>
         public async void OnParameterValueChange(int changedIndex, ChangeEventArgs e)
         {
-            //TODO: pass the collection of parameter-valueSet and 
             var value = e.Value as string;
-            ValueArray<string> modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
-            modifiedValueArray[changedIndex] = value;
-
-            if(this.CurrentValueSet is ParameterValueSetBase parameterValueSetBase)
-            {
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
-                sendingParameterValueSetBase.Manual = modifiedValueArray;
-                sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
-
-                var parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>()
-                {
-                    {this.SelectedParameter, sendingParameterValueSetBase},
-                };
-                await this.OnParameterValueChanged.InvokeAsync(parameterValueSetRelations);
-            }           
+            this.OnParameterValueChange(changedIndex, value);
         }
     }
 }

@@ -22,11 +22,13 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using CDP4Common.EngineeringModelData;
-using Microsoft.AspNetCore.Components;
-
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
+
+    using Microsoft.AspNetCore.Components;
+    
     /// <summary>
     /// Interface for the <see cref="DetailsComponentViewModel"/>
     /// </summary>
@@ -51,6 +53,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// Event callback for when a value of the <see cref="SelectedParameter"/> has changed 
         /// </summary> 
         public EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Event for when the value of the parameter has changed
+        /// </summary>
+        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
+        /// <param name="value">the value of the <see cref="IValueSet"/> changed</param>
+        void OnParameterValueChange(int changedIndex, string value);
 
         /// <summary>
         /// Event for when the value of a parameter has changed
