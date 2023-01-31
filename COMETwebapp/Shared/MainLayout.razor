@@ -21,27 +21,25 @@
 ------------------------------------------------------------------------------->
 
 @inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
 
-<DxLayoutBreakpoint MaxWidth="1200"/>
-
-<div class="page">
-    <DxGridLayout CssClass="page-layout">
-        <Rows>
-            <DxGridLayoutRow Areas="header" Height="auto"></DxGridLayoutRow>
-            <DxGridLayoutRow Areas="content" />
-        </Rows>
-        <Items>
-            <DxGridLayoutItem Area="header">
-                <Template>
-                    <Header />
-                </Template>
-            </DxGridLayoutItem>
-            <DxGridLayoutItem Area="content" CssClass="content px-4">
-                <Template>
-                    @Body
-                </Template>
-            </DxGridLayoutItem>
-        </Items>
-    </DxGridLayout>
-</div>
+	<DxLayoutBreakpoint MaxWidth="1200"/>
+	<div class="page">
+	    <DxGridLayout CssClass="page-layout">
+	        <Rows>
+	            <DxGridLayoutRow Areas="header" Height="auto"></DxGridLayoutRow>
+	            <DxGridLayoutRow Areas="content" />
+	        </Rows>
+	        <Items>
+	            <DxGridLayoutItem Area="header">
+	                <Template>
+	                    <TopMenu />
+	                </Template>
+	            </DxGridLayoutItem>
+	            <DxGridLayoutItem Area="content" CssClass="content px-4">
+	                <Template>
+	                    @this.Body
+	                </Template>
+	            </DxGridLayoutItem>
+	        </Items>
+	    </DxGridLayout>
+	</div>

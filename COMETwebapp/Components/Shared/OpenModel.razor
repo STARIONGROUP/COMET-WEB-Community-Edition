@@ -1,0 +1,60 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Model
+@using COMETwebapp.Services.SessionManagement
+@using COMETwebapp.SessionManagement
+@inherits DisposableComponent
+
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+	<DxFormLayoutItem Caption="Model:" ColSpanLg="12">
+		<Template>
+			<DxComboBox Data="@this.ViewModel.AvailableEngineeringModelSetups"
+			            TextFieldName="@nameof(EngineeringModelSetup.Name)"
+			            @bind-Value="@this.ViewModel.SelectedEngineeringModel"
+			            NullText="Select an Engineering Model"/>
+		</Template>
+	</DxFormLayoutItem>
+	@if (this.ViewModel.SelectedEngineeringModel != null)
+	{
+		<DxFormLayoutItem Caption="Iteration:" ColSpanLg="12">
+			<Template>
+				<DxComboBox Data="@this.ViewModel.AvailableIterationSetups"
+				            TextFieldName="@nameof(IterationData.IterationName)"
+				            @bind-Value="@this.ViewModel.SelectedIterationSetup"
+				            NullText="Select an Iteration"/>
+			</Template>
+		</DxFormLayoutItem>
+		<DxFormLayoutItem Caption="Domain:" ColSpanLg="12">
+			<Template>
+				<DxComboBox Data="@this.ViewModel.AvailablesDomainOfExpertises"
+				            TextFieldName="@nameof(DomainOfExpertise.Name)"
+				            @bind-Value="@this.ViewModel.SelectedDomainOfExpertise"
+				            NullText="Select a Domain of Expertise"/>
+			</Template>
+		</DxFormLayoutItem>
+	}
+</DxFormLayout>
+<div class="modal-footer">
+	<DxButton Id="openmodel__button" CssClass="btn btn-connect"
+	          Text="@this.ButtonText" Enabled="@this.ButtonEnabled" Click="@(this.ViewModel.OpenSession)" />
+</div>

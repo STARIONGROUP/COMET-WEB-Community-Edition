@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Model
 {
+    using System.Text.RegularExpressions;
+
     /// <summary>
     /// Define card to introduce applications
     /// </summary>
@@ -32,21 +34,26 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Name of the application
         /// </summary>
-        public string? Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// A little description of the application
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// The color of the icon to represent the application
         /// </summary>
-        public string? Color { get; set; }
+        public string Color { get; set; }
 
         /// <summary>
         /// Icon in the card to represent the application
         /// </summary>
-        public string? Icon { get; set; }
+        public string Icon { get; set; }
+
+        /// <summary>
+        /// The navigation url for the current card
+        /// </summary>
+        public string Url => $"/{Regex.Replace(this.Name, @"\s", "")}";
     }
 }

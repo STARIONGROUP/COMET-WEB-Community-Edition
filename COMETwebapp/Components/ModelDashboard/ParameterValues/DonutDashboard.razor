@@ -19,8 +19,11 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject ISessionAnchor ISessionAnchor
-@using DevExpress.Blazor
+@using CDP4Common.EngineeringModelData
+@using COMETwebapp.Model
+@using COMETwebapp.Services.SessionManagement
+@using COMETwebapp.SessionManagement
+@inject ISessionService SessionService
 
 <div class="col col-xxl-8">
     <DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
@@ -75,10 +78,10 @@ Copyright (c) 2023 RHEA System S.A.
     private List<DataChart> GetChartData(List<ParameterValueSetBase>? data)
     {
         List<DataChart> donutData = new List<DataChart>();
-        var iteration = this.ISessionAnchor.OpenIteration;
+        var iteration = this.SessionService.DefaultIteration;
         if (iteration != null && data != null)
         {
-            var domains = this.ISessionAnchor.Session.QueryDomainOfExpertise(iteration).ToList();
+            var domains = this.SessionService.Session.QueryDomainOfExpertise(iteration).ToList();
             domains.ForEach(d =>
             {
                 var domainParameterValueSets = data.FindAll(parameterValueSet => parameterValueSet.Owner == d);

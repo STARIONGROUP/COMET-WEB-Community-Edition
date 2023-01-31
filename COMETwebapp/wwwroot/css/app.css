@@ -171,7 +171,11 @@ html, body, #app {
     justify-content: center
 }
 
-.width-200{
+.dxbs-fl .dxbs-fl-cpt {
+    font-weight: normal;
+}
+
+.width-200 {
     width: 200px;
 }
 
@@ -362,4 +366,37 @@ html, body, #app {
 
 .width-12.5{
     width:12.5%;
+}
+
+.centered {
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+.topmenu {
+    width: 100%;
+    box-shadow: 0px 2px 6px 0px rgb(0 0 0 / 12%);
+}
+
+.icon {
+    height: 24px;
+    width: 24px;
+    stroke-width: 2px;
+    background-size: 24px 24px;
+}
+
+.icon-database {
+    background-image: url(SVG/icons/database.svg)
+}
+
+.icon-info {
+    background-image: url(SVG/icons/info.svg)
+}
+
+.icon-folder {
+    background-image: url(SVG/icons/folder.svg)
+}
+
+.icon-check {
+    background-image: url(SVG/icons/check.svg)
 }

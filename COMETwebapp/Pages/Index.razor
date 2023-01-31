@@ -19,109 +19,76 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
 @page "/"
-@inject IVersionService VersionService
-@inject ISessionAnchor ISessionAnchor
-@inject HttpClient HttpClient;
-@inject IIterationService IterationService
-@inject IAuthenticationService AuthenticationService
-@inject NavigationManager NavigationManager
+@inherits DisposableComponent
 
-<div class="container height-90">
-    <div class="row justify-content-center">
-        <img id="comet-logo" src="images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
-    </div>
-    <div class="comet-info row text-align-center justify-content-center">
-		<div class="card width-70">
-			<div class="card-body font-weight-bold comet-info-text">
-				<p class="no-margin"></p>  
-			</div>
-            <div class="font-size-smaller">
-                <div>Version: <b>@this.cometWebVersion</b></div>
-                <p>Copyright &copy; <text class="mx-3">2023.</text> <a href="https://www.rheagroup.com/" title="RHEA" target="_blank">RHEA System S.A.</a></p>
-            </div>
+@if (this.ViewModel.SessionService.IsSessionOpen && this.ViewModel.SessionService.OpenIterations.Items.Any())
+{
+	<Dashboard/>
+}
+else
+{
+	<div class="container height-90">
+		<div class="row justify-content-center">
+			<img id="comet-logo" src="images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
 		</div>
-    </div>
-    <div class="row text-align-start m-top-20px align-items-center justify-content-md-center">
-        <div class="width-70">
-        
-        <AuthorizeView>
-            <Authorized>
-                <div class="container-fluid text-align-center">
-                    <div class="row">
-                        <div class="col p-0 col-10 font-weight-bold">
-                            @context.User.Identity?.Name - @ISessionAnchor.Session.DataSourceUri
-                        </div>
-                        <div class="col p-0">
-                            <a class="m-left-10px" @onclick="@(() => Logout())">Log Out</a>
-                        </div>
-                    </div>
-                </div>
-                <DxTreeView CssClass="m-top-10px">
-                    <Nodes>
-                        <DxTreeViewNode Name="ModelView" Text="Open a Model" Expanded CssClass="color-title font-weight-bold">
-                            <Nodes>
-                                <DxTreeViewNode CssClass="font-weight-100">
-                                    <Template Context="second_context">
-                                        <OpenModel />
-                                    </Template>
-                                </DxTreeViewNode>
-                            </Nodes>
-                        </DxTreeViewNode>
-                    </Nodes>
-                </DxTreeView>
-            </Authorized>
-            <NotAuthorized>
-                <div class="text-align-center font-weight-bold">Connect and Open a Model.</div>
-                <DxTreeView CssClass="m-top-10px">
-                    <Nodes>
-                        <DxTreeViewNode Name="ConnectView" Text="Connect" Expanded CssClass="color-title font-weight-bold">
-                            <Nodes>
-                                <DxTreeViewNode CssClass="font-weight-100">
-                                    <Template Context="second_context">
-                                        <Login />
-                                    </Template>
-                                </DxTreeViewNode>
-                            </Nodes>
-                        </DxTreeViewNode>
-                    </Nodes>
-                </DxTreeView>              
-            </NotAuthorized>
-        </AuthorizeView>
-        </div>
-    </div>
-</div>
-    
-
-@code{
-    /// <summary>
-	/// The Version of the COMET-WEB CE application
-	/// </summary>
-	private string? cometWebVersion;
-	
-	/// <summary>
-	/// The license text as retrieved from the GitHub repository
-	/// </summary>
-	private string license = string.Empty;
-
-	/// <summary>
-	/// Initializes the component
-	/// </summary>
-	protected override async Task OnInitializedAsync()
-	{
-        CDPMessageBus.Current.SendMessage<ApplicationEvent>(new ApplicationEvent(null));
-		this.cometWebVersion = this.VersionService.GetVersion();
-		this.license = await HttpClient.GetStringAsync("https://raw.githubusercontent.com/RHEAGROUP/COMET-WEB-Community-Edition/master/LICENSE");
-	}
-
-    /// <summary>
-    /// Close the <see cref="ISession" /> and update the <see cref="ISessionAnchor" />
-    /// </summary>
-    public async void Logout()
-    {
-        await AuthenticationService.Logout();
-        this.IterationService.ValidatedUpdates.Clear();
-        this.NavigationManager.NavigateTo("/");
-    }
+		<div class="comet-info row text-align-center justify-content-center">
+			<div class="card width-70">
+				<div class="card-body font-weight-bold comet-info-text">
+					<p class="no-margin"></p>
+				</div>
+				<div class="font-size-smaller">
+					<div>Version: <b>@this.ViewModel.Version</b></div>
+					<p>Copyright &copy; <text class="mx-3">2023.</text> <a href="https://www.rheagroup.com/" title="RHEA" target="_blank">RHEA System S.A.</a></p>
+				</div>
+			</div>
+		</div>
+		<div class="row text-align-start m-top-20px align-items-center justify-content-md-center">
+			<div class="width-70">
+				<AuthorizeView>
+					<Authorized>
+						<div class="container-fluid text-align-center">
+							<div class="row">
+								<div class="col p-0 col-10 font-weight-bold">
+									@context.User.Identity?.Name - @this.ViewModel.SessionService.Session.DataSourceUri
+								</div>
+								<div class="col p-0">
+									<a class="m-left-10px" @onclick="@(() => this.ViewModel.Logout())">Log Out</a>
+								</div>
+							</div>
+						</div>
+						<DxTreeView CssClass="m-top-10px">
+							<Nodes>
+								<DxTreeViewNode Name="ModelView" Text="Open a Model" Expanded CssClass="color-title font-weight-bold">
+									<Nodes>
+										<DxTreeViewNode CssClass="font-weight-100">
+											<Template Context="second_context">
+												<OpenModel/>
+											</Template>
+										</DxTreeViewNode>
+									</Nodes>
+								</DxTreeViewNode>
+							</Nodes>
+						</DxTreeView>
+					</Authorized>
+					<NotAuthorized>
+						<div class="text-align-center font-weight-bold">Connect and Open a Model.</div>
+						<DxTreeView CssClass="m-top-10px">
+							<Nodes>
+								<DxTreeViewNode Name="ConnectView" Text="Connect" Expanded CssClass="color-title font-weight-bold">
+									<Nodes>
+										<DxTreeViewNode CssClass="font-weight-100">
+											<Template Context="second_context">
+												<Login/>
+											</Template>
+										</DxTreeViewNode>
+									</Nodes>
+								</DxTreeViewNode>
+							</Nodes>
+						</DxTreeView>
+					</NotAuthorized>
+				</AuthorizeView>
+			</div>
+		</div>
+	</div>
 }
