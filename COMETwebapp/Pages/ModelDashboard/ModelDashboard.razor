@@ -19,17 +19,11 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.SessionManagement
-@using COMETwebapp.IterationServices
-@using CDP4Dal
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
 
 @page "/ModelDashboard"
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
 @inject NavigationManager NavigationManager
-
 @implements IDisposable
 
 <ApplicationTemplate Title="Model Dashboard">
@@ -37,7 +31,7 @@ Copyright (c) 2023 RHEA System S.A.
         <div class="container-fluid">
             <div class="row">
                 @{
-                    var iteration = this.SessionService.DefaultIteration;
+                    var iteration = this.ISessionAnchor.OpenIteration;
                 }
                 @if(iteration != null && iteration.Option.ToList().Count > 1)
                 {
@@ -76,7 +70,7 @@ Copyright (c) 2023 RHEA System S.A.
                     </div>
                 }
                 @{
-                    var participantRole = this.SessionService.GetParticipant(this.SessionService.DefaultIteration)?.Role;
+                    var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
                 }
                 @if (participantRole != null && participantRole.Name.Equals("Model Administrator"))
                 {
@@ -159,7 +153,7 @@ Copyright (c) 2023 RHEA System S.A.
     protected override void OnInitialized()
     {
         this.ParameterTypeNames = new List<string>();
-        this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
+        this.IterationService.GetParameterTypes(this.ISessionAnchor.OpenIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
@@ -184,12 +178,12 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     protected override void OnParametersSet()
     {
-        var option = this.SessionService.DefaultIteration?.Option.First();
+        var option = this.ISessionAnchor.OpenIteration?.Option.First();
         this.FilterOption = FilterOption ?? option?.Iid;
         this.FilterState = FilterState ?? null;
         this.FilterParameterType = FilterParameterType ?? null;
 
-        var iteration = this.SessionService.DefaultIteration;
+        var iteration = this.ISessionAnchor.OpenIteration;
         if(this.FilterOption != null)
         {
             this.optionSelected = iteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
@@ -213,7 +207,7 @@ Copyright (c) 2023 RHEA System S.A.
         this.optionSelected = optionName;
         if(this.optionSelected != null)
         {
-            this.FilterOption = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Name == this.optionSelected)?.Iid;
+            this.FilterOption = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Name == this.optionSelected)?.Iid;
         } else
         {
             this.FilterOption = null;
@@ -231,7 +225,7 @@ Copyright (c) 2023 RHEA System S.A.
         if (this.stateSelected != null)
         {
             var actualStates = new List<ActualFiniteState>();
-            this.SessionService.DefaultIteration?.ActualFiniteStateList.ForEach(l =>
+            this.ISessionAnchor.OpenIteration?.ActualFiniteStateList.ForEach(l =>
             {
                 actualStates.AddRange(l.ActualState);
 

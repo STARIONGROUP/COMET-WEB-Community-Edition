@@ -24,59 +24,56 @@
 
 namespace COMETwebapp.Model
 {
-    /// <summary>
-    /// Provides all available application contained into the current web application
-    /// </summary>
-    public static class ApplicationCards
+    public class ApplicationCards
     {
         /// <summary>
         /// List of application cards with Name, Color, Icon and Description data
         /// </summary>
-        public static List<Card> Cards => new()
+        public List<Card> Cards { get; set; } = new List<Card>()
         {
-            new Card
+            new Card()
             {
                 Name = "Parameter Editor",
                 Color = "#76b8fc",
                 Icon = "spreadsheet",
                 Description = "Table of element usages with their associated parameters."
             },
-            new Card
+            new Card()
             {
                 Name = "Model Dashboard",
                 Color = "#c3cffd",
                 Icon = "task",
                 Description = "Summarize the model progress."
             },
-            new Card
+            new Card()
             {
                 Name = "Subscription Dashboard",
                 Color = "#76fd98",
                 Icon = "person",
                 Description = "Table of subscribed values."
             },
-            new Card
+            new Card()
             {
                 Name = "System Representation",
                 Color = "#a7f876",
                 Icon = "fork",
                 Description = "Represent relations between elements."
             },
-            new Card
+            new Card()
             {
                 Name = "Requirement Management",
                 Color = "#fda966",
                 Icon = "link-intact",
                 Description = "Edit requirements in the model."
             },
-            new Card
+            new Card()
             {
                 Name = "Budget Editor",
                 Color = "#fc3a1aad",
                 Icon = "brush",
                 Description = "Create budget tables."
             },
-            new Card
+            new Card()
             {
                 Name = "3D Viewer",
                 Color = "#76fd98",

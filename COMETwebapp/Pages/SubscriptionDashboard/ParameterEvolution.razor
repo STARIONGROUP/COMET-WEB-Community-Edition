@@ -19,18 +19,10 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.SessionManagement
-@using COMETwebapp.IterationServices
-@using COMETwebapp.Model
-@using CDP4Dal
-@using COMETwebapp.Extensions
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
 
 @page "/SubscriptionDashboard/More"
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
-
 @implements IDisposable
 
 <div class="container-fluid">
@@ -149,7 +141,7 @@ Copyright (c) 2023 RHEA System S.A.
     {
         if (this.ParameterValueSetIid != null)
         {
-            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.SessionService.DefaultIteration);
+            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration);
             var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid.FromShortGuid());
             associatedParameterValueSet?.Revisions.Values.ToList().ForEach(revision =>
             {
@@ -209,7 +201,7 @@ Copyright (c) 2023 RHEA System S.A.
         if(argument != null)
         {
             var revisionNumber = Int32.Parse(argument);
-            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.SessionService.DefaultIteration);
+            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration);
             var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid?.FromShortGuid());
             var value = string.Empty;
             if(associatedParameterValueSet?.RevisionNumber == revisionNumber)

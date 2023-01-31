@@ -1,0 +1,23 @@
+﻿.parameter-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.form-control.parameter-input{
+    margin: 2%;
+}
+
+#color-text {
+    margin-left: 2%;
+}
+
+p{
+    text-align: center;
+    margin:0;
+}
+
+input{
+    margin: 2%;
+}

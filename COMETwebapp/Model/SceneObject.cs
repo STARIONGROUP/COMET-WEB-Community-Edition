@@ -25,12 +25,11 @@
 namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.Model.Primitives;
+    
+    using COMETwebapp.Components.Canvas;
+    using COMETwebapp.Primitives;
     using COMETwebapp.Utilities;
-
+    
     using Newtonsoft.Json;
 
     /// <summary>
@@ -218,7 +217,6 @@ namespace COMETwebapp.Model
                     {
                         this.Primitive.ParseParameter(parameterBase, valueSet);
                     }
-
                     break;
             }
         }

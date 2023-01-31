@@ -14,7 +14,7 @@
 <!-- provide either a complete or partial log file -->
 
   - [ ] There are no logs regarding the issue
-  - [ ] I have attached a log file or included the relevant section in this issue  
+  - { ] I have attached a log file or included the relevant section in this issue  
   
 ### System Configuration
 <!-- Tell us about the environment where you are experiencing the bug -->

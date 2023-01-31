@@ -28,11 +28,10 @@ namespace COMETwebapp.Utilities
     using System.Numerics;
 
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Extensions;
+    
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
-
+    using COMETwebapp.Primitives;
+    
     /// <summary>
     /// Class that contains the common parsers used for the <see cref="ParameterBase"/>
     /// </summary>
@@ -41,18 +40,18 @@ namespace COMETwebapp.Utilities
         /// <summary>
         /// Collection of names and related shapes
         /// </summary>
-        private static Dictionary<string, Func<Primitive>> ShapeCreatorCollection = new()
+        private static Dictionary<string, Func<Primitive>> ShapeCreatorCollection = new Dictionary<string, Func<Primitive>>()
         {
-            { "box", () => new Cube(1, 1, 1) },
-            { "cone", () => new Cone(1, 1) },
-            { "cylinder", () => new Cylinder(1, 1) },
-            { "sphere", () => new Sphere(1) },
-            { "torus", () => new Torus(1, 1) },
-            { "triprism", () => new TriangularPrism(1, 1) },
-            { "disc", () => new Disc(1) },
-            { "hexagonalprism", () => new HexagonalPrism(1, 1) },
-            { "rectangle", () => new Rectangle(1, 1) },
-            { "triangle", () => new EquilateralTriangle(1) }
+            {"box", () => new Cube(1, 1, 1) },
+            {"cone", () => new Cone(1, 1) },
+            {"cylinder", () => new Cylinder(1, 1) },
+            {"sphere", () => new Sphere(1) },
+            {"torus", () => new Torus(1, 1) },
+            {"triprism", () => new TriangularPrism(1, 1) },
+            {"disc", () => new Disc(1) },
+            {"hexagonalprism", () => new HexagonalPrism(1, 1) },
+            {"rectangle", () => new Rectangle(1, 1) },
+            {"triangle", () => new EquilateralTriangle(1) },
         };
 
         /// <summary>
@@ -69,7 +68,6 @@ namespace COMETwebapp.Utilities
             {
                 throw new ArgumentNullException("The parameter base can not be null");
             }
-
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(option, states);
             return ShapeKindParser(valueSet);
         }
@@ -85,7 +83,7 @@ namespace COMETwebapp.Utilities
 
             if (valueSet is not null)
             {
-                var shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
+                string? shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
 
                 if (shapeKind is not null && ShapeCreatorCollection.ContainsKey(shapeKind))
                 {
@@ -191,7 +189,7 @@ namespace COMETwebapp.Utilities
         /// <returns>the <see cref="double"/> if the value can be parsed, NaN otherwise</returns>
         public static double DoubleParser(IValueSet? valueSet)
         {
-            if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+            if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
             {
                 return result;
             }
@@ -227,7 +225,7 @@ namespace COMETwebapp.Utilities
         {
             if (valueSet is not null)
             {
-                var textColor = valueSet.ActualValue.First();
+                string textColor = valueSet.ActualValue.First();
                 return textColor.ParseToColorVector();
             }
 

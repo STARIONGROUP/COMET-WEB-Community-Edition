@@ -2,11 +2,10 @@
 
 We would like to start with saying thank you for wanting to contribute to COMET-WEB codebase. We want to keep it as easy as possible to contribute changes that get things working in your environment. There are a few guidelines that we need contributors to follow so that we have a chance of keeping on top of things.
 
-- [How to contribute](#how-to-contribute)
-  - [Making Changes](#making-changes)
-    - [Handling Updates from Upstream/Development](#handling-updates-from-upstreamdevelopment)
-    - [Sending a Pull Request](#sending-a-pull-request)
-  - [Style Guidelines](#style-guidelines)
+- [Making Changes](#making-changes)
+  - [Handling Updates from Upstream/Development](#handling-updates-from-upstreamdevelopment)
+  - [Sending a Pull Request](#sending-a-pull-request)
+- [Style Guidelines](#style-guidelines)
 
 ## Making Changes
 

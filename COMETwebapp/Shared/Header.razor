@@ -1,0 +1,169 @@
+﻿<!------------------------------------------------------------------------------
+    Copyright (c) 2023 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@inject ISessionAnchor ISessionAnchor
+@implements IDisposable
+
+<nav class="navbar header-navbar p-0">
+    @if(this.renderCanvas)
+    {
+        <div class="height-100" @onmouseleave="@CloseCanvas">
+            <button class="navbar-toggler bg-primary d-block height-100" style="box-shadow: 0 0 0 0px;" @onclick="OpenCanvas">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+    
+            <BSOffCanvas @ref="offCanvas" ShowBackdrop="false" Class="canvas">
+                <Content>
+                    <NavMenu />
+                </Content>
+            </BSOffCanvas>
+        </div>
+    }
+
+    <div class="header">
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-3">
+                    <div class="display-flex align-items-center">
+                        <img src="images/COMET-Symbol.png" class="logo-size p-1" title="COMET Community Edition" alt="COMET Community Edition"/>
+                        <div class="font-weight-bold title title-item">COMET Community Edition</div>
+                        <div class="font-weight-bold title title-item2">COMET</div>
+                    </div>
+                </div>
+                <div class="col-4 text-align-center align-self-center">
+                    <AuthorizeView>
+		                <Authorized>
+                            @if(this.applicationTitle != null)
+                            {
+                                    <h3 class="m-0 font-weight-bold color-title app-title">
+                                        @applicationTitle
+                                    </h3> 
+                            }
+                        </Authorized>
+	                </AuthorizeView>
+                </div>
+                <div class="col-5">
+                    <div class="display-flex justify-content-end align-items-center height-100 m-right-3px">
+                        <AuthorizeView>
+		                    <Authorized>
+                                @if(this.ISessionAnchor.CurrentEngineeringModelName != null)
+                                {
+                                    <div class="m-right-10px user-info">
+                                        @ISessionAnchor.CurrentEngineeringModelName - @context.User.Identity?.Name
+                                    </div>
+                                } else
+                                {
+                                    <div class="m-right-10px user-info">
+                                        @context.User.Identity?.Name
+                                    </div>   
+                                }
+                                <UserPreferences Username="@context.User.Identity?.Name"/>
+
+                                <div class="refresh-button">
+                                    <RefreshButton />
+                                </div>
+		                    </Authorized>
+	                    </AuthorizeView>
+                        <div class="about-button-header">
+                            <AboutButton />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+@code {
+    /// <summary>
+    /// Disable menu render for testing
+    /// </summary>
+    [Parameter]
+    public bool renderCanvas { get; set; } = true;
+
+    /// <summary>
+    /// Title of the active application
+    /// </summary>
+    private string? applicationTitle { get; set; }
+
+    /// <summary>
+    /// <see cref="BSOffCanvas"> for the application menu
+    /// </summary>
+    private BSOffCanvas? offCanvas;
+
+    /// <summary>
+    /// Listeners for the components to update it with ISession
+    /// </summary>
+    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
+
+    /// <summary>
+    /// Initialize component at first render and after session update
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (!this.listeners.TryGetValue("IterationChanges", out var listener))
+        {
+            this.listeners.Add("IterationChanges", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.IterationOpened || x == SessionStateKind.IterationClosed).Subscribe(x =>
+            {
+                this.StateHasChanged();
+            }));
+        }
+
+        if (!this.listeners.TryGetValue("ApplicationName", out listener))
+        {
+            this.listeners.Add("ApplicationName", CDPMessageBus.Current.Listen<ApplicationEvent>().Subscribe(x =>
+            {
+                this.applicationTitle = x.ApplicationName;
+                this.StateHasChanged();
+            }));
+        }
+    }
+
+    /// <summary>
+    /// Opens the menu
+    /// </summary>
+    private async Task OpenCanvas()
+    {
+        if (offCanvas != null)
+            await offCanvas.ToggleAsync();
+    }
+
+    /// <summary>
+    /// Close Canvas component when the mouse leaves the area
+    /// </summary>
+    /// <param name="e"><see cref="MouseEventArgs"> from onmouseleave event</param>
+    private async Task CloseCanvas(MouseEventArgs e)
+    {
+        if (offCanvas != null && offCanvas.Shown)
+            await offCanvas.ToggleAsync();
+    }
+
+    /// <summary>
+    /// Stop and clear listeners of the component
+    /// </summary>
+    public void Dispose()
+    {
+        this.listeners.Values.ToList().ForEach(l => l.Dispose());
+        this.listeners.Clear();
+    }
+}

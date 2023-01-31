@@ -19,13 +19,7 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject ISessionService SessionService
-
-@using COMETwebapp.SessionManagement
-@using CDP4Dal
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
-
+@inject ISessionAnchor ISessionAnchor
 @implements IDisposable
 
 <div class="col width-100 text-align-center">
@@ -77,7 +71,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        var iteration = this.SessionService.DefaultIteration;
+        var iteration = this.ISessionAnchor.OpenIteration;
         if (iteration != null)
         {
             this.Data = iteration.Element;

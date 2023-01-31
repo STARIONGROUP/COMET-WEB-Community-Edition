@@ -1,0 +1,161 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+<div class="container-fluid p-0">
+    <div class="row m-0 font-size-small">
+        <div class="col-2 p-0 align-self-center">
+            @Component?.ShortName
+        </div>
+        <div class="col-10 p-0">
+            @if(this.Component != null)
+            {
+                @if(this.Component.ParameterType.NumberOfValues == 1)
+                {
+                    var valueType = this.Component.ParameterType.GetType();
+                    <ScalarParameter 
+                        Value="@GetScalarValue()" 
+                        Scale="@Component.Scale?.ShortName" 
+                        ValueType="@valueType"
+                        ParameterValueSet="@ParameterValueSet" 
+                        ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
+                        IndexInValueSet="@IndexStartInParameterTypeComponent" 
+                        IsManualEditable="@IsManualEditable" 
+                        IsReferenceEditable="@IsReferenceEditable" 
+                        IsParameterValueSetEdited="@IsParameterValueSetEdited" />
+                } else if (this.Component.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
+                {
+                    <ArrayParameter 
+                        ArrayParameterType="(ArrayParameterType)this.Component.ParameterType" 
+                        Values="@GetCompoundOrArrayValues()" 
+                        ParameterValueSet="@ParameterValueSet" 
+                        ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
+                        IndexStartInValueSet="@IndexStartInParameterTypeComponent" 
+                        IsManualEditable="@IsManualEditable" 
+                        IsReferenceEditable="@IsReferenceEditable" 
+                        IsParameterValueSetEdited="@IsParameterValueSetEdited" />
+                } else
+                {
+                    var compoundParameterType = (CompoundParameterType)this.Component.ParameterType;
+                    if(compoundParameterType != null)
+                    {
+                        foreach(var component in compoundParameterType.Component.ToList())
+                        {
+                            var index = 0;
+                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            {
+                                index += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
+
+                            }
+                            var indexStart = this.IndexStartInParameterTypeComponent + index;
+
+                            <CompoundParameter 
+                                IndexStartInParameterTypeComponent="indexStart" 
+                                Values="@GetCompoundOrArrayValues()" 
+                                Component="component" 
+                                ParameterValueSet="@ParameterValueSet" 
+                                ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
+                                IsManualEditable="@IsManualEditable" 
+                                IsReferenceEditable="@IsReferenceEditable" 
+                                IsParameterValueSetEdited="@IsParameterValueSetEdited" />
+                        }
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Index of the <see cref="ParameterTypeComponent"> in the associated <see cref="ParameterValueSet"> 
+    /// </summary>
+    [Parameter]
+    public int IndexStartInParameterTypeComponent { get; set; }
+
+    /// <summary>
+    /// Values from <see cref="ParameterValueSet"> assoicated to the <see cref="ParameterTypeComponent">
+    /// </summary>
+    [Parameter]
+    public ValueArray<string>? Values { get; set; }
+
+    /// <summary>
+    /// The <see cref="ParameterTypeComponent"> to show
+    /// </summary>
+    [Parameter] 
+    public ParameterTypeComponent? Component { get; set; }
+
+    /// <summary>
+    /// The ParameterValueSet to show in the table
+    /// </summary>
+    [Parameter]
+    public ParameterValueSetBase? ParameterValueSet { get; set; }
+
+    /// <summary>
+    /// Tells if the Manual Value can be editable by the user
+    /// </summary>
+    [Parameter]
+    public bool? IsManualEditable { get; set; }
+
+    /// <summary>
+    /// <see cref="ParameterSubscriptionValueSet"> to show
+    /// </summary>
+    [Parameter]
+    public ParameterSubscriptionValueSet? ParameterSubscriptionValueSet { get; set; } 
+
+    /// <summary>
+    /// Tells if the Reference Value can be editable by the user
+    /// </summary>
+    [Parameter]
+    public bool? IsReferenceEditable { get; set; }
+
+    /// <summary>
+    /// Sets if ParameterValueSet was edited
+    /// </summary>
+    [Parameter]
+    public bool? IsParameterValueSetEdited { get; set; }
+
+    /// <summary>
+    /// Gets value to show when <see cref="ParameterTypeComponent"> is a Scalar 
+    /// </summary>
+    public string? GetScalarValue()
+    {
+        return this.Values?.ElementAt(this.IndexStartInParameterTypeComponent);
+    }
+
+    /// <summary>
+    /// Gets all values to show when <see cref="ParameterTypeComponent"> is in type of Array or Compound 
+    /// </summary>
+    public ValueArray<string> GetCompoundOrArrayValues()
+    {
+        var nbValues = 0;
+        if(this.Component != null)
+        {
+            nbValues += this.Component.ParameterType.NumberOfValues;
+        }
+        var result = new ValueArray<string>();
+        if(this.Values != null)
+        {
+            result.Concat(this.Values.ToList().GetRange(this.IndexStartInParameterTypeComponent, nbValues).ToArray<string>());
+        }
+        return result;
+    }
+}

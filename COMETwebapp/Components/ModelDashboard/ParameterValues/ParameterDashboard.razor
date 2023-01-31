@@ -19,18 +19,12 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.EngineeringModelData
-@using CDP4Dal
-@using CDP4Dal.Events
-@using COMETwebapp.IterationServices
-@using COMETwebapp.Services.SessionManagement
-@using COMETwebapp.SessionManagement
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
 @implements IDisposable
 
 @{
-    var participantRole = this.SessionService.GetParticipant(this.SessionService.DefaultIteration)?.Role;
+    var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
 }
 @if(participantRole != null && participantRole.Name.Equals("Model Administrator"))
 {
@@ -100,7 +94,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            var nestedParameters = this.IterationService.GetNestedParameters(this.SessionService.DefaultIteration, this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 var valueSets = nestedParameters.Select(x => x.ValueSet).ToList();
@@ -120,7 +114,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
         {
-            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.SessionService.DefaultIteration, this.FilterParameterType);
+            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.OpenIteration, this.FilterParameterType);
             result.RemoveAll(d => !parameterValueSets.Contains(d));
         }
 
@@ -134,7 +128,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// <returns>The list of filtered <see cref="ParameterValueSet"></returns>
     public List<ParameterValueSetBase> FilterDomain(List<ParameterValueSetBase>? data)
     {
-        return this.Filter(data?.FindAll(d => d.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
+        return this.Filter(data?.FindAll(d => d.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
     }
 
     /// <summary>
@@ -177,6 +171,6 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        this.Data = this.IterationService.GetParameterValueSetBase(this.SessionService.DefaultIteration); 
+        this.Data = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration); 
     }
 }

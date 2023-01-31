@@ -19,16 +19,11 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.SessionManagement
-@using COMETwebapp.IterationServices
-@using CDP4Dal
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
 
+@using DevExpress.Blazor
 @inject NavigationManager NavigationManager
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
-
 @implements IDisposable
 
 @if (this.Data != null && this.UnReferencedElements != null)
@@ -45,7 +40,7 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
         </div>
         @{
-            var participantRole = this.SessionService.GetParticipant(this.SessionService.DefaultIteration)?.Role;
+            var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
         }
         @if (participantRole != null && participantRole.Name.Equals("Model Administrator"))
         {
@@ -125,7 +120,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeUnreferencedElements()
     {
-        this.UnReferencedElements = this.IterationService.GetUnreferencedElements(this.SessionService.DefaultIteration);
+        this.UnReferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
     }
 
     /// <summary>
@@ -155,6 +150,6 @@ Copyright (c) 2023 RHEA System S.A.
     /// <param name="elements"><see cref="ElementDefinition">s to filter</param>
     public List<ElementDefinition>? FilterDomain(List<ElementDefinition>? elements)
     {
-        return elements?.FindAll(e => e.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
+        return elements?.FindAll(e => e.Owner == this.ISessionAnchor.CurrentDomainOfExpertise);
     }
 }

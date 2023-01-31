@@ -19,16 +19,10 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.SessionManagement
-@using COMETwebapp.IterationServices
-@using CDP4Dal
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
 
 @page "/ModelDashboard/ElementsDetails"
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
-
 @implements IDisposable
 
 <div>
@@ -121,10 +115,10 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.DefaultIteration);
-        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.SessionService.DefaultIteration);
+        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.OpenIteration);
+        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
 
-        var iteration = this.SessionService.DefaultIteration;
+        var iteration = this.ISessionAnchor.OpenIteration;
         if (Criteria is not null && Domain is not null && iteration != null)
         {
             var elements = new List<ElementDefinition>();

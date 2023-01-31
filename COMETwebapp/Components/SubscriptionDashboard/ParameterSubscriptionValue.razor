@@ -19,18 +19,8 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Services.IterationServices
-@using COMETwebapp.SessionManagement
-@using COMETwebapp.IterationServices
-@using COMETwebapp.Model
-@using CDP4Common.EngineeringModelData
-@using CDP4Dal
-@using CDP4Common.CommonData
-@using CDP4Common.SiteDirectoryData
-@using COMETwebapp.Services.SessionManagement
-
 @implements IDisposable
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
 
 @if(this.ParameterSubscription != null && this.ParameterSubscriptionValueSet != null && this.IsParameterSubscriptionValueSetEdited != null)
@@ -446,7 +436,7 @@ Copyright (c) 2023 RHEA System S.A.
             }
             var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
-            this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
+            this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
                 clonedParameterValueSet
             });

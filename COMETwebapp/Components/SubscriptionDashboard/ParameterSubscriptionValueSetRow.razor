@@ -20,20 +20,9 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@inject ISessionService SessionService
+@inject ISessionAnchor ISessionAnchor
 @inject IIterationService IterationService
 @inject NavigationManager NavigationManager
-@using COMETwebapp.Services.IterationServices
-@using COMETwebapp.Extensions
-@using COMETwebapp.IterationServices
-@using COMETwebapp.Model
-@using COMETwebapp.SessionManagement
-@using CDP4Common.EngineeringModelData
-@using CDP4Common.SiteDirectoryData
-@using CDP4Common.Types
-@using CDP4Dal
-@using CDP4Common.CommonData
-@using COMETwebapp.Services.SessionManagement
 @implements IDisposable
 
 @if(this.ParameterSubscription != null && this.ParameterSubscriptionValueSet != null 
@@ -384,7 +373,7 @@ Copyright (c) 2023 RHEA System S.A.
             }
             var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
-            this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
+            this.ISessionAnchor.UpdateThings(new List<Thing>()
             {
                 clonedParameterValueSet
             });
@@ -444,7 +433,7 @@ Copyright (c) 2023 RHEA System S.A.
     private bool isUpdateAlreadyValidated()
     {
         var isValidated = false;
-        if (this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration), out var list))
+        if(this.ISessionAnchor.CurrentDomainOfExpertise != null && this.IterationService.ValidatedUpdates.TryGetValue(this.ISessionAnchor.CurrentDomainOfExpertise, out var list))
         {
             var existingValidatedParameter = list.Find(p => p.Iid == this.ParameterSubscriptionValueSet?.Iid);
             if(existingValidatedParameter != null && this.ParameterSubscriptionValueSet?.RevisionNumber == existingValidatedParameter.RevisionNumber && this.ParameterSubscriptionValueSet?.ValueSwitch != ParameterSwitchKind.COMPUTED)
