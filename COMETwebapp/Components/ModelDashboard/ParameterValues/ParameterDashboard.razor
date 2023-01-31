@@ -23,13 +23,14 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Dal
 @using CDP4Dal.Events
 @using COMETwebapp.IterationServices
+@using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 @implements IDisposable
 
 @{
-    var participantRole = this.ISessionAnchor.GetParticipant()?.Role;
+    var participantRole = this.SessionService.GetParticipant(this.SessionService.DefaultIteration)?.Role;
 }
 @if(participantRole != null && participantRole.Name.Equals("Model Administrator"))
 {
@@ -99,7 +100,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if (this.FilterOption != null)
         {
-            var nestedParameters = this.IterationService.GetNestedParameters(this.ISessionAnchor.OpenIteration, this.FilterOption);
+            var nestedParameters = this.IterationService.GetNestedParameters(this.SessionService.DefaultIteration, this.FilterOption);
             if (nestedParameters.Count != 0)
             {
                 var valueSets = nestedParameters.Select(x => x.ValueSet).ToList();
@@ -119,7 +120,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.FilterParameterType is not null && !this.FilterParameterType.Equals(""))
         {
-            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.ISessionAnchor.OpenIteration, this.FilterParameterType);
+            var parameterValueSets = this.IterationService.GetParameterValueSetsByParameterType(this.SessionService.DefaultIteration, this.FilterParameterType);
             result.RemoveAll(d => !parameterValueSets.Contains(d));
         }
 
@@ -133,7 +134,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// <returns>The list of filtered <see cref="ParameterValueSet"></returns>
     public List<ParameterValueSetBase> FilterDomain(List<ParameterValueSetBase>? data)
     {
-        return this.Filter(data?.FindAll(d => d.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+        return this.Filter(data?.FindAll(d => d.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
     }
 
     /// <summary>
@@ -176,6 +177,6 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeData()
     {
-        this.Data = this.IterationService.GetParameterValueSetBase(this.ISessionAnchor.OpenIteration); 
+        this.Data = this.IterationService.GetParameterValueSetBase(this.SessionService.DefaultIteration); 
     }
 }

@@ -1,0 +1,38 @@
+﻿.session__header {
+    background: lightgray;
+    padding: 5px;
+}
+
+.session_content {
+    font-size: 12px;
+    display: table;
+    margin: 0 auto !important;
+}
+
+.content__autorefresh {
+    display: flex;
+    line-height: 30px;
+    margin: 20px;
+    text-indent: 5px;
+    width: max-content;
+}
+
+::deep .content__spin {
+    max-width: 85px;
+    max-height: 30px;
+    margin-left: 5px;
+}
+
+.session__buttons {
+    margin: 0 auto !important;
+    display: table;
+    padding-bottom: 10px;
+}
+
+::deep .right-margin {
+    margin-right: 2px !important;
+}
+
+::deep .left-margin {
+    margin-left: 2px !important;
+}

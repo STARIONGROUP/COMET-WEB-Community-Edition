@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
 
     using Moq;
@@ -38,7 +39,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     public class CometWebAuthStateProviderTestFixture
     {
         private CometWebAuthStateProvider cometWebAuthStateProvider;
-        private Mock<ISessionAnchor> sessionAnchor;
+        private Mock<ISessionService> sessionAnchor;
 
         [SetUp]
         public void SetUp()
@@ -49,7 +50,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
                 Surname = "Doe"
             };
 
-            sessionAnchor = new Mock<ISessionAnchor>();
+            sessionAnchor = new Mock<ISessionService>();
             sessionAnchor.Setup(x => x.Session.ActivePerson).Returns(activePerson);
 
             cometWebAuthStateProvider = new CometWebAuthStateProvider(sessionAnchor.Object);

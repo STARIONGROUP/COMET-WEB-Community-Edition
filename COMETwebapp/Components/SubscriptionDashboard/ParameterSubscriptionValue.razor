@@ -27,9 +27,10 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Dal
 @using CDP4Common.CommonData
 @using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Services.SessionManagement
 
 @implements IDisposable
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 
 @if(this.ParameterSubscription != null && this.ParameterSubscriptionValueSet != null && this.IsParameterSubscriptionValueSetEdited != null)
@@ -445,7 +446,7 @@ Copyright (c) 2023 RHEA System S.A.
             }
             var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
-            this.ISessionAnchor.UpdateThings(new List<Thing>()
+            this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
             {
                 clonedParameterValueSet
             });

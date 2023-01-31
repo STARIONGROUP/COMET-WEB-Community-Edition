@@ -36,6 +36,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Services.IterationServices;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
 
@@ -99,10 +100,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         public IIterationService IterationService { get; set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// Injected property to get access to <see cref="ISessionService"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
+        public ISessionService SessionService { get; set; }
 
         /// <summary>
         /// The list of parameters that the <see cref="SelectedPrimitive"/> uses
@@ -230,7 +231,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
                     clonedParameterValueSet.Manual = valueSetNewValue;
-                    this.SessionAnchor.UpdateThings(new List<Thing>() { clonedParameterValueSet });
+                    this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { clonedParameterValueSet });
                 }
             }
         }

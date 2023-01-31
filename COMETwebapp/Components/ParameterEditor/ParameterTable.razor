@@ -20,8 +20,9 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 
 <div class="container-fluid" style="min-width: 1400px; max-width: 1400px;">
     @if(this.Elements != null)
@@ -160,7 +161,7 @@ Copyright (c) 2023 RHEA System S.A.
         var filteredParameters = new List<Parameter>();
         if(this.IsOwnedParameters == true)
         {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
         } else
         {
             filteredParameters.AddRange(parameters);
@@ -182,7 +183,7 @@ Copyright (c) 2023 RHEA System S.A.
         var filteredParameters = new List<ParameterOverride>();
         if(this.IsOwnedParameters == true)
         {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise));
+            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
         } else
         {
             filteredParameters.AddRange(parameters);

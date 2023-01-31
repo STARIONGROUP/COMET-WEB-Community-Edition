@@ -24,11 +24,12 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Dal
 @using CDP4Dal.Events
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Services.SessionManagement
 
 @page "/ParameterEditor"
 @inject NavigationManager NavigationManager
 @inject IIterationService IterationService
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 
 @implements IDisposable
 
@@ -62,7 +63,7 @@ Copyright (c) 2023 RHEA System S.A.
                     </div>
                 </div>  
                 @{
-                    var iteration = this.ISessionAnchor.OpenIteration;
+                    var iteration = this.SessionService.DefaultIteration;
                 }
                 @if (iteration != null && iteration.Option.ToList().Count > 1)
                 {
@@ -105,7 +106,7 @@ Copyright (c) 2023 RHEA System S.A.
                 <div class="col">
                     <div class="@BS.Form_Check @BS.Form_Switch">
                         <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
-                        <BSLabel IsCheckLabel="true">Only Parameters owned by @ISessionAnchor.CurrentDomainOfExpertise?.Name domain</BSLabel>
+                        <BSLabel IsCheckLabel="true">Only Parameters owned by @this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name domain</BSLabel>
                     </div>
                 </div>
             </div>
@@ -182,7 +183,7 @@ Copyright (c) 2023 RHEA System S.A.
         this.InitializeElements();
 
         this.ParameterTypeNames = new List<string>();
-        this.IterationService.GetParameterTypes(this.ISessionAnchor.OpenIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
+        this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
@@ -212,10 +213,10 @@ Copyright (c) 2023 RHEA System S.A.
         this.FilterOption = FilterOption ?? null;
         if(this.FilterOption != null)
         {
-            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
+            this.optionSelected = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
         } else
         {
-            this.optionSelected = this.ISessionAnchor.OpenIteration?.Option.First().Name;
+            this.optionSelected = this.SessionService.DefaultIteration?.Option.First().Name;
         }
 
         this.FilterElementBase = FilterElementBase ?? null;
@@ -230,12 +231,12 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        var iteration = this.ISessionAnchor.OpenIteration;
+        var iteration = this.SessionService.DefaultIteration;
         if(iteration != null)
         {
             if(this.IsOwnedParameters == true)
             {
-                if(iteration.TopElement != null && iteration.TopElement.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                if(iteration.TopElement != null && iteration.TopElement.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
                 {
                     this.Elements.Add(iteration.TopElement);
                 }
@@ -245,18 +246,18 @@ Copyright (c) 2023 RHEA System S.A.
                     {
                         if (containedElement.ParameterOverride.Count == 0)
                         {
-                            if (containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            if (containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
                             {
                                 this.Elements.Add(containedElement);
                             }
                         }
                         else
                         {
-                            if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
                             {
                                 this.Elements.Add(containedElement);
                             }
-                            if(!this.Elements.Contains(containedElement) && containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.ISessionAnchor.CurrentDomainOfExpertise).Count != 0)
+                            if(!this.Elements.Contains(containedElement) && containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
                             {
                                 this.Elements.Add(containedElement);
                             }
@@ -315,8 +316,8 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.optionSelected != null)
         {
-            var option = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(option => option.Name == this.optionSelected)?.Iid;
-            var nestedElements = this.IterationService.GetNestedElementsByOption(this.ISessionAnchor.OpenIteration, option);
+            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.optionSelected)?.Iid;
+            var nestedElements = this.IterationService.GetNestedElementsByOption(this.SessionService.DefaultIteration, option);
 
             var associatedElements = new List<ElementUsage>();
             nestedElements.ForEach(element =>
@@ -461,7 +462,7 @@ Copyright (c) 2023 RHEA System S.A.
         this.optionSelected =   option;
         if(this.optionSelected != null)
         {
-            this.FilterOption = this.ISessionAnchor.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid;
+            this.FilterOption = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Name == option)?.Iid;
         } else
         {
             this.FilterOption = null;

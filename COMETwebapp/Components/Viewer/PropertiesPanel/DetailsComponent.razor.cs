@@ -137,10 +137,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
         /// <param name="e">Supplies information about an change event that is being raised.</param>
-        public void OnParameterValueChange(int changedIndex, ChangeEventArgs e)
+        public Task OnParameterValueChange(int changedIndex, ChangeEventArgs e)
         {
             //TODO: Validate data 
-            this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);
+            return this.ParameterChanged(changedIndex, e.Value as string ?? string.Empty);
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
         /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
-        public async void ParameterChanged(int changedIndex, string value)
+        public async Task ParameterChanged(int changedIndex, string value)
         {
             //TODO: Validate data 
             var valueSet = this.ValueSetsCollection[this.ParameterSelected];

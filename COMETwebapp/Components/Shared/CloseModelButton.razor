@@ -22,8 +22,9 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.SessionManagement
 @using COMETwebapp.IterationServices
 @using CDP4Dal
+@using COMETwebapp.Services.SessionManagement
 
-@inject ISessionAnchor SessionAnchor
+@inject ISessionService SessionService
 @inject NavigationManager NavigationManager
 @inject IIterationService IterationService
 
@@ -35,7 +36,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void CloseIteration()
     {
-        this.SessionAnchor.CloseIteration();
+        this.SessionService.CloseIterations();
         this.IterationService.ValidatedUpdates.Clear();
         CDPMessageBus.Current.SendMessage<SessionStateKind>(SessionStateKind.UpdatesAreValidated);
         this.NavigationManager.NavigateTo("/");

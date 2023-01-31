@@ -1,0 +1,7 @@
+﻿.dashboard{
+    overflow: hidden;
+}
+
+.dashboard__cards {
+    margin-top: 30px;
+}

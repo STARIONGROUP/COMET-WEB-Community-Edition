@@ -30,9 +30,13 @@ namespace COMETwebapp
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     using DevExpress.Blazor;
 
@@ -54,9 +58,21 @@ namespace COMETwebapp
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient());
+            RegisterServices(builder);
+            RegisterViewModels(builder);
 
-            builder.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
+            await builder.Build().RunAsync();
+        }
+
+        /// <summary>
+        /// Register all services required to run the application inside the <see cref="WebAssemblyHostBuilder"/>
+        /// </summary>
+        /// <param name="builder">The <see cref="WebAssemblyHostBuilder"/></param>
+        public static void RegisterServices(WebAssemblyHostBuilder builder)
+        {
+            builder.Services.AddScoped(_ => new HttpClient());
+
+            builder.Services.AddSingleton<ISessionService, SessionService>();
             builder.Services.AddSingleton<ISession, Session>();
 
             builder.Services.AddAuthorizationCore();
@@ -70,8 +86,20 @@ namespace COMETwebapp
 
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddBlazorStrap();
+        }
 
-            await builder.Build().RunAsync();
+        /// <summary>
+        /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder"/>
+        /// </summary>
+        /// <param name="builder">The <see cref="WebAssemblyHostBuilder"/></param>
+        public static void RegisterViewModels(WebAssemblyHostBuilder builder)
+        {
+            builder.Services.AddTransient<ILoginViewModel, LoginViewModel>();
+            builder.Services.AddTransient<IOpenModelViewModel, OpenModelViewModel>();
+            builder.Services.AddTransient<IIndexViewModel, IndexViewModel>();
+            builder.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
+            builder.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
+            builder.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
         }
     }
 }

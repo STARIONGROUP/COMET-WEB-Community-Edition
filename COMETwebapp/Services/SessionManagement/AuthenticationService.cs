@@ -22,46 +22,57 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.SessionManagement
+namespace COMETwebapp.Services.SessionManagement
 {
-    using System;
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4Dal.Exceptions;
+
     using CDP4ServicesDal;
+
     using COMETwebapp.Enumerations;
+    using COMETwebapp.IterationServices;
     using COMETwebapp.Model.DTO;
+    using COMETwebapp.SessionManagement;
+
     using Microsoft.AspNetCore.Components.Authorization;
 
     /// <summary>
-    /// The purpose of the <see cref="AuthenticationService"/> is to authenticate against
+    /// The purpose of the <see cref="AuthenticationService" /> is to authenticate against
     /// a E-TM-10-25 Annex C.2 data source
     /// </summary>
     public class AuthenticationService : IAuthenticationService
     {
         /// <summary>
-        /// The (injected) <see cref="AuthenticationStateProvider"/>
+        /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </summary>
         private readonly AuthenticationStateProvider authStateProvider;
 
         /// <summary>
-        /// The (injected) <see cref="ISessionAnchor"/> that provides access to the <see cref="ISession"/>
+        /// The (injected) <see cref="ISessionService" /> that provides access to the <see cref="ISession" />
         /// </summary>
-        private readonly ISessionAnchor sessionAnchor;
+        private readonly ISessionService sessionService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticationService"/> class.
+        /// The <see cref="IIterationService"/>
         /// </summary>
-        /// <param name="sessionAnchor">
-        /// The (injected) <see cref="ISessionAnchor"/> that provides access to the <see cref="ISession"/>
+        private readonly IIterationService iterationService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthenticationService" /> class.
+        /// </summary>
+        /// <param name="sessionService">
+        /// The (injected) <see cref="ISessionService" /> that provides access to the <see cref="ISession" />
         /// </param>
         /// <param name="authenticationStateProvider">
-        /// The (injected) <see cref="AuthenticationStateProvider"/>
+        /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </param>
-        public AuthenticationService(ISessionAnchor sessionAnchor, AuthenticationStateProvider authenticationStateProvider)
+        /// <param name="iterationService">The <see cref="IIterationService"/></param>
+        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, IIterationService iterationService)
         {
             this.authStateProvider = authenticationStateProvider;
-            this.sessionAnchor = sessionAnchor;
+            this.sessionService = sessionService;
+            this.iterationService = iterationService;
         }
 
         /// <summary>
@@ -71,17 +82,17 @@ namespace COMETwebapp.SessionManagement
         /// The authentication information with data source, username and password
         /// </param>
         /// <returns>
-        /// <see cref="AuthenticationStateKind.Success"/> when the authentication is done and the ISession opened
+        /// <see cref="AuthenticationStateKind.Success" /> when the authentication is done and the ISession opened
         /// </returns>
         public async Task<AuthenticationStateKind> Login(AuthenticationDto authenticationDto)
         {
-            if(authenticationDto.SourceAddress != null)
+            if (authenticationDto.SourceAddress != null)
             {
                 var uri = new Uri(authenticationDto.SourceAddress);
                 var dal = new CdpServicesDal();
                 var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
-                this.sessionAnchor.Session = new Session(dal, credentials);
+                this.sessionService.Session = new Session(dal, credentials);
             }
             else
             {
@@ -90,26 +101,20 @@ namespace COMETwebapp.SessionManagement
 
             try
             {
-                await this.sessionAnchor.Session.Open();
-                this.sessionAnchor.IsSessionOpen = this.sessionAnchor.GetSiteDirectory() != null;
+                await this.sessionService.Session.Open();
+                this.sessionService.IsSessionOpen = this.sessionService.GetSiteDirectory() != null;
                 ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
 
-                if (this.sessionAnchor.IsSessionOpen)
-                {
-                    return AuthenticationStateKind.Success;
-                }
-                else
-                {
-                    return AuthenticationStateKind.Fail;
-                }
+                return this.sessionService.IsSessionOpen ? AuthenticationStateKind.Success : AuthenticationStateKind.Fail;
             }
             catch (DalReadException)
             {
-                this.sessionAnchor.IsSessionOpen = false;
+                this.sessionService.IsSessionOpen = false;
                 return AuthenticationStateKind.Fail;
-            } catch(HttpRequestException)
+            }
+            catch (HttpRequestException)
             {
-                this.sessionAnchor.IsSessionOpen = false;
+                this.sessionService.IsSessionOpen = false;
                 return AuthenticationStateKind.ServerFail;
             }
         }
@@ -118,15 +123,17 @@ namespace COMETwebapp.SessionManagement
         /// Logout from the data source
         /// </summary>
         /// <returns>
-        /// a <see cref="Task"/>
+        /// a <see cref="Task" />
         /// </returns>
         public async Task Logout()
         {
-            if (this.sessionAnchor.Session != null)
+            if (this.sessionService.Session != null)
             {
-                await this.sessionAnchor.Close();
+                await this.sessionService.Close();
             }
-     
+
+            this.iterationService.ValidatedUpdates.Clear();
+
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
         }
     }

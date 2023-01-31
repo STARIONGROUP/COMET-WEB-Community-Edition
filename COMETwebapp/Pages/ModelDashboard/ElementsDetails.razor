@@ -23,9 +23,10 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.IterationServices
 @using CDP4Dal
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Services.SessionManagement
 
 @page "/ModelDashboard/ElementsDetails"
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 @inject IIterationService IterationService
 
 @implements IDisposable
@@ -120,10 +121,10 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     private void InitializeElements()
     {
-        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.ISessionAnchor.OpenIteration);
-        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.ISessionAnchor.OpenIteration);
+        var unusedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.DefaultIteration);
+        var unreferencedElements = this.IterationService.GetUnreferencedElements(this.SessionService.DefaultIteration);
 
-        var iteration = this.ISessionAnchor.OpenIteration;
+        var iteration = this.SessionService.DefaultIteration;
         if (Criteria is not null && Domain is not null && iteration != null)
         {
             var elements = new List<ElementDefinition>();

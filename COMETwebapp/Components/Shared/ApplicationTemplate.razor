@@ -22,12 +22,13 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.SessionManagement
 @using COMETwebapp.Utilities
 @using CDP4Dal
+@using COMETwebapp.Services.SessionManagement
 
-@inject ISessionAnchor ISessionAnchor
+@inject ISessionService SessionService
 
 <div class="container-fluid">
     <div class="row m-top-10px">
-        @if (this.ISessionAnchor.OpenIteration is not null)
+        @if (this.SessionService.DefaultIteration is not null)
         {
             <div>
                 @Body

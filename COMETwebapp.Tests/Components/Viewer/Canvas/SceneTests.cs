@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
     using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +58,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             context = new TestContext();
             context.JSInterop.Mode = JSRuntimeMode.Loose;
 
-            var session = new Mock<ISessionAnchor>();
+            var session = new Mock<ISessionService>();
             context.Services.AddSingleton(session.Object);
             context.Services.AddTransient<ISceneSettings, SceneSettings>();
             context.Services.AddTransient<ISelectionMediator, SelectionMediator>();

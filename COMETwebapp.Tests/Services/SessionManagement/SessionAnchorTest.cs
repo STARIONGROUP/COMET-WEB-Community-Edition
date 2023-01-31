@@ -29,27 +29,32 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     using System.Collections.Generic;
     using System.Reactive.Linq;
     using System.Threading.Tasks;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
+
     using CDP4Dal;
     using CDP4Dal.DAL;
+
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
+
     using Moq;
+
     using NUnit.Framework;
 
     [TestFixture]
     public class SessionAnchorTest
     {
         private Mock<ISession> session;
-        private ISessionAnchor sessionAnchor;
+        private ISessionService sessionService;
         private Participant participant;
         private Person person;
         private DomainOfExpertise domain;
         private Iteration iteration;
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private Assembler assembler;
-        private readonly Uri uri = new Uri("http://test.com");
+        private readonly Uri uri = new("http://test.com");
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
         private SiteDirectory siteDirectory;
@@ -57,118 +62,142 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         [SetUp]
         public void Setup()
         {
-            session = new Mock<ISession>();
-            sessionAnchor = new SessionAnchor() { Session = session.Object };
-            assembler = new Assembler(uri);
-            domain = new DomainOfExpertise(Guid.NewGuid(), assembler.Cache, uri);
+            this.session = new Mock<ISession>();
+            this.sessionService = new SessionService { Session = this.session.Object };
+            this.assembler = new Assembler(this.uri);
+            this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            person = new Person(Guid.NewGuid(), assembler.Cache, uri);
+            this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            participant = new Participant(Guid.NewGuid(), assembler.Cache, uri)
+            this.participant = new Participant(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Person = person
+                Person = this.person
             };
 
-            referenceDataLibrary = new ModelReferenceDataLibrary(Guid.NewGuid(), assembler.Cache, uri)
+            this.referenceDataLibrary = new ModelReferenceDataLibrary(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 ShortName = "ARDL"
             };
 
-            engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), assembler.Cache, uri)
+            this.engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 RequiredRdl =
                 {
-                    referenceDataLibrary
+                    this.referenceDataLibrary
                 },
-                Participant = { participant }
+                Participant = { this.participant }
             };
 
-            iteration = new Iteration(Guid.NewGuid(), assembler.Cache, uri)
+            this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Container = new EngineeringModel(Guid.NewGuid(), assembler.Cache, uri)
+                Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
-                    EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), assembler.Cache, uri)
+                    EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
                     {
                         RequiredRdl =
                         {
-                            new ModelReferenceDataLibrary(Guid.NewGuid(), assembler.Cache, uri)
+                            new ModelReferenceDataLibrary(Guid.NewGuid(), this.assembler.Cache, this.uri)
                             {
                                 FileType =
                                 {
-                                    new FileType(Guid.NewGuid(), assembler.Cache, uri) { Extension = "tar" },
-                                    new FileType(Guid.NewGuid(), assembler.Cache, uri) { Extension = "gz" },
-                                    new FileType(Guid.NewGuid(), assembler.Cache, uri) { Extension = "zip" }
+                                    new FileType(Guid.NewGuid(), this.assembler.Cache, this.uri) { Extension = "tar" },
+                                    new FileType(Guid.NewGuid(), this.assembler.Cache, this.uri) { Extension = "gz" },
+                                    new FileType(Guid.NewGuid(), this.assembler.Cache, this.uri) { Extension = "zip" }
                                 }
                             }
                         },
-                        Participant = { participant }
+                        Participant = { this.participant }
                     }
                 },
-                IterationSetup = new IterationSetup(Guid.NewGuid(), assembler.Cache, uri)
+                IterationSetup = new IterationSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
-                    Container = engineeringSetup
+                    Container = this.engineeringSetup
                 },
                 DomainFileStore =
                 {
-                    new DomainFileStore(Guid.NewGuid(), assembler.Cache, uri) { Owner = domain }
+                    new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
                 }
             };
-            engineeringSetup.IterationSetup.Add(iteration.IterationSetup);
-            openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
-               new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
-               {
-                    new KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>(iteration, new Tuple<DomainOfExpertise, Participant>(domain, participant))
-               });
 
-            siteDirectory = new SiteDirectory(Guid.NewGuid(), assembler.Cache, uri)
+            this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
+
+            this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
+                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>
+                {
+                    new(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
+                });
+
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Model = { engineeringSetup }
+                Model = { this.engineeringSetup }
             };
-            siteDirectory.Person.Add(person);
-            siteDirectory.Domain.Add(domain);
 
-            session.Setup(x => x.Assembler).Returns(assembler);
-            session.Setup(x => x.OpenIterations).Returns(openIteration);
-            session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", uri));
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
-            session.Setup(x => x.ActivePerson).Returns(person);
+            this.siteDirectory.Person.Add(this.person);
+            this.siteDirectory.Domain.Add(this.domain);
+
+            this.session.Setup(x => x.Assembler).Returns(this.assembler);
+            this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);
+            this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
+            this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
         [Test]
         public void VerifyClose()
         {
-            sessionAnchor.IsSessionOpen = true;
-            session.Setup(x => x.Close()).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => sessionAnchor.Close());
-            session.Setup(x => x.Close()).Throws<Exception>();
-            Assert.DoesNotThrow(() => sessionAnchor.Close());
-            sessionAnchor.IsSessionOpen = true;
-            Assert.DoesNotThrow(() => sessionAnchor.Close());
+            this.sessionService.IsSessionOpen = true;
+            this.session.Setup(x => x.Close()).Returns(Task.CompletedTask);
+            Assert.DoesNotThrow(() => this.sessionService.Close());
+            this.session.Setup(x => x.Close()).Throws<Exception>();
+            Assert.DoesNotThrow(() => this.sessionService.Close());
+            this.sessionService.IsSessionOpen = true;
+            Assert.DoesNotThrow(() => this.sessionService.Close());
         }
 
         [Test]
         public void VerifyCloseIteration()
         {
-            session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
+            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
             {
-                { iteration, new Tuple<DomainOfExpertise, Participant>(domain, participant)}
+                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant) }
             });
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            session.Setup(x => x.CloseIterationSetup(sessionAnchor.OpenIteration.IterationSetup)).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => sessionAnchor.CloseIteration());
+
+            this.sessionService.IsSessionOpen = true;
+            this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
+            this.session.Setup(x => x.CloseIterationSetup(It.IsAny<IterationSetup>())).Returns(Task.CompletedTask);
+            Assert.DoesNotThrow(() => this.sessionService.CloseIterations());
         }
 
         [Test]
-        public void VerifyGetParticipantModels()
+        public void VerifyCreateThings()
         {
-            Assert.That(sessionAnchor.GetParticipantModels(), Is.Not.Null);
+            this.sessionService.IsSessionOpen = true;
+            var thingsToCreate = new List<ElementDefinition>();
+            var element = new ElementDefinition();
+            element.Name = "Battery";
+            element.Owner = this.sessionService.GetDomainOfExpertise(this.iteration);
+            thingsToCreate.Add(element.Clone(false));
+            Assert.DoesNotThrow(() => this.sessionService.CreateThings(this.iteration, thingsToCreate));
         }
 
         [Test]
         public void VerifyGetModelDomains()
         {
-            Assert.That(sessionAnchor.GetModelDomains(engineeringSetup), Is.Not.Null);
+            Assert.That(this.sessionService.GetModelDomains(this.engineeringSetup), Is.Not.Null);
+        }
+
+        [Test]
+        public void VerifyGetParticipant()
+        {
+            this.sessionService.IsSessionOpen = true;
+            this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
+            Assert.That(this.sessionService.GetParticipant(this.iteration), Is.EqualTo(this.participant));
+        }
+
+        [Test]
+        public void VerifyGetParticipantModels()
+        {
+            Assert.That(this.sessionService.GetParticipantModels(), Is.Not.Null);
         }
 
         [Test]
@@ -176,15 +205,9 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         {
             var beginRefreshReceived = false;
             var endRefreshReceived = false;
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x =>
-            {
-                beginRefreshReceived = true;
-            });
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                endRefreshReceived = true;
-            });
-            sessionAnchor.RefreshSession();
+            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x => { beginRefreshReceived = true; });
+            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x => { endRefreshReceived = true; });
+            this.sessionService.RefreshSession();
 
             Assert.That(beginRefreshReceived, Is.True);
             Assert.That(endRefreshReceived, Is.True);
@@ -193,53 +216,33 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         [Test]
         public void VerifySwitchDomain()
         {
-            Assert.DoesNotThrow(() => sessionAnchor.SwitchDomain(domain));
+            Assert.DoesNotThrow(() => this.sessionService.SwitchDomain(this.iteration, this.domain));
 
-            session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
+            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
             {
-                { iteration, new Tuple<DomainOfExpertise, Participant>(domain, participant)}
+                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant) }
             });
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            Assert.That(sessionAnchor.CurrentDomainOfExpertise, Is.Null);
 
-            sessionAnchor.SwitchDomain(domain);
-            Assert.That(sessionAnchor.CurrentDomainOfExpertise, Is.EqualTo(domain));
-        }
+            this.sessionService.IsSessionOpen = true;
+            this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
 
-        [Test]
-        public void VerifyCreateThings()
-        {
-            sessionAnchor.IsSessionOpen = true;
-            var thingsToCreate = new List<ElementDefinition>();
-            var element = new ElementDefinition();
-            element.Name = "Battery";
-            element.Owner = sessionAnchor.CurrentDomainOfExpertise;
-            thingsToCreate.Add(element.Clone(false));
-            Assert.DoesNotThrow(() => sessionAnchor.CreateThings(thingsToCreate));
+            this.sessionService.SwitchDomain(this.iteration, this.domain);
+            Assert.That(this.sessionService.GetDomainOfExpertise(this.iteration), Is.EqualTo(this.domain));
         }
 
         [Test]
         public void VerifyUpdateThings()
         {
             var thingsToUpdate = new List<ElementDefinition>();
-            sessionAnchor.IsSessionOpen = true;
+            this.sessionService.IsSessionOpen = true;
             var element = new ElementDefinition();
             element.Name = "Battery";
-            element.Owner = sessionAnchor.CurrentDomainOfExpertise;
+            element.Owner = this.sessionService.GetDomainOfExpertise(this.iteration);
 
             var clone = element.Clone(false);
             clone.Name = "Satellite";
             thingsToUpdate.Add(clone);
-            Assert.DoesNotThrow(() => sessionAnchor.UpdateThings(thingsToUpdate));
-        }
-
-        [Test]
-        public void VerifyGetParticipant()
-        {
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            Assert.That(sessionAnchor.GetParticipant(), Is.EqualTo(participant));
+            Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
         }
     }
 }

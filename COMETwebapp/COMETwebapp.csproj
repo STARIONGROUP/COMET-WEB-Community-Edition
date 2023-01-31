@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Version>0.22.0</Version>
         <Title>COMET WEB Community Edition</Title>
         <Description>A Blazor web application that implements ECSS-E-TM-10-25</Description>
@@ -16,19 +16,14 @@
     
     <ItemGroup>
         <PackageReference Include="CDP4ServicesDal-CE" Version="9.0.0" />
-        <PackageReference Include="DevExpress.Blazor" Version="20.2.10" />
+        <PackageReference Include="DevExpress.Blazor" Version="22.2.4" />
         <PackageReference Include="BlazorStrap" Version="5.0.105.4262023" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.5" PrivateAssets="all" />
-        <PackageReference Include="Radzen.Blazor" Version="4.6.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.2" PrivateAssets="all" />
+        <PackageReference Include="ReactiveUI" Version="18.4.1" />
         <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="ViewModels\Components\" />
-      <Folder Include="ViewModels\Shared\" />
-      <Folder Include="ViewModels\Pages\" />
-    </ItemGroup>
+   
 </Project>
