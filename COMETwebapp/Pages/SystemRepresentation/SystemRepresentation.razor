@@ -28,7 +28,7 @@ Copyright (c) 2023 RHEA System S.A.
             <div class="col">
                 <h6>Filter on Option:</h6>
                 <div class="width-fit-content">
-                    <DxComboBox Data="this.Options"
+                    <DxComboBox Data="this.ViewModel.Options"
                                 AllowUserInput="true"
                                 NullText="--Select--"
                                 Value="this.OptionSelected"
@@ -37,7 +37,7 @@ Copyright (c) 2023 RHEA System S.A.
                 </div>
                 <h6>Filter on Domain:</h6>
                 <div class="width-fit-content">
-                    <DxComboBox Data="this.Domains"
+                    <DxComboBox Data="this.ViewModel.Domains"
                                 AllowUserInput="true"
                                 NullText="--Select--"
                                 Value="this.DomainSelected"
@@ -47,42 +47,8 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
         </div>
        <div id="gridParent">
-           <div id="leftColumn">
-                    @if (this.OptionSelected != null)
-                    {
-                        var name = string.Empty;
-
-                        @if (this.Elements.Count > 0)
-                        {
-                            name = this.Elements.First().Name;
-                        }
-                        <COMETwebapp.Components.SystemRepresentation.SystemTree RootNode="this.RootNode" OnTreeSelectionChanged="@((node)=>TreeSelectionChanged(node))" />
-                    }
-                </div>
+            <COMETwebapp.Components.SystemRepresentation.SystemTree ViewModel="this.ViewModel.SystemTreeViewModel" />
        </div>
     </Body>
 </ApplicationTemplate>
 
-<style>
-    #gridParent {
-        margin: 1% 0;
-        display: grid;
-        grid-template-columns: 0.15fr 1fr 0.23fr;
-        grid-template-rows: 1fr;
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-    }
-
-    #leftColumn {
-        grid-area: 1 / 1 / 2 / 2;
-        margin: 0;
-        margin-left: 2%;
-        margin-right: 2%;
-    }
-
-    #rightColumn {
-        grid-area: 1 / 3 / 2 / 4;
-        margin: 0;
-        margin-left: 2%;
-    }
-</style>

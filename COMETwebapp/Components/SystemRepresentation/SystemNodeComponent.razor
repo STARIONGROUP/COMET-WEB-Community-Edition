@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
+    Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 
@@ -35,7 +35,7 @@
     <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.CurrentNode))" style="margin-left: calc(20px * @this.Level)">
         <div class="node-inner-content">
 
-            @if (this.CurrentNode.Children.Count > 0)
+            @if (this.CurrentNode.GetChildren().Count > 0)
             {
                 @if (this.CurrentNode.IsExpanded)
                 {
@@ -47,14 +47,14 @@
                 }
             }
 
-            <p class="node-text">@this.CurrentNode.Name</p>
+            <p class="node-text">@this.CurrentNode.Title</p>
         </div>
     </div>
 
-    @if (this.CurrentNode.Children.Count > 0 && this.CurrentNode.IsExpanded)
+    @if (this.CurrentNode.GetChildren().Count > 0 && this.CurrentNode.IsExpanded)
     {
         <div class="children">
-            @foreach (var child in this.CurrentNode.Children)
+            @foreach (var child in this.CurrentNode.GetChildren())
             {
                 var level = this.Level + 1;
                 <SystemNodeComponent CurrentNode="@child"
@@ -93,61 +93,3 @@
         this.OnTreeSelectionChanged.InvokeAsync(node);
     }
 }
-
-<style>
-
-    .node-inner-content {
-        display: flex;
-        flex-direction: row;
-        justify-content: start;
-        align-items: center;
-    }
-
-    .treeNode {
-        cursor: pointer;
-        padding: 2%;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: start;
-        overflow: hidden;
-    }
-
-        .treeNode > p {
-            margin: 0;
-        }
-
-        .treeNode:hover {
-            background: #EEE;
-        }
-
-    .active {
-        background: lightgray;
-    }
-
-    .children {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .node-text {
-        margin: 0;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .expandIcon {
-        width: 1rem;
-        height: 1rem;
-    }
-
-    .treeIcon {
-        margin-left: 5px;
-        width: 1.5rem;
-        height: auto;
-        max-height: 1.5rem;
-        max-width: 1.5rem;
-    }
-</style>

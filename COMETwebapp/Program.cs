@@ -33,7 +33,8 @@ namespace COMETwebapp
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -66,6 +67,11 @@ namespace COMETwebapp
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<IJSInterop, JSInterop>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+
+
+            builder.Services.AddTransient<ISystemRepresentationPageViewModel, SystemRepresentationPageViewModel>();
+            builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
+
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();

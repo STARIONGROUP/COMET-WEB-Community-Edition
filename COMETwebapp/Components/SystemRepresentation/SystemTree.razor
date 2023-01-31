@@ -1,5 +1,5 @@
 ﻿<!------------------------------------------------------------------------------
-    Copyright (c) 2022 RHEA System S.A.
+    Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 
@@ -19,34 +19,19 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Model
 
-<div>
-    <h4>System Tree</h4>
-    <SystemNodeComponent CurrentNode="@this.RootNode" 
-                   Level="0" />
-</div>
 
-@code {
+ <RadzenDataGrid ref="@this.Grid" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true" ExpandMode="DataGridExpandMode.Single"
+        Data="@(this.ViewModel.SystemNodes)" TItem="SystemNode" RowRender="@this.RowRender" LoadChildData="@this.LoadChildData">
+        <Columns>
+            <RadzenDataGridColumn TItem="SystemNode" Title="node" Frozen="true" Sortable="false" Filterable="false" Width="300px">
+                <Template Context="data">
+                    <strong>data.Title</strong>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 
-    /// <summary>
-    /// The root node of the tree
-    /// </summary>
-    [Parameter]
-    public TreeNode RootNode { get; set; }
 
-    /// <summary>
-    /// Event for when a node selection changed
-    /// </summary>
-    [Parameter]
-    public EventCallback<TreeNode> OnTreeSelectionChanged { get; set; }
-
-    /// <summary>
-    /// Method for when a node is selected
-    /// </summary>
-    /// <param name="node">the selected <see cref="TreeNode"/></param>
-    private void TreeSelectionChanged(TreeNode node)
-    {
-        this.OnTreeSelectionChanged.InvokeAsync(node);
-    }
-}
-
+ 

@@ -31,8 +31,9 @@ namespace COMETwebapp.Pages.SystemRepresentation
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
-
+    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="SystemRepresentation"/>
@@ -54,9 +55,22 @@ namespace COMETwebapp.Pages.SystemRepresentation
         public Guid? FilterDomain { get; set; }
 
         /// <summary>
-        /// All <see cref="ElementBase"> of the iteration
+        ///     The <see cref="ISystemRepresentationPageViewModel" /> for this page
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
+        [Inject]
+        public ISystemRepresentationPageViewModel ViewModel { get; set; }
+
+        /// <summary>
+        ///     Method invoked when the component is ready to start, having received its
+        ///     initial parameters from its parent in the render tree.
+        ///     Override this method if you will perform an asynchronous operation and
+        ///     want the component to refresh when that operation is completed.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        protected override async Task OnInitializedAsync()
+        {
+            await this.ViewModel.OnInitializedAsync(this.SessionAnchor);
+        }
 
         /// <summary>
         /// Name of the option selected
@@ -73,18 +87,6 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// </summary>
         [Inject]
         public ISessionAnchor SessionAnchor { get; set; }
-
-        /// <summary>
-        /// List of the names of <see cref="Option"/> available
-        /// </summary>
-        [Parameter]
-        public List<string>? Options { get; set; }
-
-        /// <summary>
-        /// List of the names of <see cref="Option"/> available
-        /// </summary>
-        [Parameter]
-        public List<string>? Domains { get; set; }
 
         /// <summary>
         /// Represents the RootNode of the tree
@@ -113,113 +115,9 @@ namespace COMETwebapp.Pages.SystemRepresentation
 
             if (firstRender)
             {
-                this.Elements.Clear();
-                this.InitializeElements();
-
-                this.Options = new List<string>();
-                this.Domains = new List<string>();
-
-                var engineeringModelSetup = this.SessionAnchor.GetSiteDirectory().Model.Find(m => m.Name.Equals(this.SessionAnchor.CurrentEngineeringModelName));
-                var domains = this.SessionAnchor.GetModelDomains(engineeringModelSetup);
-                this.Domains.AddRange(domains.Select(d => d.Name));
-
-                var iteration = this.SessionAnchor?.OpenIteration;
-                iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => this.Options.Add(o.Name));
-
-
-                this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
-                {
-                    this.Elements.Clear();
-                    this.InitializeElements();
-                };
-
+                await this.ViewModel.OnInitializedAsync(this.SessionAnchor);
                 this.StateHasChanged();
             }
-        }
-
-        /// <summary>
-        /// Initialize <see cref="ElementBase"> list
-        /// </summary>
-        private void InitializeElements()
-        {
-            var iteration = this.SessionAnchor?.OpenIteration;
-            if (iteration != null)
-            {
-                if (iteration.TopElement != null)
-                {
-                    this.Elements.Add(iteration.TopElement);
-                }
-                iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
-            }
-        }
-
-        /// <summary>
-        /// Creates the <see cref="ElementUsage"/> that need to be used fot populating the scene
-        /// </summary>
-        /// <param name="elements">the elements of the current <see cref="Iteration"/></param>
-        /// <returns>the <see cref="ElementUsage"/> used in the scene</returns>
-        private List<ElementUsage> CreateElementUsagesForScene(List<ElementBase> elements)
-        {
-            var topElement = elements.First();
-            this.RootNode = new TreeNode(topElement.Name);
-            this.CreateTreeRecursively(topElement, this.RootNode, null);
-            this.RootNode.OrderAllDescendantsByShortName();
-
-            return elements.OfType<ElementUsage>().ToList();
-        }
-
-        /// <summary>
-        /// Creates a tree structure recursively from the elements provided
-        /// </summary>
-        /// <param name="elementBase">the top element</param>
-        /// <param name="current">current node used in the iteration</param>
-        /// <param name="parent">parent of the current node</param>
-        private void CreateTreeRecursively(ElementBase elementBase, TreeNode current, TreeNode? parent)
-        {
-            if (elementBase is ElementDefinition elementDefinition)
-            {
-                current.Parent = parent;
-                if (parent is not null)
-                {
-                    parent.Children.Add(current);
-                }
-
-                foreach (var child in elementDefinition.ContainedElement)
-                {
-                    this.CreateTreeRecursively(child, new TreeNode(child.Name), current);
-                }
-            }
-            else if (elementBase is ElementUsage elementUsage)
-            {
-                current.Parent = parent;
-                if (parent is not null)
-                {
-                    parent.Children.Add(current);
-                }
-
-                foreach (var child in elementUsage.ElementDefinition.ContainedElement)
-                {
-                    this.CreateTreeRecursively(child, new TreeNode(child.Name), current);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Repopulates the scene with the specified <see cref="ElementUsage"/>
-        /// </summary>
-        /// <param name="elementUsages">the element usages to populate the scene with</param>
-        private void RepopulateScene(List<ElementUsage> elementUsages)
-        {
-            var optionName = this.OptionSelected;
-
-            if (optionName is null)
-            {
-                optionName = this.SessionAnchor?.OpenIteration?.DefaultOption.Name;
-            }
-
-            var option = this.SessionAnchor?.OpenIteration?.Option.FirstOrDefault(opt => opt.Name == optionName);
-
-            this.StateHasChanged();
         }
 
         /// <summary>
@@ -228,12 +126,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// <param name="option">Name of the Option selected</param>
         public void OnOptionFilterChange(string? option)
         {
-            this.OptionSelected = option;
-            this.FilterOption = this.OptionSelected != null ? this.SessionAnchor?.OpenIteration?.Option.ToList().Find(o => o.Name == option)?.Iid : null;
-            this.Elements.Clear();
-            this.InitializeElements();
-            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
-            this.RepopulateScene(elementsOnScene);
+            this.ViewModel.OnOptionFilterChange(option, this.SessionAnchor);
         }
 
         /// <summary>
@@ -242,39 +135,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// <param name="option">Name of the Option selected</param>
         public void OnDomainFilterChange(DomainOfExpertise? domain)
         {
-            this.DomainSelected = domain;
-            this.FilterDomain = this.DomainSelected != null ? domain.Iid : null;
-            this.Elements.Clear();
-            this.SessionAnchor.SwitchDomain(domain);
-            this.InitializeElements();
-            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
-            this.RepopulateScene(elementsOnScene);
-        }
-
-        /// <summary>
-        /// Updates the tree UI so it matches the selected element
-        /// </summary>
-        private void UpdateTreeUI(TreeNode selectedNode)
-        {
-            this.RootNode.GetFlatListOfDescendants().ForEach(x => x.IsSelected = false);
-
-            if (selectedNode is not null)
-            {
-                selectedNode.IsSelected = true;
-            }
-            this.InvokeAsync(this.StateHasChanged);
-        }
-
-        /// <summary>
-        /// Event for when a <see cref="TreeNode"/> in the tree is selected
-        /// </summary>
-        /// <param name="node">the selected node</param>
-        public void TreeSelectionChanged(TreeNode node)
-        {
-            this.UpdateTreeUI(node);
-
-            var nodesToSelect = node.GetFlatListOfDescendants();
-            nodesToSelect.Add(node);
+            this.ViewModel.OnDomainFilterChange(domain, this.SessionAnchor);
         }
     }
 }
