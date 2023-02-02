@@ -28,10 +28,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
 
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-   
-    using Microsoft.JSInterop;
     
     using Moq;
     
@@ -45,7 +44,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         private TestContext context;
         private ICanvasViewModel viewModel;
 
-        private Mock<IJSRuntime> jsruntime;
+        private Mock<IBabylonInterop> babylonInterop;
         private Mock<ISelectionMediator> selectionMediator;
 
         [SetUp]
@@ -53,10 +52,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         {
             this.context = new TestContext();
 
-            this.jsruntime = new Mock<IJSRuntime>();
+            this.babylonInterop = new Mock<IBabylonInterop>();
             this.selectionMediator = new Mock<ISelectionMediator>();
 
-            this.viewModel = new CanvasViewModel(this.jsruntime.Object, this.selectionMediator.Object);
+            this.viewModel = new CanvasViewModel(this.babylonInterop.Object, this.selectionMediator.Object);
         }
 
         [Test]

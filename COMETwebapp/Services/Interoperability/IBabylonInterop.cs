@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Services.Interopelabity
+namespace COMETwebapp.Services.Interoperability
 {
     using COMETwebapp.Model;
     
@@ -53,6 +53,13 @@ namespace COMETwebapp.Services.Interopelabity
         /// <param name="sceneObject">the <see cref="SceneObject"/> to add</param>
         /// <returns>an asynchronous task</returns>
         Task AddSceneObject(SceneObject sceneObject);
+
+        /// <summary>
+        /// Clear the <see cref="SceneObject"/> from scene
+        /// </summary>
+        /// <param name="sceneObject">the <see cref="SceneObject"/> to clear</param>
+        /// <returns>an asynchronous task</returns>
+        Task ClearSceneObject(SceneObject sceneObject);
 
         /// <summary>
         /// Clear all the <see cref="SceneObject"/> from scene

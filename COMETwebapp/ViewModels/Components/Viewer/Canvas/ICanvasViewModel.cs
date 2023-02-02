@@ -26,7 +26,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
-    using COMETwebapp.Services.Interopelabity;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     
     using Microsoft.AspNetCore.Components;

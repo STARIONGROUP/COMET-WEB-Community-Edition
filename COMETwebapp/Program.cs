@@ -30,7 +30,7 @@ namespace COMETwebapp
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.IterationServices;
-    using COMETwebapp.Services.Interopelabity;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
