@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         private Mock<IJSRuntime> jsRuntime;
         private Mock<IIterationService> iteratioService;
         private Mock<ISessionService> sessionService;
+        private Mock<ISelectionMediator> selectionMediator;
 
         [SetUp]
         public void SetUp()
@@ -56,6 +58,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             var selectionMediator = new SelectionMediator();
             this.context.Services.AddSingleton<ISelectionMediator>(selectionMediator);
 
+            this.selectionMediator = new Mock<ISelectionMediator>();
             this.jsRuntime = new Mock<IJSRuntime>();
             this.iteratioService = new Mock<IIterationService>();
             this.sessionService = new Mock<ISessionService>();
@@ -80,9 +83,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.viewModel.IsVisible = true;
             Assert.That(this.viewModel.IsVisible, Is.True);
-            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(new TreeNode(null));
+            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(new NodeComponentViewModel(new TreeNode(null), this.selectionMediator.Object));
             Assert.That(this.viewModel.IsVisible, Is.False);
-            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(new TreeNode(new SceneObject(new Cube(1,1,1))));
+            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(new NodeComponentViewModel(new TreeNode(new SceneObject(new Cube(1,1,1))), this.selectionMediator.Object));
             Assert.That(this.viewModel.IsVisible, Is.True);
         }
 

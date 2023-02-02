@@ -26,9 +26,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
+    using COMETwebapp.Services.Interopelabity;
     using COMETwebapp.Utilities;
+    
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
 
     /// <summary>
     /// Interface for the <see cref="CanvasViewModel"/>
@@ -41,9 +42,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         ElementReference CanvasReference { get; set; }
 
         /// <summary>
-        /// Gets or sets the property used for the Interoperability
+        /// Gets or sets the <see cref="IBabylonInterop"/>
         /// </summary>
-        IJSRuntime JSInterop { get; set; }
+        public IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
@@ -78,7 +79,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         Task AddTemporarySceneObject(SceneObject sceneObject);
 
         /// <summary> 
-        /// Clears the scene deleting the <see cref="SceneObjects"/> and <see cref="TemporarySceneObjects"/> lists 
+        /// Clears the scene deleting the all the <see cref="SceneObject"/>
         /// </summary> 
         /// <returns>an asynchronous task</returns> 
         Task ClearScene();

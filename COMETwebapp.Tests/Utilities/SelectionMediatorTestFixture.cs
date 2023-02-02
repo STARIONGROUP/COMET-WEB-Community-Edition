@@ -28,6 +28,9 @@ namespace COMETwebapp.Tests.Utilities
     using Moq;
     using NUnit.Framework;
     using System;
+
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -44,9 +47,9 @@ namespace COMETwebapp.Tests.Utilities
         [Test]
         public void VerifyRaiseTreeSelection()
         {
-            var treeNode = new TreeNode(new SceneObject(null));
-            TreeNode result = null;
-            this.selectionMediator.OnTreeSelectionChanged += (sender, node) => { result = node; };
+            var treeNode = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), this.selectionMediator);
+            INodeComponentViewModel result = null;
+            this.selectionMediator.OnTreeSelectionChanged += (node) => { result = node; };
 
             this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
             Assert.That(result, Is.Not.Null);
@@ -58,7 +61,7 @@ namespace COMETwebapp.Tests.Utilities
         {
             var sceneObject = new SceneObject(null);
             SceneObject result = null;
-            this.selectionMediator.OnModelSelectionChanged += (sender, sceneObject) => { result = sceneObject;  };
+            this.selectionMediator.OnModelSelectionChanged += (sceneObject) => { result = sceneObject;  };
 
             this.selectionMediator.RaiseOnModelSelectionChanged(sceneObject);
             Assert.That(result, Is.Not.Null);
@@ -68,9 +71,9 @@ namespace COMETwebapp.Tests.Utilities
         [Test]
         public void VerifyRaiseTreeVisibility()
         {
-            var treeNode = new TreeNode(new SceneObject(null));
-            TreeNode result = null;
-            this.selectionMediator.OnTreeVisibilityChanged += (sender, node) => { result = node; };
+            var treeNode = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), this.selectionMediator);
+            INodeComponentViewModel result = null;
+            this.selectionMediator.OnTreeVisibilityChanged += (node) => { result = node; };
 
             this.selectionMediator.RaiseOnTreeVisibilityChanged(treeNode);
             Assert.That(result, Is.Not.Null);

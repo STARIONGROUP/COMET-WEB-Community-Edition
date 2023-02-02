@@ -30,6 +30,7 @@ namespace COMETwebapp
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Services.Interopelabity;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
@@ -86,6 +87,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IVersionService, VersionService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
 
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddBlazorStrap();

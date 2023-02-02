@@ -32,7 +32,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Utilities;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -52,43 +52,43 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.Services.AddBlazorStrap();
+            this.context = new TestContext();
+            this.context.Services.AddBlazorStrap();
 
-            selectionMediator = new Mock<ISelectionMediator>();
+            this.selectionMediator = new Mock<ISelectionMediator>();
 
-            context.Services.AddSingleton(selectionMediator.Object);
+            this.context.Services.AddSingleton(this.selectionMediator.Object);
 
             var treeNode = new TreeNode(new SceneObject(null));
 
-            renderedComponent = context.RenderComponent<NodeComponent>(parameters => parameters.Add(p => p.ViewModel.Node, treeNode));
-            nodeComponent = renderedComponent.Instance;
+            this.renderedComponent = this.context.RenderComponent<NodeComponent>(parameters => parameters.Add(p => p.ViewModel.Node, treeNode));
+            this.nodeComponent = this.renderedComponent.Instance;
         }
 
         [Test]
         public void VerifyTreeNodeSelectionChanged()
         {
-            var treeNode = renderedComponent.Find(".treeNode");
+            var treeNode = this.renderedComponent.Find(".treeNode");
             treeNode.Click();
-            selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(nodeComponent.ViewModel.Node), Times.Once);
+            this.selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(this.nodeComponent.ViewModel), Times.Once);
         }
 
         [Test]
         public void VerifyTreeNodeVisibilityChanged()
         {
-            var treeNode = renderedComponent.Find(".treeIcon");
+            var treeNode = this.renderedComponent.Find(".treeIcon");
             treeNode.Click();
-            selectionMediator.Verify(x => x.RaiseOnTreeVisibilityChanged(nodeComponent.ViewModel.Node), Times.Once);
+            this.selectionMediator.Verify(x => x.RaiseOnTreeVisibilityChanged(this.nodeComponent.ViewModel), Times.Once);
         }
 
         [Test]
         public void VerifyThatSelectionOfOtherNodeDontWorks()
         {
-            var treeNodeComponent = renderedComponent.Find(".treeNode");
+            var treeNodeComponent = this.renderedComponent.Find(".treeNode");
             treeNodeComponent.Click();
 
-            var treeNode = new TreeNode(new SceneObject(new Cube(1, 1, 1)));
-            selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(treeNode), Times.Never);
+            var treeNode = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), this.selectionMediator.Object);
+            this.selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(treeNode), Times.Never);
             Assert.That(treeNode.IsSelected, Is.False);
         }
     }

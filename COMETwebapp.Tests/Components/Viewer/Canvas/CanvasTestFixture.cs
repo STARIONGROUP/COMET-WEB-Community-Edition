@@ -58,8 +58,8 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context = new TestContext();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             this.context.ConfigureDevExpressBlazor();
 
             this.jsruntime = new Mock<IJSRuntime>();
@@ -72,13 +72,13 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         [Test]
         public void VerifyThatMouseEventsWorks()
         {
-            Assert.That(canvas.IsMouseDown, Is.False);
-            canvas.OnMouseDown(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
-            Assert.That(canvas.IsMouseDown, Is.True);
-            canvas.OnMouseMove(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
-            Assert.That(canvas.IsMouseDown, Is.EqualTo(canvas.IsMovingScene));
-            canvas.OnMouseUp(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
-            Assert.That(canvas.IsMouseDown, Is.False);
+            Assert.That(this.canvas.IsMouseDown, Is.False);
+            this.canvas.OnMouseDown(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.True);
+            this.canvas.OnMouseMove(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.EqualTo(this.canvas.IsMovingScene));
+            this.canvas.OnMouseUp(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+            Assert.That(this.canvas.IsMouseDown, Is.False);
         }
 
         [Test]

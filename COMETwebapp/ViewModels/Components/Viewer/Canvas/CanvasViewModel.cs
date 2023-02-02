@@ -26,12 +26,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using COMETwebapp.Components.Viewer.PopUps;
     using COMETwebapp.Model;
+    using COMETwebapp.Services.Interopelabity;
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
-
-    using Newtonsoft.Json;
 
     using ReactiveUI;
 
@@ -51,10 +49,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
 
         /// <summary>
-        /// Gets or sets the property used for the Interoperability
+        /// Gets or sets the <see cref="IBabylonInterop"/>
         /// </summary>
         [Inject]
-        public IJSRuntime JSInterop { get; set; }
+        public IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
@@ -75,9 +73,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Creates a new instance of type <see cref="CanvasViewModel"/>
         /// </summary>
-        public CanvasViewModel(IJSRuntime jsRuntime, ISelectionMediator selectionMediator)
+        public CanvasViewModel(IBabylonInterop babylonInterop, ISelectionMediator selectionMediator)
         {
-            this.JSInterop = jsRuntime;
+            this.BabylonInterop = babylonInterop;
             this.SelectionMediator = selectionMediator;
         }
 
@@ -87,9 +85,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public void InitializeViewModel()
         {
             this.SelectionMediator.SceneObjectHasChanges = false;
+            
             this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) =>
             {
                 await this.ClearTemporarySceneObjects();
+                
                 if (nodeViewModel.Node.SceneObject is not null && nodeViewModel.Node.SceneObject.Primitive is not null)
                 {
                     await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
@@ -99,7 +99,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) =>
             {
                 await this.ClearTemporarySceneObjects();
-                var nodesAffected = nodeViewModel.GetFlatListOfDescendants().Where(x => x.Node.SceneObject.Primitive is not null).ToList();
+                var nodesAffected = nodeViewModel.GetFlatListOfDescendants(true).Where(x => x.Node.SceneObject.Primitive is not null).ToList();
 
                 foreach (var sceneObject in nodesAffected.Select(x => x.Node.SceneObject))
                 {
@@ -127,6 +127,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
 
             await this.ClearTemporarySceneObjects();
+            
             if (this.SelectionMediator.SelectedSceneObjectClone is not null && this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
             {
                 await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
@@ -161,7 +162,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         public async Task InitCanvas(bool addAxes)
         {
-            await this.JSInterop.InvokeVoidAsync("InitCanvas", this.CanvasReference, addAxes);
+            await this.BabylonInterop.InitCanvas(this.CanvasReference,addAxes);
         }
 
         /// <summary>
@@ -170,9 +171,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="sceneObject"></param>
         public async Task AddSceneObject(SceneObject sceneObject)
         {
-            var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             this.SceneObjects.Add(sceneObject);
-            await this.JSInterop.InvokeVoidAsync("AddSceneObject", sceneObjectJson);
+            await this.BabylonInterop.AddSceneObject(sceneObject);
         }
 
         /// <summary>
@@ -184,9 +184,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             if (sceneObject.Primitive is not null)
             {
                 sceneObject.Primitive.HasHalo = true;
-                var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
-                this.TemporarySceneObjects.Add(sceneObject);
-                await this.JSInterop.InvokeVoidAsync("AddSceneObject", sceneObjectJson);
+          this.TemporarySceneObjects.Add(sceneObject);
+                await this.BabylonInterop.AddSceneObject(sceneObject);
             }
         }
 
@@ -205,9 +204,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         public async Task ClearSceneObjects()
         {
-            var ids = this.SceneObjects.Select(x => x.ID).ToList();
+            await this.BabylonInterop.ClearSceneObjects(this.SceneObjects);
             this.SceneObjects.Clear();
-            await this.JSInterop.InvokeVoidAsync("DisposeAll", ids.ToArray());
         }
 
         /// <summary>
@@ -215,9 +213,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         public async Task ClearTemporarySceneObjects()
         {
-            var ids = this.TemporarySceneObjects.Select(x => x.ID).ToList();
+            await this.BabylonInterop.ClearSceneObjects(this.TemporarySceneObjects);
             this.TemporarySceneObjects.Clear();
-            await this.JSInterop.InvokeVoidAsync("DisposeAll", ids.ToArray());
         }
 
         /// <summary>
@@ -227,7 +224,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="visible">the visibility</param>
         public async Task SetSceneObjectVisibility(SceneObject sceneObject, bool visible)
         {
-            await this.JSInterop.InvokeVoidAsync("SetMeshVisibility", sceneObject.ID, visible);
+            await this.BabylonInterop.SetVisibility(sceneObject, visible);
         }
 
         /// <summary>
@@ -236,14 +233,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>The primitive under the mouse cursor</returns>
         public async Task<SceneObject> GetSceneObjectUnderMouseAsync()
         {
-            var id = await this.JSInterop.InvokeAsync<string>("GetPrimitiveIDUnderMouse");
-
-            if (id == null || !Guid.TryParse(id, out Guid ID))
-            {
-                return null;
-            }
-
-            return this.GetSceneObjectById(ID);
+            var id = await this.BabylonInterop.GetPrimitiveIdUnderMouseAsync();
+            return this.GetSceneObjectById(id);
         }
 
         /// <summary>
