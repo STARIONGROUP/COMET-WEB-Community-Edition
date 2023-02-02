@@ -35,9 +35,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Services.IterationServices;
-    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
-
+    using DevExpress.XtraPrinting.Native;
     using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
     
@@ -57,10 +57,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public IIterationService IterationService { get; set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// Injected property to get access to <see cref="ISessionService"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
+        public ISessionService SessionService { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
@@ -150,13 +150,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="jsRuntime">the <see cref="IJSRuntime"/></param>
         /// <param name="iterationService">the <see cref="IIterationService"/></param>
-        /// <param name="sessionAnchor">the <see cref="ISessionAnchor"/></param>
+        /// <param name="sessionService">the <see cref="ISessionService"/></param>
         /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
-        public PropertiesComponentViewModel(IJSRuntime jsRuntime, IIterationService iterationService, ISessionAnchor sessionAnchor, ISelectionMediator selectionMediator)
+        public PropertiesComponentViewModel(IJSRuntime jsRuntime, IIterationService iterationService, ISessionService sessionService, ISelectionMediator selectionMediator)
         {
             this.JsInterop = jsRuntime;
             this.IterationService = iterationService;
-            this.SessionAnchor = sessionAnchor;
+            this.SessionService = sessionService;
             this.SelectionMediator = selectionMediator;
 
             this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, (Dictionary<ParameterBase, IValueSet> parameterValueSetRelations) => 
@@ -164,12 +164,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 this.OnParameterValueChanged(parameterValueSetRelations); 
             });
 
-            this.SelectionMediator.OnTreeSelectionChanged += (sender, node) =>
+            this.SelectionMediator.OnTreeSelectionChanged += (nodeViewModel) =>
             {
-                this.OnSelectionChanged(node.SceneObject);
+                this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
             };
 
-            this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
+            this.SelectionMediator.OnModelSelectionChanged += (sceneObject) =>
             {
                 this.OnSelectionChanged(sceneObject);
             };
@@ -179,7 +179,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// Called when the selection of a <see cref="SceneObject"/> has changed 
         /// </summary> 
         /// <param name="sceneObject">the changed object</param> 
-        /// <returns>an asynchronous operation</returns> 
         private void OnSelectionChanged(SceneObject sceneObject)
         {
             this.IsVisible = sceneObject is not null;
@@ -187,8 +186,16 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
             if (this.SelectionMediator.SelectedSceneObjectClone is not null)
             {
                 this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
-                this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
-                this.SelectedParameter = this.ParametersInUse.First();
+                
+                if(this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated is not null)
+                {
+                    this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
+                    
+                    if(this.ParametersInUse is not null && this.ParametersInUse.Any())
+                    {
+                        this.SelectedParameter = this.ParametersInUse.First();
+                    }
+                }
             }
         }
 
@@ -213,7 +220,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
                     clonedParameterValueSet.Manual = valueSetNewValue;
-                    this.SessionAnchor.UpdateThings(new List<Thing>() { clonedParameterValueSet });
+                    this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { clonedParameterValueSet });
                 }
             }
 

@@ -38,6 +38,10 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
 
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+
+    using Microsoft.Extensions.DependencyInjection;
+
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -51,35 +55,41 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private Uri uri = new Uri("http://www.rheagroup.com");
         private IRenderedComponent<ActualFiniteStateSelectorComponent> rendererComponent;
+        private IActualFiniteStateSelectorViewModel viewModel;
 
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.Services.AddBlazorStrap();
-            cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            this.context = new TestContext();
 
-            var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), cache, uri);
-            var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), cache, uri);
-            var actualFiniteStateList1 = new ActualFiniteStateList(Guid.NewGuid(), cache, uri);
+            this.viewModel = new ActualFiniteStateSelectorViewModel();
+
+            this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel>(this.viewModel);
+            this.context.Services.AddBlazorStrap();
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+
+            var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            var actualFiniteStateList1 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
             actualFiniteStateList1.ActualState.Add(actualFiniteState1);
             actualFiniteStateList1.ActualState.Add(actualFiniteState2);
 
-            var actualFiniteState3 = new ActualFiniteState(Guid.NewGuid(), cache, uri);
-            var actualFiniteState4 = new ActualFiniteState(Guid.NewGuid(), cache, uri);
-            var actualFiniteStateList2 = new ActualFiniteStateList(Guid.NewGuid(), cache, uri);
+            var actualFiniteState3 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            var actualFiniteState4 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            var actualFiniteStateList2 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
             actualFiniteStateList2.ActualState.Add(actualFiniteState3);
             actualFiniteStateList2.ActualState.Add(actualFiniteState4);
 
             var listOfActualStateList = new List<ActualFiniteStateList>() { actualFiniteStateList1, actualFiniteStateList2 };
+            this.viewModel.ActualFiniteStateListsCollection = listOfActualStateList;
 
-            rendererComponent = context.RenderComponent<ActualFiniteStateSelectorComponent>();
+            this.rendererComponent = this.context.RenderComponent<ActualFiniteStateSelectorComponent>();
         }
 
         [Test]
         public void VerifyThatActualStateCanBeClicked()
         {
-            var actualFiniteState = rendererComponent.Find(".actual-finite-state");
+            var actualFiniteState = this.rendererComponent.Find(".actual-finite-state");
             actualFiniteState.Click();
         }
     }

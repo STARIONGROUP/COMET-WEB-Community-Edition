@@ -47,7 +47,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         List<INodeComponentViewModel> Children { get; set; }
 
         /// <summary>
-        /// Current node that this <see cref="NodeComponentViewModel" /> represents
+        /// Current node that this <see cref="INodeComponentViewModel" /> represents
         /// </summary>
         TreeNode Node { get; set; }
 
@@ -86,9 +86,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         INodeComponentViewModel RemoveChild(INodeComponentViewModel nodeViewModel);
 
         /// <summary>
-        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy
+        /// Gets the <see cref="INodeComponentViewModel"/> that is on top of the hierarchy
         /// </summary>
-        /// <returns>the <see cref="TreeNode"/> or this node if the RootViewModel can't be computed</returns>
+        /// <returns>the <see cref="INodeComponentViewModel"/> or this node if the RootViewModel can't be computed</returns>
         INodeComponentViewModel GetRootNode();
 
         /// <summary>
@@ -103,13 +103,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         void OrderAllDescendantsByShortName();
 
         /// <summary>
-        /// Gets the parent node of this <see cref="TreeNode"/>
+        /// Gets the parent node of this <see cref="INodeComponentViewModel"/>
         /// </summary>
         /// <returns>the parent node</returns>
         INodeComponentViewModel GetParentNode();
 
         /// <summary>
-        /// Gets the children of this <see cref="TreeNode"/>
+        /// Gets the children of this <see cref="INodeComponentViewModel"/>
         /// </summary>
         /// <returns>the children of the node</returns>
         IReadOnlyList<INodeComponentViewModel> GetChildren();
@@ -117,13 +117,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Method for when a node is selected
         /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
-        void TreeSelectionChanged(TreeNode node);
+        /// <param name="node">the selected <see cref="INodeComponentViewModel"/></param>
+        void TreeSelectionChanged(INodeComponentViewModel node);
 
         /// <summary>
         /// Method for when a node visibility changed
         /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
-        void TreeNodeVisibilityChanged(TreeNode node);
+        /// <param name="node">the selected <see cref="INodeComponentViewModel"/></param>
+        void TreeNodeVisibilityChanged(INodeComponentViewModel node);
     }
 }

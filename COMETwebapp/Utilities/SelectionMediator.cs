@@ -25,6 +25,7 @@
 namespace COMETwebapp.Utilities
 {
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     /// <summary>
     /// Class for controlling the selecetion of <see cref="SceneObject"/> in the Scene
@@ -49,37 +50,37 @@ namespace COMETwebapp.Utilities
         /// <summary>
         /// Event for when the tree selection has changed
         /// </summary>
-        public event EventHandler<TreeNode> OnTreeSelectionChanged;
+        public event Action<INodeComponentViewModel> OnTreeSelectionChanged;
 
         /// <summary>
         /// Event for when a node in the tree has changed his visibility
         /// </summary>
-        public event EventHandler<TreeNode> OnTreeVisibilityChanged;
+        public event Action<INodeComponentViewModel> OnTreeVisibilityChanged;
 
         /// <summary>
         /// Event for when the model selection has changed
         /// </summary>
-        public event EventHandler<SceneObject> OnModelSelectionChanged;
+        public event Action<SceneObject> OnModelSelectionChanged;
 
         /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
         /// </summary>
-        /// <param name="node">the node that raised the event</param>
-        public void RaiseOnTreeSelectionChanged(TreeNode node)
+        /// <param name="nodeViewModel">the node that raised the event</param>
+        public void RaiseOnTreeSelectionChanged(INodeComponentViewModel nodeViewModel)
         {
-            this.SelectedSceneObject = node.SceneObject;
-            this.SelectedSceneObjectClone = node.SceneObject?.Clone();
-            this.OnTreeSelectionChanged?.Invoke(this, node);
+            this.SelectedSceneObject = nodeViewModel.Node.SceneObject;
+            this.SelectedSceneObjectClone = nodeViewModel.Node.SceneObject?.Clone();
+            this.OnTreeSelectionChanged?.Invoke(nodeViewModel);
         }
 
         /// <summary>
         /// Raises the <see cref="OnTreeVisibilityChanged"/> event
         /// </summary>
-        /// <param name="node"></param>
-        public void RaiseOnTreeVisibilityChanged(TreeNode node)
+        /// <param name="nodeViewModel"></param>
+        public void RaiseOnTreeVisibilityChanged(INodeComponentViewModel nodeViewModel)
         {
-            this.OnTreeVisibilityChanged?.Invoke(this, node);
-        }
+            this.OnTreeVisibilityChanged?.Invoke(nodeViewModel);
+  }
 
         /// <summary>
         /// Raises the <see cref="OnModelSelectionChanged"/> event
@@ -89,7 +90,7 @@ namespace COMETwebapp.Utilities
         {
             this.SelectedSceneObject = sceneObject;
             this.SelectedSceneObjectClone = sceneObject?.Clone();
-            this.OnModelSelectionChanged?.Invoke(this, sceneObject);
+            this.OnModelSelectionChanged?.Invoke(sceneObject);
         }
     }
 }

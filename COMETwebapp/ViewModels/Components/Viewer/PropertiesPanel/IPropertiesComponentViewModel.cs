@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using Microsoft.JSInterop;
     
     using COMETwebapp.IterationServices;
-    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Services.SessionManagement;
 
     /// <summary>
     /// Interface for the <see cref="PropertiesComponentViewModel"/>
@@ -46,9 +46,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         IIterationService IterationService { get; set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// Injected property to get access to <see cref="ISessionService"/>
         /// </summary>
-        ISessionAnchor SessionAnchor { get; set; }
+        ISessionService SessionService { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>

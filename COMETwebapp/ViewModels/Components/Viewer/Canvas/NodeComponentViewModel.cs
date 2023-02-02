@@ -66,7 +66,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             set
             {
                 this.RaiseAndSetIfChanged(ref this.isExpanded, value);
-                this.Node.IsExpanded = value;
             }
         }
 
@@ -84,7 +83,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             set
             {
                 this.RaiseAndSetIfChanged(ref this.isDrawn, value);
-                this.Node.IsDrawn = value;
             }
         }
 
@@ -102,7 +100,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             set
             {
                 this.RaiseAndSetIfChanged(ref this.isSelected, value);
-                this.Node.IsSelected = value;
             }
         }
 
@@ -120,7 +117,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             set
             {
                 this.RaiseAndSetIfChanged(ref this.isSceneObjectVisible, value);
-                this.Node.SceneObjectIsVisible = value;
             }
         }
 
@@ -148,14 +144,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         {
             this.Node = node;
             this.SelectionMediator = selectionMediator;
-
-            this.SelectionMediator.OnTreeSelectionChanged += (sender, selectedNode) =>
-            {
-                if(selectedNode.Equals(this.Node))
-                {
-                    this.IsSelected = false;
-                }
-            };
         }
 
         /// <summary>
@@ -294,11 +282,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Method for when a node is selected
         /// </summary>
         /// <param name="node">the selected <see cref="TreeNode"/></param>
-        public void TreeSelectionChanged(TreeNode node)
+        public void TreeSelectionChanged(INodeComponentViewModel nodeViewModel)
         {
+            this.GetRootNode().GetFlatListOfDescendants(true).ForEach(x => x.IsSelected = false);
+
             if (!this.StopClickPropagation)
             {
-                this.SelectionMediator?.RaiseOnTreeSelectionChanged(this.Node);
+                this.SelectionMediator.RaiseOnTreeSelectionChanged(nodeViewModel);
                 this.IsSelected = true;
             }
 
@@ -309,10 +299,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Method for when a node visibility changed
         /// </summary>
         /// <param name="node">the selected <see cref="TreeNode"/></param>
-        public void TreeNodeVisibilityChanged(TreeNode node)
+        public void TreeNodeVisibilityChanged(INodeComponentViewModel nodeViewModel)
         {
             this.StopClickPropagation = true;
-            this.SelectionMediator.RaiseOnTreeVisibilityChanged(node);
+            this.SelectionMediator.RaiseOnTreeVisibilityChanged(nodeViewModel);
         }
     }
 }

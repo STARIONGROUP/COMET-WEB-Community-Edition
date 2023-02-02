@@ -34,26 +34,6 @@ namespace COMETwebapp.Model
     public class TreeNode
     {
         /// <summary>
-        /// If the node is expanded or not
-        /// </summary>
-        public bool IsExpanded { get; set; } = true;
-
-        /// <summary>
-        /// If the node is the current selected node
-        /// </summary>
-        public bool IsSelected { get; set; }
-
-        /// <summary>
-        /// If the <see cref="SceneObject"/> asociated to this node is visible 
-        /// </summary>
-        public bool SceneObjectIsVisible { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets if this node is drawn in the <see cref="ProductTree"/>
-        /// </summary>
-        public bool IsDrawn { get; set; } = true;
-
-        /// <summary>
         /// The <see cref="SceneObject"/> that this <see cref="TreeNode"/> represents
         /// </summary>
         public SceneObject SceneObject { get; private set; }

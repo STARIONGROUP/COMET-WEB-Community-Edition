@@ -22,35 +22,31 @@
 // </copyright> 
 // -------------------------------------------------------------------------------------------------------------------- 
 
-namespace COMETwebapp.Tests.Pages
+namespace COMETwebapp.Tests.Pages.Viewer
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
 
-    using BlazorStrap;
-    
     using Bunit;
     
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
     
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Pages.Viewer;
-
+    
     using Microsoft.Extensions.DependencyInjection;
     
     using Moq;
     
     using NUnit.Framework;
-
+    
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -138,7 +134,7 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
             this.context.Services.AddSingleton<IViewerViewModel>(this.viewModel);
-            this.context.Services.AddSingleton<ISessionAnchor, SessionAnchor>();
+            this.context.Services.AddSingleton<ISessionService, SessionService>();
             this.context.Services.AddSingleton<ICanvasViewModel, CanvasViewModel>();
 
             this.renderedComponent = this.context.RenderComponent<ViewerPage>();

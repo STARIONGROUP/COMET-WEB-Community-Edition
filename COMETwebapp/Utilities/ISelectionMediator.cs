@@ -25,6 +25,7 @@
 namespace COMETwebapp.Utilities
 {
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     /// <summary>
     /// Interface for controlling the selecetion of <see cref="SceneObject"/> in the Scene
@@ -49,29 +50,29 @@ namespace COMETwebapp.Utilities
         /// <summary>
         /// Event for when the tree selection has changed
         /// </summary>
-        event EventHandler<TreeNode> OnTreeSelectionChanged;
+        event Action<INodeComponentViewModel> OnTreeSelectionChanged;
 
         /// <summary>
         /// Event for when a node in the tree has changed his visibility
         /// </summary>
-        event EventHandler<TreeNode> OnTreeVisibilityChanged;
+        event Action<INodeComponentViewModel> OnTreeVisibilityChanged;
 
         /// <summary>
         /// Event for when the model selection has changed
         /// </summary>
-        event EventHandler<SceneObject> OnModelSelectionChanged;
+        event Action<SceneObject> OnModelSelectionChanged;
 
         /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
         /// </summary>
-        /// <param name="node">the node that raised the event</param>
-        void RaiseOnTreeSelectionChanged(TreeNode node);
+        /// <param name="nodeViewModel">the node that raised the event</param>
+        void RaiseOnTreeSelectionChanged(INodeComponentViewModel nodeViewModel);
 
         /// <summary>
         /// Raises the <see cref="OnTreeVisibilityChanged"/> event
         /// </summary>
-        /// <param name="node"></param>
-        void RaiseOnTreeVisibilityChanged(TreeNode node);
+        /// <param name="nodeViewModel"></param>
+        void RaiseOnTreeVisibilityChanged(INodeComponentViewModel nodeViewModel);
 
         /// <summary>
         /// Raises the <see cref="OnModelSelectionChanged"/> event

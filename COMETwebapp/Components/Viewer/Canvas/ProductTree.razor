@@ -28,7 +28,7 @@
             <DxComboBox Data="this.ViewModel.TreeFilters" @bind-Value="@this.ViewModel.SelectedFilter"></DxComboBox>
         </div>
         <div id="product-tree-search-bar">
-            <DxTextBox NullText="Search..." @bind-Text="@this.ViewModel.SearchText" BindValueMode="BindValueMode.OnInput"></DxTextBox>
+            <DxTextBox NullText="Search..." @bind-Text="@this.ViewModel.SearchText" BindValueMode="BindValueMode.OnInput" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxTextBox>
         </div>
     </div>
 

@@ -27,25 +27,25 @@
 
     var nodeClasses = "treeNode";
 
-    @if (this.ViewModel.Node.IsSelected)
+    @if (this.ViewModel.IsSelected)
     {
         nodeClasses += " active";
     }
 
-    @if (this.ViewModel.Node.IsDrawn)
+    @if (this.ViewModel.IsDrawn)
     {
-        <div class="@nodeClasses" onclick="@(()=>this.ViewModel.TreeSelectionChanged(this.ViewModel.Node))" style="margin-left: calc(20px * @this.ViewModel.Level)">
+        <div class="@nodeClasses" onclick="@(()=>this.ViewModel.TreeSelectionChanged(this.ViewModel))" style="margin-left: calc(20px * @this.ViewModel.Level)">
             <div class="node-inner-content">
 
                 @if (this.ViewModel.Node.GetChildren().Count > 0)
                 {
-                    @if (this.ViewModel.Node.IsExpanded)
+                    @if (this.ViewModel.IsExpanded)
                     {
-                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.ViewModel.Node.IsExpanded = false; })" />
+                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.ViewModel.IsExpanded = false; })" />
                     }
                     else
                     {
-                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.ViewModel.Node.IsExpanded = true; })" />
+                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.ViewModel.IsExpanded = true; })" />
                     }
                 }
 
@@ -53,20 +53,20 @@
                 
                 @if (this.ViewModel.Node.SceneObject.Primitive is not null)
                 {
-                    @if (this.ViewModel.Node.SceneObjectIsVisible)
+                    @if (this.ViewModel.IsSceneObjectVisible)
                     {
-                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.Node.SceneObjectIsVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel.Node);})" />
+                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
                     }
                     else
                     {
-                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.Node.SceneObjectIsVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel.Node); })" />
+                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel); })" />
                     }
                 }
             </div>
         </div>
     }    
 
-    @if (this.ViewModel.Node.GetChildren().Count > 0 && this.ViewModel.Node.IsExpanded)
+    @if (this.ViewModel.GetChildren().Count > 0 && this.ViewModel.IsExpanded)
     {
         <div class="children">
             @foreach (var child in this.ViewModel.GetChildren())

@@ -42,15 +42,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Backing field for the <see cref="SelectedFilter"/>
         /// </summary>
-        private TreeFilter treeFilter;
+        private TreeFilter selectedFilter;
 
         /// <summary>
         /// Gets or sets the selected filter option
         /// </summary>
         public TreeFilter SelectedFilter
         {
-            get => this.treeFilter;
-            set => this.RaiseAndSetIfChanged(ref this.treeFilter, value);
+            get => this.selectedFilter;
+            set => this.RaiseAndSetIfChanged(ref this.selectedFilter, value);
         }
 
         /// <summary>

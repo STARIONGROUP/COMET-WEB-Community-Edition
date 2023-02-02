@@ -27,7 +27,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
-    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
@@ -47,7 +47,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         private IPropertiesComponentViewModel viewModel;
         private Mock<IJSRuntime> jsRuntime;
         private Mock<IIterationService> iteratioService;
-        private Mock<ISessionAnchor> sessionAnchor;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -58,9 +58,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 
             this.jsRuntime = new Mock<IJSRuntime>();
             this.iteratioService = new Mock<IIterationService>();
-            this.sessionAnchor = new Mock<ISessionAnchor>();
+            this.sessionService = new Mock<ISessionService>();
 
-            this.viewModel = new PropertiesComponentViewModel(this.jsRuntime.Object, this.iteratioService.Object, this.sessionAnchor.Object, selectionMediator);
+            this.viewModel = new PropertiesComponentViewModel(this.jsRuntime.Object, this.iteratioService.Object, this.sessionService.Object, selectionMediator);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             {
                 Assert.That(this.viewModel.JsInterop, Is.Not.Null);
                 Assert.That(this.viewModel.IterationService, Is.Not.Null);
-                Assert.That(this.viewModel.SessionAnchor, Is.Not.Null);
+                Assert.That(this.viewModel.SessionService, Is.Not.Null);
                 Assert.That(this.viewModel.SelectionMediator, Is.Not.Null);
             });
         }

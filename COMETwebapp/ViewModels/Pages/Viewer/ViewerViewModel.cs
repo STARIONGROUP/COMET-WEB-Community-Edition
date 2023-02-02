@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
     using CDP4Common.EngineeringModelData;
     
     using COMETwebapp.Model;
-    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     
@@ -41,10 +41,10 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
     public class ViewerViewModel : ReactiveObject, IViewerViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISessionAnchor"/>
+        /// Gets or sets the <see cref="ISessionService"/>
         /// </summary>
         [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
+        public ISessionService SessionService { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
@@ -103,30 +103,30 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// <summary>
         /// Creates a new instance of type <see cref="ViewerViewModel"/>
         /// </summary>
-        /// <param name="sessionAnchor">the <see cref="ISessionAnchor"/></param>
-        public ViewerViewModel(ISessionAnchor sessionAnchor, ISelectionMediator selectionMediator)
+        /// <param name="sessionService">the <see cref="ISessionService"/></param>
+        public ViewerViewModel(ISessionService sessionService, ISelectionMediator selectionMediator)
         {
-            this.SessionAnchor = sessionAnchor ?? throw new ArgumentNullException(nameof(sessionAnchor));
+            this.SessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
             this.SelectionMediator = selectionMediator ?? throw new ArgumentNullException(nameof(selectionMediator));
 
             this.Elements = this.InitializeElements();
 
-            var iteration = this.SessionAnchor?.OpenIteration;
-            this.TotalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
-            var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
-            this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions?.First();
-            this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
+            var iteration = this.SessionService.DefaultIteration;
+            this.TotalOptions = iteration.Option.OrderBy(o => o.Name).ToList();
+            var defaultOption = this.SessionService.DefaultIteration.DefaultOption;
+            this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions.First();
+            this.ListActualFiniteStateLists = iteration.ActualFiniteStateList?.ToList();
             this.SelectedActualFiniteStates = this.ListActualFiniteStateLists?.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
 
             this.CreateTree(this.Elements);
 
-            this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
+            this.SessionService.OnSessionRefreshed += (sender, args) =>
             {
                 this.Elements = this.InitializeElements();
                 this.CreateTree(this.Elements);
             };
 
-            this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
+            this.SelectionMediator.OnModelSelectionChanged += (sceneObject) =>
             {
                 var treeNodes = this.RootNodeViewModel.GetFlatListOfDescendants();
                 treeNodes.ForEach(x => x.IsSelected = false);
@@ -151,7 +151,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         private List<ElementBase> InitializeElements()
         {
             var elements = new List<ElementBase>();
-            var iteration = this.SessionAnchor?.OpenIteration;
+            var iteration = this.SessionService.DefaultIteration;
 
             if (iteration != null)
             {
@@ -223,8 +223,8 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// <param name="option">the new selected option</param>
         public void OnOptionChange(Option option)
         {
-            var defaultOption = this.SessionAnchor?.OpenIteration?.DefaultOption;
-            this.SelectedOption = this.TotalOptions?.FirstOrDefault(x => x == option, defaultOption);
+            var defaultOption = this.SessionService.DefaultIteration.DefaultOption;
+            this.SelectedOption = this.TotalOptions.FirstOrDefault(x => x == option, defaultOption);
             this.Elements = this.InitializeElements();
             this.CreateTree(this.Elements);
         }

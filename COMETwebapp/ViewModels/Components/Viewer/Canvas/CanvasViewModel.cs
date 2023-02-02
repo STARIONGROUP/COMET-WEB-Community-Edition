@@ -87,23 +87,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public void InitializeViewModel()
         {
             this.SelectionMediator.SceneObjectHasChanges = false;
-            this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
+            this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) =>
             {
                 await this.ClearTemporarySceneObjects();
-                if (node.SceneObject is not null && node.SceneObject.Primitive is not null)
+                if (nodeViewModel.Node.SceneObject is not null && nodeViewModel.Node.SceneObject.Primitive is not null)
                 {
                     await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
                 }
             };
 
-            this.SelectionMediator.OnTreeVisibilityChanged += async (sender, node) =>
+            this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) =>
             {
                 await this.ClearTemporarySceneObjects();
-                var nodesAffected = node.GetFlatListOfDescendants().Where(x => x.SceneObject.Primitive is not null).ToList();
+                var nodesAffected = nodeViewModel.GetFlatListOfDescendants().Where(x => x.Node.SceneObject.Primitive is not null).ToList();
 
-                foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
+                foreach (var sceneObject in nodesAffected.Select(x => x.Node.SceneObject))
                 {
-                    await this.SetSceneObjectVisibility(sceneObject, node.SceneObjectIsVisible);
+                    await this.SetSceneObjectVisibility(sceneObject, nodeViewModel.IsSceneObjectVisible);
                 }
             };
 
