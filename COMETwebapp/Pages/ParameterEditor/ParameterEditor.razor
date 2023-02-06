@@ -19,11 +19,8 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.SessionManagement
-@using CDP4Dal
-@using CDP4Dal.Events
+@using COMETwebapp.IterationServices
 @using CDP4Common.EngineeringModelData
-@using COMETwebapp.Extensions
 @using COMETwebapp.Services.SessionManagement
 
 @page "/ParameterEditor"
@@ -32,19 +29,19 @@ Copyright (c) 2023 RHEA System S.A.
 
 @implements IDisposable
 
-<SingleIterationApplicationTemplate>
+<ApplicationTemplate Title="Parameter Editor">
     <Body>
         <div class="container-fluid">
             <div class="row ">
                 <div class="col">
                     <h6>Filter on Element Usage Name:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@Filter(Elements.OrderBy(e => e.Name).ToList())"
+                        <DxComboBox Data="@this.Filter(this.Elements.OrderBy(e => e.Name).ToList())"
                             TextFieldName="@nameof(ElementBase.Name)"
                             AllowUserInput="true"
                             NullText="--Select an Element--"
-                            Value="this.selectedElement"
-                            ValueChanged="@((ElementBase element) => this.selectedElement = element)"
+                            Value="this.SelectedElement"
+                            ValueChanged="@((ElementBase element) => this.SelectedElement = element)"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
@@ -52,10 +49,10 @@ Copyright (c) 2023 RHEA System S.A.
                 <div class="col">
                     <h6>Filter on Parameter Type:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@ParameterTypeNames"
+                        <DxComboBox Data="@this.ParameterTypeNames"
                             AllowUserInput="true"
                             NullText="--Select--"
-                            Value="this.parameterTypeSelected"
+                            Value="this.ParameterTypeSelected"
                             ValueChanged="@((string parameterTypeName) => this.OnParameterFilterChange(parameterTypeName))"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
@@ -73,8 +70,8 @@ Copyright (c) 2023 RHEA System S.A.
                         <div class="width-fit-content">
                             <DxComboBox Data="@optionNames"
                                 AllowUserInput="true"
-                                Value="this.optionSelected"
-                                ValueChanged="@((string option) => OnOptionFilterChange(option))"
+                                Value="this.OptionSelected"
+                                ValueChanged="@((string option) => this.OnOptionFilterChange(option))"
                                 FilteringMode="DataGridFilteringMode.Contains"/>
                         </div>
                     </div>
@@ -94,8 +91,8 @@ Copyright (c) 2023 RHEA System S.A.
                         <DxComboBox Data="@actualStates.OrderBy(e => e)"
                             AllowUserInput="true"
                             NullText="--Select--"
-                            Value="this.stateSelected"
-                            ValueChanged="@((string actualState) => OnStateFilterChange(actualState))"
+                            Value="this.StateSelected"
+                            ValueChanged="@((string actualState) => this.OnStateFilterChange(actualState))"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
@@ -103,381 +100,20 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
             <div class="row m-4">
                 <div class="col">
-                    <div class="BS.Form_Check BS.Form_Switch">
-                        <BSInputCheckbox CheckedValue="@(true)" Value="@this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
+                    <div class="@BS.Form_Check @BS.Form_Switch">
+                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@this.OnOwnerFilterChange"/>
                         <BSLabel IsCheckLabel="true">Only Parameters owned by @this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name domain</BSLabel>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <ParameterTable Elements="@Filter(this.Elements.OrderBy(e => e.Name).ToList())" 
-                    IsOwnedParameters="@IsOwnedParameters"
-                    ParameterTypeSelected="@parameterTypeSelected" 
-                    OptionSelected="@optionSelected"
-                    StateSelected="@stateSelected" />
+                <ParameterTable Elements="@this.Filter(this.Elements.OrderBy(e => e.Name).ToList())" 
+                    IsOwnedParameters="@this.IsOwnedParameters"
+                    ParameterTypeSelected="@this.ParameterTypeSelected" 
+                    OptionSelected="@this.OptionSelected"
+                    StateSelected="@this.StateSelected" />
             </div>
         </div>
     </Body>
-</SingleIterationApplicationTemplate>
-
-
-@code{
-    /// <summary>
-    /// The filter on option
-    /// </summary>
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public Guid? FilterOption { get; set; }
-
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public Guid? FilterElementBase { get; set; }
-
-    /// <summary>
-    /// The selected <see cref="ElementBase"> to filter
-    /// </summary>
-    private ElementBase? selectedElement { get; set; }
-
-    /// <summary>
-    /// All <see cref="ElementBase"> of the iteration
-    /// </summary>
-    public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
-
-    /// <summary>
-    /// Sets if only parameters owned by the active domain are shown
-    /// </summary>
-    private bool IsOwnedParameters { get; set; } = true;
-
-    /// <summary>
-    /// Name of the parameter type selected
-    /// </summary>
-    private string? parameterTypeSelected { get; set; }
-
-    /// <summary>
-    /// Name of the option selected
-    /// </summary>
-    private string? optionSelected { get; set; }
-
-    /// <summary>
-    /// Name of the state selected
-    /// </summary>
-    private string? stateSelected { get; set; }
-
-    /// <summary>
-    /// Listeners for the components to update it with ISession
-    /// </summary>
-    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
-
-    /// <summary>
-    /// All ParameterType names in the model
-    /// </summary>
-    public List<string> ParameterTypeNames = new List<string>();
-
-    /// <summary>
-    /// Initialize component at first render and after session update
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        this.Elements.Clear();
-        this.InitializeElements();
-
-        this.ParameterTypeNames = new List<string>();
-        this.SessionService.DefaultIteration.QueryUsedParameterTypes().OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
-
-        if (!this.listeners.TryGetValue("UpToDate", out var listener))
-        {
-            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                this.Elements.Clear();
-                this.InitializeElements();
-                this.StateHasChanged();
-            }));
-        }
-
-        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)) {
-            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
-            {
-                this.Elements.Clear();
-                this.InitializeElements();
-                this.StateHasChanged();
-            }));
-        }
-    }
-
-    /// <summary>
-    /// Get selected filter on url page
-    /// </summary>
-    protected override void OnParametersSet()
-    {
-        this.FilterOption = FilterOption ?? null;
-        if(this.FilterOption != null)
-        {
-            this.optionSelected = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Iid == this.FilterOption)?.Name;
-        } else
-        {
-            this.optionSelected = this.SessionService.DefaultIteration?.Option.First().Name;
-        }
-
-        this.FilterElementBase = FilterElementBase ?? null;
-        if(this.FilterElementBase != null)
-        {
-            this.selectedElement = this.Elements.Find(e => e.Iid == this.FilterElementBase);
-        }
-    }
-
-    /// <summary>
-    /// Initialize <see cref="ElementBase"> list
-    /// </summary>
-    private void InitializeElements()
-    {
-        var iteration = this.SessionService.DefaultIteration;
-        if(iteration != null)
-        {
-            if(this.IsOwnedParameters == true)
-            {
-                if(iteration.TopElement != null && iteration.TopElement.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-                {
-                    this.Elements.Add(iteration.TopElement);
-                }
-                iteration.Element.ForEach(e =>
-                {
-                    e.ContainedElement.ForEach(containedElement =>
-                    {
-                        if (containedElement.ParameterOverride.Count == 0)
-                        {
-                            if (containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-                            {
-                                this.Elements.Add(containedElement);
-                            }
-                        }
-                        else
-                        {
-                            if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-                            {
-                                this.Elements.Add(containedElement);
-                            }
-                            if(!this.Elements.Contains(containedElement) && containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-                            {
-                                this.Elements.Add(containedElement);
-                            }
-                        }
-                    });
-                });
-            } else
-            {
-                if(iteration.TopElement != null)
-                {
-                    this.Elements.Add(iteration.TopElement);
-                }
-                iteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
-            }
-        }
-    }
-
-    /// <summary>
-    /// Filter <see cref="ElementBase"> to show in the tree
-    /// </summary>
-    /// <param name="elements"></param>
-    /// <returns></returns>
-    public List<ElementBase> Filter(List<ElementBase> elements)
-    {
-        if(this.parameterTypeSelected != null)
-        {
-            var elementsToRemove = new List<ElementBase>();
-            elements.ForEach(e =>
-            {
-                if (e.GetType().Equals(typeof(ElementDefinition)))
-                {
-                    var elementDefinition = (ElementDefinition)e;
-                    if(elementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                    {
-                        elementsToRemove.Add(e);
-                    }
-                } else if (e.GetType().Equals(typeof(ElementUsage)))
-                {
-                    var elementUsage = (ElementUsage)e;
-                    if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                    {
-                        elementsToRemove.Add(e);
-                    }
-                    else if (elementUsage.ParameterOverride.Count != 0)
-                    {
-                        if (elementUsage.ParameterOverride.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0 &&
-                            elementUsage.ElementDefinition.Parameter.FindAll(p => p.ParameterType.Name.Equals(this.parameterTypeSelected)).Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                    }
-                }
-            });
-            elements.RemoveAll(e => elementsToRemove.Contains(e));
-        }
-
-        if(this.optionSelected != null)
-        {
-            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.optionSelected);
-            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(option).ToList();
-
-            var associatedElements = new List<ElementUsage>();
-            nestedElements.ForEach(element =>
-            {
-                associatedElements.AddRange(element.ElementUsage);
-            });
-            associatedElements = associatedElements.Distinct().ToList();
-
-            var elementsToRemove = new List<ElementBase>();
-            elements.ForEach(e =>
-            {
-                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
-                {
-                    elementsToRemove.Add(e);
-                }
-            });
-            elements.RemoveAll(e => elementsToRemove.Contains(e));
-        }
-
-        if (this.stateSelected != null)
-        {
-            var elementsToRemove = new List<ElementBase>();
-            elements.ForEach(e =>
-            {
-                if (e.GetType().Equals(typeof(ElementDefinition)))
-                {
-                    var elementDefinition = (ElementDefinition)e;
-                    var actualStates = new List<ActualFiniteState>();
-                    elementDefinition.Parameter.ForEach(p =>
-                    {
-                        p.ValueSet.ForEach(v =>
-                        {
-                            if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                            {
-                                actualStates.Add(v.ActualState);
-                            }
-                        });
-                    });
-                    if (actualStates.Count == 0)
-                    {
-                        elementsToRemove.Add(e);
-                    }
-                }
-                else if (e.GetType().Equals(typeof(ElementUsage)))
-                {
-                    var elementUsage = (ElementUsage)e;
-                    var actualStates = new List<ActualFiniteState>();
-                    if (elementUsage.ParameterOverride.Count == 0)
-                    {
-                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
-                        {
-                            p.ValueSet.ForEach(v =>
-                            {
-                                if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                {
-                                    actualStates.Add(v.ActualState);
-                                }
-                            });
-                        });
-                        if (actualStates.Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                    }
-                    else if (elementUsage.ParameterOverride.Count != 0)
-                    {
-                        elementUsage.ParameterOverride.ForEach(p =>
-                        {
-                            p.ValueSet.ForEach(v =>
-                            {
-                                if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                {
-                                    actualStates.Add(v.ActualState);
-                                }
-                            });
-                        });
-                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
-                        {
-                            p.ValueSet.ForEach(v =>
-                            {
-                                if (v.ActualState != null && v.ActualState.Name.Equals(this.stateSelected))
-                                {
-                                    actualStates.Add(v.ActualState);
-                                }
-                            });
-                        });
-                        if (actualStates.Count == 0)
-                        {
-                            elementsToRemove.Add(e);
-                        }
-                    }
-                }
-            });
-            elements.RemoveAll(e => elementsToRemove.Contains(e));
-        }
-
-        if(this.selectedElement != null)
-        {
-            return elements.FindAll(e => e.Iid == this.selectedElement?.Iid);
-        } else
-        {
-            return elements;
-        }
-    }
-
-    /// <summary>
-    /// Stop and clear listeners of the component
-    /// </summary>
-    public void Dispose()
-    {
-        this.listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.listeners.Clear();
-    }
-
-    /// <summary>
-    /// Updates Elements list when a filter for owner is selected
-    /// </summary>
-    /// <param name="e"><see cref="ChangeEventArgs"> from the selector</param>
-    public void OnOwnerFilterChange(ChangeEventArgs e)
-    {
-        this.Elements.Clear();
-        this.InitializeElements();
-    }
-
-    /// <summary>
-    /// Updates Elements list when a filter for parameter type is selected
-    /// </summary>
-    /// <param name="e">Name of the ParameterType selected</param>
-    public void OnParameterFilterChange(string? parameterType)
-    {
-        this.parameterTypeSelected = parameterType;
-        this.Elements.Clear();
-        this.InitializeElements();
-    }
-
-    /// <summary>
-    /// Updates Elements list when a filter for option is selected
-    /// </summary>
-    /// <param name="e">Name of the Option selected</param>
-    public void OnOptionFilterChange(string? option)
-    {
-        this.optionSelected =   option;
-        if(this.optionSelected != null)
-        {
-            this.FilterOption = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Name == option)?.Iid;
-        } else
-        {
-            this.FilterOption = null;
-        }
-        this.NavigationManager.NavigateTo($"/ParameterEditor?filteroption={this.FilterOption}");
-    }
-
-    /// <summary>
-    /// Updates Elements list when a filter for parameter typestate is selected
-    /// </summary>
-    /// <param name="e">Name of the State selected</param>
-    public void OnStateFilterChange(string? state)
-    {
-        this.stateSelected = state;
-        this.Elements.Clear();
-        this.InitializeElements();
-    }
-}
+</ApplicationTemplate>
 
