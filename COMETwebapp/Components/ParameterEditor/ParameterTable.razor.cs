@@ -25,7 +25,7 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-    
+
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DynamicData;
@@ -50,7 +50,7 @@ namespace COMETwebapp.Components.ParameterEditor
         /// </summary>
         [Parameter]
         public SourceList<ElementBase> Elements { get; set; }
-        
+
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
@@ -70,12 +70,60 @@ namespace COMETwebapp.Components.ParameterEditor
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
-
+            
             if (firstRender)
             {
                 this.ViewModel.InitializeViewModel(this.Elements.Items);
                 this.WhenAnyValue(x => x.ViewModel.Rows.CountChanged).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
+            else
+            {
+                filteredParameters.AddRange(parameters);
+            }
+            
+            if (this.ParameterTypeSelected != null)
+            {
+                filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
+            }
+
+            return filteredParameters.OrderBy(p => p.ParameterType.Name);
+        }
+
+        /// <summary>
+        /// Filters <see cref="ParameterValueSetBase"/>s for the selected option and the selected state
+        /// </summary>
+        /// <param name="isOptionDependent">if the <see cref="Parameter"/> is option dependant</param>
+        /// <param name="parameterValueSets">the <see cref="ParameterValueSet"/> to filter</param>
+        /// <returns>the filtered result</returns>
+        public IEnumerable<ParameterValueSetBase> FilterParameterValueSetBase(bool isOptionDependent, List<ParameterValueSetBase> parameterValueSets)
+        {
+            var filteredParameterValueSets = new List<ParameterValueSetBase>();
+            
+            if (this.OptionSelected != null && isOptionDependent)
+            {
+                filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
+            }
+            else
+            {
+                filteredParameterValueSets.AddRange(parameterValueSets);
+            }
+            
+            if (this.StateSelected != null)
+            {
+                var parameterValueSetsToRemove = new List<ParameterValueSetBase>();
+                
+                filteredParameterValueSets.ForEach(p =>
+                {
+                    if (p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
+                    {
+                        parameterValueSetsToRemove.Add(p);
+                    }
+                });
+                
+                filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
+            }
+
+            return filteredParameterValueSets.OrderBy(p => p.ModelCode());
         }
     }
 }
