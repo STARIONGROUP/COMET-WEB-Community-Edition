@@ -71,30 +71,30 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
         public void VerifyThatContinueButtonWorks()
         {
             this.popUp.Show();
-            bool result = false;
+            
             this.popUp.OnResponse += (sender, response) =>
             {
-                result = response;
+                Assert.That(response, Is.True);
             };
+            
             var button = this.renderedComponent.Find(".continue-button");
             Assert.That(button, Is.Not.Null);
             button.Click();
-            Assert.That(result, Is.True);
         }
 
         [Test]
         public void VerifyThatCancelButtonWorks()
         {
             this.popUp.Show();
-            bool result = true;
+            
             this.popUp.OnResponse += (sender, response) =>
             {
-                result = response;
+                Assert.That(response, Is.False);
             };
+            
             var button = this.renderedComponent.Find(".cancel-button");
             Assert.That(button, Is.Not.Null);
             button.Click();
-            Assert.That(result, Is.False);
         }
     }
 }
