@@ -26,8 +26,15 @@ namespace COMETwebapp.Pages.ParameterEditor
 {
     using COMETwebapp.ViewModels.Pages.ParameterEditor;
 
+    using CDP4Common.EngineeringModelData;
+    
+    using CDP4Dal;
+    using CDP4Dal.Events;
+    
+    using COMETwebapp.SessionManagement;
+    
     using Microsoft.AspNetCore.Components;
-
+    
     using ReactiveUI;
 
     /// <summary>
@@ -41,9 +48,53 @@ namespace COMETwebapp.Pages.ParameterEditor
         [Inject]
         public IParameterEditorViewModel ViewModel { get; set; }
 
+        [Parameter]
+        [SupplyParameterFromQuery]
+        public Guid FilterElementBase { get; set; }
+
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
+        /// </summary>
+        private ElementBase SelectedElement { get; set; }
+
+        /// <summary>
+        /// All <see cref="ElementBase"/> of the iteration
+        /// </summary>
+        public List<ElementBase> Elements { get; set; } = new();
+
+        /// <summary>
+        /// Sets if only parameters owned by the active domain are shown
+        /// </summary>
+        private bool IsOwnedParameters { get; set; } = true;
+
+        /// <summary>
+        /// Name of the parameter type selected
+        /// </summary>
+        private string ParameterTypeSelected { get; set; }
+
+        /// <summary>
+        /// Name of the option selected
+        /// </summary>
+        private string OptionSelected { get; set; }
+
+        /// <summary>
+        /// Name of the state selected
+        /// </summary>
+        private string StateSelected { get; set; }
+
+        /// <summary>
+        /// Listeners for the components to update it with ISession
+        /// </summary>
+        private Dictionary<string, IDisposable> listeners = new ();
+
+        /// <summary>
+        /// All ParameterType names in the model
+        /// </summary>
+        public List<string> ParameterTypeNames = new();
+
+        /// <summary>
+        /// Initialize component at first render and after session update
         /// </summary>
         protected override void OnInitialized()
         {
