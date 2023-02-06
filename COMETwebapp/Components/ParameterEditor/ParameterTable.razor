@@ -22,9 +22,8 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Common.EngineeringModelData
 @using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
-@inject ISessionService SessionService
 
-<div class="container-fluid" style="min-width: 1400px; max-width: 1400px;">
+<div class="container-fluid" style="min-width: 1400px;">
     @if(this.Elements != null)
     {
         <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
@@ -120,109 +119,3 @@ Copyright (c) 2023 RHEA System S.A.
         </BSTable>
     }
 </div>
-
-@code {
-    /// <summary>
-    /// All <see cref="ElementUsage">s and the Top <see cref="ElementDefinition"> of the iteration
-    /// </summary>
-    [Parameter]
-    public List<ElementBase>? Elements { get; set; }
-
-    /// <summary>
-    /// Sets if only parameters owned by the active domain are shown
-    /// </summary>
-    [Parameter]
-    public bool? IsOwnedParameters { get; set; }
-
-    /// <summary>
-    /// Name of the parameter type selected
-    /// </summary>
-    [Parameter]
-    public string? ParameterTypeSelected { get; set; }
-
-    /// <summary>
-    /// Name of the option selected
-    /// </summary>
-    [Parameter]
-    public string? OptionSelected { get; set; }
-
-    /// <summary>
-    /// Name of the state selected
-    /// </summary>
-    [Parameter]
-    public string? StateSelected { get; set; }
-
-    /// <summary>
-    /// Filters <see cref="Parameter">s for the selected owner and the selected type
-    /// </summary>
-    /// <param name="parameters"><see cref="Parameter">s to filter</param>
-    public IEnumerable<Parameter> FilterParameters(List<Parameter> parameters)
-    {
-        var filteredParameters = new List<Parameter>();
-        if(this.IsOwnedParameters == true)
-        {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
-        } else
-        {
-            filteredParameters.AddRange(parameters);
-        }
-        if(this.ParameterTypeSelected != null)
-        {
-            filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-        }
-
-        return filteredParameters.OrderBy(p => p.ParameterType.Name);
-    }
-
-    /// <summary>
-    /// Filters <see cref="ParameterOverride">s for the selected owner and the selected type
-    /// </summary>
-    /// <param name="parameters"><see cref="ParameterOverride">s to filter</param>
-    public IEnumerable<ParameterOverride> FilterParameterOverrides(List<ParameterOverride> parameters)
-    {
-        var filteredParameters = new List<ParameterOverride>();
-        if(this.IsOwnedParameters == true)
-        {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
-        } else
-        {
-            filteredParameters.AddRange(parameters);
-        }
-        if(this.ParameterTypeSelected != null)
-        {
-            filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-        }
-
-        return filteredParameters.OrderBy(p => p.ParameterType.Name);
-    }
-
-    /// <summary>
-    /// Filters <see cref="ParameterValueSetBase">s for the selected option and the selected state
-    /// </summary>
-    /// <param name="parameterValueSets"><see cref="ParameterValueSetBase">s to filter</param>
-    public IEnumerable<ParameterValueSetBase> FilterParameterValueSetBase(bool isOptionDependent, List<ParameterValueSetBase> parameterValueSets)
-    {
-        var filteredParameterValueSets = new List<ParameterValueSetBase>();
-        if(this.OptionSelected != null && isOptionDependent)
-        {
-            filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-        } else
-        {
-            filteredParameterValueSets.AddRange(parameterValueSets);
-        }
-        if(this.StateSelected != null)
-        {
-            var parameterValueSetsToRemove = new List<ParameterValueSetBase>();
-            filteredParameterValueSets.ForEach(p =>
-            {
-                if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                {
-                    parameterValueSetsToRemove.Add(p);
-                }
-            });
-            filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-        }
-
-        return filteredParameterValueSets.OrderBy(p => p.ModelCode());
-    }
-}

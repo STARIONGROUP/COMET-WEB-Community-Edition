@@ -19,27 +19,89 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.IterationServices
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
 
 @page "/ParameterEditor"
 
-<ApplicationTemplate Title="Parameter Editor">
-    <Body>
-        <div class="container-fluid">
-            <div>
-                <div id="parameter-editor-left-container">
-                    @{
-                        foreach (var element in this.ViewModel.FilteredElements)
-                        {
-                            
-                        }
-                    }
-                </div>
-                <div id="parameter-editor-right-container">
+@using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
 
+<ApplicationTemplate Title="Parameter Editor">
+<Body>
+        <div class="container-fluid">
+            <div class="row ">
+@*                <div class="col">
+                    <h6>Filter on Element Usage Name:</h6>
+                    <div class="width-fit-content">
+                        <DxComboBox Data="@Filter(Elements.OrderBy(e => e.Name).ToList())"
+                            TextFieldName="@nameof(ElementBase.Name)"
+                            AllowUserInput="true"
+                            NullText="--Select an Element--"
+                            Value="this.selectedElement"
+                            ValueChanged="@((ElementBase element) => this.selectedElement = element)"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+                    </div>
+                </div>*@
+                <div class="col">
+                    <h6>Filter on Parameter Type:</h6>
+                    <div class="width-fit-content">
+                        <DxComboBox Data="@this.ViewModel.ParameterTypes"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.ViewModel.SelectedParameterType"
+                            ValueChanged="@((ParameterType parameterType) => this.ViewModel.SelectedParameterType = parameterType)"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+                    </div>
+                </div>  
+                @{
+                    var iteration = this.ViewModel.SessionService.DefaultIteration;
+
+                    if (iteration != null && iteration.Option.ToList().Count > 1)
+                    {
+                        var options = iteration.Option.OrderBy(o => o.Name).ToList();
+                        <div class="col">
+                            <h6>Filter on Option:</h6>
+                            <div class="width-fit-content">
+                                <DxComboBox Data="@options"
+                                            AllowUserInput="true"
+                                            Value="this.ViewModel.SelectedOption"
+                                            ValueChanged="@((Option option) => this.ViewModel.SelectedOption = option)"
+                                            FilteringMode="DataGridFilteringMode.Contains"/>
+                            </div>
+                        </div>
+                    }
+                    if (iteration != null && iteration.ActualFiniteStateList.Any())
+                    {
+                        var states = iteration.ActualFiniteStateList.SelectMany(x => x.ActualState);
+
+                        <div class="col">
+                            <h6>Filter on State:</h6>
+                            <DxComboBox Data="@states"
+                                        AllowUserInput="true"
+                                        NullText="--Select--"
+                                        Value="this.ViewModel.SelectedState"
+                                        ValueChanged="@((ActualFiniteState actualState) => this.ViewModel.SelectedState = actualState)"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        FilteringMode="DataGridFilteringMode.Contains"/>
+                        </div>
+                    }
+                }
+            </div>
+@*            <div class="row m-4">
+                <div class="col">
+                    <div class="@BS.Form_Check @BS.Form_Switch">
+                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
+                        <BSLabel IsCheckLabel="true">Only Parameters owned by @this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name domain</BSLabel>
+                    </div>
                 </div>
+            </div>*@
+            <div class="row">
+                <ParameterTable Elements="@this.ViewModel.FilteredElements" 
+                    IsOwnedParameters="@this.ViewModel.IsOwnedParameters"
+                    ParameterTypeSelected="@this.ViewModel.SelectedParameterType" 
+                    OptionSelected="@this.ViewModel.SelectedOption"
+                    StateSelected="@this.ViewModel.SelectedState" />
             </div>
         </div>
     </Body>

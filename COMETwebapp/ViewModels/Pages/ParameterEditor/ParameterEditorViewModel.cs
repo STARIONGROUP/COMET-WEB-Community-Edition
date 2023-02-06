@@ -100,6 +100,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             this.Elements = this.SessionService.DefaultIteration.GetElementsOfIteration().ToList();
             this.SelectedOption = this.SessionService.DefaultIteration.DefaultOption;
             this.ParameterTypes = this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList();
+            this.FilteredElements = this.ApplyFilters(this.Elements).ToList();
         }
 
         /// <summary>
