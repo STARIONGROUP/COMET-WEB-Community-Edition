@@ -30,34 +30,39 @@ namespace COMETwebapp.Components.Viewer.PopUps
     public partial class ConfirmChangeSelectionPopUp
     {
         /// <summary>
-        /// Backing field for the <see cref="IsVisible"/> property
-        /// </summary>
-        private bool isVisible;
-
-        /// <summary>
         /// Gets or sets if the pop up is visible
         /// </summary>
-        public bool IsVisible
-        {
-            get => this.isVisible;
-            set
-            {
-                this.isVisible = value;
-                this.StateHasChanged();
-            }
-        }
+        public bool IsVisible { get; private set; }
 
         /// <summary>
         /// Gets or sets the event for the response when clicked the buttons
         /// </summary>
         public event EventHandler<bool> OnResponse;
 
+        /// <summary> 
+        /// Shows the pop up 
+        /// </summary> 
+        public void Show()
+        {
+            this.IsVisible = true;
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Hides the pop up
+        /// </summary>
+        public void Hide()
+        {
+            this.IsVisible = false;
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
         /// <summary>
         /// Event for when the continue button is clicked
         /// </summary>
         private void ContinueButtonClicked()
         {
-            this.isVisible = false;
+            this.Hide();
             this.OnResponse?.Invoke(this, true);
         }
 
@@ -66,7 +71,7 @@ namespace COMETwebapp.Components.Viewer.PopUps
         /// </summary>
         private void CancelButtonClicked()
         {
-            this.isVisible = false;
+            this.Hide();
             this.OnResponse?.Invoke(this, false);
         }
     }

@@ -43,13 +43,13 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// Gets or sets the orientation parameter type.
         /// </summary>
         [Parameter]
-        public CompoundParameterType? OrientationParameterType { get; set; }
+        public CompoundParameterType OrientationParameterType { get; set; }
 
         /// <summary>
         /// Gets or sets the parent <see cref="DetailsComponent"/>
         /// </summary>
         [Parameter]
-        public DetailsComponent? DetailsComponent { get; set; }
+        public DetailsComponent DetailsComponent { get; set; }
 
         /// <summary>
         /// Gets or sets the angle format. 
@@ -59,7 +59,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Gets or sets the orientation matrix computed by the euler angles.
         /// </summary>
-        public double[]? OrientationMatrix { get; set; } 
+        public double[] OrientationMatrix { get; set; } 
 
         /// <summary>
         /// Gets or sets the rotation around the X axis
@@ -98,7 +98,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 
             if (firstRender)
             {
-                var orientation = this.DetailsComponent.GetValueSet().ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
+                var orientation = this.DetailsComponent.GetSelectedParameterValueSet().ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
                 this.OrientationMatrix = orientation.Matrix;
 
                 this.Rx = orientation.X;
@@ -114,7 +114,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="e">the args of the event</param>
-        public void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
+        private void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
         {
             var valueText = e.Value as string;
 
@@ -143,13 +143,46 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
             this.StateHasChanged();
         }
 
-        /// <summary>
-        /// Event fot when the angle format has changed
-        /// </summary>
-        /// <param name="e">the args of the event</param>
-        public void OnAngleFormatChanged(ChangeEventArgs e)
+        /// <summary> 
+        /// Event for when the matrix values changed 
+        /// </summary> 
+        private void OnMatrixValuesChanged(int index, ChangeEventArgs e)
         {
-            this.AngleFormat = e.Value as string;
+            var valueText = e.Value as string;
+
+            if (double.TryParse(valueText, out var value))
+            {
+                this.OrientationMatrix[index] = value;
+                Enum.TryParse<AngleFormat>(this.AngleFormat, out var enumAngleFormat);
+                var orientation = new Orientation(this.OrientationMatrix, enumAngleFormat);
+                this.Rx = orientation.X;
+                this.Ry = orientation.Y;
+                this.Rz = orientation.Z;
+            }
+
+            for (int i = 0; i < this.OrientationMatrix.Length; i++)
+            {
+                this.DetailsComponent.ParameterChanged(i, this.OrientationMatrix[i].ToString());
+            }
+
+            this.StateHasChanged();
+        }
+
+        /// <summary> 
+        /// Event for when the angle format has changed 
+        /// </summary> 
+        /// <param name="angleFormat"></param> 
+        private void OnAngleFormatChanged(string angleFormat)
+        {
+            this.AngleFormat = angleFormat;
+
+            Enum.TryParse<AngleFormat>(this.AngleFormat, out var enumAngleFormat);
+            var orientation = this.DetailsComponent.GetSelectedParameterValueSet().ParseIValueToOrientation(enumAngleFormat);
+            this.OrientationMatrix = orientation.Matrix;
+
+            this.Rx = orientation.X;
+            this.Ry = orientation.Y;
+            this.Rz = orientation.Z;
         }
     }
 }

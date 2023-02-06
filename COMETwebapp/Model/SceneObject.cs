@@ -70,6 +70,11 @@ namespace COMETwebapp.Model
             }
         }
 
+        /// <summary> 
+        /// Gets or sets if this SceneObject is a clone of other <see cref="SceneObject"/> 
+        /// </summary> 
+        public bool IsClone { get; private set; }
+
         /// <summary>
         /// Gets or sets if the <see cref="Primitive"/> have enough parameters to be created.
         /// </summary>
@@ -79,7 +84,7 @@ namespace COMETwebapp.Model
         /// Gets or sets the element usage that contains the data for creating the <see cref="Primitive"/>
         /// </summary>
         [JsonIgnore]
-        public ElementUsage ElementUsage { get; private set; }
+        public ElementBase ElementBase { get; private set; }
 
         /// <summary>
         /// Gets or sets the selected option for this <see cref="SceneObject"/>
@@ -94,18 +99,18 @@ namespace COMETwebapp.Model
         public List<ActualFiniteState> States { get; private set; }
 
         /// <summary>
-        /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementUsage"/>
+        /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementBase"/>
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<ParameterBase> ParametersAsociated
         {
             get
             {
-                if(this.ElementUsage is null)
+                if(this.ElementBase is null)
                 {
                     return null;
                 }
-                return this.ElementUsage.GetParametersInUse().ToList();
+                return this.ElementBase.GetParametersInUse().ToList();
             }
         }
 
@@ -140,30 +145,32 @@ namespace COMETwebapp.Model
             this.Primitive = primitive;
         }
 
-        /// <summary>
-        /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene.
-        /// </summary>
-        /// <param name="shapeFactory">the factory used to create the primitives</param>
-        /// <param name="elementUsage">the <see cref="ElementUsage"/> that contains the data for creating the <see cref="Primitive"/></param>
-        /// <param name="option">the selected option</param>
-        /// <param name="states">the possible actual finite states</param>
-        /// <returns></returns>
-        public static SceneObject Create(ElementUsage elementUsage, Option option, List<ActualFiniteState> states)
+        /// <summary> 
+        /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene. 
+        /// </summary> 
+        /// <param name="elementBase">the <see cref="ElementBase"/> that contains the data for creating the <see cref="Primitive"/></param> 
+        /// <param name="option">the selected option</param> 
+        /// <param name="states">the possible actual finite states</param> 
+        /// <returns>the <see cref="SceneObject"/></returns> 
+        public static SceneObject Create(ElementBase elementBase, Option option, List<ActualFiniteState> states)
         {
-            var sceneObj = new SceneObject() { ElementUsage = elementUsage, Option = option, States = states };
+            var sceneObj = new SceneObject() { ElementBase = elementBase, Option = option, States = states };
 
             //TODO: this needs a review of how to do it properly.
             var shapeKindParameter = sceneObj.ParametersAsociated.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
-            sceneObj.ParseParameter(shapeKindParameter);
-
-            var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
-            foreach (var parameter in restOfParameters)
+            if (shapeKindParameter is not null)
             {
-                sceneObj.ParseParameter(parameter);
-            }
+                sceneObj.ParseParameter(shapeKindParameter);
 
-            sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+                var restOfParameters = sceneObj.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+                foreach (var parameter in restOfParameters)
+                {
+                    sceneObj.ParseParameter(parameter);
+                }
+
+                sceneObj.CheckIfPrimitiveCanBeCreatedWithAvailableParameters();
+            }
 
             return sceneObj;
         }
@@ -227,7 +234,7 @@ namespace COMETwebapp.Model
         /// Gets the value sets for this <see cref="SceneObject"/>
         /// </summary>
         /// <returns>a collection of <see cref="ParameterBase"/> and its related <see cref="IValueSet"/></returns>
-        public Dictionary<ParameterBase,IValueSet> GetValueSets()
+        public Dictionary<ParameterBase,IValueSet> GetParameterValueSetRelations()
         {
             var collection = new Dictionary<ParameterBase, IValueSet>();
             IValueSet? valueSet = null;
@@ -251,7 +258,15 @@ namespace COMETwebapp.Model
         /// <returns>the clone</returns>
         public SceneObject Clone()
         {
-            return Create(this.ElementUsage, this.Option, this.States);
+            return new SceneObject()
+            {
+                ElementBase = this.ElementBase,
+                Option = this.Option,
+                States = this.States,
+                IsClone = true,
+                PrimitiveCanBeCreated = this.PrimitiveCanBeCreated,
+                Primitive = this.Primitive
+            };
         }
     }
 }

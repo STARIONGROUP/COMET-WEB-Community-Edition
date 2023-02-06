@@ -49,14 +49,7 @@
                     }
                 }
 
-                @if (this.Node.SceneObject.ElementUsage is not null)
-                {
-                    <p class="node-text">@this.Node.SceneObject.ElementUsage.Name</p>
-                }
-                else
-                {
-                    <p class="node-text">Node</p>
-                }
+                <p class="node-text">@this.Node.Title</p>
 
                 @if (this.Node.SceneObjectIsVisible)
                 {

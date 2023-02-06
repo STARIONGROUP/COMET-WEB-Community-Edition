@@ -31,8 +31,10 @@
                 <BSDropdownItem IsActive="this.ShowNodesWithGeometry" OnClick="()=>this.OnFilterChanged(true)">Show Nodes with geometry</BSDropdownItem>
             </Content>
         </BSDropdown>
-        <BSInput InputType="InputType.Text" placeholder="Search" Value="this.SearchValue" @oninput="(e)=>this.OnSearchFilterChange(e)"></BSInput>
+        <BSInput id="tree-search-filter" InputType="InputType.Text" placeholder="Search" Value="this.SearchValue" @oninput="(e)=>this.OnSearchFilterChange(e)"></BSInput>
     </div>
 
-    <NodeComponent Node="@this.RootNode" Level="0"/>
+    <div id="product-tree-nodes-section">
+        <NodeComponent Node="@this.RootNode" Level="0" />
+    </div>
 </div>

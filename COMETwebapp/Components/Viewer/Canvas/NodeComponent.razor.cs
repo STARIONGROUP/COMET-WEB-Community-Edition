@@ -54,6 +54,11 @@ namespace COMETwebapp.Components.Viewer.Canvas
         [Inject]
         public ISelectionMediator SelectionMediator { get; set; }
 
+        /// <summary> 
+        /// Gets or sets if the propagation of the click event should be stopped  
+        /// </summary> 
+        private bool StopClickPropagation { get; set; }
+
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
@@ -77,7 +82,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
             {
                 this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
                 {
-                    if(sender != this)
+                    if(sender != this && this.Node is not null)
                     {
                         this.Node.IsSelected = false;
                         await this.InvokeAsync(() => this.StateHasChanged());
@@ -91,12 +96,13 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// </summary>
         /// <param name="node">the selected <see cref="TreeNode"/></param>
         private void TreeSelectionChanged(TreeNode node)
-        {                       
-            this.SelectionMediator.RaiseOnTreeSelectionChanged(node);
-            if(this.Node == node)
+        {
+            if (!this.StopClickPropagation)
             {
+                this.SelectionMediator?.RaiseOnTreeSelectionChanged(this.Node);
                 this.Node.IsSelected = true;
             }
+            this.StopClickPropagation = false;
         }
 
         /// <summary>
@@ -105,6 +111,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// <param name="node">the selected <see cref="TreeNode"/></param>
         private void TreeNodeVisibilityChanged(TreeNode node)
         {
+            this.StopClickPropagation = true;
             this.SelectionMediator.RaiseOnTreeVisibilityChanged(node);
         }
     }

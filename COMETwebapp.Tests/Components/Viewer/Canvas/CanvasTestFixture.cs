@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.Canvas
 {
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Bunit;
@@ -84,9 +85,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var cube = new Cube(1, 1, 1);
             var sceneObject = new SceneObject(cube);
             var treeNode = new TreeNode(sceneObject);
-            var beforeSelectedObject = canvas.SelectedSceneObject;
+            var beforeSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
-            var afterSelectedObject = canvas.SelectedSceneObject;
+            var afterSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
         }
 
@@ -96,9 +97,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var cube = new Cube(1, 1, 1);
             var sceneObject = new SceneObject(cube);
             var treeNode = new TreeNode(sceneObject);
-            var beforeSelectedObject = canvas.SelectedSceneObject;
+            var beforeSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
-            var afterSelectedObject = canvas.SelectedSceneObject;
+            var afterSelectedObject = canvas.SelectionMediator.SelectedSceneObject;
             Assert.That(beforeSelectedObject, Is.Not.EqualTo(afterSelectedObject));
         }
 
@@ -148,7 +149,40 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var sceneObject = new SceneObject(new Cube(1, 1, 1));
             await canvas.AddSceneObject(sceneObject);
             var retrieved = canvas.GetSceneObjectById(sceneObject.ID);
-            Assert.That(retrieved, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(retrieved, Is.Not.Null);
+                Assert.That(sceneObject, Is.EqualTo(retrieved));
+            });
+        }
+
+        [Test]
+        public async Task VerifyThatGetAllSceneObjectsWorks()
+        {
+            await canvas.ClearSceneObjects();
+
+            var sceneObj1 = new SceneObject(new Cube(1, 1, 1));
+            var sceneObj2 = new SceneObject(new Sphere(1));
+            var sceneObj3 = new SceneObject(new Cone(1, 1));
+
+            await canvas.AddSceneObject(sceneObj1);
+            await canvas.AddSceneObject(sceneObj2);
+            await canvas.AddSceneObject(sceneObj3);
+
+            var primitives = canvas.GetAllSceneObjects();
+
+            Assert.AreEqual(3, primitives.Count);
+
+            var retrieved1 = primitives.Any(x => x == sceneObj1);
+            var retrieved2 = primitives.Any(x => x == sceneObj2);
+            var retrieved3 = primitives.Any(x => x == sceneObj3);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(retrieved1);
+                Assert.IsTrue(retrieved2);
+                Assert.IsTrue(retrieved3);
+            });
         }
     }
 }

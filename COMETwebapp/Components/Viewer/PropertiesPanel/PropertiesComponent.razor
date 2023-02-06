@@ -19,52 +19,34 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@if(this.SelectedSceneObject is not null)
-{
-    <div id="propertiesPanel">
-        @{
-            var title = "Properties";
-            if (this.SelectedSceneObject is not null)
-            {
-                title = this.SelectedSceneObject.ElementUsage.Name + " - Properties:";
+
+<div id="propertiesPanel">
+
+    @if (this.IsVisible)
+    {
+        var title = this.SelectionMediator?.SelectedSceneObject is not null ? this.SelectionMediator?.SelectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
+        var buttonClass = this.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
+
+        <div id="properties-header">
+            <h6>@title</h6>
+            <button @onclick="()=>this.OnSubmit()" class="@buttonClass" disabled="@(!this.ParameterHaveChanges)">Submit</button>
+        </div>
+
+        <div id="parameters-section">
+            @{
+                var parameters = this.ParametersInUse;
+                @foreach (var parameter in parameters)
+                {
+                    var classNames = parameter == this.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
+                    <p class="@classNames" @onclick="()=> this.SelectedParameterChanged(parameter)">@parameter.ParameterType.Name</p>
+                }
             }
+        </div>
+    }
 
-            <div id="properties-title">
-                <h6>@title</h6>
-                <button @onclick="()=>this.OnSubmit()" class="@(this.GetChangedParametersKeyValue().Any()?"submit-button button-blue":"submit-button")">Submit</button>
-            </div>
-        }
-
-        <BSAccordion>
-            <BSAccordionItem AlwaysOpen="true" DefaultShown="true">
-                <Header>Parameters</Header>
-                <Content>
-                    <div id="parameters-section">
-                        @{
-                            if (this.SelectedSceneObject is not null)
-                            {
-                                var parameters = this.ParametersInUse;
-                                @foreach (var parameter in parameters)
-                                {
-                                    if (parameter == this.SelectedParameter)
-                                    {
-                                        <p class="parameter-item parameter-item-selected" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
-                                    }
-                                    else
-                                    {
-                                        <p class="parameter-item" @onclick="()=> this.ParameterChanged(parameter)">@parameter.ParameterType.Name</p>
-                                    }
-                                }
-                            }
-                        }
-
-                    </div>
-                    <h5 id="details-title">Details</h5>
-                    <DetailsComponent @ref=this.DetailsReference ParameterSelected="this.SelectedParameter" SelectedSceneObject="this.SelectedSceneObject"></DetailsComponent>
-                </Content>
-            </BSAccordionItem>
-        </BSAccordion>
-    </div>
-}
-
-
+    <DetailsComponent @ref=this.DetailsReference
+                      ParameterSelected="this.SelectedParameter"
+                      IsVisible="this.IsVisible"
+                      OnParameterValueChanged="this.OnParameterValueChanged">
+    </DetailsComponent>
+</div>

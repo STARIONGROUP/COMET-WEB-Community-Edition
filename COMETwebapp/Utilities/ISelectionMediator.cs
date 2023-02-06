@@ -31,20 +31,35 @@ namespace COMETwebapp.Utilities
     /// </summary>
     public interface ISelectionMediator
     {
+        /// <summary> 
+        /// Gets or sets if the current <see cref="SelectedSceneObject"/> has changes 
+        /// </summary> 
+        public bool SceneObjectHasChanges { get; set; }
+
+        /// <summary> 
+        /// Gets the current selected scene object 
+        /// </summary> 
+        public SceneObject SelectedSceneObject { get; }
+
+        /// <summary> 
+        /// Gets the current selected scene object clone 
+        /// </summary> 
+        public SceneObject SelectedSceneObjectClone { get; }
+
         /// <summary>
         /// Event for when the tree selection has changed
         /// </summary>
-        event EventHandler<TreeNode>? OnTreeSelectionChanged;
+        event EventHandler<TreeNode> OnTreeSelectionChanged;
 
         /// <summary>
         /// Event for when a node in the tree has changed his visibility
         /// </summary>
-        event EventHandler<TreeNode>? OnTreeVisibilityChanged;
+        event EventHandler<TreeNode> OnTreeVisibilityChanged;
 
         /// <summary>
         /// Event for when the model selection has changed
         /// </summary>
-        event EventHandler<SceneObject?>? OnModelSelectionChanged;
+        event EventHandler<SceneObject> OnModelSelectionChanged;
 
         /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
@@ -62,6 +77,6 @@ namespace COMETwebapp.Utilities
         /// Raises the <see cref="OnModelSelectionChanged"/> event
         /// </summary>
         /// <param name="sceneObject"></param>
-        void RaiseOnModelSelectionChanged(SceneObject? sceneObject);
+        void RaiseOnModelSelectionChanged(SceneObject sceneObject);
     }
 }

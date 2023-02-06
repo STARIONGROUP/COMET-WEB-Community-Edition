@@ -29,7 +29,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model;
-
+    using COMETwebapp.Utilities;
     using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
 
@@ -49,34 +49,18 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the <see cref="PrimitiveSelected"/> property
         /// </summary>
-        private Dictionary<ParameterBase, IValueSet> ValueSetsCollection { get; set; }
+        private Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the component is visible
+        /// </summary>
+        [Parameter]
+        public bool IsVisible { get; set; }
 
         /// <summary>
         /// Backing field for the <see cref="parameterSelected"/> property
         /// </summary>
         private ParameterBase parameterSelected;
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedSceneObject"/> property
-        /// </summary>
-        private SceneObject selectedSceneObject;
-
-        /// <summary>
-        /// Gets or sets the selected scene object used for the details panel.
-        /// </summary>
-        [Parameter]
-        public SceneObject SelectedSceneObject
-        {
-            get => this.selectedSceneObject;
-            set
-            {
-                if (this.selectedSceneObject != value)
-                {
-                    this.selectedSceneObject = value;
-                    this.InitValueSet();
-                }
-            }
-        }
 
         /// <summary>
         /// Gets or sets the selected parameter used for the details
@@ -94,14 +78,58 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
             }
         }
 
-        /// <summary>
-        /// Inits the <see cref="ValueSetsCollection"/>
-        /// </summary>
-        private void InitValueSet()
+        /// <summary> 
+        /// Gets or sets the <see cref="ISelectionMediator"/> 
+        /// </summary> 
+        [Inject]
+        public ISelectionMediator SelectionMediator { get; set; }
+
+        /// <summary> 
+        /// Event callback for when a value of the <see cref="ParameterSelected"/> has changed 
+        /// </summary> 
+        [Parameter]
+        public EventCallback OnParameterValueChanged { get; set; }
+
+        /// <summary> 
+        /// Method invoked after each time the component has been rendered. Note that the component does 
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because 
+        /// that would cause an infinite render loop. 
+        /// </summary> 
+        /// <param name="firstRender"> 
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked 
+        /// on this component instance; otherwise <c>false</c>. 
+        /// </param> 
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns> 
+        /// <remarks> 
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods 
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>. 
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed 
+        /// once. 
+        /// </remarks> 
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (this.SelectedSceneObject is not null)
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
             {
-                this.ValueSetsCollection = this.SelectedSceneObject.GetValueSets();
+                this.SelectionMediator.OnTreeSelectionChanged += (sender, node) =>
+                {
+                    this.OnSelectionChanged();
+                };
+                this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
+                {
+                    this.OnSelectionChanged();
+                };
+            }
+        }
+
+        /// <summary> 
+        /// Callback method for when a new <see cref="SceneObject"/> has been selected 
+        /// </summary> 
+        private void OnSelectionChanged()
+        {
+            if (this.SelectionMediator.SelectedSceneObjectClone != null)
+            {
+                this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
             }
         }
 
@@ -109,27 +137,21 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// Gets the <see cref="IValueSet"/> asociated to the <see cref="ParameterSelected"/> property
         /// </summary>
         /// <returns>the set</returns>
-        public IValueSet GetValueSet()
+        public IValueSet GetSelectedParameterValueSet()
         {
-            return this.ValueSetsCollection.ContainsKey(this.ParameterSelected) ? this.ValueSetsCollection[this.ParameterSelected] : null;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="IValueSet"/> asociated to the <paramref name="parameterBase"/>
-        /// </summary>
-        /// <param name="parameterBase">The parameter for the set wants to be retrieved</param>
-        /// <returns>the set</returns>
-        public IValueSet GetValueSet(ParameterBase parameterBase)
-        {
-            return this.ValueSetsCollection[parameterBase];
+            if(this.ParameterValueSetRelations is not null)
+            {
+                return this.ParameterValueSetRelations.ContainsKey(this.ParameterSelected) ? this.ParameterValueSetRelations[this.ParameterSelected] : null;
+            }
+            return null;
         }
 
         /// <summary>
         /// Gets the value sets with the new values
         /// </summary>
-        public Dictionary<ParameterBase, IValueSet> GetAllValueSets()
+        public Dictionary<ParameterBase, IValueSet> GetParameterValueSetRelations()
         {
-            return this.ValueSetsCollection;
+            return this.ParameterValueSetRelations;
         }
 
         /// <summary>
@@ -150,37 +172,46 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// <param name="value">the new value at that <paramref name="changedIndex"/></param>
         public async Task ParameterChanged(int changedIndex, string value)
         {
-            //TODO: Validate data 
-            var valueSet = this.ValueSetsCollection[this.ParameterSelected];
-            var newValueArray = new ValueArray<string>(valueSet.ActualValue);
+            //TODO: Validate data  
+            var valueSet = this.ParameterValueSetRelations[this.ParameterSelected];
+            ValueArray<string> newValueArray = new ValueArray<string>(valueSet.ActualValue);
             newValueArray[changedIndex] = value;
 
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {
                 var clonedValueSetBase = parameterValueSetBase.Clone(false);
                 clonedValueSetBase.Manual = newValueArray;
-                this.ValueSetsCollection[this.ParameterSelected] = clonedValueSetBase;
+                this.ParameterValueSetRelations[this.ParameterSelected] = clonedValueSetBase;
 
-                this.SelectedSceneObject.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
+                this.SelectionMediator?.SelectedSceneObjectClone?.UpdateParameter(this.ParameterSelected, clonedValueSetBase);
 
                 if (this.ParameterSelected.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
                 {
-                    if (this.SelectedSceneObject.Primitive is not null)
+                    if (this.SelectionMediator?.SelectedSceneObjectClone?.Primitive is not null)
                     {
-                        this.SelectedSceneObject.Primitive.HasHalo = true;
+                        this.SelectionMediator.SelectedSceneObjectClone.Primitive.HasHalo = true;
                     }
-
-                    var parameters = this.ValueSetsCollection.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
+                    var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
                     foreach (var parameter in parameters)
                     {
-                        this.SelectedSceneObject.UpdateParameter(parameter, this.ValueSetsCollection[parameter]);
+                        this.SelectionMediator?.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
                     }
                 }
 
-                var jsonSceneObject = JsonConvert.SerializeObject(this.SelectedSceneObject, Formatting.Indented);
+                string jsonSceneObject = JsonConvert.SerializeObject(this.SelectionMediator?.SelectedSceneObjectClone, Formatting.Indented);
                 await this.JSInterop.InvokeVoidAsync("RegenMesh", jsonSceneObject);
             }
+
+            await this.ParameterValueChanged();
+        }
+
+        /// <summary> 
+        /// Calls the eventcallback <see cref="OnParameterValueChanged"/> 
+        /// </summary> 
+        /// <returns>an asynchronous operation</returns> 
+        public async Task ParameterValueChanged()
+        {
+            await this.OnParameterValueChanged.InvokeAsync();
         }
     }
 }

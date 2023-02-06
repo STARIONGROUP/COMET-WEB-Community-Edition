@@ -90,9 +90,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
             if (firstRender)
             {
                 this.ActualFiniteStates = this.ActualFiniteStateList.ActualState.OrderBy(x => x.Name).ToList();
-
                 this.SelectedState = this.ActualFiniteStateList.ActualState.FirstOrDefault(x => x.IsDefault, this.ActualFiniteStateList.ActualState.First());
-
                 await this.InvokeAsync(() => this.StateHasChanged());
             }
         }

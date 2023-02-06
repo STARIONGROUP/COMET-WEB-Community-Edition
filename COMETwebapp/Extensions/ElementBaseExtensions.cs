@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ElementUsageExtensions.cs" company="RHEA System S.A.">
+// <copyright file="ElementBaseExtensions.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -27,10 +27,51 @@ namespace COMETwebapp.Extensions
     using CDP4Common.EngineeringModelData;
 
     /// <summary>
-    /// static extension methods for <see cref="ElementUsage"/>
+    /// static extension methods for <see cref="ElementBase"/>
     /// </summary>
-    public static class ElementUsageExtensions
+    public static class ElementBaseExtensions
     {
+        /// <summary> 
+        /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementBase"/> uses 
+        /// </summary> 
+        /// <param name="elementBase">the element base</param> 
+        /// <returns>a <see cref="IEnumerable{T}"/> with the <see cref="ParameterBase"/></returns> 
+        public static IEnumerable<ParameterBase> GetParametersInUse(this ElementBase elementBase)
+        {
+            var parameters = new List<ParameterBase>();
+
+            if (elementBase is ElementDefinition elementDefinition)
+            {
+                parameters.AddRange(elementDefinition.GetParametersInUse());
+            }
+            else if (elementBase is ElementUsage elementUsage)
+            {
+                parameters.AddRange(elementUsage.GetParametersInUse());
+            }
+
+            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
+        }
+
+        /// <summary> 
+        /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementDefinition"/> uses 
+        /// </summary> 
+        /// <param name="elementDefinition">the element definition</param> 
+        /// <returns>a <see cref="IEnumerable{T}"/> with the <see cref="ParameterBase"/></returns> 
+        public static IEnumerable<ParameterBase> GetParametersInUse(this ElementDefinition elementDefinition)
+        {
+            var parameters = new List<ParameterBase>();
+
+            elementDefinition.Parameter.ForEach(x =>
+            {
+                if (!parameters.Any(par => par.ParameterType.ShortName == x.ParameterType.ShortName))
+                {
+                    parameters.Add(x);
+                }
+            });
+
+            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
+        }
+
         /// <summary>
         /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementUsage"/> uses
         /// </summary>
