@@ -26,13 +26,6 @@ namespace COMETwebapp.Pages.ParameterEditor
 {
     using COMETwebapp.ViewModels.Pages.ParameterEditor;
 
-    using CDP4Common.EngineeringModelData;
-    
-    using CDP4Dal;
-    using CDP4Dal.Events;
-    
-    using COMETwebapp.SessionManagement;
-    
     using Microsoft.AspNetCore.Components;
     
     using ReactiveUI;
@@ -47,10 +40,6 @@ namespace COMETwebapp.Pages.ParameterEditor
         /// </summary>
         [Inject]
         public IParameterEditorViewModel ViewModel { get; set; }
-
-        [Parameter]
-        [SupplyParameterFromQuery]
-        public Guid FilterElementBase { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

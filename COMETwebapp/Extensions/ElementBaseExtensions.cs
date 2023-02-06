@@ -116,5 +116,62 @@ namespace COMETwebapp.Extensions
 
             return filteredElements;
         }
+
+        /// <summary>
+        /// Filters the <param name="elements"/> by the <param name="state"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <param name="state">the state used to filter</param>
+        /// <returns>the filtered elements</returns>
+        public static IEnumerable<ElementBase> FilterByState(this IEnumerable<ElementBase> elements, ActualFiniteState state)
+        {
+            var filteredElements = new List<ElementBase>();
+
+            foreach (var element in elements)
+            {
+                if (element is ElementDefinition elementDefinition)
+                {
+                    elementDefinition.Parameter.ForEach(p =>
+                    {
+                        p.ValueSet.ForEach(v =>
+                        {
+                            if (v.ActualState != null && v.ActualState == state)
+                            {
+                                filteredElements.Add(element);
+                            }
+                        });
+                    });
+                }
+                else if (element is ElementUsage elementUsage)
+                {
+                    if (!elementUsage.ParameterOverride.Any())
+                    {
+                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
+                        {
+                            p.ValueSet.ForEach(v =>
+                            {
+                                if (v.ActualState != null && v.ActualState == state)
+                                {
+                                    filteredElements.Add(element);
+                                }
+                            });
+                        });
+                    }
+
+                    elementUsage.ElementDefinition.Parameter.ForEach(p =>
+                    {
+                        p.ValueSet.ForEach(v =>
+                        {
+                            if (v.ActualState != null && v.ActualState == state)
+                            {
+                                filteredElements.Add(element);
+                            }
+                        });
+                    });
+                }
+            }
+
+            return filteredElements;
+        }
     }
 }

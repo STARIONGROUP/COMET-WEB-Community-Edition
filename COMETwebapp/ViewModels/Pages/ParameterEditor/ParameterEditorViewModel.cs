@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Extensions;
+    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
 
@@ -55,6 +56,11 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         public ISessionService SessionService { get; set; }
 
         /// <summary>
+        /// The selected <see cref="ElementBase"/> to filter
+        /// </summary>
+        public ElementBase SelectedElement { get; set; }
+
+        /// <summary>
         /// All <see cref="ElementBase"/> of the iteration without filtering
         /// </summary>
         public List<ElementBase> Elements { get; set; } = new();
@@ -63,7 +69,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
         public SourceList<ElementBase> FilteredElements { get; set; } = new();
-        
+
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
@@ -129,7 +135,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// All ParameterType names in the model
         /// </summary>
         public List<ParameterType> ParameterTypes { get; set; } = new();
-
+        
         /// <summary>
         /// Creates a new instance of <see cref="ParameterEditorViewModel"/>
         /// </summary>
@@ -234,7 +240,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             {
                 return elements;
             }
-            
+
             var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(this.selectedOptionFilterFilter);
 
             var associatedElements = new List<ElementUsage>();
