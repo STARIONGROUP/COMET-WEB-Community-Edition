@@ -26,9 +26,15 @@ namespace COMETwebapp.Tests.Pages.Viewer
 {
     using Bunit;
 
+    using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.Model;
     using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Pages.Viewer;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -51,18 +57,41 @@ namespace COMETwebapp.Tests.Pages.Viewer
         public void SetUp()
         {
             this.context = new TestContext();
+            this.context.ConfigureDevExpressBlazor();
+
+            var selectionMediator = new Mock<ISelectionMediator>();
+
             this.viewerViewModel = new Mock<IViewerViewModel>();
+            var rootNodeVM = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), selectionMediator.Object);
+            this.viewerViewModel.Setup(x => x.RootNodeViewModel).Returns(rootNodeVM);
             this.context.Services.AddSingleton(this.viewerViewModel.Object);
 
             var canvasViewModel = new Mock<ICanvasViewModel>();
             this.context.Services.AddSingleton(canvasViewModel.Object);
 
-            this.context.Services.AddSingleton<ISessionService, SessionService>();
+            var sessionService = new Mock<ISessionService>();
+            sessionService.Setup(x => x.DefaultIteration).Returns(new Iteration());
+            this.context.Services.AddSingleton(sessionService.Object);
+
+            var productTreeVM = new Mock<IProductTreeViewModel>();
+            this.context.Services.AddSingleton(productTreeVM.Object);
+
+            var propertiesVM = new Mock<IPropertiesComponentViewModel>();
+            this.context.Services.AddSingleton(propertiesVM.Object);
+
+            var actualFiniteStateSelectorVM = new Mock<IActualFiniteStateSelectorViewModel>();
+            this.context.Services.AddSingleton(actualFiniteStateSelectorVM.Object);
 
             this.renderedComponent = this.context.RenderComponent<ViewerPage>();
             this.viewer = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+        
         [Test]
         public void VerifyComponent()
         {

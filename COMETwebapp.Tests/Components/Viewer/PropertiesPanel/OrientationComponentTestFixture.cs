@@ -48,11 +48,14 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     {
         private TestContext context;
         private OrientationComponent orientation;
+        private IRenderedComponent<OrientationComponent> renderedComponent;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
             this.context.JSInterop.SetupVoid("DxBlazor.ScrollViewer.loadModule");
             this.context.Services.AddDevExpressBlazor();
 
@@ -60,12 +63,12 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             orientationViewModel.Setup(x => x.AngleFormats).Returns(new List<AngleFormat>() { AngleFormat.Degrees, AngleFormat.Radians });
             orientationViewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "0", "0", "0", }));
             
-            var renderedComponent = this.context.RenderComponent<OrientationComponent>(parameters =>
+            this.renderedComponent = this.context.RenderComponent<OrientationComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, orientationViewModel.Object);
             });
 
-            this.orientation = renderedComponent.Instance;
+            this.orientation = this.renderedComponent.Instance;
         }
 
         [TearDown]
@@ -87,13 +90,21 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         [Test]
         public void VerifyThatEulerTabIsSelected()
         {
-
+            var component = this.renderedComponent.Find(".euler-tab");
+            component.Click();
+            var eulerTab = this.renderedComponent.Find("#euler-orientation-tab");
+            
+            Assert.That(eulerTab, Is.Not.Null);
         }
 
         [Test]
         public void VerifyThatMatrixTabIsSelected()
         {
+            var component = this.renderedComponent.Find(".matrix-tab");
+            component.Click();
+            var matrixTab = this.renderedComponent.Find("#matrix-orientation-tab");
 
+            Assert.That(matrixTab, Is.Not.Null);
         }
     }
 }
