@@ -72,8 +72,8 @@ namespace COMETwebapp.Components.Viewer.Canvas
             if (firstRender)
             {
                 this.ViewModel.RootViewModel = this.RootViewModel;
-                //this.WhenAnyValue(x => x.ViewModel.SelectedFilter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-                //this.WhenAnyValue(x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.SelectedFilter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
         }
     }

@@ -25,9 +25,13 @@
 namespace COMETwebapp.Components.Viewer.Canvas
 {
     using CDP4Common.EngineeringModelData;
+    
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    
     using Microsoft.AspNetCore.Components;
+    
     using ReactiveUI;
+    
     using System.Threading.Tasks;
 
     /// <summary>
@@ -77,6 +81,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
                 this.ViewModel.ActualFiniteStateListsCollection = this.ActualFiniteStateListsCollection;
                 this.ViewModel.InitializeViewModel();
                 this.WhenAnyValue(x=>x.ViewModel.SelectedStates).Subscribe(states=> this.OnActualFiniteStateChanged.InvokeAsync(states));               
+                this.StateHasChanged();
             }
         }
     }

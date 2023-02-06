@@ -26,16 +26,12 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 {
     using System.Threading.Tasks;
 
-    using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp.Enumerations;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     
     using Microsoft.AspNetCore.Components;
+    
     using ReactiveUI;
-
+    
     /// <summary>
     /// The component used to change the orientation of the selected mesh.
     /// </summary>
@@ -63,7 +59,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
         /// once.
         /// </remarks>
-        protected async override Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
 

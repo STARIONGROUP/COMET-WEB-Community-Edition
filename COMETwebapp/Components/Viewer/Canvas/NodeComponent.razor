@@ -20,7 +20,7 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @{
-    @if (this.ViewModel.Node is null)
+    @if (this.ViewModel is null || this.ViewModel.Node is null)
     {
         return;
     }

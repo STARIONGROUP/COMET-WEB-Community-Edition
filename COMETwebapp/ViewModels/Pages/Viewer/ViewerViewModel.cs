@@ -172,11 +172,14 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// <param name="productTreeElements">the product tree elements</param>
         private void CreateTree(IEnumerable<ElementBase> productTreeElements)
         {
-            var topElement = productTreeElements.First();
-            var topSceneObject = SceneObject.Create(topElement, this.SelectedOption, this.SelectedActualFiniteStates);
-            this.RootNodeViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
-            this.CreateTreeRecursively(topElement, this.RootNodeViewModel, null);
-            this.RootNodeViewModel.OrderAllDescendantsByShortName();
+            if (productTreeElements.Any())
+            {
+                var topElement = productTreeElements.First();
+                var topSceneObject = SceneObject.Create(topElement, this.SelectedOption, this.SelectedActualFiniteStates);
+                this.RootNodeViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
+                this.CreateTreeRecursively(topElement, this.RootNodeViewModel, null);
+                this.RootNodeViewModel.OrderAllDescendantsByShortName();
+            }
         }
 
         /// <summary>

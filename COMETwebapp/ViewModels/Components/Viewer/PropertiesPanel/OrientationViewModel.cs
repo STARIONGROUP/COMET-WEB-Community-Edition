@@ -76,6 +76,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
 
         /// <summary>
+        /// Gets all the possible <see cref="AngleFormat"/>
+        /// </summary>
+        public IEnumerable<AngleFormat> AngleFormats { get; } = Enum.GetValues(typeof(AngleFormat)).Cast<AngleFormat>();
+
+        /// <summary>
         /// Creates a new instance of type <see cref="Orientation"/>
         /// </summary>
         /// <param name="currentValueSet">the current value set that's being changed</param>

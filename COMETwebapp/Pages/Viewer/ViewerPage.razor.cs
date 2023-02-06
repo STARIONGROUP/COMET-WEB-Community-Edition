@@ -27,13 +27,10 @@ namespace COMETwebapp.Pages.Viewer
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.SessionManagement;
-    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Pages.Viewer;
-    
+
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -50,7 +47,7 @@ namespace COMETwebapp.Pages.Viewer
         /// <summary>
         /// The reference to the <see cref="CanvasComponent"/> component
         /// </summary>
-        private CanvasComponent CanvasComponent { get; set; }
+        public CanvasComponent CanvasComponent { get; private set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does

@@ -125,6 +125,16 @@ namespace COMETwebapp.Services.Interoperability
         }
 
         /// <summary>
+        /// Regenerates the <see cref="SceneObject"/> updating the mesh on scene
+        /// </summary>
+        /// <param name="sceneObject">the <see cref="SceneObject"/> to regenerate</param>
+        public async Task RegenerateMesh(SceneObject sceneObject)
+        {
+            var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
+            await this.JsRuntime.InvokeVoidAsync("RegenMesh", sceneObjectJson);
+        }
+
+        /// <summary>
         /// Tries to get the <see cref="SceneObject.ID"/> that's under the mouse cursor.
         /// </summary>
         /// <returns></returns>

@@ -30,10 +30,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.Model;
     
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
     
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.Interoperability;
 
     /// <summary>
     /// Interface for the <see cref="PropertiesComponentViewModel"/>
@@ -58,8 +58,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Gets or sets the property used for the Interoperability
         /// </summary>
-        IJSRuntime JsInterop { get; set; }
-        
+        IBabylonInterop BabylonInterop { get; set; }
+
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the selected <see cref="SceneObject"/>
         /// </summary>

@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
@@ -46,7 +47,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     {
         private TestContext context;
         private IPropertiesComponentViewModel viewModel;
-        private Mock<IJSRuntime> jsRuntime;
+        private Mock<IBabylonInterop> babylonInterop;
         private Mock<IIterationService> iteratioService;
         private Mock<ISessionService> sessionService;
         private Mock<ISelectionMediator> selectionMediator;
@@ -59,11 +60,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             this.context.Services.AddSingleton<ISelectionMediator>(selectionMediator);
 
             this.selectionMediator = new Mock<ISelectionMediator>();
-            this.jsRuntime = new Mock<IJSRuntime>();
+            this.babylonInterop = new Mock<IBabylonInterop>();
             this.iteratioService = new Mock<IIterationService>();
             this.sessionService = new Mock<ISessionService>();
 
-            this.viewModel = new PropertiesComponentViewModel(this.jsRuntime.Object, this.iteratioService.Object, this.sessionService.Object, selectionMediator);
+            this.viewModel = new PropertiesComponentViewModel(this.babylonInterop.Object, this.iteratioService.Object, this.sessionService.Object, selectionMediator);
         }
 
         [Test]
@@ -71,7 +72,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.JsInterop, Is.Not.Null);
+                Assert.That(this.viewModel.BabylonInterop, Is.Not.Null);
                 Assert.That(this.viewModel.IterationService, Is.Not.Null);
                 Assert.That(this.viewModel.SessionService, Is.Not.Null);
                 Assert.That(this.viewModel.SelectionMediator, Is.Not.Null);

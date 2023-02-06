@@ -77,6 +77,12 @@ namespace COMETwebapp.Services.Interoperability
         Task SetVisibility(SceneObject sceneObject, bool visibility);
 
         /// <summary>
+        /// Regenerates the <see cref="SceneObject"/> updating the mesh on scene
+        /// </summary>
+        /// <param name="sceneObject">the <see cref="SceneObject"/> to regenerate</param>
+        Task RegenerateMesh(SceneObject sceneObject);
+
+        /// <summary>
         /// Tries to get the <see cref="SceneObject.ID"/> that's under the mouse cursor.
         /// </summary>
         /// <returns></returns>

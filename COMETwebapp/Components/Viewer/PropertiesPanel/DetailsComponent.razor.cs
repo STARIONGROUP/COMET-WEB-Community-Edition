@@ -32,7 +32,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     using ReactiveUI;
 
     /// <summary>
-    /// The component used for showing the details of the <see cref="PrimitiveSelected"/>
+    /// The component used for showing the details of the current selected <see cref="SceneObject"/>
     /// </summary>
     public partial class DetailsComponent
     {

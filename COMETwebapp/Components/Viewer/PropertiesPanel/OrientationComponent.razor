@@ -25,13 +25,12 @@ along with this program. If not, see http://www.gnu.org/licenses/.
     <DxTabPage Text="Euler">
         <div id="orientation-tab-content">
             @{
-                var data = Enum.GetValues(typeof(Enumerations.AngleFormat)).Cast<Enumerations.AngleFormat>();
                 <div class="angle-selector">
-                    <DxComboBox Data="data"
+                    <DxComboBox Data="this.ViewModel.AngleFormats"
                                 NullText="-"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
                                 Value="@this.ViewModel.AngleFormat"
-                                ValueChanged="@((Enumerations.AngleFormat value)=>this.ViewModel.OnAngleFormatChanged(value))" />
+                                ValueChanged="@((AngleFormat value)=>this.ViewModel.OnAngleFormatChanged(value))" />
                 </div>
                 <div class="parameter-row">
                     <p>Rx:</p>

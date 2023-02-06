@@ -24,19 +24,15 @@
 
 namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using COMETwebapp.Components.Viewer.PopUps;
-    using COMETwebapp.Model;
-    using COMETwebapp.Utilities;
+    using System.Threading.Tasks;
+ 
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
-    using Microsoft.JSInterop;
-
-    using Newtonsoft.Json;
-    using System.Threading.Tasks;
-
+    
     /// <summary>
-    /// Support class for the <see cref="CanvasComponent.razor"/>
+    /// Support class for the <see cref="CanvasComponent"/>
     /// </summary>
     public partial class CanvasComponent
     {

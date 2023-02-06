@@ -49,13 +49,16 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     [TestFixture]
     public class ActualFiniteStateSelectorComponentTestFixture
     {
-        private ActualFiniteStateSelectorComponent actualFiniteStateSelectorComponent;
-
         private TestContext context;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private Uri uri = new Uri("http://www.rheagroup.com");
         private IRenderedComponent<ActualFiniteStateSelectorComponent> rendererComponent;
         private IActualFiniteStateSelectorViewModel viewModel;
+        private ActualFiniteState actualFiniteState1;
+        private ActualFiniteState actualFiniteState2;
+        private ActualFiniteState actualFiniteState3;
+        private ActualFiniteState actualFiniteState4;
+        private List<ActualFiniteStateList> collectionOfActualFiniteStateLists;
 
         [SetUp]
         public void SetUp()
@@ -68,29 +71,75 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.context.Services.AddBlazorStrap();
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
 
-            var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            var possibleFiniteState1 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState1.PossibleState.Add(possibleFiniteState1);
+
+            var possibleFiniteState2 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState2.PossibleState.Add(possibleFiniteState2);
+
+            var possibleFiniteStateList1 = new PossibleFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
+            possibleFiniteStateList1.PossibleState.Add(possibleFiniteState1);
+            possibleFiniteStateList1.PossibleState.Add(possibleFiniteState2);
+            possibleFiniteStateList1.DefaultState = possibleFiniteState1;
+
             var actualFiniteStateList1 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
-            actualFiniteStateList1.ActualState.Add(actualFiniteState1);
-            actualFiniteStateList1.ActualState.Add(actualFiniteState2);
+            actualFiniteStateList1.ActualState.Add(this.actualFiniteState1);
+            actualFiniteStateList1.ActualState.Add(this.actualFiniteState2);
+            actualFiniteStateList1.PossibleFiniteStateList.Add(possibleFiniteStateList1);
 
-            var actualFiniteState3 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var actualFiniteState4 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            var possibleFiniteState3 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState3 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState3.PossibleState.Add(possibleFiniteState3);
+
+            var possibleFiniteState4 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState4 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
+            this.actualFiniteState4.PossibleState.Add(possibleFiniteState4);
+
+            var possibleFiniteStateList2 = new PossibleFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
+            possibleFiniteStateList2.PossibleState.Add(possibleFiniteState3);
+            possibleFiniteStateList2.PossibleState.Add(possibleFiniteState4);
+            possibleFiniteStateList2.DefaultState = possibleFiniteState3;
+
             var actualFiniteStateList2 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
-            actualFiniteStateList2.ActualState.Add(actualFiniteState3);
-            actualFiniteStateList2.ActualState.Add(actualFiniteState4);
+            actualFiniteStateList2.ActualState.Add(this.actualFiniteState3);
+            actualFiniteStateList2.ActualState.Add(this.actualFiniteState4);
+            actualFiniteStateList2.PossibleFiniteStateList.Add(possibleFiniteStateList2);
 
-            var listOfActualStateList = new List<ActualFiniteStateList>() { actualFiniteStateList1, actualFiniteStateList2 };
-            this.viewModel.ActualFiniteStateListsCollection = listOfActualStateList;
-
-            this.rendererComponent = this.context.RenderComponent<ActualFiniteStateSelectorComponent>();
+            this.collectionOfActualFiniteStateLists = new List<ActualFiniteStateList>() { actualFiniteStateList1, actualFiniteStateList2 };
+            
+            this.rendererComponent = this.context.RenderComponent<ActualFiniteStateSelectorComponent>(parameters =>
+            {
+                parameters.Add(p => p.ActualFiniteStateListsCollection, this.collectionOfActualFiniteStateLists);
+            });
         }
 
         [Test]
         public void VerifyThatActualStateCanBeClicked()
         {
             var actualFiniteState = this.rendererComponent.Find(".actual-finite-state");
+            Assert.That(actualFiniteState, Is.Not.Null);
             actualFiniteState.Click();
+        }
+
+        [Test]
+        public void VerifyOnActualFiniteStateSelected()
+        {
+            var previousStates = this.viewModel.SelectedStates;
+            this.viewModel.OnActualFiniteStateSelected(this.actualFiniteState2);
+            Assert.That(previousStates, Is.Not.EquivalentTo(this.viewModel.SelectedStates));
+        }
+
+        [Test]
+        public void VerifyThatViewModelCanBeInitialized()
+        {
+            var previousStates = this.viewModel.SelectedStates;
+            this.viewModel.ActualFiniteStateListsCollection.Clear();
+            Assert.DoesNotThrow(() => this.viewModel.InitializeViewModel());
+            this.viewModel.ActualFiniteStateListsCollection = this.collectionOfActualFiniteStateLists;
+            Assert.DoesNotThrow(() => this.viewModel.InitializeViewModel());
+            Assert.That(previousStates, Is.Not.EquivalentTo(this.viewModel.SelectedStates));
         }
     }
 }

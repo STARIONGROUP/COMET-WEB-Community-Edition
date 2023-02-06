@@ -62,6 +62,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
 
         /// <summary>
+        /// Gets all the possible <see cref="AngleFormat"/>
+        /// </summary>
+        public IEnumerable<AngleFormat> AngleFormats { get; } 
+
+        /// <summary>
         /// Event for when the euler angles changed
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>

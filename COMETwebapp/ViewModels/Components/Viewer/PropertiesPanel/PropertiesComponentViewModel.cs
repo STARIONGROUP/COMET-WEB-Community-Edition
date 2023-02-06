@@ -34,14 +34,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.IterationServices;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
-    using DevExpress.XtraPrinting.Native;
+
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
-    
-    using Newtonsoft.Json;
     
     using ReactiveUI;
 
@@ -72,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// Gets or sets the property used for the Interoperability
         /// </summary>
         [Inject]
-        public IJSRuntime JsInterop { get; set; }
+        public IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
         /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the selected <see cref="SceneObject"/>
@@ -148,13 +146,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Creates a new instance of type <see cref="PropertiesComponentViewModel"/>
         /// </summary>
-        /// <param name="jsRuntime">the <see cref="IJSRuntime"/></param>
+        /// <param name="babylonInterop">the <see cref="IBabylonInterop"/></param>
         /// <param name="iterationService">the <see cref="IIterationService"/></param>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
         /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
-        public PropertiesComponentViewModel(IJSRuntime jsRuntime, IIterationService iterationService, ISessionService sessionService, ISelectionMediator selectionMediator)
+        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, IIterationService iterationService, ISessionService sessionService, ISelectionMediator selectionMediator)
         {
-            this.JsInterop = jsRuntime;
+            this.BabylonInterop = babylonInterop;
             this.IterationService = iterationService;
             this.SessionService = sessionService;
             this.SelectionMediator = selectionMediator;
@@ -278,9 +276,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                         this.SelectionMediator?.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
                     }
                 }
-
-                var jsonSceneObject = JsonConvert.SerializeObject(this.SelectionMediator?.SelectedSceneObjectClone, Formatting.Indented);
-                await this.JsInterop.InvokeVoidAsync("RegenMesh", jsonSceneObject);
+                
+                await this.BabylonInterop.RegenerateMesh(this.SelectionMediator?.SelectedSceneObjectClone);
             }
         }
 
