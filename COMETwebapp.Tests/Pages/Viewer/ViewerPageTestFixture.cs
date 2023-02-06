@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Pages
     
     using COMETwebapp.IterationServices;
     using COMETwebapp.Pages.Viewer;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
     
@@ -54,7 +55,7 @@ namespace COMETwebapp.Tests.Pages
     {
         private TestContext context;
         private IRenderedComponent<ViewerPage> renderedComponent;
-        private Mock<ISessionAnchor> sessionAnchorMock;
+        private Mock<ISessionService> sessionAnchorMock;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private Uri uri = new Uri("http://www.rheagroup.com");
         private ViewerPage viewerPage;
@@ -70,7 +71,7 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddBlazorStrap();
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
 
-            this.sessionAnchorMock = new Mock<ISessionAnchor>();
+            this.sessionAnchorMock = new Mock<ISessionService>();
             var iteration = new Iteration(Guid.NewGuid(), this.cache, this.uri);
             this.option1 = new Option(Guid.NewGuid(), this.cache, this.uri) { Name = "Option1" };
             this.option2 = new Option(Guid.NewGuid(), this.cache, this.uri) { Name = "Option2" };
@@ -129,9 +130,9 @@ namespace COMETwebapp.Tests.Pages
             iteration.ActualFiniteStateList.Add(this.actualFiniteStateList1);
             iteration.ActualFiniteStateList.Add(this.actualFiniteStateList2);
 
-            this.sessionAnchorMock.Setup(x => x.OpenIteration).Returns(iteration);
+            this.sessionAnchorMock.Setup(x => x.DefaultIteration).Returns(iteration);
 
-            this.context.Services.AddSingleton<ISessionAnchor>(this.sessionAnchorMock.Object);
+            this.context.Services.AddSingleton<ISessionService>(this.sessionAnchorMock.Object);
             this.context.Services.AddSingleton<IIterationService, IterationService>();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
