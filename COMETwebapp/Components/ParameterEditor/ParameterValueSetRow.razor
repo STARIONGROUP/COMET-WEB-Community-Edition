@@ -36,14 +36,14 @@ Copyright (c) 2023 RHEA System S.A.
 {
     var modelCode = this.ParameterValueSet.ModelCode().Split("\\");
     var colorToApply = string.Empty;
-    if (this.isParameterValueSetEdited == true)
+    if (this.IsParameterValueSetEdited == true)
     {
         colorToApply = "color-title";
     }
     var valueSwitchToShow = this.ParameterValueSet.ValueSwitch;
-    if(this.selectedSwitchKind != null)
+    if(this.SelectedSwitchKind != null)
     {
-        valueSwitchToShow = (ParameterSwitchKind) Enum.Parse(typeof(ParameterSwitchKind), this.selectedSwitchKind);
+        valueSwitchToShow = (ParameterSwitchKind) Enum.Parse(typeof(ParameterSwitchKind), this.SelectedSwitchKind);
     }
     <BSTR AlignRow="AlignRow.Middle">
         <BSTD Class="width-10">
@@ -111,7 +111,7 @@ Copyright (c) 2023 RHEA System S.A.
                     Value="@ParameterValueSet.Published.First()" 
                     Scale="@Parameter.Scale" 
                     ValueType="@Parameter.ParameterType.GetType()"
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
             </BSTD>
             @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
             {
@@ -123,7 +123,7 @@ Copyright (c) 2023 RHEA System S.A.
                                     Value="@ParameterValueSet.Computed.First()" 
                                     Scale="@Parameter.Scale" 
                                     ValueType="@Parameter.ParameterType.GetType()"
-                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
@@ -150,7 +150,7 @@ Copyright (c) 2023 RHEA System S.A.
                                     EnumerationValueDefinitions="@enumerationValueDefinitions"
                                     ParameterValueSet="@ParameterValueSet" 
                                     IndexInValueSet="0" IsManualEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
@@ -177,7 +177,7 @@ Copyright (c) 2023 RHEA System S.A.
                                     ValueType="@Parameter.ParameterType.GetType()"
                                     EnumerationValueDefinitions="@enumerationValueDefinitions"
                                     IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
@@ -198,7 +198,7 @@ Copyright (c) 2023 RHEA System S.A.
                 <ArrayParameter 
                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
                     Values="@ParameterValueSet.Published" 
-                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
             </BSTD>
             @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
             {
@@ -209,7 +209,7 @@ Copyright (c) 2023 RHEA System S.A.
                                 <ArrayParameter 
                                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
                                     Values="@ParameterValueSet.Computed" 
-                                    IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
@@ -235,7 +235,7 @@ Copyright (c) 2023 RHEA System S.A.
                                         ParameterValueSet="@ParameterValueSet" 
                                         IndexStartInValueSet="0" 
                                         IsManualEditable="@IsEditable()" 
-                                        IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                                        IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip 
@@ -261,7 +261,7 @@ Copyright (c) 2023 RHEA System S.A.
                                     ParameterValueSet="@ParameterValueSet" 
                                     IndexStartInValueSet="0" 
                                     IsReferenceEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip 
@@ -296,7 +296,7 @@ Copyright (c) 2023 RHEA System S.A.
                                 IndexStartInParameterTypeComponent="indexStart" 
                                 Values="@ParameterValueSet.Published" 
                                 Component="component" 
-                                IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
                         }
                     </div>                                                
                 </BSTD>
@@ -319,7 +319,7 @@ Copyright (c) 2023 RHEA System S.A.
                                                 IndexStartInParameterTypeComponent="indexStart" 
                                                 Values="@ParameterValueSet.Computed" 
                                                 Component="component" 
-                                                IsParameterValueSetEdited="@isParameterValueSetEdited"/>
+                                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
                                         }
                                     </div>     
                                 </div>
@@ -356,7 +356,7 @@ Copyright (c) 2023 RHEA System S.A.
                                                 Component="component" 
                                                 ParameterValueSet="@ParameterValueSet" 
                                                 IsManualEditable="@IsEditable()" 
-                                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                                         }
                                     </div>                                               
                                 </div>
@@ -393,7 +393,7 @@ Copyright (c) 2023 RHEA System S.A.
                                                 Component="component" 
                                                 ParameterValueSet="@ParameterValueSet" 
                                                 IsReferenceEditable="@IsEditable()" 
-                                                IsParameterValueSetEdited="@isParameterValueSetEdited" />
+                                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                                         }
                                     </div>
                                 </div>
