@@ -20,84 +20,59 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
-@inject NavigationManager NavigationManager
 
-<div class="row">
-    <div class="col">
-        <div class="row">
-            <div class="col-9">
-                <h3 class="text-align-end">Published Parameters</h3>
-            </div>
-            <div class="col text-align-start p-0">
-                <Tooltip MarginBottom="bottom-60" Text="Publishable parameter : current value not equal to published value">
-                    <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
-                </Tooltip>
-            </div>
-        </div>
-        @if(this.Data != null)
-        {
-            var publishedValues = Math.Round((double)this.Data.FindAll(d => d.Published.SequenceEqual(d.ActualValue)).Count * 100 / this.Data.Count);
-            var publishableValues = 100 - publishedValues;
-            <div class="row m-0">
-                <BSProgress Class="height-30px">
-                    <BSProgressBar IsStriped="true" Class="taskdone" Value="publishedValues">
-                        @publishedValues %
-                    </BSProgressBar>
-                    <BSProgressBar IsStriped="true" Color="BSColor.Danger" Value="publishableValues">
-                        @publishableValues %
-                    </BSProgressBar>
-                </BSProgress>
-            </div>
+@if (this.ValueSets.Any())
+{
+	<div class="row">
+		<div class="col">
+			<div class="row">
+				<div class="col-9">
+					<h3 class="text-align-end">Published Parameters</h3>
+				</div>
+				<div class="col text-align-start p-0">
+					<Tooltip MarginBottom="bottom-60" Text="Publishable parameter : current value not equal to published value">
+						<button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
+					</Tooltip>
+				</div>
+			</div>
+			@{
+				var publishedValues = Math.Round((double)this.ValueSets.Count(d => d.Published.SequenceEqual(d.ActualValue))) * 100 / this.ValueSets.Count();
+				var publishableValues = 100 - publishedValues;
+				<div class="row m-0">
+					<AntDesign.Progress Percent="publishedValues"></AntDesign.Progress>
+					<AntDesign.Progress Percent="publishableValues" StrokeColor="HaveChartData.WarningColor"></AntDesign.Progress>
+				</div>
 
-            <ToDoTable ParameterValueSets="this.Data?.FindAll(d => !d.Published.SequenceEqual(d.ActualValue))"/>
-        }
+				<ToDoTable ParameterValueSets="this.ValueSets.Where(d => !d.Published.SequenceEqual(d.ActualValue))"/>
+			}
 
-    </div>
-    <div class="col">
-        <div class="row">
-            <div class="col-8">
-                <h3 class="text-align-end">Missing Values</h3>
-            </div>
-            <div class="col text-align-start p-0">
-                <Tooltip MarginBottom="bottom-60" Text="Missing Values = Published Values with Default Value '-'">
-                    <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
-                </Tooltip>
-            </div>
-        </div>
-        @if(this.Data != null)
-        {
-            var defaultValues = Math.Round((double)this.Data.FindAll(d => d.ActualValue.Count(el => !el.Equals("-")) == 0).Count * 100 / this.Data.Count);
-            var notDefaultValues = 100 - defaultValues;
-            var parameterValueSets = this.Data.FindAll(d => d.ActualValue.Count(el => !el.Equals("-")) == 0);
-            <div class="row m-0">
-                <BSProgress Class="height-30px">
-                    <BSProgressBar IsStriped="true" Class="taskdone" Value="notDefaultValues">
-                        @notDefaultValues %
-                    </BSProgressBar>
-                    <BSProgressBar IsStriped="true" Color="BSColor.Danger" Value="defaultValues">
-                        @defaultValues %
-                    </BSProgressBar>
-                </BSProgress>
-            </div>
+		</div>
+		<div class="col">
+			<div class="row">
+				<div class="col-8">
+					<h3 class="text-align-end">Missing Values</h3>
+				</div>
+				<div class="col text-align-start p-0">
+					<Tooltip MarginBottom="bottom-60" Text="Missing Values = Published Values with Default Value '-'">
+						<button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
+					</Tooltip>
+				</div>
+			</div>
+			@{
+				var defaultValues = Math.Round((double)this.ValueSets.Count(d => d.ActualValue.Count(el => !el.Equals("-")) == 0) * 100 / this.ValueSets.Count());
+				var notDefaultValues = 100 - defaultValues;
+				var parameterValueSets = this.ValueSets.Where(d => d.ActualValue.Count(el => !el.Equals("-")) == 0);
+				<div class="row m-0">
+					<AntDesign.Progress Percent="notDefaultValues"></AntDesign.Progress>
+					<AntDesign.Progress Percent="defaultValues" StrokeColor="HaveChartData.WarningColor"></AntDesign.Progress>
+				</div>
             
-            <button class="todo-btn" @onclick="@(() => this.NavigationManager.NavigateTo($"/ParameterEditor?filteroption={this.FilterOption}"))">
-                <ToDoTable ParameterValueSets="@parameterValueSets"/>
-            </button>
-        }
-    </div>
-</div>
-
-@code {
-    /// <summary>
-    /// <see cref="ParameterValueSetBase">s owned by the active domain 
-    /// </summary>
-    [Parameter]
-    public List<ParameterValueSetBase>? Data { get; set; }
-
-    /// <summary>
-    /// <see cref="Guid"> of the option to filter the data 
-    /// </summary>
-    [Parameter]
-    public Guid? FilterOption { get; set; }
-
+				<button class="todo-btn" @onclick="@(this.OnToDoClick)">
+					<ToDoTable ParameterValueSets="@parameterValueSets"/>
+				</button>
+			}
+		</div>
+	</div>
 }
+
+

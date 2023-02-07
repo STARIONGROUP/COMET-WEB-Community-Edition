@@ -27,8 +27,9 @@ namespace COMETwebapp.Extensions
     using System;
     using System.Drawing;
     using System.Numerics;
-    using System.Runtime.CompilerServices;
     using System.Text;
+
+    using Microsoft.AspNetCore.WebUtilities;
 
     /// <summary>
     /// static extension methods for <see cref="string"/>
@@ -123,6 +124,24 @@ namespace COMETwebapp.Extensions
             var color = text.ParseToColor();
             var colorRGB = Color.FromArgb(color.R, color.G, color.B);
             return ColorTranslator.ToHtml(colorRGB);
+        }
+
+        /// <summary>
+        /// Gets the parameter from an url
+        /// </summary>
+        /// <param name="url">The url</param>
+        /// <returns>A <see cref="Dictionary{TKey,TValue}"/> containing the parameters</returns>
+        public static Dictionary<string, string> GetParametersFromUrl(this string url)
+        {
+	        var parametersSection = url.Contains('?') ? url.Split("?")[1] : url;
+            var parameters = new Dictionary<string, string>();
+
+            foreach (var parsedQuery in QueryHelpers.ParseQuery(parametersSection).Where(x => !string.IsNullOrEmpty(x.Value.ToString())))
+            {
+                parameters[parsedQuery.Key] = parsedQuery.Value;
+            }
+
+            return parameters;
         }
     }
 }

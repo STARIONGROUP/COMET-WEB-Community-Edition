@@ -24,23 +24,27 @@
 
 namespace COMETwebapp.Tests.Services.IterationServiceTest
 {
-    using CDP4Common.EngineeringModelData;
-    using NUnit.Framework;
-    using COMETwebapp.IterationServices;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Collections.Concurrent;
-    using CDP4Common.SiteDirectoryData;
-    using CDP4Common.CommonData;
     using System.Reflection;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+
+    using COMETwebapp.Extensions;
+    using COMETwebapp.IterationServices;
+
+    using NUnit.Framework;
 
     [TestFixture]
     public class IterationServiceTest
     {
         private Iteration iteration;
-        private IIterationService iterationService = new IterationService();
+        private readonly IIterationService iterationService = new IterationService();
         private List<ParameterValueSetBase> parameterValueSetBase;
         private List<ParameterSubscription> parameterSubscriptions;
         private List<ElementDefinition> unReferencedElements;
@@ -65,6 +69,7 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
             {
                 Person = person
             };
+
             var engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), cache, uri)
             {
                 RequiredRdl =
@@ -74,7 +79,7 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
                 Participant = { participant }
             };
 
-            iteration = new Iteration(Guid.NewGuid(), cache, uri)
+            this.iteration = new Iteration(Guid.NewGuid(), cache, uri)
             {
                 Container = new EngineeringModel(Guid.NewGuid(), cache, uri)
                 {
@@ -101,26 +106,26 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
                 },
                 DomainFileStore =
                 {
-                    new DomainFileStore(Guid.NewGuid(), cache, uri) { Owner = domainOfExpertise }
+                    new DomainFileStore(Guid.NewGuid(), cache, uri) { Owner = this.domainOfExpertise }
                 }
             };
 
-            domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
+            this.domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
             {
                 ShortName = "SYS",
                 Name = "System"
             };
 
-            currentDomainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
+            this.currentDomainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
             {
                 ShortName = "AOCS",
                 Name = "Attitude and orbit control system"
             };
 
-            siteDirectory = new SiteDirectory(Guid.NewGuid(), cache, uri);
-            siteDirectory.Person.Add(person);
-            siteDirectory.Domain.Add(domainOfExpertise);
-            siteDirectory.Domain.Add(currentDomainOfExpertise);
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), cache, uri);
+            this.siteDirectory.Person.Add(person);
+            this.siteDirectory.Domain.Add(this.domainOfExpertise);
+            this.siteDirectory.Domain.Add(this.currentDomainOfExpertise);
 
             var option_A = new Option(Guid.NewGuid(), cache, uri)
             {
@@ -130,21 +135,21 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
 
             var elementDefinition_1 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ShortName = "Sat",
                 Name = "Satellite"
             };
 
             var elementDefinition_2 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ShortName = "Bat",
                 Name = "Battery"
             };
 
             var elementDefinition_3 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ShortName = "solar_panel",
                 Name = "Solar Panel"
             };
@@ -177,23 +182,23 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
 
             var parameter = new Parameter(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ParameterType = simpleQuantityKind
             };
 
             var parameter2 = new Parameter(Guid.NewGuid(), cache, uri)
             {
-                Owner = domainOfExpertise,
+                Owner = this.domainOfExpertise,
                 ParameterType = simpleQuantityKind2
             };
 
-            var parameterValueset_1 = new ParameterValueSet()
+            var parameterValueset_1 = new ParameterValueSet
             {
                 ActualOption = option_A,
                 Iid = Guid.NewGuid()
             };
 
-            var parameterValueset_2 = new ParameterValueSet()
+            var parameterValueset_2 = new ParameterValueSet
             {
                 ActualOption = option_A,
                 Iid = Guid.NewGuid()
@@ -203,8 +208,8 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
             var values_2 = new List<string> { "3" };
             var publishedValues = new List<string> { "123" };
 
-            iteration.Option.Add(option_A);
-            iteration.DefaultOption = option_A;
+            this.iteration.Option.Add(option_A);
+            this.iteration.DefaultOption = option_A;
 
             parameterValueset_1.Manual = new ValueArray<string>(values_1);
             parameterValueset_1.Reference = new ValueArray<string>(values_1);
@@ -220,11 +225,12 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
             parameterValueset_2.Published = new ValueArray<string>(publishedValues);
             parameterValueset_2.ValueSwitch = ParameterSwitchKind.MANUAL;
 
-            var oldParameterValueset_1 = new ParameterValueSet()
+            var oldParameterValueset_1 = new ParameterValueSet
             {
                 ActualOption = option_A,
                 Iid = parameterValueset_1.Iid
             };
+
             oldParameterValueset_1.Manual = new ValueArray<string>(new List<string> { "3" });
             oldParameterValueset_1.Reference = new ValueArray<string>(values_1);
             oldParameterValueset_1.Computed = new ValueArray<string>(values_1);
@@ -241,44 +247,45 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
 
             elementDefinition_2.Parameter.Add(parameter2);
 
-            iteration.Element.Add(elementDefinition_1);
-            iteration.Element.Add(elementDefinition_2);
-            iteration.Element.Add(elementDefinition_3);
-            iteration.TopElement = elementDefinition_1;
+            this.iteration.Element.Add(elementDefinition_1);
+            this.iteration.Element.Add(elementDefinition_2);
+            this.iteration.Element.Add(elementDefinition_3);
+            this.iteration.TopElement = elementDefinition_1;
 
-
-            var parameterSubscriptionValueSet = new ParameterSubscriptionValueSet()
+            var parameterSubscriptionValueSet = new ParameterSubscriptionValueSet
             {
                 Iid = Guid.NewGuid()
             };
+
             parameterSubscriptionValueSet.Manual = new ValueArray<string>(new List<string> { "1" });
             parameterSubscriptionValueSet.ValueSwitch = ParameterSwitchKind.MANUAL;
 
-
-            var oldParameterSubscriptionValueSet = new ParameterSubscriptionValueSet()
+            var oldParameterSubscriptionValueSet = new ParameterSubscriptionValueSet
             {
                 Iid = parameterSubscriptionValueSet.Iid
             };
+
             oldParameterSubscriptionValueSet.Manual = new ValueArray<string>(new List<string> { "1" });
             oldParameterSubscriptionValueSet.ValueSwitch = ParameterSwitchKind.MANUAL;
 
             var parameterSubscription = new ParameterSubscription();
-            parameterSubscription.Owner = currentDomainOfExpertise;
+            parameterSubscription.Owner = this.currentDomainOfExpertise;
             parameterSubscription.ValueSet.Add(parameterSubscriptionValueSet);
 
             parameter.ParameterSubscription.Add(parameterSubscription);
 
-            parameterValueSetBase = new List<ParameterValueSetBase>()
+            this.parameterValueSetBase = new List<ParameterValueSetBase>
             {
                 parameterValueset_1,
                 parameterValueset_2
             };
 
-            unReferencedElements = new List<ElementDefinition>()
+            this.unReferencedElements = new List<ElementDefinition>
             {
                 elementDefinition_3
             };
-            unUsedElements = new List<ElementDefinition>()
+
+            this.unUsedElements = new List<ElementDefinition>
             {
                 elementDefinition_3
             };
@@ -299,70 +306,49 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
 
             parameterSubscriptionValueSet.SubscribedValueSet = parameterValueset_1;
 
-            parameterSubscriptions = new List<ParameterSubscription>();
-            parameterSubscriptions.Add(parameterSubscription);
-        }
-
-        [Test]
-        public void VerifyGetParameterValueSetBase()
-        {
-            Assert.That(iterationService.GetParameterValueSetBase(iteration), Is.Not.Empty);
-            Assert.That(iterationService.GetParameterValueSetBase(iteration), Is.EqualTo(parameterValueSetBase));
+            this.parameterSubscriptions = new List<ParameterSubscription>();
+            this.parameterSubscriptions.Add(parameterSubscription);
         }
 
         [Test]
         public void VerifyGetNestedElements()
         {
-            Assert.That(iterationService.GetNestedElements(iteration), Is.Not.Empty);
+            Assert.That(this.iteration.GetNestedElements(), Is.Not.Empty);
         }
 
         [Test]
         public void VerifyGetNestedElementsByOption()
         {
-            var option = iteration.Option.First();
-            Assert.That(iterationService.GetNestedElementsByOption(iteration, option.Iid), Is.Not.Empty);
-            Assert.That(iterationService.GetNestedElementsByOption(iteration, option.Iid).Count, Is.EqualTo(iterationService.GetNestedElements(iteration).Count));
+            var option = this.iteration.Option.First();
+            Assert.That(this.iteration.GetNestedElements(option), Is.Not.Empty);
+            Assert.That(this.iteration.GetNestedElements(option).Count, Is.EqualTo(this.iteration.GetNestedElements().Count()));
         }
 
         [Test]
         public void VerifyGetNestedParameters()
         {
-            Assert.That(iterationService.GetNestedParameters(iteration, iteration.Option.First().Iid), Is.Not.Empty);
-        }
-
-        [Test]
-        public void VerifyGetUnusedElementDefinitions()
-        {
-            Assert.That(iterationService.GetUnusedElementDefinitions(iteration), Is.Not.Empty);
-            Assert.That(iterationService.GetUnusedElementDefinitions(iteration), Is.EqualTo(unUsedElements));
-        }
-
-        [Test]
-        public void VerifyGetUnreferencedElements()
-        {
-            Assert.That(iterationService.GetUnreferencedElements(iteration), Is.Not.Empty);
-            Assert.That(iterationService.GetUnreferencedElements(iteration), Is.EqualTo(unReferencedElements));
-        }
-
-        [Test]
-        public void VerifyGetParameterSubscriptionsByElement()
-        {
-            Assert.That(iterationService.GetParameterSubscriptionsByElement(iteration.TopElement, currentDomainOfExpertise), Is.Not.Empty);
-            Assert.That(iterationService.GetParameterSubscriptionsByElement(iteration.TopElement, currentDomainOfExpertise).Count, Is.EqualTo(1));
-            Assert.That(iterationService.GetParameterSubscriptionsByElement(iteration.TopElement, currentDomainOfExpertise).Contains(parameterSubscriptions.First()), Is.True);
+            Assert.That(this.iteration.GetNestedParameters(this.iteration.Option.First()), Is.Not.Empty);
         }
 
         [Test]
         public void VerifyGetNumberUpdates()
         {
-            Assert.AreEqual(1, iterationService.GetNumberUpdates(iteration, currentDomainOfExpertise));
-            Assert.AreEqual(0, iterationService.GetNumberUpdates(iteration, domainOfExpertise));
+            Assert.AreEqual(1, this.iterationService.GetNumberUpdates(this.iteration, this.currentDomainOfExpertise));
+            Assert.AreEqual(0, this.iterationService.GetNumberUpdates(this.iteration, this.domainOfExpertise));
+        }
+
+        [Test]
+        public void VerifyGetParameterSubscriptionsByElement()
+        {
+            Assert.That(this.iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise), Is.Not.Empty);
+            Assert.That(this.iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise).Count, Is.EqualTo(1));
+            Assert.That(this.iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise).Contains(this.parameterSubscriptions.First()), Is.True);
         }
 
         [Test]
         public void VerifyGetParameterTypes()
         {
-            var parameterTypes = iterationService.GetParameterTypes(iteration);
+            var parameterTypes = this.iterationService.GetParameterTypes(this.iteration);
             Assert.That(parameterTypes.Count, Is.EqualTo(2));
 
             var parameterTypeNames = new List<string>();
@@ -372,10 +358,24 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
         }
 
         [Test]
-        public void VerifyGetParameterValueSetsByParameterType()
+        public void VerifyGetParameterValueSetBase()
         {
-            Assert.That(iterationService.GetParameterValueSetsByParameterType(iteration, "mass").Count, Is.EqualTo(2));
-            Assert.That(iterationService.GetParameterValueSetsByParameterType(iteration, "volume").Count, Is.EqualTo(0));
+            Assert.That(this.iteration.GetParameterValueSetBase(), Is.Not.Empty);
+            Assert.That(this.iteration.GetParameterValueSetBase(), Is.EqualTo(this.parameterValueSetBase));
+        }
+
+        [Test]
+        public void VerifyGetUnreferencedElements()
+        {
+            Assert.That(this.iteration.GetUnreferencedElements(), Is.Not.Empty);
+            Assert.That(this.iteration.GetUnreferencedElements(), Is.EqualTo(this.unReferencedElements));
+        }
+
+        [Test]
+        public void VerifyGetUnusedElementDefinitions()
+        {
+            Assert.That(this.iteration.GetUnusedElementDefinitions(), Is.Not.Empty);
+            Assert.That(this.iteration.GetUnusedElementDefinitions(), Is.EqualTo(this.unUsedElements));
         }
     }
 }

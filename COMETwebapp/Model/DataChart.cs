@@ -32,7 +32,7 @@ namespace COMETwebapp.Model
         /// <summary>
         /// The argument defining the data
         /// </summary>
-        public string? Argument { get; set; }
+        public string Argument { get; set; }
 
         /// <summary>
         /// The value of the data
@@ -43,6 +43,6 @@ namespace COMETwebapp.Model
         /// Name of the domain of expertise of data
         /// This value is used as legend in graphs.
         /// </summary>
-        public string? Domain { get; set; }
+        public string Domain { get; set; }
     }
 }

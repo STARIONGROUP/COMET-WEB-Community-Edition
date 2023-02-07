@@ -31,7 +31,8 @@ Copyright (c) 2023 RHEA System S.A.
 			<DxComboBox Data="@this.ViewModel.AvailableEngineeringModelSetups"
 			            TextFieldName="@nameof(EngineeringModelSetup.Name)"
 			            @bind-Value="@this.ViewModel.SelectedEngineeringModel"
-			            NullText="Select an Engineering Model"/>
+			            NullText="Select an Engineering Model"
+			            Enabled="@this.selectorEnabled"/>
 		</Template>
 	</DxFormLayoutItem>
 	@if (this.ViewModel.SelectedEngineeringModel != null)
@@ -41,7 +42,8 @@ Copyright (c) 2023 RHEA System S.A.
 				<DxComboBox Data="@this.ViewModel.AvailableIterationSetups"
 				            TextFieldName="@nameof(IterationData.IterationName)"
 				            @bind-Value="@this.ViewModel.SelectedIterationSetup"
-				            NullText="Select an Iteration"/>
+				            NullText="Select an Iteration"
+							Enabled="@this.selectorEnabled" />
 			</Template>
 		</DxFormLayoutItem>
 		<DxFormLayoutItem Caption="Domain:" ColSpanLg="12">

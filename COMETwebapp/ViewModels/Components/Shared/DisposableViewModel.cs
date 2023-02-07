@@ -23,37 +23,38 @@
 //  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.Shared
-{ using ReactiveUI;
-    /// <summary>
-    /// Base view model that implements the IDisposable pattern
-    /// </summary>
-    public abstract class DisposableViewModel : ReactiveObject, IDisposableViewModel
-    {
-        /// <summary>
-        /// A collection of <see cref="IDisposable" />
-        /// </summary>
-        protected List<IDisposable> Disposables = new();
+{
+	using ReactiveUI;
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+	/// <summary>
+	/// Base view model that implements the IDisposable pattern
+	/// </summary>
+	public abstract class DisposableViewModel : ReactiveObject, IDisposableViewModel
+	{
+		/// <summary>
+		/// A collection of <see cref="IDisposable" />
+		/// </summary>
+		protected List<IDisposable> Disposables = new();
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <param name="disposing">Value asserting if this component should dispose or not</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                this.Disposables.ForEach(x => x.Dispose());
-                this.Disposables.Clear();
-            }
-        }
-    }
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+			this.Dispose(true);
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing">Value asserting if this component should dispose or not</param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				this.Disposables.ForEach(x => x.Dispose());
+				this.Disposables.Clear();
+			}
+		}
+	}
 }

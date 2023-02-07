@@ -40,7 +40,6 @@ namespace COMETwebapp.Components.Shared
         public void Dispose()
         {
             this.Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
