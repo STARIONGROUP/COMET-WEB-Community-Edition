@@ -39,7 +39,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     public class CometWebAuthStateProviderTestFixture
     {
         private CometWebAuthStateProvider cometWebAuthStateProvider;
-        private Mock<ISessionService> sessionAnchor;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -50,16 +50,16 @@ namespace COMETwebapp.Tests.Services.SessionManagement
                 Surname = "Doe"
             };
 
-            sessionAnchor = new Mock<ISessionService>();
-            sessionAnchor.Setup(x => x.Session.ActivePerson).Returns(activePerson);
+            sessionService = new Mock<ISessionService>();
+            sessionService.Setup(x => x.Session.ActivePerson).Returns(activePerson);
 
-            cometWebAuthStateProvider = new CometWebAuthStateProvider(sessionAnchor.Object);
+            cometWebAuthStateProvider = new CometWebAuthStateProvider(sessionService.Object);
         }
 
         [Test]
         public async Task Verify_that_GetAuthenticationStateAsync_returns_an_AuthenticationState()
         {
-            sessionAnchor.Setup(x => x.IsSessionOpen).Returns(true);
+            sessionService.Setup(x => x.IsSessionOpen).Returns(true);
 
             var authenticationState = await cometWebAuthStateProvider.GetAuthenticationStateAsync();
 

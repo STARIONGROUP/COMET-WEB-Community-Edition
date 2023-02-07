@@ -24,17 +24,14 @@
 
 namespace COMETwebapp.Pages.Viewer
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Components.Viewer.PopUps;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.SessionManagement;
-    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Pages.Viewer;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="Viewer"/>
@@ -42,62 +39,15 @@ namespace COMETwebapp.Pages.Viewer
     public partial class ViewerPage
     {
         /// <summary>
+        /// The <see cref="IViewerViewModel"/>
+        /// </summary>
+        [Inject]
+        public IViewerViewModel ViewModel { get; set; }
+
+        /// <summary>
         /// The reference to the <see cref="CanvasComponent"/> component
         /// </summary>
-        public CanvasComponent CanvasComponent { get; set; }
-
-        /// <summary>
-        /// Gets or sets the reference of the <see cref="ConfirmChangeSelectionPopUp"/>
-        /// </summary>
-        public ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
-
-        /// <summary>
-        /// All <see cref="ElementBase"> of the iteration
-        /// </summary>
-        public List<ElementBase> Elements { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the current selected <see cref="Option"/>
-        /// </summary>
-        public Option SelectedOption { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the total of options in this <see cref="Iteration"/>
-        /// </summary>
-        public List<Option> TotalOptions { get; private set; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="ISessionService"/>
-        /// </summary>
-        [Inject]
-        public ISessionService? SessionAnchor { get; set; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="IIterationService"/>
-        /// </summary>
-        [Inject]
-        public IIterationService IterationService { get; set; }
-
-        /// <summary>
-        /// List of the of <see cref="ActualFiniteStateList"/> 
-        /// </summary>        
-        public List<ActualFiniteStateList> ListActualFiniteStateLists { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Selected <see cref="ActualFiniteState"/>
-        /// </summary>
-        public List<ActualFiniteState> SelectedActualFiniteStates { get; private set; }
-
-        /// <summary>
-        /// Represents the RootNode of the tree
-        /// </summary>
-        public TreeNode RootNode { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
-        /// </summary>
-        [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
+        public CanvasComponent CanvasComponent { get; private set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -121,118 +71,13 @@ namespace COMETwebapp.Pages.Viewer
 
             if (firstRender)
             {
-                await this.CanvasComponent.InitCanvas(true);
+                await this.CanvasComponent.ViewModel.InitCanvas(true);
 
-                this.Elements = this.InitializeElements();
-
-                var iteration = this.SessionAnchor?.DefaultIteration;
-                this.TotalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
-                var defaultOption = this.SessionAnchor?.DefaultIteration?.DefaultOption;
-                this.SelectedOption = defaultOption != null ? defaultOption : this.TotalOptions?.First();
-                this.ListActualFiniteStateLists = iteration?.ActualFiniteStateList?.ToList();
-                this.SelectedActualFiniteStates = this.ListActualFiniteStateLists?.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
-
-                this.CreateTree(this.Elements);
-
-                await this.RepopulateScene(this.RootNode);
-
-                this.SessionAnchor.OnSessionRefreshed += async (sender, args) =>
+                this.WhenAnyValue(x => x.ViewModel.RootNodeViewModel).Subscribe(async _ =>
                 {
-                    await this.CanvasComponent.ClearScene();
-                    this.Elements = this.InitializeElements();
-                    this.CreateTree(this.Elements);
-                    await this.RepopulateScene(this.RootNode);
-                };
-
-                this.SelectionMediator.OnModelSelectionChanged += (sender, sceneObject) =>
-                {
-                    var treeNodes = this.RootNode.GetFlatListOfDescendants();
-                    treeNodes.ForEach(x => x.IsSelected = false);
-                    if (sceneObject != null)
-                    {
-                        var node = treeNodes.FirstOrDefault(x => x.SceneObject == sceneObject);
-                        if (node is not null)
-                        {
-                            node.IsSelected = true;
-                        }
-                    }
-                    this.Refresh();
-                };
-
-                await this.InvokeAsync(() => this.StateHasChanged());
-            }
-        }
-
-        /// <summary>
-        /// Initialize <see cref="ElementBase"> list
-        /// </summary>
-        private List<ElementBase> InitializeElements()
-        {
-            var elements = new List<ElementBase>();
-            var iteration = this.SessionAnchor?.DefaultIteration;
-
-            if (iteration != null)
-            {
-                if (iteration.TopElement != null)
-                {
-                    elements.Add(iteration.TopElement);
-                }
-
-                iteration.Element.ForEach(e => elements.AddRange(e.ContainedElement));
-            }
-
-            return elements;
-        }
-
-        /// <summary>
-        /// Creates the product tree
-        /// </summary>
-        /// <param name="productTreeElements">the product tree elements</param>
-        private void CreateTree(List<ElementBase> productTreeElements)
-        {
-            //Order sceneObjects by the name
-            var topElement = productTreeElements.First();
-            var topSceneObject = SceneObject.Create(topElement, this.SelectedOption, this.SelectedActualFiniteStates);
-            this.RootNode = new TreeNode(topSceneObject);
-            this.CreateTreeRecursively(topElement, this.RootNode, null);
-            this.RootNode.OrderAllDescendantsByShortName();
-        }
-
-        /// <summary>
-        /// Creates the tree in a recursive way
-        /// </summary>
-        /// <param name="elementBase"></param>
-        /// <param name="current"></param>
-        /// <param name="parent"></param>
-        private void CreateTreeRecursively(ElementBase elementBase, TreeNode current, TreeNode? parent)
-        {
-            List<ElementUsage> childsOfElementBase = null;
-
-            if (elementBase is ElementDefinition elementDefinition)
-            {
-                childsOfElementBase = elementDefinition.ContainedElement;
-            }
-            else if (elementBase is ElementUsage elementUsage)
-            {
-                childsOfElementBase = elementUsage.ElementDefinition.ContainedElement;
-            }
-
-            if (childsOfElementBase is not null)
-            {
-                //current.Parent = parent;
-                if (parent is not null)
-                {
-                    parent.AddChild(current);
-                }
-
-                foreach (var child in childsOfElementBase)
-                {
-                    var sceneObject = SceneObject.Create(child, this.SelectedOption, this.SelectedActualFiniteStates);
-                    if (sceneObject is not null)
-                    {
-                        this.CreateTreeRecursively(child, new TreeNode(sceneObject), current);
-                    }
-                }
+                    await this.CanvasComponent.ViewModel.ClearScene();
+                    await this.RepopulateScene(this.ViewModel.RootNodeViewModel);
+                });
             }
         }
 
@@ -241,49 +86,16 @@ namespace COMETwebapp.Pages.Viewer
         /// </summary> 
         /// <param name="rootNode">the top node of the hierarchy that needs to be on scene</param> 
         /// <returns>an asynchronous operation</returns> 
-        private async Task RepopulateScene(TreeNode rootNode)
+        private async Task RepopulateScene(INodeComponentViewModel rootNode)
         {
-            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.SceneObject.Primitive is not null).Select(x => x.SceneObject).ToList();
+            await this.CanvasComponent.ViewModel.ClearScene();
+
+            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.Node.SceneObject.Primitive is not null).Select(x => x.Node.SceneObject).ToList();
 
             foreach (var sceneObject in sceneObjects)
             {
-                await this.CanvasComponent.AddSceneObject(sceneObject);
+                await this.CanvasComponent.ViewModel.AddSceneObject(sceneObject);
             }
-        }
-
-        /// <summary>
-        /// Updates Elements list when a filter for option is selected
-        /// </summary>
-        /// <param name="option">Name of the Option selected</param>
-        public async void OnOptionFilterChange(string? option)
-        {
-            var defaultOption = this.SessionAnchor?.DefaultIteration?.DefaultOption;
-            this.SelectedOption = this.TotalOptions?.FirstOrDefault(x => x.Name == option, defaultOption);
-
-            this.Elements = this.InitializeElements();
-            this.CreateTree(this.Elements);
-            await this.RepopulateScene(this.RootNode);
-            await this.InvokeAsync(() => this.StateHasChanged());
-        }
-
-        /// <summary>
-        /// Event raised when an actual finite state has changed
-        /// </summary>
-        /// <param name="selectedActiveFiniteStates"></param>
-        public async void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates)
-        {
-            this.Elements = this.InitializeElements();
-            this.CreateTree(this.Elements);
-            await this.RepopulateScene(this.RootNode);
-            this.SelectedActualFiniteStates = selectedActiveFiniteStates;
-        }
-
-        /// <summary>
-        /// Calls the StateHasChanged method to refresh the view
-        /// </summary>
-        public void Refresh()
-        {
-            this.InvokeAsync(() => this.StateHasChanged());
         }
     }
 }

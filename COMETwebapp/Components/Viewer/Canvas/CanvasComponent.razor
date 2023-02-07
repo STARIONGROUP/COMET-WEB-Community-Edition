@@ -23,12 +23,12 @@
 @using COMETwebapp.Components.Viewer.PopUps;
 
 <div id="canvas-wrap">
-    <ConfirmChangeSelectionPopUp @ref="@this.ConfirmChangeSelectionPopUp"/>
-    <canvas @ref="@this.CanvasReference"
+    <ConfirmChangeSelectionPopUp @ref="@this.ViewModel.ConfirmChangeSelectionPopUp"/>
+    <canvas @ref="@this.ViewModel.CanvasReference"
             id="babylon-canvas"
             touch-action="none"
-            @onpointerdown="@OnMouseDown"
-            @onpointerup="@OnMouseUp"
-            @onpointermove="@OnMouseMove">
+            @onpointerdown="@this.OnMouseDown"
+            @onpointerup="@this.OnMouseUp"
+            @onpointermove="@this.OnMouseMove">
     </canvas>
 </div>

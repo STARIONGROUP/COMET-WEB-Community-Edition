@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SessionAnchorTest.cs" company="RHEA System S.A.">
+// <copyright file="SessionServiceTest.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -44,7 +44,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     using NUnit.Framework;
 
     [TestFixture]
-    public class SessionAnchorTest
+    public class SessionServiceTest
     {
         private Mock<ISession> session;
         private ISessionService sessionService;

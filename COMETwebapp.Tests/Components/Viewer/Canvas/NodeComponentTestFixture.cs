@@ -24,15 +24,11 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.Canvas
 {
-    using BlazorStrap;
-
     using Bunit;
 
     using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
-    using COMETwebapp.Utilities;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -46,55 +42,33 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     {
         private TestContext context;
         private NodeComponent nodeComponent;
-        private Mock<ISelectionMediator> selectionMediator;
+        private Mock<INodeComponentViewModel> componentViewModel;
         private IRenderedComponent<NodeComponent> renderedComponent;
 
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.Services.AddBlazorStrap();
+            this.context = new TestContext();
+            this.context.Services.AddDevExpressBlazor();
 
-            selectionMediator = new Mock<ISelectionMediator>();
-
-            context.Services.AddSingleton(selectionMediator.Object);
-
-            var treeNode = new TreeNode(new SceneObject(null));
-
-            renderedComponent = context.RenderComponent<NodeComponent>(parameters => parameters.Add(p => p.Node, treeNode));
-            nodeComponent = renderedComponent.Instance;
+            this.componentViewModel = new Mock<INodeComponentViewModel>();
+            
+            this.renderedComponent = this.context.RenderComponent<NodeComponent>(parameters 
+                => parameters.Add(p=> p.ViewModel, this.componentViewModel.Object)
+                             .Add(p=>p.Level, 1)
+            );
+            
+            this.nodeComponent = this.renderedComponent.Instance;
         }
 
         [Test]
-        public void VerifyTreeNodeSelectionChanged()
+        public void VerifyComponent()
         {
-            Assert.That(nodeComponent.Node.IsSelected, Is.False);
-            var treeNode = renderedComponent.Find(".treeNode");
-            treeNode.Click();
-            selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(nodeComponent.Node), Times.Once);
-            Assert.That(nodeComponent.Node.IsSelected, Is.True);
-        }
-
-        [Test]
-        public void VerifyTreeNodeVisibilityChanged()
-        {
-            Assert.That(nodeComponent.Node.SceneObjectIsVisible, Is.True);
-            var treeNode = renderedComponent.Find(".treeIcon");
-            treeNode.Click();
-            selectionMediator.Verify(x => x.RaiseOnTreeVisibilityChanged(nodeComponent.Node), Times.Once);
-            Assert.That(nodeComponent.Node.SceneObjectIsVisible, Is.False);
-        }
-
-        [Test]
-        public void VerifyThatSelectionOfOtherNodeDontWorks()
-        {
-            Assert.That(nodeComponent.Node.IsSelected, Is.False);
-            var treeNodeComponent = renderedComponent.Find(".treeNode");
-            treeNodeComponent.Click();
-
-            var treeNode = new TreeNode(new SceneObject(new Cube(1, 1, 1)));
-            selectionMediator.Verify(x => x.RaiseOnTreeSelectionChanged(treeNode), Times.Never);
-            Assert.That(treeNode.IsSelected, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.nodeComponent.ViewModel, Is.Not.Null);
+                Assert.That(this.nodeComponent.Level, Is.EqualTo(1));
+            });
         }
     }
 }

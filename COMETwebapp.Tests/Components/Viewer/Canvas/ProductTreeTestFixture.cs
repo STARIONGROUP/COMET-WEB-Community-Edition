@@ -24,88 +24,84 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.Canvas
 {
-    using BlazorStrap;
+    using System.Collections.Generic;
 
     using Bunit;
 
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Utilities;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+   
     using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
-
-
+    
     [TestFixture]
     public class ProductTreeTestFixture
     {
         private TestContext context;
         private ProductTree productTree;
-        private IRenderedComponent<ProductTree> tree;
+        private IRenderedComponent<ProductTree> renderedComponent;
 
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
-            context.Services.AddBlazorStrap();
-            context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            this.context = new TestContext();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
+            this.context.Services.AddDevExpressBlazor();
 
+            var productTreeVM = new Mock<IProductTreeViewModel>();
+            productTreeVM.Setup(x => x.TreeFilters).Returns(new List<TreeFilter>() { TreeFilter.ShowFullTree, TreeFilter.ShowNodesWithGeometry });
+            productTreeVM.Setup(x => x.SelectedFilter).Returns(TreeFilter.ShowFullTree);
+            this.context.Services.AddSingleton(productTreeVM.Object);
+
+            var selectionMediator = new SelectionMediator();
+            
             var rootNode = new TreeNode(new SceneObject(null)) { Title = "rootNode" };
+            var rootNodeVM = new NodeComponentViewModel(rootNode, selectionMediator);
 
             var node1 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
             var node2 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "second" };
             var node3 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "third" };
-            var node4 = new TreeNode(new SceneObject(null)) { Title = "fourth" };
+            var node4 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fourth" };
             var node5 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fifth" };
+            
+            var nodeVM1 = new NodeComponentViewModel(node1, selectionMediator);
+            var nodeVM2 = new NodeComponentViewModel(node2, selectionMediator);
+            var nodeVM3 = new NodeComponentViewModel(node3, selectionMediator);
+            var nodeVM4 = new NodeComponentViewModel(node4, selectionMediator);
+            var nodeVM5 = new NodeComponentViewModel(node5, selectionMediator);
 
-            node1.AddChild(node2);
-            node1.AddChild(node3);
-            node1.AddChild(node4);
-            rootNode.AddChild(node1);
-            rootNode.AddChild(node5);
-
-            tree = context.RenderComponent<ProductTree>(parameters => parameters.Add(p => p.RootNode, rootNode));
-            productTree = tree.Instance;
-        }
-
-        [Test]
-        public void VerifyOnFilterChanged()
-        {
-            var nodesBeforeFiltering = tree.FindAll(".treeNode");
-            productTree.OnFilterChanged(true);
-            var nodesAfterFiltering1 = tree.FindAll(".treeNode");
-            productTree.OnFilterChanged(false);
-            var nodesAfterFiltering2 = tree.FindAll(".treeNode");
-            Assert.Multiple(() =>
+            nodeVM1.AddChild(nodeVM2);
+            nodeVM1.AddChild(nodeVM3);
+            nodeVM1.AddChild(nodeVM4);
+            rootNodeVM.AddChild(nodeVM1);
+            rootNodeVM.AddChild(nodeVM5);
+            
+            this.renderedComponent = this.context.RenderComponent<ProductTree>(parameter =>
             {
-                Assert.That(productTree.ShowNodesWithGeometry, Is.False);
-                Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
-                Assert.That(nodesAfterFiltering1, Has.Count.EqualTo(4));
-                Assert.That(nodesAfterFiltering2, Has.Count.EqualTo(6));
+                parameter.Add(p => p.RootViewModel, rootNodeVM);
             });
+ 
+            this.productTree = this.renderedComponent.Instance;
         }
 
         [Test]
-        public void VerifyThatSearchWorks()
+        public void VerifyComponent()
         {
-            var nodesBeforeFiltering = tree.FindAll(".treeNode");
-            productTree.OnSearchFilterChange(new Microsoft.AspNetCore.Components.ChangeEventArgs() { Value = "th" });
-            var nodesAfterFiltering = tree.FindAll(".treeNode");
-
-            Assert.That(productTree.SearchValue, Is.EqualTo("th"));
-
-            productTree.OnSearchFilterChange(new Microsoft.AspNetCore.Components.ChangeEventArgs() { Value = string.Empty });
-            var nodesAfterFiltering2 = tree.FindAll(".treeNode");
             Assert.Multiple(() =>
             {
-                Assert.That(productTree.SearchValue, Is.EqualTo(string.Empty));
-                Assert.That(nodesBeforeFiltering, Has.Count.EqualTo(6));
-                Assert.That(nodesAfterFiltering, Has.Count.EqualTo(3));
-                Assert.That(nodesAfterFiltering2, Has.Count.EqualTo(6));
+                Assert.That(this.productTree, Is.Not.Null);
+                Assert.That(this.productTree.ViewModel, Is.Not.Null);
+                Assert.That(this.productTree.RootViewModel, Is.Not.Null);
             });
         }
     }

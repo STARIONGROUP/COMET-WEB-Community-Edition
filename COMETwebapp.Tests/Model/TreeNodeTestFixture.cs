@@ -44,7 +44,7 @@ namespace COMETwebapp.Tests.Model
         [SetUp]
         public void SetUp()
         {
-            this.rootNode = new TreeNode(new SceneObject(null)) { Title = "RootNode" };
+            this.rootNode = new TreeNode(new SceneObject(null)) { Title = "RootViewModel" };
             node1 = new TreeNode(new SceneObject(null)) { Title = "first" };
             node2 = new TreeNode(new SceneObject(null)) { Title = "second" };
             node3 = new TreeNode(new SceneObject(null)) { Title = "third" };

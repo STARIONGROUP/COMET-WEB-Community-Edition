@@ -37,16 +37,16 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     [TestFixture]
     internal class AutoRefreshServiceTest
     {
-        private Mock<ISessionService> sessionAnchor;
+        private Mock<ISessionService> sessionService;
         private AutoRefreshService autoRefreshService;
 
         [SetUp]
         public void Setup()
         {
 
-            sessionAnchor = new Mock<ISessionService>();
+            sessionService = new Mock<ISessionService>();
 
-            autoRefreshService = new AutoRefreshService(sessionAnchor.Object);
+            autoRefreshService = new AutoRefreshService(sessionService.Object);
         }
 
         [Test]
@@ -56,14 +56,14 @@ namespace COMETwebapp.Tests.Services.SessionManagement
             autoRefreshService.AutoRefreshInterval = 1;
             autoRefreshService.SetTimer();
             Thread.Sleep(5000);
-            sessionAnchor.Verify(x => x.RefreshSession(), Times.AtLeastOnce);
+            sessionService.Verify(x => x.RefreshSession(), Times.AtLeastOnce);
 
-            sessionAnchor.Invocations.Clear();
+            sessionService.Invocations.Clear();
 
             autoRefreshService.IsAutoRefreshEnabled = false;
             autoRefreshService.SetTimer();
             Thread.Sleep(5000);
-            sessionAnchor.Verify(x => x.RefreshSession(), Times.Never);
+            sessionService.Verify(x => x.RefreshSession(), Times.Never);
 
             autoRefreshService.Dispose();
         }

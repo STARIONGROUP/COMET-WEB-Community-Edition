@@ -30,10 +30,14 @@ namespace COMETwebapp
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.IterationServices;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+    using COMETwebapp.ViewModels.Pages.Viewer;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
@@ -83,6 +87,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IVersionService, VersionService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
 
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddBlazorStrap();
@@ -100,6 +105,11 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             builder.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             builder.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
+            builder.Services.AddTransient<IViewerViewModel, ViewerViewModel>();
+            builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
+            builder.Services.AddTransient<IProductTreeViewModel, ProductTreeViewModel>();
+            builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
+            builder.Services.AddTransient<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
         }
     }
 }

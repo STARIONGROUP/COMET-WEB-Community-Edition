@@ -57,8 +57,12 @@ namespace COMETwebapp.Model
         /// </summary>
         public double X
         {
-            get { return x; }
-            set { x = value; this.RecomputeMatrix(); }
+            get => this.x;
+            set
+            {
+                this.x = value;
+                this.RecomputeMatrix();
+            }
         }
 
         /// <summary>
@@ -66,8 +70,12 @@ namespace COMETwebapp.Model
         /// </summary>
         public double Y
         {
-            get { return y; }
-            set { y = value; this.RecomputeMatrix(); }
+            get => this.y;
+            set
+            {
+                this.y = value;
+                this.RecomputeMatrix();
+            }
         }
 
         /// <summary>
@@ -75,8 +83,12 @@ namespace COMETwebapp.Model
         /// </summary>
         public double Z
         {
-            get { return z; }
-            set { z = value; this.RecomputeMatrix(); }
+            get => this.z;
+            set
+            {
+                this.z = value;
+                this.RecomputeMatrix();
+            }
         }
 
         /// <summary>
@@ -84,8 +96,12 @@ namespace COMETwebapp.Model
         /// </summary>
         public AngleFormat AngleFormat
         {
-            get { return angleFormat; }
-            set { angleFormat = value; this.RecomputeMatrix(); }
+            get => this.angleFormat;
+            set
+            {
+                this.angleFormat = value;
+                this.RecomputeMatrix();
+            }
         }
 
         /// <summary>
@@ -96,7 +112,7 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Gets the euler angles represented in this orientation
         /// </summary>
-        public double[] Angles => new double[] { X, Y, Z };
+        public double[] Angles => new double[] { this.X, this.Y, this.Z };
 
         /// <summary>
         /// Creates a new instance of type <see cref="Orientation"/>
@@ -133,7 +149,7 @@ namespace COMETwebapp.Model
         /// Returns a orientation that represents the identity matrix
         /// </summary>
         /// <returns>the orientation</returns>
-        public static Orientation Identity(AngleFormat angleFormat)
+        public static Orientation Identity(AngleFormat angleFormat = AngleFormat.Degrees)
         {
             return new Orientation(0.0, 0.0, 0.0) { AngleFormat = angleFormat };
         }
@@ -152,7 +168,7 @@ namespace COMETwebapp.Model
 
             if (matrix == null)
             {
-                throw new ArgumentNullException("Matrix can't be null");
+                throw new ArgumentNullException(nameof(matrix));
             }
 
             if (matrix.Length != 9)
@@ -169,6 +185,7 @@ namespace COMETwebapp.Model
             else
             {
                 Rz = 0;
+
                 if (matrix[6] == -1)
                 {
                     Ry = Math.PI / 2.0;
@@ -183,11 +200,11 @@ namespace COMETwebapp.Model
 
             if (outputAngleFormat == AngleFormat.Radians)
             {
-                return new double[] { Rx, Ry, Rz };
+                return new [] { Rx, Ry, Rz };
             }
             else
             {
-                return new double[] { Math.Round(Rx * 180.0 / Math.PI, 3), Math.Round(Ry * 180.0 / Math.PI, 3), Math.Round(Rz * 180.0 / Math.PI, 3) };
+                return new [] { Math.Round(Rx * 180.0 / Math.PI, 3), Math.Round(Ry * 180.0 / Math.PI, 3), Math.Round(Rz * 180.0 / Math.PI, 3) };
             }
         }
 
@@ -196,9 +213,9 @@ namespace COMETwebapp.Model
         /// </summary>
         private void RecomputeMatrix()
         {
-            double a1 = X;
-            double a2 = Y;
-            double a3 = Z;
+            var a1 = this.X;
+            var a2 = this.Y;
+            var a3 = this.Z;
 
             if (this.AngleFormat == AngleFormat.Degrees)
             {
@@ -207,13 +224,13 @@ namespace COMETwebapp.Model
                 a3 = a3 * Math.PI / 180.0;
             }
 
-            double c1 = Math.Cos(a1);
-            double c2 = Math.Cos(a2);
-            double c3 = Math.Cos(a3);
+            var c1 = Math.Cos(a1);
+            var c2 = Math.Cos(a2);
+            var c3 = Math.Cos(a3);
 
-            double s1 = Math.Sin(a1);
-            double s2 = Math.Sin(a2);
-            double s3 = Math.Sin(a3);
+            var s1 = Math.Sin(a1);
+            var s2 = Math.Sin(a2);
+            var s3 = Math.Sin(a3);
 
             //ZYX -> First X, Second Y, Third Z
             this.Matrix[0] = c2 * c3;

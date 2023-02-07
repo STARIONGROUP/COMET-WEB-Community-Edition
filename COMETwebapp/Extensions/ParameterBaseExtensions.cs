@@ -44,7 +44,7 @@ namespace COMETwebapp.Extensions
 
             if (parameterBase is not null)
             {
-                if (states.Count() > 0)
+                if (states.Any())
                 {
                     foreach (var actualFiniteState in states)
                     {

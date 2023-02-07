@@ -26,10 +26,11 @@ namespace COMETwebapp.Components.Viewer.Canvas
 {
     using System.Threading.Tasks;
 
-    using COMETwebapp.Model;
-    using COMETwebapp.Utilities;
-
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+   
     using Microsoft.AspNetCore.Components;
+    
+    using ReactiveUI;
 
     /// <summary>
     /// Class for the node component
@@ -37,27 +38,16 @@ namespace COMETwebapp.Components.Viewer.Canvas
     public partial class NodeComponent
     {
         /// <summary>
+        /// Gets or sets the <see cref="INodeComponentViewModel"/>
+        /// </summary>
+        [Parameter]
+        public INodeComponentViewModel ViewModel { get; set; }
+
+        /// <summary>
         /// Level of the tree. Increases by one for each nested element
         /// </summary>
         [Parameter]
         public int Level { get; set; }
-
-        /// <summary>
-        /// Current node that this <see cref="NodeComponent" /> represents
-        /// </summary>
-        [Parameter]
-        public TreeNode Node { get; set; }
-
-        /// <summary>
-        /// Gets or set the <see cref="ISelectionMediator"/>
-        /// </summary>
-        [Inject]
-        public ISelectionMediator SelectionMediator { get; set; }
-
-        /// <summary> 
-        /// Gets or sets if the propagation of the click event should be stopped  
-        /// </summary> 
-        private bool StopClickPropagation { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -78,41 +68,16 @@ namespace COMETwebapp.Components.Viewer.Canvas
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+            
             if (firstRender)
             {
-                this.SelectionMediator.OnTreeSelectionChanged += async (sender, node) =>
-                {
-                    if(sender != this && this.Node is not null)
-                    {
-                        this.Node.IsSelected = false;
-                        await this.InvokeAsync(() => this.StateHasChanged());
-                    }
-                };
-            }
-        }
+                this.ViewModel.Level = this.Level;
 
-        /// <summary>
-        /// Method for when a node is selected
-        /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
-        private void TreeSelectionChanged(TreeNode node)
-        {
-            if (!this.StopClickPropagation)
-            {
-                this.SelectionMediator?.RaiseOnTreeSelectionChanged(this.Node);
-                this.Node.IsSelected = true;
+                this.WhenAnyValue(x => x.ViewModel.IsDrawn).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.IsExpanded).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.IsSelected).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.IsSceneObjectVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
-            this.StopClickPropagation = false;
-        }
-
-        /// <summary>
-        /// Method for when a node visibility changed
-        /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
-        private void TreeNodeVisibilityChanged(TreeNode node)
-        {
-            this.StopClickPropagation = true;
-            this.SelectionMediator.RaiseOnTreeVisibilityChanged(node);
         }
     }
 }
