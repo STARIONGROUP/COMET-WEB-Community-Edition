@@ -25,6 +25,7 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -83,7 +84,7 @@ namespace COMETwebapp.Components.ParameterEditor
             
             if (this.ParameterTypeSelected != null)
             {
-                filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
+                filteredParameters.RemoveAll(p => p.ParameterType != this.ParameterTypeSelected);
             }
 
             return filteredParameters.OrderBy(p => p.ParameterType.Name);

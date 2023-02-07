@@ -66,6 +66,11 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
+        /// Backing field for the <see cref="FilteredElements"/>
+        /// </summary>
+        private List<ElementBase> filteredElements = new();
+
+        /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
         public SourceList<ElementBase> FilteredElements { get; set; } = new();
@@ -135,7 +140,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// All ParameterType names in the model
         /// </summary>
         public List<ParameterType> ParameterTypes { get; set; } = new();
-        
+
         /// <summary>
         /// Creates a new instance of <see cref="ParameterEditorViewModel"/>
         /// </summary>

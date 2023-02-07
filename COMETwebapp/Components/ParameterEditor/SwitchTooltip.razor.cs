@@ -25,19 +25,28 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-
-    using CDP4Dal;
-
-    using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Web;
+    using ReactiveUI;
 
     /// <summary>
     /// Class for the component <see cref="SwitchTooltip"/>
     /// </summary>
     public partial class SwitchTooltip
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ISwitchTooltipViewModel"/>
+        /// </summary>
+        [Inject]
+        public ISwitchTooltipViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// RenderFragment that contains the tooltip
+        /// </summary>
+        [Parameter]
+        public RenderFragment ChildContent { get; set; }
+
         /// <summary>
         /// Iid of the associated ParametervalueSet
         /// </summary>
@@ -63,41 +72,32 @@ namespace COMETwebapp.Components.ParameterEditor
         public bool IsEditable { get; set; }
 
         /// <summary>
-        /// RenderFragment that contains the tooltip
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
         /// </summary>
-        [Parameter]
-        public RenderFragment ChildContent { get; set; }
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        private void OnClickComputed(MouseEventArgs e)
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.COMPUTED, null));
-        }
+            await base.OnAfterRenderAsync(firstRender);
 
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        private void OnClickManual(MouseEventArgs e)
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.MANUAL, null));
-        }
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        private void OnClickReference(MouseEventArgs e)
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.REFERENCE, null));
-        }
-
-        /// <summary>
-        /// Sends an event to write the selected switch on ISession
-        /// </summary>
-        private void OnSubmitSwitchChange(MouseEventArgs e)
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, this.SwitchValue, true));
+            if (firstRender)
+            {
+                this.ViewModel.IsEditable = this.IsEditable;
+                this.ViewModel.SwitchValue = this.SwitchValue;
+                this.ViewModel.ParameterValueSetIid = this.ParameterValueSetIid;
+                this.ViewModel.ParameterValueSetSwitchMode = this.ParameterValueSetSwitchMode;
+            }
         }
     }
 }
