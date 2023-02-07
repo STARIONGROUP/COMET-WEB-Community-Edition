@@ -86,45 +86,6 @@ namespace COMETwebapp.Components.ParameterEditor
             {
                 filteredParameters.RemoveAll(p => p.ParameterType != this.ParameterTypeSelected);
             }
-
-            return filteredParameters.OrderBy(p => p.ParameterType.Name);
-        }
-
-        /// <summary>
-        /// Filters <see cref="ParameterValueSetBase"/>s for the selected option and the selected state
-        /// </summary>
-        /// <param name="isOptionDependent">if the <see cref="Parameter"/> is option dependant</param>
-        /// <param name="parameterValueSets">the <see cref="ParameterValueSet"/> to filter</param>
-        /// <returns>the filtered result</returns>
-        public IEnumerable<ParameterValueSetBase> FilterParameterValueSetBase(bool isOptionDependent, List<ParameterValueSetBase> parameterValueSets)
-        {
-            var filteredParameterValueSets = new List<ParameterValueSetBase>();
-            
-            if (this.OptionSelected != null && isOptionDependent)
-            {
-                filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-            }
-            else
-            {
-                filteredParameterValueSets.AddRange(parameterValueSets);
-            }
-            
-            if (this.StateSelected != null)
-            {
-                var parameterValueSetsToRemove = new List<ParameterValueSetBase>();
-                
-                filteredParameterValueSets.ForEach(p =>
-                {
-                    if (p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                    {
-                        parameterValueSetsToRemove.Add(p);
-                    }
-                });
-                
-                filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-            }
-
-            return filteredParameterValueSets.OrderBy(p => p.ModelCode());
         }
     }
 }

@@ -63,7 +63,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets the switch for the published value
         /// </summary>
         ParameterSwitchKind Switch { get; }
-        
+
         /// <summary>
         /// Gets the <see cref="Parameter"/> model code
         /// </summary>
