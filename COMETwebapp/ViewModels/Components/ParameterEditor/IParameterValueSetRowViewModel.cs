@@ -24,10 +24,43 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
     /// <summary>
     /// Interface for the <see cref="ParameterValueSetRowViewModel"/>
     /// </summary>
     public interface IParameterValueSetRowViewModel
     {
+        /// <summary>
+        /// The ParameterValueSet to show in the table
+        /// </summary>
+        public ParameterValueSetBase ParameterValueSet { get; set; }
+
+        /// <summary>
+        /// The associated Parameter to show
+        /// </summary>
+        public ParameterOrOverrideBase Parameter { get; set; }
+
+        /// <summary>
+        /// Sets if ParameterValueSet was edited
+        /// </summary>
+        public bool IsParameterValueSetEdited { get; set; }
+
+        /// <summary>
+        /// ParameterSwitchKind to show
+        /// </summary>
+        public string SelectedSwitchKind { get; set; }
+
+        /// <summary>
+        /// Initializes this <see cref="ParameterValueSetRowViewModel"/>
+        /// </summary>
+        void InitializeViewModel();
+
+        /// <summary>
+        /// Tells if ParameterValueSet is editable
+        /// A <see cref="ParameterValueSetBase"/> is editable if it is owned by the active <see cref="DomainOfExpertise"/>
+        /// </summary>
+        public bool IsEditable();
     }
 }

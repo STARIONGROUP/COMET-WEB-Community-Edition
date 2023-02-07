@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -29,28 +29,26 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.Services.SessionManagement
 
-@inject ISessionService SessionService
-@implements IDisposable
-
 @if(this.Parameter != null && this.ParameterValueSet != null)
 {
     var modelCode = this.ParameterValueSet.ModelCode().Split("\\");
     var colorToApply = string.Empty;
-    if (this.IsParameterValueSetEdited == true)
+    if (this.ViewModel.IsParameterValueSetEdited == true)
     {
         colorToApply = "color-title";
     }
     var valueSwitchToShow = this.ParameterValueSet.ValueSwitch;
-    if(this.SelectedSwitchKind != null)
+    if (this.ViewModel.SelectedSwitchKind != null)
     {
-        valueSwitchToShow = (ParameterSwitchKind) Enum.Parse(typeof(ParameterSwitchKind), this.SelectedSwitchKind);
+        valueSwitchToShow = (ParameterSwitchKind) Enum.Parse(typeof(ParameterSwitchKind), this.ViewModel.SelectedSwitchKind);
     }
     <BSTR AlignRow="AlignRow.Middle">
         <BSTD Class="width-10">
             <div class="@colorToApply">
-                @Parameter.ParameterType.Name
+                @this.Parameter.ParameterType.Name
             </div>
         </BSTD>
+    
         @if(modelCode.Count() == 1)
         {
             <BSTD Class="width-20">
@@ -98,21 +96,22 @@ Copyright (c) 2023 RHEA System S.A.
         @if(this.Parameter.ParameterType.NumberOfValues == 1)
         {
             var enumerationValueDefinitions = new List<EnumerationValueDefinition>();
-            if(this.Parameter.ParameterType is EnumerationParameterType)
+            if(this.Parameter.ParameterType is EnumerationParameterType enumerationParameterType)
             {
-                var parameterType = (EnumerationParameterType)this.Parameter.ParameterType;
-                enumerationValueDefinitions.AddRange(parameterType.ValueDefinition);
-            } else
+                enumerationValueDefinitions.AddRange(enumerationParameterType.ValueDefinition);
+            } 
+            else
             {
                 enumerationValueDefinitions = null;
             }
             <BSTD Class="width-20">
                 <ScalarParameter 
-                    Value="@ParameterValueSet.Published.First()" 
-                    Scale="@Parameter.Scale" 
-                    ValueType="@Parameter.ParameterType.GetType()"
+                    Value="@this.ParameterValueSet.Published.First()" 
+                    Scale="@this.Parameter.Scale" 
+                    ValueType="@this.Parameter.ParameterType.GetType()"
                     IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
             </BSTD>
+            
             @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
             {
                 <BSTD Class="width-30">
@@ -120,17 +119,17 @@ Copyright (c) 2023 RHEA System S.A.
                         <div class="row m-0">
                             <div class="col p-0">
                                 <ScalarParameter 
-                                    Value="@ParameterValueSet.Computed.First()" 
-                                    Scale="@Parameter.Scale" 
-                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    Value="@this.ParameterValueSet.Computed.First()" 
+                                    Scale="@this.Parameter.Scale" 
+                                    ValueType="@this.Parameter.ParameterType.GetType()"
                                     IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                    SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
+                                    ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
+                                    SwitchValue="valueSwitchToShow"
+                                   IsEditable="@this.ViewModel.IsEditable()">
                                     <button type="button" class="btn btn-secondary btn-tooltip">C</button>
                                 </SwitchTooltip>
                             </div>
@@ -144,20 +143,20 @@ Copyright (c) 2023 RHEA System S.A.
                         <div class="row m-0">
                             <div class="col p-0">
                                 <ScalarParameter 
-                                    Value="@ParameterValueSet.Manual.First()" 
-                                    Scale="@Parameter.Scale" 
-                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    Value="@this.ParameterValueSet.Manual.First()" 
+                                    Scale="@this.Parameter.Scale" 
+                                    ValueType="@this.Parameter.ParameterType.GetType()"
                                     EnumerationValueDefinitions="@enumerationValueDefinitions"
-                                    ParameterValueSet="@ParameterValueSet" 
-                                    IndexInValueSet="0" IsManualEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
+                                    ParameterValueSet="@this.ParameterValueSet" 
+                                    IndexInValueSet="0" IsManualEditable="@this.ViewModel.IsEditable()" 
+                                    IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                     SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
+                                    IsEditable="@this.ViewModel.IsEditable()">
                                     <button type="button" class="btn btn-secondary btn-tooltip">M</button>
                                 </SwitchTooltip>
                             </div>
@@ -171,20 +170,20 @@ Copyright (c) 2023 RHEA System S.A.
                         <div class="row m-0">
                             <div class="col p-0">
                                 <ScalarParameter 
-                                    Value="@ParameterValueSet.Reference.First()" 
-                                    Scale="@Parameter.Scale" 
-                                    ParameterValueSet="@ParameterValueSet"
-                                    ValueType="@Parameter.ParameterType.GetType()"
+                                    Value="@this.ParameterValueSet.Reference.First()" 
+                                    Scale="@this.Parameter.Scale" 
+                                    ParameterValueSet="@this.ParameterValueSet"
+                                    ValueType="@this.Parameter.ParameterType.GetType()"
                                     EnumerationValueDefinitions="@enumerationValueDefinitions"
-                                    IndexInValueSet="0" IsReferenceEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
+                                    IndexInValueSet="0" IsReferenceEditable="@this.ViewModel.IsEditable()" 
+                                    IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
+                                    ParameterValueSetIid="@this.ParameterValueSet.Iid" 
                                     SwitchValue="valueSwitchToShow"
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
-                                    IsEditable="@IsEditable()">
+                                    ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
+                                    IsEditable="@this.ViewModel.IsEditable()">
                                     <button type="button" class="btn btn-secondary btn-tooltip">R</button>
                                 </SwitchTooltip>
                             </div>
@@ -192,14 +191,16 @@ Copyright (c) 2023 RHEA System S.A.
                     </div>
                 </BSTD>
             }
-        } else if(this.Parameter.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
+        } 
+        else if(this.Parameter.ParameterType is ArrayParameterType arrayParameterType)
         {
             <BSTD Class="width-20">
                 <ArrayParameter 
-                    ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                    Values="@ParameterValueSet.Published" 
-                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
+                    ArrayParameterType="arrayParameterType" 
+                    Values="@this.ParameterValueSet.Published" 
+                    IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited" />
             </BSTD>
+
             @if(valueSwitchToShow == ParameterSwitchKind.COMPUTED)
             {
                 <BSTD Class="width-30">
@@ -208,15 +209,15 @@ Copyright (c) 2023 RHEA System S.A.
                             <div class="col p-0">
                                 <ArrayParameter 
                                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                                    Values="@ParameterValueSet.Computed" 
-                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
+                                    Values="@this.ParameterValueSet.Computed" 
+                                    IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited" />
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                     SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
+                                    IsEditable="@this.ViewModel.IsEditable()">
                                     <button type="button" class="btn btn-secondary btn-tooltip">C</button>
                                 </SwitchTooltip>
                             </div>
@@ -231,18 +232,18 @@ Copyright (c) 2023 RHEA System S.A.
                             <div class="col p-0">
                                     <ArrayParameter 
                                         ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                                        Values="@ParameterValueSet.Manual" 
-                                        ParameterValueSet="@ParameterValueSet" 
+                                        Values="@this.ParameterValueSet.Manual" 
+                                        ParameterValueSet="@this.ParameterValueSet" 
                                         IndexStartInValueSet="0" 
-                                        IsManualEditable="@IsEditable()" 
-                                        IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
+                                        IsManualEditable="@this.ViewModel.IsEditable()" 
+                                        IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited"/>
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip 
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                     SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
+                                    IsEditable="@this.ViewModel.IsEditable()">
                                     <button type="button" class="btn btn-secondary btn-tooltip">M</button>
                                 </SwitchTooltip>
                             </div>
@@ -257,18 +258,18 @@ Copyright (c) 2023 RHEA System S.A.
                             <div class="col p-0">
                                 <ArrayParameter 
                                     ArrayParameterType="(ArrayParameterType)this.Parameter.ParameterType" 
-                                    Values="@ParameterValueSet.Reference" 
-                                    ParameterValueSet="@ParameterValueSet" 
+                                    Values="@this.ParameterValueSet.Reference" 
+                                    ParameterValueSet="@this.ParameterValueSet" 
                                     IndexStartInValueSet="0" 
-                                    IsReferenceEditable="@IsEditable()" 
-                                    IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
+                                    IsReferenceEditable="@this.ViewModel.IsEditable()" 
+                                    IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited"/>
                             </div>
                             <div class="col-2 align-self-center">
                                 <SwitchTooltip 
-                                    ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                    ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                    ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                    ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                     SwitchValue="valueSwitchToShow" 
-                                    IsEditable="@IsEditable()">
+                                    IsEditable="@this.ViewModel.IsEditable()">
                                     <button type="button" class="btn btn-secondary btn-tooltip">R</button>
                                 </SwitchTooltip>
                             </div>
@@ -287,16 +288,16 @@ Copyright (c) 2023 RHEA System S.A.
                         @foreach (var component in components)
                         {
                             var indexStart = 0;
-                            for (int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                            for (var i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
                             {
                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                             }
                             <CompoundParameter 
                                 IndexStartInParameterTypeComponent="indexStart" 
-                                Values="@ParameterValueSet.Published" 
+                                Values="@this.ParameterValueSet.Published" 
                                 Component="component" 
-                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
+                                IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited"/>
                         }
                     </div>                                                
                 </BSTD>
@@ -310,25 +311,24 @@ Copyright (c) 2023 RHEA System S.A.
                                         @foreach (var component in components)
                                         {
                                             var indexStart = 0;
-                                            for (int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                                            for (var i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
                                             {
                                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
-
                                             }
                                             <CompoundParameter 
                                                 IndexStartInParameterTypeComponent="indexStart" 
-                                                Values="@ParameterValueSet.Computed" 
+                                                Values="@this.ParameterValueSet.Computed" 
                                                 Component="component" 
-                                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited"/>
+                                                IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited"/>
                                         }
                                     </div>     
                                 </div>
                                 <div class="col-2 align-self-center">
                                     <SwitchTooltip 
-                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                         SwitchValue="valueSwitchToShow" 
-                                        IsEditable="@IsEditable()">
+                                        IsEditable="@this.ViewModel.IsEditable()">
                                         <button type="button" class="btn btn-secondary btn-tooltip">C</button>
                                     </SwitchTooltip>
                                 </div>
@@ -345,27 +345,27 @@ Copyright (c) 2023 RHEA System S.A.
                                         @foreach(var component in components)
                                         {
                                             var indexStart = 0;
-                                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                                            for(var i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
                                             {
                                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                                             }
                                             <CompoundParameter 
                                                 IndexStartInParameterTypeComponent="indexStart" 
-                                                Values="@ParameterValueSet.Manual" 
+                                                Values="@this.ParameterValueSet.Manual" 
                                                 Component="component" 
-                                                ParameterValueSet="@ParameterValueSet" 
-                                                IsManualEditable="@IsEditable()" 
-                                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
+                                                ParameterValueSet="@this.ParameterValueSet" 
+                                                IsManualEditable="@this.ViewModel.IsEditable()" 
+                                                IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited" />
                                         }
                                     </div>                                               
                                 </div>
                                 <div class="col-2 align-self-center">
                                     <SwitchTooltip 
-                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                         SwitchValue="valueSwitchToShow" 
-                                        IsEditable="@IsEditable()">
+                                        IsEditable="@this.ViewModel.IsEditable()">
                                         <button type="button" class="btn btn-secondary btn-tooltip">M</button>
                                     </SwitchTooltip>
                                 </div>
@@ -382,27 +382,27 @@ Copyright (c) 2023 RHEA System S.A.
                                         @foreach(var component in components)
                                         {
                                             var indexStart = 0;
-                                            for(int i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
+                                            for(var i = 0; i < compoundParameterType.Component.IndexOf(component); i++)
                                             {
                                                 indexStart += compoundParameterType.Component.ElementAt(i).ParameterType.NumberOfValues;
 
                                             }
                                             <CompoundParameter 
                                                 IndexStartInParameterTypeComponent="indexStart" 
-                                                Values="@ParameterValueSet.Reference" 
+                                                Values="@this.ParameterValueSet.Reference" 
                                                 Component="component" 
-                                                ParameterValueSet="@ParameterValueSet" 
-                                                IsReferenceEditable="@IsEditable()" 
-                                                IsParameterValueSetEdited="@this.IsParameterValueSetEdited" />
+                                                ParameterValueSet="@this.ParameterValueSet" 
+                                                IsReferenceEditable="@this.ViewModel.IsEditable()" 
+                                                IsParameterValueSetEdited="@this.ViewModel.IsParameterValueSetEdited" />
                                         }
                                     </div>
                                 </div>
                                 <div class="col-2 align-self-center">
                                     <SwitchTooltip 
-                                        ParameterValueSetIid="@ParameterValueSet.Iid" 
-                                        ParameterValueSetSwitchMode="@ParameterValueSet.ValueSwitch"
+                                        ParameterValueSetIid="@this.ParameterValueSet.Iid" 
+                                        ParameterValueSetSwitchMode="@this.ParameterValueSet.ValueSwitch"
                                         SwitchValue="valueSwitchToShow" 
-                                        IsEditable="@IsEditable()">
+                                        IsEditable="@this.ViewModel.IsEditable()">
                                         <button type="button" class="btn btn-secondary btn-tooltip">R</button>
                                     </SwitchTooltip>
                                 </div>
@@ -414,7 +414,7 @@ Copyright (c) 2023 RHEA System S.A.
         }
         <BSTD Class="width-10">
             <div class="@colorToApply">
-                @Parameter.Owner.ShortName
+                @this.Parameter.Owner.ShortName
             </div>
         </BSTD>
     </BSTR>

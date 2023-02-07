@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -26,29 +26,61 @@ Copyright (c) 2023 RHEA System S.A.
 <div class="container-fluid" style="min-width: 1400px;">
     @if(this.Elements != null)
     {
+@*        <DxGrid ShowGroupPanel="true" 
+                ShowFilterRow="true"
+                Data="this.Elements"
+                AllowGroup="true">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(ElementBase.Name)"
+                                  Caption="Element"
+                                  TextAlignment="GridTextAlignment.Center">
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="Parameter"
+                                  Caption="Parameter"
+                                  TextAlignment="GridTextAlignment.Center">
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ElementUsage.ModelCode)"
+                                  Caption="Model Code"
+                                  TextAlignment="GridTextAlignment.Center">
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="PublishedValue"
+                                  Caption="Published Value"
+                                  TextAlignment="GridTextAlignment.Center">
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="Value"
+                                  Caption="Value"
+                                  TextAlignment="GridTextAlignment.Center">
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ElementUsage.Owner)"
+                                  Caption="Owner"
+                                  TextAlignment="GridTextAlignment.Center">
+                </DxGridDataColumn>
+            </Columns>
+        </DxGrid>*@
+        
         <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
             <BSTHead>
                 <BSTR>
                     <BSTD>
                         <div class="row">
-                            <div class="width-10">Element</div>
-                            <div class="width-10">Parameter</div>
-                            <div style="width: 20%;">Model Code</div>
-                            <div style="width: 20%;">Published Value</div>
-                            <div style="width: 25%;">Value</div>
+                            <div style="width: 15%;">Element</div>
+                            <div style="width: 15%;">Parameter</div>
+                            <div style="width: 15%;">Model Code</div>
+                            <div style="width: 15%;">Published Value</div>
+                            <div style="width: 15%;">Value</div>
                             <div style="width: 15%; padding: 0px 92px;">Owner</div>
                         </div>
                     </BSTD>
                 </BSTR>
             </BSTHead>
             <BSTBody>
-                <div style="max-height:600px;overflow-y:scroll">
+                <div style="overflow-y:scroll">
                     @foreach (var element in this.Elements)
                     {
                         <div style="padding-right: 0px; border-bottom-color: black; border-bottom-style: double;">
                             <BSTR AlignRow="AlignRow.Middle">
-                                <BSTD Class="width-10">@element.Name</BSTD>
-                                <BSTD Class="width-1400">
+                                <BSTD>@element.Name</BSTD>
+                                <BSTD>
                                     <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
                                         <BSTBody>
                                             @if (element.GetType().Equals(typeof(ElementDefinition)))

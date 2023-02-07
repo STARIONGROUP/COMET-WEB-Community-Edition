@@ -28,6 +28,8 @@ namespace COMETwebapp.Pages.ParameterEditor
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Class for the <see cref="ParameterEditor"/> razor component
     /// </summary>
@@ -62,6 +64,7 @@ namespace COMETwebapp.Pages.ParameterEditor
             if (firstRender)
             {
                 this.ViewModel.InitializeViewModel();
+                this.WhenAnyValue(x => x.ViewModel.FilteredElements).Subscribe(_=> this.InvokeAsync(this.StateHasChanged));
             }
         }
     }

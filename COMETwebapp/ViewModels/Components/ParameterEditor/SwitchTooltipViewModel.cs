@@ -24,6 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.EngineeringModelData;
+    
+    using CDP4Dal;
+    
+    using COMETwebapp.Model;
+    
     using ReactiveUI;
 
     /// <summary>
@@ -31,6 +37,56 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     /// </summary>
     public class SwitchTooltipViewModel : ReactiveObject, ISwitchTooltipViewModel
     {
+        /// <summary>
+        /// Iid of the associated ParametervalueSet
+        /// </summary>
+        public Guid ParameterValueSetIid { get; set; }
 
+        /// <summary>
+        /// The switch mode of the associated ParameterValueSet
+        /// </summary>
+        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
+
+        /// <summary>
+        /// Sets computed button active
+        /// </summary>
+        public ParameterSwitchKind SwitchValue { get; set; }
+
+        /// <summary>
+        /// Sets if the switch can be change in the ISession
+        /// </summary>
+        public bool IsEditable { get; set; }
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickComputed()
+        {
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.COMPUTED, null));
+        }
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickManual()
+        {
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.MANUAL, null));
+        }
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickReference()
+        {
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.REFERENCE, null));
+        }
+
+        /// <summary>
+        /// Sends an event to write the selected switch on ISession
+        /// </summary>
+        public void OnSubmitSwitchChange()
+        {
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, this.SwitchValue, true));
+        }
     }
 }

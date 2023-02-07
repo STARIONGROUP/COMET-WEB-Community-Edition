@@ -24,10 +24,53 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.EngineeringModelData;
+
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
     /// Interface for the <see cref="SwitchTooltipViewModel"/>
     /// </summary>
     public interface ISwitchTooltipViewModel
     {
+        /// <summary>
+        /// Iid of the associated ParametervalueSet
+        /// </summary>
+        public Guid ParameterValueSetIid { get; set; }
+
+        /// <summary>
+        /// The switch mode of the associated ParameterValueSet
+        /// </summary>
+        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
+
+        /// <summary>
+        /// Sets computed button active
+        /// </summary>
+        public ParameterSwitchKind SwitchValue { get; set; }
+
+        /// <summary>
+        /// Sets if the switch can be change in the ISession
+        /// </summary>
+        public bool IsEditable { get; set; }
+        
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickComputed();
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickManual();
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickReference();
+
+        /// <summary>
+        /// Sends an event to write the selected switch on ISession
+        /// </summary>
+        public void OnSubmitSwitchChange();
     }
 }

@@ -25,6 +25,7 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Services.SessionManagement;
 
@@ -57,19 +58,19 @@ namespace COMETwebapp.Components.ParameterEditor
         /// Name of the parameter type selected
         /// </summary>
         [Parameter]
-        public string ParameterTypeSelected { get; set; }
+        public ParameterType ParameterTypeSelected { get; set; }
 
         /// <summary>
         /// Name of the option selected
         /// </summary>
         [Parameter]
-        public string OptionSelected { get; set; }
+        public Option OptionSelected { get; set; }
 
         /// <summary>
         /// Name of the state selected
         /// </summary>
         [Parameter]
-        public string StateSelected { get; set; }
+        public ActualFiniteState StateSelected { get; set; }
 
         /// <summary>
         /// Filters <see cref="Parameter"/> for the selected owner and the selected type
@@ -90,7 +91,7 @@ namespace COMETwebapp.Components.ParameterEditor
             
             if (this.ParameterTypeSelected != null)
             {
-                filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
+                filteredParameters.RemoveAll(p => p.ParameterType != this.ParameterTypeSelected);
             }
 
             return filteredParameters.OrderBy(p => p.ParameterType.Name);
@@ -115,7 +116,7 @@ namespace COMETwebapp.Components.ParameterEditor
             
             if (this.ParameterTypeSelected != null)
             {
-                filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
+                filteredParameters.RemoveAll(p => p.ParameterType != this.ParameterTypeSelected);
             }
 
             return filteredParameters.OrderBy(p => p.ParameterType.Name);

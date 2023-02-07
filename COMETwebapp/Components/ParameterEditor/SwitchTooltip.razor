@@ -1,10 +1,7 @@
-﻿@using CDP4Common.EngineeringModelData
-@using CDP4Dal
-@using COMETwebapp.Model
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,11 +19,14 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using CDP4Common.EngineeringModelData
+@using CDP4Dal
+@using COMETwebapp.Model
 
 <div class="tooltip-wrapper">
     @{
         var width = "fit-content";
-        if (this.IsEditable == true)
+        if (this.ViewModel.IsEditable == true)
         {
             width = "125px";
         }
@@ -37,18 +37,18 @@ Copyright (c) 2023 RHEA System S.A.
             <div class="row m-0 width-fit-content">
                 <div class="col-7 p-0 width-fit-content">
                     <BSButtonGroup IsVertical="true">
-                        @if(this.ParameterValueSetSwitchMode == ParameterSwitchKind.COMPUTED)
+                        @if(this.ViewModel.ParameterValueSetSwitchMode == ParameterSwitchKind.COMPUTED)
                         {
                             colorButton = BlazorStrap.BSColor.Success;
                         }
                         <BSButton Color="@colorButton" 
                             IsOutlined="true" 
                             Class="p-0 font-size-small font-weight-bold" 
-                            OnClick="@OnClickComputed" 
-                            IsActive="this.SwitchValue == ParameterSwitchKind.COMPUTED" >
+                            OnClick="@this.ViewModel.OnClickComputed" 
+                            IsActive="this.ViewModel.SwitchValue == ParameterSwitchKind.COMPUTED" >
                             Computed
                         </BSButton>
-                        @if(this.ParameterValueSetSwitchMode == ParameterSwitchKind.MANUAL)
+                        @if(this.ViewModel.ParameterValueSetSwitchMode == ParameterSwitchKind.MANUAL)
                         {
                             colorButton = BlazorStrap.BSColor.Success;
                         } else
@@ -58,11 +58,11 @@ Copyright (c) 2023 RHEA System S.A.
                         <BSButton Color="@colorButton" 
                             IsOutlined="true" 
                             Class="p-0 font-size-small font-weight-bold" 
-                            OnClick="@OnClickManual" 
-                            IsActive="this.SwitchValue == ParameterSwitchKind.MANUAL" >
+                            OnClick="@this.ViewModel.OnClickManual" 
+                            IsActive="this.ViewModel.SwitchValue == ParameterSwitchKind.MANUAL" >
                             Manual
                         </BSButton>
-                        @if(this.ParameterValueSetSwitchMode == ParameterSwitchKind.REFERENCE)
+                        @if(this.ViewModel.ParameterValueSetSwitchMode == ParameterSwitchKind.REFERENCE)
                         {
                             colorButton = BlazorStrap.BSColor.Success;
                         } else
@@ -72,19 +72,19 @@ Copyright (c) 2023 RHEA System S.A.
                         <BSButton Color="@colorButton" 
                             IsOutlined="true" 
                             Class="p-0 font-size-small font-weight-bold" 
-                            OnClick="@OnClickReference" 
-                            IsActive="this.SwitchValue == ParameterSwitchKind.REFERENCE" >
+                            OnClick="@this.ViewModel.OnClickReference" 
+                            IsActive="this.ViewModel.SwitchValue == ParameterSwitchKind.REFERENCE" >
                             Reference
                         </BSButton>
                     </BSButtonGroup>
                 </div>
-                @if(this.IsEditable == true){
+                @if(this.ViewModel.IsEditable == true){
                     <div class="col-5 p-0 width-fit-content align-self-center">
-                        <button id="switchsubmit" type="submit" class="btn p-0" style="color: #95a5a6;" @onclick="@OnSubmitSwitchChange">Submit</button>
+                        <button id="switchsubmit" type="submit" class="btn p-0" style="color: #95a5a6;" @onclick="@this.ViewModel.OnSubmitSwitchChange">Submit</button>
                     </div>
                 }            
             </div>
         </div>
     </span>
-    @ChildContent
+    @this.ChildContent
 </div>

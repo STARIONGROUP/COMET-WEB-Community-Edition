@@ -41,6 +41,7 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.ViewModels.Pages.ParameterEditor;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     using DevExpress.Blazor;
@@ -111,6 +112,8 @@ namespace COMETwebapp
             builder.Services.AddTransient<IProductTreeViewModel, ProductTreeViewModel>();
             builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
             builder.Services.AddTransient<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
+            builder.Services.AddTransient<IParameterEditorViewModel,ParameterEditorViewModel>();
+            builder.Services.AddTransient<ISwitchTooltipViewModel, SwitchTooltipViewModel>();
             builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
             builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
             builder.Services.AddTransient<IParameterDashboardViewModel, ParameterDashboardViewModel>();

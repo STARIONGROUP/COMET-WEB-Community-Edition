@@ -24,15 +24,9 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
-    using System.Reactive.Linq;
-
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
-
-    using CDP4Dal;
-
-    using COMETwebapp.Model;
-    using COMETwebapp.Services.IterationServices;
+    
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -54,97 +48,35 @@ namespace COMETwebapp.Components.ParameterEditor
         public ParameterOrOverrideBase Parameter { get; set; }
 
         /// <summary>
-        /// Sets if ParameterValueSet was edited
+        /// Gets or sets the <see cref="ViewModel"/>
         /// </summary>
-        private bool IsParameterValueSetEdited { get; set; }
+        [Inject]
+        public IParameterValueSetRowViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// ParameterSwitchKind to show
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
         /// </summary>
-        private string SelectedSwitchKind { get; set; }
-
-        /// <summary>
-        /// Listeners for the components to update it with edit changes
-        /// </summary>
-        private Dictionary<string, IDisposable> Listeners = new ();
-
-        /// <summary>
-        /// Initialize ClonedParameterValueSet 
-        /// </summary>
-        protected override void OnInitialized()
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (this.ParameterValueSet != null && this.IsEditable())
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
             {
-                this.IsParameterValueSetEdited = this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid);
+                this.ViewModel.InitializeViewModel();
             }
-
-            if (!this.Listeners.TryGetValue("NewUpdate", out var listener))
-            {
-                this.Listeners.Add("NewUpdate", CDPMessageBus.Current.Listen<NewUpdateEvent>().Where(x => x.UpdatedThingIid == this.ParameterValueSet?.Iid).Subscribe(x =>
-                {
-                    this.IsParameterValueSetEdited = true;
-                    this.StateHasChanged();
-                }));
-            }
-
-            if (!this.Listeners.TryGetValue("SwitchMode", out listener))
-            {
-                this.Listeners.Add("SwitchMode", CDPMessageBus.Current.Listen<SwitchEvent>().Where(x => x.ParameterValuSetIid == this.ParameterValueSet?.Iid).Subscribe(x =>
-                {
-                    if (x.SubmitChange == null)
-                    {
-                        this.SelectedSwitchKind = x.SelectedSwitch.ToString();
-                        this.StateHasChanged();
-                    }
-                    else if (x.SubmitChange == true)
-                    {
-                        this.UpdateChange(x.SelectedSwitch);
-                    }
-                }));
-            }
-        }
-
-        /// <summary>
-        /// Tells if ParameterValueSet is editable
-        /// A <see cref="ParameterValueSetBase"/> is editable if it is owned by the active <see cref="DomainOfExpertise"/>
-        /// </summary>
-        private bool IsEditable()
-        {
-            return this.ParameterValueSet?.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration);
-        }
-
-        /// <summary>
-        /// Update value of <see cref="ParameterValueSet"/> when a change appears 
-        /// </summary>
-        private void UpdateChange(ParameterSwitchKind newValue)
-        {
-            if (this.ParameterValueSet != null)
-            {
-                if (this.IsEditable() && !this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid))
-                {
-                    this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
-                }
-                
-                var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
-                clonedParameterValueSet.ValueSwitch = newValue;
-                
-                this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()
-                {
-                    clonedParameterValueSet
-                });
-                
-                this.ParameterValueSet.ValueSwitch = newValue;
-                CDPMessageBus.Current.SendMessage<NewUpdateEvent>(new NewUpdateEvent(this.ParameterValueSet.Iid));
-            }
-        }
-
-        /// <summary>
-        /// Stop and clear Listeners of the component
-        /// </summary>
-        public void Dispose()
-        {
-            this.Listeners.Values.ToList().ForEach(l => l.Dispose());
-            this.Listeners.Clear();
         }
     }
 }

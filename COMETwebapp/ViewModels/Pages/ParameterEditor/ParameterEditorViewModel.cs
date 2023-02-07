@@ -63,9 +63,18 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
+        /// Backing field for the <see cref="FilteredElements"/>
+        /// </summary>
+        private List<ElementBase> filteredElements = new();
+
+        /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
-        public List<ElementBase> FilteredElements { get; set; } = new();
+        public List<ElementBase> FilteredElements
+        {
+            get => this.filteredElements;
+            set => this.RaiseAndSetIfChanged(ref this.filteredElements, value);
+        }
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
@@ -91,7 +100,18 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// All ParameterType names in the model
         /// </summary>
         public List<ParameterType> ParameterTypes { get; set; } = new();
-        
+
+        /// <summary>
+        /// Creates a new instance of <see cref="ParameterEditorViewModel"/>
+        /// </summary>
+        /// <param name="sessionService">the <see cref="ISessionService"/></param>
+        /// <param name="iterationService">the <see cref="IIterationService"/></param>
+        public ParameterEditorViewModel(ISessionService sessionService, IIterationService iterationService)
+        {
+            this.SessionService = sessionService;
+            this.IterationService = iterationService;
+        }
+
         /// <summary>
         /// Initializes the <see cref="ParameterEditorViewModel"/>
         /// </summary>
