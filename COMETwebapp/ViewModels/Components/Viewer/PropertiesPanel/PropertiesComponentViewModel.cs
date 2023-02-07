@@ -94,7 +94,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Backing field for the <see cref="ParametersInUse"/>
         /// </summary>
-        private List<ParameterBase> parametersInUse;
+        private List<ParameterBase> parametersInUse = new();
 
         /// <summary>
         /// The list of parameters that the selected <see cref="SceneObject"/> uses
@@ -141,7 +141,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Gets or sets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> that have changed;
         /// </summary>
-        public Dictionary<ParameterBase, IValueSet> ChangedParameterValueSetRelations { get; set; }
+        public Dictionary<ParameterBase, IValueSet> ChangedParameterValueSetRelations { get; set; } = new();
 
         /// <summary>
         /// Creates a new instance of type <see cref="PropertiesComponentViewModel"/>
@@ -162,15 +162,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 this.OnParameterValueChanged(parameterValueSetRelations); 
             });
 
-            this.SelectionMediator.OnTreeSelectionChanged += (nodeViewModel) =>
-            {
-                this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
-            };
-
-            this.SelectionMediator.OnModelSelectionChanged += (sceneObject) =>
-            {
-                this.OnSelectionChanged(sceneObject);
-            };
+            this.SelectionMediator.OnTreeSelectionChanged += (nodeViewModel) => this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
+            this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
         }              
 
         /// <summary> 

@@ -63,10 +63,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public bool IsExpanded
         {
             get => this.isExpanded;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref this.isExpanded, value);
-            }
+            set => this.RaiseAndSetIfChanged(ref this.isExpanded, value);
         }
 
         /// <summary>
@@ -80,10 +77,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public bool IsDrawn
         {
             get => this.isDrawn;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref this.isDrawn, value);
-            }
+            set => this.RaiseAndSetIfChanged(ref this.isDrawn, value);
         }
 
         /// <summary>
@@ -97,10 +91,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public bool IsSelected
         {
             get => this.isSelected;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref this.isSelected, value);
-            }
+            set => this.RaiseAndSetIfChanged(ref this.isSelected, value);
         }
 
         /// <summary>
@@ -114,10 +105,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public bool IsSceneObjectVisible
         {
             get => this.isSceneObjectVisible;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref this.isSceneObjectVisible, value);
-            }
+            set => this.RaiseAndSetIfChanged(ref this.isSceneObjectVisible, value);
         }
 
         /// <summary> 
@@ -239,7 +227,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         }
 
         /// <summary>
-        /// Sort all descendants of this node by the <see cref="Name"/>
+        /// Sort all descendants of this node by the <see cref="Node"/> title
         /// </summary>
         public void OrderAllDescendantsByShortName()
         {
@@ -281,7 +269,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Method for when a node is selected
         /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
+        /// <param name="nodeViewModel">the selected <see cref="INodeComponentViewModel"/></param>
         public void TreeSelectionChanged(INodeComponentViewModel nodeViewModel)
         {
             this.GetRootNode().GetFlatListOfDescendants(true).ForEach(x => x.IsSelected = false);
@@ -298,7 +286,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Method for when a node visibility changed
         /// </summary>
-        /// <param name="node">the selected <see cref="TreeNode"/></param>
+        /// <param name="nodeViewModel">the selected <see cref="INodeComponentViewModel"/></param>
         public void TreeNodeVisibilityChanged(INodeComponentViewModel nodeViewModel)
         {
             this.StopClickPropagation = true;

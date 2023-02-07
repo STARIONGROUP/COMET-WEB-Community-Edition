@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Enumerations;
+    using COMETwebapp.Model;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
@@ -62,7 +63,8 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             var orientationViewModel = new Mock<IOrientationViewModel>();
             orientationViewModel.Setup(x => x.AngleFormats).Returns(new List<AngleFormat>() { AngleFormat.Degrees, AngleFormat.Radians });
             orientationViewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "0", "0", "0", }));
-            
+            orientationViewModel.Setup(x => x.Orientation).Returns(Orientation.Identity());
+
             this.renderedComponent = this.context.RenderComponent<OrientationComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, orientationViewModel.Object);

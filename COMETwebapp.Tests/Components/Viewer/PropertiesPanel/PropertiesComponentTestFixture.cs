@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
+    using Bunit;
+
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.Interoperability;
@@ -42,6 +44,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     {
         private TestContext context;
         private PropertiesComponent properties;
+        private IRenderedComponent<PropertiesComponent> renderedComponent;
 
         [SetUp]
         public void SetUp()
@@ -53,9 +56,9 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
             
-            var renderedComponent = this.context.RenderComponent<PropertiesComponent>();
+            this.renderedComponent = this.context.RenderComponent<PropertiesComponent>();
 
-            this.properties = renderedComponent.Instance;
+            this.properties = this.renderedComponent.Instance;
         }
 
         [Test]
@@ -78,6 +81,16 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Assert.That(detailsViewModel, Is.Not.Null);
                 Assert.That(detailsViewModel.IsVisible, Is.False);
             });
+        }
+
+        [Test]
+        public void VerifyThatComponentCanBeHidden()
+        {
+            this.properties.ViewModel.IsVisible = true;
+            var component = this.renderedComponent.Find("#properties-header");
+            Assert.That(component, Is.Not.Null);
+            this.properties.ViewModel.IsVisible = false;
+            Assert.Throws<ElementNotFoundException>(() => this.renderedComponent.Find("#properties-header"));
         }
     }
 }

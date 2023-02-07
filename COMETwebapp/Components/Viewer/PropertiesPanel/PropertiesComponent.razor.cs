@@ -78,7 +78,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Creates a new <see cref="IDetailsComponentViewModel"/>
         /// </summary>
-        /// <returns>a <see cref="IDetailsComponentViewModels"/></returns>
+        /// <returns>a <see cref="IDetailsComponentViewModel"/> based on this <see cref="IPropertiesComponentViewModel"/></returns>
         public IDetailsComponentViewModel CreateDetailsComponentViewModel()
         {
             return new DetailsComponentViewModel(this.ViewModel.IsVisible, this.ViewModel.SelectedParameter, 
