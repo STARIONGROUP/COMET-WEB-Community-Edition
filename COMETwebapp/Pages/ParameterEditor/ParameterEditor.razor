@@ -29,26 +29,26 @@ Copyright (c) 2023 RHEA System S.A.
 <Body>
         <div class="container-fluid">
             <div class="row ">
-@*                <div class="col">
+                <div class="col">
                     <h6>Filter on Element Usage Name:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@Filter(Elements.OrderBy(e => e.Name).ToList())"
-                            TextFieldName="@nameof(ElementBase.Name)"
-                            AllowUserInput="true"
-                            NullText="--Select an Element--"
-                            Value="this.selectedElement"
-                            ValueChanged="@((ElementBase element) => this.selectedElement = element)"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            FilteringMode="DataGridFilteringMode.Contains"/>
+                        <DxComboBox Data="@this.ViewModel.Elements.OrderBy(x=>x.Name)"
+                                    TextFieldName="@nameof(ElementBase.Name)"
+                                    AllowUserInput="true"
+                                    NullText="--Select an Element--"
+                                    Value="@this.ViewModel.SelectedElement"
+                                    ValueChanged="@((ElementBase element) => this.ViewModel.SelectedElement = element)"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
-                </div>*@
+                </div>
                 <div class="col">
                     <h6>Filter on Parameter Type:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@this.ViewModel.ParameterTypes"
+                        <DxComboBox Data="@this.ViewModel.ParameterTypes.OrderBy(x=>x.Name)"
                             AllowUserInput="true"
                             NullText="--Select--"
-                            Value="this.ViewModel.SelectedParameterType"
+                            Value="@this.ViewModel.SelectedParameterType"
                             ValueChanged="@((ParameterType parameterType) => this.ViewModel.SelectedParameterType = parameterType)"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             FilteringMode="DataGridFilteringMode.Contains"/>
@@ -65,7 +65,7 @@ Copyright (c) 2023 RHEA System S.A.
                             <div class="width-fit-content">
                                 <DxComboBox Data="@options"
                                             AllowUserInput="true"
-                                            Value="this.ViewModel.SelectedOption"
+                                            Value="@this.ViewModel.SelectedOption"
                                             ValueChanged="@((Option option) => this.ViewModel.SelectedOption = option)"
                                             FilteringMode="DataGridFilteringMode.Contains"/>
                             </div>
@@ -73,14 +73,14 @@ Copyright (c) 2023 RHEA System S.A.
                     }
                     if (iteration != null && iteration.ActualFiniteStateList.Any())
                     {
-                        var states = iteration.ActualFiniteStateList.SelectMany(x => x.ActualState);
+                        var states = iteration.ActualFiniteStateList.SelectMany(x => x.ActualState).OrderBy(x=>x.Name);
 
                         <div class="col">
                             <h6>Filter on State:</h6>
                             <DxComboBox Data="@states"
                                         AllowUserInput="true"
                                         NullText="--Select--"
-                                        Value="this.ViewModel.SelectedState"
+                                        Value="@this.ViewModel.SelectedState"
                                         ValueChanged="@((ActualFiniteState actualState) => this.ViewModel.SelectedState = actualState)"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                         FilteringMode="DataGridFilteringMode.Contains"/>
@@ -88,14 +88,16 @@ Copyright (c) 2023 RHEA System S.A.
                     }
                 }
             </div>
-@*            <div class="row m-4">
-                <div class="col">
-                    <div class="@BS.Form_Check @BS.Form_Switch">
-                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
-                        <BSLabel IsCheckLabel="true">Only Parameters owned by @this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name domain</BSLabel>
-                    </div>
-                </div>
-            </div>*@
+           <div class="row m-4">
+               <div class="col">
+                   <div>
+                       <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
+                                   CheckType="CheckType.Switch">
+                            Only Parameters owned by @this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SessionService.DefaultIteration)?.Name domain
+                       </DxCheckBox>
+                   </div>
+               </div>
+            </div>
             <div class="row">
                 <ParameterTable Elements="@this.ViewModel.FilteredElements" 
                     IsOwnedParameters="@this.ViewModel.IsOwnedParameters"

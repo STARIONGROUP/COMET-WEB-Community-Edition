@@ -95,7 +95,7 @@ Copyright (c) 2023 RHEA System S.A.
         DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime);
 
         <div class="parameter-row">
-            <DxDateEdit CssClass="date-time-parameter-type"
+            <DxDateEdit CssClass="date-time-parameter-type cw-320"
                         Date="dateTime"
                         DateChanged="@((DateTime date) => this.ViewModel.OnParameterValueChange(0, new ChangeEventArgs(){Value = date.ToString(CultureInfo.InvariantCulture)}))"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -105,7 +105,14 @@ Copyright (c) 2023 RHEA System S.A.
         var timeString = dateTimeStringSplitted[1];
         var values = timeString.Split(':');
 
+        int.TryParse(values[0], out var hours);
+        int.TryParse(values[0], out var minutes);
+        int.TryParse(values[0], out var seconds);
+
+        var time = new TimeSpan(hours, minutes, seconds);
+
         <div class="parameter-row">
+            <DxTimeEdit @bind-Time="@time" CssClass="cw-320"></DxTimeEdit>
             <DxTextBox InputCssClass="date-time-parameter-type" Text="@values[0]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(0,e)"></DxTextBox> <p>:</p>
             <DxTextBox InputCssClass="date-time-parameter-type" Text="@values[1]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(1,e)"></DxTextBox> <p>:</p>
             <DxTextBox InputCssClass="date-time-parameter-type" Text="@values[2]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(2,e)"></DxTextBox>
@@ -114,8 +121,15 @@ Copyright (c) 2023 RHEA System S.A.
     else if (scalarType is TimeOfDayParameterType)
     {
         var values = valueSet.Split(':');
+        
+        int.TryParse(values[0], out var hours);
+        int.TryParse(values[0], out var minutes);
+        int.TryParse(values[0], out var seconds);
+
+        var time = new TimeSpan(hours, minutes, seconds);
 
         <div class="parameter-row">
+            <DxTimeEdit @bind-Time="@time" CssClass="cw-320"></DxTimeEdit>
             <DxTextBox InputCssClass="time-of-day-parameter" Text="@values[0]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(0,e)"></DxTextBox> <p>:</p>
             <DxTextBox InputCssClass="time-of-day-parameter" Text="@values[1]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(1,e)"></DxTextBox> <p>:</p>
             <DxTextBox InputCssClass="time-of-day-parameter" Text="@values[2]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e)=>this.ViewModel.OnParameterValueChange(2,e)"></DxTextBox>

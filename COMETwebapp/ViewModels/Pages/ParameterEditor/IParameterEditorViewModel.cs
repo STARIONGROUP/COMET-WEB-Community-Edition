@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
 
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
+    using DynamicData;
 
     /// <summary>
     /// Interface for the <see cref="ParameterEditorViewModel"/>
@@ -58,7 +59,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
-        List<ElementBase> FilteredElements { get; set; }
+        SourceList<ElementBase> FilteredElements { get; set; }
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown

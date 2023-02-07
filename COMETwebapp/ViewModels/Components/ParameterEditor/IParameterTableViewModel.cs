@@ -24,10 +24,47 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.EngineeringModelData;
+    
+    using DynamicData;
+
     /// <summary>
     /// Interface for the <see cref="ParameterTableViewModel"/>
     /// </summary>
     public interface IParameterTableViewModel
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterBaseBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
+        /// </summary>
+        SourceList<ParameterBaseBaseRowViewModel> Rows { get; set; }
+
+        /// <summary>
+        /// Initializes this <see cref="IParameterTableViewModel"/>
+        /// </summary>
+        /// <param name="elements">the elements of the table</param>
+        /// <param name="selectedOption">the selected option</param>
+        /// <param name="selectedState">the selected state</param>
+        /// <param name="isOwnedParameters">if true only parameters owned by the active domain are shown</param>
+        void InitializeViewModel(SourceList<ElementBase> elements, Option selectedOption, ActualFiniteState selectedState, bool isOwnedParameters);
+
+        /// <summary>
+        /// Filters <see cref="Parameter"/> for the selected owner and the selected type
+        /// </summary>
+        /// <param name="parameters"><see cref="Parameter"/> to filter</param>
+        IEnumerable<Parameter> FilterParameters(List<Parameter> parameters);
+
+        /// <summary>
+        /// Filters <see cref="ParameterOverride"/> for the selected owner and the selected type
+        /// </summary>
+        /// <param name="parameters"><see cref="ParameterOverride"/> to filter</param>
+        IEnumerable<ParameterOverride> FilterParameterOverrides(List<ParameterOverride> parameters);
+
+        /// <summary>
+        /// Filters <see cref="ParameterValueSetBase"/>s for the selected option and the selected state
+        /// </summary>
+        /// <param name="isOptionDependent">if the <see cref="Parameter"/> is option dependant</param>
+        /// <param name="parameterValueSets">the <see cref="ParameterValueSet"/> to filter</param>
+        /// <returns>the filtered result</returns>
+        IEnumerable<ParameterValueSetBase> FilterParameterValueSetBase(bool isOptionDependent, List<ParameterValueSetBase> parameterValueSets);
     }
 }

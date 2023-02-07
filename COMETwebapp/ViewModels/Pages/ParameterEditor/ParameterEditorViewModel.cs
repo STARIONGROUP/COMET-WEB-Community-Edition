@@ -31,6 +31,8 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -63,19 +65,10 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
-        /// Backing field for the <see cref="FilteredElements"/>
-        /// </summary>
-        private List<ElementBase> filteredElements = new();
-
-        /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
-        public List<ElementBase> FilteredElements
-        {
-            get => this.filteredElements;
-            set => this.RaiseAndSetIfChanged(ref this.filteredElements, value);
-        }
-
+        public SourceList<ElementBase> FilteredElements { get; set; } = new();
+        
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
@@ -120,7 +113,8 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             this.Elements = this.SessionService.DefaultIteration.GetElementsOfIteration().ToList();
             this.SelectedOption = this.SessionService.DefaultIteration.DefaultOption;
             this.ParameterTypes = this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList();
-            this.FilteredElements = this.ApplyFilters(this.Elements).ToList();
+            this.FilteredElements.Clear();
+            this.FilteredElements.AddRange(this.ApplyFilters(this.Elements));
         }
 
         /// <summary>

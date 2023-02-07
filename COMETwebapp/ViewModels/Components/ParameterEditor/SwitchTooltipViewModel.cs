@@ -62,7 +62,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         public void OnClickComputed()
         {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.COMPUTED, null));
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.COMPUTED, false));
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         public void OnClickManual()
         {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.MANUAL, null));
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.MANUAL, false));
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         public void OnClickReference()
         {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.REFERENCE, null));
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.REFERENCE, false));
         }
 
         /// <summary>
