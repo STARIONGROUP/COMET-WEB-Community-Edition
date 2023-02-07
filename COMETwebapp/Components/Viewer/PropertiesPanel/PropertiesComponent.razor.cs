@@ -40,39 +40,33 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         [Inject]
         public IPropertiesComponentViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// <summary>
-        /// Gets or sets if the parameters have changes
-        /// </summary>
-        private bool ParameterHaveChanges { get; set; }
-
+        
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
         /// </summary>
         /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
         /// on this component instance; otherwise <c>false</c>.
         /// </param>
         /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
         /// <remarks>
-        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
         /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
         /// once.
         /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
                 this.WhenAnyValue(x => x.ViewModel.IsVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
                 this.WhenAnyValue(x => x.ViewModel.SelectedParameter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
                 this.WhenAnyValue(x => x.ViewModel.ParameterHaveChanges).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
-        /// Event for when a parameter has changed it's value
-        /// </summary>
-        private void OnParameterValueChanged()
-        {
-            this.ParameterHaveChanges = this.GetParameterValueSetRelationsChanges().Any();
-            this.StateHasChanged();
         }
 
         /// <summary>
