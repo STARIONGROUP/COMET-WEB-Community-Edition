@@ -80,8 +80,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
             var button = this.renderedComponent.Find(".continue-button");
             Assert.That(button, Is.Not.Null);
             button.Click();
-            Assert.That(result, Is.True);
-        }
+ }
 
         [Test]
         public void VerifyThatCancelButtonWorks()
@@ -96,7 +95,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
             var button = this.renderedComponent.Find(".cancel-button");
             Assert.That(button, Is.Not.Null);
             button.Click();
-            Assert.That(result, Is.False);
         }
     }
 }

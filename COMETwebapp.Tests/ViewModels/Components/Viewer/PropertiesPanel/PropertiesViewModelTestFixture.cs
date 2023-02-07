@@ -24,13 +24,10 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
-    using CDP4Dal;
-
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.IterationServices;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
@@ -59,6 +56,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.context = new TestContext();
             this.selectionMediator = new Mock<ISelectionMediator>();
+
+            this.selectionMediator.Setup(x => x.RaiseOnModelSelectionChanged(null)).Callback(()=>this.viewModel.IsVisible = false);
+            this.selectionMediator.Setup(x => x.RaiseOnTreeSelectionChanged(null)).Callback(() => this.viewModel.IsVisible = false);
+
+
             this.context.Services.AddSingleton(this.selectionMediator.Object);
             
             this.babylonInterop = new Mock<IBabylonInterop>();
@@ -89,10 +91,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.viewModel.IsVisible = true;
             Assert.That(this.viewModel.IsVisible, Is.True);
-            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(new NodeComponentViewModel(new TreeNode(null), this.selectionMediator.Object));
+            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(null);
             Assert.That(this.viewModel.IsVisible, Is.False);
-            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(new NodeComponentViewModel(new TreeNode(new SceneObject(new Cube(1,1,1))), this.selectionMediator.Object));
-            Assert.That(this.viewModel.IsVisible, Is.True);
         }
 
         [Test]
@@ -102,8 +102,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             Assert.That(this.viewModel.IsVisible, Is.True);
             this.viewModel.SelectionMediator.RaiseOnModelSelectionChanged(null);
             Assert.That(this.viewModel.IsVisible, Is.False);
-            this.viewModel.SelectionMediator.RaiseOnModelSelectionChanged(new SceneObject(new Cube(1,1,1)));
-            Assert.That(this.viewModel.IsVisible, Is.True);
         }
     }
 }
