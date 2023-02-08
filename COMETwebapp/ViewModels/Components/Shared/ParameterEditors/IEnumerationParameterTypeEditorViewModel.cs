@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterSwitchKindComponentViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IEnumerationParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,36 +22,14 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
-
-    using Microsoft.AspNetCore.Components;
+    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
-    /// Interface for the <see cref="ParameterSwitchKindComponentViewModel"/>
+    /// Interface for the <see cref="EnumerationParameterTypeEditorViewModel"/>
     /// </summary>
-    public interface IParameterSwitchKindComponentViewModel
+    public interface IEnumerationParameterTypeEditorViewModel : IParameterEditorBaseViewModel<EnumerationParameterType>
     {
-        /// <summary>
-        /// Gets or sets the <see cref="IValueSet"/>
-        /// </summary>
-        IValueSet ValueSet { get; set; }
-
-        /// <summary>
-        /// The switch mode of the associated ParameterValueSet
-        /// </summary>
-        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
-
-        /// <summary>
-        /// Sets computed button active
-        /// </summary>
-        ParameterSwitchKind SwitchValue { get; set; }
-
-        /// <summary>
-        /// Event for when the <see cref="ParameterSwitchKind"/> value has changed
-        /// </summary>
-        /// <param name="switchValue">the new value of the switch</param>
-        Task OnSwitchChanged(ParameterSwitchKind switchValue);
     }
 }

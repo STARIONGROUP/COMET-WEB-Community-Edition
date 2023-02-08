@@ -26,7 +26,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-
+    
     /// <summary>
     /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.EnumerationParameterTypeEditor"/>
     /// </summary>
@@ -41,12 +41,12 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
         }
 
-        /// <summary>
+    /// <summary>
         /// Event for when a parameter's value has changed
-        /// </summary>
+    /// </summary>
         /// <returns>an asynchronous operation</returns>
         public override Task OnParameterValueChanged(object value)
-        {
+    {
             throw new NotImplementedException();
         }
     }

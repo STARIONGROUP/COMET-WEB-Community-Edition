@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ISwitchTooltipViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="EnumerationParameterTypeEditor.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,55 +22,21 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="SwitchTooltipViewModel"/>
+    /// Class for the <see cref="EnumerationParameterTypeEditor"/> razor component
     /// </summary>
-    public interface ISwitchTooltipViewModel
+    public partial class EnumerationParameterTypeEditor
     {
         /// <summary>
-        /// Iid of the associated ParametervalueSet
+        /// Gets or sets the <see cref="IEnumerationParameterTypeEditorViewModel"/>
         /// </summary>
-        public Guid ParameterValueSetIid { get; set; }
-
-        /// <summary>
-        /// The switch mode of the associated ParameterValueSet
-        /// </summary>
-        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
-
-        /// <summary>
-        /// Sets computed button active
-        /// </summary>
-        public ParameterSwitchKind SwitchValue { get; set; }
-
-        /// <summary>
-        /// Sets if the switch can be change in the ISession
-        /// </summary>
-        public bool IsEditable { get; set; }
-        
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        public void OnClickComputed();
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        public void OnClickManual();
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        public void OnClickReference();
-
-        /// <summary>
-        /// Sends an event to write the selected switch on ISession
-        /// </summary>
-        public void OnSubmitSwitchChange();
+        [Inject]
+        public IEnumerationParameterTypeEditorViewModel ViewModel { get; set; }
     }
 }

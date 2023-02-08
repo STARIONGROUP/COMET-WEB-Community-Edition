@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterSwitchKindComponentViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,36 +22,15 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-    using Microsoft.AspNetCore.Components;
-
-    /// <summary>
-    /// Interface for the <see cref="ParameterSwitchKindComponentViewModel"/>
-    /// </summary>
-    public interface IParameterSwitchKindComponentViewModel
+    public partial class ParameterTypeEditorSelector
     {
         /// <summary>
-        /// Gets or sets the <see cref="IValueSet"/>
+        /// Gets or sets the <see cref="IEnumerationParameterTypeEditorViewModel"/>
         /// </summary>
-        IValueSet ValueSet { get; set; }
-
-        /// <summary>
-        /// The switch mode of the associated ParameterValueSet
-        /// </summary>
-        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
-
-        /// <summary>
-        /// Sets computed button active
-        /// </summary>
-        ParameterSwitchKind SwitchValue { get; set; }
-
-        /// <summary>
-        /// Event for when the <see cref="ParameterSwitchKind"/> value has changed
-        /// </summary>
-        /// <param name="switchValue">the new value of the switch</param>
-        Task OnSwitchChanged(ParameterSwitchKind switchValue);
+        public IParameterTypeEditorSelectorViewModel ViewModel { get; set; }
     }
 }

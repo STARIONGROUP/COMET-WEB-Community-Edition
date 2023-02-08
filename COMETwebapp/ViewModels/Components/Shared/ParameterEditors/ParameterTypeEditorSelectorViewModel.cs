@@ -112,7 +112,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         public async Task OnParameterValueChanged(IValueSet value)
         {
             if (value is ParameterValueSetBase parameterValueSetBase)
-            {
+    {
                 await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { parameterValueSetBase });
             }
         }

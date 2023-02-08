@@ -107,6 +107,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
             this.OwnerName = this.Parameter.Owner is not null ? this.Parameter.Owner.ShortName : string.Empty;
             this.ModelCode = this.Parameter.ModelCode();
+            this.Scale = this.Parameter.Scale is not null? this.Parameter.Scale.ShortName : "-";
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
             this.ValueSet = valueSet;
             this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
@@ -125,9 +126,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <returns></returns>
         public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType 
-        {
+            {
             return new ParameterTypeEditorSelectorViewModel(this.SessionService,this.ParameterType, this.ValueSet) as IParameterTypeEditorSelectorViewModel<T>;
-        }
+            }
 
         /// <summary>
         /// Creates a <see cref="IParameterSwitchKindComponentViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>

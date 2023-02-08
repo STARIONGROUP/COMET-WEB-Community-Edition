@@ -56,11 +56,6 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         public ISessionService SessionService { get; set; }
 
         /// <summary>
-        /// The selected <see cref="ElementBase"/> to filter
-        /// </summary>
-        public ElementBase SelectedElement { get; set; }
-
-        /// <summary>
         /// All <see cref="ElementBase"/> of the iteration without filtering
         /// </summary>
         public List<ElementBase> Elements { get; set; } = new();

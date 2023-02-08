@@ -49,14 +49,16 @@ namespace COMETwebapp.Components.ParameterEditor
         [Parameter]
         public ParameterSwitchKind SwitchValue { get; set; }
 
+
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
         protected override void OnParametersSet()
-        {
+            {
             base.OnParametersSet();
-            this.ViewModel.SwitchValue = this.SwitchValue;
+                this.ViewModel.SwitchValue = this.SwitchValue;
+            }
         }
     }
 }
