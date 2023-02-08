@@ -57,7 +57,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the Option selected</param>
+        /// <param name="domain">the selected domain</param>
         void OnDomainFilterChange(DomainOfExpertise? domain, ISessionAnchor session);
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         ///     Override this method if you will perform an asynchronous operation and
         ///     want the component to refresh when that operation is completed.
         /// </summary>
-        /// <param name="projectGuid">The <see cref="Guid" /> of the <see cref="Project" /></param>
+        /// <param name="session">The <see cref="ISessionAnchor" /></param>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         Task OnInitializedAsync(ISessionAnchor session);
     }

@@ -75,6 +75,7 @@ namespace COMETwebapp
 
             builder.Services.AddDevExpressBlazor();
             builder.Services.AddBlazorStrap();
+            builder.Services.AddAntDesign();
 
             await builder.Build().RunAsync();
         }

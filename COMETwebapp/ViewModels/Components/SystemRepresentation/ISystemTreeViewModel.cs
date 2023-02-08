@@ -24,8 +24,6 @@
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using COMETwebapp.Model;
-    using DevExpress.Utils;
-    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     ///     Interface definition for <see cref="SystemTreeViewModel" />

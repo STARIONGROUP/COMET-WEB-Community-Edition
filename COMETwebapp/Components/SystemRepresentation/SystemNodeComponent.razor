@@ -1,4 +1,5 @@
-﻿<!------------------------------------------------------------------------------
+﻿@using AntDesign
+<!------------------------------------------------------------------------------
     Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -19,77 +20,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@{
-    @if (this.CurrentNode is null)
-    {
-        return;
-    }
+<Tree @ref="tree" DefaultExpandAll Draggable BlockNode
+      ShowIcon DataSource="games"
+      TitleExpression="x => x.DataItem.Text"
+      ChildrenExpression="x => x.DataItem.Items"
+      IconExpression="x => x.DataItem.Icon"
+      IsLeafExpression="x => x.DataItem.Items?.Count == 0"
+      KeyExpression="x => x.DataItem.Id"
+      TItem="GameElement" OnDragEnd="e=> { }" OnDrop="onDrop">
+</Tree>
 
-    var nodeClasses = "treeNode";
-
-    @if (this.CurrentNode.IsSelected)
-    {
-        nodeClasses += " active";
-    }
-
-    <div class="@nodeClasses" onclick="@(()=>this.TreeSelectionChanged(this.CurrentNode))" style="margin-left: calc(20px * @this.Level)">
-        <div class="node-inner-content">
-
-            @if (this.CurrentNode.GetChildren().Count > 0)
-            {
-                @if (this.CurrentNode.IsExpanded)
-                {
-                    <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.CurrentNode.IsExpanded = false; })" />
-                }
-                else
-                {
-                    <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.CurrentNode.IsExpanded = true; })" />
-                }
-            }
-
-            <p class="node-text">@this.CurrentNode.Title</p>
-        </div>
-    </div>
-
-    @if (this.CurrentNode.GetChildren().Count > 0 && this.CurrentNode.IsExpanded)
-    {
-        <div class="children">
-            @foreach (var child in this.CurrentNode.GetChildren())
-            {
-                var level = this.Level + 1;
-                <SystemNodeComponent CurrentNode="@child"
-                   Level="level" />
-            }
-        </div>
-    }
-}
-
-@code {
-
-    /// <summary>
-    /// Level of the tree. Increases by one for each nested element
-    /// </summary>
-    [Parameter]
-    public int Level { get; set; }
-
-    /// <summary>
-    /// Current node that this <see cref="SystemNodeComponent" /> represents
-    /// </summary>
-    [Parameter]
-    public TreeNode CurrentNode { get; set; }
-
-    /// <summary>
-    /// Event for when a node selection changed
-    /// </summary>
-    [Parameter]
-    public EventCallback<TreeNode> OnTreeSelectionChanged { get; set; }
-
-    /// <summary>
-    /// Method for when a node is selected
-    /// </summary>
-    /// <param name="node">the selected <see cref="TreeNode"/></param>
-    private void TreeSelectionChanged(TreeNode node)
-    {
-        this.OnTreeSelectionChanged.InvokeAsync(node);
-    }
-}

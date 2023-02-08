@@ -21,6 +21,7 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/SystemRepresentation"
+@using COMETwebapp.Components.SystemRepresentation
 
 <ApplicationTemplate Title="System Representation">
     <Body>
@@ -47,8 +48,11 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
         </div>
        <div id="gridParent">
-            <COMETwebapp.Components.SystemRepresentation.SystemTree ViewModel="this.ViewModel.SystemTreeViewModel" />
+            <SystemTree ViewModel="this.ViewModel.SystemTreeViewModel" />
        </div>
+       @*<div>
+           <SystemNodeComponent />
+       </div>*@
     </Body>
 </ApplicationTemplate>
 

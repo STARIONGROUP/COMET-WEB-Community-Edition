@@ -29,7 +29,7 @@ namespace COMETwebapp.Model
     /// <summary>
     /// Represents data of the tree in the <see cref=""/>
     /// </summary>
-    public class SystemNode
+    public record class SystemNode
     {
         /// <summary>
         /// The children of this <see cref="SystemNode"/>

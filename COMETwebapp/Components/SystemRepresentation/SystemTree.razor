@@ -20,18 +20,14 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Model
+@using AntDesign
 
-
- <RadzenDataGrid ref="@this.Grid" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true" ExpandMode="DataGridExpandMode.Single"
-        Data="@(this.ViewModel.SystemNodes)" TItem="SystemNode" RowRender="@this.RowRender" LoadChildData="@this.LoadChildData">
-        <Columns>
-            <RadzenDataGridColumn TItem="SystemNode" Title="node" Frozen="true" Sortable="false" Filterable="false" Width="300px">
-                <Template Context="data">
-                    <strong>data.Title</strong>
-                </Template>
-            </RadzenDataGridColumn>
-        </Columns>
-    </RadzenDataGrid>
-
-
- 
+<Tree @ref="tree" DefaultExpandAll Draggable
+      Selectable ShowLine DataSource="@this.ViewModel.SystemNodes"
+      TitleExpression="x => x.DataItem.Title"
+      ChildrenExpression="x => x.DataItem.GetChildren()"
+      IsLeafExpression="x => x.DataItem.GetChildren()?.Count == 0"
+      KeyExpression="x => x.DataItem.Title"
+      ShowLeafIcon="false"
+      TItem="SystemNode" OnDragEnd="e=> { }" OnDrop="onDrop">
+</Tree>

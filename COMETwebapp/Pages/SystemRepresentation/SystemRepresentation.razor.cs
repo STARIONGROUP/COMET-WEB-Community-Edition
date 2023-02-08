@@ -41,20 +41,6 @@ namespace COMETwebapp.Pages.SystemRepresentation
     public partial class SystemRepresentation
     {
         /// <summary>
-        /// The filter on option
-        /// </summary>
-        [Parameter]
-        [SupplyParameterFromQuery]
-        public Guid? FilterOption { get; set; }
-
-        /// <summary>
-        /// The filter on domain
-        /// </summary>
-        [Parameter]
-        [SupplyParameterFromQuery]
-        public Guid? FilterDomain { get; set; }
-
-        /// <summary>
         ///     The <see cref="ISystemRepresentationPageViewModel" /> for this page
         /// </summary>
         [Inject]
@@ -87,11 +73,6 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// </summary>
         [Inject]
         public ISessionAnchor SessionAnchor { get; set; }
-
-        /// <summary>
-        /// Represents the RootNode of the tree
-        /// </summary>
-        public TreeNode RootNode { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -132,7 +113,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the Option selected</param>
+        /// <param name="domain">Name of the Option selected</param>
         public void OnDomainFilterChange(DomainOfExpertise? domain)
         {
             this.ViewModel.OnDomainFilterChange(domain, this.SessionAnchor);

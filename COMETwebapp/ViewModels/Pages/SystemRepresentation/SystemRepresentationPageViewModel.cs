@@ -29,8 +29,6 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.Components.SystemRepresentation;
-    using DynamicData;
-    using Microsoft.AspNetCore.Components;
     using ReactiveUI;
 
     /// <summary>
@@ -109,6 +107,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             this.Elements.Clear();
             this.InitializeElements(session);
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
         }
 
@@ -123,6 +122,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             session.SwitchDomain(domain);
             this.InitializeElements(session);
             var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
         }
 
