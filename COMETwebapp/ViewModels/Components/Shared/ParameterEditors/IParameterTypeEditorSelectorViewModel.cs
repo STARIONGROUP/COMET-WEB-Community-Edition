@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IParameterTypeEditorSelectorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -15,33 +15,18 @@
 //     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
+//     Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
-    
-    using DynamicData;
+    using CDP4Common.SiteDirectoryData;
 
-    /// <summary>
-    /// Interface for the <see cref="ParameterTableViewModel"/>
-    /// </summary>
-    public interface IParameterTableViewModel
+    public interface IParameterTypeEditorSelectorViewModel : IParameterEditorBaseViewModel<ParameterType>
     {
-        /// <summary>
-        /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
-        /// </summary>
-        SourceList<ParameterBaseRowViewModel> Rows { get; set; }
-
-        /// <summary>
-        /// Initializes this <see cref="IParameterTableViewModel"/>
-        /// </summary>
-        /// <param name="elements">the elements of the table</param>
-        void InitializeViewModel(IEnumerable<ElementBase> elements);
     }
 }

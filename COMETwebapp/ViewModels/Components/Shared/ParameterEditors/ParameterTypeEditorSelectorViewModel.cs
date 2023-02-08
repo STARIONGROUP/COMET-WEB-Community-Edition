@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterTypeEditorSelectorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,26 +22,15 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
-    
-    using DynamicData;
+    using CDP4Common.SiteDirectoryData;
+    using Microsoft.AspNetCore.Components;
 
-    /// <summary>
-    /// Interface for the <see cref="ParameterTableViewModel"/>
-    /// </summary>
-    public interface IParameterTableViewModel
+    public class ParameterTypeEditorSelectorViewModel : IParameterTypeEditorSelectorViewModel
     {
-        /// <summary>
-        /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
-        /// </summary>
-        SourceList<ParameterBaseRowViewModel> Rows { get; set; }
-
-        /// <summary>
-        /// Initializes this <see cref="IParameterTableViewModel"/>
-        /// </summary>
-        /// <param name="elements">the elements of the table</param>
-        void InitializeViewModel(IEnumerable<ElementBase> elements);
+        public ParameterType ParameterType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public EventCallback<ParameterType> OnParameterValueChanged { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool IsReadOnly { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     }
 }

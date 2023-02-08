@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterBaseRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IParameterSwitchKindComponentViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -26,54 +26,51 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// Interface for the <see cref="ParameterBaseRowViewModel"/>
+    /// Interface for the <see cref="ParameterSwitchKindComponentViewModel"/>
     /// </summary>
-    public interface IParameterBaseRowViewModel
+    public interface IParameterSwitchKindComponentViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ParameterBase"/> for this <see cref="ParameterBaseRowViewModel"/>
+        /// Iid of the associated ParametervalueSet
         /// </summary>
-        ParameterBase Parameter { get; }
+        public Guid ParameterValueSetIid { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ElementBase"/> used for grouping this <see cref="ParameterBaseRowViewModel"/>
+        /// The switch mode of the associated ParameterValueSet
         /// </summary>
-        string ElementBaseName { get; }
+        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="Parameter"/> type name
+        /// Sets computed button active
         /// </summary>
-        string ParameterName { get; }
+        public ParameterSwitchKind SwitchValue { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Option"/> names for this <see cref="ParameterBase"/>
+        /// Sets if the switch can be change in the ISession
         /// </summary>
-        IEnumerable<string> OptionsNames { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Parameter"/> owner name
-        /// </summary>
-        string OwnerName { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Scale"/>
-        /// </summary>
-        string Scale { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Category"/> of the <see cref="IParameterBaseRowViewModel"/>
-        /// </summary>
-        string Category { get; }
-
-        /// <summary>
-        /// Gets the switch for the published value
-        /// </summary>
-        ParameterSwitchKind Switch { get; }
+        public bool IsEditable { get; set; }
         
         /// <summary>
-        /// Gets the <see cref="Parameter"/> model code
+        /// Sends an event with the selected switch
         /// </summary>
-        string ModelCode { get; }
+        public void OnClickComputed();
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickManual();
+
+        /// <summary>
+        /// Sends an event with the selected switch
+        /// </summary>
+        public void OnClickReference();
+
+        /// <summary>
+        /// Sends an event to write the selected switch on ISession
+        /// </summary>
+        public void OnSubmitSwitchChange();
     }
 }

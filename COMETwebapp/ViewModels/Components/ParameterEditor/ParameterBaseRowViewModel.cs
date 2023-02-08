@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterBaseBaseRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterBaseRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -29,44 +29,71 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     /// <summary>
     /// ViewModel for the rows asociated to a <see cref="ParameterBase"/>
     /// </summary>
-    public class ParameterBaseBaseRowViewModel : IParameterBaseRowViewModel
+    public class ParameterBaseRowViewModel : IParameterBaseRowViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ParameterBase"/> for this <see cref="ParameterBaseBaseRowViewModel"/>
+        /// Gets or sets the <see cref="ParameterBase"/> for this <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
-        public ParameterBase Parameter { get; set; }
+        public ParameterBase Parameter { get; }
 
         /// <summary>
-        /// Gets the <see cref="Parameter"/> name
-        /// </summary>
-        public string ParameterTypeName { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Parameter"/> owner name
-        /// </summary>
-        public string ParameterOwnerName { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Parameter"/> model code
-        /// </summary>
-        public string ParameterModelCode { get; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ElementBase"/> used for grouping this <see cref="ParameterBaseBaseRowViewModel"/>
+        /// Gets or sets the <see cref="ElementBase"/> used for grouping this <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
         public string ElementBaseName { get; }
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ParameterBaseBaseRowViewModel"/>
+        /// Gets the <see cref="Parameter"/> type name
+        /// </summary>
+        public string ParameterName { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Option"/> names for this <see cref="ParameterBase"/>
+        /// </summary>
+        public IEnumerable<string> OptionsNames { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Parameter"/> owner name
+        /// </summary>
+        public string OwnerName { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Scale"/>
+        /// </summary>
+        public string Scale { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Category"/> of the <see cref="IParameterBaseRowViewModel"/>
+        /// </summary>
+        public string Category { get; }
+
+        /// <summary>
+        /// Gets the switch for the published value
+        /// </summary>
+        public ParameterSwitchKind Switch { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Parameter"/> model code
+        /// </summary>
+        public string ModelCode { get; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
         /// <param name="parameterBase"></param>
-        public ParameterBaseBaseRowViewModel(ParameterBase parameterBase)
+        public ParameterBaseRowViewModel(ParameterBase parameterBase)
         {
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
-            this.ParameterTypeName = this.Parameter.ParameterType.Name;
-            this.ParameterOwnerName = this.Parameter.Owner.ShortName;
-            this.ParameterModelCode = this.Parameter.ModelCode();
+            this.ParameterName = this.Parameter.ParameterType.Name;
+            this.OptionsNames = new List<string>();
+            this.OwnerName = this.Parameter.Owner.ShortName;
+            this.ModelCode = this.Parameter.ModelCode();
+            this.Scale = this.Parameter.Scale is not null? this.Parameter.Scale.ShortName : "-";
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
+
+            if (parameterBase is Parameter parameter)
+            {
+                this.Switch = parameter.ValueSet[0].ValueSwitch;
+            }
         }
     }
 }

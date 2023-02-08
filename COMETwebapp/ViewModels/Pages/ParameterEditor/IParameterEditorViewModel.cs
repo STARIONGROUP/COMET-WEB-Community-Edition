@@ -49,7 +49,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// <summary>
         /// The selected <see cref="ElementBase"/> to filter
         /// </summary>
-        ElementBase SelectedElement { get; set; }
+        ElementBase SelectedElementFilter { get; set; }
 
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration
@@ -69,17 +69,17 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// <summary>
         /// Name of the parameter type selected
         /// </summary>
-        ParameterType SelectedParameterType { get; set; }
+        ParameterType SelectedParameterTypeFilter { get; set; }
 
         /// <summary>
         /// Name of the option selected
         /// </summary>
-        Option SelectedOption { get; set; }
+        Option SelectedOptionFilter { get; set; }
 
         /// <summary>
         /// Name of the state selected
         /// </summary>
-        ActualFiniteState SelectedState { get; set; }
+        ActualFiniteState SelectedStateFilter { get; set; }
 
         /// <summary>
         /// All ParameterType names in the model
@@ -89,6 +89,13 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// <summary>
         /// Initializes the <see cref="ParameterEditorViewModel"/>
         /// </summary>
-        public void InitializeViewModel();
+        void InitializeViewModel();
+
+        /// <summary>
+        /// Apply all the filters selected in the <param name="elements"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <returns>the filtered elements</returns>
+        void ApplyFilters(IEnumerable<ElementBase> elements);
     }
 }

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,26 +22,15 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
-    
-    using DynamicData;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-    /// <summary>
-    /// Interface for the <see cref="ParameterTableViewModel"/>
-    /// </summary>
-    public interface IParameterTableViewModel
+    public partial class ParameterTypeEditorSelector
     {
         /// <summary>
-        /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
+        /// Gets or sets the <see cref="IEnumerationParameterTypeEditorViewModel"/>
         /// </summary>
-        SourceList<ParameterBaseRowViewModel> Rows { get; set; }
-
-        /// <summary>
-        /// Initializes this <see cref="IParameterTableViewModel"/>
-        /// </summary>
-        /// <param name="elements">the elements of the table</param>
-        void InitializeViewModel(IEnumerable<ElementBase> elements);
+        public IParameterTypeEditorSelectorViewModel ViewModel { get; set; }
     }
 }

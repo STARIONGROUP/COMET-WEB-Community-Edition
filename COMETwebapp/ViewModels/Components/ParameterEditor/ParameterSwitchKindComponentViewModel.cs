@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SwitchTooltipViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterSwitchKindComponentViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -27,15 +27,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     
     using CDP4Dal;
-    
+
+    using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Model;
     
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.SwitchTooltip"/>
+    /// ViewModel for the <see cref="ParameterSwitchKindComponent"/>
     /// </summary>
-    public class SwitchTooltipViewModel : ReactiveObject, ISwitchTooltipViewModel
+    public class ParameterSwitchKindComponentViewModel : ReactiveObject, IParameterSwitchKindComponentViewModel
     {
         /// <summary>
         /// Iid of the associated ParametervalueSet

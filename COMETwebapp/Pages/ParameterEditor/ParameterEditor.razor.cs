@@ -65,6 +65,11 @@ namespace COMETwebapp.Pages.ParameterEditor
             {
                 this.ViewModel.InitializeViewModel();
                 this.WhenAnyValue(x => x.ViewModel.FilteredElements.CountChanged).Subscribe(_=> this.InvokeAsync(this.StateHasChanged));
+
+                this.WhenAnyValue(x => x.ViewModel.SelectedElementFilter,
+                     x => x.ViewModel.SelectedOptionFilter,
+                     x => x.ViewModel.SelectedParameterTypeFilter,
+                     x => x.ViewModel.SelectedStateFilter).Subscribe(_ => this.ViewModel.ApplyFilters(this.ViewModel.Elements));
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IParameterEditorBaseViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,26 +22,32 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
-    
-    using DynamicData;
+    using CDP4Common.SiteDirectoryData;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="ParameterTableViewModel"/>
+    /// Base interface for all the interfaces of type <i>ParameterTypeEditorViewModel</i>
     /// </summary>
-    public interface IParameterTableViewModel
+    public interface IParameterEditorBaseViewModel<T> where T : ParameterType
     {
         /// <summary>
-        /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
+        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> for this <see cref="IParameterEditorBaseViewModel{T}"/>
         /// </summary>
-        SourceList<ParameterBaseRowViewModel> Rows { get; set; }
+        public T ParameterType { get; set; }
 
         /// <summary>
-        /// Initializes this <see cref="IParameterTableViewModel"/>
+        /// Gets or sets the <see cref="EventCallback{T}"/> for when the parameter value has changed
         /// </summary>
-        /// <param name="elements">the elements of the table</param>
-        void InitializeViewModel(IEnumerable<ElementBase> elements);
+        EventCallback<T> OnParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the <i>ParameterTypeEditor</i> is readonly. For a <see cref="ParameterSwitchKind"/> with values MANUAL,REFERENCE the value of this
+        /// property is false, for a value of COMPUTED the value of this property is true;
+        /// </summary>
+        public bool IsReadOnly { get; set; }
     }
 }

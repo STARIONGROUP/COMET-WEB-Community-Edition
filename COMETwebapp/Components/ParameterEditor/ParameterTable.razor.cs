@@ -25,7 +25,6 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
     
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -51,31 +50,7 @@ namespace COMETwebapp.Components.ParameterEditor
         /// </summary>
         [Parameter]
         public SourceList<ElementBase> Elements { get; set; }
-
-        /// <summary>
-        /// Sets if only parameters owned by the active domain are shown
-        /// </summary>
-        [Parameter]
-        public bool IsOwnedParameters { get; set; }
-
-        /// <summary>
-        /// Name of the parameter type selected
-        /// </summary>
-        [Parameter]
-        public ParameterType ParameterTypeSelected { get; set; }
-
-        /// <summary>
-        /// Name of the option selected
-        /// </summary>
-        [Parameter]
-        public Option OptionSelected { get; set; }
-
-        /// <summary>
-        /// Name of the state selected
-        /// </summary>
-        [Parameter]
-        public ActualFiniteState StateSelected { get; set; }
-
+        
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
@@ -98,9 +73,16 @@ namespace COMETwebapp.Components.ParameterEditor
 
             if (firstRender)
             {
-                this.ViewModel.InitializeViewModel(this.Elements, this.OptionSelected, this.StateSelected, this.IsOwnedParameters);
+                //this.ViewModel.InitializeViewModel(this.Elements, this.OptionSelected, this.StateSelected, this.IsOwnedParameters);
                 this.WhenAnyValue(x => x.ViewModel.Rows.CountChanged).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
+        }
+
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            this.ViewModel.InitializeViewModel(this.Elements.Items);
+            this.StateHasChanged();
         }
     }
 }

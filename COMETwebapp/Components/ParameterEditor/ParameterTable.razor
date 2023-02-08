@@ -29,7 +29,7 @@ Copyright (c) 2023 RHEA System S.A.
     return;
 }
 
-<div class="container-fluid" style="min-width: 1400px; margin-top: 2%;">
+<div class="container-fluid" style="min-width: 1400px; margin-top: 15px;">
     <DxGrid CssClass="default-grid"
             ShowAllRows="true"
             Data="@this.ViewModel.Rows.Items"
@@ -40,112 +40,21 @@ Copyright (c) 2023 RHEA System S.A.
             FocusedRowEnabled="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element")" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterTypeName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Parameter)" Caption="@("Published Value")" AllowGroup="false" AllowSort="true">
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Value")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Parameter)" Caption="@("Published Value")" AllowGroup="false">
                 <CellDisplayTemplate>
                     <p>ValueSet Editors</p>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Parameter)" Caption="@("Value")" AllowGroup="false" AllowSort="true">
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
                 <CellDisplayTemplate>
-                    <p>Switch component</p>
+                    <ParameterSwitchKindComponent/>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterOwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Value")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
         </Columns>
     </DxGrid>
-
-    <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
-        <BSTHead>
-            <BSTR>
-                <BSTD>
-                    <div class="row">
-                        <div style="width: 15%;">Element</div>
-                        <div style="width: 15%;">Parameter</div>
-                        <div style="width: 15%;">Model Code</div>
-                        <div style="width: 15%;">Published Value</div>
-                        <div style="width: 15%;">Value</div>
-                        <div style="width: 15%; padding: 0px 92px;">Owner</div>
-                    </div>
-                </BSTD>
-            </BSTR>
-        </BSTHead>
-        <BSTBody>
-            <div style="overflow-y:scroll">
-                @foreach (var element in this.Elements.Items)
-                {
-                    <div style="padding-right: 0px; border-bottom-color: black; border-bottom-style: double;">
-                        <BSTR AlignRow="AlignRow.Middle">
-                            <BSTD>@element.Name</BSTD>
-                            <BSTD>
-                                <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
-                                    <BSTBody>
-
-                                        @if (element is ElementDefinition elementDefinition)
-                                        {
-                                            @if (elementDefinition.Parameter.Count != 0)
-                                            {
-                                                foreach (var parameter in this.ViewModel.FilterParameters(elementDefinition.Parameter))
-                                                {
-                                                    var valueSet = new List<ParameterValueSetBase>();
-                                                    valueSet.AddRange(parameter.ValueSet);
-                                                    foreach (var parameterValueSet in this.ViewModel.FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
-                                                    {
-                                                        <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else if (element is ElementUsage elementUsage)
-                                        {
-                                            @if (elementUsage.ParameterOverride.Count == 0)
-                                            {
-                                                foreach (var parameter in this.ViewModel.FilterParameters(elementUsage.ElementDefinition.Parameter))
-                                                {
-                                                    var valueSet = new List<ParameterValueSetBase>();
-                                                    valueSet.AddRange(parameter.ValueSet);
-                                                    foreach (var parameterValueSet in this.ViewModel.FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
-                                                    {
-                                                        <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                var paremetersOrOverrides = new List<ParameterOrOverrideBase>();
-                                                paremetersOrOverrides.AddRange(this.ViewModel.FilterParameterOverrides(elementUsage.ParameterOverride));
-                                                var associatedParameters = new List<Parameter>();
-                                                associatedParameters.AddRange(elementUsage.ParameterOverride.Select(p => p.Parameter).ToList());
-                                                paremetersOrOverrides.AddRange(this.ViewModel.FilterParameters(elementUsage.ElementDefinition.Parameter.FindAll(p => !associatedParameters.Contains(p))));
-
-                                                foreach (var item in paremetersOrOverrides.OrderBy(p => p.ParameterType.Name).ToList())
-                                                {
-                                                    var valueSet = new List<ParameterValueSetBase>();
-                                                    if (item is Parameter parameter)
-                                                    {
-                                                        valueSet.AddRange(parameter.ValueSet);
-                                                    }
-                                                    else if (item is ParameterOverride parameterOverride)
-                                                    {
-                                                        valueSet.AddRange(parameterOverride.ValueSet);
-                                                    }
-
-                                                    foreach (var parameterValueSet in this.ViewModel.FilterParameterValueSetBase(item.IsOptionDependent, valueSet))
-                                                    {
-                                                        <ParameterValueSetRow Parameter="item" ParameterValueSet="parameterValueSet" />
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    </BSTBody>
-                                </BSTable>
-                            </BSTD>
-                        </BSTR>
-                    </div>
-                }
-            </div>
-        </BSTBody>
-    </BSTable>
 </div>

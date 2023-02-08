@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SwitchTooltip.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterSwitchKindComponent.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -31,45 +31,22 @@ namespace COMETwebapp.Components.ParameterEditor
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Class for the component <see cref="SwitchTooltip"/>
+    /// Class for the component <see cref="ParameterSwitchKindComponent"/>
     /// </summary>
-    public partial class SwitchTooltip
+    public partial class ParameterSwitchKindComponent
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISwitchTooltipViewModel"/>
+        /// Gets or sets the <see cref="IParameterSwitchKindComponentViewModel"/>
         /// </summary>
         [Inject]
-        public ISwitchTooltipViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// RenderFragment that contains the tooltip
-        /// </summary>
-        [Parameter]
-        public RenderFragment ChildContent { get; set; }
-
-        /// <summary>
-        /// Iid of the associated ParametervalueSet
-        /// </summary>
-        [Parameter]
-        public Guid ParameterValueSetIid { get; set; }
-
-        /// <summary>
-        /// The switch mode of the associated ParameterValueSet
-        /// </summary>
-        [Parameter]
-        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
-
+        public IParameterSwitchKindComponentViewModel ViewModel { get; set; }
+        
         /// <summary>
         /// Sets computed button active
         /// </summary>
         [Parameter]
         public ParameterSwitchKind SwitchValue { get; set; }
 
-        /// <summary>
-        /// Sets if the switch can be change in the ISession
-        /// </summary>
-        [Parameter]
-        public bool IsEditable { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -93,10 +70,7 @@ namespace COMETwebapp.Components.ParameterEditor
 
             if (firstRender)
             {
-                this.ViewModel.IsEditable = this.IsEditable;
                 this.ViewModel.SwitchValue = this.SwitchValue;
-                this.ViewModel.ParameterValueSetIid = this.ParameterValueSetIid;
-                this.ViewModel.ParameterValueSetSwitchMode = this.ParameterValueSetSwitchMode;
             }
         }
     }

@@ -114,7 +114,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
             builder.Services.AddTransient<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
             builder.Services.AddTransient<IParameterEditorViewModel,ParameterEditorViewModel>();
-            builder.Services.AddTransient<ISwitchTooltipViewModel, SwitchTooltipViewModel>();
+            builder.Services.AddTransient<IParameterSwitchKindComponentViewModel, ParameterSwitchKindComponentViewModel>();
             builder.Services.AddTransient<IParameterValueSetRowViewModel, ParameterValueSetRowViewModel>();
             builder.Services.AddTransient<IParameterTableViewModel, ParameterTableViewModel>();
             builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
