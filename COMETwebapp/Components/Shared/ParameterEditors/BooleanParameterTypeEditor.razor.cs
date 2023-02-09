@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IEnumerationParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="BooleanParameterTypeEditor.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,14 +22,25 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
+namespace COMETwebapp.Components.Shared.ParameterEditors
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// Interface for the <see cref="EnumerationParameterTypeEditorViewModel"/>
+    /// Class for the <see cref="BooleanParameterTypeEditor"/> component
     /// </summary>
-    public interface IEnumerationParameterTypeEditorViewModel : IParameterEditorBaseViewModel<EnumerationParameterType>
+    public partial class BooleanParameterTypeEditor
     {
+        /// <summary>
+        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}"/>
+        /// </summary>
+        [Parameter]
+        public IParameterEditorBaseViewModel<BooleanParameterType> ViewModel { get; set; }
+
+        public string value;
     }
 }

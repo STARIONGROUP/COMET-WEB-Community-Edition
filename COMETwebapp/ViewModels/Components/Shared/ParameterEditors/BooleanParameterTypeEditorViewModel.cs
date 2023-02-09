@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTypeEditorSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="BooleanParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -15,7 +15,7 @@
 //     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//     Affero General Public License for more details.
+//    Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -24,15 +24,35 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    public interface IParameterTypeEditorSelectorViewModel : IParameterEditorBaseViewModel<ParameterType>
+    using Microsoft.AspNetCore.Components;
+
+    public class BooleanParameterTypeEditorViewModel : IParameterEditorBaseViewModel<BooleanParameterType>
     {
         /// <summary>
-        /// Creates a view model for the corresponding editor
+        /// Gets or sets the <see cref="ParameterType"/>
         /// </summary>
-        /// <typeparam name="T">the parameter type</typeparam>
-        /// <returns>the view model</returns>
-        public IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType;
+        public BooleanParameterType ParameterType { get; set; }
+
+        /// <summary>
+        /// Event Callback for when a value has changed on the parameter
+        /// </summary>
+        public EventCallback<BooleanParameterType> OnParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the Editor is readonly.
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="BooleanParameterTypeEditorViewModel"/>
+        /// </summary>
+        /// <param name="parameterType">the parameter used for this editor view model</param>
+        public BooleanParameterTypeEditorViewModel(BooleanParameterType parameterType)
+        {
+            this.ParameterType = parameterType;
+        }
     }
 }

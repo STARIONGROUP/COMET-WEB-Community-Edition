@@ -31,11 +31,30 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     /// <summary>
     /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterEditors.EnumerationParameterTypeEditor"/>
     /// </summary>
-    public class EnumerationParameterTypeEditorViewModel : IEnumerationParameterTypeEditorViewModel
+    public class EnumerationParameterTypeEditorViewModel : IParameterEditorBaseViewModel<EnumerationParameterType>
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterType"/>
+        /// </summary>
         public EnumerationParameterType ParameterType { get; set; }
 
+        /// <summary>
+        /// Event Callback for when a value has changed on the parameter
+        /// </summary>
         public EventCallback<EnumerationParameterType> OnParameterValueChanged { get; set; }
-        public bool IsReadOnly { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        /// <summary>
+        /// Gets or sets if the Editor is readonly.
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="EnumerationParameterType"/>
+        /// </summary>
+        /// <param name="parameterType">the parameter used for this editor view model</param>
+        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType)
+        {
+            this.ParameterType = parameterType;
+        }
     }
 }

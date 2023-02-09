@@ -25,6 +25,10 @@
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.Extensions;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     /// <summary>
     /// ViewModel for the rows asociated to a <see cref="ParameterBase"/>
@@ -37,6 +41,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ParameterBase Parameter { get; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ParameterType"/> for this <see cref="ParameterBaseRowViewModel"/>
+        /// </summary>
+        public ParameterType ParameterType { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="ElementBase"/> used for grouping this <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
         public string ElementBaseName { get; }
@@ -47,24 +56,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public string ParameterName { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Option"/> names for this <see cref="ParameterBase"/>
-        /// </summary>
-        public IEnumerable<string> OptionsNames { get; }
-
-        /// <summary>
         /// Gets the <see cref="Parameter"/> owner name
         /// </summary>
         public string OwnerName { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Scale"/>
-        /// </summary>
-        public string Scale { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Category"/> of the <see cref="IParameterBaseRowViewModel"/>
-        /// </summary>
-        public string Category { get; }
 
         /// <summary>
         /// Gets the switch for the published value
@@ -77,23 +71,41 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public string ModelCode { get; }
 
         /// <summary>
+        /// Gets the <see cref="Option"/> name this <see cref="Parameter"/> is dependant on
+        /// </summary>
+        public string Option { get; } = string.Empty;
+
+        /// <summary>
+        /// Gets the <see cref="ActualFiniteState"/> name this <see cref="Parameter"/> is dependant on
+        /// </summary>
+        public string State { get; } = string.Empty;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
-        /// <param name="parameterBase"></param>
-        public ParameterBaseRowViewModel(ParameterBase parameterBase)
+        /// <param name="parameterBase">the parameter of this row</param>
+        /// /// <param name="valueSet">the valueSet of the parameter</param>
+        public ParameterBaseRowViewModel(ParameterBase parameterBase, IValueSet valueSet)
         {
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
+            this.ParameterType = this.Parameter.ParameterType;
             this.ParameterName = this.Parameter.ParameterType.Name;
-            this.OptionsNames = new List<string>();
             this.OwnerName = this.Parameter.Owner.ShortName;
             this.ModelCode = this.Parameter.ModelCode();
-            this.Scale = this.Parameter.Scale is not null? this.Parameter.Scale.ShortName : "-";
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
+            
+            this.Option = valueSet.ActualOption?.Name;
+            this.State = valueSet.ActualState?.Name;
+            this.Switch = valueSet.ValueSwitch;
+        }
 
-            if (parameterBase is Parameter parameter)
-            {
-                this.Switch = parameter.ValueSet[0].ValueSwitch;
-            }
+        /// <summary>
+        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// </summary>
+        /// <returns></returns>
+        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel()
+        {
+            return new ParameterTypeEditorSelectorViewModel(this.ParameterType);
         }
     }
 }

@@ -25,12 +25,52 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.SiteDirectoryData;
+    
     using Microsoft.AspNetCore.Components;
 
+    /// <summary>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterEditors.ParameterTypeEditorSelector"/>
+    /// </summary>
     public class ParameterTypeEditorSelectorViewModel : IParameterTypeEditorSelectorViewModel
     {
-        public ParameterType ParameterType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public EventCallback<ParameterType> OnParameterValueChanged { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool IsReadOnly { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterType"/>
+        /// </summary>
+        public ParameterType ParameterType { get; set; }
+
+        /// <summary>
+        /// Event Callback for when a value has changed on the parameter
+        /// </summary>
+        public EventCallback<ParameterType> OnParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the Editor is readonly.
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel"/>
+        /// </summary>
+        /// <param name="parameterType">the <see cref="ParameterType"/> used for this view model</param>
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType)
+        {
+            this.ParameterType = parameterType;
+        }
+
+        /// <summary>
+        /// Creates a view model for the corresponding editor
+        /// </summary>
+        /// <typeparam name="T">the parameter type</typeparam>
+        /// <returns>the view model</returns>
+        public IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T: ParameterType
+        {
+            switch (this.ParameterType)
+            {
+                case EnumerationParameterType enumParamType: return new EnumerationParameterTypeEditorViewModel(enumParamType) as IParameterEditorBaseViewModel<T>;
+                case BooleanParameterType booleanParamType: return new BooleanParameterTypeEditorViewModel(booleanParamType) as IParameterEditorBaseViewModel<T>;
+
+                default: throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented");
+            }
+        }
     }
 }

@@ -80,17 +80,35 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             {
                 if (element is ElementDefinition elementDefinition)
                 {
-                    elementDefinition.Parameter.ForEach(parameter => this.Rows.Add(new ParameterBaseRowViewModel(parameter)));
+                    elementDefinition.Parameter.ForEach(parameter =>
+                    {
+                        parameter.ValueSet.ForEach(valueSet =>
+                        {
+                            this.Rows.Add(new ParameterBaseRowViewModel(parameter, valueSet));
+                        });
+                    });
                 }
                 else if (element is ElementUsage elementUsage)
                 {
                     if (elementUsage.ParameterOverride.Any())
                     {
-                        elementUsage.ParameterOverride.ForEach(parameter => this.Rows.Add(new ParameterBaseRowViewModel(parameter)));
+                        elementUsage.ParameterOverride.ForEach(parameter =>
+                        {
+                            parameter.ValueSet.ForEach(valueSet =>
+                            {
+                                this.Rows.Add(new ParameterBaseRowViewModel(parameter, valueSet));
+                            });
+                        });
                     }
                     else
                     {
-                        elementUsage.ElementDefinition.Parameter.ForEach(parameter => this.Rows.Add(new ParameterBaseRowViewModel(parameter)));
+                        elementUsage.ElementDefinition.Parameter.ForEach(parameter =>
+                        {
+                            parameter.ValueSet.ForEach(valueSet =>
+                            {
+                                this.Rows.Add(new ParameterBaseRowViewModel(parameter, valueSet));
+                            });
+                        });
                     }
                 }
             }

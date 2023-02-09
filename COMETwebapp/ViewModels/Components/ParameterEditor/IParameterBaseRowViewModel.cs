@@ -25,6 +25,9 @@
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     /// <summary>
     /// Interface for the <see cref="ParameterBaseRowViewModel"/>
@@ -37,6 +40,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         ParameterBase Parameter { get; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ParameterType"/> for this <see cref="ParameterBaseRowViewModel"/>
+        /// </summary>
+        public ParameterType ParameterType { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="ElementBase"/> used for grouping this <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
         string ElementBaseName { get; }
@@ -47,24 +55,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         string ParameterName { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Option"/> names for this <see cref="ParameterBase"/>
-        /// </summary>
-        IEnumerable<string> OptionsNames { get; }
-
-        /// <summary>
         /// Gets the <see cref="Parameter"/> owner name
         /// </summary>
         string OwnerName { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Scale"/>
-        /// </summary>
-        string Scale { get; }
-
-        /// <summary>
-        /// Gets the <see cref="Category"/> of the <see cref="IParameterBaseRowViewModel"/>
-        /// </summary>
-        string Category { get; }
 
         /// <summary>
         /// Gets the switch for the published value
@@ -75,5 +68,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets the <see cref="Parameter"/> model code
         /// </summary>
         string ModelCode { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Option"/> name this <see cref="Parameter"/> is dependant on
+        /// </summary>
+        public string Option { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ActualFiniteState"/> name this <see cref="Parameter"/> is dependant on
+        /// </summary>
+        public string State { get; }
+
+        /// <summary>
+        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// </summary>
+        /// <returns></returns>
+        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel();
     }
 }

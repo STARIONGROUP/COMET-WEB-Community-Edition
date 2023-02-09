@@ -20,9 +20,11 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
 @using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
 @using COMETwebapp.ViewModels.Components.ParameterEditor
+@using COMETwebapp.Components.Shared.ParameterEditors;
 
 @if (this.Elements is null)
 {
@@ -41,19 +43,32 @@ Copyright (c) 2023 RHEA System S.A.
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Value")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Parameter)" Caption="@("Published Value")" AllowGroup="false">
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterName)" GroupIndex="1" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Parameter")" AllowGroup="true" AllowSort="true" />
+
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Option)" Caption="@("Option")" GroupIndex="2" GroupInterval="GridColumnGroupInterval.Value" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
+            
+            <DxGridDataColumn Caption="@("Published Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
                     <p>ValueSet Editors</p>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
+                <CellDisplayTemplate>
+                    @if(@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    {
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel()"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
                 <CellDisplayTemplate>
                     <ParameterSwitchKindComponent/>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Value")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
         </Columns>
     </DxGrid>
