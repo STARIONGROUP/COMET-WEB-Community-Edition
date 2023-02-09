@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.Shared.ParameterEditors
 {
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
@@ -36,7 +38,9 @@ namespace COMETwebapp.Components.Shared.ParameterEditors
         /// <summary>
         /// Gets or sets the <see cref="IEnumerationParameterTypeEditorViewModel"/>
         /// </summary>
-        [Inject]
-        public IEnumerationParameterTypeEditorViewModel ViewModel { get; set; }
+        [Parameter]
+        public IParameterEditorBaseViewModel<EnumerationParameterType> ViewModel { get; set; }
+
+        public object value;
     }
 }

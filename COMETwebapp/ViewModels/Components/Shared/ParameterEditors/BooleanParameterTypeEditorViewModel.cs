@@ -26,12 +26,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
+
     using System.Threading.Tasks;
 
-    /// <summary>
+    public class BooleanParameterTypeEditorViewModel : IParameterEditorBaseViewModel<BooleanParameterType>
+    {
+        /// <summary>
     /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
-    /// </summary>
+        /// </summary>
     public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
     {
         /// <summary>

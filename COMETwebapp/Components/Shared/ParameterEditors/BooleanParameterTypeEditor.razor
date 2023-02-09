@@ -1,0 +1,10 @@
+﻿@{
+    var values = new [] { "-", "true", "false" };
+    <DxComboBox CssClass="boolean-parameter-type"
+                Data="@values"
+                NullText="-"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                Value="@this.value"
+                ValueChanged="@((string result) => this.value = result)"/>
+}
+

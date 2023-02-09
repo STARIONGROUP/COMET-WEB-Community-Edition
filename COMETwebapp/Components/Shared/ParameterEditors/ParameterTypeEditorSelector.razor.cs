@@ -24,13 +24,18 @@
 
 namespace COMETwebapp.Components.Shared.ParameterEditors
 {
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+    using Microsoft.AspNetCore.Components;
 
     public partial class ParameterTypeEditorSelector
     {
         /// <summary>
-        /// Gets or sets the <see cref="IEnumerationParameterTypeEditorViewModel"/>
+        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel"/>
         /// </summary>
+        [Parameter]
         public IParameterTypeEditorSelectorViewModel ViewModel { get; set; }
     }
 }

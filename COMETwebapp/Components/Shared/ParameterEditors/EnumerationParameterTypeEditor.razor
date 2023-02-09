@@ -19,9 +19,9 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@*<DxComboBox CssClass="enumeration-parameter-type"
+<DxComboBox CssClass="enumeration-parameter-type"
             Data="this.ViewModel.ParameterType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name)"
             NullText="-"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-            Value="@(null)"
-            ReadOnly="this.ViewModel.IsReadOnly"/>*@
+            Value="@(this.value)"
+            ReadOnly="this.ViewModel.IsReadOnly"/>
