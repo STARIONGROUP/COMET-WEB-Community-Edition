@@ -26,7 +26,8 @@ namespace COMETwebapp.Components.ModelDashboard.Elements
 {
 	using CDP4Common.EngineeringModelData;
 
-	using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
 
     using DevExpress.Blazor;
 
@@ -66,10 +67,10 @@ namespace COMETwebapp.Components.ModelDashboard.Elements
 
             this.elementsDetailsValues = valueSet.serieName switch
             {
-                "Unused Elements" => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.Any(x => x.Iid == e.Iid)),
-                "Used Elements" => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.All(x => x.Iid != e.Iid)),
-                "Unreferenced Elements" => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.Any(x => x.Iid == e.Iid)),
-                "Referenced Elements" => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.All(x => x.Iid != e.Iid)),
+                ConstantValues.UnusedElements => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.Any(x => x.Iid == e.Iid)),
+                ConstantValues.UsedElements => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.All(x => x.Iid != e.Iid)),
+                ConstantValues.UnreferencedElements => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.Any(x => x.Iid == e.Iid)),
+                ConstantValues.ReferencedElements => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.All(x => x.Iid != e.Iid)),
                 _ => this.elementsDetailsValues
             };
 

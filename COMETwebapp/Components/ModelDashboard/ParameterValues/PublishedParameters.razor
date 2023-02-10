@@ -21,6 +21,7 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Utilities
 @inherits HaveValueSetsChartData
 
 <div class="width-100">
@@ -37,12 +38,12 @@ Copyright (c) 2023 RHEA System S.A.
     @if(this.ValueSets != null)
     {
         <DxChart Data="@this.ValueSets" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable Parameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="@ConstantValues.PublishableParameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside"/>
             </DxChartFullStackedBarSeries>
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="Published Parameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="@ConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside" />

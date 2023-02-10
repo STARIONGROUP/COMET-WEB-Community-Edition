@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QueryKeys.cs" company="RHEA System S.A.">
+//  <copyright file="ScalarParameter.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,34 +22,28 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Utilities
+namespace COMETwebapp.Components.Shared.ValueSetRenderers
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-	/// Static class that provide const value for url query parameters
-	/// </summary>
-	public static class QueryKeys
-	{
-		/// <summary>
-		/// The query key for the server url
-		/// </summary>
-		public const string ServerKey = "server";
-
-		/// <summary>
-		/// The query key for the <see cref="EngineeringModel" /> id
-		/// </summary>
-		public const string ModelKey = "modelId";
-
-		/// <summary>
-		/// The query key for the <see cref="Iteration" /> id
-		/// </summary>
-		public const string IterationKey = "iterationId";
+    /// Component that show <see cref="ParameterValueSetBase" /> values for an <see cref="ScalarParameterType" />
+    /// </summary>
+    public partial class ScalarParameter
+    {
+        /// <summary>
+        /// The current value of the <see cref="ParameterValueSetBase" />
+        /// </summary>
+        [Parameter]
+        public string Value { get; set; }
 
         /// <summary>
-        /// The query key for the <see cref="DomainOfExpertise" /> id
+        /// The <see cref="MeasurementScale" /> associated to the <see cref="ParameterValueSetBase" />
         /// </summary>
-        public const string DomainKey = "domainId";
+        [Parameter]
+        public MeasurementScale Scale { get; set; }
     }
 }

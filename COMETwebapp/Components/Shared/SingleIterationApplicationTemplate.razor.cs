@@ -24,11 +24,15 @@
 
 namespace COMETwebapp.Components.Shared
 {
+	using System;
 	using System.Reactive.Linq;
 
 	using CDP4Common.EngineeringModelData;
 
-	using COMETwebapp.Extensions;
+    using CDP4Dal;
+    using CDP4Dal.Events;
+
+    using COMETwebapp.Extensions;
 	using COMETwebapp.Utilities;
 	using COMETwebapp.ViewModels.Components.Shared;
 
@@ -83,6 +87,8 @@ namespace COMETwebapp.Components.Shared
 			this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedIteration)
 				.Where(x => x is not null)
 				.Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
+
+			this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
 		}
 
 		/// <summary>
@@ -125,11 +131,12 @@ namespace COMETwebapp.Components.Shared
 		/// </summary>
 		private void SetCorrectUrl()
 		{
-			var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty);
-			var currentOptions = QueryHelpers.ParseQuery(urlPage);
-			currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
+            var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty).Split('?')[0];
+            var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
+            currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
 			currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedIteration.IterationSetup.Container.Iid.ToShortGuid();
 			currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
+			currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
 			var targetOptions = new Dictionary<string, string>();
 
 			foreach (var currentOption in currentOptions.Where(x => !string.IsNullOrEmpty(x.Value)))

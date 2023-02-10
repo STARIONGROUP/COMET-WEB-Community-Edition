@@ -60,7 +60,7 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
         /// Set the color appearence for the donut chart
         /// </summary>
         /// <param name="settings">The <see cref="ChartSeriesPointCustomizationSettings"/> associated with the series point</param>
-        protected void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings)
+        private static void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings)
         {
             var argument = settings.Point.Argument.ToString();
 

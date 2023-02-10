@@ -407,3 +407,7 @@ html, body, #app {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.small-margin {
+    margin: 0.2rem;
+}

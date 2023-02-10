@@ -122,14 +122,14 @@ Copyright (c) 2023 RHEA System S.A.
                         <span class="badge rounded-pill bg-dark font-weight-100 font-size-bs-body">
                             <ScalarParameter 
                                 Value="@SubscribedParameterValueSetBase.Published.First()" 
-                                Scale="@ParameterOrOverride.Scale?.ShortName" 
+                                Scale="@ParameterOrOverride.Scale" 
                                 ValueType="@ParameterOrOverride.ParameterType.GetType()" />
                         </span>
                     } else
                     {
                         <ScalarParameter 
                             Value="@SubscribedParameterValueSetBase.Published.First()" 
-                            Scale="@ParameterOrOverride.Scale?.ShortName" 
+                            Scale="@ParameterOrOverride.Scale" 
                             ValueType="@ParameterOrOverride.ParameterType.GetType()" />
                     }
                 </div>
@@ -229,7 +229,7 @@ Copyright (c) 2023 RHEA System S.A.
                         {
                             <ScalarParameter 
                                 Value="@previousValueSet.Published.First()" 
-                                Scale="@ParameterOrOverride.Scale?.ShortName" 
+                                Scale="@ParameterOrOverride.Scale" 
                                 ValueType="@ParameterOrOverride.ParameterType.GetType()" />
                         } else if(this.ParameterOrOverride.ParameterType.GetType().Equals(typeof(ArrayParameterType)))
                         {

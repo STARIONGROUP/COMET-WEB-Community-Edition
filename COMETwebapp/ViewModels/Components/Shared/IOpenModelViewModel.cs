@@ -24,67 +24,68 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared
 {
-	using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-	using COMETwebapp.Model;
+    using COMETwebapp.Model;
 
-	/// <summary>
-	/// Interface definition for <see cref="OpenModelViewModel" />
-	/// </summary>
-	public interface IOpenModelViewModel : IDisposableViewModel
-	{
-		/// <summary>
-		/// The selected <see cref="EngineeringModelSetup" />
-		/// </summary>
-		EngineeringModelSetup SelectedEngineeringModel { get; set; }
+    /// <summary>
+    /// Interface definition for <see cref="OpenModelViewModel" />
+    /// </summary>
+    public interface IOpenModelViewModel : IDisposableViewModel
+    {
+        /// <summary>
+        /// The selected <see cref="EngineeringModelSetup" />
+        /// </summary>
+        EngineeringModelSetup SelectedEngineeringModel { get; set; }
 
-		/// <summary>
-		/// The selected <see cref="IterationData" />
-		/// </summary>
-		IterationData SelectedIterationSetup { get; set; }
+        /// <summary>
+        /// The selected <see cref="IterationData" />
+        /// </summary>
+        IterationData SelectedIterationSetup { get; set; }
 
-		/// <summary>
-		/// The selected <see cref="DomainOfExpertise" />
-		/// </summary>
-		DomainOfExpertise SelectedDomainOfExpertise { get; set; }
+        /// <summary>
+        /// The selected <see cref="DomainOfExpertise" />
+        /// </summary>
+        DomainOfExpertise SelectedDomainOfExpertise { get; set; }
 
-		/// <summary>
-		/// A collection of available <see cref="EngineeringModelSetup" />
-		/// </summary>
-		IEnumerable<EngineeringModelSetup> AvailableEngineeringModelSetups { get; set; }
+        /// <summary>
+        /// A collection of available <see cref="EngineeringModelSetup" />
+        /// </summary>
+        IEnumerable<EngineeringModelSetup> AvailableEngineeringModelSetups { get; set; }
 
-		/// <summary>
-		/// A collection of available <see cref="IterationData" />
-		/// </summary>
-		IEnumerable<IterationData> AvailableIterationSetups { get; set; }
+        /// <summary>
+        /// A collection of available <see cref="IterationData" />
+        /// </summary>
+        IEnumerable<IterationData> AvailableIterationSetups { get; set; }
 
-		/// <summary>
-		/// A collection of available <see cref="DomainOfExpertise" />
-		/// </summary>
-		IEnumerable<DomainOfExpertise> AvailablesDomainOfExpertises { get; set; }
+        /// <summary>
+        /// A collection of available <see cref="DomainOfExpertise" />
+        /// </summary>
+        IEnumerable<DomainOfExpertise> AvailablesDomainOfExpertises { get; set; }
 
-		/// <summary>
-		/// Value asserting that the session is on way to open
-		/// </summary>
-		bool IsOpeningSession { get; set; }
+        /// <summary>
+        /// Value asserting that the session is on way to open
+        /// </summary>
+        bool IsOpeningSession { get; set; }
 
-		/// <summary>
-		/// Initializes this view model properties
-		/// </summary>
-		void InitializesProperties();
+        /// <summary>
+        /// Initializes this view model properties
+        /// </summary>
+        void InitializesProperties();
 
-		/// <summary>
-		/// Opens the <see cref="EngineeringModel" /> based on the selected field
-		/// </summary>
-		/// <returns></returns>
-		Task OpenSession();
+        /// <summary>
+        /// Opens the <see cref="EngineeringModel" /> based on the selected field
+        /// </summary>
+        /// <returns></returns>
+        Task OpenSession();
 
-		/// <summary>
-		/// Preselects the <see cref="Iteration" /> to open
-		/// </summary>
-		/// <param name="modelId">The <see cref="Guid" /> of the <see cref="EngineeringModel" /></param>
-		/// <param name="iterationId">The <see cref="Guid" /> of the <see cref="Iteration" /> to open</param>
-		void PreSelectIteration(Guid modelId, Guid iterationId);
-	}
+        /// <summary>
+        /// Preselects the <see cref="Iteration" /> to open
+        /// </summary>
+        /// <param name="modelId">The <see cref="Guid" /> of the <see cref="EngineeringModel" /></param>
+        /// <param name="iterationId">The <see cref="Guid" /> of the <see cref="Iteration" /> to open</param>
+        /// <param name="domainId">The <see cref="Guid" /> of the <see cref="DomainOfExpertise" /> to select</param>
+        void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId);
+    }
 }

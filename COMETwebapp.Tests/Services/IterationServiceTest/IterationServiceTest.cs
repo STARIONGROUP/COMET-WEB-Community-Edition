@@ -313,21 +313,21 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
         [Test]
         public void VerifyGetNestedElements()
         {
-            Assert.That(this.iteration.GetNestedElements(), Is.Not.Empty);
+            Assert.That(this.iteration.QueryNestedElements(), Is.Not.Empty);
         }
 
         [Test]
         public void VerifyGetNestedElementsByOption()
         {
             var option = this.iteration.Option.First();
-            Assert.That(this.iteration.GetNestedElements(option), Is.Not.Empty);
-            Assert.That(this.iteration.GetNestedElements(option).Count, Is.EqualTo(this.iteration.GetNestedElements().Count()));
+            Assert.That(this.iteration.QueryNestedElements(option), Is.Not.Empty);
+            Assert.That(this.iteration.QueryNestedElements(option).Count, Is.EqualTo(this.iteration.QueryNestedElements().Count()));
         }
 
         [Test]
         public void VerifyGetNestedParameters()
         {
-            Assert.That(this.iteration.GetNestedParameters(this.iteration.Option.First()), Is.Not.Empty);
+            Assert.That(this.iteration.QueryNestedParameters(this.iteration.Option.First()), Is.Not.Empty);
         }
 
         [Test]
@@ -360,22 +360,22 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
         [Test]
         public void VerifyGetParameterValueSetBase()
         {
-            Assert.That(this.iteration.GetParameterValueSetBase(), Is.Not.Empty);
-            Assert.That(this.iteration.GetParameterValueSetBase(), Is.EqualTo(this.parameterValueSetBase));
+            Assert.That(this.iteration.QueryParameterValueSetBase(), Is.Not.Empty);
+            Assert.That(this.iteration.QueryParameterValueSetBase(), Is.EqualTo(this.parameterValueSetBase));
         }
 
         [Test]
         public void VerifyGetUnreferencedElements()
         {
-            Assert.That(this.iteration.GetUnreferencedElements(), Is.Not.Empty);
-            Assert.That(this.iteration.GetUnreferencedElements(), Is.EqualTo(this.unReferencedElements));
+            Assert.That(this.iteration.QueryUnreferencedElements(), Is.Not.Empty);
+            Assert.That(this.iteration.QueryUnreferencedElements(), Is.EqualTo(this.unReferencedElements));
         }
 
         [Test]
         public void VerifyGetUnusedElementDefinitions()
         {
-            Assert.That(this.iteration.GetUnusedElementDefinitions(), Is.Not.Empty);
-            Assert.That(this.iteration.GetUnusedElementDefinitions(), Is.EqualTo(this.unUsedElements));
+            Assert.That(this.iteration.QueryUnusedElementDefinitions(), Is.Not.Empty);
+            Assert.That(this.iteration.QueryUnusedElementDefinitions(), Is.EqualTo(this.unUsedElements));
         }
     }
 }

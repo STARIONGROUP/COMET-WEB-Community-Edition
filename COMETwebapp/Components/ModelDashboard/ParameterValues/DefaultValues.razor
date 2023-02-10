@@ -21,6 +21,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using System.Drawing
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Utilities
 @inherits HaveValueSetsChartData
 
 <div class="width-100">
@@ -39,12 +40,12 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 	@if (this.ValueSets.Any())
 	{
 		<DxChart Data="@(this.ValueSets)" CustomizeSeriesPoint="@PreparePointLabel">
-			<DxChartFullStackedBarSeries Color="Color.LightSlateGray" Name="Complete Values" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+			<DxChartFullStackedBarSeries Color="Color.LightSlateGray" Name="@ConstantValues.ParametersWithValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
 			                             ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
 			                             AggregationMethod="Enumerable.Sum">
 				<DxChartSeriesLabel Position="RelativePosition.Inside"/>
 			</DxChartFullStackedBarSeries>
-			<DxChartFullStackedBarSeries Color="Color.DarkSeaGreen" Name="Missing Values" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+			<DxChartFullStackedBarSeries Color="Color.DarkSeaGreen" Name="@ConstantValues.ParametersWithMissingValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
 			                             ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
 			                             AggregationMethod="Enumerable.Sum">
 				<DxChartSeriesLabel Position="RelativePosition.Inside"/>

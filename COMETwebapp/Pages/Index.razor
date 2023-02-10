@@ -42,7 +42,7 @@ Copyright (c) 2023 RHEA System S.A.
 							<a class="m-left-10px" @onclick="@(() => this.ViewModel.Logout())">Log Out</a> 
 						</div>
 					</div>
-					<OpenModel ModelId="@this.requestedModel" IterationId="@this.requestedIteration"/>
+					<OpenModel ModelId="@this.requestedModel" IterationId="@this.requestedIteration" DomainId="@this.requestedDomainOfExpertise"/>
 				</DxPopup>
 			}
 		}

@@ -25,8 +25,9 @@
 namespace COMETwebapp.Components.Shared
 {
 	using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-	using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared;
 
 	using Microsoft.AspNetCore.Components;
 
@@ -60,7 +61,13 @@ namespace COMETwebapp.Components.Shared
 		[Parameter]
 		public Guid IterationId { get; set; }
 
-		/// <summary>
+        /// <summary>
+        /// The <see cref="Guid" /> of a requested <see cref="DomainOfExpertise" />
+        /// </summary>
+        [Parameter]
+        public Guid DomainId { get; set; }
+
+        /// <summary>
 		/// Value asserting that the button is enabled
 		/// </summary>
 		public bool ButtonEnabled => this.AreRequiredFieldSelected() && !this.ViewModel.IsOpeningSession;
@@ -99,10 +106,10 @@ namespace COMETwebapp.Components.Shared
 
 			this.selectorEnabled = true;
 
-			if (this.ModelId != Guid.Empty && this.IterationId != Guid.Empty)
+			if (this.ModelId != Guid.Empty && this.IterationId != Guid.Empty && this.DomainId != Guid.Empty)
 			{
 				this.selectorEnabled = false;
-				this.ViewModel.PreSelectIteration(this.ModelId, this.IterationId);
+				this.ViewModel.PreSelectIteration(this.ModelId, this.IterationId, this.DomainId);
 			}
 		}
 

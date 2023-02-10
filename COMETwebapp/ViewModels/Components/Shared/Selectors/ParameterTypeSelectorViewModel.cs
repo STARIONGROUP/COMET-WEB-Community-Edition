@@ -60,7 +60,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 		protected override void UpdateProperties()
 		{
 			this.SelectedParameterType = null;
-			this.AvailableParameterTypes = this.CurrentIteration?.GetUsedParameterTypes().OrderBy(x => x.Name) ?? Enumerable.Empty<ParameterType>();
+			this.AvailableParameterTypes = this.CurrentIteration?.QueryUsedParameterTypes().OrderBy(x => x.Name) ?? Enumerable.Empty<ParameterType>();
 		}
 	}
 }

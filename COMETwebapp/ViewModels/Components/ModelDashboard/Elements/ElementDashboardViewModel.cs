@@ -68,8 +68,8 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.Elements
 			if (iteration != null)
 			{
 				this.CurrentDomain = currentDomain;
-				this.UnusedElements = iteration.GetUnusedElementDefinitions();
-				this.UnreferencedElements = iteration.GetUnreferencedElements();
+				this.UnusedElements = iteration.QueryUnusedElementDefinitions();
+				this.UnreferencedElements = iteration.QueryUnreferencedElements();
 				this.ElementDefinitions.AddRange(iteration.Element);
 			}
 		}

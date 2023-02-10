@@ -22,7 +22,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @using COMETwebapp.Model
 
 <div class="col col-xxl-8">
-    <DxChart Data="@this.dataCharts" CustomizeSeriesPoint="@this.CustomizeSeriesPoint">
+    <DxChart Data="@this.dataCharts" CustomizeSeriesPoint="@CustomizeSeriesPoint">
         <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
                         ValueField="@(d => d.Value)"
                         ArgumentField="@(d => d.Argument)"

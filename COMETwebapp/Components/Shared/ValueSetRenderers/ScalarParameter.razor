@@ -19,36 +19,11 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.SiteDirectoryData
-
-@if (this.ParameterType.NumberOfValues == 1)
+@if (this.Scale == null)
 {
-    <ScalarParameter
-        Value="@(this.Value.First())"
-        Scale="@(this.Scale)"/>
-}
-else if (this.ParameterType is ArrayParameterType arrayParameterType)
-{
-    <ArrayParameter
-        ArrayParameterType="arrayParameterType"
-        Values="@(this.Value)"/>
+	<div class="col p-0">@this.Value</div>
 }
 else
 {
-    var compoundParameterType = (CompoundParameterType)this.ParameterType;
-    <div class="p-0 compound">
-        @foreach (var component in compoundParameterType.Component.ToList())
-        {
-            var indexStart = 0;
-            for (var componentIndex = 0; componentIndex < compoundParameterType.Component.IndexOf(component); componentIndex++)
-            {
-                indexStart += compoundParameterType.Component.ElementAt(componentIndex).ParameterType.NumberOfValues;
-            }
-
-            <CompoundParameter
-                IndexStartInParameterTypeComponent="indexStart"
-                Values="@(this.Value)"
-                Component="component"/>
-        }
-    </div>
+	<div class="col p-0">@this.Value [@this.Scale.ShortName]</div>
 }

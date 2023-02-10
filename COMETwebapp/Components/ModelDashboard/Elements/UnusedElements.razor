@@ -20,6 +20,7 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Utilities
 @inherits HaveElementDefinitionData
 @using Tooltip = COMETwebapp.Components.Shared.Tooltip
 
@@ -37,12 +38,12 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
        
             <DxChart Data="@this.Elements"  CustomizeSeriesPoint="@PreparePointLabel">
-                <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="Used Elements" Filter="@((ElementDefinition e) => this.UnusedElementDefinitions.All(x => x.Iid != e.Iid))"
+                <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="@ConstantValues.UsedElements" Filter="@((ElementDefinition e) => this.UnusedElementDefinitions.All(x => x.Iid != e.Iid))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                             AggregationMethod="Enumerable.Sum">
                     <DxChartSeriesLabel Position="RelativePosition.Inside"/>
                 </DxChartFullStackedBarSeries>
-                <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="Unused Elements" Filter="@((ElementDefinition e) =>  this.UnusedElementDefinitions.Any(x => x.Iid == e.Iid))"
+                <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="@ConstantValues.UnusedElements" Filter="@((ElementDefinition e) =>  this.UnusedElementDefinitions.Any(x => x.Iid == e.Iid))"
                                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                                     AggregationMethod="Enumerable.Sum">
                     <DxChartSeriesLabel Position="RelativePosition.Inside" />

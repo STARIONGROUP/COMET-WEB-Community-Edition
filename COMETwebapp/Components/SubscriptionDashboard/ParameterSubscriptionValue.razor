@@ -57,7 +57,7 @@ Copyright (c) 2023 RHEA System S.A.
                                 <span class="badge rounded-pill bg-dark font-weight-100 font-size-bs-body">
                                     <ScalarParameter 
                                         Value="@ParameterSubscriptionValueSet.Computed.First()" 
-                                        Scale="@ParameterSubscription.Scale?.ShortName" 
+                                        Scale="@ParameterSubscription.Scale" 
                                         ValueType="@ParameterSubscription.ParameterType.GetType()"
                                         IsParameterValueSetEdited="false" />
                                 </span>
@@ -65,7 +65,7 @@ Copyright (c) 2023 RHEA System S.A.
                             {
                                 <ScalarParameter 
                                     Value="@ParameterSubscriptionValueSet.Computed.First()" 
-                                    Scale="@ParameterSubscription.Scale?.ShortName" 
+                                    Scale="@ParameterSubscription.Scale" 
                                     ValueType="@ParameterSubscription.ParameterType.GetType()"
                                     IsParameterValueSetEdited="false" />
                             }
@@ -90,7 +90,7 @@ Copyright (c) 2023 RHEA System S.A.
                         <div class="col p-0">
                             <ScalarParameter 
                                 Value="@ParameterSubscriptionValueSet.Manual.First()" 
-                                Scale="@ParameterSubscription.Scale?.ShortName" 
+                                Scale="@ParameterSubscription.Scale" 
                                 ValueType="@ParameterSubscription.ParameterType.GetType()"
                                 EnumerationValueDefinitions="@enumerationValueDefinitions"
                                 ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet" 
@@ -117,7 +117,7 @@ Copyright (c) 2023 RHEA System S.A.
                         <div class="col p-0">
                             <ScalarParameter 
                                 Value="@ParameterSubscriptionValueSet.Reference.First()" 
-                                Scale="@ParameterSubscription.Scale?.ShortName" 
+                                Scale="@ParameterSubscription.Scale" 
                                 ParameterSubscriptionValueSet="@ParameterSubscriptionValueSet"
                                 ValueType="@ParameterSubscription.ParameterType.GetType()"
                                 EnumerationValueDefinitions="@enumerationValueDefinitions"

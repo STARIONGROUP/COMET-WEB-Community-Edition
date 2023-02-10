@@ -46,21 +46,21 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Gets a collection of used <see cref="ParameterType" /> inside an <see cref="Iteration" />
+        /// Queries used <see cref="ParameterType" /> inside an <see cref="Iteration" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <returns>The collection of used <see cref="ParameterType" /></returns>
-        public static IEnumerable<ParameterType> GetUsedParameterTypes(this Iteration iteration)
+        public static IEnumerable<ParameterType> QueryUsedParameterTypes(this Iteration iteration)
         {
             return iteration.Element.SelectMany(x => x.Parameter).Select(x => x.ParameterType).DistinctBy(x => x.Iid);
         }
 
         /// <summary>
-        /// Get all <see cref="ParameterValueSetBase" /> of the given iteration
+        /// Queries all <see cref="ParameterValueSetBase" /> of the given iteration
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <returns>A collection of <see cref="ParameterValueSetBase" /></returns>
-        public static IEnumerable<ParameterValueSetBase> GetParameterValueSetBase(this Iteration iteration)
+        public static IEnumerable<ParameterValueSetBase> QueryParameterValueSetBase(this Iteration iteration)
         {
             var valueSets = new List<ParameterValueSetBase>();
 
@@ -87,25 +87,25 @@ namespace COMETwebapp.Extensions
             return valueSets.DistinctBy(x => x.Iid);
         }
 
-        /// <summary>
-        /// Gets all <see cref="NestedParameter" /> that belongs to a given <see cref="Option" />
+        /// <summary>rie
+        /// Queries all <see cref="NestedParameter" /> that belongs to a given <see cref="Option" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> to get the <see cref="NestedParameter" />s</param>
         /// <param name="option">The <see cref="Option" /></param>
         /// <returns>A collection of <see cref="NestedParameter" /></returns>
-        public static IEnumerable<NestedParameter> GetNestedParameters(this Iteration iteration, Option option)
+        public static IEnumerable<NestedParameter> QueryNestedParameters(this Iteration iteration, Option option)
         {
             var generator = new NestedElementTreeGenerator();
             return iteration.TopElement == null ? Enumerable.Empty<NestedParameter>() : generator.GetNestedParameters(option);
         }
 
         /// <summary>
-        /// Get all the unreferenced <see cref="ElementDefinition" /> in an <see cref="Iteration" />
+        /// Queries all the unreferenced <see cref="ElementDefinition" /> in an <see cref="Iteration" />
         /// An unreferenced element is an element with no associated ElementUsage
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <returns>All unreferenced <see cref="ElementDefinition" /></returns>
-        public static IEnumerable<ElementDefinition> GetUnreferencedElements(this Iteration iteration)
+        public static IEnumerable<ElementDefinition> QueryUnreferencedElements(this Iteration iteration)
         {
             var elementUsages = iteration.Element.SelectMany(x => x.ContainedElement).ToList();
 
@@ -119,14 +119,14 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Get unused <see cref="ElementDefinition" /> in an <see cref="Iteration" />
+        /// Queries unused <see cref="ElementDefinition" /> in an <see cref="Iteration" />
         /// An unused element is an element not used in an option
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <returns>All unused <see cref="ElementDefinition" /></returns>
-        public static IEnumerable<ElementDefinition> GetUnusedElementDefinitions(this Iteration iteration)
+        public static IEnumerable<ElementDefinition> QueryUnusedElementDefinitions(this Iteration iteration)
         {
-            var nestedElements = iteration.GetNestedElements().ToList();
+            var nestedElements = iteration.QueryNestedElements().ToList();
 
             var associatedElements = nestedElements.SelectMany(x => x.ElementUsage.Select(e => e.ElementDefinition))
                 .DistinctBy(x => x.Iid).ToList();
@@ -138,11 +138,11 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Get all <see cref="NestedElement" /> of the given <see cref="Iteration" />
+        /// Queries all <see cref="NestedElement" /> of the given <see cref="Iteration" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> </param>
         /// <returns>A collection of <see cref="NestedElement" /></returns>
-        public static IEnumerable<NestedElement> GetNestedElements(this Iteration iteration)
+        public static IEnumerable<NestedElement> QueryNestedElements(this Iteration iteration)
         {
             var nestedElementTreeGenerator = new NestedElementTreeGenerator();
             var nestedElements = new List<NestedElement>();
@@ -156,12 +156,12 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Get all <see cref="NestedElement" /> of the given <see cref="Iteration" /> based on <see cref="Option"/>
+        /// Queries all <see cref="NestedElement" /> of the given <see cref="Iteration" /> based on <see cref="Option"/>
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> </param>
         /// <param name="option">The <see cref="Option"/></param>
         /// <returns>A collection of <see cref="NestedElement" /></returns>
-        public static IEnumerable<NestedElement> GetNestedElements(this Iteration iteration, Option option)
+        public static IEnumerable<NestedElement> QueryNestedElements(this Iteration iteration, Option option)
         {
             var nestedElementTreeGenerator = new NestedElementTreeGenerator();
             var nestedElements = new List<NestedElement>();

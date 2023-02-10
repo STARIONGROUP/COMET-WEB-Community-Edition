@@ -24,30 +24,37 @@
 
 namespace COMETwebapp.Tests.Pages
 {
+    using System;
+    using System.Collections.Generic;
+
     using Bunit;
     using Bunit.TestDoubles;
 
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMETwebapp.Components.Shared;
-    using COMETwebapp.Pages;
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Tests.Helpers;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Pages;
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.WebUtilities;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
     using NUnit.Framework;
 
+    using Index = COMETwebapp.Pages.Index;
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -108,6 +115,100 @@ namespace COMETwebapp.Tests.Pages
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
             this.sourceList.Add(new Iteration());
             Assert.That(() => renderer.FindComponent<Dashboard>(), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyIndexPageWithRedirectionNotAuthorized()
+        {
+            const string targetServer = "http://localhost:5000";
+            var url = QueryHelpers.AddQueryString("ModelDashboard", QueryKeys.ServerKey, targetServer);
+
+            var renderer = this.context.RenderComponent<Index>(parameters =>
+                parameters.Add(p => p.Redirect, url));
+
+            var login = renderer.FindComponent<Login>();
+            Assert.That(login.Instance.ViewModel.AuthenticationDto.SourceAddress, Is.EqualTo(targetServer));
+        }
+
+        [Test]
+        public void VerifyIndexPageWithRedirectionAuthorized()
+        {
+            this.authorization.SetAuthorized("User");
+            this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.DataSourceUri).Returns("http://localhost");
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            var iteration = new Iteration()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var domain = new DomainOfExpertise()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var openIterations = new SourceList<Iteration>();
+            
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
+
+            var engineeringModelSetup = new EngineeringModelSetup
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup =
+                {
+                    new IterationSetup
+                    {
+                        IterationIid = Guid.NewGuid()
+                    }
+                }
+            };
+
+            var queries = new Dictionary<string, string>
+            {
+                [QueryKeys.DomainKey] = domain.Iid.ToShortGuid(),
+                [QueryKeys.IterationKey] = iteration.Iid.ToShortGuid(),
+                [QueryKeys.ModelKey] = engineeringModelSetup.Iid.ToShortGuid()
+            };
+
+            var url = QueryHelpers.AddQueryString("ModelDashboard", queries);
+
+            var renderer = this.context.RenderComponent<Index>(parameters =>
+                parameters.Add(p => p.Redirect, url));
+
+            var openModel = renderer.FindComponent<OpenModel>();
+            Assert.That(openModel.Instance.ViewModel.SelectedEngineeringModel, Is.Null);
+
+            this.sessionService.Setup(x => x.GetParticipantModels()).Returns(new List<EngineeringModelSetup> { engineeringModelSetup });
+
+            renderer = this.context.RenderComponent<Index>(parameters =>
+                parameters.Add(p => p.Redirect, url));
+
+            openModel = renderer.FindComponent<OpenModel>();
+            Assert.That(openModel.Instance.ViewModel.SelectedEngineeringModel, Is.Not.Null);
+
+            engineeringModelSetup.IterationSetup.Add(new IterationSetup()
+            {
+                IterationIid = iteration.Iid
+            });
+
+            renderer = this.context.RenderComponent<Index>(parameters =>
+                parameters.Add(p => p.Redirect, url));
+
+            openModel = renderer.FindComponent<OpenModel>();
+            Assert.That(openModel.Instance.ViewModel.SelectedIterationSetup, Is.Not.Null);
+
+            this.sessionService.Setup(x => x.GetModelDomains(engineeringModelSetup)).Returns(new List<DomainOfExpertise>
+            {
+                domain
+            });
+
+            renderer = this.context.RenderComponent<Index>(parameters =>
+                parameters.Add(p => p.Redirect, url));
+
+            openModel = renderer.FindComponent<OpenModel>();
+            Assert.That(openModel.Instance.ViewModel.SelectedDomainOfExpertise, Is.Not.Null);
         }
     }
 }

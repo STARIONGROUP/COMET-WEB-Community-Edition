@@ -28,21 +28,21 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
-    
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="OrientationViewModel"/>
+    /// Interface for the <see cref="OrientationViewModel" />
     /// </summary>
     public interface IOrientationViewModel
     {
         /// <summary>
-        /// Gets or sets the angle format. 
+        /// Gets or sets the angle format.
         /// </summary>
-        AngleFormat AngleFormat { get; set; } 
+        AngleFormat AngleFormat { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Orientation"/>
+        /// Gets or sets the <see cref="Orientation" />
         /// </summary>
         Orientation Orientation { get; set; }
 
@@ -56,46 +56,50 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         IValueSet CurrentValueSet { get; set; }
 
-        /// <summary> 
-        /// Event callback for when a value of the <see cref="SelectedParameter"/> has changed 
-        /// </summary> 
+        /// <summary>
+        /// Event callback for when a value of the <see cref="SelectedParameter" /> has changed
+        /// </summary>
         EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
 
         /// <summary>
-        /// Gets all the possible <see cref="AngleFormat"/>
+        /// Gets all the possible <see cref="AngleFormat" />
         /// </summary>
-        public IEnumerable<AngleFormat> AngleFormats { get; } 
+        public IEnumerable<AngleFormat> AngleFormats { get; }
 
         /// <summary>
         /// Event for when the euler angles changed
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="value">the value of the changed property</param>
-        void OnEulerAnglesChanged(string sender, string value);
+        /// <returns>A <see cref="Task" /></returns>
+        Task OnEulerAnglesChanged(string sender, string value);
 
         /// <summary>
         /// Event for when the euler angles changed
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="e">the args of the event</param>
-        void OnEulerAnglesChanged(string sender, ChangeEventArgs e);
+        /// <returns>A <see cref="Task" /></returns>
+        Task OnEulerAnglesChanged(string sender, ChangeEventArgs e);
 
         /// <summary>
         /// Event for when the matrix values changed
         /// </summary>
         /// <param name="index">the index of the matrix changed</param>
         /// <param name="value">the new value for that index</param>
-        void OnMatrixValuesChanged(int index, string value);
+        /// <returns>A <see cref="Task" /></returns>
+        Task OnMatrixValuesChanged(int index, string value);
 
-        /// <summary> 
-        /// Event for when the matrix values changed 
-        /// </summary> 
-        void OnMatrixValuesChanged(int index, ChangeEventArgs e);
+        /// <summary>
+        /// Event for when the matrix values changed
+        /// </summary>
+        Task OnMatrixValuesChanged(int index, ChangeEventArgs e);
 
-        /// <summary> 
-        /// Event for when the angle format has changed 
-        /// </summary> 
-        /// <param name="angleFormat"></param> 
-        void OnAngleFormatChanged(AngleFormat angleFormat);
+        /// <summary>
+        /// Event for when the angle format has changed
+        /// </summary>
+        /// <param name="angle">The new format for the angle</param>
+        /// <returns>A <see cref="Task" /></returns>
+        void OnAngleFormatChanged(AngleFormat angle);
     }
 }

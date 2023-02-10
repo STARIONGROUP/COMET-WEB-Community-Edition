@@ -80,6 +80,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.DefaultIteration).Returns(new Iteration());
+            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
 
             var iterations = new SourceList<Iteration>();
             iterations.Add(new Iteration(){IterationSetup = new IterationSetup(){Container = new EngineeringModelSetup(){Iid = Guid.NewGuid()}}});

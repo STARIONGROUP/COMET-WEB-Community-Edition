@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QueryKeys.cs" company="RHEA System S.A.">
+//  <copyright file="ArrayParameter.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,34 +22,29 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Utilities
+namespace COMETwebapp.Components.Shared.ValueSetRenderers
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-	/// Static class that provide const value for url query parameters
-	/// </summary>
-	public static class QueryKeys
-	{
-		/// <summary>
-		/// The query key for the server url
-		/// </summary>
-		public const string ServerKey = "server";
-
-		/// <summary>
-		/// The query key for the <see cref="EngineeringModel" /> id
-		/// </summary>
-		public const string ModelKey = "modelId";
-
-		/// <summary>
-		/// The query key for the <see cref="Iteration" /> id
-		/// </summary>
-		public const string IterationKey = "iterationId";
+    /// Component that show <see cref="ParameterValueSet" /> values for an <see cref="ArrayParameterType" />
+    /// </summary>
+    public partial class ArrayParameter
+    {
+        /// <summary>
+        /// The <see cref="ArrayParameterType" /> associates to the <see cref="ParameterValueSet" />
+        /// </summary>
+        [Parameter]
+        public ArrayParameterType ArrayParameterType { get; set; }
 
         /// <summary>
-        /// The query key for the <see cref="DomainOfExpertise" /> id
+        /// Values of the associated <see cref="ParameterValueSet" />
         /// </summary>
-        public const string DomainKey = "domainId";
+        [Parameter]
+        public ValueArray<string> Values { get; set; }
     }
 }

@@ -83,6 +83,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.session = new Mock<ISession>();
             this.session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
 
             this.firstIteration = new Iteration()
             {

@@ -163,23 +163,25 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// </summary>
         /// <param name="modelId">The <see cref="Guid" /> of the <see cref="EngineeringModel" /></param>
         /// <param name="iterationId">The <see cref="Guid" /> of the <see cref="Iteration" /> to open</param>
-        public void PreSelectIteration(Guid modelId, Guid iterationId)
+        /// <param name="domainId">The <see cref="Guid" /> of the <see cref="DomainOfExpertise" /> to select</param>
+        public void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId)
         {
-	        this.selectedEngineeringModel = this.AvailableEngineeringModelSetups.FirstOrDefault(x => x.Iid == modelId);
+            this.selectedEngineeringModel = this.AvailableEngineeringModelSetups.FirstOrDefault(x => x.Iid == modelId);
             var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.FirstOrDefault(x => x.IterationIid == iterationId);
 
             if (iterationSetup != null)
             {
-	            this.SelectedIterationSetup = new IterationData(iterationSetup);
+                this.SelectedIterationSetup = new IterationData(iterationSetup);
             }
 
             this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
+            this.SelectedDomainOfExpertise = this.AvailablesDomainOfExpertises.FirstOrDefault(x => x.Iid == domainId);
         }
 
-		/// <summary>
-		/// Compute the available collection based on the selected <see cref="EngineeringModelSetup" />
-		/// </summary>
-		private void ComputeAvailableCollections()
+        /// <summary>
+        /// Compute the available collection based on the selected <see cref="EngineeringModelSetup" />
+        /// </summary>
+        private void ComputeAvailableCollections()
         {
             this.SelectedDomainOfExpertise = null;
             this.SelectedIterationSetup = null;

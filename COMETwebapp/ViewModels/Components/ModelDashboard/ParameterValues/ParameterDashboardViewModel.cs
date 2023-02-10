@@ -24,94 +24,95 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
 {
-	using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-	using COMETwebapp.Extensions;
+    using COMETwebapp.Extensions;
 
-	using DynamicData;
+    using DynamicData;
 
-	/// <summary>
-	/// View model that provides information related to <see cref="ParameterValueSetBase" />
-	/// </summary>
-	public class ParameterDashboardViewModel : IParameterDashboardViewModel
-	{
+    /// <summary>
+    /// View model that provides information related to <see cref="ParameterValueSetBase" />
+    /// </summary>
+    public class ParameterDashboardViewModel : IParameterDashboardViewModel
+    {
         /// <summary>
-		/// A collection of <see cref="ParameterValueSetBase" />
-		/// </summary>
-		public SourceList<ParameterValueSetBase> ValueSets { get; } = new();
+        /// A collection of <see cref="ParameterValueSetBase" />
+        /// </summary>
+        public SourceList<ParameterValueSetBase> ValueSets { get; } = new();
 
-		/// <summary>
-		/// A collection of available <see cref="DomainOfExpertise" />
-		/// </summary>
-		public IEnumerable<DomainOfExpertise> AvailableDomains { get; private set; }
+        /// <summary>
+        /// A collection of available <see cref="DomainOfExpertise" />
+        /// </summary>
+        public IEnumerable<DomainOfExpertise> AvailableDomains { get; private set; }
 
-		/// <summary>
-		/// The current <see cref="DomainOfExpertise" />
-		/// </summary>
-		public DomainOfExpertise CurrentDomain { get; private set; }
+        /// <summary>
+        /// The current <see cref="DomainOfExpertise" />
+        /// </summary>
+        public DomainOfExpertise CurrentDomain { get; private set; }
 
-		/// <summary>
-		/// Updates this view model properties
-		/// </summary>
-		/// <param name="iteration">The current <see cref="Iteration" /></param>
-		/// <param name="selectedOption">The current <see cref="Option" /></param>
-		/// <param name="selectedState">The current <see cref="ActualFiniteState" /></param>
-		/// <param name="selectedParameterType">The current <see cref="ParameterType" /></param>
-		/// <param name="currentDomain">The current <see cref="DomainOfExpertise" /></param>
-		/// <param name="availableDomains">A collection of available <see cref="DomainOfExpertise" /></param>
-		public void UpdateProperties(Iteration iteration, Option selectedOption, ActualFiniteState selectedState, ParameterType selectedParameterType, DomainOfExpertise currentDomain,
-			IEnumerable<DomainOfExpertise> availableDomains)
-		{
-			this.ValueSets.Clear();
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        /// <param name="iteration">The current <see cref="Iteration" /></param>
+        /// <param name="selectedOption">The current <see cref="Option" /></param>
+        /// <param name="selectedState">The current <see cref="ActualFiniteState" /></param>
+        /// <param name="selectedParameterType">The current <see cref="ParameterType" /></param>
+        /// <param name="currentDomain">The current <see cref="DomainOfExpertise" /></param>
+        /// <param name="availableDomains">A collection of available <see cref="DomainOfExpertise" /></param>
+        public void UpdateProperties(Iteration iteration, Option selectedOption, ActualFiniteState selectedState, ParameterType selectedParameterType, DomainOfExpertise currentDomain,
+            IEnumerable<DomainOfExpertise> availableDomains)
+        {
+            this.ValueSets.Clear();
 
-			if (iteration == null)
-			{
-				return;
-			}
+            if (iteration == null)
+            {
+                return;
+            }
 
-			this.CurrentDomain = currentDomain;
-			this.AvailableDomains = availableDomains;
-			this.ValueSets.AddRange(this.FilterValueSets(iteration, selectedOption, selectedState, selectedParameterType));
-		}
+            this.CurrentDomain = currentDomain;
+            this.AvailableDomains = availableDomains;
+            this.ValueSets.AddRange(FilterValueSets(iteration, selectedOption, selectedState, selectedParameterType));
+        }
 
-		/// <summary>
-		/// Filters the <see cref="ParameterValueSetBase" /> that are contained into an <see cref="Iteration" />
-		/// </summary>
-		/// <param name="iteration">The <see cref="Iteration" /></param>
-		/// <param name="selectedOption">The selected <see cref="Option" /></param>
-		/// <param name="selectedState">The selected <see cref="ActualFiniteState" /></param>
-		/// <param name="selectedParameterType">The selected <see cref="ParameterType" /></param>
-		/// <returns>A collection of filtered <see cref="ParameterValueSetBase" /></returns>
-		private IEnumerable<ParameterValueSetBase> FilterValueSets(Iteration iteration, Option selectedOption, ActualFiniteState selectedState, ParameterType selectedParameterType)
-		{
-			var valuesSets = iteration.GetParameterValueSetBase().ToList();
+        /// <summary>
+        /// Filters the <see cref="ParameterValueSetBase" /> that are contained into an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <param name="selectedOption">The selected <see cref="Option" /></param>
+        /// <param name="selectedState">The selected <see cref="ActualFiniteState" /></param>
+        /// <param name="selectedParameterType">The selected <see cref="ParameterType" /></param>
+        /// <returns>A collection of filtered <see cref="ParameterValueSetBase" /></returns>
+        private static IEnumerable<ParameterValueSetBase> FilterValueSets(Iteration iteration, Option selectedOption,
+            ActualFiniteState selectedState, ParameterType selectedParameterType)
+        {
+            var valuesSets = iteration.QueryParameterValueSetBase().ToList();
 
-			if (selectedOption != null)
-			{
-				var nestedParameters = iteration.GetNestedParameters(selectedOption).ToList();
+            if (selectedOption != null)
+            {
+                var nestedParameters = iteration.QueryNestedParameters(selectedOption).ToList();
 
-				if (nestedParameters.Any())
-				{
-					valuesSets = valuesSets.Where(x => nestedParameters.Select(p => p.ValueSet).Contains(x)).ToList();
-				}
-				else
-				{
-					return Enumerable.Empty<ParameterValueSetBase>();
-				}
-			}
+                if (nestedParameters.Any())
+                {
+                    valuesSets = valuesSets.Where(x => nestedParameters.Select(p => p.ValueSet).Contains(x)).ToList();
+                }
+                else
+                {
+                    return Enumerable.Empty<ParameterValueSetBase>();
+                }
+            }
 
-			if (selectedState != null)
-			{
-				valuesSets.RemoveAll(v => v.ActualState?.Iid != selectedState.Iid);
-			}
+            if (selectedState != null)
+            {
+                valuesSets.RemoveAll(v => v.ActualState?.Iid != selectedState.Iid);
+            }
 
-			if (selectedParameterType != null)
-			{
-				valuesSets.RemoveAll(v => ((ParameterOrOverrideBase)v.Container).ParameterType.Iid != selectedParameterType.Iid);
-			}
+            if (selectedParameterType != null)
+            {
+                valuesSets.RemoveAll(v => ((ParameterOrOverrideBase)v.Container).ParameterType.Iid != selectedParameterType.Iid);
+            }
 
-			return valuesSets;
-		}
-	}
+            return valuesSets;
+        }
+    }
 }

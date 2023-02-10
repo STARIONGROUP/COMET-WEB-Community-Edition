@@ -55,19 +55,15 @@ namespace COMETwebapp.IterationServices
         {
             var parameterSubscriptions = new List<ParameterSubscription>();
 
-            if (element is ElementDefinition)
+            switch (element)
             {
-                parameterSubscriptions.AddRange(((ElementDefinition)element).Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
-            }
-            else if (element is ElementUsage)
-            {
-                var elementUsage = (ElementUsage)element;
-
-                if (elementUsage.ParameterOverride.Count == 0)
-                {
+                case ElementDefinition definition:
+                    parameterSubscriptions.AddRange(definition.Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
+                    break;
+                case ElementUsage elementUsage when elementUsage.ParameterOverride.Count == 0:
                     parameterSubscriptions.AddRange(elementUsage.ElementDefinition.Parameter.SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
-                }
-                else
+                    break;
+                case ElementUsage elementUsage:
                 {
                     var associatedParameters = new List<Parameter>();
 
@@ -86,6 +82,8 @@ namespace COMETwebapp.IterationServices
                     parameterSubscriptions.AddRange(
                         elementUsage.ElementDefinition.Parameter.Where(p => !associatedParameters.Contains(p))
                             .SelectMany(p => p.ParameterSubscription).Where(p => p.Owner == currentDomainOfExpertise));
+
+                    break;
                 }
             }
 
@@ -116,13 +114,8 @@ namespace COMETwebapp.IterationServices
 
             subscribedParameters.SelectMany(p => p.ValueSet).ToList().ForEach(parameterSubscriptionValueSet =>
             {
-                var isUpdated = false;
-
-                if (parameterSubscriptionValueSet.SubscribedValueSet.Revisions.LongCount() != 0
-                    && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber != parameterSubscriptionValueSet.SubscribedValueSet.Revisions.Last().Value.RevisionNumber)
-                {
-                    isUpdated = true;
-                }
+                var isUpdated = parameterSubscriptionValueSet.SubscribedValueSet.Revisions.Count != 0
+                                 && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber != parameterSubscriptionValueSet.SubscribedValueSet.Revisions.Last().Value.RevisionNumber;
 
                 if (currentDomainOfExpertise != null && this.ValidatedUpdates.TryGetValue(currentDomainOfExpertise, out var list))
                 {

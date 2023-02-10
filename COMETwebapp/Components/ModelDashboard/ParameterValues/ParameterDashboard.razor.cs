@@ -26,7 +26,8 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 {
 	using CDP4Common.EngineeringModelData;
 
-	using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
 
 	using DevExpress.Blazor;
 
@@ -83,10 +84,10 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 
 			this.parameterDetailsValues = valueSet.serieName switch
 			{
-				"Published Parameters" => valueSetsToDisplay.Where(p => p.Published.SequenceEqual(p.ActualValue)),
-				"Publishable Parameters" => valueSetsToDisplay.Where(p => !p.Published.SequenceEqual(p.ActualValue)),
-				"Missing Values" => valueSetsToDisplay.Where(p => p.Published.All(v => v == "-")),
-				"Complete Values" => valueSetsToDisplay.Where(p => p.Published.Any(v => v != "-")),
+				ConstantValues.PublishedParameters => valueSetsToDisplay.Where(p => p.Published.SequenceEqual(p.ActualValue)),
+				ConstantValues.PublishableParameters => valueSetsToDisplay.Where(p => !p.Published.SequenceEqual(p.ActualValue)),
+				ConstantValues.ParametersWithMissingValues => valueSetsToDisplay.Where(p => p.Published.All(v => v == "-")),
+                ConstantValues.ParametersWithValues => valueSetsToDisplay.Where(p => p.Published.Any(v => v != "-")),
 				_ => this.parameterDetailsValues
 			};
 

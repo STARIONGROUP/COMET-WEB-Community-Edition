@@ -318,7 +318,7 @@ Copyright (c) 2023 RHEA System S.A.
         if(this.optionSelected != null)
         {
             var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.optionSelected);
-            var nestedElements = this.SessionService.DefaultIteration.GetNestedElements(option).ToList();
+            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(option).ToList();
 
             var associatedElements = new List<ElementUsage>();
             nestedElements.ForEach(element =>

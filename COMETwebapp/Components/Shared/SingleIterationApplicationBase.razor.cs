@@ -99,7 +99,12 @@ namespace COMETwebapp.Components.Shared
 				requiredOptions[QueryKeys.IterationKey] = iterationValue;
 			}
 
-			if (currentOptions.TryGetValue(QueryKeys.ServerKey, out var serverValue))
+            if (currentOptions.TryGetValue(QueryKeys.DomainKey, out var domainValue))
+            {
+                requiredOptions[QueryKeys.DomainKey] = domainValue;
+            }
+
+            if (currentOptions.TryGetValue(QueryKeys.ServerKey, out var serverValue))
 			{
 				requiredOptions[QueryKeys.ServerKey] = serverValue;
 			}
@@ -109,7 +114,7 @@ namespace COMETwebapp.Components.Shared
 				requiredOptions[QueryKeys.ModelKey] = modelValue;
 			}
 
-            if (requiredOptions.Count != 3)
+            if (requiredOptions.Count != 4)
             {
 				return;
             }

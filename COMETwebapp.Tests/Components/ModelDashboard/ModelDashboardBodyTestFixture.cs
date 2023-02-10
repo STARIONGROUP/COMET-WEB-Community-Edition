@@ -304,7 +304,8 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             {
                 [QueryKeys.IterationKey] = Guid.NewGuid().ToShortGuid(),
                 [QueryKeys.ModelKey] = Guid.NewGuid().ToShortGuid(),
-                [QueryKeys.ServerKey] = "http://localhost"
+                [QueryKeys.ServerKey] = "http://localhost",
+                [QueryKeys.DomainKey] = Guid.NewGuid().ToShortGuid()
             };
 
             navigation.NavigateTo(QueryHelpers.AddQueryString("http://localhost/", options));
@@ -316,15 +317,15 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => elementDashboard.Instance.OnAccessData(("Unused Elements", "SYS")), Throws.Nothing);
-                Assert.That(() => elementDashboard.Instance.OnAccessData(("Used Elements", "SYS")), Throws.Nothing);
-                Assert.That(() => elementDashboard.Instance.OnAccessData(("Unreferenced Elements", "SYS")), Throws.Nothing);
-                Assert.That(() => elementDashboard.Instance.OnAccessData(("Referenced Elements", "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.UnusedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.UsedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.UnreferencedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.ReferencedElements, "SYS")), Throws.Nothing);
                 Assert.That(() => elementDashboard.Instance.OnAccessData(("Referenced", "SYS")), Throws.Nothing);
-                Assert.That(() => parameterDashboard.Instance.OnAccessData(("Published Parameters", "THE")), Throws.Nothing);
-                Assert.That(() => parameterDashboard.Instance.OnAccessData(("Publishable Parameters", "THE")), Throws.Nothing);    
-                Assert.That(() => parameterDashboard.Instance.OnAccessData(("Missing Values", "THE")), Throws.Nothing);    
-                Assert.That(() => parameterDashboard.Instance.OnAccessData(("Complete Values", "THE")), Throws.Nothing);    
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.PublishedParameters, "THE")), Throws.Nothing);
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.PublishableParameters, "THE")), Throws.Nothing);    
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.ParametersWithMissingValues, "THE")), Throws.Nothing);    
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.ParametersWithValues, "THE")), Throws.Nothing);    
                 Assert.That(() => parameterDashboard.Instance.OnAccessData(("Referenced", "THE")), Throws.Nothing);  
             });
 
