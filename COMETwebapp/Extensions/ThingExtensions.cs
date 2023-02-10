@@ -26,6 +26,7 @@ namespace COMETwebapp.Extensions
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
 
     /// <summary>
@@ -42,6 +43,135 @@ namespace COMETwebapp.Extensions
         {
             var engineeringSetup = (EngineeringModelSetup)iteration.IterationSetup.Container;
             return $"{engineeringSetup.Name} - Iteration {iteration.IterationSetup.IterationNumber}";
+        }
+
+        /// <summary>
+        /// Queries used <see cref="ParameterType" /> inside an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>The collection of used <see cref="ParameterType" /></returns>
+        public static IEnumerable<ParameterType> QueryUsedParameterTypes(this Iteration iteration)
+        {
+            return iteration.Element.SelectMany(x => x.Parameter).Select(x => x.ParameterType).DistinctBy(x => x.Iid);
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterValueSetBase" /> of the given iteration
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>A collection of <see cref="ParameterValueSetBase" /></returns>
+        public static IEnumerable<ParameterValueSetBase> QueryParameterValueSetBase(this Iteration iteration)
+        {
+            var valueSets = new List<ParameterValueSetBase>();
+
+            if (iteration.TopElement != null)
+            {
+                valueSets.AddRange(iteration.TopElement.Parameter.SelectMany(x => x.ValueSet));
+            }
+
+            foreach (var elementUsage in iteration.Element.SelectMany(elementDefinition => elementDefinition.ContainedElement))
+            {
+                if (!elementUsage.ParameterOverride.Any())
+                {
+                    valueSets.AddRange(elementUsage.ElementDefinition.Parameter.SelectMany(x => x.ValueSet));
+                }
+                else
+                {
+                    valueSets.AddRange(elementUsage.ParameterOverride.SelectMany(x => x.ValueSet));
+
+                    valueSets.AddRange(elementUsage.ElementDefinition.Parameter.Where(x => elementUsage.ParameterOverride.All(o => o.Parameter.Iid != x.Iid))
+                        .SelectMany(x => x.ValueSet));
+                }
+            }
+
+            return valueSets.DistinctBy(x => x.Iid);
+        }
+
+        /// <summary>rie
+        /// Queries all <see cref="NestedParameter" /> that belongs to a given <see cref="Option" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> to get the <see cref="NestedParameter" />s</param>
+        /// <param name="option">The <see cref="Option" /></param>
+        /// <returns>A collection of <see cref="NestedParameter" /></returns>
+        public static IEnumerable<NestedParameter> QueryNestedParameters(this Iteration iteration, Option option)
+        {
+            var generator = new NestedElementTreeGenerator();
+            return iteration.TopElement == null ? Enumerable.Empty<NestedParameter>() : generator.GetNestedParameters(option);
+        }
+
+        /// <summary>
+        /// Queries all the unreferenced <see cref="ElementDefinition" /> in an <see cref="Iteration" />
+        /// An unreferenced element is an element with no associated ElementUsage
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>All unreferenced <see cref="ElementDefinition" /></returns>
+        public static IEnumerable<ElementDefinition> QueryUnreferencedElements(this Iteration iteration)
+        {
+            var elementUsages = iteration.Element.SelectMany(x => x.ContainedElement).ToList();
+
+            var associatedElementDefinitions = elementUsages.Select(x => x.ElementDefinition);
+
+            var unreferencedElementDefinitions = iteration.Element.ToList();
+            unreferencedElementDefinitions.RemoveAll(x => associatedElementDefinitions.Any(e => e.Iid == x.Iid));
+            unreferencedElementDefinitions.RemoveAll(x => x.Iid == iteration.TopElement.Iid);
+
+            return unreferencedElementDefinitions;
+        }
+
+        /// <summary>
+        /// Queries unused <see cref="ElementDefinition" /> in an <see cref="Iteration" />
+        /// An unused element is an element not used in an option
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>All unused <see cref="ElementDefinition" /></returns>
+        public static IEnumerable<ElementDefinition> QueryUnusedElementDefinitions(this Iteration iteration)
+        {
+            var nestedElements = iteration.QueryNestedElements().ToList();
+
+            var associatedElements = nestedElements.SelectMany(x => x.ElementUsage.Select(e => e.ElementDefinition))
+                .DistinctBy(x => x.Iid).ToList();
+
+            var unusedElementDefinitions = iteration.Element.ToList();
+            unusedElementDefinitions.RemoveAll(e => associatedElements.Any(x => x.Iid == e.Iid));
+            unusedElementDefinitions.RemoveAll(x => x.Iid == iteration.TopElement?.Iid);
+            return unusedElementDefinitions;
+        }
+
+        /// <summary>
+        /// Queries all <see cref="NestedElement" /> of the given <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> </param>
+        /// <returns>A collection of <see cref="NestedElement" /></returns>
+        public static IEnumerable<NestedElement> QueryNestedElements(this Iteration iteration)
+        {
+            var nestedElementTreeGenerator = new NestedElementTreeGenerator();
+            var nestedElements = new List<NestedElement>();
+
+            if (iteration.TopElement != null)
+            {
+                nestedElements.AddRange(iteration.Option.SelectMany(o => nestedElementTreeGenerator.Generate(o)));
+            }
+
+            return nestedElements;
+        }
+
+        /// <summary>
+        /// Queries all <see cref="NestedElement" /> of the given <see cref="Iteration" /> based on <see cref="Option"/>
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> </param>
+        /// <param name="option">The <see cref="Option"/></param>
+        /// <returns>A collection of <see cref="NestedElement" /></returns>
+        public static IEnumerable<NestedElement> QueryNestedElements(this Iteration iteration, Option option)
+        {
+            var nestedElementTreeGenerator = new NestedElementTreeGenerator();
+            var nestedElements = new List<NestedElement>();
+
+            if (iteration.TopElement != null)
+            {
+                nestedElements.AddRange(nestedElementTreeGenerator.Generate(option));
+            }
+
+            return nestedElements;
         }
     }
 }

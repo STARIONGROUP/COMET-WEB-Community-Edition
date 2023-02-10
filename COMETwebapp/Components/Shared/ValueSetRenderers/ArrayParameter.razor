@@ -1,0 +1,72 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@if (this.ArrayParameterType != null && this.Values != null)
+{
+    if (this.ArrayParameterType.Rank <= 2)
+    {
+        var dimension = this.ArrayParameterType.Dimension;
+        var nbRows = dimension.First();
+        var nbColumns = dimension.ElementAt(1);
+
+        <div class="p-0">
+            @for (var rowIndex = 0; rowIndex < nbRows; rowIndex++)
+            {
+                <div class="row m-0">
+                    @for (var columnIndex = 0; columnIndex < nbColumns; columnIndex++)
+                    {
+                        var scale = this.ArrayParameterType.Component.ElementAt(rowIndex * nbRows + columnIndex).Scale;
+
+                        <ScalarParameter Value="@(this.Values.ElementAt(rowIndex * nbRows + columnIndex))"
+                                         Scale="@scale"/>
+                    }
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        var dimension = this.ArrayParameterType.Dimension;
+        var nbRows = dimension.First();
+        var nbColumns = dimension.ElementAt(1);
+        var nbLayers = dimension.ElementAt(2);
+        <div class="p-0">
+            @for (var z = 1; z <= nbLayers; z++)
+            {
+                <div class="row m-0 justify-content-center">
+                    z = @z:
+                </div>
+                @for (var rowIndex = 0; rowIndex < nbRows; rowIndex++)
+                {
+                    <div class="row m-0">
+                        @for (var columnIndex = 0; columnIndex < nbColumns; columnIndex++)
+                        {
+                            var scale = this.ArrayParameterType.Component.ElementAt(rowIndex * nbRows + columnIndex).Scale;
+                            <ScalarParameter Value="@(this.Values.ElementAt(rowIndex * nbRows + columnIndex))"
+                                             Scale="@scale"/>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    }
+}

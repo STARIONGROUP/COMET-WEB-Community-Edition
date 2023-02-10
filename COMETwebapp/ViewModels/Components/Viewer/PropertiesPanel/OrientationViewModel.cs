@@ -28,26 +28,42 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    
+
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
-    
+
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.OrientationComponent"/>
+    /// View Model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.OrientationComponent" />
     /// </summary>
     public class OrientationViewModel : ReactiveObject, IOrientationViewModel
     {
         /// <summary>
-        /// Backing field for the <see cref="AngleFormat"/>
+        /// Backing field for the <see cref="AngleFormat" />
         /// </summary>
         private AngleFormat angleFormat = AngleFormat.Degrees;
 
         /// <summary>
-        /// Gets or sets the angle format. 
+        /// Creates a new instance of type <see cref="Orientation" />
+        /// </summary>
+        /// <param name="currentValueSet">the current value set that's being changed</param>
+        /// <param name="selectedParameter">the selected parameter for the current value set</param>
+        /// <param name="orientation">the orientation of the selected <see cref="SceneObject" /></param>
+        /// <param name="onParameterValueSetChanged">event callback for when a value has changed</param>
+        public OrientationViewModel(Orientation orientation, IValueSet currentValueSet, ParameterBase selectedParameter,
+            EventCallback<Dictionary<ParameterBase, IValueSet>> onParameterValueSetChanged)
+        {
+            this.Orientation = orientation ?? throw new ArgumentNullException(nameof(orientation));
+            this.CurrentValueSet = currentValueSet;
+            this.SelectedParameter = selectedParameter;
+            this.OnParameterValueChanged = onParameterValueSetChanged;
+        }
+
+        /// <summary>
+        /// Gets or sets the angle format.
         /// </summary>
         public AngleFormat AngleFormat
         {
@@ -56,7 +72,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Orientation"/>
+        /// Gets or sets the <see cref="Orientation" />
         /// </summary>
         public Orientation Orientation { get; set; }
 
@@ -70,38 +86,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         public IValueSet CurrentValueSet { get; set; }
 
-        /// <summary> 
-        /// Event callback for when a value of the <see cref="SelectedParameter"/> has changed 
-        /// </summary> 
+        /// <summary>
+        /// Event callback for when a value of the <see cref="SelectedParameter" /> has changed
+        /// </summary>
         public EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
 
         /// <summary>
-        /// Gets all the possible <see cref="AngleFormat"/>
+        /// Gets all the possible <see cref="AngleFormat" />
         /// </summary>
         public IEnumerable<AngleFormat> AngleFormats { get; } = Enum.GetValues(typeof(AngleFormat)).Cast<AngleFormat>();
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="Orientation"/>
-        /// </summary>
-        /// <param name="currentValueSet">the current value set that's being changed</param>
-        /// <param name="selectedParameter">the selected parameter for the current value set</param>
-        /// <param name="orientation">the orientation of the selected <see cref="SceneObject"/></param>
-        /// <param name="onParameterValueSetChanged">event callback for when a value has changed</param>
-        public OrientationViewModel(Orientation orientation, IValueSet currentValueSet, ParameterBase selectedParameter, 
-            EventCallback<Dictionary<ParameterBase, IValueSet>> onParameterValueSetChanged)
-        {
-            this.Orientation = orientation ?? throw new ArgumentNullException(nameof(orientation)); 
-            this.CurrentValueSet = currentValueSet;
-            this.SelectedParameter = selectedParameter;
-            this.OnParameterValueChanged = onParameterValueSetChanged;
-        }
 
         /// <summary>
         /// Event for when the euler angles changed
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="value">the value of the changed property</param>
-        public void OnEulerAnglesChanged(string sender, string value)
+        /// <returns>A <see cref="Task" /></returns>
+        public Task OnEulerAnglesChanged(string sender, string value)
         {
             if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var valueParsed))
             {
@@ -119,7 +120,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 }
             }
 
-            this.SendMatrixBack();
+            return this.SendMatrixBack();
         }
 
         /// <summary>
@@ -127,10 +128,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="sender">the sender of the event. Rx,Ry or Ry</param>
         /// <param name="e">the args of the event</param>
-        public void OnEulerAnglesChanged(string sender, ChangeEventArgs e)
+        /// <returns>A <see cref="Task" /></returns>
+        public Task OnEulerAnglesChanged(string sender, ChangeEventArgs e)
         {
             var valueText = e.Value as string;
-            this.OnEulerAnglesChanged(sender, valueText);
+            return this.OnEulerAnglesChanged(sender, valueText);
         }
 
         /// <summary>
@@ -138,7 +140,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="index">the index of the matrix changed</param>
         /// <param name="value">the new value for that index</param>
-        public void OnMatrixValuesChanged(int index, string value)
+        /// <returns>A <see cref="Task" /></returns>
+        public Task OnMatrixValuesChanged(int index, string value)
         {
             var orientationMatrix = this.Orientation.Matrix;
 
@@ -148,7 +151,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 this.Orientation = new Orientation(orientationMatrix, this.AngleFormat);
             }
 
-            this.SendMatrixBack();
+            return this.SendMatrixBack();
         }
 
         /// <summary>
@@ -156,20 +159,33 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         /// <param name="index">the index of the matrix changed</param>
         /// <param name="e">the args of the events</param>
-        public void OnMatrixValuesChanged(int index, ChangeEventArgs e)
+        /// <returns>A <see cref="Task" /></returns>
+        public Task OnMatrixValuesChanged(int index, ChangeEventArgs e)
         {
             var valueText = e.Value as string;
-            this.OnMatrixValuesChanged(index, valueText);
+            return this.OnMatrixValuesChanged(index, valueText);
         }
 
         /// <summary>
-        /// Sends the values of the <see cref="Orientation"/> matrix back to the parent components
+        /// Event for when the angle format has changed
         /// </summary>
-        private async void SendMatrixBack()
+        /// <param name="angle">the new format for the angle</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public void OnAngleFormatChanged(AngleFormat angle)
+        {
+            this.AngleFormat = angle;
+            this.Orientation.AngleFormat = angle;
+        }
+
+        /// <summary>
+        /// Sends the values of the <see cref="Orientation" /> matrix back to the parent components
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task SendMatrixBack()
         {
             var modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
-            
-            for (var i = 0; i<this.Orientation.Matrix.Length; i++)
+
+            for (var i = 0; i < this.Orientation.Matrix.Length; i++)
             {
                 modifiedValueArray[i] = this.Orientation.Matrix[i].ToString(CultureInfo.InvariantCulture);
             }
@@ -190,23 +206,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 sendingParameterValueSetBase.Manual = modifiedValueArray;
                 sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
 
-                var parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>()
+                var parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>
                 {
-                    {this.SelectedParameter, sendingParameterValueSetBase},
+                    { this.SelectedParameter, sendingParameterValueSetBase }
                 };
 
                 await this.OnParameterValueChanged.InvokeAsync(parameterValueSetRelations);
             }
-        }
-
-        /// <summary> 
-        /// Event for when the angle format has changed 
-        /// </summary> 
-        /// <param name="format">the new format for the angle</param> 
-        public void OnAngleFormatChanged(AngleFormat format)
-        {
-            this.AngleFormat = format;
-            this.Orientation.AngleFormat = format;
         }
     }
 }

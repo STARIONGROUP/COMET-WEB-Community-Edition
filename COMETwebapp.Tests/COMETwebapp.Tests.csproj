@@ -37,8 +37,4 @@
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\Shared\" />
-  </ItemGroup>
-
 </Project>

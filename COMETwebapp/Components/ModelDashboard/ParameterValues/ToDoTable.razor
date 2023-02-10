@@ -20,58 +20,26 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
 
-@if(this.ParameterValueSets != null && this.ParameterValueSets.Count != 0)
+@if(this.ParameterValueSets.Any())
 {
-    <div class="m-top-20px" style="border: 1px solid #008bd2; border-radius: 10px;">
-        <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
-            <BSTHead>
-                <BSTR>
-                    <BSTD>Element</BSTD>
-                    <BSTD>Parameter</BSTD>
-                    <BSTD>Option</BSTD>
-                    <BSTD>State</BSTD>
-                </BSTR>
-            </BSTHead>
-            <BSTBody>
-                @foreach(var parameterValueSet in this.ParameterValueSets)
-                {
-                    var parameter = (ParameterBase)parameterValueSet.Container;
-                    var element = (ElementBase)parameter.Container;
-                    <BSTR AlignRow="AlignRow.Middle">
-                        <BSTD>@element.Name</BSTD>
-                        <BSTD>@parameter.ParameterType.Name</BSTD>
-                        @if(parameterValueSet.ActualOption != null)
-                        {
-                            <BSTD>@parameterValueSet.ActualOption?.Name</BSTD>
-                        } else
-                        {
-                            <BSTD>-</BSTD>
-                        }
-                        @if(parameterValueSet.ActualState != null)
-                        {
-                            <BSTD>@parameterValueSet.ActualState?.Name</BSTD>
-                        } else
-                        {
-                            <BSTD>-</BSTD>
-                        }
-                    </BSTR>
-                }
-            </BSTBody>
-        </BSTable>
-    </div>
+	<div class="m-top-20px todo-table text-align-center">
+        <DxGrid Data="@this.rows" ColumnResizeMode="GridColumnResizeMode.ColumnsContainer">
+			<ColumnHeaderCaptionTemplate>
+                <span class="width-100">@context.Caption</span>
+			</ColumnHeaderCaptionTemplate>
+			<Columns>
+				<DxGridDataColumn Caption="Element" FieldName="@nameof(ParameterValueSetBaseRowViewModel.ElementName)"/>
+				<DxGridDataColumn Caption="Parameter" FieldName="@nameof(ParameterValueSetBaseRowViewModel.ParameterName)"/>
+				<DxGridDataColumn Caption="Option" FieldName="@nameof(ParameterValueSetBaseRowViewModel.OptionName)"/>
+				<DxGridDataColumn Caption="State" FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualFiniteStateName)"/>
+			</Columns>
+		</DxGrid>
+	</div>
 } else
 {
     <div class="m-top-20px text-align-center">
         No Task to do.
     </div>
-}
-
-
-@code {
-    /// <summary>
-    /// All <see cref="ParameterValueSetBase"> to complete
-    /// </summary>
-    [Parameter]
-    public List<ParameterValueSetBase>? ParameterValueSets { get; set; }
 }

@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// Interface definition for <see cref="OpenModelViewModel" />
     /// </summary>
-    public interface IOpenModelViewModel : IDisposable
+    public interface IOpenModelViewModel : IDisposableViewModel
     {
         /// <summary>
         /// The selected <see cref="EngineeringModelSetup" />
@@ -79,5 +79,13 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// </summary>
         /// <returns></returns>
         Task OpenSession();
+
+        /// <summary>
+        /// Preselects the <see cref="Iteration" /> to open
+        /// </summary>
+        /// <param name="modelId">The <see cref="Guid" /> of the <see cref="EngineeringModel" /></param>
+        /// <param name="iterationId">The <see cref="Guid" /> of the <see cref="Iteration" /> to open</param>
+        /// <param name="domainId">The <see cref="Guid" /> of the <see cref="DomainOfExpertise" /> to select</param>
+        void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId);
     }
 }

@@ -36,8 +36,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
-    using Microsoft.Extensions.DependencyInjection;
-
     using Moq;
 
     using NUnit.Framework;
@@ -58,7 +56,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
             this.context.JSInterop.SetupVoid("DxBlazor.ScrollViewer.loadModule");
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
 
             var orientationViewModel = new Mock<IOrientationViewModel>();
             orientationViewModel.Setup(x => x.AngleFormats).Returns(new List<AngleFormat>() { AngleFormat.Degrees, AngleFormat.Radians });

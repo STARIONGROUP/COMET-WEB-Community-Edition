@@ -24,18 +24,27 @@
 
 namespace COMETwebapp.Tests.Pages.Viewer
 {
+    using System;
+
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
 
     using COMETwebapp.Model;
     using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Pages.Viewer;
+
+    using DynamicData;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -71,6 +80,12 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.DefaultIteration).Returns(new Iteration());
+            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
+
+            var iterations = new SourceList<Iteration>();
+            iterations.Add(new Iteration(){IterationSetup = new IterationSetup(){Container = new EngineeringModelSetup(){Iid = Guid.NewGuid()}}});
+            sessionService.Setup(x => x.OpenIterations).Returns(iterations);
+            sessionService.Setup(x => x.Session).Returns(new Mock<ISession>().Object);
             this.context.Services.AddSingleton(sessionService.Object);
 
             var productTreeVM = new Mock<IProductTreeViewModel>();
@@ -81,7 +96,8 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             var actualFiniteStateSelectorVM = new Mock<IActualFiniteStateSelectorViewModel>();
             this.context.Services.AddSingleton(actualFiniteStateSelectorVM.Object);
-
+            this.context.Services.AddSingleton<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
+            this.context.Services.AddSingleton<IIterationSelectorViewModel, IterationSelectorViewModel>();
             this.renderedComponent = this.context.RenderComponent<ViewerPage>();
             this.viewer = this.renderedComponent.Instance;
         }

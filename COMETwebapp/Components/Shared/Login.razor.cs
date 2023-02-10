@@ -43,6 +43,12 @@ namespace COMETwebapp.Components.Shared
         public ILoginViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// The url of the requested server
+        /// </summary>
+        [Parameter]
+        public string RequestedServer { get; set; }
+
+        /// <summary>
         /// The text of the login button
         /// </summary>
         public string LoginButtonDisplayText { get; private set; }
@@ -67,6 +73,17 @@ namespace COMETwebapp.Components.Shared
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.AuthenticationState)
                 .Subscribe(_ => this.ComputeDisplayProperties()));
+        }
+
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+	        base.OnParametersSet();
+
+	        this.ViewModel.AuthenticationDto.SourceAddress = this.RequestedServer;
         }
 
         /// <summary>

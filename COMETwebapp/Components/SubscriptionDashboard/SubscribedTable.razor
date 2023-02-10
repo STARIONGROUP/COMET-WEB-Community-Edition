@@ -22,6 +22,7 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Common.EngineeringModelData
 @using CDP4Dal
 @using CDP4Dal.Events
+@using COMETwebapp.Extensions
 @using COMETwebapp.IterationServices
 @using COMETwebapp.Model
 @using COMETwebapp.Services.SessionManagement
@@ -264,8 +265,8 @@ Copyright (c) 2023 RHEA System S.A.
     {
         if(this.OptionSelected != null)
         {
-            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected)?.Iid;
-            var nestedElements = this.IterationService.GetNestedElementsByOption(this.SessionService.DefaultIteration, option);
+            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected);
+            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(option).ToList();
 
             var associatedElements = new List<ElementUsage>();
             nestedElements.ForEach(element =>

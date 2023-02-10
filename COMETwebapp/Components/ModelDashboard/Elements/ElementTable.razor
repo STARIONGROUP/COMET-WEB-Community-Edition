@@ -21,37 +21,21 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
 
-@if(this.Elements != null && this.Elements.Count != 0)
+@if(this.Elements != null && this.Elements.Any())
 {
-    <div class="m-top-20px" style="border: 1px solid #008bd2; border-radius: 10px;">
-        <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
-            <BSTHead>
-                <BSTR>
-                    <BSTD>Element</BSTD>
-                </BSTR>
-            </BSTHead>
-            <BSTBody>
-                @foreach(var element in this.Elements)
-                {
-                    <BSTR AlignRow="AlignRow.Middle">
-                        <BSTD>@element.Name</BSTD>
-                    </BSTR>
-                }
-            </BSTBody>
-        </BSTable>
-    </div>
+	<div class="m-top-20px todo-table text-align-center m-bottom-20px">
+        <DxGrid Data="@this.Elements" ColumnResizeMode="GridColumnResizeMode.ColumnsContainer">
+			<ColumnHeaderCaptionTemplate>
+                <span class="width-100">@context.Caption</span>
+			</ColumnHeaderCaptionTemplate>
+			<Columns>
+				<DxGridDataColumn Caption="Element" FieldName="@nameof(ElementDefinition.Name)"/>
+			</Columns>
+		</DxGrid>
+	</div>
 } else
 {
-    <div>
+    <div class="m-bottom-20px">
         No Task to do.
     </div>
-}
-
-
-@code {
-    /// <summary>
-    /// All <see cref="ParameterValueSet"> to complete
-    /// </summary>
-    [Parameter]
-    public List<ElementDefinition>? Elements { get; set; }
 }

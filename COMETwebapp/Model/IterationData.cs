@@ -31,20 +31,28 @@ namespace COMETwebapp.Model
     /// </summary>
     public class IterationData
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="IterationData" /> class.
-        /// </summary>
-        public IterationData(IterationSetup iterationSetup)
+	    /// <summary>
+	    /// Initializes a new instance of the <see cref="IterationData" /> class.
+	    /// </summary>
+	    /// <param name="iterationSetup">The <see cref="IterationSetup"/></param>
+	    /// <param name="displayModelName">Value asserting that the <see cref="IterationName"/> should contains the name of the <see cref="EngineeringModelSetup"/></param>
+	    public IterationData(IterationSetup iterationSetup, bool displayModelName = false)
         {
-            this.IterationId = iterationSetup.Iid;
+            this.IterationSetupId = iterationSetup.Iid;
             this.IterationName = $"Iteration - {iterationSetup.IterationNumber} - ";
             this.IterationName += iterationSetup.FrozenOn == null ? "Active" : iterationSetup.FrozenOn;
+
+            if (displayModelName)
+            {
+	            var model = (EngineeringModelSetup)iterationSetup.Container;
+	            this.IterationName = $"{model.Name} - {this.IterationName}";
+            }
         }
 
         /// <summary>
-        /// The <see cref="Guid" /> of the Iteration
+        /// The <see cref="Guid" /> of the <see cref="IterationSetup"/>
         /// </summary>
-        public Guid IterationId { get; private set; }
+        public Guid IterationSetupId { get; private set; }
 
         /// <summary>
         /// The Iteration name
@@ -61,7 +69,7 @@ namespace COMETwebapp.Model
         {
             if (obj is IterationData otherData)
             {
-                return this.IterationId == otherData.IterationId && this.IterationName == otherData.IterationName;
+                return this.IterationSetupId == otherData.IterationSetupId && this.IterationName == otherData.IterationName;
             }
 
             return false;
@@ -73,7 +81,7 @@ namespace COMETwebapp.Model
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            return this.IterationId.GetHashCode() + this.IterationName.GetHashCode();
+            return this.IterationSetupId.GetHashCode() + this.IterationName.GetHashCode();
         }
     }
 }

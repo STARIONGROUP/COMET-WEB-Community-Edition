@@ -21,10 +21,10 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @page "/3DViewer"
 
-<ApplicationTemplate Title="3D Viewer"> 
-    <Body> 
-        <div class="row"> 
-            <div class="col"> 
+<SingleIterationApplicationTemplate>
+    <Body>
+        <div class="row">
+            <div class="col">
                 <div class="width-fit-content">
                     <DxComboBox Data="@this.ViewModel.TotalOptions" TextFieldName="@nameof(CDP4Common.EngineeringModelData.Option.Name)" @bind-Value="@this.ViewModel.SelectedOption"></DxComboBox>
                 </div> 
@@ -45,4 +45,4 @@ Copyright (c) 2023 RHEA System S.A.
             </div> 
         </div> 
     </Body> 
-</ApplicationTemplate>
+</SingleIterationApplicationTemplate>

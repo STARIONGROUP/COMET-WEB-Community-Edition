@@ -1,7 +1,8 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 16px !important;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
 }
 
 html, body, #app {
@@ -399,4 +400,14 @@ html, body, #app {
 
 .icon-check {
     background-image: url(SVG/icons/check.svg)
+}
+
+.todo-table {
+    border: 2px solid #008bd2;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.small-margin {
+    margin: 0.2rem;
 }

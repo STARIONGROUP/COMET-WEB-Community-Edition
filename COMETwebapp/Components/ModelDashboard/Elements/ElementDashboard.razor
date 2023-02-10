@@ -19,68 +19,20 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inject ISessionService SessionService
+@if (this.ViewModel.ElementDefinitions.Items.Any())
+{
+	<DxPopup @ref="@(this.detailsPopup)" HeaderText="Elements Details" MaxHeight="1000" MaxWidth="900" MinWidth="400">
+        <ElementsDetails Elements="@(this.elementsDetailsValues)" />
+	</DxPopup>
 
-@using COMETwebapp.SessionManagement
-@using CDP4Dal
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
-
-@implements IDisposable
-
-<div class="col width-100 text-align-center">
-    <UnusedElements Data="Data" />
-</div>
-<div class="col width-100 text-align-center">
-    <UnreferencedElements Data="Data" />
-</div>
-
-@code {
-    /// <summary>
-    /// ElementDefinition represented in graphs
-    /// </summary>
-    public List<ElementDefinition>? Data { get; set; }
-
-    /// <summary>
-    /// Listeners for the components to update it with ISession
-    /// </summary>
-    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
-
-    /// <summary>
-    /// Initializes data for the graphs and creates a listener for session update
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        this.InitializeData();
-
-        if (!this.listeners.TryGetValue("UpToDate", out var listener))
-        {
-            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                this.InitializeData();
-                this.StateHasChanged();
-            }));
-        }
-    }
-
-    /// <summary>
-    /// Stop and clear listeners of the component
-    /// </summary>
-    public void Dispose()
-    {
-        this.listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.listeners.Clear();
-    }
-
-    /// <summary>
-    /// Initialize data for the graphs with all elements from the opened iteration 
-    /// </summary>
-    private void InitializeData()
-    {
-        var iteration = this.SessionService.DefaultIteration;
-        if (iteration != null)
-        {
-            this.Data = iteration.Element;
-        }
-    }
+	<div class="col width-100 text-align-center">
+		<UnusedElements Elements="@this.ViewModel.ElementDefinitions.Items" CurrentDomain="@this.ViewModel.CurrentDomain"
+		                UnusedElementDefinitions="@this.ViewModel.UnusedElements" OnAccessDataCallback="@this.OnAccessData" />
+	</div>
+	<div class="col width-100 text-align-center">
+		<UnreferencedElements Elements="@this.ViewModel.ElementDefinitions.Items"
+		                      CurrentDomain="@this.ViewModel.CurrentDomain"
+		                      UnreferencedElementDefinitions="@this.ViewModel.UnreferencedElements" OnAccessDataCallback="@this.OnAccessData" />
+	</div>
 }
+

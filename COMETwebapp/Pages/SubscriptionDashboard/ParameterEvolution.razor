@@ -149,7 +149,7 @@ Copyright (c) 2023 RHEA System S.A.
     {
         if (this.ParameterValueSetIid != null)
         {
-            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.SessionService.DefaultIteration);
+            var paramererValueSets = this.SessionService.DefaultIteration.QueryParameterValueSetBase().ToList();
             var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid.FromShortGuid());
             associatedParameterValueSet?.Revisions.Values.ToList().ForEach(revision =>
             {
@@ -209,7 +209,7 @@ Copyright (c) 2023 RHEA System S.A.
         if(argument != null)
         {
             var revisionNumber = Int32.Parse(argument);
-            var paramererValueSets = this.IterationService.GetParameterValueSetBase(this.SessionService.DefaultIteration);
+            var paramererValueSets = this.SessionService.DefaultIteration.QueryParameterValueSetBase().ToList();
             var associatedParameterValueSet = paramererValueSets.Find(p => p.Iid == this.ParameterValueSetIid?.FromShortGuid());
             var value = string.Empty;
             if(associatedParameterValueSet?.RevisionNumber == revisionNumber)

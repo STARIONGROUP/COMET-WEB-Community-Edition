@@ -24,6 +24,7 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Dal
 @using CDP4Dal.Events
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Extensions
 @using COMETwebapp.Services.SessionManagement
 
 @page "/ParameterEditor"
@@ -33,7 +34,7 @@ Copyright (c) 2023 RHEA System S.A.
 
 @implements IDisposable
 
-<ApplicationTemplate Title="Parameter Editor">
+<SingleIterationApplicationTemplate>
     <Body>
         <div class="container-fluid">
             <div class="row ">
@@ -104,8 +105,8 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
             <div class="row m-4">
                 <div class="col">
-                    <div class="@BS.Form_Check @BS.Form_Switch">
-                        <BSInputCheckbox CheckedValue="@(true)" @bind-Value="this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
+                    <div class="BS.Form_Check BS.Form_Switch">
+                        <BSInputCheckbox CheckedValue="@(true)" Value="@this.IsOwnedParameters" @onchange="@OnOwnerFilterChange"/>
                         <BSLabel IsCheckLabel="true">Only Parameters owned by @this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)?.Name domain</BSLabel>
                     </div>
                 </div>
@@ -119,7 +120,7 @@ Copyright (c) 2023 RHEA System S.A.
             </div>
         </div>
     </Body>
-</ApplicationTemplate>
+</SingleIterationApplicationTemplate>
 
 
 @code{
@@ -316,8 +317,8 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.optionSelected != null)
         {
-            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.optionSelected)?.Iid;
-            var nestedElements = this.IterationService.GetNestedElementsByOption(this.SessionService.DefaultIteration, option);
+            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.optionSelected);
+            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(option).ToList();
 
             var associatedElements = new List<ElementUsage>();
             nestedElements.ForEach(element =>

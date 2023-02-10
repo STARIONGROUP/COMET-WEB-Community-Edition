@@ -37,13 +37,8 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
-    public sealed class OpenModelViewModel : ReactiveObject, IOpenModelViewModel
+    public class OpenModelViewModel : DisposableViewModel, IOpenModelViewModel
     {
-        /// <summary>
-        /// A collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
         /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
@@ -76,7 +71,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         {
             this.sessionService = sessionService;
 
-            this.disposables.Add(this.WhenAnyPropertyChanged(nameof(this.SelectedEngineeringModel))
+            this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.SelectedEngineeringModel))
                 .Subscribe(_ => this.ComputeAvailableCollections()));
         }
 
@@ -132,15 +127,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-            this.disposables.Clear();
-        }
-
-        /// <summary>
         /// Initializes this view model properties
         /// </summary>
         public void InitializesProperties()
@@ -166,10 +152,30 @@ namespace COMETwebapp.ViewModels.Components.Shared
                 this.IsOpeningSession = true;
 
                 await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
-                    .First(x => x.Iid == this.SelectedIterationSetup.IterationId), this.SelectedDomainOfExpertise);
+                    .First(x => x.Iid == this.SelectedIterationSetup.IterationSetupId), this.SelectedDomainOfExpertise);
 
                 this.IsOpeningSession = false;
             }
+        }
+
+        /// <summary>
+        /// Preselects the <see cref="Iteration" /> to open
+        /// </summary>
+        /// <param name="modelId">The <see cref="Guid" /> of the <see cref="EngineeringModel" /></param>
+        /// <param name="iterationId">The <see cref="Guid" /> of the <see cref="Iteration" /> to open</param>
+        /// <param name="domainId">The <see cref="Guid" /> of the <see cref="DomainOfExpertise" /> to select</param>
+        public void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId)
+        {
+            this.selectedEngineeringModel = this.AvailableEngineeringModelSetups.FirstOrDefault(x => x.Iid == modelId);
+            var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.FirstOrDefault(x => x.IterationIid == iterationId);
+
+            if (iterationSetup != null)
+            {
+                this.SelectedIterationSetup = new IterationData(iterationSetup);
+            }
+
+            this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
+            this.SelectedDomainOfExpertise = this.AvailablesDomainOfExpertises.FirstOrDefault(x => x.Iid == domainId);
         }
 
         /// <summary>

@@ -76,6 +76,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+
             if (firstRender)
             {
                 this.ViewModel.ActualFiniteStateListsCollection = this.ActualFiniteStateListsCollection;

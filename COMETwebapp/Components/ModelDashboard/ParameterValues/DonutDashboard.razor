@@ -1,120 +1,40 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 
-    This file is part of COMET WEB Community Edition
-     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+This file is part of COMET WEB Community Edition
+The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 
-    The COMET WEB Community Edition is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
+The COMET WEB Community Edition is free software; you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
 
-    The COMET WEB Community Edition is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Affero General Public License for more details.
+The COMET WEB Community Edition is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see http://www.gnu.org/licenses/.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.EngineeringModelData
 @using COMETwebapp.Model
-@using COMETwebapp.Services.SessionManagement
-@using COMETwebapp.SessionManagement
-@inject ISessionService SessionService
 
 <div class="col col-xxl-8">
-    <DxChart Data="@GetChartData(Data)" CustomizeSeriesPoint="@CustomizeSeriesPoint">
+    <DxChart Data="@this.dataCharts" CustomizeSeriesPoint="@CustomizeSeriesPoint">
         <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
-                        ValueField="@(d => d.Value)"
-                        ArgumentField="@(d => d.Argument)"
-                        AggregationMethod="Enumerable.Sum">
+                            ValueField="@(d => d.Value)"
+                            ArgumentField="@(d => d.Argument)"
+                            AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true" />
         </DxChartDonutSeries>
         <DxChartLegend AllowToggleSeries="false" Orientation="DevExpress.Blazor.Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
         <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
-                          ValueField="@(d => d.Value)"
-                          ArgumentField="@(d => d.Argument)"
-                          AggregationMethod="Enumerable.Sum">
+                            ValueField="@(d => d.Value)"
+                            ArgumentField="@(d => d.Argument)"
+                            AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true" />
         </DxChartDonutSeries>
     </DxChart>
 </div>
-
-@code {
-    /// <summary>
-    /// Data in the graph
-    /// </summary>
-    [Parameter]
-    public List<ParameterValueSetBase>? Data { get; set; }
-
-    /// <summary>
-    /// Set the color appearence for the donut chart
-    /// </summary>
-    /// <param name="settings">Settings associated with the series point</param>
-    protected void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings) {
-        var argument = settings.Point.Argument.ToString();
-        if (argument != null && argument.Equals("Published Parameters")){
-            settings.PointAppearance.Color = System.Drawing.Color.SteelBlue;
-        }else if (argument != null && argument.Equals("Publishable Parameters"))
-        {
-            settings.PointAppearance.Color = System.Drawing.Color.LightCoral;
-        } else if (argument != null && argument.Equals("Missing Values"))
-        {
-            settings.PointAppearance.Color = System.Drawing.Color.DarkSeaGreen;
-        } else if (argument != null && argument.Equals("Complete Values"))
-        {
-            settings.PointAppearance.Color = System.Drawing.Color.LightSlateGray;
-        }
-    }
-
-    /// <summary>
-    /// Initialize <see cref="DataChart"> list from data to represent in the grpah
-    /// </summary>
-    /// <param name="data">List of <see cref="ParameterValueSetBase"> to represent in the graph </param>
-    /// <returns>List of <see cref="DataChart"> used in the graph</returns>
-    private List<DataChart> GetChartData(List<ParameterValueSetBase>? data)
-    {
-        List<DataChart> donutData = new List<DataChart>();
-        var iteration = this.SessionService.DefaultIteration;
-        if (iteration != null && data != null)
-        {
-            var domains = this.SessionService.Session.QueryDomainOfExpertise(iteration).ToList();
-            domains.ForEach(d =>
-            {
-                var domainParameterValueSets = data.FindAll(parameterValueSet => parameterValueSet.Owner == d);
-
-                var nbDefaultValues = domainParameterValueSets.Count(p => p.Published.Count(el => !el.Equals("-")) == 0);
-                donutData.Add(new DataChart()
-                {
-                    Value = nbDefaultValues,
-                    Argument = "Missing Values",
-                    Domain = d.ShortName
-                });
-                donutData.Add(new DataChart()
-                {
-                    Value = domainParameterValueSets.Count - nbDefaultValues,
-                    Argument = "Complete Values",
-                    Domain = d.ShortName
-                });
-
-                var publishedParameters = domainParameterValueSets.Count(p => p.Published.SequenceEqual(p.ActualValue));
-                donutData.Add(new DataChart()
-                {
-                    Value = publishedParameters,
-                    Argument = "Published Parameters",
-                    Domain = d.ShortName
-                });
-                donutData.Add(new DataChart()
-                {
-                    Value = domainParameterValueSets.Count - publishedParameters,
-                    Argument = "Publishable Parameters",
-                    Domain = d.ShortName
-                });
-            });
-        }
-        return donutData;
-    }
-}

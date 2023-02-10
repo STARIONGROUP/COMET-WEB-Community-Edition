@@ -19,19 +19,12 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
-@using COMETwebapp.SessionManagement
-@using COMETwebapp.IterationServices
-@using CDP4Dal
 @using CDP4Common.EngineeringModelData
-@using COMETwebapp.Services.SessionManagement
+@using COMETwebapp.Utilities
+@inherits HaveElementDefinitionData
+@using Tooltip = COMETwebapp.Components.Shared.Tooltip
 
-@inject NavigationManager NavigationManager
-@inject ISessionService SessionService
-@inject IIterationService IterationService
-@implements IDisposable
-
-@if(this.Data != null && this.UnUsedElements != null)
+@if(this.Elements != null && this.UnusedElementDefinitions != null)
 {
     <div>
         <div class="row">
@@ -43,118 +36,29 @@ Copyright (c) 2023 RHEA System S.A.
                     <button type="button" class="btn btn-secondary btn-tooltip"><span class="oi oi-info"></span></button>
                 </Tooltip>
             </div>
-        </div>
-        @{
-            var participantRole = this.SessionService.GetParticipant(this.SessionService.DefaultIteration)?.Role;
-        }
-        @if(participantRole != null && participantRole.Name.Equals("Model Administrator"))
-        {
-            <DxChart Data="@Data"  CustomizeSeriesPoint="@PreparePointLabel">
-                <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="Used Elements" Filter="@((ElementDefinition e) => !this.UnUsedElements.Contains(e))"
+       
+            <DxChart Data="@this.Elements"  CustomizeSeriesPoint="@PreparePointLabel">
+                <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="@ConstantValues.UsedElements" Filter="@((ElementDefinition e) => this.UnusedElementDefinitions.All(x => x.Iid != e.Iid))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                             AggregationMethod="Enumerable.Sum">
                     <DxChartSeriesLabel Position="RelativePosition.Inside"/>
                 </DxChartFullStackedBarSeries>
-                <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="Unused Elements" Filter="@((ElementDefinition e) => this.UnUsedElements.Contains(e))"
+                <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightSalmon" Name="@ConstantValues.UnusedElements" Filter="@((ElementDefinition e) =>  this.UnusedElementDefinitions.Any(x => x.Iid == e.Iid))"
                                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                                     AggregationMethod="Enumerable.Sum">
                     <DxChartSeriesLabel Position="RelativePosition.Inside" />
                 </DxChartFullStackedBarSeries>
                 <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-                            <div style="margin: 0.1rem">
-                                <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
+                            <div class="small-margin">
+                                <button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
                                     More
                                 </button>
                             </div>
                 </DxChartTooltip>
                 <DxChartLegend Visible="true" Position="RelativePosition.Outside" VerticalAlignment="VerticalEdge.Bottom"/>
             </DxChart>
-        } 
-        else if(participantRole != null && participantRole.Name.Equals("Domain Expert"))
-        {
-            <ElementDomainProgress Data="FilterDomain(this.Data)" IdentifiedElements="FilterDomain(this.UnUsedElements)"/>
-        }
+        </div>
+	        <ElementDomainProgress ElementDefinitions="@this.FilterOnDomain(this.Elements)" 
+	                               IdentifiedElements="@this.FilterOnDomain(this.UnusedElementDefinitions)"/>
     </div>   
-}
-
-@code {
-    /// <summary>
-    /// Data in the graph
-    /// </summary>
-    [Parameter]
-    public List<ElementDefinition>? Data { get; set; }
-
-    /// <summary>
-    /// List of unused element defintion from the opened definition
-    /// </summary>
-    private List<ElementDefinition>? UnUsedElements { get; set; }
-
-    /// <summary>
-    /// Listeners for the components to update it with ISession
-    /// </summary>
-    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
-
-    /// <summary>
-    /// Initializes the component and creates a listener for session update
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        this.InitializeUnusedElements();
-
-        if (!this.listeners.TryGetValue("UpToDate", out var listener))
-        {
-            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                this.InitializeUnusedElements();
-                this.StateHasChanged();
-            }));
-        }
-    }
-
-    /// <summary>
-    /// Stop and clear listeners of the component
-    /// </summary>
-    public void Dispose()
-    {
-        this.listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.listeners.Clear();
-    }
-
-    /// <summary>
-    /// Initialize the UnUsedElements list
-    /// </summary>
-    private void InitializeUnusedElements()
-    {
-        this.UnUsedElements = this.IterationService.GetUnusedElementDefinitions(this.SessionService.DefaultIteration);
-    }
-
-    /// <summary>
-    /// Set the point label on the graph
-    /// </summary>
-    /// <param name="pointSettings">The <see cref="ChartSeriesPointCustomizationSettings"> providing data of the selected point in the graph</param>
-    protected void PreparePointLabel(ChartSeriesPointCustomizationSettings pointSettings) {
-        var value = pointSettings.Point.Value;
-        if (!value.Equals(0))
-        {
-            pointSettings.PointLabel.Visible = true;
-        }        
-    }
-
-    /// Navigate to details page for the selected data
-    /// </summary>
-    /// <param name="criteria">The criteria represented in the selected area</param>
-    /// <param name="domain">The associated domain of the selected area</param>
-    public void AccessData(string criteria, object domain)
-    {
-        this.NavigationManager.NavigateTo($"ModelDashboard/ElementsDetails?criteria={criteria}&domain={domain}");
-    }
-
-    /// <summary>
-    /// Gets <see cref="ElementDefinition"> owned by the current domain
-    /// </summary>
-    /// <param name="elements"><see cref="ElementDefinition">s to filter</param>
-    public List<ElementDefinition>? FilterDomain(List<ElementDefinition>? elements)
-    {
-        return elements?.FindAll(e => e.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
-    }
 }

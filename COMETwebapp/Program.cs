@@ -2,7 +2,7 @@
 // <copyright file="Program.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Justine Veirier d'aiguebonne, Sam Gerenï¿½, Alex Vorobiev, Alexander van Delft
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,8 +24,6 @@
 
 namespace COMETwebapp
 {
-    using BlazorStrap;
-
     using CDP4Dal;
 
     using COMETwebapp.Components.Viewer.Canvas;
@@ -38,7 +36,10 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Pages.Viewer;
+    using COMETwebapp.ViewModels.Components.ModelDashboard;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
@@ -69,9 +70,9 @@ namespace COMETwebapp
         }
 
         /// <summary>
-        /// Register all services required to run the application inside the <see cref="WebAssemblyHostBuilder"/>
+        /// Register all services required to run the application inside the <see cref="WebAssemblyHostBuilder" />
         /// </summary>
-        /// <param name="builder">The <see cref="WebAssemblyHostBuilder"/></param>
+        /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
         public static void RegisterServices(WebAssemblyHostBuilder builder)
         {
             builder.Services.AddScoped(_ => new HttpClient());
@@ -90,13 +91,13 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
 
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
-            builder.Services.AddBlazorStrap();
+            builder.Services.AddAntDesign();
         }
 
         /// <summary>
-        /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder"/>
+        /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder" />
         /// </summary>
-        /// <param name="builder">The <see cref="WebAssemblyHostBuilder"/></param>
+        /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
         public static void RegisterViewModels(WebAssemblyHostBuilder builder)
         {
             builder.Services.AddTransient<ILoginViewModel, LoginViewModel>();
@@ -110,6 +111,10 @@ namespace COMETwebapp
             builder.Services.AddTransient<IProductTreeViewModel, ProductTreeViewModel>();
             builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
             builder.Services.AddTransient<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
+            builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
+            builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
+            builder.Services.AddTransient<IParameterDashboardViewModel, ParameterDashboardViewModel>();
+            builder.Services.AddTransient<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
         }
     }
 }

@@ -21,7 +21,8 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @using CDP4Common.EngineeringModelData
-@inject NavigationManager NavigationManager
+@using COMETwebapp.Utilities
+@inherits HaveValueSetsChartData
 
 <div class="width-100">
     <div class="row">
@@ -34,39 +35,39 @@ Copyright (c) 2023 RHEA System S.A.
             </Tooltip>
         </div>
     </div>
-    @if(this.Data != null)
+    @if(this.ValueSets != null)
     {
-        <DxChart Data="@Data" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="Publishable Parameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
+        <DxChart Data="@this.ValueSets" CustomizeSeriesPoint="@PreparePointLabel">
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="@ConstantValues.PublishableParameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside"/>
             </DxChartFullStackedBarSeries>
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="Published Parameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="@ConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside" />
             </DxChartFullStackedBarSeries>
             <DxChartLegend Visible="false" />
             <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-                <div style="margin: 0.1rem">
-                    <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
+                <div class="small-margin">
+                    <button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
                         More
                     </button>
                 </div>
             </DxChartTooltip>
         </DxChart>
 
-        <DxChart Data="@Data" CssClass="justify-content-center width-100">
+        <DxChart Data="@this.ValueSets" CssClass="justify-content-center width-100">
             <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
                 @{
-                    var total = this.Data.FindAll(d => d.Owner.ShortName.Equals(@context.Point.Argument)).Count;
-                    var number = Math.Round((double)NumberData(@context.Point.SeriesName, @context.Point.Argument) / total * 100);
+                    var total = this.ValueSets.Count(d => d.Owner.ShortName.Equals(@context.Point.Argument));
+                    var number = Math.Round((double)this.CountValueSetPerDomain(@context.Point.SeriesName, @context.Point.Argument) / total * 100);
                 }
-                <div style="margin: 0.1rem">
+                <div class="small-margin">
                     @if (!double.IsNaN(number))
                     {
-                        <button class="card-btn" @onclick="@(() => AccessData(context.Point.SeriesName, context.Point.Argument))">
+                        <button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
                             <div>@number %</div>
                         </button>
                     }
@@ -88,70 +89,3 @@ Copyright (c) 2023 RHEA System S.A.
     }
 </div>
 
-@code {
-    /// <summary>
-    /// <see cref="Guid"> of the option to filter the data 
-    /// </summary>
-    [Parameter]
-    public Guid? FilterOption { get; set; }
-
-    /// <summary>
-    /// <see cref="Guid"> of the state to filter the data
-    /// </summary>
-    [Parameter]
-    public Guid? FilterState { get; set; }
-
-    /// <summary>
-    /// Name of the parameterType to filter the data
-    /// </summary>
-    [Parameter]
-    public string? FilterParameterType { get; set; }
-
-    /// <summary>
-    /// <see cref="ParameterValueSetBase"> for the graph
-    /// </summary>
-    [Parameter]
-    public List<ParameterValueSetBase>? Data { get; set; }
-
-    /// <summary>
-    /// Set the point label on the graph
-    /// </summary>
-    /// <param name="pointSettings">The <see cref="ChartSeriesPointCustomizationSettings"> providing data of the selected point in the graph</param>
-    protected void PreparePointLabel(ChartSeriesPointCustomizationSettings pointSettings) {
-        var value = pointSettings.Point.Value;
-        if (!value.Equals(0))
-        {
-            pointSettings.PointLabel.Visible = true;
-        }        
-    }
-
-    /// <summary>
-    /// Get the number of <see cref="ParameterValueSet"> represented in the selected area depending on criteria and domain
-    /// </summary>
-    /// <param name="criteria">The criteria represented in the selected area</param>
-    /// <param name="domain">The associated domain of the selected area</param>
-    /// <returns>The number of <see cref="ParameterValueSet"> represented in the selected area</returns>
-    public int NumberData(string criteria, object domain)
-    {
-        if(this.Data != null && criteria.Equals("Published Parameters"))
-        {
-            return this.Data.FindAll(d => d.Owner.ShortName.Equals(domain) && d.Published.SequenceEqual(d.ActualValue)).Count;
-        } else if(this.Data != null)
-        {
-            return this.Data.FindAll(d => d.Owner.ShortName.Equals(domain) && !d.Published.SequenceEqual(d.ActualValue)).Count;
-        } else
-        {
-            return 0;
-        }
-    }
-
-    /// <summary>
-    /// Navigate to details page for the selected data
-    /// </summary>
-    /// <param name="criteria">The criteria represented in the selected area</param>
-    /// <param name="domain">The associated domain of the selected area</param>
-    public void AccessData(string criteria, object domain)
-    {
-        this.NavigationManager.NavigateTo($"ModelDashboard/ParametersDetails?filteroption={this.FilterOption}&filterstate={this.FilterState}&filterparametertype={this.FilterParameterType}&criteria={criteria}&domain={domain}");  
-    }
-}

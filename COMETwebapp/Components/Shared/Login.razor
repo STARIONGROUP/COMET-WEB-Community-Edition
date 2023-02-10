@@ -29,7 +29,8 @@
 			<Template>
 				<DxTextBox Id="sourceaddress" @bind-Text="@(this.ViewModel.AuthenticationDto.SourceAddress)"
 				           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-				           NullText="Enter the url for the server"/>
+				           NullText="Enter the url for the server"
+				           Enabled="@string.IsNullOrEmpty(this.RequestedServer)"/>
 			</Template>
 		</DxFormLayoutItem>
 		<DxFormLayoutItem Caption="UserName:" BeginRow="true" ColSpanLg="12">
