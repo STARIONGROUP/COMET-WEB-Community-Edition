@@ -32,7 +32,8 @@ Copyright (c) 2023 RHEA System S.A.
                 <div class="col">
                     <h6>Filter on Element:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@this.ViewModel.Elements.OrderBy(x=>x.Name)"
+                        <DxComboBox CssClass="element-filter"
+                                    Data="@this.ViewModel.Elements.OrderBy(x=>x.Name)"
                                     TextFieldName="@nameof(ElementBase.Name)"
                                     AllowUserInput="true"
                                     NullText="--Select an Element--"
@@ -46,12 +47,12 @@ Copyright (c) 2023 RHEA System S.A.
                     <h6>Filter on Parameter Type:</h6>
                     <div class="width-fit-content">
                         <DxComboBox Data="@this.ViewModel.ParameterTypes.OrderBy(x=>x.Name)"
-                            AllowUserInput="true"
-                            NullText="--Select--"
-                            Value="@this.ViewModel.SelectedParameterTypeFilter"
-                            ValueChanged="@((ParameterType parameterType) => this.ViewModel.SelectedParameterTypeFilter = parameterType)"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            FilteringMode="DataGridFilteringMode.Contains"/>
+                                    AllowUserInput="true"
+                                    NullText="--Select--"
+                                    Value="@this.ViewModel.SelectedParameterTypeFilter"
+                                    ValueChanged="@((ParameterType parameterType) => this.ViewModel.SelectedParameterTypeFilter = parameterType)"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    FilteringMode="DataGridFilteringMode.Contains"/>
                     </div>
                 </div>  
                 @{
