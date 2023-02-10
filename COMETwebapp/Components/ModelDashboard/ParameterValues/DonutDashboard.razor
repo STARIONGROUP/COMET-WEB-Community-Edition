@@ -24,16 +24,16 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 <div class="col col-xxl-8">
     <DxChart Data="@this.dataCharts" CustomizeSeriesPoint="@CustomizeSeriesPoint">
         <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
-                        ValueField="@(d => d.Value)"
-                        ArgumentField="@(d => d.Argument)"
-                        AggregationMethod="Enumerable.Sum">
+                            ValueField="@(d => d.Value)"
+                            ArgumentField="@(d => d.Argument)"
+                            AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true" />
         </DxChartDonutSeries>
         <DxChartLegend AllowToggleSeries="false" Orientation="DevExpress.Blazor.Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
         <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
-                          ValueField="@(d => d.Value)"
-                          ArgumentField="@(d => d.Argument)"
-                          AggregationMethod="Enumerable.Sum">
+                            ValueField="@(d => d.Value)"
+                            ArgumentField="@(d => d.Argument)"
+                            AggregationMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true" />
         </DxChartDonutSeries>
     </DxChart>

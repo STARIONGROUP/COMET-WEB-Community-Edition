@@ -22,21 +22,21 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelDashboard.IModelDashboardBodyViewModel>
 
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-2 width-fit-content">
-			<OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
-		</div>
-		<div class="col-2 width-fit-content">
-			<FiniteStateSelector ViewModel="@(this.ViewModel.FiniteStateSelector)"/>
-		</div>
-		<div class="col-2 width-fit-content">
-			<ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
-		</div>
-		<div class="row">
-			<ParameterDashboard ViewModel="@(this.ViewModel.ParameterDashboard)" OnToDoClick="@this.RedirectToParameterEditor"/>
-		</div>
-		<div class="row">
-			<ElementDashboard ViewModel="@(this.ViewModel.ElementDashboard)"/>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-2 width-fit-content">
+            <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+        </div>
+        <div class="col-2 width-fit-content">
+            <FiniteStateSelector ViewModel="@(this.ViewModel.FiniteStateSelector)"/>
+        </div>
+        <div class="col-2 width-fit-content">
+            <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
+        </div>
+        <div class="row">
+            <ParameterDashboard ViewModel="@(this.ViewModel.ParameterDashboard)" OnToDoClick="@(this.RedirectToParameterEditor)"/>
+        </div>
+        <div class="row">
+            <ElementDashboard ViewModel="@(this.ViewModel.ElementDashboard)"/>
+        </div>
+    </div>
 </div>
