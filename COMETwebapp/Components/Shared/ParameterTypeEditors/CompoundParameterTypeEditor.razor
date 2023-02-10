@@ -1,0 +1,18 @@
+﻿@if (this.ViewModel.ParameterType.ShortName == SceneSettings.OrientationShortName && this.ViewModel.ValueSet is not null)
+{
+    //<OrientationComponent ViewModel="this.CreateOrientationViewModel()"/>
+}
+else if (this.ViewModel.ValueSet is not null)
+{
+    for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
+    {
+        var index = i;
+        var comp = this.ViewModel.ParameterType.Component[i];
+
+        <div class="parameter-row">
+            <p>@comp.ShortName</p>
+            <DxTextBox InputCssClass="compound-parameter-type" Text="@this.ViewModel.ValueSet?.ActualValue[i]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox>
+            <p>@comp.Scale.ShortName</p>
+        </div>
+    }
+}

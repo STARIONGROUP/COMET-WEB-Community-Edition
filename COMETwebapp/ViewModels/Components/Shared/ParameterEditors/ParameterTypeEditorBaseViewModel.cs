@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterEditorBaseViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterTypeEditorBaseViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -27,33 +27,52 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Model;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Base interface for all the interfaces of type <i>ParameterTypeEditorViewModel</i>
+    /// Base ViewModel for the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> editors
     /// </summary>
-    public interface IParameterEditorBaseViewModel<T> where T : ParameterType
+    /// <typeparam name="T">the type of the <see cref="Parameter"/></typeparam>
+    public abstract class ParameterTypeEditorBaseViewModel<T> : IParameterEditorBaseViewModel<T> where T : ParameterType
     {
         /// <summary>
-        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> for this <see cref="IParameterEditorBaseViewModel{T}"/>
+        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/>
         /// </summary>
         public T ParameterType { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback{T}"/> for when the parameter value has changed
+        /// Event Callback for when a value has changed on the parameter
         /// </summary>
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
-        /// Gets or sets if the <i>ParameterTypeEditor</i> is readonly. For a <see cref="ParameterSwitchKind"/> with values MANUAL,REFERENCE the value of this
-        /// property is false, for a value of COMPUTED the value of this property is true;
+        /// Gets or sets if the Editor is readonly.
         /// </summary>
         public bool IsReadOnly { get; set; }
 
         /// <summary>
         /// Gets or sets the value set of this <see cref="T"/>
         /// </summary>
-        IValueSet ValueSet { get; set; }
+        public IValueSet ValueSet { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}"/>
+        /// </summary>
+        /// <param name="parameterType">the parameter type of this view model</param>
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet)
+        {
+            this.ParameterType = parameterType;
+            this.ValueSet = valueSet;
+
+            CDP4Dal.CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
+            {
+                this.ValueSet.ValueSwitch = x.SelectedSwitch;
+                this.IsReadOnly = x.SelectedSwitch is ParameterSwitchKind.REFERENCE;
+            });
+        }
 
         /// <summary>
         /// Event for when a parameter's value has changed

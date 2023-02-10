@@ -72,17 +72,17 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="Option"/> name this <see cref="Parameter"/> is dependant on
         /// </summary>
-        public string Option { get; }
+        string Option { get; }
 
         /// <summary>
         /// Gets the <see cref="ActualFiniteState"/> name this <see cref="Parameter"/> is dependant on
         /// </summary>
-        public string State { get; }
+        string State { get; }
 
         /// <summary>
-        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
         /// <returns></returns>
-        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel();
+        IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType;
     }
 }

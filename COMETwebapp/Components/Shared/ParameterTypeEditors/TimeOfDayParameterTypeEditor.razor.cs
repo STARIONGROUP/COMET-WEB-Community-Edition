@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BooleanParameterTypeEditor.razor.cs" company="RHEA System S.A.">
+//  <copyright file="TimeOfDayParameterTypeEditor.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,25 +22,23 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared.ParameterEditors
+using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
     using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Class for the <see cref="BooleanParameterTypeEditor"/> component
+    /// Support class for the <see cref="TimeOfDayParameterTypeEditor"/>
     /// </summary>
-    public partial class BooleanParameterTypeEditor
+    public partial class TimeOfDayParameterTypeEditor
     {
         /// <summary>
         /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}"/>
         /// </summary>
         [Parameter]
-        public IParameterEditorBaseViewModel<BooleanParameterType> ViewModel { get; set; }
-
-        public string value;
+        public IParameterEditorBaseViewModel<TimeOfDayParameterType> ViewModel { get; set; }
     }
 }

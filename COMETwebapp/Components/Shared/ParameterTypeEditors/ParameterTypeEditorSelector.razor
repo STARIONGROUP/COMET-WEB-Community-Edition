@@ -25,12 +25,38 @@
 @{
     switch (this.ViewModel.ParameterType)
     {
+        case BooleanParameterType:
+            <BooleanParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<BooleanParameterType>()" 
+                                        ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)"/>
+            break;
+
+        case CompoundParameterType:
+            <CompoundParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<CompoundParameterType>()"/>
+            break;
+
+        case DateParameterType:
+            <DateParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<DateParameterType>()" />
+            break;
+
+        case DateTimeParameterType:
+            <DateTimeParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<DateTimeParameterType>()" />
+            break;
+
         case EnumerationParameterType:
             <EnumerationParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<EnumerationParameterType>()" />
             break;
 
-        case BooleanParameterType:
-            <BooleanParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<BooleanParameterType>()" />
+        case QuantityKind:
+            <QuantityKindParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<QuantityKind>()"
+                                             ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            break;
+
+        case TextParameterType:
+            <TextParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TextParameterType>()" />
+            break;
+
+        case TimeOfDayParameterType:
+            <TimeOfDayParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TimeOfDayParameterType>()" />
             break;
 
         default:

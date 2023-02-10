@@ -30,6 +30,8 @@ namespace COMETwebapp.Components.ParameterEditor
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Class for the component <see cref="ParameterSwitchKindComponent"/>
     /// </summary>
@@ -46,8 +48,7 @@ namespace COMETwebapp.Components.ParameterEditor
         /// </summary>
         [Parameter]
         public ParameterSwitchKind SwitchValue { get; set; }
-
-
+        
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because

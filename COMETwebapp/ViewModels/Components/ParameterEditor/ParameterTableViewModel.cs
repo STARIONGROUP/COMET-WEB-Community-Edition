@@ -84,7 +84,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                     {
                         parameter.ValueSet.ForEach(valueSet =>
                         {
-                            this.Rows.Add(new ParameterBaseRowViewModel(parameter, valueSet));
+                            this.Rows.Add(new ParameterBaseRowViewModel(this.SessionService,parameter, valueSet));
                         });
                     });
                 }
@@ -96,7 +96,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                         {
                             parameter.ValueSet.ForEach(valueSet =>
                             {
-                                this.Rows.Add(new ParameterBaseRowViewModel(parameter, valueSet));
+                                this.Rows.Add(new ParameterBaseRowViewModel(this.SessionService, parameter, valueSet));
                             });
                         });
                     }
@@ -106,7 +106,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                         {
                             parameter.ValueSet.ForEach(valueSet =>
                             {
-                                this.Rows.Add(new ParameterBaseRowViewModel(parameter, valueSet));
+                                this.Rows.Add(new ParameterBaseRowViewModel(this.SessionService, parameter, valueSet));
                             });
                         });
                     }

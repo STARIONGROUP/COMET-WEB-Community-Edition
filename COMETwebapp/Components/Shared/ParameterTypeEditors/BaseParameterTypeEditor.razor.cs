@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterEditorBaseViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="BaseParameterTypeEditor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,43 +22,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
+namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Base interface for all the interfaces of type <i>ParameterTypeEditorViewModel</i>
+    /// Base class for the parameter type editor components
     /// </summary>
-    public interface IParameterEditorBaseViewModel<T> where T : ParameterType
+    public class BaseParameterTypeEditor<T> where T : ParameterType
     {
         /// <summary>
-        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> for this <see cref="IParameterEditorBaseViewModel{T}"/>
+        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}"/>
         /// </summary>
-        public T ParameterType { get; set; }
+        [Parameter]
+        public IParameterEditorBaseViewModel<T> ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback{T}"/> for when the parameter value has changed
+        /// Event Callback for when a value has changed on the parameter
         /// </summary>
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the <i>ParameterTypeEditor</i> is readonly. For a <see cref="ParameterSwitchKind"/> with values MANUAL,REFERENCE the value of this
-        /// property is false, for a value of COMPUTED the value of this property is true;
-        /// </summary>
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value set of this <see cref="T"/>
-        /// </summary>
-        IValueSet ValueSet { get; set; }
-
-        /// <summary>
-        /// Event for when a parameter's value has changed
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        public abstract Task OnParameterValueChanged(object value);
+        [Parameter]
+        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
     }
 }

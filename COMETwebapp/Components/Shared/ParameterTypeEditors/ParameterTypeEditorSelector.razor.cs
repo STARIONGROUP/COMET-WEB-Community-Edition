@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterSwitchKindComponentViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,29 +22,20 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ParameterEditor
+namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
-    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-    /// <summary>
-    /// Interface for the <see cref="ParameterSwitchKindComponentViewModel"/>
-    /// </summary>
-    public interface IParameterSwitchKindComponentViewModel
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+    using Microsoft.AspNetCore.Components;
+
+    public partial class ParameterTypeEditorSelector
     {
         /// <summary>
-        /// Iid of the associated ParametervalueSet
+        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel{T}"/>
         /// </summary>
-        Guid ParameterValueSetIid { get; set; }
-
-        /// <summary>
-        /// Sets computed button active
-        /// </summary>
-        ParameterSwitchKind SwitchValue { get; set; }
-
-        /// <summary>
-        /// Event for when the <see cref="ParameterSwitchKind"/> value has changed
-        /// </summary>
-        /// <param name="switchValue">the new value of the switch</param>
-        void OnSwitchChanged(ParameterSwitchKind switchValue);
+        [Parameter]
+        public IParameterTypeEditorSelectorViewModel<ParameterType> ViewModel { get; set; }
     }
 }

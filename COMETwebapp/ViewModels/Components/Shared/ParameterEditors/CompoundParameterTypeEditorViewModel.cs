@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
+//  <copyright file="CompoundParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,20 +22,34 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared.ParameterEditors
+namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
-    public partial class ParameterTypeEditorSelector
+    /// <summary>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
+    /// </summary>
+    public class CompoundParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<CompoundParameterType>
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel"/>
+        /// Creates a new instance of type <see cref="CompoundParameterTypeEditorViewModel"/>
         /// </summary>
-        [Parameter]
-        public IParameterTypeEditorSelectorViewModel ViewModel { get; set; }
+        /// <param name="parameterType">the parameter type of this view model</param>
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        {
+        }
+
+        /// <summary>
+        /// Event for when a parameter's value has changed
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        public override Task OnParameterValueChanged(object value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

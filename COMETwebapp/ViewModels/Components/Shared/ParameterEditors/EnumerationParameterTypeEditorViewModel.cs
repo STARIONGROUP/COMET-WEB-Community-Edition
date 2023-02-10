@@ -24,37 +24,30 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
-    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterEditors.EnumerationParameterTypeEditor"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.EnumerationParameterTypeEditor"/>
     /// </summary>
-    public class EnumerationParameterTypeEditorViewModel : IParameterEditorBaseViewModel<EnumerationParameterType>
+    public class EnumerationParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<EnumerationParameterType>
     {
-        /// <summary>
-        /// Gets or sets the <see cref="ParameterType"/>
-        /// </summary>
-        public EnumerationParameterType ParameterType { get; set; }
-
-        /// <summary>
-        /// Event Callback for when a value has changed on the parameter
-        /// </summary>
-        public EventCallback<EnumerationParameterType> OnParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the Editor is readonly.
-        /// </summary>
-        public bool IsReadOnly { get; set; }
-
         /// <summary>
         /// Creates a new instance of type <see cref="EnumerationParameterType"/>
         /// </summary>
         /// <param name="parameterType">the parameter used for this editor view model</param>
-        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType)
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
         {
-            this.ParameterType = parameterType;
+        }
+
+        /// <summary>
+        /// Event for when a parameter's value has changed
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        public override Task OnParameterValueChanged(object value)
+        {
+            throw new NotImplementedException();
         }
     }
 }

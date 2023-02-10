@@ -24,7 +24,7 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
 @using COMETwebapp.ViewModels.Components.ParameterEditor
-@using COMETwebapp.Components.Shared.ParameterEditors;
+@using COMETwebapp.Components.Shared.ParameterTypeEditors;
 
 @if (this.Elements is null)
 {
@@ -58,14 +58,17 @@ Copyright (c) 2023 RHEA System S.A.
                 <CellDisplayTemplate>
                     @if(@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel()"/>
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel<ParameterType>()"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
                 <CellDisplayTemplate>
-                    <ParameterSwitchKindComponent/>
+                    @if (@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    {
+                        <ParameterSwitchKindComponent SwitchValue="parameterBaseRowViewModel.Switch"/>
+                    }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />

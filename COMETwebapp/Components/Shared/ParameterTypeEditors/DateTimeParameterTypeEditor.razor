@@ -1,0 +1,27 @@
+﻿@{
+    var dateTimeStringSplitted = this.ViewModel.ValueSet.ActualValue.First().Split('T');
+    DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime);
+
+    <div class="parameter-row">
+        <DxDateEdit CssClass="date-time-parameter-type cw-320"
+                    Date="dateTime"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select a date..." />
+    </div>
+
+    var timeString = dateTimeStringSplitted[1];
+    var values = timeString.Split(':');
+
+    int.TryParse(values[0], out var hours);
+    int.TryParse(values[0], out var minutes);
+    int.TryParse(values[0], out var seconds);
+
+    var time = new TimeSpan(hours, minutes, seconds);
+
+    <div class="parameter-row">
+        <DxTimeEdit @bind-Time="@time" CssClass="cw-320"></DxTimeEdit>
+        <DxTextBox InputCssClass="date-time-parameter-type" Text="@values[0]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox> <p>:</p>
+        <DxTextBox InputCssClass="date-time-parameter-type" Text="@values[1]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox> <p>:</p>
+        <DxTextBox InputCssClass="date-time-parameter-type" Text="@values[2]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox>
+    </div>
+}

@@ -27,7 +27,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.Extensions;
+    using CDP4Dal;
+    
+    using COMETwebapp.Model;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     /// <summary>
@@ -35,6 +38,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     /// </summary>
     public class ParameterBaseRowViewModel : IParameterBaseRowViewModel
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ISessionService"/>
+        /// </summary>
+        public ISessionService SessionService { get; set; }
+
         /// <summary>
         /// Gets or sets the <see cref="ParameterBase"/> for this <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
@@ -63,7 +71,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the switch for the published value
         /// </summary>
-        public ParameterSwitchKind Switch { get; }
+        public ParameterSwitchKind Switch { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="Parameter"/> model code
@@ -81,31 +89,43 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public string State { get; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the <see cref="IValueSet"/> of this <see cref="ParameterBaseRowViewModel"/>
+        /// </summary>
+        private IValueSet ValueSet { get; set; }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
+        /// <param name="sessionService">the <see cref="ISessionService"/></param>
         /// <param name="parameterBase">the parameter of this row</param>
         /// /// <param name="valueSet">the valueSet of the parameter</param>
-        public ParameterBaseRowViewModel(ParameterBase parameterBase, IValueSet valueSet)
+        public ParameterBaseRowViewModel(ISessionService sessionService,ParameterBase parameterBase, IValueSet valueSet)
         {
+            this.SessionService = sessionService;
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
             this.ParameterType = this.Parameter.ParameterType;
             this.ParameterName = this.Parameter.ParameterType.Name;
             this.OwnerName = this.Parameter.Owner.ShortName;
             this.ModelCode = this.Parameter.ModelCode();
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
-            
+            this.ValueSet = valueSet;
             this.Option = valueSet.ActualOption?.Name;
             this.State = valueSet.ActualState?.Name;
             this.Switch = valueSet.ValueSwitch;
+
+            CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
+            {
+                this.Switch = x.SelectedSwitch;
+            });
         }
 
         /// <summary>
-        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
         /// <returns></returns>
-        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel()
+        public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType
         {
-            return new ParameterTypeEditorSelectorViewModel(this.ParameterType);
+            return new ParameterTypeEditorSelectorViewModel(this.SessionService,this.ParameterType, this.ValueSet) as IParameterTypeEditorSelectorViewModel<T>;
         }
     }
 }

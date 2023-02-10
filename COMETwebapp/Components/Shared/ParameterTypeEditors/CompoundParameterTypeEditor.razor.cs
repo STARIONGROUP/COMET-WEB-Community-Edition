@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BooleanParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="CompoundParameterTypeEditor.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,34 +22,23 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
+namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
-    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
-    using System.Threading.Tasks;
+
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
+    /// Support class for the <see cref="CompoundParameterTypeEditor"/>
     /// </summary>
-    public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
+    public partial class CompoundParameterTypeEditor
     {
         /// <summary>
-        /// Creates a new instance of type <see cref="BooleanParameterTypeEditorViewModel"/>
+        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}"/>
         /// </summary>
-        /// <param name="parameterType">the parameter used for this editor view model</param>
-        /// <param name="valueSet">the value set asociated to this editor</param>
-        public BooleanParameterTypeEditorViewModel(BooleanParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
-        {
-        }
-
-        /// <summary>
-        /// Event for when a parameter's value has changed
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        public override Task OnParameterValueChanged(object value)
-        {
-            throw new NotImplementedException();
-        }
+        [Parameter]
+        public IParameterEditorBaseViewModel<CompoundParameterType> ViewModel { get; set; }
     }
 }

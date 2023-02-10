@@ -123,8 +123,8 @@ Copyright (c) 2023 RHEA System S.A.
         var values = valueSet.Split(':');
         
         int.TryParse(values[0], out var hours);
-        int.TryParse(values[0], out var minutes);
-        int.TryParse(values[0], out var seconds);
+        int.TryParse(values[1], out var minutes);
+        int.TryParse(values[2], out var seconds);
 
         var time = new TimeSpan(hours, minutes, seconds);
 

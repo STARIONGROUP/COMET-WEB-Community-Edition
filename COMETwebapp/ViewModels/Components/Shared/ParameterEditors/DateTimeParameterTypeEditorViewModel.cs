@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterEditorBaseViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="DateTimeParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -30,35 +30,26 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Base interface for all the interfaces of type <i>ParameterTypeEditorViewModel</i>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.DateTimeParameterTypeEditor"/>
     /// </summary>
-    public interface IParameterEditorBaseViewModel<T> where T : ParameterType
+    public class DateTimeParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<DateTimeParameterType>
     {
         /// <summary>
-        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> for this <see cref="IParameterEditorBaseViewModel{T}"/>
+        /// Creates a new instance of type <see cref="DateTimeParameterTypeEditorViewModel"/>
         /// </summary>
-        public T ParameterType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="EventCallback{T}"/> for when the parameter value has changed
-        /// </summary>
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the <i>ParameterTypeEditor</i> is readonly. For a <see cref="ParameterSwitchKind"/> with values MANUAL,REFERENCE the value of this
-        /// property is false, for a value of COMPUTED the value of this property is true;
-        /// </summary>
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value set of this <see cref="T"/>
-        /// </summary>
-        IValueSet ValueSet { get; set; }
+        /// <param name="parameterType">the parameter type of this view model</param>
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        public DateTimeParameterTypeEditorViewModel(DateTimeParameterType parameterType, IValueSet valueSet) : base(parameterType,valueSet)
+        {
+        }
 
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public abstract Task OnParameterValueChanged(object value);
+        public override Task OnParameterValueChanged(object value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

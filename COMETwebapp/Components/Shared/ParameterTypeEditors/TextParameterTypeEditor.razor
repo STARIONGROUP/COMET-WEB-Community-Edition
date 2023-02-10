@@ -1,0 +1,23 @@
+﻿@using COMETwebapp.Extensions
+@{
+    if (this.ViewModel.ParameterType.ShortName == SceneSettings.ColorShortName)
+    {
+        var colorValue = this.ViewModel.ValueSet.ActualValue.First().ParseToHexColor();
+        <div class="parameter-row" id="color-section">
+            <input type="color" id="color" name="color" value="@colorValue">
+            <label for="color" id="color-text">Color</label>
+        </div>
+    }
+    else
+    {
+        <div class="parameter-row">
+            <p>@this.ViewModel.ParameterType.Name</p>
+            <DxTextBox InputCssClass="text-parameter-type"
+                       Text="@this.ViewModel.ValueSet.ActualValue.First()"
+                       BindValueMode="BindValueMode.OnInput"
+                       CssClass="parameter-input"
+                       @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))">
+            </DxTextBox>
+        </div>
+    }
+}

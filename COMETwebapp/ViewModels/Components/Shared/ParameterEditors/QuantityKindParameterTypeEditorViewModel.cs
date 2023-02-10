@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BooleanParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="QuantityKindParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -26,30 +26,45 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
-    using System.Threading.Tasks;
+    using CDP4Common.Types;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.QuantityKindParameterTypeEditor"/>
     /// </summary>
-    public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
+    public class QuantityKindParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<QuantityKind>
     {
         /// <summary>
-        /// Creates a new instance of type <see cref="BooleanParameterTypeEditorViewModel"/>
+        /// Creates a new instance of type <see cref="QuantityKindParameterTypeEditorViewModel"/>
         /// </summary>
-        /// <param name="parameterType">the parameter used for this editor view model</param>
+        /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
-        public BooleanParameterTypeEditorViewModel(BooleanParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        public QuantityKindParameterTypeEditorViewModel(QuantityKind parameterType, IValueSet valueSet) : base(parameterType,valueSet)
         {
+            this.ParameterType = parameterType;
+            this.ValueSet = valueSet;
         }
 
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public override Task OnParameterValueChanged(object value)
+        public override async Task OnParameterValueChanged(object value)
         {
-            throw new NotImplementedException();
+            var eventArgs = value as ChangeEventArgs;
+
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && eventArgs?.Value is string valueString)
+            {
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
+                modifiedValueArray[0] = valueString;
+
+                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
+                sendingParameterValueSetBase.Manual = modifiedValueArray;
+                sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
+
+                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+            }
         }
     }
 }

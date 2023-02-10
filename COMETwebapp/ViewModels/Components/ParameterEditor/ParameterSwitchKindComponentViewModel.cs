@@ -44,50 +44,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public Guid ParameterValueSetIid { get; set; }
 
         /// <summary>
-        /// The switch mode of the associated ParameterValueSet
-        /// </summary>
-        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
-
-        /// <summary>
         /// Sets computed button active
         /// </summary>
         public ParameterSwitchKind SwitchValue { get; set; }
 
         /// <summary>
-        /// Sets if the switch can be change in the ISession
+        /// Event for when the <see cref="ParameterSwitchKind"/> value has changed
         /// </summary>
-        public bool IsEditable { get; set; }
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        public void OnClickComputed()
+        /// <param name="switchValue">the new value of the switch</param>
+        public void OnSwitchChanged(ParameterSwitchKind switchValue)
         {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.COMPUTED, false));
-        }
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        public void OnClickManual()
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.MANUAL, false));
-        }
-
-        /// <summary>
-        /// Sends an event with the selected switch
-        /// </summary>
-        public void OnClickReference()
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, ParameterSwitchKind.REFERENCE, false));
-        }
-
-        /// <summary>
-        /// Sends an event to write the selected switch on ISession
-        /// </summary>
-        public void OnSubmitSwitchChange()
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, this.SwitchValue, true));
+            this.SwitchValue = switchValue;
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, switchValue, false));
         }
     }
 }

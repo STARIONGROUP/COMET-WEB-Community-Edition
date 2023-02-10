@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="EnumerationParameterTypeEditor.razor.cs" company="RHEA System S.A.">
+//  <copyright file="DateTimeParameterTypeEditor.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,25 +22,23 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared.ParameterEditors
+using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
     using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Class for the <see cref="EnumerationParameterTypeEditor"/> razor component
+    /// Support class for the <see cref="DateTimeParameterTypeEditor"/>
     /// </summary>
-    public partial class EnumerationParameterTypeEditor
+    public partial class DateTimeParameterTypeEditor
     {
         /// <summary>
-        /// Gets or sets the <see cref="IEnumerationParameterTypeEditorViewModel"/>
+        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}"/>
         /// </summary>
         [Parameter]
-        public IParameterEditorBaseViewModel<EnumerationParameterType> ViewModel { get; set; }
-
-        public object value;
+        public IParameterEditorBaseViewModel<DateTimeParameterType> ViewModel { get; set; }
     }
 }
