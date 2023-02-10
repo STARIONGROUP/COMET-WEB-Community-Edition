@@ -63,9 +63,9 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
-            
+
             var parameterEditorViewModel = new Mock<IParameterEditorViewModel>();
-            
+
             var elements = new SourceList<ElementBase>();
             elements.Add(new ElementDefinition() { Name = "Element1" });
             elements.Add(new ElementDefinition() { Name = "Element2" });
@@ -88,21 +88,21 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             var rowViewModels = new SourceList<ParameterBaseRowViewModel>();
 
             var parameter = new Parameter()
-            {
+                {
                 ParameterType = new ArrayParameterType(){Name = "Orientation", ShortName = "orient"},
                 Owner = new DomainOfExpertise(){Name = "DoE1", ShortName = "doe1"},
                 Container = elements.Items.First(),
             };
             
             var actualFiniteStateList = new ActualFiniteStateList()
-            {
+                {
                 Iid = Guid.NewGuid()
             };
 
             var possibleFiniteStateList = new List<PossibleFiniteState> { new() { Iid = Guid.NewGuid(), Name = "State1" }, new() { Iid = Guid.NewGuid(), Name = "State2" } };
 
             actualFiniteStateList.PossibleFiniteStateList.Add(new PossibleFiniteStateList()
-            {
+                {
                 PossibleState = { possibleFiniteStateList[0], possibleFiniteStateList[1] }
             });
 
