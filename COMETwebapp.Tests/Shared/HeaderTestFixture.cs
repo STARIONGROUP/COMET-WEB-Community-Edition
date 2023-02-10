@@ -29,9 +29,10 @@ namespace COMETwebapp.Tests.Shared
     using COMETwebapp.Components;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
+    using DevExpress.Blazor;
     using DevExpress.Blazor.Internal;
-
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -62,6 +63,8 @@ namespace COMETwebapp.Tests.Shared
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
 
+            ctx.Services.AddDevExpressBlazor();
+            ctx.ConfigureDevExpressBlazor();
             var authContext = ctx.AddTestAuthorization();
             authContext.SetNotAuthorized();
             
