@@ -39,6 +39,11 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         ISystemTreeViewModel SystemTreeViewModel { get; }
 
         /// <summary>
+        ///     The <see cref="IElementDefinitionDetailsViewModel" /> for the <see cref="ElementDefinitionDetails" /> component
+        /// </summary>
+        IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; }
+
+        /// <summary>
         /// List of the names of <see cref="Option"/> available
         /// </summary>
         List<string>? Options { get; set; }
@@ -59,7 +64,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// </summary>
         /// <param name="domain">the selected domain</param>
         void OnDomainFilterChange(DomainOfExpertise? domain, ISessionAnchor session);
-
+        
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.
@@ -68,6 +73,6 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// </summary>
         /// <param name="session">The <see cref="ISessionAnchor" /></param>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        Task OnInitializedAsync(ISessionAnchor session);
+        void OnInitializedAsync(ISessionAnchor session);
     }
 }

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SystemTree.razor.cs" company="RHEA System S.A.">
+// <copyright file="ElementDefinitionDetails.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -25,20 +25,41 @@ namespace COMETwebapp.Components.SystemRepresentation
 {
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using Microsoft.AspNetCore.Components;
-    using AntDesign;
-    using COMETwebapp.Model;
-    
-    public partial class SystemTree
+
+    using ReactiveUI;
+
+    public partial class ElementDefinitionDetails : IDisposable
     {
         /// <summary>
-        ///     The <see cref="ISystemTreeViewModel" /> for the component
+        ///     The <see cref="IElementDefinitionDetailsViewModel" /> for the component
         /// </summary>
         [Parameter]
-        public ISystemTreeViewModel ViewModel { get; set; }
+        public IElementDefinitionDetailsViewModel ViewModel { get; set; }
 
         /// <summary>
-        ///    The <see cref="Tree{T}" /> to display
+        ///     The collection of <see cref="IDisposable" />
         /// </summary>
-        Tree<SystemNode> tree;
+        private readonly List<IDisposable> disposables = new();
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this.disposables.ForEach(x => x.Dispose());
+        }
+
+        /// <summary>
+        ///     Method invoked when the component is ready to start, having received its
+        ///     initial parameters from its parent in the render tree.
+        ///     Override this method if you will perform an asynchronous operation and
+        ///     want the component to refresh when that operation is completed.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        protected override async Task OnInitializedAsync()
+        {
+            this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedSystemNode)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
     }
 }

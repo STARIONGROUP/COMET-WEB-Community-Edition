@@ -1,0 +1,143 @@
+﻿<!------------------------------------------------------------------------------
+    Copyright (c) 2023 RHEA System S.A.
+
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.Model
+
+
+@if (this.ViewModel.SelectedSystemNode != null)
+{
+	<h4>Element Definition</h4>
+	<div>
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">Name</th>
+					<th scope="col">Short Name</th>
+					<th scope="col">Owner</th>
+					<th scope="col">Category</th>
+					<th scope="col">Definition</th>
+					<th scope="col">Type</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="align-middle">
+						@this.ViewModel.SelectedSystemNode.Name
+					</td>
+					<td class="align-middle">
+						@this.ViewModel.SelectedSystemNode.ShortName
+					</td>
+					<td class="align-middle">
+					@this.ViewModel.SelectedSystemNode.Owner.ShortName
+					</td>
+					<td class="align-middle">
+						@this.ViewModel.SelectedSystemNode.Category.FirstOrDefault()?.Name
+					</td>
+					<td class="align-middle">
+						@this.ViewModel.SelectedSystemNode.Definition.FirstOrDefault()?.UserFriendlyName
+					</td>
+					<td class="align-middle">
+						@this.ViewModel.SelectedSystemNode.GetType().Name
+					</td>
+				</tr>
+			</tbody>
+		</table>
+<h4>Parameters</h4>
+<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Short Name</th>
+						<th scope="col">Actual Value</th>
+						<th scope="col">Published Value</th>
+						<th scope="col">Owner</th>
+					</tr>
+				</thead>
+				<tbody>
+				@if (this.ViewModel.SelectedSystemNode.GetType().Equals(typeof(ElementDefinition)))
+				{
+					var elementDefinition = (ElementDefinition)this.ViewModel.SelectedSystemNode;
+					@if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
+					{
+						foreach (var parameter in elementDefinition.Parameter)
+						{
+							var valueSet = new List<ParameterValueSetBase>();
+							valueSet.AddRange(parameter.ValueSet);
+							foreach (var parameterValueSet in valueSet)
+							{
+								<tr>
+									<td class="align-middle">
+										@parameter.ParameterType.Name
+									</td>
+									<td class="align-middle">
+										@parameter.ParameterType.Symbol
+									</td>
+									<td class="align-middle">
+										@parameterValueSet.ActualValue.First()  @parameter.Scale.ShortName
+									</td>
+									<td class="align-middle">
+										@parameterValueSet.Published.First()  @parameter.Scale.ShortName
+									</td>
+									<td class="align-middle">
+										@parameterValueSet.Owner.ShortName
+									</td>
+								</tr>
+							}
+						}
+					}
+				}
+				else if (this.ViewModel.SelectedSystemNode.GetType().Equals(typeof(ElementUsage)))
+					{
+						var elementUsage = (ElementUsage)this.ViewModel.SelectedSystemNode;
+						@if (elementUsage.ParameterOverride.Count == 0)
+						{
+							foreach (var parameter in elementUsage.ElementDefinition.Parameter)
+							{
+								var valueSet = new List<ParameterValueSetBase>();
+								valueSet.AddRange(parameter.ValueSet);
+								foreach (var parameterValueSet in valueSet)
+							{
+								<tr>
+									<td class="align-middle">
+										@parameter.ParameterType.Name
+									</td>
+									<td class="align-middle">
+										@parameter.ParameterType.Symbol
+									</td>
+									<td class="align-middle">
+										@parameterValueSet.ActualValue.First() @parameter.Scale.ShortName
+									</td>
+									<td class="align-middle">
+										@parameterValueSet.Published.First() @parameter.Scale.ShortName
+									</td>
+									<td class="align-middle">
+										@parameterValueSet.Owner.ShortName
+									</td>
+								</tr>
+
+							}
+							}
+						}
+					}
+				</tbody>
+			</table>
+	</div>
+}

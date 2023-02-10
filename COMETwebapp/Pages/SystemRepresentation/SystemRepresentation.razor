@@ -47,12 +47,16 @@ Copyright (c) 2023 RHEA System S.A.
                 </div>
             </div>
         </div>
-       <div id="gridParent">
-            <SystemTree ViewModel="this.ViewModel.SystemTreeViewModel" />
-       </div>
-       @*<div>
-           <SystemNodeComponent />
-       </div>*@
+
+       
+		<div id="gridParent">
+            <div id="leftColumn">
+                <SystemTree ViewModel="this.ViewModel.SystemTreeViewModel" />
+            </div>
+            <div id="rightColumn">
+                <ElementDefinitionDetails ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+            </div>
+        </div>
     </Body>
 </ApplicationTemplate>
 

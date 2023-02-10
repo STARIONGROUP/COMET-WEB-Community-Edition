@@ -71,6 +71,7 @@ namespace COMETwebapp
 
             builder.Services.AddTransient<ISystemRepresentationPageViewModel, SystemRepresentationPageViewModel>();
             builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
+            builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
 
 
             builder.Services.AddDevExpressBlazor();

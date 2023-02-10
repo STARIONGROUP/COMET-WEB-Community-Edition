@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SystemTreeTestFixture.cs" company="RHEA System S.A.">
+// <copyright file="ElementDefinitionTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Page.SystemRepresentation
+namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
     using BlazorStrap;
     using Bunit;
@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
     using CDP4Common.SiteDirectoryData;
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Model;
     using COMETwebapp.Pages.SystemRepresentation;
     using COMETwebapp.SessionManagement;
@@ -44,15 +45,15 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using TestContext = Bunit.TestContext;
 
 
     [TestFixture]
-    public class SystemRepresentationPageTestFixture
+    public class ElementDefinitionTestFixture
     {
         private TestContext context;
-        private ISystemRepresentationPageViewModel viewModel;
-        private ISystemTreeViewModel systemTreeViewModel;
+        private IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel;
         private Mock<ISession> session;
         private ISessionAnchor sessionAnchor;
         private Assembler assembler;
@@ -71,10 +72,10 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
         public void SetUp()
         {
             this.context = new TestContext();
-            
+
             this.session = new Mock<ISession>();
             this.sessionAnchor = new SessionAnchor() { Session = this.session.Object };
-            
+
             this.context.Services.AddBlazorStrap();
             this.context.Services.AddAntDesign();
             this.context.Services.AddSingleton(this.sessionAnchor);
@@ -84,15 +85,9 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
 
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
-
-            this.systemTreeViewModel = new SystemTreeViewModel()
-            {
-                SystemNodes = new List<SystemNode>()
-            };
-
-            this.viewModel = new SystemRepresentationPageViewModel(this.systemTreeViewModel, null);
-
-            this.context.Services.AddSingleton(this.viewModel);
+            
+            this.elementDefinitionDetailsViewModel = new ElementDefinitionDetailsViewModel();
+            this.context.Services.AddSingleton(this.elementDefinitionDetailsViewModel);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
@@ -118,6 +113,15 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
 
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
+                Element =
+                {
+                    new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                    {
+                        Name = "TestElement",
+                        Owner = this.domain,
+                        ShortName = "TE"
+                    }
+                },
                 Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
                     EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -146,7 +150,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                     new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
                 }
             };
-            
+
             this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
             this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
@@ -168,35 +172,27 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
         }
 
         [Test]
-        public void VerifyOnInitialized()
+        public void VerifyComponent()
         {
-            var renderer = this.context.RenderComponent<SystemRepresentation>();
-
-            Assert.Multiple(() =>
+            var renderer = this.context.RenderComponent<ElementDefinitionDetails>(parameters =>
             {
-                Assert.That(renderer.Instance, Is.Not.Null);
-                Assert.That(renderer.Markup, Does.Contain("You have to open a model first"));
+                parameters.Add(p => p.ViewModel, this.elementDefinitionDetailsViewModel);
             });
 
-            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
-            {
-                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
-            });
-            this.sessionAnchor.IsSessionOpen = true;
-            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
-            this.sessionAnchor.CurrentEngineeringModelName = "model";
+
+            Assert.That(renderer.Instance, Is.Not.Null);
+
+
+            this.elementDefinitionDetailsViewModel.SelectedSystemNode = this.iteration.Element.First();
 
             renderer.Render();
 
-            var filterComboBox = renderer.FindComponents<DxComboBox<string, string>>();
-            var domainComboBox = renderer.FindComponents<DxComboBox<string, DomainOfExpertise>>();
+            var elementDefinitionDetails = renderer.FindAll("tr");
 
             Assert.Multiple(() =>
             {
-                Assert.That(filterComboBox, Is.Not.Null);
-                Assert.That(domainComboBox, Is.Not.Null);
-                Assert.That(filterComboBox.Count, Is.EqualTo(1));
-                Assert.That(domainComboBox.Count, Is.EqualTo(1));
+                Assert.That(elementDefinitionDetails[1].InnerHtml, Is.Not.Null);
+                Assert.That(elementDefinitionDetails[1].InnerHtml, Does.Contain(this.iteration.Element.First().Name));
             });
         }
     }

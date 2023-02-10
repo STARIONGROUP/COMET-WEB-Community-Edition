@@ -53,9 +53,10 @@ namespace COMETwebapp.Pages.SystemRepresentation
         ///     want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override async Task OnInitializedAsync()
+        protected override Task OnInitializedAsync()
         {
-            await this.ViewModel.OnInitializedAsync(this.SessionAnchor);
+            this.ViewModel.OnInitializedAsync(this.SessionAnchor);
+            return base.OnInitializedAsync();
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
 
             if (firstRender)
             {
-                await this.ViewModel.OnInitializedAsync(this.SessionAnchor);
+                this.ViewModel.OnInitializedAsync(this.SessionAnchor);
                 this.StateHasChanged();
             }
         }

@@ -30,18 +30,13 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.Components.SystemRepresentation;
     using ReactiveUI;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     ///     View model for the <see cref="ProjectPage" /> page
     /// </summary>
     public class SystemRepresentationPageViewModel : ReactiveObject, ISystemRepresentationPageViewModel
     {
-
-        /// <summary>
-        ///     The <see cref="ISystemTreeViewModel" /> for the <see cref="SystemTree" /> component
-        /// </summary>
-        public ISystemTreeViewModel SystemTreeViewModel { get; }
-
         /// <summary>
         /// All <see cref="ElementBase"> of the iteration
         /// </summary>
@@ -75,11 +70,26 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         ///     Initializes a new instance of the <see cref="SystemRepresentationPageViewModel" /> class.
         /// </summary>
-        /// <param name="systemTreeViewModel">The <see cref="ISystemTreeViewModel" /></param>
-        public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel)
+        /// <param name="elementDefinitionDetailsViewModel">The <see cref="IElementDefinitionDetailsViewModel" /></param>
+        public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel, IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel)
         {
-            this.SystemTreeViewModel = systemTreeViewModel;
+            this.SystemTreeViewModel = new SystemTreeViewModel
+            {
+                OnClick = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
+            };
+
+            this.ElementDefinitionDetailsViewModel = elementDefinitionDetailsViewModel;
         }
+
+        /// <summary>
+        ///     The <see cref="ISystemTreeViewModel" /> for the <see cref="SystemTree" /> component
+        /// </summary>
+        public ISystemTreeViewModel SystemTreeViewModel { get; }
+
+        /// <summary>
+        ///     The <see cref="IElementDefinitionDetailsViewModel" />
+        /// </summary>
+        public IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; }
 
         /// <summary>
         /// Initialize <see cref="ElementBase"> list
@@ -106,7 +116,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             this.OptionSelected = option;
             this.Elements.Clear();
             this.InitializeElements(session);
-            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.CreateElementUsages(this.Elements);
             this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
         }
@@ -121,23 +131,21 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             this.Elements.Clear();
             session.SwitchDomain(domain);
             this.InitializeElements(session);
-            var elementsOnScene = this.CreateElementUsagesForScene(this.Elements);
+            this.CreateElementUsages(this.Elements);
             this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
         }
-
+        
         /// <summary>
         /// Creates the <see cref="ElementUsage"/> that need to be used fot populating the scene
         /// </summary>
         /// <param name="elements">the elements of the current <see cref="Iteration"/></param>
         /// <returns>the <see cref="ElementUsage"/> used in the scene</returns>
-        private List<ElementUsage> CreateElementUsagesForScene(List<ElementBase> elements)
+        private void CreateElementUsages(List<ElementBase> elements)
         {
             var topElement = elements.First();
             this.RootNode = new SystemNode(topElement.Name);
             this.CreateTreeRecursively(topElement, this.RootNode, null);
-
-            return elements.OfType<ElementUsage>().ToList();
         }
 
         /// <summary>
@@ -181,7 +189,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// </summary>
         /// <param name="session">The <see cref="ISessionAnchor" /></param>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public async Task OnInitializedAsync(ISessionAnchor session)
+        public void OnInitializedAsync(ISessionAnchor session)
         {
             this.Elements.Clear();
             this.InitializeElements(session);
@@ -201,6 +209,15 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
                 this.Elements.Clear();
                 this.InitializeElements(session);
             };
+        }
+
+        /// <summary>
+        ///     Tries to assign a <see cref="Participant" />s to a task
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private void SelectElement(SystemNode selectedNode)
+        {
+            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements?.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
         }
     }
 }

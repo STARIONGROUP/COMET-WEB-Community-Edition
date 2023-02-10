@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Model
 {
+    using CDP4Common.CommonData;
+    using CDP4Common.Types;
     using DynamicData;
 
     /// <summary>

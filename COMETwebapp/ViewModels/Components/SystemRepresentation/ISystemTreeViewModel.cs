@@ -24,6 +24,7 @@
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using COMETwebapp.Model;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     ///     Interface definition for <see cref="SystemTreeViewModel" />
@@ -34,5 +35,15 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         ///     The <see cref="SystemNode" />s to display
         /// </summary>
         List<SystemNode> SystemNodes { get; }
+
+        /// <summary>
+        ///     The selected <see cref="SystemNode"/>
+        /// </summary>
+        SystemNode SelectedSystemNode { get; set; }
+
+        /// <summary>
+        ///     The <see cref="EventCallback" /> to call on node selection
+        /// </summary>
+        public EventCallback<SystemNode> OnClick { get; set; }
     }
 }

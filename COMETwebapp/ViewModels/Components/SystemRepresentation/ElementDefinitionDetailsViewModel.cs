@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SystemTreeViewModel.cs" company="RHEA System S.A.">
+// <copyright file="ElementDefinitionDetailsViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -25,27 +25,27 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using COMETwebapp.Model;
     using COMETwebapp.Components.SystemRepresentation;
-    using Microsoft.AspNetCore.Components;
+    using CDP4Common.EngineeringModelData;
+    using ReactiveUI;
 
 
     /// <summary>
-    ///     View model for the <see cref="SystemTree" /> component
+    ///     View model for the <see cref="ElementDefinitionDetails" /> component
     /// </summary>
-    public class SystemTreeViewModel : ISystemTreeViewModel
+    public class ElementDefinitionDetailsViewModel : ReactiveObject, IElementDefinitionDetailsViewModel
     {
         /// <summary>
-        ///     The <see cref="SystemNode" />s to display
+        ///     Backing field for <see cref="SelectedSystemNode" />
         /// </summary>
-        public List<SystemNode> SystemNodes { get; set; } = new();
+        private ElementBase selectedSystemNode;
 
         /// <summary>
         ///     The selected <see cref="SystemNode"/>
         /// </summary>
-        public SystemNode SelectedSystemNode { get; set; }
-
-        /// <summary>
-        ///     The <see cref="EventCallback" /> to call on node selection
-        /// </summary>
-        public EventCallback<SystemNode> OnClick { get; set; }
+        public ElementBase SelectedSystemNode
+        {
+            get => this.selectedSystemNode;
+            set => this.RaiseAndSetIfChanged(ref this.selectedSystemNode, value);
+        }
     }
 }
