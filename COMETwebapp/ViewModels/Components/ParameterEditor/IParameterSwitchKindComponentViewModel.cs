@@ -26,8 +26,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
 
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
     /// Interface for the <see cref="ParameterSwitchKindComponentViewModel"/>
     /// </summary>
@@ -37,11 +35,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets or sets the <see cref="IValueSet"/>
         /// </summary>
         IValueSet ValueSet { get; set; }
-
-        /// <summary>
-        /// The switch mode of the associated ParameterValueSet
-        /// </summary>
-        public ParameterSwitchKind ParameterValueSetSwitchMode { get; set; }
 
         /// <summary>
         /// Sets computed button active

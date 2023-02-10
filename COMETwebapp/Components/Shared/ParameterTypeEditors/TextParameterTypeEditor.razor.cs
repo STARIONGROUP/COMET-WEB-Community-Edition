@@ -22,6 +22,8 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
+using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
 namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
     using CDP4Common.EngineeringModelData;
@@ -30,7 +32,7 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>

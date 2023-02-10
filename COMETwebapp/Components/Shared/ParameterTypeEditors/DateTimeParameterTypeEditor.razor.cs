@@ -30,7 +30,7 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
     using CDP4Common.SiteDirectoryData;
 
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>

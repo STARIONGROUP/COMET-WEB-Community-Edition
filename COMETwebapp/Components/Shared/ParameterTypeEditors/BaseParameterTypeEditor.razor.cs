@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
+//  <copyright file="BaseParameterTypeEditor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,20 +22,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared.ParameterEditors
+namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
-    public partial class ParameterTypeEditorSelector
+    /// <summary>
+    /// Base class for the parameter type editor components
+    /// </summary>
+    public class BaseParameterTypeEditor<T> where T : ParameterType
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel"/>
+        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}"/>
         /// </summary>
         [Parameter]
-        public IParameterTypeEditorSelectorViewModel ViewModel { get; set; }
+        public IParameterEditorBaseViewModel<T> ViewModel { get; set; }
+
+        /// <summary>
+        /// Event Callback for when a value has changed on the parameter
+        /// </summary>
+        [Parameter]
+        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
     }
 }
