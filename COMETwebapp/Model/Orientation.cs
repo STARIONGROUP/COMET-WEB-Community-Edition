@@ -25,7 +25,7 @@
 namespace COMETwebapp.Model
 {
     using COMETwebapp.Enumerations;
-    using COMETwebapp.Utilities;
+    using DevExpress.Entity.Model.Metadata;
 
     /// <summary>
     /// Class to represent a orientation in space.
@@ -117,16 +117,27 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Creates a new instance of type <see cref="Orientation"/>
         /// </summary>
-        /// <param name="x">angle around X axis</param>
-        /// <param name="y">angle around Y axis</param>
-        /// <param name="z">angle around Z axis</param>
+        /// <param name="x">angle around X axis, if the angle format is in radians the angle is transformed in the range [0,2PI]</param>
+        /// <param name="y">angle around Y axis, if the angle format is in radians the angle is transformed in the range [0,2PI]</param>
+        /// <param name="z">angle around Z axis, if the angle format is in radians the angle is transformed in the range [0,2PI]</param>
         /// <param name="angleFormat">the angle format for computing the angles</param> 
         public Orientation(double x, double y, double z, AngleFormat angleFormat = AngleFormat.Degrees)
         {
             this.Matrix = new double[9];
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
+
+            if (angleFormat == AngleFormat.Radians)
+            {
+                this.X = WrapAngleInRange(x, 0.0, 2.0 * Math.PI);
+                this.Y = WrapAngleInRange(y, 0.0, 2.0 * Math.PI);
+                this.Z = WrapAngleInRange(z, 0.0, 2.0 * Math.PI);
+            }
+            else
+            {
+                this.X = x;
+                this.Y = y;
+                this.Z = z;
+            }
+
             this.AngleFormat = angleFormat;
         }
 
@@ -200,12 +211,31 @@ namespace COMETwebapp.Model
 
             if (outputAngleFormat == AngleFormat.Radians)
             {
+                rx = WrapAngleInRange(rx, 0.0, 2.0 * Math.PI);
+                ry = WrapAngleInRange(ry, 0.0, 2.0 * Math.PI);
+                rz = WrapAngleInRange(rz, 0.0, 2.0 * Math.PI);
+
                 return new [] { rx, ry, rz };
             }
             else
             {
                 return new [] { Math.Round(rx * 180.0 / Math.PI, 3), Math.Round(ry * 180.0 / Math.PI, 3), Math.Round(rz * 180.0 / Math.PI, 3) };
             }
+        }
+
+        /// <summary>
+        /// Wraps the angle in the defined range
+        /// </summary>
+        /// <param name="angle">the angle to wrap</param>
+        /// <param name="lower">the lower limit of the range</param>
+        /// <param name="upper">the upper limit of the range</param>
+        /// <returns>the wrapped angle</returns>
+        public static double WrapAngleInRange(double angle, double lower, double upper)
+        {
+            var distance = upper - lower;
+            var times = Math.Floor((angle - lower) / distance);
+
+            return angle - (times * distance);
         }
 
         /// <summary>

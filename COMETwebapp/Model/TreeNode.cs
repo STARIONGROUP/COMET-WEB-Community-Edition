@@ -24,12 +24,8 @@
 
 namespace COMETwebapp.Model
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
-
     /// <summary>
-    /// Represents data of the tree in the <see cref="Pages.Viewer.Viewer"/>
+    /// Represents data of the tree in the <see cref="Pages.Viewer.ViewerPage"/>
     /// </summary>
     public class TreeNode
     {
@@ -92,6 +88,7 @@ namespace COMETwebapp.Model
                 node.Parent = null;
                 this.Children.Remove(node);
             }
+            
             return this;
         }
 
@@ -109,6 +106,7 @@ namespace COMETwebapp.Model
                 {
                     return currentParent;
                 }
+
                 currentParent = currentParent.Parent;
             }
 
@@ -123,10 +121,12 @@ namespace COMETwebapp.Model
         {
             var descendants = new List<TreeNode>();
             this.GetListOfDescendantsRecursively(this, ref descendants);
+            
             if (includeSelf && !descendants.Contains(this))
             {
                 descendants.Add(this);
             }
+            
             return descendants;
         }
 
@@ -137,19 +137,19 @@ namespace COMETwebapp.Model
         /// <param name="descendants">the list of descendants till this moment</param>
         private void GetListOfDescendantsRecursively(TreeNode current, ref List<TreeNode> descendants)
         {
-            if (!descendants.Contains(current))
+            foreach(var child in current.GetChildren())
             {
-                descendants.Add(current);
-            }
+                if (!descendants.Contains(child))
+                {
+                    descendants.Add(child);
+                }
 
-            foreach(var child in current.Children)
-            {
                 this.GetListOfDescendantsRecursively(child, ref descendants);
             }
         }
 
         /// <summary>
-        /// Sort all descendants of this node by the <see cref="Name"/>
+        /// Sort all descendants of this node by the <see cref="TreeNode.Name"/>
         /// </summary>
         public void OrderAllDescendantsByShortName()
         {
@@ -162,8 +162,9 @@ namespace COMETwebapp.Model
         /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
         private void OrderChildrenByShortNameHelper(TreeNode current)
         {
-            current.Children = current.Children.OrderBy(x => x.Title).ToList();
-            foreach (var child in current.Children)
+            current.Children = current.GetChildren().OrderBy(x => x.Title).ToList();
+
+            foreach (var child in current.GetChildren())
             {
                 this.OrderChildrenByShortNameHelper(child);
             }

@@ -25,10 +25,8 @@
 namespace COMETwebapp.Tests.Model
 {
     using COMETwebapp.Model;
+
     using NUnit.Framework;
-    using System.Linq;
-    using System.Security.Cryptography.X509Certificates;
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class TreeNodeTestFixture
@@ -44,20 +42,20 @@ namespace COMETwebapp.Tests.Model
         [SetUp]
         public void SetUp()
         {
-            this.rootNode = new TreeNode(new SceneObject(null)) { Title = "RootViewModel" };
-            node1 = new TreeNode(new SceneObject(null)) { Title = "first" };
-            node2 = new TreeNode(new SceneObject(null)) { Title = "second" };
-            node3 = new TreeNode(new SceneObject(null)) { Title = "third" };
-            node4 = new TreeNode(new SceneObject(null)) { Title = "fourth" };
-            node5 = new TreeNode(new SceneObject(null)) { Title = "fifth" };
-            node6 = new TreeNode(new SceneObject(null)) { Title = "sixth" };
+            this.rootNode = new TreeNode(new SceneObject(null)) { Title = "Root" };
+            this.node1 = new TreeNode(new SceneObject(null)) { Title = "first" };
+            this.node2 = new TreeNode(new SceneObject(null)) { Title = "second" };
+            this.node3 = new TreeNode(new SceneObject(null)) { Title = "third" };
+            this.node4 = new TreeNode(new SceneObject(null)) { Title = "fourth" };
+            this.node5 = new TreeNode(new SceneObject(null)) { Title = "fifth" };
+            this.node6 = new TreeNode(new SceneObject(null)) { Title = "sixth" };
 
-            this.rootNode.AddChild(node1);
-            this.rootNode.AddChild(node2);
-            node2.AddChild(node3);
-            node3.AddChild(node4);
-            this.rootNode.AddChild(node5);
-            node5.AddChild(node6);
+            this.rootNode.AddChild(this.node1);
+            this.rootNode.AddChild(this.node2);
+            this.node2.AddChild(this.node3);
+            this.node3.AddChild(this.node4);
+            this.rootNode.AddChild(this.node5);
+            this.node5.AddChild(this.node6);
         }
 
         [Test]
@@ -86,16 +84,17 @@ namespace COMETwebapp.Tests.Model
         [Test]
         public void VerifyGetFlatListOfDescendants()
         {
-            var allNodes = this.rootNode.GetFlatListOfDescendants();
+            var allNodes = this.rootNode.GetFlatListOfDescendants(true);
+            
             Assert.Multiple(() =>
             {
                 Assert.That(allNodes.Contains(this.rootNode), Is.True);
-                Assert.That(allNodes.Contains(node1), Is.True);
-                Assert.That(allNodes.Contains(node2), Is.True);
-                Assert.That(allNodes.Contains(node3), Is.True);
-                Assert.That(allNodes.Contains(node4), Is.True);
-                Assert.That(allNodes.Contains(node5), Is.True);
-                Assert.That(allNodes.Contains(node6), Is.True);
+                Assert.That(allNodes.Contains(this.node1), Is.True);
+                Assert.That(allNodes.Contains(this.node2), Is.True);
+                Assert.That(allNodes.Contains(this.node3), Is.True);
+                Assert.That(allNodes.Contains(this.node4), Is.True);
+                Assert.That(allNodes.Contains(this.node5), Is.True);
+                Assert.That(allNodes.Contains(this.node6), Is.True);
             });
         }
 
@@ -131,10 +130,30 @@ namespace COMETwebapp.Tests.Model
         public void VerifyThatOverideEqualsWorks()
         {
             var newNode = new TreeNode(this.rootNode.SceneObject);
+            
             Assert.Multiple(() =>
             {
                 Assert.That(this.rootNode, Is.Not.EqualTo(this.node1));
                 Assert.That(this.rootNode, Is.EqualTo(newNode));
+            });
+        }
+
+        [Test]
+        public void VerifyThatDescendantsCanBeOrderedByShortName()
+        {
+            var descendants = this.rootNode.GetFlatListOfDescendants();
+            this.rootNode.OrderAllDescendantsByShortName();
+            var descendantsOrdered = this.rootNode.GetFlatListOfDescendants();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(descendants, Is.Not.EqualTo(descendantsOrdered));
+                Assert.That(descendantsOrdered[0].Title, Is.EqualTo("fifth"));
+                Assert.That(descendantsOrdered[1].Title, Is.EqualTo("sixth"));
+                Assert.That(descendantsOrdered[2].Title, Is.EqualTo("first"));
+                Assert.That(descendantsOrdered[3].Title, Is.EqualTo("second"));
+                Assert.That(descendantsOrdered[4].Title, Is.EqualTo("third"));
+                Assert.That(descendantsOrdered[5].Title, Is.EqualTo("fourth"));
             });
         }
     }
