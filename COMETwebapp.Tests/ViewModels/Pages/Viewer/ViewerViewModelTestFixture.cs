@@ -30,7 +30,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-
+    
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Pages.Viewer;
@@ -44,18 +44,21 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     [TestFixture]
     public class ViewerViewModelTestFixture
     {
+        private TestContext context;
         private IViewerViewModel viewModel;
 
         [SetUp]
         public void SetUp()
         {
+            this.context = new TestContext();
+
             var sessionServiceMock = new Mock<ISessionService>();
 
             var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
             var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
             var elementUsage3 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element3" };
             var elementUsage4 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element4" };
-
+            
             var elementDefinition1 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
@@ -69,7 +72,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                     }
                 }
             };
-
+            
             var elementDefinition2 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
@@ -83,7 +86,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                     }
                 }
             };
-
+            
             var elementDefinition3 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
@@ -97,7 +100,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                     }
                 }
             };
-
+            
             var elementDefinition4 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
@@ -129,10 +132,10 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                 Parameter =
                 {
                     new Parameter
-                    {
+                {
                         Iid = Guid.NewGuid(),
                         ParameterType = new TextParameterType {Name = "textParamType"}
-                    }
+                }
                 },
             };
 
@@ -208,6 +211,18 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                 Assert.That(elements.Any(x => x.Name == "element2"), Is.True);
                 Assert.That(elements.Any(x => x.Name == "element3"), Is.True);
                 Assert.That(elements.Any(x => x.Name == "element4"), Is.True);
+            });
+        }
+
+        [Test]
+        public void VerifyCreateTree()
+        {
+            var rootNode = this.viewModel.CreateTree(this.viewModel.Elements);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(rootNode, Is.Not.Null);
+                Assert.That(rootNode.GetFlatListOfDescendants(true), Has.Count.EqualTo(5));
             });
         }
 

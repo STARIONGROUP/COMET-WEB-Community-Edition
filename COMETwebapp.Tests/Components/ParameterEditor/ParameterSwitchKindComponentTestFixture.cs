@@ -34,6 +34,10 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
+    using DevExpress.Blazor.Popup.Internal;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -84,6 +88,16 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(combo, Is.Not.Null);
                 Assert.That(combo.Instance.Value, Is.EqualTo(ParameterSwitchKind.MANUAL));
             });
+        }
+
+        [Test]
+        public void VerifyThatSwitchValueCanBeChanged()
+        {
+            var switchValue = this.parameterSwitch.ViewModel.SwitchValue;
+            var combo = this.renderedComponent.FindComponent<DxComboBox<ParameterSwitchKind, ParameterSwitchKind>>();
+            combo.Instance.InvokeEvent(new EventCallback<ParameterSwitchKind>(), ParameterSwitchKind.MANUAL);
+            var newSwitchValue = this.parameterSwitch.ViewModel.SwitchValue;
+
         }
     }
 }

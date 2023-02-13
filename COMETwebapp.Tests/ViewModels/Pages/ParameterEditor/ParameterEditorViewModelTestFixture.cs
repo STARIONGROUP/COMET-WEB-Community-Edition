@@ -43,6 +43,10 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
 
     using NUnit.Framework;
 
+    using ElementDefinition = CDP4Common.EngineeringModelData.ElementDefinition;
+    using ElementUsage = CDP4Common.EngineeringModelData.ElementUsage;
+    using Iteration = CDP4Common.EngineeringModelData.Iteration;
+    using Option = CDP4Common.EngineeringModelData.Option;
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -133,6 +137,13 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 Name = "topElement",
+                ContainedElement =
+                {
+                    elementDefinition1.ContainedElement[0],
+                    elementDefinition2.ContainedElement[0],
+                    elementDefinition3.ContainedElement[0],
+                    elementDefinition4.ContainedElement[0],
+                },
                 Parameter =
                 {
                     new Parameter
@@ -164,6 +175,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
                 new TextParameterType(){ Name = "textParamType" }
             };
 
+            iterationService.Setup(x => x.GetParameterTypes(It.IsAny<Iteration>())).Returns(paramerTypesList);
             this.viewModel = new ParameterEditorViewModel(sessionService.Object, iterationService.Object);
         }
 
