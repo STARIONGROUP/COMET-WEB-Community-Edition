@@ -164,7 +164,7 @@ namespace COMETwebapp.Model
         /// <exception cref="ArgumentException">if the matrix don't have the correct size</exception> 
         public static double[] ExtractAnglesFromMatrix(double[] matrix, AngleFormat outputAngleFormat = AngleFormat.Degrees)
         {
-            double Rx = 0, Ry = 0, Rz = 0;
+            double rx = 0, ry = 0, rz = 0;
 
             if (matrix == null)
             {
@@ -176,35 +176,35 @@ namespace COMETwebapp.Model
                 throw new ArgumentException("The Matrix needs to have 9 values");
             }
 
-            if (matrix[6] != 1 && matrix[6] != -1)
+            if (matrix[6] != 1.0 && matrix[6] != -1.0)
             {
-                Ry = -Math.Asin(matrix[6]);
-                Rx = Math.Atan2(matrix[7] / Math.Cos(Ry), matrix[8] / Math.Cos(Ry));
-                Rz = Math.Atan2(matrix[3] / Math.Cos(Ry), matrix[0] / Math.Cos(Ry));
+                ry = -Math.Asin(matrix[6]);
+                rx = Math.Atan2(matrix[7] / Math.Cos(ry), matrix[8] / Math.Cos(ry));
+                rz = Math.Atan2(matrix[3] / Math.Cos(ry), matrix[0] / Math.Cos(ry));
             }
             else
             {
-                Rz = 0;
+                rz = 0;
 
-                if (matrix[6] == -1)
+                if (matrix[6] == -1.0)
                 {
-                    Ry = Math.PI / 2.0;
-                    Rx = Rz + Math.Atan2(matrix[1], matrix[2]);
+                    ry = Math.PI / 2.0;
+                    rx = rz + Math.Atan2(matrix[1], matrix[2]);
                 }
                 else
                 {
-                    Ry = -Math.PI / 2.0;
-                    Rx = -Rz + Math.Atan2(-matrix[1], -matrix[2]);
+                    ry = -Math.PI / 2.0;
+                    rx = -rz + Math.Atan2(-matrix[1], -matrix[2]);
                 }
             }
 
             if (outputAngleFormat == AngleFormat.Radians)
             {
-                return new [] { Rx, Ry, Rz };
+                return new [] { rx, ry, rz };
             }
             else
             {
-                return new [] { Math.Round(Rx * 180.0 / Math.PI, 3), Math.Round(Ry * 180.0 / Math.PI, 3), Math.Round(Rz * 180.0 / Math.PI, 3) };
+                return new [] { Math.Round(rx * 180.0 / Math.PI, 3), Math.Round(ry * 180.0 / Math.PI, 3), Math.Round(rz * 180.0 / Math.PI, 3) };
             }
         }
 

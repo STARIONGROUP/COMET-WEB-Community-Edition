@@ -25,7 +25,8 @@
 namespace COMETwebapp.ViewModels.Pages.Viewer
 {
     using CDP4Common.EngineeringModelData;
-    
+
+    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
@@ -88,7 +89,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = new();
+        public List<ElementBase> Elements { get; set; } 
 
         /// <summary>
         /// List of the of <see cref="ActualFiniteStateList"/> 
@@ -104,12 +105,13 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// Creates a new instance of type <see cref="ViewerViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
+        /// <param name="selectionMediator"> the <see cref="ISelectionMediator"/></param>
         public ViewerViewModel(ISessionService sessionService, ISelectionMediator selectionMediator)
         {
             this.SessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
             this.SelectionMediator = selectionMediator ?? throw new ArgumentNullException(nameof(selectionMediator));
 
-            this.Elements = this.InitializeElements();
+            this.Elements = this.InitializeElements().ToList();
 
             var iteration = this.SessionService.DefaultIteration;
             this.TotalOptions = iteration.Option.OrderBy(o => o.Name).ToList();
@@ -122,7 +124,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
 
             this.SessionService.OnSessionRefreshed += (sender, args) =>
             {
-                this.Elements = this.InitializeElements();
+                this.Elements = this.InitializeElements().ToList();
                 this.CreateTree(this.Elements);
             };
 
@@ -146,31 +148,19 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         }
 
         /// <summary>
-        /// Initialize <see cref="ElementBase"/> list
+        /// Create the <see cref="ElementBase"/> based on the current <see cref="Iteration"/>
         /// </summary>
-        private List<ElementBase> InitializeElements()
+        public IEnumerable<ElementBase> InitializeElements()
         {
-            var elements = new List<ElementBase>();
-            var iteration = this.SessionService.DefaultIteration;
-
-            if (iteration != null)
-            {
-                if (iteration.TopElement != null)
-                {
-                    elements.Add(iteration.TopElement);
-                }
-
-                iteration.Element.ForEach(e => elements.AddRange(e.ContainedElement));
-            }
-
-            return elements;
+            return this.SessionService.DefaultIteration.GetElementsOfIteration();
         }
 
         /// <summary>
         /// Creates the product tree
         /// </summary>
         /// <param name="productTreeElements">the product tree elements</param>
-        private void CreateTree(IEnumerable<ElementBase> productTreeElements)
+        /// <returns>the root node of the tree or null if the tree can not be created</returns>
+        public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements)
         {
             if (productTreeElements.Any())
             {
@@ -179,7 +169,10 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
                 this.RootNodeViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
                 this.CreateTreeRecursively(topElement, this.RootNodeViewModel, null);
                 this.RootNodeViewModel.OrderAllDescendantsByShortName();
+                return this.RootNodeViewModel;
             }
+
+            return null;
         }
 
         /// <summary>
@@ -211,6 +204,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
                 foreach (var child in childsOfElementBase)
                 {
                     var sceneObject = SceneObject.Create(child, this.SelectedOption, this.SelectedActualFiniteStates);
+                    
                     if (sceneObject is not null)
                     {
                         var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
@@ -228,7 +222,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         {
             var defaultOption = this.SessionService.DefaultIteration.DefaultOption;
             this.SelectedOption = this.TotalOptions.FirstOrDefault(x => x == option, defaultOption);
-            this.Elements = this.InitializeElements();
+            this.Elements = this.InitializeElements().ToList();
             this.CreateTree(this.Elements);
         }
 
@@ -239,7 +233,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         public void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates)
         {
             this.SelectedActualFiniteStates = selectedActiveFiniteStates;
-            this.Elements = this.InitializeElements();
+            this.Elements = this.InitializeElements().ToList();
             this.CreateTree(this.Elements);
         }
     }

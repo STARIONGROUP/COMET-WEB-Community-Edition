@@ -28,6 +28,9 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
+    using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
@@ -73,6 +76,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
             this.SessionService = sessionService;
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
+
+            CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
+            {
+                this.ValueSet.ValueSwitch = x.SelectedSwitch;
+            });
         }
 
         /// <summary>
@@ -105,10 +113,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             if (value is ParameterValueSetBase parameterValueSetBase)
             {
-                var clonedParameterValueSet = parameterValueSetBase.Clone(false);
-                var valueSetNewValue = value.ActualValue;
-                clonedParameterValueSet.Manual = valueSetNewValue;
-                await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { clonedParameterValueSet });
+                await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { parameterValueSetBase });
             }
         }
     }

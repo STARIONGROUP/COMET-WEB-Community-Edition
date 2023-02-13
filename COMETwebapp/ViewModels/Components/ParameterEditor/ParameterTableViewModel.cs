@@ -26,6 +26,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using CDP4Dal;
+
+    using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
 
     using DynamicData;

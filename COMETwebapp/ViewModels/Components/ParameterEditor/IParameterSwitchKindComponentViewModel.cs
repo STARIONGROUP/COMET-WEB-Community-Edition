@@ -32,9 +32,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     public interface IParameterSwitchKindComponentViewModel
     {
         /// <summary>
-        /// Iid of the associated ParametervalueSet
+        /// Gets or sets the <see cref="IValueSet"/>
         /// </summary>
-        Guid ParameterValueSetIid { get; set; }
+        IValueSet ValueSet { get; set; }
 
         /// <summary>
         /// Sets computed button active
@@ -45,6 +45,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Event for when the <see cref="ParameterSwitchKind"/> value has changed
         /// </summary>
         /// <param name="switchValue">the new value of the switch</param>
-        void OnSwitchChanged(ParameterSwitchKind switchValue);
+        Task OnSwitchChanged(ParameterSwitchKind switchValue);
     }
 }

@@ -25,7 +25,9 @@
 namespace COMETwebapp.ViewModels.Pages.Viewer
 {
     using CDP4Common.EngineeringModelData;
-    
+
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     /// <summary>
@@ -33,6 +35,16 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
     /// </summary>
     public interface IViewerViewModel
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ISessionService"/>
+        /// </summary>
+        ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// </summary>
+        ISelectionMediator SelectionMediator { get; set; }
+
         /// <summary>
         /// Gets or sets the selected <see cref="Option"/>
         /// </summary>
@@ -52,6 +64,34 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// List of the of <see cref="ActualFiniteStateList"/> 
         /// </summary>        
         List<ActualFiniteStateList> ListActualFiniteStateLists { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Selected <see cref="ActualFiniteState"/>
+        /// </summary>
+        List<ActualFiniteState> SelectedActualFiniteStates { get; }
+
+        /// <summary>
+        /// All <see cref="ElementBase"/> of the iteration
+        /// </summary>
+        List<ElementBase> Elements { get; set; }
+
+        /// <summary>
+        /// Create the <see cref="ElementBase"/> based on the current <see cref="Iteration"/>
+        /// </summary>
+        IEnumerable<ElementBase> InitializeElements();
+
+        /// <summary>
+        /// Creates the product tree
+        /// </summary>
+        /// <param name="productTreeElements">the product tree elements</param>
+        /// <returns>the root node of the tree or null if the tree can not be created</returns>
+        INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements);
+
+        /// <summary>
+        /// Event for when the selected <see cref="Option"/> has changed
+        /// </summary>
+        /// <param name="option">the new selected option</param>
+        void OnOptionChange(Option option);
 
         /// <summary>
         /// Event raised when an actual finite state has changed

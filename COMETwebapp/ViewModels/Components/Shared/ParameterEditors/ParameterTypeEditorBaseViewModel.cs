@@ -27,15 +27,17 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMETwebapp.Model;
 
-    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components;using ReactiveUI;
 
     /// <summary>
     /// Base ViewModel for the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> editors
     /// </summary>
     /// <typeparam name="T">the type of the <see cref="Parameter"/></typeparam>
-    public abstract class ParameterTypeEditorBaseViewModel<T> : IParameterEditorBaseViewModel<T> where T : ParameterType
+    public abstract class ParameterTypeEditorBaseViewModel<T> : ReactiveObject, IParameterEditorBaseViewModel<T> where T : ParameterType
     {
         /// <summary>
         /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/>
@@ -48,9 +50,18 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         public EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
+        /// Backing field for the <see cref="IsReadOnly"/> property
+        /// </summary>
+        private bool isReadOnly;
+
+        /// <summary>
         /// Gets or sets if the Editor is readonly.
         /// </summary>
-        public bool IsReadOnly { get; set; }
+        public bool IsReadOnly
+        {
+            get => this.isReadOnly;
+            set => this.RaiseAndSetIfChanged(ref this.isReadOnly, value);
+        }
 
         /// <summary>
         /// Gets or sets the value set of this <see cref="T"/>
@@ -67,10 +78,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
 
-            CDP4Dal.CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
+            CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
             {
                 this.ValueSet.ValueSwitch = x.SelectedSwitch;
-                this.IsReadOnly = x.SelectedSwitch is ParameterSwitchKind.REFERENCE;
+                this.IsReadOnly = x.SelectedSwitch == ParameterSwitchKind.REFERENCE;
             });
         }
 

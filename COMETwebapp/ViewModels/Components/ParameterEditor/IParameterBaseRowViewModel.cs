@@ -82,7 +82,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>a <see cref="IParameterTypeEditorSelectorViewModel{T}"/></returns>
         IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType;
+
+        /// <summary>
+        /// Creates a <see cref="IParameterSwitchKindComponentViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// </summary>
+        /// <returns>a <see cref="IParameterSwitchKindComponentViewModel"/></returns>
+        IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel();
     }
 }

@@ -104,18 +104,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.SessionService = sessionService;
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
             this.ParameterType = this.Parameter.ParameterType;
-            this.ParameterName = this.Parameter.ParameterType.Name;
-            this.OwnerName = this.Parameter.Owner.ShortName;
+            this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
+            this.OwnerName = this.Parameter.Owner is not null ? this.Parameter.Owner.ShortName : string.Empty;
             this.ModelCode = this.Parameter.ModelCode();
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
             this.ValueSet = valueSet;
-            this.Option = valueSet.ActualOption?.Name;
-            this.State = valueSet.ActualState?.Name;
+            this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
+            this.State = valueSet.ActualState is not null && valueSet.ActualState.Name is not null ? valueSet.ActualState?.Name : string.Empty;
             this.Switch = valueSet.ValueSwitch;
 
             CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
             {
                 this.Switch = x.SelectedSwitch;
+                this.ValueSet.ValueSwitch = x.SelectedSwitch;
             });
         }
 
@@ -123,9 +124,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
         /// <returns></returns>
-        public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType
+        public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType 
         {
             return new ParameterTypeEditorSelectorViewModel(this.SessionService,this.ParameterType, this.ValueSet) as IParameterTypeEditorSelectorViewModel<T>;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IParameterSwitchKindComponentViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// </summary>
+        /// <returns>a <see cref="IParameterSwitchKindComponentViewModel"/></returns>
+        public IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel()
+        {
+            return new ParameterSwitchKindComponentViewModel(this.SessionService, this.ValueSet);
         }
     }
 }

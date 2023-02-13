@@ -46,7 +46,8 @@ Copyright (c) 2023 RHEA System S.A.
                 <div class="col">
                     <h6>Filter on Parameter Type:</h6>
                     <div class="width-fit-content">
-                        <DxComboBox Data="@this.ViewModel.ParameterTypes.OrderBy(x=>x.Name)"
+                        <DxComboBox CssClass="parameter-filter"
+                                    Data="@this.ViewModel.ParameterTypes.OrderBy(x=>x.Name)"
                                     AllowUserInput="true"
                                     NullText="--Select--"
                                     Value="@this.ViewModel.SelectedParameterTypeFilter"
@@ -58,13 +59,14 @@ Copyright (c) 2023 RHEA System S.A.
                 @{
                     var iteration = this.ViewModel.SessionService.DefaultIteration;
 
-                    if (iteration != null && iteration.Option.ToList().Count > 1)
+                    if (iteration != null && iteration.Option.Any())
                     {
                         var options = iteration.Option.OrderBy(o => o.Name).ToList();
                         <div class="col">
                             <h6>Filter on Option:</h6>
                             <div class="width-fit-content">
-                                <DxComboBox Data="@options"
+                                <DxComboBox CssClass="option-filter"
+                                            Data="@options"
                                             AllowUserInput="true"
                                             Value="@this.ViewModel.SelectedOptionFilter"
                                             ValueChanged="@((Option option) => this.ViewModel.SelectedOptionFilter = option)"
@@ -78,7 +80,8 @@ Copyright (c) 2023 RHEA System S.A.
 
                         <div class="col">
                             <h6>Filter on State:</h6>
-                            <DxComboBox Data="@states"
+                            <DxComboBox CssClass="state-filter"
+                                        Data="@states"
                                         AllowUserInput="true"
                                         NullText="--Select--"
                                         Value="@this.ViewModel.SelectedStateFilter"

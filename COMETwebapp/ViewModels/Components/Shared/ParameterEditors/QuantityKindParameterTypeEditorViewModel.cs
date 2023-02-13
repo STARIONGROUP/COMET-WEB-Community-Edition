@@ -60,9 +60,20 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 modifiedValueArray[0] = valueString;
 
                 var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
-                sendingParameterValueSetBase.Manual = modifiedValueArray;
                 sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
-
+                
+                switch (this.ValueSet.ValueSwitch)
+                {
+                    case ParameterSwitchKind.MANUAL:
+                        sendingParameterValueSetBase.Manual = modifiedValueArray;
+                        break;
+                    case ParameterSwitchKind.COMPUTED:
+                        sendingParameterValueSetBase.Computed = modifiedValueArray;
+                        break;
+                    default:
+                        throw new NotImplementedException($"The value of the {this.ValueSet} can't be manually changed with the switch on {ParameterSwitchKind.REFERENCE}");
+                }
+                
                 await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
             }
         }

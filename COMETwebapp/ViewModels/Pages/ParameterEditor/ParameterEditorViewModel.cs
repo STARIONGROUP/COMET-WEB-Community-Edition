@@ -67,7 +67,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
-        public bool IsOwnedParameters { get; set; } = true;
+        public bool IsOwnedParameters { get; set; } 
 
         /// <summary>
         /// Backing field for the <see cref="SelectedElementFilter"/> property
@@ -148,6 +148,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         {
             this.Elements = this.SessionService.DefaultIteration.GetElementsOfIteration().ToList();
             this.SelectedOptionFilter = this.SessionService.DefaultIteration.DefaultOption;
+
             this.ParameterTypes = this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList();
             this.ApplyFilters(this.Elements);
         }
@@ -173,7 +174,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements)
+        private IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements)
         {
             if (this.SelectedElementFilter is null)
             {
@@ -188,7 +189,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements)
+        private IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements)
         {
             var filteredElements = new List<ElementBase>();
 
@@ -227,17 +228,17 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements)
+        private IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements)
         {
             if (this.SelectedOptionFilter is null)
             {
                 return elements;
             }
-
-            var nestedElements = this.IterationService.GetNestedElementsByOption(this.SessionService.DefaultIteration, this.SelectedOptionFilter.Iid);
+            
+            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(this.selectedOptionFilterFilter);
 
             var associatedElements = new List<ElementUsage>();
-            nestedElements.ForEach(element => associatedElements.AddRange(element.ElementUsage));
+            nestedElements.ToList().ForEach(element => associatedElements.AddRange(element.ElementUsage));
 
             associatedElements = associatedElements.Distinct().ToList();
 
@@ -263,7 +264,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements)
+        private IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements)
         {
             if (this.SelectedStateFilter is null)
             {
@@ -278,47 +279,50 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements)
+        private IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements)
         {
             if (!this.IsOwnedParameters)
             {
                 return elements;
             }
 
-            //var iteration = this.SessionService.DefaultIteration;
+            var filteredElements = new List<ElementBase>();
+            var domainOfExpertise = this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration);
 
-            //if (iteration.TopElement != null && iteration.TopElement.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-            //{
-            //    this.Elements.Add(iteration.TopElement);
-            //}
+            foreach (var element in elements)
+            {
+                if (element is ElementDefinition elementDefinition)
+                {
+                    if (elementDefinition.Parameter.Any(p => p.Owner == domainOfExpertise))
+                    {
+                        filteredElements.Add(elementDefinition);
+                    }
+                }
+                else if (element is ElementUsage elementUsage)
+                {
+                    if (!elementUsage.ParameterOverride.Any())
+                    {
+                        if (elementUsage.ElementDefinition.Parameter.Any(p => p.Owner == domainOfExpertise))
+                        {
+                            filteredElements.Add(elementUsage);
+                        }
+                    }
+                    else
+                    {
+                        if (elementUsage.ParameterOverride.Any(p => p.Owner == domainOfExpertise))
+                        {
+                            filteredElements.Add(elementUsage);
+                        }
 
-            //iteration.Element.ForEach(e =>
-            //{
-            //    e.ContainedElement.ForEach(containedElement =>
-            //    {
-            //        if (containedElement.ParameterOverride.Count == 0)
-            //        {
-            //            if (containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-            //            {
-            //                this.Elements.Add(containedElement);
-            //            }
-            //        }
-            //        else
-            //        {
-            //            if (containedElement.ParameterOverride.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-            //            {
-            //                this.Elements.Add(containedElement);
-            //            }
+                        if (elementUsage.ElementDefinition.Parameter.Any(p => p.Owner == domainOfExpertise) && !filteredElements.Contains(elementUsage))
+                        {
+                            filteredElements.Add(elementUsage);
+                        }
+                    }
+                }
+            }
 
-            //            if (!this.Elements.Contains(containedElement) && containedElement.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0)
-            //            {
-            //                this.Elements.Add(containedElement);
-            //            }
-            //        }
-            //    });
-            //});
-
-            return elements;
+            return filteredElements;
         }
     }
 }

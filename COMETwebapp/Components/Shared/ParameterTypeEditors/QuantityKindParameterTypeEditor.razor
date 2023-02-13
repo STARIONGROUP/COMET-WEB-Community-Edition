@@ -1,10 +1,7 @@
-﻿<div class="parameter-row">
-    <p>@this.ViewModel.ParameterType.Name</p>
-    <DxTextBox InputCssClass="quantity-kind-parameter"
-               Text="@this.ViewModel.ValueSet.ActualValue.First()"
-               BindValueMode="BindValueMode.OnInput"
-               CssClass="parameter-input"
-               @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))">
-    </DxTextBox>
-    <p>@this.ViewModel.ParameterType.DefaultScale.ShortName</p>
-</div>
+﻿<DxTextBox InputCssClass="quantity-kind-parameter"
+           Text="@this.ViewModel.ValueSet.ActualValue.First()"
+           BindValueMode="BindValueMode.OnInput"
+           CssClass="parameter-input"
+           @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+           ReadOnly="this.ViewModel.IsReadOnly">
+</DxTextBox>

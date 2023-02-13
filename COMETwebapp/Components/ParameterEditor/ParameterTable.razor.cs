@@ -73,16 +73,9 @@ namespace COMETwebapp.Components.ParameterEditor
 
             if (firstRender)
             {
-                //this.ViewModel.InitializeViewModel(this.Elements, this.OptionSelected, this.StateSelected, this.IsOwnedParameters);
+                this.ViewModel.InitializeViewModel(this.Elements.Items);
                 this.WhenAnyValue(x => x.ViewModel.Rows.CountChanged).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
-        }
-
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-            this.ViewModel.InitializeViewModel(this.Elements.Items);
-            this.StateHasChanged();
         }
     }
 }

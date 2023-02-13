@@ -31,6 +31,8 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Support class for the <see cref="QuantityKindParameterTypeEditor"/>
     /// </summary>
@@ -48,6 +50,35 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         [Parameter]
         public EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_=> this.StateHasChanged());
+            }
+        }
+
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
         protected override void OnParametersSet()
         {
             base.OnParametersSet();

@@ -24,13 +24,17 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     
     using CDP4Dal;
 
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Model;
-    
+    using COMETwebapp.Services.SessionManagement;
+
+    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
@@ -39,9 +43,15 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     public class ParameterSwitchKindComponentViewModel : ReactiveObject, IParameterSwitchKindComponentViewModel
     {
         /// <summary>
-        /// Iid of the associated ParametervalueSet
+        /// Gets or sets the <see cref="ISessionService"/>
         /// </summary>
-        public Guid ParameterValueSetIid { get; set; }
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IValueSet"/>
+        /// </summary>
+        public IValueSet ValueSet { get; set; }
 
         /// <summary>
         /// Sets computed button active
@@ -49,13 +59,32 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ParameterSwitchKind SwitchValue { get; set; }
 
         /// <summary>
+        /// Creates a new instance of type <see cref="ParameterSwitchKindComponentViewModel"/>
+        /// </summary>
+        /// <param name="sessionService">the <see cref="ISessionService"/></param>
+        /// <param name="valueSet">the <see cref="IValueSet"/></param>
+        public ParameterSwitchKindComponentViewModel(ISessionService sessionService, IValueSet valueSet)
+        {
+            this.SessionService = sessionService;
+            this.ValueSet = valueSet;
+        }
+
+        /// <summary>
         /// Event for when the <see cref="ParameterSwitchKind"/> value has changed
         /// </summary>
         /// <param name="switchValue">the new value of the switch</param>
-        public void OnSwitchChanged(ParameterSwitchKind switchValue)
+        public async Task OnSwitchChanged(ParameterSwitchKind switchValue)
         {
             this.SwitchValue = switchValue;
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, switchValue, false));
+
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            {
+                var clonedParameterValueSet = parameterValueSetBase.Clone(false);
+                clonedParameterValueSet.ValueSwitch = switchValue;
+                await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { clonedParameterValueSet });
+
+                CDPMessageBus.Current.SendMessage(new SwitchEvent(parameterValueSetBase.Iid, switchValue, false));
+            }
         }
     }
 }
