@@ -97,7 +97,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 SystemNodes = new List<SystemNode>()
             };
 
-            this.viewModel = new SystemRepresentationPageViewModel(this.systemTreeViewModel, null, iterationService.Object);
+            this.viewModel = new SystemRepresentationPageViewModel(this.systemTreeViewModel, null, iterationService.Object, sessionAnchor);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -235,7 +235,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 Assert.That(filterAndDomainComboBox.Count, Is.EqualTo(2));
             });
 
-            this.viewModel.OnOptionFilterChange("Option1", this.sessionAnchor);
+            this.viewModel.OnOptionFilterChange("Option1");
 
             Assert.Multiple(() =>
             {
@@ -243,7 +243,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.Count, Is.EqualTo(1));
             });
 
-            this.viewModel.OnDomainFilterChange(this.domain.Name, this.sessionAnchor);
+            this.viewModel.OnDomainFilterChange(this.domain.Name);
 
             Assert.Multiple(() =>
             {

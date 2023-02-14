@@ -25,7 +25,6 @@
 namespace COMETwebapp.Pages.SystemRepresentation
 {
     using System.Threading.Tasks;
-    using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components;
 
@@ -49,7 +48,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.ViewModel.OnInitializedAsync(this.SessionAnchor);
+            this.ViewModel.OnInitializedAsync();
             return base.OnInitializedAsync();
         }
 
@@ -64,45 +63,12 @@ namespace COMETwebapp.Pages.SystemRepresentation
         public string? DomainSelected { get; set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
-        /// </summary>
-        [Inject]
-        public ISessionAnchor SessionAnchor { get; set; }
-
-        /// <summary>
-        /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
-        /// that would cause an infinite render loop.
-        /// </summary>
-        /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
-        /// on this component instance; otherwise <c>false</c>.
-        /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-        /// <remarks>
-        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
-        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
-        /// once.
-        /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await base.OnAfterRenderAsync(firstRender);
-
-            if (firstRender)
-            {
-                this.ViewModel.OnInitializedAsync(this.SessionAnchor);
-                this.StateHasChanged();
-            }
-        }
-
-        /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="option">Name of the Option selected</param>
         public void OnOptionFilterChange(string? option)
         {
-            this.ViewModel.OnOptionFilterChange(option, this.SessionAnchor);
+            this.ViewModel.OnOptionFilterChange(option);
         }
 
         /// <summary>
@@ -111,7 +77,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// <param name="domain">Name of the Option selected</param>
         public void OnDomainFilterChange(string? domain)
         {
-            this.ViewModel.OnDomainFilterChange(domain, this.SessionAnchor);
+            this.ViewModel.OnDomainFilterChange(domain);
         }
     }
 }

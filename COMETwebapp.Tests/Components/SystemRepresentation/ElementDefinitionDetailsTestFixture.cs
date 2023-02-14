@@ -76,12 +76,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.session = new Mock<ISession>();
             this.sessionAnchor = new SessionAnchor() { Session = this.session.Object };
 
-            this.context.Services.AddBlazorStrap();
-            this.context.Services.AddAntDesign();
-            this.context.Services.AddSingleton(this.sessionAnchor);
-            this.context.Services.AddDevExpressBlazor();
             this.context.ConfigureDevExpressBlazor();
-            this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);

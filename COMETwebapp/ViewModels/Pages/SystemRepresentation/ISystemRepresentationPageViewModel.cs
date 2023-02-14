@@ -57,13 +57,13 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="option">Name of the Option selected</param>
-        void OnOptionFilterChange(string? option, ISessionAnchor session);
+        void OnOptionFilterChange(string? option);
 
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="domain">the selected domain</param>
-        void OnDomainFilterChange(string? domain, ISessionAnchor session);
+        void OnDomainFilterChange(string? domain);
         
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its
@@ -73,6 +73,6 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// </summary>
         /// <param name="session">The <see cref="ISessionAnchor" /></param>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        void OnInitializedAsync(ISessionAnchor session);
+        void OnInitializedAsync();
     }
 }

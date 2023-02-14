@@ -74,6 +74,11 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         public SystemNode? RootNode { get; set; }
 
         /// <summary>
+        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// </summary>
+        private readonly ISessionAnchor SessionAnchor;
+
+        /// <summary>
         ///     The <see cref="IIterationService" />
         /// </summary>
         private readonly IIterationService iterationService;
@@ -83,9 +88,10 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// </summary>
         /// <param name="elementDefinitionDetailsViewModel">The <see cref="IElementDefinitionDetailsViewModel" /></param>
         /// <param name="iterationService">The <see cref="IIterationService" /></param>
-        public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel, IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel, IIterationService iterationService)
+        public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel, IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel, IIterationService iterationService, ISessionAnchor sessionAnchor)
         {
             this.iterationService = iterationService;
+            this.SessionAnchor = sessionAnchor;
 
             this.SystemTreeViewModel = new SystemTreeViewModel
             {
@@ -108,9 +114,9 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         /// Initialize <see cref="ElementBase"> list
         /// </summary>
-        private void InitializeElements(ISessionAnchor session)
+        private void InitializeElements()
         {
-            var iteration = session?.OpenIteration;
+            var iteration = this.SessionAnchor?.OpenIteration;
             if (iteration != null)
             {
                 if (iteration.TopElement != null)
@@ -125,15 +131,15 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="option">Name of the selected Option</param>
-        public void OnOptionFilterChange(string? option, ISessionAnchor session)
+        public void OnOptionFilterChange(string? option)
         {
             this.Elements.Clear();
 
-            var iteration = session?.OpenIteration;
+            var iteration = this.SessionAnchor?.OpenIteration;
             var totalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
             this.OptionSelected = totalOptions?.FirstOrDefault(o => o.Name == option);
             
-            var nestedElements = this.iterationService.GetNestedElementsByOption(session.OpenIteration, this.OptionSelected.Iid);
+            var nestedElements = this.iterationService.GetNestedElementsByOption(this.SessionAnchor.OpenIteration, this.OptionSelected.Iid);
       
             var associatedElements = new List<ElementUsage>();
             nestedElements.ForEach(element =>
@@ -152,7 +158,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             });
             this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
 
-            this.InitializeElements(session);
+            this.InitializeElements();
             this.CreateElementUsages(this.Elements);
             this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
@@ -162,14 +168,14 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="domain">Name of the selected Domain</param>
-        public void OnDomainFilterChange(string? domain, ISessionAnchor session)
+        public void OnDomainFilterChange(string? domain)
         {
             if (domain != "All")
             {
                 this.DomainSelected = this.TotalDomains.FirstOrDefault(d => d.Name == domain);
             }
             this.Elements.Clear();
-            this.InitializeElements(session);
+            this.InitializeElements();
             this.CreateElementUsages(this.Elements);
             this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
@@ -227,27 +233,26 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         ///     Override this method if you will perform an asynchronous operation and
         ///     want the component to refresh when that operation is completed.
         /// </summary>
-        /// <param name="session">The <see cref="ISessionAnchor" /></param>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync(ISessionAnchor session)
+        public void OnInitializedAsync()
         {
             this.Elements.Clear();
-            this.InitializeElements(session);
+            this.InitializeElements();
 
             this.Options = new List<string>();
             this.Domains = new List<string> { "All" };
 
-            var engineeringModelSetup = session.GetSiteDirectory().Model.Find(m => m.Name.Equals(session.CurrentEngineeringModelName));
-            this.TotalDomains = session.GetModelDomains(engineeringModelSetup).ToList();
+            var engineeringModelSetup = this.SessionAnchor.GetSiteDirectory().Model.Find(m => m.Name.Equals(this.SessionAnchor.CurrentEngineeringModelName));
+            this.TotalDomains = this.SessionAnchor.GetModelDomains(engineeringModelSetup).ToList();
             this.Domains.AddRange(this.TotalDomains.Select(d => d.Name));
 
-            var iteration = session?.OpenIteration;
+            var iteration = this.SessionAnchor?.OpenIteration;
             iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => this.Options.Add(o.Name));
 
-            session.OnSessionRefreshed += (sender, args) =>
+            this.SessionAnchor.OnSessionRefreshed += (sender, args) =>
             {
                 this.Elements.Clear();
-                this.InitializeElements(session);
+                this.InitializeElements();
             };
         }
 

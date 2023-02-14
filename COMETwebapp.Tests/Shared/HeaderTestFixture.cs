@@ -63,8 +63,8 @@ namespace COMETwebapp.Tests.Shared
             ctx.Services.AddSingleton<ISessionAnchor>(this.sessionAnchor.Object);
             ctx.Services.AddSingleton<IEnvironmentInfo>(this.environmentInfo.Object);
 
-            ctx.Services.AddDevExpressBlazor();
             ctx.ConfigureDevExpressBlazor();
+            
             var authContext = ctx.AddTestAuthorization();
             authContext.SetNotAuthorized();
             
