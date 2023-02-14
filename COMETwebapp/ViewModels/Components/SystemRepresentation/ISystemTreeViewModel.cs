@@ -37,11 +37,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         List<SystemNode> SystemNodes { get; }
 
         /// <summary>
-        ///     The selected <see cref="SystemNode"/>
-        /// </summary>
-        SystemNode SelectedSystemNode { get; set; }
-
-        /// <summary>
         ///     The <see cref="EventCallback" /> to call on node selection
         /// </summary>
         public EventCallback<SystemNode> OnClick { get; set; }
