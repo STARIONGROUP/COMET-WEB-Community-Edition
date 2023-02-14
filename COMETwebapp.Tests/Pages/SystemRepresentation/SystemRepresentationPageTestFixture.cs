@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
     using CDP4Common.SiteDirectoryData;
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Pages.SystemRepresentation;
     using COMETwebapp.SessionManagement;
@@ -38,6 +39,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using DevExpress.Blazor;
+    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
     using Moq;
     using NUnit.Framework;
@@ -54,6 +56,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
         private ISystemRepresentationPageViewModel viewModel;
         private ISystemTreeViewModel systemTreeViewModel;
         private Mock<ISession> session;
+        private Mock<IIterationService> iterationService;
         private ISessionAnchor sessionAnchor;
         private Assembler assembler;
         private Participant participant;
@@ -74,7 +77,11 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
             
             this.session = new Mock<ISession>();
             this.sessionAnchor = new SessionAnchor() { Session = this.session.Object };
-            
+
+            this.iterationService = new Mock<IIterationService>();
+
+            this.iterationService.Setup(x => x.GetNestedElementsByOption(It.IsAny<Iteration>(), It.IsAny<Guid>())).Returns(new List<NestedElement>());
+
             this.context.Services.AddBlazorStrap();
             this.context.Services.AddAntDesign();
             this.context.Services.AddSingleton(this.sessionAnchor);
@@ -90,7 +97,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 SystemNodes = new List<SystemNode>()
             };
 
-            this.viewModel = new SystemRepresentationPageViewModel(this.systemTreeViewModel, null);
+            this.viewModel = new SystemRepresentationPageViewModel(this.systemTreeViewModel, null, iterationService.Object);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -118,6 +125,25 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
 
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
+                Element =
+                {
+                    new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                    {
+                        Name = "TestElement",
+                        Owner = this.domain,
+                        ShortName = "TE",
+                        ContainedElement = { new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri) {
+                            Owner = this.domain,
+                            ShortName = "TEU",
+                            ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                            {
+                                Name = "TestElementUsage",
+                                Owner = this.domain,
+                                ShortName = "TEU"
+                            }
+                        } }
+                    }
+                },
                 Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
                     EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -144,9 +170,26 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 DomainFileStore =
                 {
                     new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
+                },
+                Option =
+                {
+                    new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                    {
+                        Name = "TestOption",
+                        ShortName = "TO"
+                    }
                 }
             };
-            
+
+            var option_1 = new Option(Guid.NewGuid(), this.assembler.Cache, uri)
+            {
+                ShortName = "OPT_1",
+                Name = "Option1"
+            };
+
+            this.iteration.Option.Add(option_1);
+            this.iteration.DefaultOption = option_1;
+
             this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
             this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
@@ -178,25 +221,34 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 Assert.That(renderer.Markup, Does.Contain("You have to open a model first"));
             });
 
-            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>()
-            {
-                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant)}
-            });
             this.sessionAnchor.IsSessionOpen = true;
             this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
             this.sessionAnchor.CurrentEngineeringModelName = "model";
 
             renderer.Render();
 
-            var filterComboBox = renderer.FindComponents<DxComboBox<string, string>>();
-            var domainComboBox = renderer.FindComponents<DxComboBox<string, DomainOfExpertise>>();
+            var filterAndDomainComboBox = renderer.FindComponents<DxComboBox<string, string>>();
 
             Assert.Multiple(() =>
             {
-                Assert.That(filterComboBox, Is.Not.Null);
-                Assert.That(domainComboBox, Is.Not.Null);
-                Assert.That(filterComboBox.Count, Is.EqualTo(1));
-                Assert.That(domainComboBox.Count, Is.EqualTo(1));
+                Assert.That(filterAndDomainComboBox, Is.Not.Null);
+                Assert.That(filterAndDomainComboBox.Count, Is.EqualTo(2));
+            });
+
+            this.viewModel.OnOptionFilterChange("Option1", this.sessionAnchor);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.Count, Is.EqualTo(1));
+            });
+
+            this.viewModel.OnDomainFilterChange(this.domain.Name, this.sessionAnchor);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.Count, Is.EqualTo(1));
             });
         }
     }

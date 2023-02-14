@@ -56,10 +56,11 @@ namespace COMETwebapp.Components.SystemRepresentation
         ///     want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override async Task OnInitializedAsync()
+        protected override Task OnInitializedAsync()
         {
             this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedSystemNode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            return base.OnInitializedAsync();
         }
     }
 }

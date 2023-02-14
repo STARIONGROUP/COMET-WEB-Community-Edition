@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
     using COMETwebapp.Components.SystemRepresentation;
     using ReactiveUI;
     using Microsoft.AspNetCore.Components;
+    using COMETwebapp.IterationServices;
 
     /// <summary>
     ///     View model for the <see cref="ProjectPage" /> page
@@ -43,9 +44,9 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
 
         /// <summary>
-        /// Name of the option selected
+        /// The selected option
         /// </summary>
-        public string? OptionSelected { get; set; }
+        public Option? OptionSelected { get; set; }
 
         /// <summary>
         /// Name of the domain selected
@@ -63,16 +64,29 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         public List<string>? Domains { get; set; }
 
         /// <summary>
+        /// Gets or sets the total of domains in this <see cref="Iteration"/>
+        /// </summary>
+        public List<DomainOfExpertise>? TotalDomains { get; private set; }
+
+        /// <summary>
         /// Represents the RootNode of the tree
         /// </summary>
         public SystemNode? RootNode { get; set; }
 
         /// <summary>
+        ///     The <see cref="IIterationService" />
+        /// </summary>
+        private readonly IIterationService iterationService;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="SystemRepresentationPageViewModel" /> class.
         /// </summary>
         /// <param name="elementDefinitionDetailsViewModel">The <see cref="IElementDefinitionDetailsViewModel" /></param>
-        public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel, IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel)
+        /// <param name="iterationService">The <see cref="IIterationService" /></param>
+        public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel, IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel, IIterationService iterationService)
         {
+            this.iterationService = iterationService;
+
             this.SystemTreeViewModel = new SystemTreeViewModel
             {
                 OnClick = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
@@ -110,11 +124,34 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the Option selected</param>
+        /// <param name="option">Name of the selected Option</param>
         public void OnOptionFilterChange(string? option, ISessionAnchor session)
         {
-            this.OptionSelected = option;
             this.Elements.Clear();
+
+            var iteration = session?.OpenIteration;
+            var totalOptions = iteration?.Option.OrderBy(o => o.Name).ToList();
+            this.OptionSelected = totalOptions?.FirstOrDefault(o => o.Name == option);
+            
+            var nestedElements = this.iterationService.GetNestedElementsByOption(session.OpenIteration, this.OptionSelected.Iid);
+      
+            var associatedElements = new List<ElementUsage>();
+            nestedElements.ForEach(element =>
+            {
+                associatedElements.AddRange(element.ElementUsage);
+            });
+            associatedElements = associatedElements.Distinct().ToList();
+
+            var elementsToRemove = new List<ElementBase>();
+            this.Elements.ForEach(e =>
+            {
+                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
+                {
+                    elementsToRemove.Add(e);
+                }
+            });
+            this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
+
             this.InitializeElements(session);
             this.CreateElementUsages(this.Elements);
             this.SystemTreeViewModel.SystemNodes.Clear();
@@ -124,16 +161,19 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the Option selected</param>
-        public void OnDomainFilterChange(DomainOfExpertise? domain, ISessionAnchor session)
+        /// <param name="domain">Name of the selected Domain</param>
+        public void OnDomainFilterChange(string? domain, ISessionAnchor session)
         {
-            this.DomainSelected = domain;
+            if (domain != "All")
+            {
+                this.DomainSelected = this.TotalDomains.FirstOrDefault(d => d.Name == domain);
+            }
             this.Elements.Clear();
-            session.SwitchDomain(domain);
             this.InitializeElements(session);
             this.CreateElementUsages(this.Elements);
             this.SystemTreeViewModel.SystemNodes.Clear();
             this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
+            this.DomainSelected = null;
         }
         
         /// <summary>
@@ -160,11 +200,11 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
 
             if (elementBase is ElementDefinition elementDefinition)
             {
-                childsOfElementBase = elementDefinition.ContainedElement;
+                childsOfElementBase = DomainSelected != null ? elementDefinition.ContainedElement.Where(e => e.Owner == this.DomainSelected).ToList() : elementDefinition.ContainedElement;
             }
             else if (elementBase is ElementUsage elementUsage)
             {
-                childsOfElementBase = elementUsage.ElementDefinition.ContainedElement;
+                childsOfElementBase = DomainSelected != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == this.DomainSelected).ToList() : elementUsage.ElementDefinition.ContainedElement;
             }
 
             if (childsOfElementBase is not null)
@@ -195,11 +235,11 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             this.InitializeElements(session);
 
             this.Options = new List<string>();
-            this.Domains = new List<string>();
+            this.Domains = new List<string> { "All" };
 
             var engineeringModelSetup = session.GetSiteDirectory().Model.Find(m => m.Name.Equals(session.CurrentEngineeringModelName));
-            var domains = session.GetModelDomains(engineeringModelSetup);
-            this.Domains.AddRange(domains.Select(d => d.Name));
+            this.TotalDomains = session.GetModelDomains(engineeringModelSetup).ToList();
+            this.Domains.AddRange(this.TotalDomains.Select(d => d.Name));
 
             var iteration = session?.OpenIteration;
             iteration?.Option.OrderBy(o => o.Name).ToList().ForEach(o => this.Options.Add(o.Name));

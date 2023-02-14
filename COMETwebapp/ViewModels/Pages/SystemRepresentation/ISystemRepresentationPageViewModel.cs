@@ -63,7 +63,7 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="domain">the selected domain</param>
-        void OnDomainFilterChange(DomainOfExpertise? domain, ISessionAnchor session);
+        void OnDomainFilterChange(string? domain, ISessionAnchor session);
         
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its

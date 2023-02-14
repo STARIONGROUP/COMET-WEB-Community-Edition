@@ -25,15 +25,9 @@
 namespace COMETwebapp.Pages.SystemRepresentation
 {
     using System.Threading.Tasks;
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-    using COMETwebapp.Components.SystemRepresentation;
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.Model;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components;
-    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="SystemRepresentation"/>
@@ -67,7 +61,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// <summary>
         /// Name of the domain selected
         /// </summary>
-        public DomainOfExpertise DomainSelected { get; set; }
+        public string? DomainSelected { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
@@ -115,7 +109,7 @@ namespace COMETwebapp.Pages.SystemRepresentation
         /// Updates Elements list when a filter for option is selected
         /// </summary>
         /// <param name="domain">Name of the Option selected</param>
-        public void OnDomainFilterChange(DomainOfExpertise? domain)
+        public void OnDomainFilterChange(string? domain)
         {
             this.ViewModel.OnDomainFilterChange(domain, this.SessionAnchor);
         }

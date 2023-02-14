@@ -42,7 +42,7 @@ Copyright (c) 2023 RHEA System S.A.
                                 AllowUserInput="true"
                                 NullText="--Select--"
                                 Value="this.DomainSelected"
-                                ValueChanged="@((DomainOfExpertise domain) => OnDomainFilterChange(domain))"
+                                ValueChanged="@((string domain) => OnDomainFilterChange(domain))"
                                 FilteringMode="DataGridFilteringMode.Contains" />
                 </div>
             </div>
