@@ -24,11 +24,14 @@
 
 namespace COMETwebapp.Tests.Components.ParameterEditor
 {
+    using System.Threading.Tasks;
+
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -57,12 +60,14 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context.Services.AddDevExpressBlazor();
             this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
 
-            var viewModel = new Mock<IParameterSwitchKindComponentViewModel>();
-            this.context.Services.AddSingleton(viewModel.Object);
+            var sessionMock = new Mock<ISessionService>();
+
+            var viewModel = new ParameterSwitchKindComponentViewModel(sessionMock.Object, null);
 
             this.renderedComponent = this.context.RenderComponent<ParameterSwitchKindComponent>(parameters =>
             {
                 parameters.Add(p => p.SwitchValue, ParameterSwitchKind.MANUAL);
+                parameters.Add(p => p.ViewModel, viewModel);
             });
 
             this.parameterSwitch = this.renderedComponent.Instance;
@@ -77,21 +82,15 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         [Test]
         public void VerifyComponent()
         {
+            var combo = this.renderedComponent.FindComponent<DxComboBox<ParameterSwitchKind, ParameterSwitchKind>>();
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.parameterSwitch, Is.Not.Null);
                 Assert.That(this.renderedComponent, Is.Not.Null);
+                Assert.That(combo, Is.Not.Null);
+                Assert.That(combo.Instance.Value, Is.EqualTo(ParameterSwitchKind.MANUAL));
             });
-        }
-
-        [Test]
-        public void VerifyThatSwitchValueCanBeChanged()
-        {
-            var switchValue = this.parameterSwitch.ViewModel.SwitchValue;
-            var combo = this.renderedComponent.FindComponent<DxComboBox<ParameterSwitchKind, ParameterSwitchKind>>();
-            combo.Instance.InvokeEvent(new EventCallback<ParameterSwitchKind>(), ParameterSwitchKind.MANUAL);
-            var newSwitchValue = this.parameterSwitch.ViewModel.SwitchValue;
-
         }
     }
 }

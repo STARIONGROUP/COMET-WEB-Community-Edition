@@ -42,10 +42,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
 
     using NUnit.Framework;
 
-    using ElementDefinition = CDP4Common.EngineeringModelData.ElementDefinition;
-    using ElementUsage = CDP4Common.EngineeringModelData.ElementUsage;
-    using Iteration = CDP4Common.EngineeringModelData.Iteration;
-    using Option = CDP4Common.EngineeringModelData.Option;
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -62,67 +58,67 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             var uri = new Uri("http://localhost");
 
-            var elementUsage1 = new ElementUsage() { Iid = Guid.NewGuid(), Name = "element1" };
-            var elementUsage2 = new ElementUsage() { Iid = Guid.NewGuid(), Name = "element2" };
-            var elementUsage3 = new ElementUsage() { Iid = Guid.NewGuid(), Name = "element3" };
-            var elementUsage4 = new ElementUsage() { Iid = Guid.NewGuid(), Name = "element4" };
+            var elementUsage1 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element1" };
+            var elementUsage2 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element2" };
+            var elementUsage3 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element3" };
+            var elementUsage4 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element4" };
 
-            var elementDefinition1 = new ElementDefinition()
+            var elementDefinition1 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
                 Name = "element1",
                 ContainedElement = { elementUsage1 },
                 Parameter =
                 {
-                    new Parameter()
+                    new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new TextParameterType(){ Name = "textParamType" }
+                        ParameterType = new TextParameterType { Name = "textParamType" }
                     }
                 }
             };
 
-            var elementDefinition2 = new ElementDefinition()
+            var elementDefinition2 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
                 Name = "element2",
                 ContainedElement = { elementUsage2 },
                 Parameter =
                 {
-                    new Parameter()
+                    new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new EnumerationParameterType(){ Name = "enumParamType" }
+                        ParameterType = new EnumerationParameterType { Name = "enumParamType" }
                     }
                 }
             };
 
-            var elementDefinition3 = new ElementDefinition()
+            var elementDefinition3 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
                 Name = "element3",
                 ContainedElement = { elementUsage3 },
                 Parameter =
                 {
-                    new Parameter()
+                    new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new CompoundParameterType(){ Name = "compoundParamType" }
+                        ParameterType = new CompoundParameterType { Name = "compoundParamType" }
                     }
                 }
             };
 
-            var elementDefinition4 = new ElementDefinition()
+            var elementDefinition4 = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
                 Name = "element4",
                 ContainedElement = { elementUsage4 },
                 Parameter =
                 {
-                    new Parameter()
+                    new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new BooleanParameterType(){ Name = "booleanParamType" }
+                        ParameterType = new BooleanParameterType { Name = "booleanParamType" }
                     }
                 }
             };
@@ -136,19 +132,12 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 Name = "topElement",
-                ContainedElement =
-                {
-                    elementDefinition1.ContainedElement[0],
-                    elementDefinition2.ContainedElement[0],
-                    elementDefinition3.ContainedElement[0],
-                    elementDefinition4.ContainedElement[0],
-                },
                 Parameter =
                 {
-                    new Parameter()
+                    new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new TextParameterType() {Name = "textParamType"}
+                        ParameterType = new TextParameterType {Name = "textParamType"}
                     }
                 }
             };
@@ -206,6 +195,50 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             });
 
             this.viewModel.InitializeViewModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Elements, Is.Not.Null);
+                Assert.That(this.viewModel.Elements, Has.Count.EqualTo(5));
+            });
+        }
+
+        [Test]
+        public void VerifyApplyFilters()
+        {
+            this.viewModel.InitializeViewModel();
+            var firstElement = this.viewModel.Elements.First();
+
+            this.viewModel.SelectedOptionFilter = null;
+            this.viewModel.SelectedParameterTypeFilter = null;
+            this.viewModel.SelectedStateFilter = null;
+
+            this.viewModel.SelectedElementFilter = firstElement;
+            this.viewModel.ApplyFilters(this.viewModel.Elements);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.FilteredElements.Items.Contains(firstElement), Is.True);
+            });
+
+            this.viewModel.SelectedElementFilter = null;
+            this.viewModel.SelectedParameterTypeFilter = new TextParameterType() { Name = "textParamType" };
+            this.viewModel.ApplyFilters(this.viewModel.Elements);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(2));
+            });
+
+            this.viewModel.SelectedParameterTypeFilter = null;
+            this.viewModel.SelectedOptionFilter = this.viewModel.SessionService.DefaultIteration.DefaultOption;
+            this.viewModel.ApplyFilters(this.viewModel.Elements);
+            
+            Assert.Multiple((() =>
+            {
+                Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(1));
+            }));
         }
     }
 }

@@ -202,18 +202,18 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             {
                 if (element is ElementDefinition elementDefinition)
                 {
-                    if (elementDefinition.Parameter.Any(p => p.ParameterType == this.SelectedParameterTypeFilter))
+                    if (elementDefinition.Parameter.Any(p => p.ParameterType.Name == this.SelectedParameterTypeFilter.Name))
                     {
                         filteredElements.Add(elementDefinition);
                     }
                 }
                 else if (element is ElementUsage elementUsage)
                 {
-                    if (elementUsage.ElementDefinition.Parameter.Any(p => p.ParameterType == this.SelectedParameterTypeFilter))
+                    if (elementUsage.ElementDefinition.Parameter.Any(p => p.ParameterType.Name == this.SelectedParameterTypeFilter.Name))
                     {
                         filteredElements.Add(elementUsage);
                     }
-                    else if (elementUsage.ParameterOverride.Any(p => p.ParameterType == this.SelectedParameterTypeFilter))
+                    else if (elementUsage.ParameterOverride.Any(p => p.ParameterType.Name == this.SelectedParameterTypeFilter.Name))
                     {
                         filteredElements.Add(elementUsage);
                     }

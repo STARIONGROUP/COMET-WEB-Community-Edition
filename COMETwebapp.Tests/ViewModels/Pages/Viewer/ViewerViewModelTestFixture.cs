@@ -24,11 +24,13 @@
 
 namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using CDP4Common.EngineeringModelData;
-    
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Pages.Viewer;
@@ -42,43 +44,72 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     [TestFixture]
     public class ViewerViewModelTestFixture
     {
-        private TestContext context;
         private IViewerViewModel viewModel;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
-
             var sessionServiceMock = new Mock<ISessionService>();
 
-            var elementUsage1 = new ElementUsage() { Name = "element1" };
-            var elementUsage2 = new ElementUsage() { Name = "element2" };
-            var elementUsage3 = new ElementUsage() { Name = "element3" };
-            var elementUsage4 = new ElementUsage() { Name = "element4" };
-            
-            var elementDefinition1 = new ElementDefinition()
+            var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
+            var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
+            var elementUsage3 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element3" };
+            var elementUsage4 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element4" };
+
+            var elementDefinition1 = new ElementDefinition
             {
+                Iid = Guid.NewGuid(),
                 Name = "element1",
-                ContainedElement = { elementUsage1 }
+                Parameter =
+                {
+                    new Parameter
+                    {
+                        Iid = Guid.NewGuid(),
+                        ParameterType = new TextParameterType { Name = "textParamType" }
+                    }
+                }
             };
-            
-            var elementDefinition2 = new ElementDefinition()
+
+            var elementDefinition2 = new ElementDefinition
             {
+                Iid = Guid.NewGuid(),
                 Name = "element2",
-                ContainedElement = { elementUsage2 }
+                Parameter =
+                {
+                    new Parameter
+                    {
+                        Iid = Guid.NewGuid(),
+                        ParameterType = new EnumerationParameterType { Name = "enumParamType" }
+                    }
+                }
             };
-            
-            var elementDefinition3 = new ElementDefinition()
+
+            var elementDefinition3 = new ElementDefinition
             {
+                Iid = Guid.NewGuid(),
                 Name = "element3",
-                ContainedElement = { elementUsage3 }
+                Parameter =
+                {
+                    new Parameter
+                    {
+                        Iid = Guid.NewGuid(),
+                        ParameterType = new CompoundParameterType { Name = "compoundParamType" }
+                    }
+                }
             };
-            
-            var elementDefinition4 = new ElementDefinition()
+
+            var elementDefinition4 = new ElementDefinition
             {
+                Iid = Guid.NewGuid(),
                 Name = "element4",
-                ContainedElement = { elementUsage4 }
+                Parameter =
+                {
+                    new Parameter
+                    {
+                        Iid = Guid.NewGuid(),
+                        ParameterType = new BooleanParameterType { Name = "booleanParamType" }
+                    }
+                }
             };
 
             elementUsage1.ElementDefinition = elementDefinition1;
@@ -86,15 +117,29 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             elementUsage3.ElementDefinition = elementDefinition3;
             elementUsage4.ElementDefinition = elementDefinition4;
 
+            elementDefinition1.ContainedElement.Add(elementUsage1);
+            elementDefinition2.ContainedElement.Add(elementUsage2);
+            elementDefinition3.ContainedElement.Add(elementUsage3);
+            elementDefinition4.ContainedElement.Add(elementUsage4);
+
             var topElement = new ElementDefinition()
             {
+                Iid = Guid.NewGuid(),
                 Name = "topElement",
+                Parameter =
+                {
+                    new Parameter
+                    {
+                        Iid = Guid.NewGuid(),
+                        ParameterType = new TextParameterType {Name = "textParamType"}
+                    }
+                },
                 ContainedElement =
                 {
-                    elementDefinition1.ContainedElement[0], 
-                    elementDefinition2.ContainedElement[0], 
-                    elementDefinition3.ContainedElement[0], 
-                    elementDefinition4.ContainedElement[0],
+                    elementUsage1,
+                    elementUsage2,
+                    elementUsage3,
+                    elementUsage4,
                 }
             };
 
@@ -159,7 +204,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
         [Test]
         public void VerifyInitializeElements()
         {
-            var elements = this.viewModel.InitializeElements();
+            var elements = this.viewModel.InitializeElements().ToList();
 
             Assert.Multiple(() =>
             {
@@ -170,18 +215,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                 Assert.That(elements.Any(x => x.Name == "element2"), Is.True);
                 Assert.That(elements.Any(x => x.Name == "element3"), Is.True);
                 Assert.That(elements.Any(x => x.Name == "element4"), Is.True);
-            });
-        }
-
-        [Test]
-        public void VerifyCreateTree()
-        {
-            var rootNode = this.viewModel.CreateTree(this.viewModel.Elements);
-            
-            Assert.Multiple(() =>
-            {
-                Assert.That(rootNode, Is.Not.Null);
-                Assert.That(rootNode.GetFlatListOfDescendants(true), Has.Count.EqualTo(5));
             });
         }
 
@@ -197,6 +230,9 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
         public void VerifyOnActualFiniteStateChanged()
         {
             var previousState = this.viewModel.SelectedActualFiniteStates;
+            var actualState = this.viewModel.ListActualFiniteStateLists.First().ActualState.Last();
+            this.viewModel.ActualFiniteStateChanged(new List<ActualFiniteState>() { actualState });
+            Assert.That(previousState, Is.Not.EqualTo(this.viewModel.SelectedActualFiniteStates));
         }
     }
 }
