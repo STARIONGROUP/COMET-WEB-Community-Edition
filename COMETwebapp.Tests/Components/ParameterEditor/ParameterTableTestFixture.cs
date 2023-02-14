@@ -46,7 +46,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         private TestContext context;
         private IRenderedComponent<ParameterTable> renderedComponent;
         private ParameterTable table;
-
+        
         [SetUp]
         public void SetUp()
         {

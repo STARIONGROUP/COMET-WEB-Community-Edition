@@ -134,13 +134,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                         ParameterType = new TextParameterType {Name = "textParamType"}
                     }
                 },
-                ContainedElement =
-                {
-                    elementUsage1,
-                    elementUsage2,
-                    elementUsage3,
-                    elementUsage4,
-                }
             };
 
             var iteration = new Iteration();

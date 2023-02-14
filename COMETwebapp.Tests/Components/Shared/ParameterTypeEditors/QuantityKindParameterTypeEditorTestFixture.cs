@@ -24,7 +24,106 @@
 
 namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    using Bunit;
+
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
+
+    using COMETwebapp.Components.Shared.ParameterTypeEditors;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+    using DevExpress.Blazor;
+    using DevExpress.Blazor.Popup.Internal;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
+
+    using NUnit.Framework;
+
+    using TestContext = Bunit.TestContext;
+
+    [TestFixture]
     public class QuantityKindParameterTypeEditorTestFixture
     {
+        private TestContext context;
+        private IRenderedComponent<QuantityKindParameterTypeEditor> renderedComponent;
+        private QuantityKindParameterTypeEditor editor;
+        private bool EventCallbackCalled = false;
+        private Mock<IParameterEditorBaseViewModel<QuantityKind>> viewModelMock;
+        private EventCallback<IValueSet> eventCallback;
+
+        [SetUp]
+        public void SetUp()
+        {
+            this.context = new TestContext();
+            this.context.Services.AddDevExpressBlazor();
+
+            var parameterValueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string>(){"0","0","0"}),
+            };
+
+            this.viewModelMock = new Mock<IParameterEditorBaseViewModel<QuantityKind>>();
+            this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
+            
+            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet valueSet) =>
+            {
+                this.EventCallbackCalled = true;
+            });
+
+            this.renderedComponent = this.context.RenderComponent<QuantityKindParameterTypeEditor>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
+                parameters.Add(p => p.ParameterValueChanged, this.eventCallback);
+            });
+            
+            this.editor = this.renderedComponent.Instance;
+        }
+
+        [Test]
+        public void VerifyComponent()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderedComponent, Is.Not.Null);
+                Assert.That(this.editor, Is.Not.Null);
+                Assert.That(this.editor.ViewModel, Is.Not.Null);
+                Assert.That(this.editor.ParameterValueChanged, Is.Not.Null);
+            });
+        }
+
+        [Test]
+        public async Task VerifyParameterValueChanged()
+        {
+            var textbox = this.renderedComponent.FindComponent<DxTextBox>();
+            Assert.That(textbox, Is.Not.Null);
+            await this.editor.ParameterValueChanged.InvokeAsync();
+            Assert.That(this.EventCallbackCalled, Is.True);
+        }
+
+        [Test]
+        public void VerifyThatComponetCanBeReadOnly()
+        {
+            this.viewModelMock.Setup(x => x.IsReadOnly).Returns(true);
+
+            this.renderedComponent.SetParametersAndRender(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
+                parameters.Add(p => p.ParameterValueChanged, this.eventCallback);
+            });
+
+            var textbox = this.renderedComponent.FindComponent<DxTextBox>();
+            this.editor.ViewModel.IsReadOnly = true;
+            Assert.That(textbox.Instance.ReadOnly, Is.True);
+        }
     }
 }
