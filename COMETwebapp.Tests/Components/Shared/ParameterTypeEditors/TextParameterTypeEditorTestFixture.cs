@@ -64,6 +64,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         {
             this.context = new TestContext();
             this.context.Services.AddDevExpressBlazor();
+            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule");
 
             var parameterValueSet = new ParameterValueSet()
             {
