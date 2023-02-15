@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
@@ -34,7 +35,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="PropertiesComponentViewModel" />
+    /// View Model for the <see cref="PropertiesComponent"/>
     /// </summary>
     public interface IPropertiesComponentViewModel
     {

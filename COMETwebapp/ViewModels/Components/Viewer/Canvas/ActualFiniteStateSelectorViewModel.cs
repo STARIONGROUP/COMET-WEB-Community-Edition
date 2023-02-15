@@ -29,7 +29,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas.ActualFiniteStateSelectorComponent"/>
+    /// View Model for the allow to select multiple existing <see cref="ActualFiniteState"/>
     /// </summary>
     public class ActualFiniteStateSelectorViewModel : ReactiveObject, IActualFiniteStateSelectorViewModel
     {

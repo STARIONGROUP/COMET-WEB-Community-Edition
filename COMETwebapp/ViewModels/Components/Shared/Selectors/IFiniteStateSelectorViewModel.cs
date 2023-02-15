@@ -26,10 +26,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
 	using CDP4Common.EngineeringModelData;
 
-	/// <summary>
-	/// Interface definition for <see cref="FiniteStateSelectorViewModel" />
-	/// </summary>
-	public interface IFiniteStateSelectorViewModel: IBelongsToIterationSelectorViewModel
+    /// <summary>
+    /// View Model that enables the user to select an <see cref="ActualFiniteState"/>
+    /// </summary>
+    public interface IFiniteStateSelectorViewModel: IBelongsToIterationSelectorViewModel
 	{
 		/// <summary>
 		/// A collection of available <see cref="ActualFiniteState" />

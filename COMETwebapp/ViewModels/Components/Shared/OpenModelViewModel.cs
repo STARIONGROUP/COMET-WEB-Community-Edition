@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities.DisposableObject;
+
     using DynamicData.Binding;
 
     using ReactiveUI;

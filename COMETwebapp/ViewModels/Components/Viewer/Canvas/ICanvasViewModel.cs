@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="CanvasViewModel"/>
+    /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas.CanvasComponent"/>
     /// </summary>
     public interface ICanvasViewModel
     {

@@ -29,10 +29,10 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.Elements
 
 	using DynamicData;
 
-	/// <summary>
-	/// Interface definition for <see cref="ElementDashboardViewModel" />
-	/// </summary>
-	public interface IElementDashboardViewModel
+    /// <summary>
+    /// View model that provides information related to <see cref="ElementDefinition" />
+    /// </summary>
+    public interface IElementDashboardViewModel
 	{
 		/// <summary>
 		/// The current <see cref="DomainOfExpertise" />

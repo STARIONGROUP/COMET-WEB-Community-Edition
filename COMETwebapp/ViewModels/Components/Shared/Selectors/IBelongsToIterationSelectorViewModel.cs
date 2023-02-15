@@ -25,16 +25,17 @@
 namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
-    /// Interface definition for <see cref="BelongsToIterationSelectorViewModel"/>
+    /// Abstract class for View Model selector that belongs to an <see cref="Iteration" />
     /// </summary>
-    public interface IBelongsToIterationSelectorViewModel: IDisposableObject
-	{
-		/// <summary>
-		/// The current <see cref="Iteration" />
-		/// </summary>
-		Iteration CurrentIteration { get; set; }
-	}
+    public interface IBelongsToIterationSelectorViewModel : IDisposableObject
+    {
+        /// <summary>
+        /// The current <see cref="Iteration" />
+        /// </summary>
+        Iteration CurrentIteration { get; set; }
+    }
 }

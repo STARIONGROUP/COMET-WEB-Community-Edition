@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using COMETwebapp.Enumerations;
 
     /// <summary>
-    /// Interface for the <see cref="ProductTreeViewModel"/>
+    /// View Model for building the product tree
     /// </summary>
     public interface IProductTreeViewModel
     {

@@ -30,7 +30,7 @@ namespace COMETwebapp.Services.SubscriptionService
     using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
-    /// Interface definition of <see cref="SubscriptionService"/>
+    /// This service tracks change one <see cref="ISubscriptionService" /> for all opened <see cref="Iteration" />
     /// </summary>
     public interface ISubscriptionService: IDisposableObject
     {

@@ -28,7 +28,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using COMETwebapp.Model.DTO;
 
     /// <summary>
-    /// Interface definition for <see cref="LoginViewModel" />
+    /// View Model that enables the user to login against a COMET Server
     /// </summary>
     public interface ILoginViewModel
     {

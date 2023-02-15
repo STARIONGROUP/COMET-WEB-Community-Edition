@@ -30,10 +30,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 
 	using Microsoft.AspNetCore.Components;
 
-	/// <summary>
-	/// Interface definition for <see cref="IterationSelectorViewModel"/>
-	/// </summary>
-	public interface IIterationSelectorViewModel
+    /// <summary>
+    /// View model that enable the user to select one selected <see cref="Iteration" />
+    /// </summary>
+    public interface IIterationSelectorViewModel
 	{
 		/// <summary>
 		/// The selected <see cref="IterationData" />

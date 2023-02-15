@@ -30,7 +30,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
     using DynamicData;
 
     /// <summary>
-    /// Interface definition for <see cref="ParameterDashboardViewModel" />
+    /// View model that provides information related to <see cref="ParameterValueSetBase" />
     /// </summary>
     public interface IParameterDashboardViewModel
     {

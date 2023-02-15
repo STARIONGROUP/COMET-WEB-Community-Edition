@@ -26,10 +26,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
 	using CDP4Common.EngineeringModelData;
 
-	/// <summary>
-	/// Interface definition for the <see cref="OptionSelectorViewModel" />
-	/// </summary>
-	public interface IOptionSelectorViewModel: IBelongsToIterationSelectorViewModel
+    /// <summary>
+    /// View Model that provide capability to select an <see cref="Option" />
+    /// </summary>
+    public interface IOptionSelectorViewModel: IBelongsToIterationSelectorViewModel
 	{
 		/// <summary>
 		/// The currently selected <see cref="Option" />

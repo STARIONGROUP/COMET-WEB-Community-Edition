@@ -31,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
-    /// Interface definition for <see cref="OpenModelViewModel" />
+    /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
     public interface IOpenModelViewModel : IDisposableObject
     {

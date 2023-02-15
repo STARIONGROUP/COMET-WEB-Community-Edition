@@ -25,7 +25,9 @@
 namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Utilities.DisposableObject;
+
     using DynamicData.Binding;
 
     using ReactiveUI;
@@ -34,33 +36,33 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
     /// Abstract class for View Model selector that belongs to an <see cref="Iteration" />
     /// </summary>
     public abstract class BelongsToIterationSelectorViewModel : DisposableObject, IBelongsToIterationSelectorViewModel
-	{
-		/// <summary>
-		/// Backing field for <see cref="CurrentIteration" />
-		/// </summary>
-		private Iteration currentIteration;
+    {
+        /// <summary>
+        /// Backing field for <see cref="CurrentIteration" />
+        /// </summary>
+        private Iteration currentIteration;
 
-		/// <summary>
-		/// Initializes a new <see cref="BelongsToIterationSelectorViewModel" />
-		/// </summary>
-		protected BelongsToIterationSelectorViewModel()
-		{
-			this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.CurrentIteration))
-				.Subscribe(_ => this.UpdateProperties()));
-		}
+        /// <summary>
+        /// Initializes a new <see cref="BelongsToIterationSelectorViewModel" />
+        /// </summary>
+        protected BelongsToIterationSelectorViewModel()
+        {
+            this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.CurrentIteration))
+                .Subscribe(_ => this.UpdateProperties()));
+        }
 
-		/// <summary>
-		/// The current <see cref="Iteration" />
-		/// </summary>
-		public Iteration CurrentIteration
-		{
-			get => this.currentIteration;
-			set => this.RaiseAndSetIfChanged(ref this.currentIteration, value);
-		}
+        /// <summary>
+        /// The current <see cref="Iteration" />
+        /// </summary>
+        public Iteration CurrentIteration
+        {
+            get => this.currentIteration;
+            set => this.RaiseAndSetIfChanged(ref this.currentIteration, value);
+        }
 
-		/// <summary>
-		/// Updates this view model properties
-		/// </summary>
-		protected abstract void UpdateProperties();
-	}
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        protected abstract void UpdateProperties();
+    }
 }

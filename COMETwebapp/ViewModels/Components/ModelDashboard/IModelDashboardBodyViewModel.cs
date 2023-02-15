@@ -29,10 +29,10 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
 	using COMETwebapp.ViewModels.Components.Shared;
 	using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
-	/// <summary>
-	/// Interface definition for <see cref="ModelDashboardBodyViewModel" />
-	/// </summary>
-	public interface IModelDashboardBodyViewModel : ISingleIterationApplicationBaseViewModel
+    /// <summary>
+    /// View Model that handle the logic for the Model Dashboard application
+    /// </summary>
+    public interface IModelDashboardBodyViewModel : ISingleIterationApplicationBaseViewModel
 	{
 		/// <summary>
 		/// Gets the <see cref="IOptionSelectorViewModel" />

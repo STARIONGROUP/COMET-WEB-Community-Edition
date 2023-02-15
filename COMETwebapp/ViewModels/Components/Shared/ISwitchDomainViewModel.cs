@@ -29,7 +29,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface definition for <see cref="SwitchDomainViewModel" />
+    /// View model that enable the user to select a different <see cref="DomainOfExpertise" /> for an <see cref="Iteration" />
     /// </summary>
     public interface ISwitchDomainViewModel
     {

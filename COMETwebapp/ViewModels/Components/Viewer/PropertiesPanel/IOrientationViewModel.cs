@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="OrientationViewModel" />
+    /// View Model for that provide information related to <see cref="Orientation"/>
     /// </summary>
     public interface IOrientationViewModel
     {

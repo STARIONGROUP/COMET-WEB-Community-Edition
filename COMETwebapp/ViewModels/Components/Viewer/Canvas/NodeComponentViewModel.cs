@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.Canvas.NodeComponent"/>
+    /// ViewModel for that handle information related to <see cref="TreeNode"/> inside a tree
     /// </summary>
     public class NodeComponentViewModel : ReactiveObject, INodeComponentViewModel
     {

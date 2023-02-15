@@ -29,7 +29,7 @@ namespace COMETwebapp.ViewModels.Pages
     using COMETwebapp.Services.SessionManagement;
 
     /// <summary>
-    /// Interface definition for <see cref="IndexViewModel"/>
+    /// View Model that handles the home page
     /// </summary>
     public interface IIndexViewModel
     {
