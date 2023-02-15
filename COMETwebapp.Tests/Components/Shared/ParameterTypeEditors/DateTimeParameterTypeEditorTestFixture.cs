@@ -26,7 +26,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     using Bunit;
 
@@ -39,7 +38,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 

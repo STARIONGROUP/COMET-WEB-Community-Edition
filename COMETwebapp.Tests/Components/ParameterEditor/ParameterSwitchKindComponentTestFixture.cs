@@ -35,8 +35,6 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using DevExpress.Blazor;
 
-    using Microsoft.Extensions.DependencyInjection;
-
     using Moq;
 
     using NUnit.Framework;
