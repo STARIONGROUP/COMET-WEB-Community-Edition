@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterSwitchKindComponentTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="DateTimeParameterTypeEditorTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,19 +22,22 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.ParameterEditor
+namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
-    using COMETwebapp.Components.ParameterEditor;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.Components.Shared.ParameterTypeEditors;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-    using DevExpress.Blazor;
-
+    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -43,11 +46,15 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using TestContext = Bunit.TestContext;
 
-    public class ParameterSwitchKindComponentTestFixture
+    [TestFixture]
+    public class DateTimeParameterTypeEditorTestFixture
     {
         private TestContext context;
-        private IRenderedComponent<ParameterSwitchKindComponent> renderedComponent;
-        private ParameterSwitchKindComponent parameterSwitch;
+        private IRenderedComponent<DateTimeParameterTypeEditor> renderedComponent;
+        private DateTimeParameterTypeEditor editor;
+        private bool eventCallbackCalled = false;
+        private Mock<IParameterEditorBaseViewModel<DateTimeParameterType>> viewModelMock;
+        private EventCallback<IValueSet> eventCallback;
 
         [SetUp]
         public void SetUp()
@@ -56,36 +63,39 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context.Services.AddDevExpressBlazor();
             this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
 
-            var sessionMock = new Mock<ISessionService>();
-
-            var viewModel = new ParameterSwitchKindComponentViewModel(sessionMock.Object, null);
-
-            this.renderedComponent = this.context.RenderComponent<ParameterSwitchKindComponent>(parameters =>
+            var parameterValueSet = new ParameterValueSet()
             {
-                parameters.Add(p => p.SwitchValue, ParameterSwitchKind.MANUAL);
-                parameters.Add(p => p.ViewModel, viewModel);
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string>(){"2023-12-02T21:0:0"}),
+            };
+
+            this.viewModelMock = new Mock<IParameterEditorBaseViewModel<DateTimeParameterType>>();
+            this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
+            
+            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
+            {
+                this.eventCallbackCalled = true;
             });
 
-            this.parameterSwitch = this.renderedComponent.Instance;
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            this.context.CleanContext();
+            this.renderedComponent = this.context.RenderComponent<DateTimeParameterTypeEditor>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
+                parameters.Add(p => p.ParameterValueChanged, this.eventCallback);
+            });
+            
+            this.editor = this.renderedComponent.Instance;
         }
 
         [Test]
         public void VerifyComponent()
         {
-            var combo = this.renderedComponent.FindComponent<DxComboBox<ParameterSwitchKind, ParameterSwitchKind>>();
-
             Assert.Multiple(() =>
             {
-                Assert.That(this.parameterSwitch, Is.Not.Null);
                 Assert.That(this.renderedComponent, Is.Not.Null);
-                Assert.That(combo, Is.Not.Null);
-                Assert.That(combo.Instance.Value, Is.EqualTo(ParameterSwitchKind.MANUAL));
+                Assert.That(this.editor, Is.Not.Null);
+                Assert.That(this.editor.ViewModel, Is.Not.Null);
+                Assert.That(this.editor.ParameterValueChanged, Is.Not.Null);
             });
         }
     }

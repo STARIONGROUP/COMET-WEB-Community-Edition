@@ -26,8 +26,8 @@ along with this program. If not, see http://www.gnu.org/licenses/.
     {
         var colorValue = this.ViewModel.ValueSet.ActualValue.First().ParseToHexColor();
         <div class="parameter-row" id="color-section">
-            <input type="color" id="color" name="color" value="@colorValue">
-            <label for="color" id="color-text">Color</label>
+            <input type="color" id="color-picker" name="color" value="@colorValue" readonly="@this.ViewModel.IsReadOnly">
+            <label for="color-picker" id="color-text">Color</label>
         </div>
     }
     else
@@ -38,8 +38,8 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                        Text="@this.ViewModel.ValueSet.ActualValue.First()"
                        BindValueMode="BindValueMode.OnInput"
                        CssClass="parameter-input"
-                       @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))">
-            </DxTextBox>
+                       @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+                       ReadOnly="this.ViewModel.IsReadOnly"/>
         </div>
     }
 }

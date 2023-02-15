@@ -29,10 +29,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 
     var time = new TimeSpan(hours, minutes, seconds);
 
-    <div class="parameter-row">
-        <DxTimeEdit @bind-Time="@time" CssClass="cw-320"></DxTimeEdit>
-        <DxTextBox InputCssClass="time-of-day-parameter" Text="@values[0]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox> <p>:</p>
-        <DxTextBox InputCssClass="time-of-day-parameter" Text="@values[1]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox> <p>:</p>
-        <DxTextBox InputCssClass="time-of-day-parameter" Text="@values[2]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox>
-    </div>
+    <DxTimeEdit @bind-Time="@time" 
+                CssClass="cw-320"
+                ReadOnly="this.ViewModel.IsReadOnly"/>
 }

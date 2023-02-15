@@ -23,6 +23,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @if (this.ViewModel.ParameterType.ShortName == SceneSettings.OrientationShortName && this.ViewModel.ValueSet is not null)
 {
     //<OrientationComponent ViewModel="this.CreateOrientationViewModel()"/>
+    <h3>Component under development</h3>
 }
 else if (this.ViewModel.ValueSet is not null)
 {
@@ -33,7 +34,11 @@ else if (this.ViewModel.ValueSet is not null)
 
         <div class="parameter-row">
             <p>@comp.ShortName</p>
-            <DxTextBox InputCssClass="compound-parameter-type" Text="@this.ViewModel.ValueSet?.ActualValue[i]" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input"></DxTextBox>
+            <DxTextBox InputCssClass="compound-parameter-type" 
+                       Text="@this.ViewModel.ValueSet?.ActualValue[i]" 
+                       BindValueMode="BindValueMode.OnInput" 
+                       CssClass="parameter-input"
+                       ReadOnly="this.ViewModel.IsReadOnly"/>
             <p>@comp.Scale.ShortName</p>
         </div>
     }
