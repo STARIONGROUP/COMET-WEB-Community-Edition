@@ -82,7 +82,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Event callback for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed
         /// </summary>
-        EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueSetChanged { get; set; }
+        EventCallback<IValueSet> OnParameterValueSetChanged { get; set; }
 
         /// <summary>
         /// When the button for submit changes is clicked
@@ -90,18 +90,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         void OnSubmit();
 
         /// <summary>
-        /// Event for when a parameter item has been clicked
+        /// Gets the current used <see cref="IValueSet"/>
         /// </summary>
-        /// <param name="parameterBase">the parameter clicked</param>
-        void OnParameterClick(ParameterBase parameterBase);
+        /// <returns>the <see cref="IValueSet"/></returns>
+        IValueSet GetUsedValueSet();
 
         /// <summary>
-        /// Event for when a parameter has changed it's value
+        /// Creates a new <see cref="IDetailsComponentViewModel"/>
         /// </summary>
-        /// <param name="parameterValueSetRelations">
-        /// contains the new <see cref="IValueSet" /> for a specific
-        /// <see cref="ParameterBase" />
-        /// </param>
-        void OnParameterValueChanged(Dictionary<ParameterBase, IValueSet> parameterValueSetRelations);
+        /// <returns>a <see cref="IDetailsComponentViewModel"/> based on this <see cref="IPropertiesComponentViewModel"/></returns>
+        IDetailsComponentViewModel CreateDetailsComponentViewModel();
     }
 }

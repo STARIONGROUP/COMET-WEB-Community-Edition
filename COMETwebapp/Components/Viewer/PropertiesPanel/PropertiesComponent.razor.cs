@@ -42,41 +42,15 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         public IPropertiesComponentViewModel ViewModel { get; set; }
         
         /// <summary>
-        /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
-        /// that would cause an infinite render loop.
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
         /// </summary>
-        /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
-        /// on this component instance; otherwise <c>false</c>.
-        /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-        /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
-        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
-        /// once.
-        /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override void OnInitialized()
         {
-            await base.OnAfterRenderAsync(firstRender);
-
-            if (firstRender)
-            {
-                this.WhenAnyValue(x => x.ViewModel.IsVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-                this.WhenAnyValue(x => x.ViewModel.SelectedParameter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-                this.WhenAnyValue(x => x.ViewModel.ParameterHaveChanges).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-            }
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="IDetailsComponentViewModel"/>
-        /// </summary>
-        /// <returns>a <see cref="IDetailsComponentViewModel"/> based on this <see cref="IPropertiesComponentViewModel"/></returns>
-        public IDetailsComponentViewModel CreateDetailsComponentViewModel()
-        {
-            return new DetailsComponentViewModel(this.ViewModel.IsVisible, this.ViewModel.SelectedParameter, 
-                this.ViewModel.ParameterValueSetRelations, this.ViewModel.OnParameterValueSetChanged);
+            base.OnInitialized();
+            this.WhenAnyValue(x => x.ViewModel.IsVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+            this.WhenAnyValue(x => x.ViewModel.SelectedParameter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+            this.WhenAnyValue(x => x.ViewModel.ParameterHaveChanges).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
         }
     }
 }

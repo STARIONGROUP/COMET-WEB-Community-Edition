@@ -25,7 +25,9 @@
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.Types;
+    using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
@@ -35,11 +37,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     public interface IDetailsComponentViewModel
     {
         /// <summary>
-        /// Gets or sets the selected parameter used for the details
-        /// </summary>
-        ParameterBase SelectedParameter { get; set; }
-
-        /// <summary>
         /// Gets or sets if the component is visible
         /// </summary>
         bool IsVisible { get; set; }
@@ -47,25 +44,22 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Gets or sets the current value set
         /// </summary>
-        public IValueSet CurrentValueSet { get; set; }
+        IValueSet ValueSet { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterType"/> of the selected parameter
+        /// </summary>
+        ParameterType ParameterType { get; set; }
 
         /// <summary> 
-        /// Event callback for when a value of the <see cref="SelectedParameter"/> has changed 
+        /// Event callback for when a value of the <see cref="IValueSet"/> has changed 
         /// </summary> 
-        public EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
-
+        EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        
         /// <summary>
-        /// Event for when the value of the parameter has changed
+        /// Creates a <see cref="ParameterTypeEditorSelectorViewModel"/> used for display the correct editor
         /// </summary>
-        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
-        /// <param name="value">the value of the <see cref="IValueSet"/> changed</param>
-        void OnParameterValueChange(int changedIndex, string value);
-
-        /// <summary>
-        /// Event for when the value of a parameter has changed
-        /// </summary>
-        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
-        /// <param name="e">Supplies information about an change event that is being raised.</param>
-        void OnParameterValueChange(int changedIndex, ChangeEventArgs e);
+        /// <returns>the <see cref="ParameterTypeEditorSelectorViewModel"/></returns>
+        IParameterTypeEditorSelectorViewModel<ParameterType> CreateParameterTypeEditorSelectorViewModel();
     }
 }

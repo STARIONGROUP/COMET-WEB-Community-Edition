@@ -29,15 +29,22 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 }
 else if (this.ViewModel.ValueSet is not null)
 {
-    for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
-    {
-        var index = i;
+    <div class="compound-editor-body">
+        @for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
+        {
+            var index = i;
+            var component = this.ViewModel.ParameterType.Component[i];
+        
+            <div class="compound-editor-item">
+                <p>@component.ShortName</p>
+                <DxTextBox InputCssClass="compound-parameter-type" 
+                           Text="@this.ViewModel.ValueSet?.ActualValue[i]" 
+                           BindValueMode="BindValueMode.OnInput" 
+                           CssClass="parameter-input"
+                           ReadOnly="this.ViewModel.IsReadOnly"
+                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"/>
 
-        <DxTextBox InputCssClass="compound-parameter-type" 
-                   Text="@this.ViewModel.ValueSet?.ActualValue[i]" 
-                   BindValueMode="BindValueMode.OnInput" 
-                   CssClass="parameter-input"
-                   ReadOnly="this.ViewModel.IsReadOnly"
-                   TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"/>
-    }
+            </div>
+        }
+    </div>
 }

@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -81,12 +82,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="Option"/> name this <see cref="Parameter"/> is dependant on
         /// </summary>
-        public string Option { get; } = string.Empty;
+        public string Option { get; } 
 
         /// <summary>
         /// Gets the <see cref="ActualFiniteState"/> name this <see cref="Parameter"/> is dependant on
         /// </summary>
-        public string State { get; } = string.Empty;
+        public string State { get; } 
 
         /// <summary>
         /// Gets or sets the <see cref="IValueSet"/> of this <see cref="ParameterBaseRowViewModel"/>
@@ -110,7 +111,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
             this.ValueSet = valueSet;
             this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
-            this.State = valueSet.ActualState is not null && valueSet.ActualState.Name is not null ? valueSet.ActualState?.Name : string.Empty;
+            this.State = valueSet.ActualState is not null ? valueSet.ActualState.Name : string.Empty;
             this.Switch = valueSet.ValueSwitch;
 
             CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
@@ -124,10 +125,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
         /// <returns></returns>
-        public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType 
-            {
-            return new ParameterTypeEditorSelectorViewModel(this.SessionService,this.ParameterType, this.ValueSet) as IParameterTypeEditorSelectorViewModel<T>;
-            }
+        public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType
+        {
+            return new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet) as IParameterTypeEditorSelectorViewModel<T>;
+        }
 
         /// <summary>
         /// Creates a <see cref="IParameterSwitchKindComponentViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
@@ -136,6 +137,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel()
         {
             return new ParameterSwitchKindComponentViewModel(this.SessionService, this.ValueSet);
+        }
+
+        /// <summary>
+        /// Event for when a parameter's value has changed
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        public async Task OnParameterValueChanged(IValueSet value)
+        {
+            if (value is ParameterValueSetBase parameterValueSetBase)
+            {
+                await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { parameterValueSetBase });
+            }
         }
     }
 }

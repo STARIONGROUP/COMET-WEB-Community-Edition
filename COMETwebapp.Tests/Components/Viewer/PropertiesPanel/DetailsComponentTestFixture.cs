@@ -101,7 +101,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 }
             };
 
-            viewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "0", "0", "0", }));
+            viewModel.Setup(x => x.ValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "0", "0", "0", }));
             viewModel.Setup(x => x.IsVisible).Returns(true);
             viewModel.Setup(x => x.SelectedParameter).Returns(parameter);
 
@@ -259,7 +259,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             {
                 ParameterType = new DateTimeParameterType()
             };
-            viewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "2022-11-10T21:00:00" }));
+            viewModel.Setup(x => x.ValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "2022-11-10T21:00:00" }));
             viewModel.Setup(x => x.OnParameterValueChange(It.IsAny<int>(), It.IsAny<string>()));
             viewModel.Setup(x => x.IsVisible).Returns(true);
             viewModel.Setup(x => x.SelectedParameter).Returns(parameter);
@@ -288,7 +288,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 ParameterType = new TimeOfDayParameterType()
             };
 
-            viewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>(){"00:00:00"}));
+            viewModel.Setup(x => x.ValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>(){"00:00:00"}));
             viewModel.Setup(x => x.OnParameterValueChange(It.IsAny<int>(), It.IsAny<string>()));
             viewModel.Setup(x => x.IsVisible).Returns(true);
             viewModel.Setup(x => x.SelectedParameter).Returns(parameter);
@@ -357,7 +357,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 }
             };
 
-            viewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "1","1", "1","1" }));
+            viewModel.Setup(x => x.ValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "1","1", "1","1" }));
             viewModel.Setup(x => x.OnParameterValueChange(It.IsAny<int>(), It.IsAny<string>()));
             viewModel.Setup(x => x.IsVisible).Returns(true);
             viewModel.Setup(x => x.SelectedParameter).Returns(parameter);

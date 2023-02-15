@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.Types;
 
     using COMETwebapp.Enumerations;
+    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
 
     using Microsoft.AspNetCore.Components;
@@ -49,13 +50,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Creates a new instance of type <see cref="Orientation" />
         /// </summary>
-        /// <param name="currentValueSet">the current value set that's being changed</param>
-        /// <param name="orientation">the orientation of the selected <see cref="SceneObject" /></param>
+        /// <param name="valueSet">the current value set that's being changed</param>
         /// <param name="onParameterValueSetChanged">event callback for when a value has changed</param>
-        public OrientationViewModel(Orientation orientation, IValueSet currentValueSet, EventCallback<IValueSet> onParameterValueSetChanged)
+        public OrientationViewModel(IValueSet valueSet, EventCallback<IValueSet> onParameterValueSetChanged)
         {
-            this.Orientation = orientation ?? throw new ArgumentNullException(nameof(orientation));
-            this.CurrentValueSet = currentValueSet;
+            this.CurrentValueSet = valueSet ?? throw new ArgumentNullException(nameof(valueSet));
+            this.Orientation = valueSet.ParseIValueToOrientation(AngleFormat.Degrees);
             this.ParameterValueChanged = onParameterValueSetChanged;
         }
 

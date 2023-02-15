@@ -62,14 +62,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
                 Assert.That(this.viewModel.IsVisible, Is.True);
                 Assert.That(this.viewModel.SelectedParameter, Is.Not.Null);
                 Assert.That(this.viewModel.OnParameterValueChanged, Is.Not.Null);
-                Assert.That(this.viewModel.CurrentValueSet, Is.Null);
+                Assert.That(this.viewModel.ValueSet, Is.Null);
             });
         }
 
         [Test]
         public void VerifyOnParameterValueChange()
         {
-            this.viewModel.CurrentValueSet = new ParameterValueSet()
+            this.viewModel.ValueSet = new ParameterValueSet()
             {
                 ValueSwitch = ParameterSwitchKind.MANUAL,
                 Manual = new ValueArray<string>(new List<string> { "1", "1" })

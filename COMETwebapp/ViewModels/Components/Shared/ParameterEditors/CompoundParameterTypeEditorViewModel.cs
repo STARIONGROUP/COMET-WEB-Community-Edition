@@ -82,8 +82,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns></returns>
         public IOrientationViewModel CreateOrientationViewModel()
         {
-            var orientation = this.ValueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Degrees);
-            return new OrientationViewModel(orientation, this.ValueSet, this.ParameterValueChanged);
+            return new OrientationViewModel(this.ValueSet, this.ParameterValueChanged);
         }
     }
 }

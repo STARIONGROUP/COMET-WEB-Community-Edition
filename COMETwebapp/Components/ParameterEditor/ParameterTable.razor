@@ -58,7 +58,8 @@ Copyright (c) 2023 RHEA System S.A.
                 <CellDisplayTemplate>
                     @if(@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel<ParameterType>()"/>
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel<ParameterType>()" 
+                                                     ParameterValueChanged="parameterBaseRowViewModel.OnParameterValueChanged"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>

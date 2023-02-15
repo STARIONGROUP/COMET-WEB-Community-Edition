@@ -90,5 +90,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <returns>a <see cref="IParameterSwitchKindComponentViewModel"/></returns>
         IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel();
+
+        /// <summary>
+        /// Event for when a parameter's value has changed
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        Task OnParameterValueChanged(IValueSet value);
     }
 }
