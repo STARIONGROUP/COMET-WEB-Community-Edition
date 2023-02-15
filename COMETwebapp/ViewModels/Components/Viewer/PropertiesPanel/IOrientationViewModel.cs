@@ -47,19 +47,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         Orientation Orientation { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected parameter used for the details
-        /// </summary>
-        ParameterBase SelectedParameter { get; set; }
-
-        /// <summary>
         /// Gets or sets the current value set
         /// </summary>
         IValueSet CurrentValueSet { get; set; }
 
         /// <summary>
-        /// Event callback for when a value of the <see cref="SelectedParameter" /> has changed
+        /// Event callback for when a value of the <see cref="IValueSet" /> has changed
         /// </summary>
-        EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
+        EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Gets all the possible <see cref="AngleFormat" />

@@ -20,4 +20,28 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<h3>Component under development</h3>
+@using System.Globalization
+@{
+    var dateTimeStringSplitted = this.ViewModel.ValueSet.ActualValue.First().Split('T');
+    DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime);
+
+    var timeString = dateTimeStringSplitted[1];
+    var values = timeString.Split(':');
+
+    int.TryParse(values[0], out var hours);
+    int.TryParse(values[1], out var minutes);
+    int.TryParse(values[2], out var seconds);
+
+    var timeSpan = new TimeSpan(hours, minutes, seconds);
+ 
+    <DxDateEdit CssClass="date-time-parameter-type cw-320"
+                Date="@dateTime"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                DateChanged="@((DateTime date) => this.ViewModel.OnParameterValueChanged(date))"
+                NullText="Select a date..." 
+                ReadOnly="this.ViewModel.IsReadOnly"/>
+                
+    <DxTimeEdit Time="@timeSpan" CssClass="cw-320"
+                TimeChanged="@((TimeSpan time) => this.ViewModel.OnParameterValueChanged(time))"
+                ReadOnly="this.ViewModel.IsReadOnly" />
+}
