@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
 
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -113,6 +114,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             {
                 parameters.Add(p => p.ActualFiniteStateListsCollection, this.collectionOfActualFiniteStateLists);
             });
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
         }
 
         [Test]

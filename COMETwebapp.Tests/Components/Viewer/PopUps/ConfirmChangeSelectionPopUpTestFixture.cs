@@ -49,6 +49,12 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
             this.popUp = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyThatShowWorks()
         {

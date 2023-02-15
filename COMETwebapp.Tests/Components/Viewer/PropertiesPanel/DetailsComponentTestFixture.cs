@@ -67,6 +67,12 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.details = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyComponent()
         {

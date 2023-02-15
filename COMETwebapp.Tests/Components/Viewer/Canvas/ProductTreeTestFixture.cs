@@ -93,6 +93,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.productTree = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyComponent()
         {

@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     using DynamicData;
 
     /// <summary>
-    /// Interface for the <see cref="ParameterEditorViewModel"/>
+    /// ViewModel for the <see cref="COMETwebapp.Pages.ParameterEditor.ParameterEditor"/>
     /// </summary>
     public interface IParameterEditorViewModel
     {

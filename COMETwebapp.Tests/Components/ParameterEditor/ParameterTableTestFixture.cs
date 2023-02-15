@@ -75,6 +75,12 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.table = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyComponent()
         {

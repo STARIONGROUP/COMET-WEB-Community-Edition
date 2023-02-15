@@ -67,7 +67,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         [TearDown]
         public void TearDown()
         {
-            this.context.Dispose();
+            this.context.CleanContext();
         }
 
         [Test]

@@ -129,6 +129,12 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.editor = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyComponent()
         {
