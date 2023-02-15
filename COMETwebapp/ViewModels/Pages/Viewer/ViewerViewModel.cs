@@ -152,7 +152,7 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         /// </summary>
         public IEnumerable<ElementBase> InitializeElements()
         {
-            return this.SessionService.DefaultIteration.GetElementsOfIteration();
+            return this.SessionService.DefaultIteration.QueryElementsBase();
         }
 
         /// <summary>

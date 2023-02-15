@@ -146,7 +146,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// </summary>
         public void InitializeViewModel()
         {
-            this.Elements = this.SessionService.DefaultIteration.GetElementsOfIteration().ToList();
+            this.Elements = this.SessionService.DefaultIteration.QueryElementsBase().ToList();
             this.SelectedOptionFilter = this.SessionService.DefaultIteration.DefaultOption;
 
             this.ParameterTypes = this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList();

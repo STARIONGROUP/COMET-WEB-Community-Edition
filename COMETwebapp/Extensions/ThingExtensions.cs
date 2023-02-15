@@ -175,6 +175,31 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
+        /// Gets the <see cref="ElementBase"/> from this iteration
+        /// </summary>
+        /// <param name="iteration">the iteration used for retrieving the elements</param>
+        /// <returns>an <see cref="IEnumerable{ElementBase}"/></returns>
+        /// <exception cref="ArgumentNullException">if the iteration is null</exception>
+        public static IEnumerable<ElementBase> QueryElementsBase(this Iteration iteration)
+        {
+            if (iteration is null)
+            {
+                throw new ArgumentNullException(nameof(iteration));
+            }
+
+            var elements = new List<ElementBase>();
+
+            if (iteration.TopElement is not null)
+            {
+                elements.Add(iteration.TopElement);
+            }
+
+            iteration.Element.ForEach(e => elements.AddRange(e.ContainedElement));
+
+            return elements;
+        }
+
+        /// <summary>
         /// Queries all <see cref="ParameterSubscription" /> contained into an <see cref="Iteration" /> for a given
         /// <see cref="DomainOfExpertise" />
         /// </summary>

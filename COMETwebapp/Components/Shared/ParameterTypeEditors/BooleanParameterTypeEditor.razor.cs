@@ -30,6 +30,8 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
     
     using Microsoft.AspNetCore.Components;
+    
+    using ReactiveUI;
 
     /// <summary>
     /// Class for the <see cref="BooleanParameterTypeEditor"/> component
@@ -48,6 +50,15 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         [Parameter]
         public EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
-        public string value;
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            this.ViewModel.ParameterValueChanged = this.ParameterValueChanged;
+            this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.StateHasChanged());
+        }
     }
 }
