@@ -64,6 +64,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         {
             this.context = new TestContext();
             this.context.Services.AddDevExpressBlazor();
+            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule");
 
             var parameterValueSet = new ParameterValueSet()
             {
@@ -87,6 +88,12 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             });
             
             this.editor = this.renderedComponent.Instance;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.Dispose();
         }
 
         [Test]

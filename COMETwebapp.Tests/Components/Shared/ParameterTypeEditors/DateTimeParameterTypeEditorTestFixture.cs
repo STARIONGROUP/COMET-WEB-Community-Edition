@@ -87,6 +87,12 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.editor = this.renderedComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.Dispose();
+        }
+
         [Test]
         public void VerifyComponent()
         {
