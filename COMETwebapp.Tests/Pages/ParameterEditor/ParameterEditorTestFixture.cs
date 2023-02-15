@@ -32,11 +32,10 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Pages.ParameterEditor;
-    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Pages.ParameterEditor;
 
@@ -63,8 +62,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
-            this.context.JSInterop.SetupVoid("DxBlazor.CheckBox.loadModule");
+            this.context.ConfigureDevExpressBlazor();
             
             var parameterEditorViewModel = new Mock<IParameterEditorViewModel>();
             

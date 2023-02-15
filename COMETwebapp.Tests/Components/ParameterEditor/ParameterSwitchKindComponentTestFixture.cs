@@ -35,8 +35,6 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using DevExpress.Blazor;
 
-    using Microsoft.Extensions.DependencyInjection;
-
     using Moq;
 
     using NUnit.Framework;
@@ -53,8 +51,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
+            this.context.ConfigureDevExpressBlazor();
 
             var sessionMock = new Mock<ISessionService>();
 

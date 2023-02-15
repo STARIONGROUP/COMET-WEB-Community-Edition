@@ -27,8 +27,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
     using Bunit;
 
     using COMETwebapp.Components.Viewer.PopUps;
-
-    using Microsoft.Extensions.DependencyInjection;
+    using COMETwebapp.Tests.Helpers;
 
     using NUnit.Framework;
 
@@ -45,9 +44,9 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
             this.renderedComponent = this.context.RenderComponent<ConfirmChangeSelectionPopUp>();
-            this.popUp = renderedComponent.Instance;
+            this.popUp = this.renderedComponent.Instance;
         }
 
         [Test]

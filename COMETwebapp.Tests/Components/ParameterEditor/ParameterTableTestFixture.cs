@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DynamicData;
@@ -51,9 +52,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.JSInterop.SetupVoid("DxBlazor.ScrollViewer.loadModule");
-
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton<ISessionService, SessionService>();
             this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
 

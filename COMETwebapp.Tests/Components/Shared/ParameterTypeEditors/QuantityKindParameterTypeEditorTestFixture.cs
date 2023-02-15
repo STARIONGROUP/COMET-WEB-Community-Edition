@@ -39,10 +39,8 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DevExpress.Blazor;
-    using DevExpress.Blazor.Popup.Internal;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -65,7 +63,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
-            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule");
 
             var parameterValueSet = new ParameterValueSet()
             {

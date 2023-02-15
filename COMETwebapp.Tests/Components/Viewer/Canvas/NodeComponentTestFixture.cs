@@ -27,10 +27,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using Bunit;
 
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     
-    using Microsoft.Extensions.DependencyInjection;
-
     using Moq;
 
     using NUnit.Framework;
@@ -49,7 +48,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
 
             this.componentViewModel = new Mock<INodeComponentViewModel>();
             

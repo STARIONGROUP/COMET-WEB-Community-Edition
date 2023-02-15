@@ -64,7 +64,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
 
             var compoundValues = new List<string> { "1", "0", "3" };
 
