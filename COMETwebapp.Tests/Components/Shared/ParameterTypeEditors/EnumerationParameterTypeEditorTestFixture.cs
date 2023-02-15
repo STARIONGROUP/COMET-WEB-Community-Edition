@@ -41,6 +41,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 

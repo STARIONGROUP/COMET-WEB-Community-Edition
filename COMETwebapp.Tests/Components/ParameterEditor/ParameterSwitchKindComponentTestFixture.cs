@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Tests.Components.ParameterEditor
 {
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -36,9 +34,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
-    using DevExpress.Blazor.Popup.Internal;
 
-    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
