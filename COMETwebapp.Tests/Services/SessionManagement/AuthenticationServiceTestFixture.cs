@@ -24,7 +24,6 @@
 
 namespace COMETwebapp.Tests.Services.SessionManagement
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using CDP4Common.SiteDirectoryData;
@@ -33,8 +32,6 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     using CDP4Dal.Exceptions;
 
     using COMETwebapp.Enumerations;
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.Model;
     using COMETwebapp.Model.DTO;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.SessionManagement;
@@ -48,7 +45,6 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     {
         private Mock<ISession> session;
         private Mock<ISessionService> sessionService;
-        private Mock<IIterationService> iterationService;
         private CometWebAuthStateProvider cometWebAuthStateProvider;
         private AuthenticationDto authenticationDto;
         private Person person;
@@ -57,8 +53,6 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         public void SetUp()
         {
             this.session = new Mock<ISession>();
-            this.iterationService = new Mock<IIterationService>();
-            this.iterationService.Setup(x => x.ValidatedUpdates).Returns(new Dictionary<DomainOfExpertise, List<ParameterSubscriptionViewModel>>());
             this.sessionService = new Mock<ISessionService>();
 
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
@@ -83,7 +77,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         [Test]
         public async Task Verify_that_a_logged_in_user_can_logout()
         {
-            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
 
             await authenticationService.Logout();
 
@@ -95,11 +89,9 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         {
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
 
-            SiteDirectory siteDirectory = null;
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns((SiteDirectory)null);
 
-            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-
-            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
 
             var loginResult = await authenticationService.Login(this.authenticationDto);
 
@@ -115,7 +107,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
 
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
-            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
 
             var loginResult = await authenticationService.Login(this.authenticationDto);
 
@@ -127,16 +119,16 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         {
             this.session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
 
-            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
 
-            var authenticationDto = new AuthenticationDto
+            var authentication = new AuthenticationDto
             {
                 SourceAddress = "https://www.rheagroup",
                 UserName = "John Doe",
                 Password = "secret"
             };
 
-            var loginResult = await authenticationService.Login(authenticationDto);
+            var loginResult = await authenticationService.Login(authentication);
 
             Assert.That(loginResult, Is.EqualTo(AuthenticationStateKind.Fail));
         }
@@ -146,7 +138,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         {
             this.session.Setup(x => x.Open(It.IsAny<bool>())).Throws(new DalReadException());
 
-            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
 
             var loginResult = await authenticationService.Login(this.authenticationDto);
 
@@ -158,7 +150,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         {
             this.authenticationDto.SourceAddress = null;
 
-            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.iterationService.Object);
+            var authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
 
             var loginResult = await authenticationService.Login(this.authenticationDto);
 

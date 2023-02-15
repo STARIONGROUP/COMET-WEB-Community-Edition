@@ -24,14 +24,14 @@
 
 namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 {
-    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.Utilities.DisposableObject;
 
     using Microsoft.AspNetCore.Components.Authorization;
 
     /// <summary>
     /// Interface definition for <see cref="AuthorizedMenuEntryViewModel"/>
     /// </summary>
-    public interface IAuthorizedMenuEntryViewModel : IDisposableViewModel
+    public interface IAuthorizedMenuEntryViewModel : IDisposableObject
     {
         /// <summary>
         /// Value asserting that the user is authenticated or not

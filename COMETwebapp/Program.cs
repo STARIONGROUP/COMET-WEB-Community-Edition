@@ -27,9 +27,9 @@ namespace COMETwebapp
     using CDP4Dal;
 
     using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
@@ -83,7 +83,7 @@ namespace COMETwebapp
             builder.Services.AddAuthorizationCore();
             builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
-            builder.Services.AddSingleton<IIterationService, IterationService>();
+            builder.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();

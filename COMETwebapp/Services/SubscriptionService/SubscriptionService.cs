@@ -1,0 +1,183 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="SubscriptionService.cs" company="RHEA System S.A.">
+//     Copyright (c) 2023 RHEA System S.A.
+// 
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
+// 
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
+
+namespace COMETwebapp.Services.SubscriptionService
+{
+    using System.Collections.ObjectModel;
+    using System.Reactive.Linq;
+
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
+    using CDP4Dal.Events;
+
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Model;
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
+
+    using ReactiveUI;
+
+    /// <summary>
+    /// This service tracks change one <see cref="ParameterSubscription" /> for all opened <see cref="Iteration" />
+    /// </summary>
+    public class SubscriptionService : DisposableObject, ISubscriptionService
+    {
+        /// <summary>
+        /// The <see cref="ISessionService" />
+        /// </summary>
+        private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// <see cref="Dictionary{TKey,TValue}" /> that tracks the <see cref="ParameterSubscription" /> inside an
+        /// <see cref="Iteration" />
+        /// </summary>
+        private readonly Dictionary<Guid, List<TrackedParameterSubscription>> trackedSubscriptions = new();
+
+        /// <summary>
+        /// Backing field for the <see cref="SubscriptionUpdateCount" />
+        /// </summary>
+        private int subscriptionUpdateCount;
+
+        /// <summary>
+        /// Initializes a new <see cref="SubscriptionService" />
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        public SubscriptionService(ISessionService sessionService)
+        {
+            this.sessionService = sessionService;
+            this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.ComputeUpdateSinceLastTracking()));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+                {
+                    this.UpdateTrackedSubscriptions(x.Iteration);
+                    this.ComputeUpdateSinceLastTracking();
+                }
+            ));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate)
+                .Subscribe(_ => this.ComputeUpdateSinceLastTracking()));
+        }
+
+        /// <summary>
+        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to the tracked subscriptions
+        /// </summary>
+        public IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions => new ReadOnlyDictionary<Guid, List<TrackedParameterSubscription>>(this.trackedSubscriptions);
+
+        /// <summary>
+        /// The current number of new <see cref="ParameterSubscription" /> updates
+        /// </summary>
+        public int SubscriptionUpdateCount
+        {
+            get => this.subscriptionUpdateCount;
+            set => this.RaiseAndSetIfChanged(ref this.subscriptionUpdateCount, value);
+        }
+
+        /// <summary>
+        /// Updates the tracked subscriptions for all open <see cref="Iteration" />
+        /// </summary>
+        public void UpdateTrackedSubscriptions()
+        {
+            this.RemoveClosedIterations();
+
+            foreach (var openIteration in this.sessionService.OpenIterations.Items)
+            {
+                this.UpdateTrackedSubscriptions(openIteration);
+            }
+        }
+
+        /// <summary>
+        /// Updates the tracked subscriptions for an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        public void UpdateTrackedSubscriptions(Iteration iteration)
+        {
+            var domain = this.sessionService.GetDomainOfExpertise(iteration);
+
+            this.trackedSubscriptions[iteration.Iid] = new List<TrackedParameterSubscription>(iteration.QueryParameterSubscriptions(domain)
+                .Select(x => new TrackedParameterSubscription(x)));
+        }
+
+        /// <summary>
+        /// Removes all closed <see cref="Iteration" /> from the tracked subscriptions
+        /// </summary>
+        private void RemoveClosedIterations()
+        {
+            foreach (var closedIterationId in this.trackedSubscriptions.Keys.Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x)).ToList())
+            {
+                this.trackedSubscriptions.Remove(closedIterationId);
+            }
+        }
+
+        /// <summary>
+        /// Computes the number of updates of <see cref="ParameterSubscription" /> since the last tracking
+        /// </summary>
+        private void ComputeUpdateSinceLastTracking()
+        {
+            this.RemoveClosedIterations();
+
+            var updates = new Dictionary<Guid, int>();
+
+            foreach (var iteration in this.sessionService.OpenIterations.Items)
+            {
+                var domain = this.sessionService.GetDomainOfExpertise(iteration);
+                updates[iteration.Iid] = this.ComputeUpdateSinceLastTracking(iteration, domain);
+            }
+
+            this.SubscriptionUpdateCount = updates.Values.Sum();
+        }
+
+        /// <summary>
+        /// Compute the number of updates in an <see cref="Iteration" /> after a session refresh related to
+        /// <see cref="ParameterSubscription" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>The number of new updates</returns>
+        private int ComputeUpdateSinceLastTracking(Iteration iteration, DomainOfExpertise domainOfExpertise)
+        {
+            var newSubscriptions = iteration.QueryParameterSubscriptions(domainOfExpertise)
+                .Select(x => new TrackedParameterSubscription(x)).ToList();
+
+            if (!this.trackedSubscriptions.ContainsKey(iteration.Iid))
+            {
+                this.UpdateTrackedSubscriptions(iteration);
+                return 0;
+            }
+
+            var oldSubcriptions = this.trackedSubscriptions[iteration.Iid];
+            var updateCount = 0;
+
+            foreach (var subscription in newSubscriptions)
+            {
+                var existingSubscription = oldSubcriptions.FirstOrDefault(x => x.ParameterSubscriptionId == subscription.ParameterSubscriptionId);
+                updateCount += existingSubscription?.ComputeNumberOfUpdates(subscription) ?? 1;
+            }
+
+            return updateCount;
+        }
+    }
+}

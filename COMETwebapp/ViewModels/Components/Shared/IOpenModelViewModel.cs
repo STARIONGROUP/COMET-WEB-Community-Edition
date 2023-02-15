@@ -28,11 +28,12 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Model;
+    using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
     /// Interface definition for <see cref="OpenModelViewModel" />
     /// </summary>
-    public interface IOpenModelViewModel : IDisposableViewModel
+    public interface IOpenModelViewModel : IDisposableObject
     {
         /// <summary>
         /// The selected <see cref="EngineeringModelSetup" />

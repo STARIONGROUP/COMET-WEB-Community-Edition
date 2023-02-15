@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 {
-    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.Utilities.DisposableObject;
 
     using Microsoft.AspNetCore.Components.Authorization;
 
@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     /// <summary>
     /// View model that enables the authorization state into the top menu
     /// </summary>
-    public class AuthorizedMenuEntryViewModel : DisposableViewModel, IAuthorizedMenuEntryViewModel
+    public class AuthorizedMenuEntryViewModel : DisposableObject, IAuthorizedMenuEntryViewModel
     {
         /// <summary>
         /// The <see cref="AuthenticationStateProvider" />

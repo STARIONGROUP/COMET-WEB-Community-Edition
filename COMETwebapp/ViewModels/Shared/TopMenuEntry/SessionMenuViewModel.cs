@@ -29,15 +29,16 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     using CDP4Dal;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.SessionManagement;
-    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.Utilities.DisposableObject;
 
     using ReactiveUI;
 
     /// <summary>
     /// View model that handles the menu entry related to the <see cref="ISession" />
     /// </summary>
-    public class SessionMenuViewModel : DisposableViewModel, ISessionMenuViewModel
+    public class SessionMenuViewModel : DisposableObject, ISessionMenuViewModel
     {
         /// <summary>
         /// Backing field for <see cref="IsRefreshing" />
@@ -50,11 +51,14 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         /// <param name="sessionService">The <see cref="ISessionMenuViewModel" /></param>
         /// <param name="autoRefreshService">The <see cref="IAutoRefreshService" /></param>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, IAuthenticationService authenticationService)
+        /// <param name="subscriptionService">The <see cref="ISubscriptionService" /></param>
+        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, IAuthenticationService authenticationService
+            , ISubscriptionService subscriptionService)
         {
             this.SessionService = sessionService;
             this.AutoRefreshService = autoRefreshService;
             this.AuthenticationService = authenticationService;
+            this.SubscriptionService = subscriptionService;
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing)
                 .Subscribe(_ => { this.IsRefreshing = true; }));
@@ -62,6 +66,11 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
             this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate)
                 .Subscribe(_ => { this.IsRefreshing = false; }));
         }
+
+        /// <summary>
+        /// The <see cref="ISubscriptionService" />
+        /// </summary>
+        public ISubscriptionService SubscriptionService { get; }
 
         /// <summary>
         /// Value indiciating that the <see cref="ISession" /> is currently refreshing

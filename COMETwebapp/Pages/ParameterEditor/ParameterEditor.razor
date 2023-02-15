@@ -19,7 +19,6 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.IterationServices
 @using COMETwebapp.SessionManagement
 @using CDP4Dal
 @using CDP4Dal.Events
@@ -29,7 +28,6 @@ Copyright (c) 2023 RHEA System S.A.
 
 @page "/ParameterEditor"
 @inject NavigationManager NavigationManager
-@inject IIterationService IterationService
 @inject ISessionService SessionService
 
 @implements IDisposable
@@ -184,7 +182,7 @@ Copyright (c) 2023 RHEA System S.A.
         this.InitializeElements();
 
         this.ParameterTypeNames = new List<string>();
-        this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
+        this.SessionService.DefaultIteration.QueryUsedParameterTypes().OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {

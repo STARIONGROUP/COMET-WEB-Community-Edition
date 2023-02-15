@@ -28,12 +28,13 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.Shared;
 
     /// <summary>
     /// Interface definition for <see cref="ModelMenuViewModel" />
     /// </summary>
-    public interface IModelMenuViewModel : IDisposableViewModel
+    public interface IModelMenuViewModel : IDisposableObject
     {
         /// <summary>
         /// The <see cref="ISessionService" />

@@ -30,7 +30,6 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.Services.SessionManagement
 
 @inject ISessionService SessionService
-@inject IIterationService IterationService
 @implements IDisposable
 
 @if(this.Parameter != null && this.ParameterValueSet != null)
@@ -454,11 +453,6 @@ Copyright (c) 2023 RHEA System S.A.
     /// </summary>
     protected override void OnInitialized()
     {
-        if (this.ParameterValueSet != null && this.IsEditable())
-        {
-            this.isParameterValueSetEdited = this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid);
-        }
-
         if (!this.listeners.TryGetValue("NewUpdate", out var listener)) {
             this.listeners.Add("NewUpdate", CDPMessageBus.Current.Listen<NewUpdateEvent>().Where(x => x.UpdatedThingIid == this.ParameterValueSet?.Iid).Subscribe(x =>
             {
@@ -503,10 +497,6 @@ Copyright (c) 2023 RHEA System S.A.
     {
         if (this.ParameterValueSet != null)
         {
-            if(this.IsEditable() && !this.IterationService.NewUpdates.Contains(this.ParameterValueSet.Iid))
-            {
-                this.IterationService.NewUpdates.Add(this.ParameterValueSet.Iid);
-            }
             var clonedParameterValueSet = this.ParameterValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
             this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()

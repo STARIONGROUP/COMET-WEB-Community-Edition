@@ -24,13 +24,9 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -47,7 +43,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         private TestContext context;
         private IPropertiesComponentViewModel viewModel;
         private Mock<IBabylonInterop> babylonInterop;
-        private Mock<IIterationService> iteratioService;
         private Mock<ISessionService> sessionService;
         private Mock<ISelectionMediator> selectionMediator;
 
@@ -57,33 +52,24 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             this.context = new TestContext();
             this.selectionMediator = new Mock<ISelectionMediator>();
 
-            this.selectionMediator.Setup(x => x.RaiseOnModelSelectionChanged(null)).Callback(()=>this.viewModel.IsVisible = false);
+            this.selectionMediator.Setup(x => x.RaiseOnModelSelectionChanged(null)).Callback(() => this.viewModel.IsVisible = false);
             this.selectionMediator.Setup(x => x.RaiseOnTreeSelectionChanged(null)).Callback(() => this.viewModel.IsVisible = false);
 
-
             this.context.Services.AddSingleton(this.selectionMediator.Object);
-            
+
             this.babylonInterop = new Mock<IBabylonInterop>();
-            this.iteratioService = new Mock<IIterationService>();
             this.sessionService = new Mock<ISessionService>();
 
-            this.viewModel = new PropertiesComponentViewModel(this.babylonInterop.Object, this.iteratioService.Object, this.sessionService.Object, this.selectionMediator.Object);
+            this.viewModel = new PropertiesComponentViewModel(this.babylonInterop.Object, this.sessionService.Object, this.selectionMediator.Object);
         }
 
         [Test]
-        public void VerifyViewModel()
+        public void VerifyThatOnModelSelectionWorks()
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.BabylonInterop, Is.Not.Null);
-                Assert.That(this.viewModel.IterationService, Is.Not.Null);
-                Assert.That(this.viewModel.SessionService, Is.Not.Null);
-                Assert.That(this.viewModel.SelectionMediator, Is.Not.Null);
-                Assert.That(this.viewModel.SelectedParameter, Is.Null);
-                Assert.That(this.viewModel.ParametersInUse, Is.Not.Null);
-                Assert.That(this.viewModel.ParametersInUse, Has.Count.EqualTo(0));
-                Assert.That(this.viewModel.ParameterHaveChanges, Is.False);
-            });
+            this.viewModel.IsVisible = true;
+            Assert.That(this.viewModel.IsVisible, Is.True);
+            this.viewModel.SelectionMediator.RaiseOnModelSelectionChanged(null);
+            Assert.That(this.viewModel.IsVisible, Is.False);
         }
 
         [Test]
@@ -96,12 +82,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         [Test]
-        public void VerifyThatOnModelSelectionWorks()
+        public void VerifyViewModel()
         {
-            this.viewModel.IsVisible = true;
-            Assert.That(this.viewModel.IsVisible, Is.True);
-            this.viewModel.SelectionMediator.RaiseOnModelSelectionChanged(null);
-            Assert.That(this.viewModel.IsVisible, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.BabylonInterop, Is.Not.Null);
+                Assert.That(this.viewModel.SessionService, Is.Not.Null);
+                Assert.That(this.viewModel.SelectionMediator, Is.Not.Null);
+                Assert.That(this.viewModel.SelectedParameter, Is.Null);
+                Assert.That(this.viewModel.ParametersInUse, Is.Not.Null);
+                Assert.That(this.viewModel.ParametersInUse, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.ParameterHaveChanges, Is.False);
+            });
         }
     }
 }

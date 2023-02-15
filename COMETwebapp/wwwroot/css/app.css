@@ -281,13 +281,6 @@ html, body, #app {
     max-width: 230px;
 }
 
-.notification .badge {
-    position: absolute;
-    border-radius: 50%;
-    background: red;
-    color: white;
-}
-
 .m-top-20px{
     margin-top: 20px;
 }

@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.Shared;
 
     using DevExpress.Blazor;
@@ -40,7 +41,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     /// <summary>
     /// View model that handles the menu entry related to the opened <see cref="EngineeringModel" />
     /// </summary>
-    public class ModelMenuViewModel : DisposableViewModel, IModelMenuViewModel
+    public class ModelMenuViewModel : DisposableObject, IModelMenuViewModel
     {
         /// <summary>
         /// The <see cref="EventCallback{TValue}" /> for closing an <see cref="Iteration" />

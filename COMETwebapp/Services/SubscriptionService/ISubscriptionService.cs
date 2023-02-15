@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IBelongsToIterationSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ISubscriptionService.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,19 +22,37 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Selectors
+namespace COMETwebapp.Services.SubscriptionService
 {
     using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.Model;
     using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
-    /// Interface definition for <see cref="BelongsToIterationSelectorViewModel"/>
+    /// Interface definition of <see cref="SubscriptionService"/>
     /// </summary>
-    public interface IBelongsToIterationSelectorViewModel: IDisposableObject
-	{
-		/// <summary>
-		/// The current <see cref="Iteration" />
-		/// </summary>
-		Iteration CurrentIteration { get; set; }
-	}
+    public interface ISubscriptionService: IDisposableObject
+    {
+        /// <summary>
+        /// The current number of new <see cref="ParameterSubscription" /> updates
+        /// </summary>
+        int SubscriptionUpdateCount { get; set; }
+
+        /// <summary>
+        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to the tracked subscriptions
+        /// </summary>
+        IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions { get; }
+
+        /// <summary>
+        /// Updates the tracked subscriptions for all open <see cref="Iteration" />
+        /// </summary>
+        void UpdateTrackedSubscriptions();
+
+        /// <summary>
+        /// Updates the tracked subscriptions for an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        void UpdateTrackedSubscriptions(Iteration iteration);
+    }
 }

@@ -22,30 +22,45 @@
 @inherits AuthorizedMenuEntry
 
 <DxMenuItem Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
-	<SubMenuTemplate>
-		<div class="session__header">
-			<div class="row justify-content-center">
-				@(this.AuthorizedMenuEntryViewModel.UserName)
-			</div>
+    <TextTemplate>
+        @if (this.ViewModel.SubscriptionService.SubscriptionUpdateCount > 0)
+        {
+            <div>
+                @context.Text
+                <span class="notification">@this.ViewModel.SubscriptionService.SubscriptionUpdateCount</span>
+            </div>
+        }
+        else
+        {
+            <div>
+                @context.Text
+            </div>
+        }
+    </TextTemplate>
+    <SubMenuTemplate>
+        <div class="session__header">
+            <div class="row justify-content-center">
+                @(this.AuthorizedMenuEntryViewModel.UserName)
+            </div>
 
-			<div class="row justify-content-center font-size-smaller">
-				@(this.ViewModel.SessionService.Session.DataSourceUri)
-			</div>
-		</div>
-		<div class="session_content">
-			<div class="content__autorefresh">
-				<DxCheckBox @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
-				Refresh every
-				<span></span>
-				<DxSpinEdit CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
-				            BindValueMode="BindValueMode.OnInput" MinValue="1"/>
-				sec
-			</div>
-			<div class="session__buttons">
-				<DxButton CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession" />
-				<DxButton CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout" />
-			</div>
-		</div>
-	</SubMenuTemplate>
+            <div class="row justify-content-center font-size-smaller">
+                @(this.ViewModel.SessionService.Session.DataSourceUri)
+            </div>
+        </div>
+        <div class="session_content">
+            <div class="content__autorefresh">
+                <DxCheckBox @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
+                Refresh every
+                <span></span>
+                <DxSpinEdit CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
+                            BindValueMode="BindValueMode.OnInput" MinValue="1"/>
+                sec
+            </div>
+            <div class="session__buttons">
+                <DxButton CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession"/>
+                <DxButton CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout"/>
+            </div>
+        </div>
+    </SubMenuTemplate>
 </DxMenuItem>
 

@@ -24,16 +24,16 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
+    using COMETwebapp.Utilities.DisposableObject;
+    using DynamicData.Binding;
 
-	using DynamicData.Binding;
+    using ReactiveUI;
 
-	using ReactiveUI;
-
-	/// <summary>
-	/// Abstract class for View Model selector that belongs to an <see cref="Iteration" />
-	/// </summary>
-	public abstract class BelongsToIterationSelectorViewModel : DisposableViewModel, IBelongsToIterationSelectorViewModel
+    /// <summary>
+    /// Abstract class for View Model selector that belongs to an <see cref="Iteration" />
+    /// </summary>
+    public abstract class BelongsToIterationSelectorViewModel : DisposableObject, IBelongsToIterationSelectorViewModel
 	{
 		/// <summary>
 		/// Backing field for <see cref="CurrentIteration" />

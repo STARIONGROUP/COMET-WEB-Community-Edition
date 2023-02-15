@@ -27,7 +27,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using Bunit;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
@@ -52,7 +51,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.context = new TestContext();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             this.context.Services.AddSingleton<ISessionService, SessionService>();
-            this.context.Services.AddSingleton<IIterationService, IterationService>();
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
             

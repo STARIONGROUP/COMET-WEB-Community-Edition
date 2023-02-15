@@ -78,7 +78,8 @@ namespace COMETwebapp.Shared.TopMenuEntry
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsRefreshing)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsRefreshing,
+                    x => x.ViewModel.SubscriptionService.SubscriptionUpdateCount)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }

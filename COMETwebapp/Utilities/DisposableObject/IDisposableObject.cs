@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DisposableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IDisposableObject.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,39 +22,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared
+namespace COMETwebapp.Utilities.DisposableObject
 {
-	using ReactiveUI;
-
-	/// <summary>
-	/// Base view model that implements the IDisposable pattern
-	/// </summary>
-	public abstract class DisposableViewModel : ReactiveObject, IDisposableViewModel
-	{
-		/// <summary>
-		/// A collection of <see cref="IDisposable" />
-		/// </summary>
-		protected List<IDisposable> Disposables = new();
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		public void Dispose()
-		{
-			this.Dispose(true);
-		}
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		/// <param name="disposing">Value asserting if this component should dispose or not</param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				this.Disposables.ForEach(x => x.Dispose());
-				this.Disposables.Clear();
-			}
-		}
-	}
+    /// <summary>
+    /// Interface definition for <see cref="DisposableObject" />
+    /// </summary>
+    public interface IDisposableObject : IDisposable
+    {
+    }
 }

@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Shared
 
     using COMETwebapp.Components.Shared;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
     using COMETwebapp.Shared.TopMenuEntry;
@@ -83,6 +84,7 @@ namespace COMETwebapp.Tests.Shared
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
+            this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             this.context.ConfigureDevExpressBlazor();
         }
 

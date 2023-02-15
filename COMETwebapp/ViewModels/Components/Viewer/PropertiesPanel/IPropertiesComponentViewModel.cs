@@ -26,32 +26,25 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Utilities;
     using COMETwebapp.Model;
-    
-    using Microsoft.AspNetCore.Components;
-    
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.Interoperability;
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface for the <see cref="PropertiesComponentViewModel"/>
+    /// Interface for the <see cref="PropertiesComponentViewModel" />
     /// </summary>
     public interface IPropertiesComponentViewModel
     {
         /// <summary>
-        /// Injected property to get access to <see cref="IIterationService"/>
-        /// </summary>
-        IIterationService IterationService { get; set; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="ISessionService"/>
+        /// Injected property to get access to <see cref="ISessionService" />
         /// </summary>
         ISessionService SessionService { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// Gets or sets the <see cref="ISelectionMediator" />
         /// </summary>
         ISelectionMediator SelectionMediator { get; set; }
 
@@ -61,12 +54,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the selected <see cref="SceneObject"/>
+        /// The collection of <see cref="ParameterBase" /> and <see cref="IValueSet" /> of the selected <see cref="SceneObject" />
         /// </summary>
         Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
 
         /// <summary>
-        /// The list of parameters that the selected <see cref="SceneObject"/> uses
+        /// The list of parameters that the selected <see cref="SceneObject" /> uses
         /// </summary>
         List<ParameterBase> ParametersInUse { get; set; }
 
@@ -75,18 +68,18 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         bool ParameterHaveChanges { get; set; }
 
-        /// <summary> 
-        /// Gets or sets if this component is visible 
-        /// </summary> 
+        /// <summary>
+        /// Gets or sets if this component is visible
+        /// </summary>
         bool IsVisible { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
+        /// Gets or sets the selected <see cref="ParameterBase" /> to fill the details
         /// </summary>
         ParameterBase SelectedParameter { get; set; }
 
         /// <summary>
-        /// Event callback for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed
+        /// Event callback for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed
         /// </summary>
         EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueSetChanged { get; set; }
 
@@ -95,16 +88,19 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </summary>
         void OnSubmit();
 
-        /// <summary> 
-        /// Event for when a parameter item has been clicked 
-        /// </summary> 
-        /// <param name="parameterBase">the parameter clicked</param> 
+        /// <summary>
+        /// Event for when a parameter item has been clicked
+        /// </summary>
+        /// <param name="parameterBase">the parameter clicked</param>
         void OnParameterClick(ParameterBase parameterBase);
 
         /// <summary>
         /// Event for when a parameter has changed it's value
         /// </summary>
-        /// <param name="parameterValueSetRelations">contains the new <see cref="IValueSet"/> for a specific <see cref="ParameterBase"/></param>
+        /// <param name="parameterValueSetRelations">
+        /// contains the new <see cref="IValueSet" /> for a specific
+        /// <see cref="ParameterBase" />
+        /// </param>
         void OnParameterValueChanged(Dictionary<ParameterBase, IValueSet> parameterValueSetRelations);
     }
 }
