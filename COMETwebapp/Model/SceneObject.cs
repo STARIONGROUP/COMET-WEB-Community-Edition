@@ -111,7 +111,7 @@ namespace COMETwebapp.Model
         /// Creates a new empty instance of type <see cref="SceneObject"/>. Used only for testing. 
         /// </summary>
         /// <param name="primitive">the primitive that contains</param>
-        public SceneObject(Primitive? primitive)
+        public SceneObject(Primitive primitive)
         {
             this.Primitive = primitive;
         }

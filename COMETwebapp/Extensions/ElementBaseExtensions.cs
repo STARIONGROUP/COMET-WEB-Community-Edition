@@ -42,58 +42,24 @@ namespace COMETwebapp.Extensions
 
             if (elementBase is ElementDefinition elementDefinition)
             {
-                parameters.AddRange(elementDefinition.GetParametersInUse());
+                parameters.AddRange(elementDefinition.Parameter.Distinct());
             }
             else if (elementBase is ElementUsage elementUsage)
             {
-                parameters.AddRange(elementUsage.GetParametersInUse());
+                parameters.AddRange(elementUsage.ParameterOverride);
+
+                foreach (var parameter in elementUsage.ElementDefinition.Parameter)
+                {
+                    if (parameters.All(p => p.ParameterType.Iid != parameter.ParameterType.Iid))
+                    {
+                        parameters.Add(parameter);
+                    }
+                }
             }
 
             return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
         }
-
-        /// <summary> 
-        /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementDefinition"/> uses 
-        /// </summary> 
-        /// <param name="elementDefinition">the element definition</param> 
-        /// <returns>a <see cref="IEnumerable{T}"/> with the <see cref="ParameterBase"/></returns> 
-        public static IEnumerable<ParameterBase> GetParametersInUse(this ElementDefinition elementDefinition)
-        {
-            var parameters = new List<ParameterBase>();
-
-            elementDefinition.Parameter.ForEach(x =>
-            {
-                if (!parameters.Any(par => par.ParameterType.ShortName == x.ParameterType.ShortName))
-                {
-                    parameters.Add(x);
-                }
-            });
-
-            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
-        }
-
-        /// <summary>
-        /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementUsage"/> uses
-        /// </summary>
-        /// <param name="elementUsage">the element usage</param>
-        /// <returns>a <see cref="IEnumerable{T}"/> with the <see cref="ParameterBase"/></returns>
-        public static IEnumerable<ParameterBase> GetParametersInUse(this ElementUsage elementUsage)
-        {
-            var parameters = new List<ParameterBase>();
-
-            parameters.AddRange(elementUsage.ParameterOverride);
-
-            elementUsage.ElementDefinition.Parameter.ForEach(x =>
-            {
-                if (!parameters.Any(par => par.ParameterType.ShortName == x.ParameterType.ShortName))
-                {
-                    parameters.Add(x);
-                }
-            });
-
-            return parameters.OrderBy(x => x.ParameterType.ShortName).ToList();
-        }
-
+        
         /// <summary>
         /// Filters the <param name="elements"/> by the <param name="state"/>
         /// </summary>
@@ -121,9 +87,9 @@ namespace COMETwebapp.Extensions
                 }
                 else if (element is ElementUsage elementUsage)
                 {
-                    if (!elementUsage.ParameterOverride.Any())
+                    if (elementUsage.ParameterOverride.Any())
                     {
-                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
+                        elementUsage.ParameterOverride.ForEach(p =>
                         {
                             p.ValueSet.ForEach(v =>
                             {
