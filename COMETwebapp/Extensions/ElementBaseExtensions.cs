@@ -116,7 +116,7 @@ namespace COMETwebapp.Extensions
 
             return filteredElements;
         }
-
+        
         /// <summary>
         /// Filters the <param name="elements"/> by the <param name="state"/>
         /// </summary>
@@ -144,9 +144,9 @@ namespace COMETwebapp.Extensions
                 }
                 else if (element is ElementUsage elementUsage)
                 {
-                    if (!elementUsage.ParameterOverride.Any())
+                    if (elementUsage.ParameterOverride.Any())
                     {
-                        elementUsage.ElementDefinition.Parameter.ForEach(p =>
+                        elementUsage.ParameterOverride.ForEach(p =>
                         {
                             p.ValueSet.ForEach(v =>
                             {
