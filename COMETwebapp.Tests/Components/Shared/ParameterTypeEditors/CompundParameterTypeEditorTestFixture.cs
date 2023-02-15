@@ -36,12 +36,12 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -63,7 +63,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
 
             var compoundValues = new List<string> { "1", "0", "3" };
@@ -120,7 +120,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parametertype);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
 
-            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet valueSet) =>
+            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
             {
                 this.eventCallbackCalled = true;
             });

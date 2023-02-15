@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DevExpress.Blazor;
@@ -63,7 +64,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule");
 
             var parameterValueSet = new ParameterValueSet()

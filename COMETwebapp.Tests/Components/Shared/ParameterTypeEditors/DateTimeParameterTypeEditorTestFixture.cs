@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using CDP4Common.Types;
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
@@ -60,7 +61,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
 
             var parameterValueSet = new ParameterValueSet()

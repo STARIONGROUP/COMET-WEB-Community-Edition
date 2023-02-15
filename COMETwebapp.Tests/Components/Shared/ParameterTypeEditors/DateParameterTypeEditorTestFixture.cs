@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using CDP4Common.Types;
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DevExpress.Blazor;
@@ -54,7 +55,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<DateParameterTypeEditor> renderedComponent;
         private DateParameterTypeEditor editor;
-        private bool EventCallbackCalled = false;
+        private bool eventCallbackCalled = false;
         private Mock<IParameterEditorBaseViewModel<DateParameterType>> viewModelMock;
         private EventCallback<IValueSet> eventCallback;
 
@@ -62,7 +63,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
 
             var parameterValueSet = new ParameterValueSet()
             {
@@ -76,7 +77,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             
             this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet valueSet) =>
             {
-                this.EventCallbackCalled = true;
+                this.eventCallbackCalled = true;
             });
 
             this.renderedComponent = this.context.RenderComponent<DateParameterTypeEditor>(parameters =>
