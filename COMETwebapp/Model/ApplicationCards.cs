@@ -86,6 +86,13 @@ namespace COMETwebapp.Model
                 Color = "#fc3a1aad",
                 Icon = "file",
                 Description = "Visualize reference data"
+            },
+            new Card()
+            {
+                Name = "User Management",
+                Color = "#76fd98",
+                Icon = "people",
+                Description = "Manage users"
             }
         };
     }
