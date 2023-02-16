@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,9 +21,42 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 @page "/SystemRepresentation"
+@using COMETwebapp.Components.SystemRepresentation
 
 <ApplicationTemplate Title="System Representation">
     <Body>
-        Application in development.
+        <div class="row">
+            <div class="col">
+                <h6>Filter on Option:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="this.ViewModel.Options"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.OptionSelected"
+                                ValueChanged="@((string option) => OnOptionFilterChange(option))"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+                </div>
+                <h6>Filter on Domain:</h6>
+                <div class="width-fit-content">
+                    <DxComboBox Data="this.ViewModel.Domains"
+                                AllowUserInput="true"
+                                NullText="--Select--"
+                                Value="this.DomainSelected"
+                                ValueChanged="@((string domain) => OnDomainFilterChange(domain))"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+                </div>
+            </div>
+        </div>
+
+       
+		<div id="gridParent">
+            <div id="leftColumn">
+                <SystemTree ViewModel="this.ViewModel.SystemTreeViewModel" />
+            </div>
+            <div id="rightColumn">
+                <ElementDefinitionDetails ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+            </div>
+        </div>
     </Body>
 </ApplicationTemplate>
+

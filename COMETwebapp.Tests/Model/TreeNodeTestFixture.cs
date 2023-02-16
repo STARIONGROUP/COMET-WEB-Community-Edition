@@ -25,9 +25,9 @@
 namespace COMETwebapp.Tests.Model
 {
     using COMETwebapp.Model;
+
     using NUnit.Framework;
-    using System.Linq;
-    using System.Security.Cryptography.X509Certificates;
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
