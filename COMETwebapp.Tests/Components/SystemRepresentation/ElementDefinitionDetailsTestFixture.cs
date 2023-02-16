@@ -24,28 +24,32 @@
 
 namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
-    using BlazorStrap;
-    using Bunit;
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-    using CDP4Dal;
-    using CDP4Dal.DAL;
-    using COMETwebapp.Components.SystemRepresentation;
-    using COMETwebapp.Model;
-    using COMETwebapp.Pages.SystemRepresentation;
-    using COMETwebapp.SessionManagement;
-    using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
-    using DevExpress.Blazor;
-    using Microsoft.Extensions.DependencyInjection;
-    using Moq;
-    using NUnit.Framework;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    
+    using Bunit;
+    
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    
+    using CDP4Dal;
+    using CDP4Dal.DAL;
+    
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    
+    using DevExpress.Blazor;
+    
+    using Microsoft.Extensions.DependencyInjection;
+    
+    using Moq;
+    
+    using NUnit.Framework;
+    
     using TestContext = Bunit.TestContext;
 
 

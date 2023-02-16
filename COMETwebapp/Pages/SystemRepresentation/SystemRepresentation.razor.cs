@@ -25,11 +25,13 @@
 namespace COMETwebapp.Pages.SystemRepresentation
 {
     using System.Threading.Tasks;
+    
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
+    
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="SystemRepresentation"/>
+    ///     Support class for the <see cref="SystemRepresentation"/>
     /// </summary>
     public partial class SystemRepresentation
     {
@@ -63,18 +65,18 @@ namespace COMETwebapp.Pages.SystemRepresentation
         public string? DomainSelected { get; set; }
 
         /// <summary>
-        /// Updates Elements list when a filter for option is selected
+        ///     Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the Option selected</param>
+        /// <param name="option">Name of the selected option</param>
         public void OnOptionFilterChange(string? option)
         {
             this.ViewModel.OnOptionFilterChange(option);
         }
 
         /// <summary>
-        /// Updates Elements list when a filter for option is selected
+        ///     Updates Elements list when a filter for domain is selected
         /// </summary>
-        /// <param name="domain">Name of the Option selected</param>
+        /// <param name="domain">Name of the selected domain</param>
         public void OnDomainFilterChange(string? domain)
         {
             this.ViewModel.OnDomainFilterChange(domain);

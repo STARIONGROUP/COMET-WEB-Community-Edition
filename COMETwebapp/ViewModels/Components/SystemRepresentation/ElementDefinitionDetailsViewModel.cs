@@ -23,9 +23,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
-    using COMETwebapp.Model;
-    using COMETwebapp.Components.SystemRepresentation;
     using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.Model;
+    
     using ReactiveUI;
 
 

@@ -24,10 +24,14 @@
 namespace COMETwebapp.Components.SystemRepresentation
 {
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
+    /// <summary>
+    ///     Partial class for the component <see cref="ElementDefinitionDetails"/>
+    /// </summary>
     public partial class ElementDefinitionDetails : IDisposable
     {
         /// <summary>

@@ -24,34 +24,32 @@
 
 namespace COMETwebapp.Model
 {
-    using CDP4Common.CommonData;
-    using CDP4Common.Types;
-    using DynamicData;
+    using COMETwebapp.Components.SystemRepresentation;
 
     /// <summary>
-    /// Represents data of the tree in the <see cref=""/>
+    /// Represents the node of the tree in the <see cref="SystemTree"/>
     /// </summary>
     public record class SystemNode
     {
         /// <summary>
-        /// The children of this <see cref="SystemNode"/>
+        ///     The children of this <see cref="SystemNode"/>
         /// </summary>
         private List<SystemNode> Children { get; set; }
 
         /// <summary>
-        /// Gets or sets the title of this <see cref="SystemNode"/>
+        ///     Gets or sets the title of this <see cref="SystemNode"/>
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// The parent of this <see cref="SystemNode"/>
+        ///     The parent of this <see cref="SystemNode"/>
         /// </summary>
         private SystemNode? Parent { get; set; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="SystemNode"/>
+        ///     Creates a new instance of the <see cref="SystemNode"/>
         /// </summary>
-        /// <param name="title">the <see cref="string"/> asociated to this node</param>
+        /// <param name="title">the <see cref="string"/> title of this node</param>
         public SystemNode(string title)
         {
             this.Children = new List<SystemNode>();
@@ -78,15 +76,15 @@ namespace COMETwebapp.Model
         /// Gets the parent node of this <see cref="SystemNode"/>
         /// </summary>
         /// <returns>the parent node</returns>
-        public SystemNode? GetParentNode()
+        public SystemNode GetParentNode()
         {
             return this.Parent;
         }
 
         /// <summary>
-        /// Gets the children of this <see cref="SystemNode"/>
+        /// Gets the childrens of this <see cref="SystemNode"/>
         /// </summary>
-        /// <returns>the children of the node</returns>
+        /// <returns>the childrens of the node</returns>
         public IReadOnlyList<SystemNode> GetChildren()
         {
             return this.Children.AsReadOnly();

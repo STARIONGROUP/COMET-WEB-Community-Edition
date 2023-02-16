@@ -24,12 +24,20 @@
 
 namespace COMETwebapp.Tests.Page.SystemRepresentation
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    
     using BlazorStrap;
     using Bunit;
+    
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    
     using CDP4Dal;
     using CDP4Dal.DAL;
+    
     using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Pages.SystemRepresentation;
@@ -38,16 +46,16 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
+    
     using DevExpress.Blazor;
-    using Microsoft.AspNetCore.Components;
+    
     using Microsoft.Extensions.DependencyInjection;
+    
     using Moq;
+    
     using NUnit.Framework;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
+    
     using TestContext = Bunit.TestContext;
-
 
     [TestFixture]
     public class SystemRepresentationPageTestFixture
@@ -240,7 +248,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
             });
 
             this.viewModel.OnDomainFilterChange(this.domain.Name);
@@ -248,7 +256,7 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
             });
         }
     }

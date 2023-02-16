@@ -23,11 +23,16 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.Components.SystemRepresentation
 {
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using Microsoft.AspNetCore.Components;
     using AntDesign;
+
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
     
+    using Microsoft.AspNetCore.Components;
+
+    /// <summary>
+    ///     Partial class for the component <see cref="SystemTree"/>
+    /// </summary>
     public partial class SystemTree
     {
         /// <summary>

@@ -24,6 +24,7 @@
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using CDP4Common.EngineeringModelData;
+    
     using COMETwebapp.Model;
 
     /// <summary>

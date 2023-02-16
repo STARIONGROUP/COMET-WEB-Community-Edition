@@ -25,16 +25,20 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
+    using COMETwebapp.Pages.SystemRepresentation;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.Components.SystemRepresentation;
-    using ReactiveUI;
+
     using Microsoft.AspNetCore.Components;
-    using COMETwebapp.IterationServices;
+
+    using ReactiveUI;
 
     /// <summary>
-    ///     View model for the <see cref="ProjectPage" /> page
+    ///     View model for the <see cref="SystemRepresentation" /> page
     /// </summary>
     public class SystemRepresentationPageViewModel : ReactiveObject, ISystemRepresentationPageViewModel
     {
@@ -46,32 +50,32 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         /// The selected option
         /// </summary>
-        public Option? OptionSelected { get; set; }
+        public Option OptionSelected { get; set; }
 
         /// <summary>
-        /// Name of the domain selected
+        /// Name of the selected domain
         /// </summary>
         public DomainOfExpertise DomainSelected { get; set; }
 
         /// <summary>
-        /// List of the names of <see cref="Option"/> available
+        /// List of the names of available <see cref="Option"/> 
         /// </summary>
-        public List<string>? Options { get; set; }
+        public List<string> Options { get; set; }
 
         /// <summary>
-        /// List of the names of <see cref="Option"/> available
+        /// List of the names of available <see cref="Option"/> 
         /// </summary>
-        public List<string>? Domains { get; set; }
+        public List<string> Domains { get; set; }
 
         /// <summary>
         /// Gets or sets the total of domains in this <see cref="Iteration"/>
         /// </summary>
-        public List<DomainOfExpertise>? TotalDomains { get; private set; }
+        public List<DomainOfExpertise> TotalDomains { get; private set; }
 
         /// <summary>
         /// Represents the RootNode of the tree
         /// </summary>
-        public SystemNode? RootNode { get; set; }
+        public SystemNode RootNode { get; set; }
 
         /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
@@ -86,8 +90,10 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         ///     Initializes a new instance of the <see cref="SystemRepresentationPageViewModel" /> class.
         /// </summary>
+        /// <param name="systemTreeViewModel">The <see cref="ISystemTreeViewModel" /></param>
         /// <param name="elementDefinitionDetailsViewModel">The <see cref="IElementDefinitionDetailsViewModel" /></param>
         /// <param name="iterationService">The <see cref="IIterationService" /></param>
+        /// <param name="sessionAnchor">The <see cref="ISessionAnchor" /></param>
         public SystemRepresentationPageViewModel(ISystemTreeViewModel systemTreeViewModel, IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel, IIterationService iterationService, ISessionAnchor sessionAnchor)
         {
             this.iterationService = iterationService;
@@ -160,12 +166,11 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
 
             this.InitializeElements();
             this.CreateElementUsages(this.Elements);
-            this.SystemTreeViewModel.SystemNodes.Clear();
-            this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
+            this.SystemTreeViewModel.SystemNodes = new List<SystemNode> { this.RootNode };
         }
 
         /// <summary>
-        /// Updates Elements list when a filter for option is selected
+        /// Updates Elements list when a filter for domain is selected
         /// </summary>
         /// <param name="domain">Name of the selected Domain</param>
         public void OnDomainFilterChange(string? domain)
@@ -177,16 +182,14 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
             this.Elements.Clear();
             this.InitializeElements();
             this.CreateElementUsages(this.Elements);
-            this.SystemTreeViewModel.SystemNodes.Clear();
-            this.SystemTreeViewModel.SystemNodes.Add(this.RootNode);
+            this.SystemTreeViewModel.SystemNodes = new List<SystemNode> { this.RootNode };
             this.DomainSelected = null;
         }
         
         /// <summary>
-        /// Creates the <see cref="ElementUsage"/> that need to be used fot populating the scene
+        /// Creates the <see cref="ElementUsage"/> used for the system tree nodes
         /// </summary>
         /// <param name="elements">the elements of the current <see cref="Iteration"/></param>
-        /// <returns>the <see cref="ElementUsage"/> used in the scene</returns>
         private void CreateElementUsages(List<ElementBase> elements)
         {
             var topElement = elements.First();
@@ -257,8 +260,9 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         }
 
         /// <summary>
-        ///     Tries to assign a <see cref="Participant" />s to a task
+        ///     set the selected <see cref="SystemNode" />
         /// </summary>
+        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
         /// <returns>A <see cref="Task" /></returns>
         private void SelectElement(SystemNode selectedNode)
         {

@@ -23,8 +23,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
 {
-    using CDP4Common.SiteDirectoryData;
-    using COMETwebapp.SessionManagement;
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
@@ -46,23 +44,23 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         /// <summary>
         /// List of the names of <see cref="Option"/> available
         /// </summary>
-        List<string>? Options { get; set; }
+        List<string> Options { get; set; }
 
         /// <summary>
         /// List of the names of available domains
         /// </summary>
-        List<string>? Domains { get; set; }
+        List<string> Domains { get; set; }
 
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the Option selected</param>
+        /// <param name="option">Name of the selected option</param>
         void OnOptionFilterChange(string? option);
 
         /// <summary>
-        /// Updates Elements list when a filter for option is selected
+        /// Updates Elements list when a filter for domain is selected
         /// </summary>
-        /// <param name="domain">the selected domain</param>
+        /// <param name="domain">Name of the selected domain</param>
         void OnDomainFilterChange(string? domain);
         
         /// <summary>
@@ -71,7 +69,6 @@ namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
         ///     Override this method if you will perform an asynchronous operation and
         ///     want the component to refresh when that operation is completed.
         /// </summary>
-        /// <param name="session">The <see cref="ISessionAnchor" /></param>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         void OnInitializedAsync();
     }

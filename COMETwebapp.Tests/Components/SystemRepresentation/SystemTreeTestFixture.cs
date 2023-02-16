@@ -25,19 +25,20 @@
 namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
     using BlazorStrap;
-    using AntDesign;
     using Bunit;
-    using COMETwebapp.Components.Canvas;
+    
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Model;
-    using COMETwebapp.Primitives;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    
     using Microsoft.Extensions.DependencyInjection;
+    
     using NUnit.Framework;
+    
     using System.Collections.Generic;
+    
     using TestContext = Bunit.TestContext;
-
 
     [TestFixture]
     public class SystemTreeTestFixture
@@ -70,7 +71,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
             Assert.That(renderer.Instance, Is.Not.Null);
 
-            this.systemTreeViewModel.SystemNodes.Add(new SystemNode("node1"));
+            this.systemTreeViewModel.SystemNodes = new List<SystemNode> { new SystemNode("node1") };
             
             renderer.Render();
 
