@@ -24,7 +24,10 @@
 
 namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
+    using System.Collections.Generic;
+
     using BlazorStrap;
+
     using Bunit;
     
     using COMETwebapp.Components.SystemRepresentation;
@@ -35,9 +38,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using Microsoft.Extensions.DependencyInjection;
     
     using NUnit.Framework;
-    
-    using System.Collections.Generic;
-    
+        
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
