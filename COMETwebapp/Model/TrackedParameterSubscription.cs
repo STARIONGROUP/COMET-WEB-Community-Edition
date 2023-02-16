@@ -38,27 +38,10 @@ namespace COMETwebapp.Model
         public TrackedParameterSubscription(ParameterSubscription subscription)
         {
             this.ParameterSubscriptionId = subscription.Iid;
-
-            switch (subscription.Container)
+           
+            foreach (var parameterSubscriptionValueSet in subscription.ValueSet)
             {
-                case Parameter parameter:
-                {
-                    foreach (var parameterValueSet in parameter.ValueSet)
-                    {
-                        this.ParameterValueSetsCurrentRevision[parameterValueSet.Iid] = parameterValueSet.RevisionNumber;
-                    }
-
-                    break;
-                }
-                case ParameterOverride parameterOverride:
-                {
-                    foreach (var parameterValueSet in parameterOverride.ValueSet)
-                    {
-                        this.ParameterValueSetsCurrentRevision[parameterValueSet.Iid] = parameterValueSet.RevisionNumber;
-                    }
-
-                    break;
-                }
+                this.ParameterValueSetsCurrentRevision[parameterSubscriptionValueSet.Iid] = parameterSubscriptionValueSet.RevisionNumber;
             }
         }
 

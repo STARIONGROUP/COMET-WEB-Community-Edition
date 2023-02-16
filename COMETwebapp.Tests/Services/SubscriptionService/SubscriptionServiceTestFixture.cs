@@ -136,7 +136,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                 }
             };
 
-            var valueSet = new ParameterOverrideValueSet { Iid = Guid.NewGuid() };
+            var valueSet = new ParameterSubscriptionValueSet() { Iid = Guid.NewGuid() };
 
             var accelerometerUsage = new ElementUsage()
             {
@@ -150,8 +150,8 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                         Iid = Guid.NewGuid(),
                         Parameter = accelerometerBox.Parameter[1],
                         Owner = thermalOwner,
-                        ValueSet = { valueSet },
-                        ParameterSubscription = {  new ParameterSubscription() { Iid = Guid.NewGuid(), Owner = systemOwner } }
+                        ValueSet = { new ParameterOverrideValueSet { Iid = Guid.NewGuid() } },
+                        ParameterSubscription = {  new ParameterSubscription() { Iid = Guid.NewGuid(), Owner = systemOwner, ValueSet = { valueSet }} }
                     }
                 }
             };
