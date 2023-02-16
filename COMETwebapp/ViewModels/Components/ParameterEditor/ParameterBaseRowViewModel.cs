@@ -87,12 +87,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="ActualFiniteState"/> name this <see cref="Parameter"/> is dependant on
         /// </summary>
-        public string State { get; } 
+        public string State { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="IValueSet"/> of this <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
-        private IValueSet ValueSet { get; set; }
+        public IValueSet ValueSet { get; }
 
         /// <summary>
         /// Creates a new instance of type <see cref="ParameterBaseRowViewModel"/>

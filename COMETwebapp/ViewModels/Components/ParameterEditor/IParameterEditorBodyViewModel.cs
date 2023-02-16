@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IParameterEditorBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,22 +22,20 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Pages.ParameterEditor
+namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.IterationServices;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Services.SubscriptionService;
-    using DynamicData;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using DynamicData;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Pages.ParameterEditor.ParameterEditor"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody"/>
     /// </summary>
-    public interface IParameterEditorViewModel
+    public interface IParameterEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
         /// Gets or sets the <see cref="ISubscriptionService"/>
@@ -45,14 +43,24 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISessionService"/>
+        /// Gets the <see cref="IElementBaseSelectorViewModel"/>
         /// </summary>
-        ISessionService SessionService { get; set; }
+        IElementBaseSelectorViewModel ElementSelector { get; }
 
         /// <summary>
-        /// The selected <see cref="ElementBase"/> to filter
+        /// Gets the <see cref="IOptionSelectorViewModel" />
         /// </summary>
-        ElementBase SelectedElementFilter { get; set; }
+        IOptionSelectorViewModel OptionSelector { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// </summary>
+        IFiniteStateSelectorViewModel FiniteStateSelector { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// </summary>
+        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration
@@ -70,27 +78,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         bool IsOwnedParameters { get; set; }
 
         /// <summary>
-        /// Name of the parameter type selected
-        /// </summary>
-        ParameterType SelectedParameterTypeFilter { get; set; }
-
-        /// <summary>
-        /// Name of the option selected
-        /// </summary>
-        Option SelectedOptionFilter { get; set; }
-
-        /// <summary>
-        /// Name of the state selected
-        /// </summary>
-        ActualFiniteState SelectedStateFilter { get; set; }
-
-        /// <summary>
-        /// All ParameterType names in the model
-        /// </summary>
-        List<ParameterType> ParameterTypes { get; set; }
-
-        /// <summary>
-        /// Initializes the <see cref="ParameterEditorViewModel"/>
+        /// Initializes the <see cref="IParameterEditorBodyViewModel"/>
         /// </summary>
         void InitializeViewModel();
 

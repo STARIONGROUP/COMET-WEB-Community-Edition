@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterEditorBody.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,39 +22,43 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared.ParameterTypeEditors
+using ReactiveUI;
+
+namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
-
     using Microsoft.AspNetCore.Components;
-    
-    using ReactiveUI;
 
     /// <summary>
-    /// Partial class for the <see cref="ParameterTypeEditorSelector"/> component
+    /// Support class for the <see cref="ParameterEditorBody"/> component
     /// </summary>
-    public partial class ParameterTypeEditorSelector
+    public partial class ParameterEditorBody
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel{T}"/>
+        /// The initial <see cref="ElementBase" />
         /// </summary>
         [Parameter]
-        public IParameterTypeEditorSelectorViewModel<ParameterType> ViewModel { get; set; }
+        public ElementBase InitialElementBase { get; set; }
 
         /// <summary>
-        /// Event Callback for when a value has changed on the parameter
+        /// The initial <see cref="Option" />
         /// </summary>
         [Parameter]
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public Option InitialOption { get; set; }
 
         /// <summary>
-        /// Gets or sets if the Editor created by this selector is readonly
+        /// The initial <see cref="ActualFiniteState" />
         /// </summary>
         [Parameter]
-        public bool IsReadOnly { get; set; }
+        public ActualFiniteState InitialActualFiniteState { get; set; }
+
+        /// <summary>
+        /// The initial <see cref="ParameterType" />
+        /// </summary>
+        [Parameter]
+        public ParameterType InitialParameterType { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -63,9 +67,22 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            this.ViewModel.ParameterValueChanged = this.ParameterValueChanged;
-            this.ViewModel.IsReadOnly = this.IsReadOnly;
-            this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.StateHasChanged());
+            this.ViewModel.InitializeViewModel();
+
+            this.Disposables.Add(
+                this.WhenAnyValue(x => x.ViewModel.FilteredElements.CountChanged)
+                    .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ElementSelector.SelectedElementBase,
+                x => x.ViewModel.OptionSelector.SelectedOption,
+                x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,
+                x => x.ViewModel.ParameterTypeSelector.SelectedParameterType,
+                x => x.ViewModel.IsOwnedParameters).Subscribe(_ => this.ViewModel.ApplyFilters(this.ViewModel.Elements)));
+
+            this.ViewModel.ElementSelector.SelectedElementBase = this.InitialElementBase;
+            this.ViewModel.OptionSelector.SelectedOption = this.InitialOption;
+            this.ViewModel.FiniteStateSelector.SelectedActualFiniteState = this.InitialActualFiniteState;
+            this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.InitialParameterType;
         }
     }
 }

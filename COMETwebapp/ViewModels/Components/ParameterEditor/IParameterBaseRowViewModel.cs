@@ -80,6 +80,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         string State { get; }
 
         /// <summary>
+        /// Gets or sets the <see cref="IValueSet"/> of this <see cref="ParameterBaseRowViewModel"/>
+        /// </summary>
+        IValueSet ValueSet { get; }
+
+        /// <summary>
         /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
         /// <returns>a <see cref="IParameterTypeEditorSelectorViewModel{T}"/></returns>

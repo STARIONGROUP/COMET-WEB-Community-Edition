@@ -50,18 +50,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            var valueString = string.Empty;
-
-            if (value is ChangeEventArgs eventArgs && eventArgs.Value is string eventArgsString)
-            {
-                valueString = eventArgsString;
-            }
-            else if (value is string valueConverted)
-            {
-                valueString = valueConverted;
-            }
-
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && 
+                value is ChangeEventArgs args && args.Value is string valueString)
             {
                 var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
                 modifiedValueArray[0] = valueString;

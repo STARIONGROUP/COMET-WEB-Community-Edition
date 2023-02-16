@@ -50,7 +50,12 @@ Copyright (c) 2023 RHEA System S.A.
             
             <DxGridDataColumn Caption="@("Published Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
-                    <p>ValueSet Editors</p>
+                    @if (@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel 
+                         && parameterBaseRowViewModel.ValueSet is ParameterValueSet parameterValueSet)
+                    {
+                        var publishedValue = parameterValueSet.Published.ToString().Replace("{", "").Replace("\"", "").Replace("}","");
+                        <p style="margin: 0">@publishedValue</p>
+                    }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             

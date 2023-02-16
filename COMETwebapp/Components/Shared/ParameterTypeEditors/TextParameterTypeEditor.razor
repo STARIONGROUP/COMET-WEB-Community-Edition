@@ -31,7 +31,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                    name="color" 
                    value="@colorValue" 
                    readonly="@this.ViewModel.IsReadOnly"
-                   onchange="@((string value) => this.ViewModel.OnParameterValueChanged(value))">
+                   onchange="@((ChangeEventArgs value) => this.ViewModel.OnParameterValueChanged(value))">
             <label for="color-picker" id="color-text">Color</label>
         </div>
     }

@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeEditorSelector.razor.cs" company="RHEA System S.A.">
+//  <copyright file="ElementBaseSelectorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,50 +22,46 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared.ParameterTypeEditors
+namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+    using COMETwebapp.Extensions;
 
-    using Microsoft.AspNetCore.Components;
-    
     using ReactiveUI;
 
     /// <summary>
-    /// Partial class for the <see cref="ParameterTypeEditorSelector"/> component
+    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.Selectors.ElementBaseSelector"/>
     /// </summary>
-    public partial class ParameterTypeEditorSelector
+    public class ElementBaseSelectorViewModel : BelongsToIterationSelectorViewModel, IElementBaseSelectorViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel{T}"/>
+        /// Backing field for <see cref="SelectedElementBase"/>
         /// </summary>
-        [Parameter]
-        public IParameterTypeEditorSelectorViewModel<ParameterType> ViewModel { get; set; }
+        private ElementBase selectedElementBase;
 
         /// <summary>
-        /// Event Callback for when a value has changed on the parameter
+        /// A collection of available <see cref="ActualFiniteState" />
         /// </summary>
-        [Parameter]
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public IEnumerable<ElementBase> AvailableElements { get; private set; } = Enumerable.Empty<ElementBase>();
 
         /// <summary>
-        /// Gets or sets if the Editor created by this selector is readonly
+        /// The currently selected <see cref="ElementBase"/>
         /// </summary>
-        [Parameter]
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
+        public ElementBase SelectedElementBase
         {
-            base.OnParametersSet();
-            this.ViewModel.ParameterValueChanged = this.ParameterValueChanged;
-            this.ViewModel.IsReadOnly = this.IsReadOnly;
-            this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.StateHasChanged());
+            get => this.selectedElementBase;
+            set => this.RaiseAndSetIfChanged(ref this.selectedElementBase, value);
+        }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        protected override void UpdateProperties()
+        {
+            this.SelectedElementBase = null;
+
+            this.AvailableElements = this.CurrentIteration?.QueryElementsBase().OrderBy(x => x.Name) ?? Enumerable.Empty<ElementBase>();
         }
     }
 }

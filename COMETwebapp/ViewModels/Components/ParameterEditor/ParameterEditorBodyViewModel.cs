@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterEditorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterEditorBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Pages.ParameterEditor
+namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -30,30 +30,44 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     using COMETwebapp.Extensions;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Services.SubscriptionService;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using DynamicData;
-
-    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Pages.ParameterEditor.ParameterEditor"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody"/>
     /// </summary>
-    public class ParameterEditorViewModel : ReactiveObject, IParameterEditorViewModel
+    public class ParameterEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IParameterEditorBodyViewModel
     {
         /// <summary>
         /// Gets or sets the <see cref="ISubscriptionService"/>
         /// </summary>
         [Inject]
         public ISubscriptionService SubscriptionService { get; set; }
+        public IIterationService IterationService { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISessionService"/>
+        /// Gets the <see cref="IElementBaseSelectorViewModel"/>
         /// </summary>
-        [Inject]
-        public ISessionService SessionService { get; set; }
+        public IElementBaseSelectorViewModel ElementSelector { get; private set; } = new ElementBaseSelectorViewModel();
+
+        /// <summary>
+        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// </summary>
+        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel();
+
+        /// <summary>
+        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// </summary>
+        public IFiniteStateSelectorViewModel FiniteStateSelector { get; private set; } = new FiniteStateSelectorViewModel();
+
+        /// <summary>
+        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// </summary>
+        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
 
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration without filtering
@@ -66,91 +80,47 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         public SourceList<ElementBase> FilteredElements { get; set; } = new();
 
         /// <summary>
+        /// Backing field for the <see cref="IsOwnedParameters"/>
+        /// </summary>
+        private bool isOwnedParameters;
+
+        /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
-        public bool IsOwnedParameters { get; set; } 
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedElementFilter"/> property
-        /// </summary>
-        private ElementBase selectedElementFilter;
-
-        /// <summary>
-        /// The selected <see cref="ElementBase"/> to filter
-        /// </summary>
-        public ElementBase SelectedElementFilter
+        public bool IsOwnedParameters
         {
-            get => this.selectedElementFilter;
-            set => this.RaiseAndSetIfChanged(ref this.selectedElementFilter, value);
+            get => this.isOwnedParameters;
+            set => this.RaiseAndSetIfChanged(ref this.isOwnedParameters, value);
         }
 
         /// <summary>
-        /// Backing field for the <see cref="SelectedParameterTypeFilter"/> property
-        /// </summary>
-        private ParameterType selectedParameterTypeFilterFilter;
-
-        /// <summary>
-        /// Name of the parameter type selected
-        /// </summary>
-        public ParameterType SelectedParameterTypeFilter
-        {
-            get => this.selectedParameterTypeFilterFilter;
-            set => this.RaiseAndSetIfChanged(ref this.selectedParameterTypeFilterFilter, value);
-        }
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedOptionFilter"/> property
-        /// </summary>
-        private Option selectedOptionFilterFilter;
-
-        /// <summary>
-        /// Name of the option selected
-        /// </summary>
-        public Option SelectedOptionFilter
-        {
-            get => this.selectedOptionFilterFilter;
-            set => this.RaiseAndSetIfChanged(ref this.selectedOptionFilterFilter, value);
-        }
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedStateFilter"/> property
-        /// </summary>
-        private ActualFiniteState selectedStateFilterFilter;
-
-        /// <summary>
-        /// Name of the state selected
-        /// </summary>
-        public ActualFiniteState SelectedStateFilter
-        {
-            get => this.selectedStateFilterFilter;
-            set => this.RaiseAndSetIfChanged(ref this.selectedStateFilterFilter, value);
-        }
-
-        /// <summary>
-        /// All ParameterType names in the model
-        /// </summary>
-        public List<ParameterType> ParameterTypes { get; set; } = new();
-
-        /// <summary>
-        /// Creates a new instance of <see cref="ParameterEditorViewModel"/>
+        /// Creates a new instance of <see cref="ParameterEditorBodyViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="subscriptionService">the <see cref="ISubscriptionService"/></param>
-        public ParameterEditorViewModel(ISessionService sessionService, ISubscriptionService subscriptionService)
+        /// <param name="iterationService">the <see cref="IIterationService"/></param>
+        public ParameterEditorBodyViewModel(ISessionService sessionService, IIterationService iterationService) : base(sessionService)
         {
-            this.SessionService = sessionService;
-            this.SubscriptionService = subscriptionService;
+            this.IterationService = iterationService;
         }
 
         /// <summary>
-        /// Initializes the <see cref="ParameterEditorViewModel"/>
+        /// Update this view model properties
+        /// </summary>
+        protected override void OnIterationChanged()
+        {
+            this.ElementSelector.CurrentIteration = this.CurrentIteration;
+            this.OptionSelector.CurrentIteration = this.CurrentIteration;
+            this.FiniteStateSelector.CurrentIteration = this.CurrentIteration;
+            this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
+            this.InitializeViewModel();
+        }
+
+        /// <summary>
+        /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
         /// </summary>
         public void InitializeViewModel()
         {
-            this.Elements = this.SessionService.DefaultIteration.QueryElementsBase().ToList();
-            this.SelectedOptionFilter = this.SessionService.DefaultIteration.DefaultOption;
-
-            this.ParameterTypes = this.SessionService.DefaultIteration.QueryUsedParameterTypes().OrderBy(p => p.Name).ToList();
+            this.Elements = this.CurrentIteration.QueryElementsBase().ToList();
             this.ApplyFilters(this.Elements);
         }
 
@@ -171,22 +141,22 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         }
 
         /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="SelectedElementFilter"/>
+        /// Filters the <param name="elements"/> by the <see cref="ElementSelector"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
         private IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements)
         {
-            if (this.SelectedElementFilter is null)
+            if (this.ElementSelector.SelectedElementBase is null)
             {
                 return elements;
             }
 
-            return elements.Where(x => x == this.selectedElementFilter);
+            return elements.Where(x => x == this.ElementSelector.SelectedElementBase);
         }
 
         /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="SelectedParameterTypeFilter"/>
+        /// Filters the <param name="elements"/> by the <see cref="ParameterTypeSelector"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
@@ -194,7 +164,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         {
             var filteredElements = new List<ElementBase>();
 
-            if (this.SelectedParameterTypeFilter is null)
+            if (this.ParameterTypeSelector.SelectedParameterType is null)
             {
                 return elements;
             }
@@ -203,18 +173,18 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             {
                 if (element is ElementDefinition elementDefinition)
                 {
-                    if (elementDefinition.Parameter.Any(p => p.ParameterType.Name == this.SelectedParameterTypeFilter.Name))
+                    if (elementDefinition.Parameter.Any(p => p.ParameterType.Name == this.ParameterTypeSelector.SelectedParameterType.Name))
                     {
                         filteredElements.Add(elementDefinition);
                     }
                 }
                 else if (element is ElementUsage elementUsage)
                 {
-                    if (elementUsage.ElementDefinition.Parameter.Any(p => p.ParameterType.Name == this.SelectedParameterTypeFilter.Name))
+                    if (elementUsage.ElementDefinition.Parameter.Any(p => p.ParameterType.Name == this.ParameterTypeSelector.SelectedParameterType.Name))
                     {
                         filteredElements.Add(elementUsage);
                     }
-                    else if (elementUsage.ParameterOverride.Any(p => p.ParameterType.Name == this.SelectedParameterTypeFilter.Name))
+                    else if (elementUsage.ParameterOverride.Any(p => p.ParameterType.Name == this.ParameterTypeSelector.SelectedParameterType.Name))
                     {
                         filteredElements.Add(elementUsage);
                     }
@@ -225,18 +195,18 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         }
 
         /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="SelectedOptionFilter"/>
+        /// Filters the <param name="elements"/> by the <see cref="OptionSelector"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
         private IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements)
         {
-            if (this.SelectedOptionFilter is null)
+            if (this.OptionSelector.SelectedOption is null)
             {
                 return elements;
             }
 
-            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(this.selectedOptionFilterFilter);
+            var nestedElements = this.CurrentIteration.QueryNestedElements(this.OptionSelector.SelectedOption);
 
             var associatedElements = new List<ElementUsage>();
             nestedElements.ToList().ForEach(element => associatedElements.AddRange(element.ElementUsage));
@@ -254,25 +224,25 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
                     elementsToRemove.Add(elementUsage);
                 }
             }
-            
+
             filteredElements.RemoveAll(e => elementsToRemove.Contains(e));
-            
+
             return filteredElements;
         }
 
         /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="SelectedStateFilter"/>
+        /// Filters the <param name="elements"/> by the <see cref="FiniteStateSelector"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
         private IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements)
         {
-            if (this.SelectedStateFilter is null)
+            if (this.FiniteStateSelector.SelectedActualFiniteState is null)
             {
                 return elements;
             }
-            
-            return elements.FilterByState(this.SelectedStateFilter);
+
+            return elements.FilterByState(this.FiniteStateSelector.SelectedActualFiniteState);
         }
 
         /// <summary>
@@ -288,7 +258,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             }
 
             var filteredElements = new List<ElementBase>();
-            var domainOfExpertise = this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration);
+            var domainOfExpertise = this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
 
             foreach (var element in elements)
             {
