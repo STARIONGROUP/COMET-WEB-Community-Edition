@@ -72,12 +72,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration without filtering
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = new();
+        public List<ElementBase> Elements { get; private set; } = new();
 
         /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
-        public SourceList<ElementBase> FilteredElements { get; set; } = new();
+        public SourceList<ElementBase> FilteredElements { get; } = new();
 
         /// <summary>
         /// Backing field for the <see cref="IsOwnedParameters"/>
@@ -94,6 +94,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="IParameterTableViewModel"/>
+        /// </summary>
+        public IParameterTableViewModel ParameterTableViewModel { get; set; }
+
+        /// <summary>
         /// Creates a new instance of <see cref="ParameterEditorBodyViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
@@ -101,6 +106,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ParameterEditorBodyViewModel(ISessionService sessionService, IIterationService iterationService) : base(sessionService)
         {
             this.IterationService = iterationService;
+            this.ParameterTableViewModel = new ParameterTableViewModel(sessionService);
+
+            this.Disposables.Add(this.FilteredElements.CountChanged.Subscribe(_ =>
+            {
+                this.ParameterTableViewModel.InitializeViewModel(this.FilteredElements.Items);
+            }));
+
+            this.Disposables.Add(this.WhenAnyValue(x=>x.ElementSelector.SelectedElementBase,
+                x=>x.OptionSelector.SelectedOption,
+                x=>x.FiniteStateSelector.SelectedActualFiniteState,
+                x=>x.ParameterTypeSelector.SelectedParameterType,
+                x=>x.IsOwnedParameters).Subscribe(_ =>
+            {
+                this.InitializeViewModel();
+            }));
         }
 
         /// <summary>
@@ -120,7 +140,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         public void InitializeViewModel()
         {
-            this.Elements = this.CurrentIteration.QueryElementsBase().ToList();
+            this.Elements = this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
             this.ApplyFilters(this.Elements);
         }
 
@@ -294,6 +314,15 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             }
 
             return filteredElements;
+        }
+
+        /// <summary>
+        /// Queries the <see cref="DomainOfExpertise"/> of the current <see cref="Iteration"/>
+        /// </summary>
+        /// <returns>the name of the <see cref="DomainOfExpertise"/></returns>
+        public string QueryDomainOfExpertiseName()
+        {
+            return this.SessionService.GetDomainOfExpertise(this.CurrentIteration)?.Name ?? string.Empty;
         }
     }
 }

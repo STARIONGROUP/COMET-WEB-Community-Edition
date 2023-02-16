@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.IterationServices;
     using COMETwebapp.ViewModels.Components.Shared;
@@ -65,17 +66,22 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration
         /// </summary>
-        List<ElementBase> Elements { get; set; }
+        List<ElementBase> Elements { get; }
 
         /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
-        SourceList<ElementBase> FilteredElements { get; set; }
+        SourceList<ElementBase> FilteredElements { get; }
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
         bool IsOwnedParameters { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IParameterTableViewModel"/>
+        /// </summary>
+        IParameterTableViewModel ParameterTableViewModel { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IParameterEditorBodyViewModel"/>
@@ -88,5 +94,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
         void ApplyFilters(IEnumerable<ElementBase> elements);
+
+        /// <summary>
+        /// Queries the <see cref="DomainOfExpertise"/> of the current <see cref="Iteration"/>
+        /// </summary>
+        /// <returns>the name of the <see cref="DomainOfExpertise"/></returns>
+        string QueryDomainOfExpertiseName();
     }
 }

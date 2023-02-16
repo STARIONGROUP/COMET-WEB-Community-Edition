@@ -46,19 +46,17 @@
                 <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelector"></FiniteStateSelector>
             </div>
         </div>
-    </div>
-    <div class="row m-4">
         <div class="col">
-            <div>
-                @*                       <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
-                CheckType="CheckType.Switch">
-                Only Parameters owned by @this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SessionService.DefaultIteration)?.Name domain
-                </DxCheckBox>*@
+            <div class="width-fit-content">
+                <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
+                            CheckType="CheckType.Switch">
+                    Only Parameters owned by @this.ViewModel.QueryDomainOfExpertiseName() domain
+                </DxCheckBox>
             </div>
         </div>
     </div>
     <div class="row">
-        <ParameterTable Elements="@this.ViewModel.FilteredElements" />
+        <ParameterTable ViewModel="this.ViewModel.ParameterTableViewModel"/>
     </div>
 </div>
 

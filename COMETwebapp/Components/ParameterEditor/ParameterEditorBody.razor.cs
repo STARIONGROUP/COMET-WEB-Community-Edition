@@ -22,14 +22,14 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using ReactiveUI;
-
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="ParameterEditorBody"/> component
@@ -61,6 +61,12 @@ namespace COMETwebapp.Components.ParameterEditor
         public ParameterType InitialParameterType { get; set; }
 
         /// <summary>
+        /// The initial <see cref="ElementBase" />
+        /// </summary>
+        [Parameter]
+        public bool IsOwnedParameters { get; set; }
+
+        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
@@ -69,20 +75,53 @@ namespace COMETwebapp.Components.ParameterEditor
             base.OnParametersSet();
             this.ViewModel.InitializeViewModel();
 
-            this.Disposables.Add(
-                this.WhenAnyValue(x => x.ViewModel.FilteredElements.CountChanged)
-                    .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ElementSelector.SelectedElementBase,
-                x => x.ViewModel.OptionSelector.SelectedOption,
-                x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,
-                x => x.ViewModel.ParameterTypeSelector.SelectedParameterType,
-                x => x.ViewModel.IsOwnedParameters).Subscribe(_ => this.ViewModel.ApplyFilters(this.ViewModel.Elements)));
-
             this.ViewModel.ElementSelector.SelectedElementBase = this.InitialElementBase;
             this.ViewModel.OptionSelector.SelectedOption = this.InitialOption;
             this.ViewModel.FiniteStateSelector.SelectedActualFiniteState = this.InitialActualFiniteState;
             this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.InitialParameterType;
+            this.ViewModel.IsOwnedParameters = this.IsOwnedParameters;
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
+                    x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,
+                    x => x.ViewModel.ParameterTypeSelector.SelectedParameterType,
+                    x => x.ViewModel.ElementSelector.SelectedElementBase,
+                    x => x.ViewModel.IsOwnedParameters)
+                .Subscribe(_ => this.UpdateUrl()));
+        }
+        
+        /// <summary>
+        /// Sets the url of the <see cref="NavigationManager" /> based on the current values
+        /// </summary>
+        private void UpdateUrl()
+        {
+            var additionalParameters = new Dictionary<string, string>();
+
+            if (this.ViewModel.ElementSelector.SelectedElementBase != null)
+            {
+                additionalParameters["element"] = this.ViewModel.ElementSelector.SelectedElementBase.Iid.ToString();
+            }
+
+            if (this.ViewModel.OptionSelector.SelectedOption != null)
+            {
+                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
+            }
+
+            if (this.ViewModel.FiniteStateSelector.SelectedActualFiniteState != null)
+            {
+                additionalParameters["state"] = this.ViewModel.FiniteStateSelector.SelectedActualFiniteState.Iid.ToString();
+            }
+
+            if (this.ViewModel.ParameterTypeSelector.SelectedParameterType != null)
+            {
+                additionalParameters["parameter"] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToString();
+            }
+
+            if (this.ViewModel.IsOwnedParameters)
+            {
+                additionalParameters["owned"] = this.ViewModel.IsOwnedParameters.ToString();
+            }
+
+            this.UpdateUrlWithParameters(additionalParameters, nameof(Pages.ParameterEditor.ParameterEditor));
         }
     }
 }

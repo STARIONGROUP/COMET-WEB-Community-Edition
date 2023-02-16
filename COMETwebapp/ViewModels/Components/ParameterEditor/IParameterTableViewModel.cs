@@ -36,7 +36,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
         /// </summary>
-        SourceList<ParameterBaseRowViewModel> Rows { get; set; }
+        SourceList<ParameterBaseRowViewModel> Rows { get; }
 
         /// <summary>
         /// Initializes this <see cref="IParameterTableViewModel"/>
