@@ -1,0 +1,23 @@
+﻿#gridParent {
+    position: relative;
+    margin: 1% 0;
+    display: grid;
+    grid-template-columns: 0.15fr 1fr 0.23fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+#leftColumn {
+    grid-area: 1 / 1 / auto / auto;
+    margin: 0;
+    margin-left: 2%;
+}
+
+
+#rightColumn {
+    grid-area: 1 / 2 / 2 / auto;
+    margin: 0;
+    margin-left: 60%;
+    position: fixed
+}

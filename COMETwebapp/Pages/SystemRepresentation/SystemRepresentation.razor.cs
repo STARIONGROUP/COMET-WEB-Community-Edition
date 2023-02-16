@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ElementDefinitionDetails.razor.cs" company="RHEA System S.A.">
+// <copyright file="SystemRepresentation.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -21,24 +21,25 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace COMETwebapp.Components.SystemRepresentation
+
+namespace COMETwebapp.Pages.SystemRepresentation
 {
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using System.Threading.Tasks;
+    
+    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     
     using Microsoft.AspNetCore.Components;
 
-    using ReactiveUI;
-
     /// <summary>
-    ///     Partial class for the component <see cref="ElementDefinitionDetails"/>
+    ///     Support class for the <see cref="SystemRepresentation"/>
     /// </summary>
-    public partial class ElementDefinitionDetails
+    public partial class SystemRepresentation
     {
         /// <summary>
-        ///     The <see cref="IElementDefinitionDetailsViewModel" /> for the component
+        ///     The <see cref="ISystemRepresentationPageViewModel" /> for this page
         /// </summary>
-        [Parameter]
-        public IElementDefinitionDetailsViewModel ViewModel { get; set; }
+        [Inject]
+        public ISystemRepresentationPageViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its
@@ -49,10 +50,36 @@ namespace COMETwebapp.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedSystemNode)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
+            this.ViewModel.OnInitializedAsync();
             return base.OnInitializedAsync();
+        }
+
+        /// <summary>
+        /// Name of the option selected
+        /// </summary>
+        public string? OptionSelected { get; set; }
+
+        /// <summary>
+        /// Name of the domain selected
+        /// </summary>
+        public string? DomainSelected { get; set; }
+
+        /// <summary>
+        ///     Updates Elements list when a filter for option is selected
+        /// </summary>
+        /// <param name="option">Name of the selected option</param>
+        public void OnOptionFilterChange(string? option)
+        {
+            this.ViewModel.OnOptionFilterChange(option);
+        }
+
+        /// <summary>
+        ///     Updates Elements list when a filter for domain is selected
+        /// </summary>
+        /// <param name="domain">Name of the selected domain</param>
+        public void OnDomainFilterChange(string? domain)
+        {
+            this.ViewModel.OnDomainFilterChange(domain);
         }
     }
 }

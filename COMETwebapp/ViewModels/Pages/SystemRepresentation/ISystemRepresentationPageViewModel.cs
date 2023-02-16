@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ElementDefinitionDetails.razor.cs" company="RHEA System S.A.">
+// <copyright file="ISystemRepresentationPageViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -21,25 +21,48 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace COMETwebapp.Components.SystemRepresentation
+namespace COMETwebapp.ViewModels.Pages.SystemRepresentation
 {
+    using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    
-    using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
-    ///     Partial class for the component <see cref="ElementDefinitionDetails"/>
+    ///     Interface definition for <see cref="SystemRepresentationPageViewModel" />
     /// </summary>
-    public partial class ElementDefinitionDetails
+    public interface ISystemRepresentationPageViewModel
     {
         /// <summary>
-        ///     The <see cref="IElementDefinitionDetailsViewModel" /> for the component
+        ///     The <see cref="ISystemTreeViewModel" /> for the <see cref="SystemTree" /> component
         /// </summary>
-        [Parameter]
-        public IElementDefinitionDetailsViewModel ViewModel { get; set; }
+        ISystemTreeViewModel SystemTreeViewModel { get; }
 
+        /// <summary>
+        ///     The <see cref="IElementDefinitionDetailsViewModel" /> for the <see cref="ElementDefinitionDetails" /> component
+        /// </summary>
+        IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; }
+
+        /// <summary>
+        /// List of the names of <see cref="Option"/> available
+        /// </summary>
+        List<string> Options { get; set; }
+
+        /// <summary>
+        /// List of the names of available domains
+        /// </summary>
+        List<string> Domains { get; set; }
+
+        /// <summary>
+        /// Updates Elements list when a filter for option is selected
+        /// </summary>
+        /// <param name="option">Name of the selected option</param>
+        void OnOptionFilterChange(string? option);
+
+        /// <summary>
+        /// Updates Elements list when a filter for domain is selected
+        /// </summary>
+        /// <param name="domain">Name of the selected domain</param>
+        void OnDomainFilterChange(string? domain);
+        
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.
@@ -47,12 +70,6 @@ namespace COMETwebapp.Components.SystemRepresentation
         ///     want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override Task OnInitializedAsync()
-        {
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedSystemNode)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            return base.OnInitializedAsync();
-        }
+        void OnInitializedAsync();
     }
 }
