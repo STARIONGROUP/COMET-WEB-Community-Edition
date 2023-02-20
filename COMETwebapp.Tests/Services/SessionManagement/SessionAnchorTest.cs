@@ -204,7 +204,6 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         public void VerifyRefreshSession()
         {
             var beginRefreshReceived = false;
-            var endRefreshReceived = false;
             CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x => { beginRefreshReceived = true; });
             this.sessionService.RefreshSession();
 
