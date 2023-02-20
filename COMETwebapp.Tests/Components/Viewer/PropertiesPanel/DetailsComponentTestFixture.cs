@@ -35,18 +35,13 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Enumerations;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-
-    using DevExpress.Blazor;
-
-    using Microsoft.AspNetCore.Components;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
     using NUnit.Framework;
 
-    using Orientation = COMETwebapp.Model.Orientation;
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -60,9 +55,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddDevExpressBlazor();
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
-
+            this.context.ConfigureDevExpressBlazor();
 
             var viewModel = new Mock<IDetailsComponentViewModel>();
 
@@ -72,6 +65,12 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             });
             
             this.details = this.renderedComponent.Instance;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
         }
 
         [Test]

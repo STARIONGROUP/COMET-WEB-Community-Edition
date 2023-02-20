@@ -41,7 +41,6 @@ namespace COMETwebapp.Tests.Model
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.SessionManagement;
 
     using Microsoft.Extensions.DependencyInjection;
 

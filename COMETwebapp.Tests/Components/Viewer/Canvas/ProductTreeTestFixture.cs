@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
    
@@ -54,9 +55,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
-            this.context.Services.AddDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
 
             var productTreeVM = new Mock<IProductTreeViewModel>();
             productTreeVM.Setup(x => x.TreeFilters).Returns(new List<TreeFilter>() { TreeFilter.ShowFullTree, TreeFilter.ShowNodesWithGeometry });
@@ -92,6 +91,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             });
  
             this.productTree = this.renderedComponent.Instance;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
         }
 
         [Test]

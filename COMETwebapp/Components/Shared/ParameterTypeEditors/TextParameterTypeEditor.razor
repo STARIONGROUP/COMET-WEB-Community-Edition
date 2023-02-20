@@ -1,0 +1,45 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023 RHEA System S.A.
+
+Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+
+This file is part of COMET WEB Community Edition
+The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+The COMET WEB Community Edition is free software; you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+
+The COMET WEB Community Edition is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.Extensions
+@{
+    if (this.ViewModel.ParameterType.ShortName == SceneSettings.ColorShortName)
+    {
+        var colorValue = this.ViewModel.ValueSet.ActualValue.First().ParseToHexColor();
+        <div class="parameter-row" id="color-section">
+            <input type="color" id="color-picker" name="color" value="@colorValue" readonly="@this.ViewModel.IsReadOnly">
+            <label for="color-picker" id="color-text">Color</label>
+        </div>
+    }
+    else
+    {
+        <div class="parameter-row">
+            <p>@this.ViewModel.ParameterType.Name</p>
+            <DxTextBox InputCssClass="text-parameter-type"
+                       Text="@this.ViewModel.ValueSet.ActualValue.First()"
+                       BindValueMode="BindValueMode.OnInput"
+                       CssClass="parameter-input"
+                       @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+                       ReadOnly="this.ViewModel.IsReadOnly"/>
+        </div>
+    }
+}

@@ -49,6 +49,7 @@ namespace COMETwebapp.Extensions
                     foreach (var actualFiniteState in states)
                     {
                         valueSet = parameterBase.QueryParameterBaseValueSet(option, actualFiniteState);
+                        
                         if (valueSet is not null)
                         {
                             break;

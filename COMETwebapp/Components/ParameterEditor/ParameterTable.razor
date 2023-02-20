@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -20,209 +20,60 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
 @using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
-@inject ISessionService SessionService
+@using COMETwebapp.ViewModels.Components.ParameterEditor
+@using COMETwebapp.Components.Shared.ParameterTypeEditors;
 
-<div class="container-fluid" style="min-width: 1400px; max-width: 1400px;">
-    @if(this.Elements != null)
-    {
-        <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
-            <BSTHead>
-                <BSTR>
-                    <BSTD>
-                        <div class="row">
-                            <div class="width-10">Element</div>
-                            <div class="width-10">Parameter</div>
-                            <div style="width: 20%;">Model Code</div>
-                            <div style="width: 20%;">Published Value</div>
-                            <div style="width: 25%;">Value</div>
-                            <div style="width: 15%; padding: 0px 92px;">Owner</div>
-                        </div>
-                    </BSTD>
-                </BSTR>
-            </BSTHead>
-            <BSTBody>
-                <div style="max-height:600px;overflow-y:scroll">
-                    @foreach (var element in this.Elements)
-                    {
-                        <div style="padding-right: 0px; border-bottom-color: black; border-bottom-style: double;">
-                            <BSTR AlignRow="AlignRow.Middle">
-                                <BSTD Class="width-10">@element.Name</BSTD>
-                                <BSTD Class="width-1400">
-                                    <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
-                                        <BSTBody>
-                                            @if (element.GetType().Equals(typeof(ElementDefinition)))
-                                            {
-                                                var elementDefinition = (ElementDefinition)element;
-                                                @if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
-                                                {
-                                                    foreach (var parameter in FilterParameters(elementDefinition.Parameter))
-                                                    {
-                                                        var valueSet = new List<ParameterValueSetBase>();
-                                                        valueSet.AddRange(parameter.ValueSet);
-                                                        foreach (var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
-                                                        {
-                                                            <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
-                                                        }
-                                                    }
-                                                }
-                                            } 
-                                            else if (element.GetType().Equals(typeof(ElementUsage)))
-                                            {
-                                                var elementUsage = (ElementUsage)element;
-                                                @if(elementUsage.ParameterOverride.Count == 0)
-                                                {
-                                                    foreach(var parameter in FilterParameters(elementUsage.ElementDefinition.Parameter))
-                                                    {
-                                                        var valueSet = new List<ParameterValueSetBase>();
-                                                        valueSet.AddRange(parameter.ValueSet);
-                                                        foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
-                                                        {
-                                                            <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
-                                                        }
-                                                    }
-                                                } else
-                                                {
-                                                    var parameters = new List<ParameterOrOverrideBase>();
-                                                    parameters.AddRange(FilterParameterOverrides(elementUsage.ParameterOverride));
-                                                    var associatedParameters = new List<Parameter>();
-                                                    associatedParameters.AddRange(elementUsage.ParameterOverride.Select(p => p.Parameter).ToList());
-                                                    parameters.AddRange(FilterParameters(elementUsage.ElementDefinition.Parameter.FindAll(p => !associatedParameters.Contains(p))));
-                                                    foreach(var parameter in parameters.OrderBy(p => p.ParameterType.Name).ToList())
-                                                    {
-                                                        var valueSet = new List<ParameterValueSetBase>();
-                                                        if(parameter is Parameter)
-                                                        {
-                                                            var p = (Parameter)parameter;
-                                                            valueSet.AddRange(p.ValueSet);
-                                                        } else if (parameter is ParameterOverride)
-                                                        {
-                                                            var p = (ParameterOverride)parameter;
-                                                            valueSet.AddRange(p.ValueSet);
-                                                        }
-
-                                                        foreach(var parameterValueSet in FilterParameterValueSetBase(parameter.IsOptionDependent, valueSet))
-                                                        {
-                                                            <ParameterValueSetRow Parameter="parameter" ParameterValueSet="parameterValueSet" />
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        </BSTBody>
-                                    </BSTable>
-                                </BSTD>
-                            </BSTR>
-                        </div>
-                    }
-                </div>
-            </BSTBody>
-        </BSTable>
-    }
-</div>
-
-@code {
-    /// <summary>
-    /// All <see cref="ElementUsage">s and the Top <see cref="ElementDefinition"> of the iteration
-    /// </summary>
-    [Parameter]
-    public List<ElementBase>? Elements { get; set; }
-
-    /// <summary>
-    /// Sets if only parameters owned by the active domain are shown
-    /// </summary>
-    [Parameter]
-    public bool? IsOwnedParameters { get; set; }
-
-    /// <summary>
-    /// Name of the parameter type selected
-    /// </summary>
-    [Parameter]
-    public string? ParameterTypeSelected { get; set; }
-
-    /// <summary>
-    /// Name of the option selected
-    /// </summary>
-    [Parameter]
-    public string? OptionSelected { get; set; }
-
-    /// <summary>
-    /// Name of the state selected
-    /// </summary>
-    [Parameter]
-    public string? StateSelected { get; set; }
-
-    /// <summary>
-    /// Filters <see cref="Parameter">s for the selected owner and the selected type
-    /// </summary>
-    /// <param name="parameters"><see cref="Parameter">s to filter</param>
-    public IEnumerable<Parameter> FilterParameters(List<Parameter> parameters)
-    {
-        var filteredParameters = new List<Parameter>();
-        if(this.IsOwnedParameters == true)
-        {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
-        } else
-        {
-            filteredParameters.AddRange(parameters);
-        }
-        if(this.ParameterTypeSelected != null)
-        {
-            filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-        }
-
-        return filteredParameters.OrderBy(p => p.ParameterType.Name);
-    }
-
-    /// <summary>
-    /// Filters <see cref="ParameterOverride">s for the selected owner and the selected type
-    /// </summary>
-    /// <param name="parameters"><see cref="ParameterOverride">s to filter</param>
-    public IEnumerable<ParameterOverride> FilterParameterOverrides(List<ParameterOverride> parameters)
-    {
-        var filteredParameters = new List<ParameterOverride>();
-        if(this.IsOwnedParameters == true)
-        {
-            filteredParameters.AddRange(parameters.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)));
-        } else
-        {
-            filteredParameters.AddRange(parameters);
-        }
-        if(this.ParameterTypeSelected != null)
-        {
-            filteredParameters.RemoveAll(p => p.ParameterType.Name != this.ParameterTypeSelected);
-        }
-
-        return filteredParameters.OrderBy(p => p.ParameterType.Name);
-    }
-
-    /// <summary>
-    /// Filters <see cref="ParameterValueSetBase">s for the selected option and the selected state
-    /// </summary>
-    /// <param name="parameterValueSets"><see cref="ParameterValueSetBase">s to filter</param>
-    public IEnumerable<ParameterValueSetBase> FilterParameterValueSetBase(bool isOptionDependent, List<ParameterValueSetBase> parameterValueSets)
-    {
-        var filteredParameterValueSets = new List<ParameterValueSetBase>();
-        if(this.OptionSelected != null && isOptionDependent)
-        {
-            filteredParameterValueSets.AddRange(parameterValueSets.FindAll(p => p.ActualOption.Name.Equals(this.OptionSelected)));
-        } else
-        {
-            filteredParameterValueSets.AddRange(parameterValueSets);
-        }
-        if(this.StateSelected != null)
-        {
-            var parameterValueSetsToRemove = new List<ParameterValueSetBase>();
-            filteredParameterValueSets.ForEach(p =>
-            {
-                if(p.ActualState is null || !p.ActualState.Name.Equals(this.StateSelected))
-                {
-                    parameterValueSetsToRemove.Add(p);
-                }
-            });
-            filteredParameterValueSets.RemoveAll(p => parameterValueSetsToRemove.Contains(p));
-        }
-
-        return filteredParameterValueSets.OrderBy(p => p.ModelCode());
-    }
+@if (this.Elements is null)
+{
+    return;
 }
+
+<div class="container-fluid" style="min-width: 1400px; margin-top: 15px;">
+    <DxGrid CssClass="default-grid"
+            ShowAllRows="true"
+            Data="@this.ViewModel.Rows.Items"
+            SelectionMode="GridSelectionMode.Single"
+            AllowSelectRowByClick="false"
+            ShowFilterRow="true"
+            ShowGroupPanel="true"
+            FocusedRowEnabled="true"
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterName)" GroupIndex="1" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Parameter")" AllowGroup="true" AllowSort="true" />
+
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Option)" Caption="@("Option")" GroupIndex="2" GroupInterval="GridColumnGroupInterval.Value" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
+            
+            <DxGridDataColumn Caption="@("Published Value")" AllowGroup="false" AllowSort="false">
+                <CellDisplayTemplate>
+                    <p>ValueSet Editors</p>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
+                <CellDisplayTemplate>
+                    @if(@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    {
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel<ParameterType>()"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
+                <CellDisplayTemplate>
+                    @if (@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    {
+                        <ParameterSwitchKindComponent ViewModel="parameterBaseRowViewModel.CreateParameterSwitchKindComponentViewModel()" 
+                                                      SwitchValue="parameterBaseRowViewModel.Switch"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
+        </Columns>
+    </DxGrid>
+</div>

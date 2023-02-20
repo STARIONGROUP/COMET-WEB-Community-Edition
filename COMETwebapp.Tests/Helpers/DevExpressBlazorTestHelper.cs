@@ -54,6 +54,9 @@ namespace COMETwebapp.Tests.Helpers
             context.Services.AddLogging();
             context.Services.TryAddComponentRequiredServices();
             context.Services.AddDevExpressBlazor(_ => ConfigureJsInterop(context.JSInterop));
+            context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
+            context.JSInterop.SetupVoid("DxBlazor.Input.loadModule");
+            context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule");
         }
 
         /// <summary>

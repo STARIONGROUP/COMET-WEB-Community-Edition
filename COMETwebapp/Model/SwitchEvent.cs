@@ -34,7 +34,7 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Iid of the associated ParameterValueSet
         /// </summary>
-        public Guid? ParameterValuSetIid { get; set; }
+        public Guid ParameterValuSetIid { get; set; }
 
         /// <summary>
         /// The selected switch mode to see
@@ -44,13 +44,14 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Sets if the change have to be submit
         /// </summary>
-        public bool? SubmitChange { get; set; }
+        public bool SubmitChange { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SwitchEvent"/> class.
         /// <param name="parameterValuSetIid">Iid of the associated ParameterValueSet</param>
         /// <param name="selectedSwitch">The selected ParameterSwitchKind</param>
-        public SwitchEvent(Guid? parameterValuSetIid, ParameterSwitchKind selectedSwitch, bool? submitChange)
+        /// </summary>
+        public SwitchEvent(Guid parameterValuSetIid, ParameterSwitchKind selectedSwitch, bool submitChange)
         {
             this.ParameterValuSetIid = parameterValuSetIid;
             this.SelectedSwitch = selectedSwitch;

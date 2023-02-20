@@ -67,6 +67,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.canvas = rendererComponent.Instance;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyComponent()
         {
