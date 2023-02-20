@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.DetailsComponent"/>
+    /// View Model that provide details for <see cref="ParameterBase"/>
     /// </summary>
     public class DetailsComponentViewModel : ReactiveObject, IDetailsComponentViewModel
     {

@@ -26,10 +26,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
 	using CDP4Common.SiteDirectoryData;
 
-	/// <summary>
-	/// Interface definition for <see cref="ParameterTypeSelectorViewModel" />
-	/// </summary>
-	public interface IParameterTypeSelectorViewModel: IBelongsToIterationSelectorViewModel
+    /// <summary>
+    /// View Model that enables the user to select an <see cref="ParameterType" />
+    /// </summary>
+    public interface IParameterTypeSelectorViewModel: IBelongsToIterationSelectorViewModel
 	{
 		/// <summary>
 		/// The currently selected <see cref="ParameterType" />

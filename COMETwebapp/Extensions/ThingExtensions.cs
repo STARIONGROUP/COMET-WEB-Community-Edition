@@ -87,7 +87,7 @@ namespace COMETwebapp.Extensions
             return valueSets.DistinctBy(x => x.Iid);
         }
 
-        /// <summary>rie
+        /// <summary>
         /// Queries all <see cref="NestedParameter" /> that belongs to a given <see cref="Option" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> to get the <see cref="NestedParameter" />s</param>
@@ -156,10 +156,10 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Queries all <see cref="NestedElement" /> of the given <see cref="Iteration" /> based on <see cref="Option"/>
+        /// Queries all <see cref="NestedElement" /> of the given <see cref="Iteration" /> based on <see cref="Option" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> </param>
-        /// <param name="option">The <see cref="Option"/></param>
+        /// <param name="option">The <see cref="Option" /></param>
         /// <returns>A collection of <see cref="NestedElement" /></returns>
         public static IEnumerable<NestedElement> QueryNestedElements(this Iteration iteration, Option option)
         {
@@ -172,6 +172,70 @@ namespace COMETwebapp.Extensions
             }
 
             return nestedElements;
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterSubscription" /> contained into an <see cref="Iteration" /> for a given
+        /// <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
+        public static IEnumerable<ParameterSubscription> QueryParameterSubscriptions(this Iteration iteration, DomainOfExpertise domain)
+        {
+            var subscriptions = new List<ParameterSubscription>();
+
+            if (iteration.TopElement != null)
+            {
+                subscriptions.AddRange(iteration.TopElement.QueryParameterSubscriptions(domain));
+            }
+
+            subscriptions.AddRange(iteration.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.QueryParameterSubscriptions(domain)));
+            return subscriptions.DistinctBy(x => x.Iid).OrderBy(p => p.ParameterType.Name);
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterSubscription" /> contained into an <see cref="ElementBase" /> for a given
+        /// <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="element">The <see cref="ElementBase" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
+        public static IEnumerable<ParameterSubscription> QueryParameterSubscriptions(this ElementBase element, DomainOfExpertise domain)
+        {
+            var subscriptions = new List<ParameterSubscription>();
+
+            switch (element)
+            {
+                case ElementDefinition elementDefinition:
+                    subscriptions.AddRange(elementDefinition.Parameter.QueryParameterSubscriptions(domain));
+                    break;
+                case ElementUsage elementUsage when !elementUsage.ParameterOverride.Any():
+                    return elementUsage.ElementDefinition.QueryParameterSubscriptions(domain);
+                case ElementUsage elementUsage:
+                    var notOverridenParameters = elementUsage.ElementDefinition.Parameter.Where(x => elementUsage.ParameterOverride.All(p => p.Parameter.Iid != x.Iid));
+
+                    subscriptions.AddRange(elementUsage.ParameterOverride.QueryParameterSubscriptions(domain));
+
+                    subscriptions.AddRange(notOverridenParameters.QueryParameterSubscriptions(domain));
+                    break;
+            }
+
+            return subscriptions;
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterSubscription" /> contained into a collection of <see cref="ParameterOrOverrideBase" />
+        /// for a given <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="parameterOrOverrideBases">The collection of <see cref="ParameterOrOverrideBase" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
+        public static IEnumerable<ParameterSubscription> QueryParameterSubscriptions(this IEnumerable<ParameterOrOverrideBase> parameterOrOverrideBases,
+            DomainOfExpertise domain)
+        {
+            return parameterOrOverrideBases.Where(x => x.Owner.Iid != domain.Iid)
+                .SelectMany(x => x.ParameterSubscription.Where(p => p.Owner.Iid == domain.Iid));
         }
     }
 }

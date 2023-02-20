@@ -24,43 +24,45 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
 
-	using DynamicData.Binding;
+    using COMETwebapp.Utilities.DisposableObject;
 
-	using ReactiveUI;
+    using DynamicData.Binding;
 
-	/// <summary>
-	/// Abstract class for View Model selector that belongs to an <see cref="Iteration" />
-	/// </summary>
-	public abstract class BelongsToIterationSelectorViewModel : DisposableViewModel, IBelongsToIterationSelectorViewModel
-	{
-		/// <summary>
-		/// Backing field for <see cref="CurrentIteration" />
-		/// </summary>
-		private Iteration currentIteration;
+    using ReactiveUI;
 
-		/// <summary>
-		/// Initializes a new <see cref="BelongsToIterationSelectorViewModel" />
-		/// </summary>
-		protected BelongsToIterationSelectorViewModel()
-		{
-			this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.CurrentIteration))
-				.Subscribe(_ => this.UpdateProperties()));
-		}
+    /// <summary>
+    /// Abstract class for View Model selector that belongs to an <see cref="Iteration" />
+    /// </summary>
+    public abstract class BelongsToIterationSelectorViewModel : DisposableObject, IBelongsToIterationSelectorViewModel
+    {
+        /// <summary>
+        /// Backing field for <see cref="CurrentIteration" />
+        /// </summary>
+        private Iteration currentIteration;
 
-		/// <summary>
-		/// The current <see cref="Iteration" />
-		/// </summary>
-		public Iteration CurrentIteration
-		{
-			get => this.currentIteration;
-			set => this.RaiseAndSetIfChanged(ref this.currentIteration, value);
-		}
+        /// <summary>
+        /// Initializes a new <see cref="BelongsToIterationSelectorViewModel" />
+        /// </summary>
+        protected BelongsToIterationSelectorViewModel()
+        {
+            this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.CurrentIteration))
+                .Subscribe(_ => this.UpdateProperties()));
+        }
 
-		/// <summary>
-		/// Updates this view model properties
-		/// </summary>
-		protected abstract void UpdateProperties();
-	}
+        /// <summary>
+        /// The current <see cref="Iteration" />
+        /// </summary>
+        public Iteration CurrentIteration
+        {
+            get => this.currentIteration;
+            set => this.RaiseAndSetIfChanged(ref this.currentIteration, value);
+        }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        protected abstract void UpdateProperties();
+    }
 }

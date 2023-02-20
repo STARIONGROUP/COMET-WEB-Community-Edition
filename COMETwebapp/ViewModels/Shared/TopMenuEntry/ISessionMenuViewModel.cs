@@ -27,13 +27,14 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     using CDP4Dal;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.SessionManagement;
-    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
     /// Interface definition for <see cref="SessionMenuViewModel" />
     /// </summary>
-    public interface ISessionMenuViewModel : IDisposableViewModel
+    public interface ISessionMenuViewModel : IDisposableObject
     {
         /// <summary>
         /// Gets the <see cref="ISessionService" />
@@ -54,6 +55,11 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         /// Value indiciating that the <see cref="ISession" /> is currently refreshing
         /// </summary>
         bool IsRefreshing { get; set; }
+
+        /// <summary>
+        /// The <see cref="ISubscriptionService" />
+        /// </summary>
+        ISubscriptionService SubscriptionService { get; }
 
         /// <summary>
         /// Refreshes the current <see cref="ISession"/>

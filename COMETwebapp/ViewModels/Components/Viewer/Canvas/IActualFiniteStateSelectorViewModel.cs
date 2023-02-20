@@ -26,10 +26,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using CDP4Common.EngineeringModelData;
 
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    /// Interface for the <see cref="ActualFiniteStateSelectorViewModel"/>
+    /// View Model for the allow to select multiple existing <see cref="ActualFiniteState"/>
     /// </summary>
     public interface IActualFiniteStateSelectorViewModel
     {

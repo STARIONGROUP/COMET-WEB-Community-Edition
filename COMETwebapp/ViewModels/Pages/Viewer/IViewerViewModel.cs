@@ -25,11 +25,11 @@
 namespace COMETwebapp.ViewModels.Pages.Viewer
 {
     using CDP4Common.EngineeringModelData;
-    using COMETwebapp.Model;
+    
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     /// <summary>
-    /// Interface for the <see cref="ViewerViewModel"/>
+    /// View Model for the 3D Viewer main component
     /// </summary>
     public interface IViewerViewModel
     {

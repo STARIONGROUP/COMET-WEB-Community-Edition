@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IIterationSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ISubscriptionService.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,44 +22,37 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Selectors
+namespace COMETwebapp.Services.SubscriptionService
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
 
-	using COMETwebapp.Model;
-
-	using Microsoft.AspNetCore.Components;
+    using COMETwebapp.Model;
+    using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
-    /// View model that enable the user to select one selected <see cref="Iteration" />
+    /// This service tracks change one <see cref="ISubscriptionService" /> for all opened <see cref="Iteration" />
     /// </summary>
-    public interface IIterationSelectorViewModel
-	{
-		/// <summary>
-		/// The selected <see cref="IterationData" />
-		/// </summary>
-		IterationData SelectedIteration { get; set; }
+    public interface ISubscriptionService: IDisposableObject
+    {
+        /// <summary>
+        /// The current number of new <see cref="ParameterSubscription" /> updates
+        /// </summary>
+        int SubscriptionUpdateCount { get; set; }
 
-		/// <summary>
-		/// A collection of available <see cref="IterationData" />
-		/// </summary>
-		IEnumerable<IterationData> AvailableIterations { get; set; }
+        /// <summary>
+        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to the tracked subscriptions
+        /// </summary>
+        IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions { get; }
 
-		/// <summary>
-		/// <see cref="EventCallback{TValue}" /> to call when the <see cref="Iteration" /> has been selected
-		/// </summary>
-		EventCallback<Iteration> OnSubmit { get; set; }
+        /// <summary>
+        /// Updates the tracked subscriptions for all open <see cref="Iteration" />
+        /// </summary>
+        void UpdateTrackedSubscriptions();
 
-		/// <summary>
-		/// Updates this view model properties
-		/// </summary>
-		/// <param name="availableIterations">A collection of available <see cref="Iteration" /></param>
-		void UpdateProperties(IEnumerable<Iteration> availableIterations);
-
-		/// <summary>
-		/// Submit the selection of the <see cref="IterationSelectorViewModel.SelectedIteration" />
-		/// </summary>
-		/// <returns>A <see cref="Task" /></returns>
-		Task Submit();
-	}
+        /// <summary>
+        /// Updates the tracked subscriptions for an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        void UpdateTrackedSubscriptions(Iteration iteration);
+    }
 }

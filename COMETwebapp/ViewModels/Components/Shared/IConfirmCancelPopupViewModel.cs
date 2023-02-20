@@ -29,7 +29,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Interface definition for <see cref="ConfirmCancelPopupViewModel"/>
+    /// View model that enables the user to confirm his last choice before performing it
     /// </summary>
     public interface IConfirmCancelPopupViewModel
     {

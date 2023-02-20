@@ -31,7 +31,6 @@ Copyright (c) 2023 RHEA System S.A.
 
 @implements IDisposable
 @inject ISessionService SessionService
-@inject IIterationService IterationService
 
 @if(this.ParameterSubscription != null && this.ParameterSubscriptionValueSet != null && this.IsParameterSubscriptionValueSetEdited != null)
 {
@@ -440,10 +439,6 @@ Copyright (c) 2023 RHEA System S.A.
     {
         if (this.ParameterSubscriptionValueSet != null)
         {
-            if(!this.IterationService.NewUpdates.Contains(this.ParameterSubscriptionValueSet.Iid))
-            {
-                this.IterationService.NewUpdates.Add(this.ParameterSubscriptionValueSet.Iid);
-            }
             var clonedParameterValueSet = this.ParameterSubscriptionValueSet.Clone(false);
             clonedParameterValueSet.ValueSwitch = newValue;
             this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>()

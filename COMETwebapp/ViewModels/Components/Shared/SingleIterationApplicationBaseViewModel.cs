@@ -31,7 +31,8 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using CDP4Dal.Events;
 
     using COMETwebapp.Services.SessionManagement;
-
+    using COMETwebapp.Utilities.DisposableObject;
+    
     using DynamicData.Binding;
 
     using ReactiveUI;
@@ -39,7 +40,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// Base view model for any application that will need only one <see cref="Iteration" />
     /// </summary>
-    public abstract class SingleIterationApplicationBaseViewModel : DisposableViewModel, ISingleIterationApplicationBaseViewModel
+    public abstract class SingleIterationApplicationBaseViewModel : DisposableObject, ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
         /// Backing field for <see cref="CurrentIteration" />

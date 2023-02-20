@@ -23,13 +23,11 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Dal
 @using CDP4Dal.Events
 @using COMETwebapp.Extensions
-@using COMETwebapp.IterationServices
 @using COMETwebapp.Model
 @using COMETwebapp.Services.SessionManagement
 @using COMETwebapp.SessionManagement
 
 @inject ISessionService SessionService
-@inject IIterationService IterationService
 @inject NavigationManager NavigationManager
 
 @implements IDisposable
@@ -127,7 +125,7 @@ Copyright (c) 2023 RHEA System S.A.
                                     <BSTD Class="width-1400">
                                         <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
                                             <BSTBody>
-                                                @foreach (var parameterSubscription in this.FilterParameter(this.IterationService.GetParameterSubscriptionsByElement(element, this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration))))
+                                                @foreach (var parameterSubscription in this.FilterParameter(element.QueryParameterSubscriptions(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).ToList()))
                                                 {
                                                     var associatedParameter = (ParameterOrOverrideBase)parameterSubscription.Container;
                                                     @foreach(var parameterSubscriptionValueSet in this.FilterParameterSubscriptionValueSet(parameterSubscription.IsOptionDependent, parameterSubscription.ValueSet))
@@ -197,7 +195,7 @@ Copyright (c) 2023 RHEA System S.A.
     {
         this.LoadElements();
         this.ParameterTypeNames.Clear();
-        this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
+        this.SessionService.DefaultIteration.QueryUsedParameterTypes().OrderBy(p => p.Name).ToList().ForEach(p => this.ParameterTypeNames.Add(p.Name));
 
         if (!this.listeners.TryGetValue("UpToDate", out var listener))
         {
@@ -244,15 +242,15 @@ Copyright (c) 2023 RHEA System S.A.
         {
             if (iteration.TopElement != null)
             {
-                var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(iteration.TopElement, this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
-                if (parameterSubscriptions?.Count != 0)
+                var parameterSubscriptions = iteration.TopElement.QueryParameterSubscriptions(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
+                if (parameterSubscriptions.Any())
                 {
                     this.Elements.Add(iteration.TopElement);
                 }
             }
 
             this.Elements.AddRange(iteration.Element.SelectMany(e => e.ContainedElement)
-                .Where(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Count != 0));
+                .Where(e =>e.QueryParameterSubscriptions(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).Any()));
         }
     }
 
@@ -320,7 +318,7 @@ Copyright (c) 2023 RHEA System S.A.
 
         if(this.isOnlyUpdates == true)
         {
-            elements.RemoveAll(e => this.IterationService.GetParameterSubscriptionsByElement(e, this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration))
+            elements.RemoveAll(e => e.QueryParameterSubscriptions(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration))
                 .SelectMany(p => p.ValueSet).Where(p => this.isParameterSubscriptionValueSetUpdated(p)).Count() == 0);
         }
 
@@ -385,7 +383,7 @@ Copyright (c) 2023 RHEA System S.A.
     {
         this.Filter(this.Elements).ToList().ForEach(e =>
         {
-            var parameterSubscriptions = this.IterationService.GetParameterSubscriptionsByElement(e, this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
+            var parameterSubscriptions = e.QueryParameterSubscriptions(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)).ToList();
             parameterSubscriptions.ForEach(p =>
             {
                 this.FilterParameterSubscriptionValueSet(p.IsOptionDependent, p.ValueSet).ForEach(v =>
@@ -403,36 +401,7 @@ Copyright (c) 2023 RHEA System S.A.
     /// <param name="parameterSubscriptionValueSet">The <see cref="ParameterSubscriptionValueSet"> change to save </param>
     private void UpdateValidation(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
-        if(this.SessionService.DefaultIteration != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration), out var list))
-        {
-            var previousVersion = this.IterationService.ValidatedUpdates[this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)].Find(element => element.Iid == parameterSubscriptionValueSet.Iid);
-            if(previousVersion != null)
-            {
-                previousVersion.RevisionNumber = parameterSubscriptionValueSet.RevisionNumber;
-                previousVersion.SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber;
 
-            } else
-            {
-                this.IterationService.ValidatedUpdates[this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration)].Add(new ParameterSubscriptionViewModel()
-                {
-                    Iid = parameterSubscriptionValueSet.Iid,
-                    RevisionNumber = parameterSubscriptionValueSet.RevisionNumber,
-                    SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber
-                });
-            }
-        } else if (this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) != null)
-        {
-            this.IterationService.ValidatedUpdates.Add(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration), new List<ParameterSubscriptionViewModel>()
-            {
-                new ParameterSubscriptionViewModel()
-                {
-                    Iid = parameterSubscriptionValueSet.Iid,
-                    RevisionNumber = parameterSubscriptionValueSet.RevisionNumber,
-                    SubscribedRevisionNumber = parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber
-                }
-            });
-        }
-        CDPMessageBus.Current.SendMessage<ValidateUpdate>(new ValidateUpdate(parameterSubscriptionValueSet.Iid));
     }
 
     /// <summary>
@@ -485,19 +454,6 @@ Copyright (c) 2023 RHEA System S.A.
 
     private bool isUpdateAlreadyValidated(ParameterSubscriptionValueSet parameterSubscriptionValueSet)
     {
-        var isValidated = false;
-        if(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) != null && this.IterationService.ValidatedUpdates.TryGetValue(this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration), out var list))
-        {
-            var existingValidatedParameter = list.Find(p => p.Iid == parameterSubscriptionValueSet.Iid);
-            if(existingValidatedParameter != null && parameterSubscriptionValueSet.RevisionNumber == existingValidatedParameter.RevisionNumber && parameterSubscriptionValueSet.ValueSwitch != ParameterSwitchKind.COMPUTED)
-            {
-                isValidated = true;
-            }
-            if(existingValidatedParameter != null && parameterSubscriptionValueSet.SubscribedValueSet.RevisionNumber == existingValidatedParameter.SubscribedRevisionNumber)
-            {
-                isValidated = true;
-            }
-        }
-        return isValidated;
+        return false;
     }
 }

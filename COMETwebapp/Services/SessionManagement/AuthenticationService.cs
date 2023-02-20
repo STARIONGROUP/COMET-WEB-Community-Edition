@@ -31,7 +31,6 @@ namespace COMETwebapp.Services.SessionManagement
     using CDP4ServicesDal;
 
     using COMETwebapp.Enumerations;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Model.DTO;
     using COMETwebapp.SessionManagement;
 
@@ -54,11 +53,6 @@ namespace COMETwebapp.Services.SessionManagement
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// The <see cref="IIterationService"/>
-        /// </summary>
-        private readonly IIterationService iterationService;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService" /> class.
         /// </summary>
         /// <param name="sessionService">
@@ -67,12 +61,10 @@ namespace COMETwebapp.Services.SessionManagement
         /// <param name="authenticationStateProvider">
         /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </param>
-        /// <param name="iterationService">The <see cref="IIterationService"/></param>
-        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, IIterationService iterationService)
+        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider)
         {
             this.authStateProvider = authenticationStateProvider;
             this.sessionService = sessionService;
-            this.iterationService = iterationService;
         }
 
         /// <summary>
@@ -131,8 +123,6 @@ namespace COMETwebapp.Services.SessionManagement
             {
                 await this.sessionService.Close();
             }
-
-            this.iterationService.ValidatedUpdates.Clear();
 
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
         }

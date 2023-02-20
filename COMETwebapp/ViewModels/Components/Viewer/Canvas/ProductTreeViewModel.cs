@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using System.Linq;
@@ -30,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
+    /// View Model for building the product tree
     /// </summary>
     public class ProductTreeViewModel : ReactiveObject, IProductTreeViewModel
     {

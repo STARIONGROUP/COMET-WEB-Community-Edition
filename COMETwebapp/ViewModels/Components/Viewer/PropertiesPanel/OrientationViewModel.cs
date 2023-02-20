@@ -37,7 +37,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.OrientationComponent" />
+    /// View Model for that provide information related to <see cref="Orientation"/>
     /// </summary>
     public class OrientationViewModel : ReactiveObject, IOrientationViewModel
     {

@@ -30,7 +30,7 @@ namespace COMETwebapp.Services.Interoperability
     using Microsoft.JSInterop;
 
     /// <summary>
-    /// Interface for the <see cref="BabylonInterop"/>
+    /// The <see cref="IBabylonInterop"/> is used to call the babylon.js methods
     /// </summary>
     public interface IBabylonInterop
     {

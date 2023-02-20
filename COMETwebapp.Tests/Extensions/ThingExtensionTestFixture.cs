@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IterationServiceTest.cs" company="RHEA System S.A.">
+// <copyright file="ThingExtensionTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
@@ -22,13 +22,12 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Services.IterationServiceTest
+namespace COMETwebapp.Tests.Extensions
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -36,15 +35,13 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
     using CDP4Common.Types;
 
     using COMETwebapp.Extensions;
-    using COMETwebapp.IterationServices;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class IterationServiceTest
+    public class ThingExtensionTestFixture
     {
         private Iteration iteration;
-        private readonly IIterationService iterationService = new IterationService();
         private List<ParameterValueSetBase> parameterValueSetBase;
         private List<ParameterSubscription> parameterSubscriptions;
         private List<ElementDefinition> unReferencedElements;
@@ -127,43 +124,43 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
             this.siteDirectory.Domain.Add(this.domainOfExpertise);
             this.siteDirectory.Domain.Add(this.currentDomainOfExpertise);
 
-            var option_A = new Option(Guid.NewGuid(), cache, uri)
+            var optionA = new Option(Guid.NewGuid(), cache, uri)
             {
                 ShortName = "OPT_A",
                 Name = "Option A"
             };
 
-            var elementDefinition_1 = new ElementDefinition(Guid.NewGuid(), cache, uri)
+            var elementDefinition1 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
                 Owner = this.domainOfExpertise,
                 ShortName = "Sat",
                 Name = "Satellite"
             };
 
-            var elementDefinition_2 = new ElementDefinition(Guid.NewGuid(), cache, uri)
+            var elementDefinition2 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
                 Owner = this.domainOfExpertise,
                 ShortName = "Bat",
                 Name = "Battery"
             };
 
-            var elementDefinition_3 = new ElementDefinition(Guid.NewGuid(), cache, uri)
+            var elementDefinition3 = new ElementDefinition(Guid.NewGuid(), cache, uri)
             {
                 Owner = this.domainOfExpertise,
                 ShortName = "solar_panel",
                 Name = "Solar Panel"
             };
 
-            var elementUsage_1 = new ElementUsage(Guid.NewGuid(), cache, uri)
+            var elementUsage1 = new ElementUsage(Guid.NewGuid(), cache, uri)
             {
-                ElementDefinition = elementDefinition_2,
+                ElementDefinition = elementDefinition2,
                 ShortName = "bat_a",
                 Name = "battery a"
             };
 
-            var elementUsage_2 = new ElementUsage(Guid.NewGuid(), cache, uri)
+            var elementUsage2 = new ElementUsage(Guid.NewGuid(), cache, uri)
             {
-                ElementDefinition = elementDefinition_2,
+                ElementDefinition = elementDefinition2,
                 ShortName = "bat_b",
                 Name = "battery b"
             };
@@ -192,122 +189,120 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
                 ParameterType = simpleQuantityKind2
             };
 
-            var parameterValueset_1 = new ParameterValueSet
+            var parameterValueset1 = new ParameterValueSet
             {
-                ActualOption = option_A,
+                ActualOption = optionA,
                 Iid = Guid.NewGuid()
             };
 
-            var parameterValueset_2 = new ParameterValueSet
+            var parameterValueset2 = new ParameterValueSet
             {
-                ActualOption = option_A,
+                ActualOption = optionA,
                 Iid = Guid.NewGuid()
             };
 
-            var values_1 = new List<string> { "2" };
-            var values_2 = new List<string> { "3" };
+            var values1 = new List<string> { "2" };
+            var values2 = new List<string> { "3" };
             var publishedValues = new List<string> { "123" };
 
-            this.iteration.Option.Add(option_A);
-            this.iteration.DefaultOption = option_A;
+            this.iteration.Option.Add(optionA);
+            this.iteration.DefaultOption = optionA;
 
-            parameterValueset_1.Manual = new ValueArray<string>(values_1);
-            parameterValueset_1.Reference = new ValueArray<string>(values_1);
-            parameterValueset_1.Computed = new ValueArray<string>(values_1);
-            parameterValueset_1.Formula = new ValueArray<string>(values_1);
-            parameterValueset_1.Published = new ValueArray<string>(publishedValues);
-            parameterValueset_1.ValueSwitch = ParameterSwitchKind.MANUAL;
+            parameterValueset1.Manual = new ValueArray<string>(values1);
+            parameterValueset1.Reference = new ValueArray<string>(values1);
+            parameterValueset1.Computed = new ValueArray<string>(values1);
+            parameterValueset1.Formula = new ValueArray<string>(values1);
+            parameterValueset1.Published = new ValueArray<string>(publishedValues);
+            parameterValueset1.ValueSwitch = ParameterSwitchKind.MANUAL;
 
-            parameterValueset_2.Manual = new ValueArray<string>(values_2);
-            parameterValueset_2.Reference = new ValueArray<string>(values_2);
-            parameterValueset_2.Computed = new ValueArray<string>(values_2);
-            parameterValueset_2.Formula = new ValueArray<string>(values_2);
-            parameterValueset_2.Published = new ValueArray<string>(publishedValues);
-            parameterValueset_2.ValueSwitch = ParameterSwitchKind.MANUAL;
+            parameterValueset2.Manual = new ValueArray<string>(values2);
+            parameterValueset2.Reference = new ValueArray<string>(values2);
+            parameterValueset2.Computed = new ValueArray<string>(values2);
+            parameterValueset2.Formula = new ValueArray<string>(values2);
+            parameterValueset2.Published = new ValueArray<string>(publishedValues);
+            parameterValueset2.ValueSwitch = ParameterSwitchKind.MANUAL;
 
-            var oldParameterValueset_1 = new ParameterValueSet
+            var oldParameterValueset1 = new ParameterValueSet
             {
-                ActualOption = option_A,
-                Iid = parameterValueset_1.Iid
+                ActualOption = optionA,
+                Iid = parameterValueset1.Iid,
+                Manual = new ValueArray<string>(new List<string> { "3" }),
+                Reference = new ValueArray<string>(values1),
+                Computed = new ValueArray<string>(values1),
+                Formula = new ValueArray<string>(values1),
+                Published = new ValueArray<string>(publishedValues),
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            oldParameterValueset_1.Manual = new ValueArray<string>(new List<string> { "3" });
-            oldParameterValueset_1.Reference = new ValueArray<string>(values_1);
-            oldParameterValueset_1.Computed = new ValueArray<string>(values_1);
-            oldParameterValueset_1.Formula = new ValueArray<string>(values_1);
-            oldParameterValueset_1.Published = new ValueArray<string>(publishedValues);
-            oldParameterValueset_1.ValueSwitch = ParameterSwitchKind.MANUAL;
+            parameter.ValueSet.Add(parameterValueset1);
+            parameter.ValueSet.Add(parameterValueset2);
 
-            parameter.ValueSet.Add(parameterValueset_1);
-            parameter.ValueSet.Add(parameterValueset_2);
+            elementDefinition1.Parameter.Add(parameter);
+            elementDefinition1.ContainedElement.Add(elementUsage1);
+            elementDefinition1.ContainedElement.Add(elementUsage2);
 
-            elementDefinition_1.Parameter.Add(parameter);
-            elementDefinition_1.ContainedElement.Add(elementUsage_1);
-            elementDefinition_1.ContainedElement.Add(elementUsage_2);
+            elementDefinition2.Parameter.Add(parameter2);
 
-            elementDefinition_2.Parameter.Add(parameter2);
-
-            this.iteration.Element.Add(elementDefinition_1);
-            this.iteration.Element.Add(elementDefinition_2);
-            this.iteration.Element.Add(elementDefinition_3);
-            this.iteration.TopElement = elementDefinition_1;
+            this.iteration.Element.Add(elementDefinition1);
+            this.iteration.Element.Add(elementDefinition2);
+            this.iteration.Element.Add(elementDefinition3);
+            this.iteration.TopElement = elementDefinition1;
 
             var parameterSubscriptionValueSet = new ParameterSubscriptionValueSet
             {
-                Iid = Guid.NewGuid()
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(new List<string> { "1" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-
-            parameterSubscriptionValueSet.Manual = new ValueArray<string>(new List<string> { "1" });
-            parameterSubscriptionValueSet.ValueSwitch = ParameterSwitchKind.MANUAL;
 
             var oldParameterSubscriptionValueSet = new ParameterSubscriptionValueSet
             {
-                Iid = parameterSubscriptionValueSet.Iid
+                Iid = parameterSubscriptionValueSet.Iid,
+                Manual = new ValueArray<string>(new List<string> { "1" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            oldParameterSubscriptionValueSet.Manual = new ValueArray<string>(new List<string> { "1" });
-            oldParameterSubscriptionValueSet.ValueSwitch = ParameterSwitchKind.MANUAL;
-
-            var parameterSubscription = new ParameterSubscription();
-            parameterSubscription.Owner = this.currentDomainOfExpertise;
-            parameterSubscription.ValueSet.Add(parameterSubscriptionValueSet);
+            var parameterSubscription = new ParameterSubscription()
+            {
+                Owner = this.currentDomainOfExpertise,
+                ValueSet = { parameterSubscriptionValueSet }
+            }; 
 
             parameter.ParameterSubscription.Add(parameterSubscription);
 
             this.parameterValueSetBase = new List<ParameterValueSetBase>
             {
-                parameterValueset_1,
-                parameterValueset_2
+                parameterValueset1,
+                parameterValueset2
             };
 
             this.unReferencedElements = new List<ElementDefinition>
             {
-                elementDefinition_3
+                elementDefinition3
             };
 
             this.unUsedElements = new List<ElementDefinition>
             {
-                elementDefinition_3
+                elementDefinition3
             };
 
-            PropertyInfo nameProperty = typeof(ParameterValueSet).GetProperty("RevisionNumber");
-            nameProperty.SetValue(parameterValueset_1, 2);
-            nameProperty.SetValue(oldParameterValueset_1, 1);
+            var nameProperty = typeof(ParameterValueSet).GetProperty(nameof(ParameterValueSet.RevisionNumber))!;
+            nameProperty.SetValue(parameterValueset1, 2);
+            nameProperty.SetValue(oldParameterValueset1, 1);
 
-            nameProperty = typeof(ParameterSubscriptionValueSet).GetProperty("RevisionNumber");
+            nameProperty = typeof(ParameterSubscriptionValueSet).GetProperty(nameof(ParameterSubscriptionValueSet.RevisionNumber))!;
             nameProperty.SetValue(parameterSubscriptionValueSet, 2);
             nameProperty.SetValue(oldParameterSubscriptionValueSet, 1);
 
-            parameterValueset_1.Revisions.Clear();
-            parameterValueset_1.Revisions.Add(1, oldParameterValueset_1);
+            parameterValueset1.Revisions.Clear();
+            parameterValueset1.Revisions.Add(1, oldParameterValueset1);
 
             parameterSubscriptionValueSet.Revisions.Clear();
             parameterSubscriptionValueSet.Revisions.Add(1, oldParameterSubscriptionValueSet);
 
-            parameterSubscriptionValueSet.SubscribedValueSet = parameterValueset_1;
+            parameterSubscriptionValueSet.SubscribedValueSet = parameterValueset1;
 
-            this.parameterSubscriptions = new List<ParameterSubscription>();
-            this.parameterSubscriptions.Add(parameterSubscription);
+            this.parameterSubscriptions = new List<ParameterSubscription> { parameterSubscription };
         }
 
         [Test]
@@ -319,63 +314,83 @@ namespace COMETwebapp.Tests.Services.IterationServiceTest
         [Test]
         public void VerifyGetNestedElementsByOption()
         {
-            var option = this.iteration.Option.First();
-            Assert.That(this.iteration.QueryNestedElements(option), Is.Not.Empty);
-            Assert.That(this.iteration.QueryNestedElements(option).Count, Is.EqualTo(this.iteration.QueryNestedElements().Count()));
+            var nestedElements = this.iteration.QueryNestedElements(this.iteration.Option[0]).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(nestedElements, Is.Not.Empty);
+                Assert.That(nestedElements, Has.Count.EqualTo(this.iteration.QueryNestedElements().Count()));
+            });
         }
 
         [Test]
         public void VerifyGetNestedParameters()
         {
-            Assert.That(this.iteration.QueryNestedParameters(this.iteration.Option.First()), Is.Not.Empty);
-        }
-
-        [Test]
-        public void VerifyGetNumberUpdates()
-        {
-            Assert.AreEqual(1, this.iterationService.GetNumberUpdates(this.iteration, this.currentDomainOfExpertise));
-            Assert.AreEqual(0, this.iterationService.GetNumberUpdates(this.iteration, this.domainOfExpertise));
+            Assert.That(this.iteration.QueryNestedParameters(this.iteration.Option[0]), Is.Not.Empty);
         }
 
         [Test]
         public void VerifyGetParameterSubscriptionsByElement()
         {
-            Assert.That(this.iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise), Is.Not.Empty);
-            Assert.That(this.iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise).Count, Is.EqualTo(1));
-            Assert.That(this.iterationService.GetParameterSubscriptionsByElement(this.iteration.TopElement, this.currentDomainOfExpertise).Contains(this.parameterSubscriptions.First()), Is.True);
+            var subscriptions = this.iteration.TopElement.QueryParameterSubscriptions(this.currentDomainOfExpertise).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(subscriptions, Has.Count.EqualTo(1));
+                Assert.That(subscriptions, Does.Contain(this.parameterSubscriptions[0]));
+            });
         }
 
         [Test]
         public void VerifyGetParameterTypes()
         {
-            var parameterTypes = this.iterationService.GetParameterTypes(this.iteration);
-            Assert.That(parameterTypes.Count, Is.EqualTo(2));
+            var parameterTypes = this.iteration.QueryUsedParameterTypes().ToList();
+            Assert.That(parameterTypes, Has.Count.EqualTo(2));
 
             var parameterTypeNames = new List<string>();
             parameterTypes.ForEach(p => parameterTypeNames.Add(p.Name));
-            Assert.That(parameterTypeNames.Contains("mass"), Is.True);
-            Assert.That(parameterTypeNames.Contains("volume"), Is.True);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(parameterTypeNames, Does.Contain("mass"));
+                Assert.That(parameterTypeNames, Does.Contain("volume"));
+            });
         }
 
         [Test]
         public void VerifyGetParameterValueSetBase()
         {
-            Assert.That(this.iteration.QueryParameterValueSetBase(), Is.Not.Empty);
-            Assert.That(this.iteration.QueryParameterValueSetBase(), Is.EqualTo(this.parameterValueSetBase));
+            var valueSets = this.iteration.QueryParameterValueSetBase().ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(valueSets, Is.Not.Empty);
+                Assert.That(valueSets, Is.EqualTo(this.parameterValueSetBase));
+            });
         }
 
         [Test]
         public void VerifyGetUnreferencedElements()
         {
-            Assert.That(this.iteration.QueryUnreferencedElements(), Is.Not.Empty);
-            Assert.That(this.iteration.QueryUnreferencedElements(), Is.EqualTo(this.unReferencedElements));
+            var unreferencedElements = this.iteration.QueryUnreferencedElements().ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(unreferencedElements, Is.Not.Empty);
+                Assert.That(unreferencedElements, Is.EqualTo(this.unReferencedElements));
+            });
         }
 
         [Test]
         public void VerifyGetUnusedElementDefinitions()
         {
-            Assert.That(this.iteration.QueryUnusedElementDefinitions(), Is.Not.Empty);
-            Assert.That(this.iteration.QueryUnusedElementDefinitions(), Is.EqualTo(this.unUsedElements));
+            var unusedElements = this.iteration.QueryUnusedElementDefinitions().ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(unusedElements, Is.Not.Empty);
+                Assert.That(unusedElements, Is.EqualTo(this.unUsedElements));
+            });
         }
     }
 }

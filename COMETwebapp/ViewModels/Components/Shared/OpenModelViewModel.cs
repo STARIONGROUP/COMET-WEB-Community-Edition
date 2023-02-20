@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
 
     using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
 
     using DynamicData.Binding;
 
@@ -37,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
-    public class OpenModelViewModel : DisposableViewModel, IOpenModelViewModel
+    public class OpenModelViewModel : DisposableObject, IOpenModelViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" />

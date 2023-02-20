@@ -24,12 +24,14 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
 
-	/// <summary>
-	/// Interface definition for <see cref="SingleIterationApplicationBaseViewModel" />
-	/// </summary>
-	public interface ISingleIterationApplicationBaseViewModel: IDisposableViewModel
+    using COMETwebapp.Utilities.DisposableObject;
+
+    /// <summary>
+    /// Base view model for any application that will need only one <see cref="Iteration" />
+    /// </summary>
+    public interface ISingleIterationApplicationBaseViewModel: IDisposableObject
 	{
 		/// <summary>
 		/// The current <see cref="Iteration" /> to work with

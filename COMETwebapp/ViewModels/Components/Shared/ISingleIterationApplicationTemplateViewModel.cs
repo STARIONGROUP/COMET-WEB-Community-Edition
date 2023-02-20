@@ -30,7 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     /// <summary>
-    /// Interface definition for <see cref="SingleIterationApplicationTemplateViewModel" />
+    /// ViewModel that will englobe all applications where only one <see cref="Iteration" /> needs to be selected
     /// </summary>
     public interface ISingleIterationApplicationTemplateViewModel
 	{

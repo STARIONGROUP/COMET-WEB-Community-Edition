@@ -27,7 +27,7 @@ using COMETwebapp.Model;
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     /// <summary>
-    /// Interface for the <see cref="NodeComponentViewModel"/>
+    /// ViewModel for that handle information related to <see cref="TreeNode"/> inside a tree
     /// </summary>
     public interface INodeComponentViewModel
     {

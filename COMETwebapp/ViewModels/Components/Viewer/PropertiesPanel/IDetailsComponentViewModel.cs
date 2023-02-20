@@ -28,9 +28,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.Types;
 
     using Microsoft.AspNetCore.Components;
-    
+
     /// <summary>
-    /// Interface for the <see cref="DetailsComponentViewModel"/>
+    /// View Model that provide details for <see cref="ParameterBase"/>
     /// </summary>
     public interface IDetailsComponentViewModel
     {

@@ -114,16 +114,13 @@ namespace COMETwebapp.Services.SessionManagement
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
         public async Task ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain)
         {
-            if (iterationSetup == null)
-            {
-                throw new ArgumentNullException(nameof(iterationSetup));
-            }
-
             var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
-
             var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-            var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-            iteration.Container = model;
+
+            var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri)
+            {
+                Container = model
+            };
 
             try
             {
@@ -233,14 +230,9 @@ namespace COMETwebapp.Services.SessionManagement
         /// <param name="thingsToCreate">List of Things to create in the session</param>
         public async Task CreateThings(Iteration iteration, IEnumerable<Thing> thingsToCreate)
         {
-            if (iteration == null)
-            {
-                throw new InvalidOperationException("At first an iteration should be opened");
-            }
-
             if (thingsToCreate == null)
             {
-                throw new ArgumentException("Please add at least one Thing to be created");
+                return;
             }
 
             // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
@@ -275,17 +267,12 @@ namespace COMETwebapp.Services.SessionManagement
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
         public async Task UpdateThings(Iteration iteration, IEnumerable<Thing> thingsToUpdate)
         {
-            var sw = Stopwatch.StartNew();
-
-            if (iteration == null)
-            {
-                throw new InvalidOperationException("At first an iteration should be opened");
-            }
-
             if (thingsToUpdate == null)
             {
-                throw new ArgumentException("Please add at least one Thing to be updated");
+                return;
             }
+
+            var sw = Stopwatch.StartNew();
 
             // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
             var iterationClone = iteration.Clone(false);

@@ -32,7 +32,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.IterationServices;
@@ -48,12 +47,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     /// </summary>
     public class PropertiesComponentViewModel : ReactiveObject, IPropertiesComponentViewModel
     {
-        /// <summary>
-        /// Injected property to get access to <see cref="IIterationService"/>
-        /// </summary>
-        [Inject]
-        public IIterationService IterationService { get; set; }
-
         /// <summary>
         /// Injected property to get access to <see cref="ISessionService"/>
         /// </summary>
@@ -147,13 +140,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// Creates a new instance of type <see cref="PropertiesComponentViewModel"/>
         /// </summary>
         /// <param name="babylonInterop">the <see cref="IBabylonInterop"/></param>
-        /// <param name="iterationService">the <see cref="IIterationService"/></param>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
         /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
-        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, IIterationService iterationService, ISessionService sessionService, ISelectionMediator selectionMediator)
+        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, ISessionService sessionService, ISelectionMediator selectionMediator)
         {
             this.BabylonInterop = babylonInterop;
-            this.IterationService = iterationService;
             this.SessionService = sessionService;
             this.SelectionMediator = selectionMediator;
 
@@ -197,15 +188,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.SelectionMediator.SceneObjectHasChanges = false;
             this.ParameterHaveChanges = false;
-            this.IterationService.NewUpdates.Clear();
 
             foreach (var keyValue in this.ChangedParameterValueSetRelations)
             {
                 var valueSet = keyValue.Value;
 
-                if (valueSet is ParameterValueSetBase parameterValueSetBase && !this.IterationService.NewUpdates.Contains(parameterValueSetBase.Iid))
+                if (valueSet is ParameterValueSetBase parameterValueSetBase)
                 {
-                    this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
                     CDPMessageBus.Current.SendMessage(new NewUpdateEvent(parameterValueSetBase.Iid));
 
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
