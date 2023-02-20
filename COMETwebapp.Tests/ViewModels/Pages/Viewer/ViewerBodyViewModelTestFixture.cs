@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ViewerViewModelTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="ViewerBodyViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -30,21 +30,21 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
+
+    using COMETwebapp.IterationServices;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Pages.Viewer;
-    
+    using COMETwebapp.ViewModels.Components.Viewer;
+
     using Moq;
     
     using NUnit.Framework;
     
-    using TestContext = Bunit.TestContext;
-
     [TestFixture]
-    public class ViewerViewModelTestFixture
+    public class ViewerBodyViewModelTestFixture
     {
-        private IViewerViewModel viewModel;
+        private IViewerBodyViewModel viewModel;
 
         [SetUp]
         public void SetUp()
@@ -172,7 +172,12 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 
             var selectionMediatorMock = new Mock<ISelectionMediator>();
 
-            this.viewModel = new ViewerViewModel(sessionServiceMock.Object, selectionMediatorMock.Object);
+            var babylonInterop = new Mock<IBabylonInterop>();
+            var iterationService = new Mock<IIterationService>();
+
+            this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object, iterationService.Object);
+            this.viewModel.CurrentIteration = iteration;
+            this.viewModel.InitializeViewModel();
         }
 
         [Test]
@@ -180,13 +185,11 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.SessionService, Is.Not.Null);
                 Assert.That(this.viewModel.SelectionMediator, Is.Not.Null);
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
                 Assert.That(this.viewModel.Elements, Has.Count.EqualTo(5));
-                Assert.That(this.viewModel.TotalOptions, Is.Not.Null);
-                Assert.That(this.viewModel.TotalOptions, Has.Count.EqualTo(2));
-                Assert.That(this.viewModel.SelectedOption, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector.AvailableOptions.ToList(), Has.Count.EqualTo(2));
                 Assert.That(this.viewModel.ListActualFiniteStateLists, Is.Not.Null);
                 Assert.That(this.viewModel.ListActualFiniteStateLists, Has.Count.EqualTo(2));
                 Assert.That(this.viewModel.SelectedActualFiniteStates, Is.Not.Null);
@@ -214,9 +217,9 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
         [Test]
         public void VerifyOnOptionChange()
         {
-            var previousOption = this.viewModel.SelectedOption;
-            this.viewModel.OnOptionChange(this.viewModel.TotalOptions.Last());
-            Assert.That(previousOption, Is.Not.EqualTo(this.viewModel.SelectedOption));
+            var previousOption = this.viewModel.OptionSelector.SelectedOption;
+            this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.Last();
+            Assert.That(previousOption, Is.Not.EqualTo(this.viewModel.OptionSelector.SelectedOption));
         }
 
         [Test]

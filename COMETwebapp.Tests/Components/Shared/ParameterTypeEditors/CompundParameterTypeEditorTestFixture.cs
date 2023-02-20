@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
@@ -192,13 +193,8 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
             });
 
-            var renderedMarkup = this.renderedComponent.Markup;
-            
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderedMarkup, Is.Not.Null);
-                Assert.AreEqual("<h3>Component under development</h3>", renderedMarkup);
-            });
+            var component = this.renderedComponent.FindComponent<OrientationComponent>();
+            Assert.That(component, Is.Not.Null);
         }
     }
 }

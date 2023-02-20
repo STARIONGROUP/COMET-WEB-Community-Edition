@@ -24,10 +24,12 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
@@ -40,18 +42,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     public class DetailsComponentViewModelTestFixture
     {
         private IDetailsComponentViewModel viewModel;
-        private EventCallback<Dictionary<ParameterBase, IValueSet>> eventCallback;
-        private ParameterBase selectedParameter;
-        private Dictionary<ParameterBase, IValueSet> parameterValueSetRelations;
+        private EventCallback<IValueSet> eventCallback;
+        private ParameterType parameterType;
+        private ParameterValueSet valueSet;
 
         [SetUp]
         public void SetUp()
         {
-            this.eventCallback = new EventCallback<Dictionary<ParameterBase, IValueSet>>();
-            this.selectedParameter = new Parameter();
-            this.parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>();
+            this.eventCallback = new EventCallback<IValueSet>();
 
-            this.viewModel = new DetailsComponentViewModel(true, this.selectedParameter, this.parameterValueSetRelations, this.eventCallback);
+            this.parameterType = new TextParameterType()
+            {
+                Iid = Guid.NewGuid(),
+            };
+
+            this.valueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string>() { "1", "2", "3" })
+            };
+
+            this.viewModel = new DetailsComponentViewModel(true, this.parameterType, this.valueSet, this.eventCallback);
         }
 
         [Test]
@@ -60,31 +72,23 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsVisible, Is.True);
-                Assert.That(this.viewModel.SelectedParameter, Is.Not.Null);
-                Assert.That(this.viewModel.OnParameterValueChanged, Is.Not.Null);
-                Assert.That(this.viewModel.ValueSet, Is.Null);
+                Assert.That(this.viewModel.ValueSet, Is.Not.Null);
+                Assert.That(this.viewModel.ParameterValueChanged, Is.Not.Null);
+                Assert.That(this.viewModel.ParameterType, Is.Not.Null);
             });
         }
 
         [Test]
-        public void VerifyOnParameterValueChange()
+        public void VerifyThatParameterTypeEditorViewModelCanBeCreated()
         {
-            this.viewModel.ValueSet = new ParameterValueSet()
-            {
-                ValueSwitch = ParameterSwitchKind.MANUAL,
-                Manual = new ValueArray<string>(new List<string> { "1", "1" })
-            };
+            var parameterTypeSelectorViewModel = this.viewModel.CreateParameterTypeEditorSelectorViewModel();
             
-            Dictionary<ParameterBase, IValueSet> result = null;
-            
-            this.viewModel.OnParameterValueChanged = new EventCallbackFactory().Create(this, (Dictionary<ParameterBase, IValueSet> parameterValueSetRelations) =>
+            Assert.Multiple(() =>
             {
-                result = parameterValueSetRelations;
+                Assert.That(parameterTypeSelectorViewModel, Is.Not.Null);
+                Assert.That(parameterTypeSelectorViewModel.ParameterType, Is.EqualTo(this.parameterType));
+                Assert.That(parameterTypeSelectorViewModel.ValueSet, Is.EqualTo(this.valueSet));
             });
-
-            this.viewModel.OnParameterValueChange(0, "2.1");
-
-            Assert.That(result, Is.Not.Null);
         }
     }
 }

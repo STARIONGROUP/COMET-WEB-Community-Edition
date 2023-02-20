@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindParamterEditorTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="QuantityKindParameterTypeEditorViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -26,22 +26,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
+    
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+    
     using NUnit.Framework;
+    
     using System.Collections.Generic;
     using System;
-    using System.Threading.Tasks;
-
+    
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMETwebapp.Model;
-
-    using Microsoft.AspNetCore.Components;
-
+    
     [TestFixture]
-    public class QuantityKindParamterEditorTestFixture
+    public class QuantityKindParameterTypeEditorViewModelTestFixture
     {
         private QuantityKindParameterTypeEditorViewModel viewModel;
 
@@ -79,7 +79,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         public void VerifyThatSwitchEventChangeData()
         {
             Assert.That(this.viewModel.ValueSet.ValueSwitch, Is.EqualTo(ParameterSwitchKind.MANUAL));
-            CDPMessageBus.Current.SendMessage<SwitchEvent>(new SwitchEvent(Guid.NewGuid(), ParameterSwitchKind.COMPUTED, false));
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(Guid.NewGuid(), ParameterSwitchKind.COMPUTED, false));
             
             Assert.Multiple(() =>
             {
@@ -87,7 +87,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(this.viewModel.IsReadOnly, Is.False);
             });
 
-            CDPMessageBus.Current.SendMessage<SwitchEvent>(new SwitchEvent(Guid.NewGuid(), ParameterSwitchKind.REFERENCE, false));
+            CDPMessageBus.Current.SendMessage(new SwitchEvent(Guid.NewGuid(), ParameterSwitchKind.REFERENCE, false));
 
             Assert.Multiple(() =>
             {

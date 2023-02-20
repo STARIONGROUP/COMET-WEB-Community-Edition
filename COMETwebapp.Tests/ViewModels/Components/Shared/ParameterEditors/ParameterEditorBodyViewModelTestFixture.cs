@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterEditorViewModelTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterEditorBodyViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
+namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 {
     using System;
     using System.Collections.Concurrent;
@@ -36,33 +36,27 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
 
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.ViewModels.Pages.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using Moq;
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
-
     [TestFixture]
-    public class ParameterEditorViewModelTestFixture
+    public class ParameterEditorBodyViewModelTestFixture
     {
-        private TestContext context;
-        private IParameterEditorViewModel viewModel;
+        private IParameterEditorBodyViewModel viewModel;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
-
             var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             var uri = new Uri("http://localhost");
 
-            var elementUsage1 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element1" };
-            var elementUsage2 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element2" };
-            var elementUsage3 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element3" };
-            var elementUsage4 = new ElementUsage{ Iid = Guid.NewGuid(), Name = "element4" };
+            var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
+            var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
+            var elementUsage3 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element3" };
+            var elementUsage4 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element4" };
 
             var elementDefinition1 = new ElementDefinition
             {
@@ -165,7 +159,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             };
 
             iterationService.Setup(x => x.GetParameterTypes(It.IsAny<Iteration>())).Returns(paramerTypesList);
-            this.viewModel = new ParameterEditorViewModel(sessionService.Object, iterationService.Object);
+            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, iterationService.Object);
+            this.viewModel.CurrentIteration = iteration;
         }
 
         [Test]
@@ -173,16 +168,14 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.SubscriptionService, Is.Not.Null);
-                Assert.That(this.viewModel.SessionService, Is.Not.Null);
+                Assert.That(this.viewModel.IterationService, Is.Not.Null);
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
                 Assert.That(this.viewModel.FilteredElements, Is.Not.Null);
+                Assert.That(this.viewModel.ElementSelector, Is.Not.Null);
+                Assert.That(this.viewModel.ParameterTypeSelector, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
+                Assert.That(this.viewModel.FiniteStateSelector, Is.Not.Null);
                 Assert.That(this.viewModel.IsOwnedParameters, Is.False);
-                Assert.That(this.viewModel.SelectedElementFilter, Is.Null);
-                Assert.That(this.viewModel.SelectedParameterTypeFilter, Is.Null);
-                Assert.That(this.viewModel.SelectedOptionFilter, Is.Null);
-                Assert.That(this.viewModel.SelectedStateFilter, Is.Null);
-                Assert.That(this.viewModel.ParameterTypes, Is.Not.Null);
             });
         }
 
@@ -192,7 +185,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
-                Assert.That(this.viewModel.Elements, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.Elements.ToList(), Has.Count.EqualTo(0));
             });
 
             this.viewModel.InitializeViewModel();
@@ -200,7 +193,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
-                Assert.That(this.viewModel.Elements, Has.Count.EqualTo(5));
+                Assert.That(this.viewModel.Elements.ToList(), Has.Count.EqualTo(5));
             });
         }
 
@@ -210,11 +203,11 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
             this.viewModel.InitializeViewModel();
             var firstElement = this.viewModel.Elements.First();
 
-            this.viewModel.SelectedOptionFilter = null;
-            this.viewModel.SelectedParameterTypeFilter = null;
-            this.viewModel.SelectedStateFilter = null;
+            this.viewModel.OptionSelector.SelectedOption = null;
+            this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
+            this.viewModel.FiniteStateSelector.SelectedActualFiniteState = null;
 
-            this.viewModel.SelectedElementFilter = firstElement;
+            this.viewModel.ElementSelector.SelectedElementBase = firstElement;
             this.viewModel.ApplyFilters(this.viewModel.Elements);
 
             Assert.Multiple(() =>
@@ -223,8 +216,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
                 Assert.That(this.viewModel.FilteredElements.Items.Contains(firstElement), Is.True);
             });
 
-            this.viewModel.SelectedElementFilter = null;
-            this.viewModel.SelectedParameterTypeFilter = new TextParameterType() { Name = "textParamType" };
+            this.viewModel.ElementSelector.SelectedElementBase = null;
+            this.viewModel.ParameterTypeSelector.SelectedParameterType = new TextParameterType() { Name = "textParamType" };
             this.viewModel.ApplyFilters(this.viewModel.Elements);
 
             Assert.Multiple(() =>
@@ -232,14 +225,14 @@ namespace COMETwebapp.Tests.ViewModels.Pages.ParameterEditor
                 Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(2));
             });
 
-            this.viewModel.SelectedParameterTypeFilter = null;
-            this.viewModel.SelectedOptionFilter = this.viewModel.SessionService.DefaultIteration.DefaultOption;
+            this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
+            this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentIteration.DefaultOption;
             this.viewModel.ApplyFilters(this.viewModel.Elements);
-            
-            Assert.Multiple((() =>
+
+            Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(1));
-            }));
+            });
         }
     }
 }

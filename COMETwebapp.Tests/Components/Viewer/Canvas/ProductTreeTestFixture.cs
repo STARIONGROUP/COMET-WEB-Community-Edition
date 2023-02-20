@@ -85,10 +85,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             rootNodeVM.AddChild(nodeVM1);
             rootNodeVM.AddChild(nodeVM5);
             
-            this.renderedComponent = this.context.RenderComponent<ProductTree>(parameter =>
-            {
-                parameter.Add(p => p.RootViewModel, rootNodeVM);
-            });
+            this.renderedComponent = this.context.RenderComponent<ProductTree>();
  
             this.productTree = this.renderedComponent.Instance;
         }
@@ -106,7 +103,6 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             {
                 Assert.That(this.productTree, Is.Not.Null);
                 Assert.That(this.productTree.ViewModel, Is.Not.Null);
-                Assert.That(this.productTree.RootViewModel, Is.Not.Null);
             });
         }
     }

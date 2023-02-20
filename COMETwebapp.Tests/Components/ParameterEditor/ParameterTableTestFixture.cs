@@ -37,6 +37,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using Microsoft.Extensions.DependencyInjection;
 
+    using Moq;
+
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -54,7 +56,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton<ISessionService, SessionService>();
-            this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
+
+            var parameterTableViewModel = new Mock<IParameterTableViewModel>();
 
             var element1 = new ElementDefinition();
 
@@ -69,7 +72,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             this.renderedComponent = this.context.RenderComponent<ParameterTable>(parameters =>
             {
-                parameters.Add(p => p.Elements, elementList);
+                parameters.Add(p => p.ViewModel, parameterTableViewModel.Object);
             });
             
             this.table = this.renderedComponent.Instance;
@@ -88,7 +91,6 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             {
                 Assert.That(this.renderedComponent, Is.Not.Null);
                 Assert.That(this.table, Is.Not.Null);
-                Assert.That(this.table.Elements, Is.Not.Null);
                 Assert.That(this.table.ViewModel, Is.Not.Null);
             });
         }
