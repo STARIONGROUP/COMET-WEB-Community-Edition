@@ -27,6 +27,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using Microsoft.AspNetCore.Components;
@@ -36,7 +37,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// ViewModel that will englobe all applications where only one <see cref="Iteration" /> needs to be selected
     /// </summary>
-    public class SingleIterationApplicationTemplateViewModel : ReactiveObject, ISingleIterationApplicationTemplateViewModel
+    public class SingleIterationApplicationTemplateViewModel : DisposableObject, ISingleIterationApplicationTemplateViewModel
     {
         /// <summary>
         /// Backing field for <see cref="IsOnIterationSelectionMode" />
@@ -58,6 +59,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
             this.SessionService = sessionService;
             this.IterationSelectorViewModel = iterationSelectorViewModel;
             this.IterationSelectorViewModel.OnSubmit = new EventCallbackFactory().Create<Iteration>(this, this.SelectIteration);
+            this.Disposables.Add(this.SessionService.OpenIterations.CountChanged.Subscribe(_ => this.OnOpenIterationCountChanged()));
         }
 
         /// <summary>
@@ -105,6 +107,17 @@ namespace COMETwebapp.ViewModels.Components.Shared
         {
             get => this.isOnIterationSelectionMode;
             set => this.RaiseAndSetIfChanged(ref this.isOnIterationSelectionMode, value);
+        }
+
+        /// <summary>
+        /// Handles the change of opened <see cref="Iteration" />
+        /// </summary>
+        private void OnOpenIterationCountChanged()
+        {
+            if (this.SessionService.OpenIterations.Count is 0 or 1)
+            {
+                this.SelectedIteration = this.SessionService.OpenIterations.Items.FirstOrDefault();
+            }
         }
     }
 }

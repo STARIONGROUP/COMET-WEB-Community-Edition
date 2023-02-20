@@ -24,15 +24,36 @@
 
 namespace COMETwebapp.Model
 {
+    using CDP4Common.Types;
+
     /// <summary>
     /// Represents value for ParameterSubcriptionValueSet history
     /// </summary>
     public class RevisionHistory
     {
         /// <summary>
+        /// Initializes a new <see cref="RevisionHistory" />
+        /// </summary>
+        /// <param name="revisionNumber">The revision number</param>
+        /// <param name="valueArray">The associtated <see cref="ValueArray{T}" /></param>
+        public RevisionHistory(int revisionNumber, ValueArray<string> valueArray)
+        {
+            this.RevisionNumber = revisionNumber.ToString();
+
+            if (double.TryParse(valueArray[0], out var value))
+            {
+                this.ActualValue = value;
+            }
+            else
+            {
+                this.ActualValue = null;
+            }
+        }
+
+        /// <summary>
         /// Revision Number in string of the ParameterSubcriptionValueSet
         /// </summary>
-        public string? RevisionNumber { get; set; }
+        public string RevisionNumber { get; set; }
 
         /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet

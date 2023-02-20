@@ -24,7 +24,6 @@
 
 namespace COMETwebapp.Services.SubscriptionService
 {
-    using System.Collections.ObjectModel;
     using System.Reactive.Linq;
 
     using CDP4Common.EngineeringModelData;
@@ -50,6 +49,11 @@ namespace COMETwebapp.Services.SubscriptionService
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// A  <see cref="Dictionary{TKey,TValue}" /> of <see cref="Guid" /> for <see cref="ParameterSubscriptionValueSet" /> that changed
+        /// </summary>
+        private readonly Dictionary<Guid, List<Guid>> subscriptionsWithUpdate = new();
 
         /// <summary>
         /// <see cref="Dictionary{TKey,TValue}" /> that tracks the <see cref="ParameterSubscription" /> inside an
@@ -83,9 +87,15 @@ namespace COMETwebapp.Services.SubscriptionService
         }
 
         /// <summary>
+        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to <see cref="ParameterSubscriptionValueSet" />
+        /// that has changed
+        /// </summary>
+        public IReadOnlyDictionary<Guid, List<Guid>> SubscriptionsWithUpdate => this.subscriptionsWithUpdate.AsReadOnly();
+
+        /// <summary>
         /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to the tracked subscriptions
         /// </summary>
-        public IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions => new ReadOnlyDictionary<Guid, List<TrackedParameterSubscription>>(this.trackedSubscriptions);
+        public IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions => this.trackedSubscriptions.AsReadOnly();
 
         /// <summary>
         /// The current number of new <see cref="ParameterSubscription" /> updates
@@ -117,25 +127,14 @@ namespace COMETwebapp.Services.SubscriptionService
         {
             var domain = this.sessionService.GetDomainOfExpertise(iteration);
 
-            this.trackedSubscriptions[iteration.Iid] = new List<TrackedParameterSubscription>(iteration.QueryParameterSubscriptions(domain)
+            this.trackedSubscriptions[iteration.Iid] = new List<TrackedParameterSubscription>(iteration.QueryOwnedParameterSubscriptions(domain)
                 .Select(x => new TrackedParameterSubscription(x)));
-        }
-
-        /// <summary>
-        /// Removes all closed <see cref="Iteration" /> from the tracked subscriptions
-        /// </summary>
-        private void RemoveClosedIterations()
-        {
-            foreach (var closedIterationId in this.trackedSubscriptions.Keys.Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x)).ToList())
-            {
-                this.trackedSubscriptions.Remove(closedIterationId);
-            }
         }
 
         /// <summary>
         /// Computes the number of updates of <see cref="ParameterSubscription" /> since the last tracking
         /// </summary>
-        private void ComputeUpdateSinceLastTracking()
+        public void ComputeUpdateSinceLastTracking()
         {
             this.RemoveClosedIterations();
 
@@ -151,6 +150,18 @@ namespace COMETwebapp.Services.SubscriptionService
         }
 
         /// <summary>
+        /// Removes all closed <see cref="Iteration" /> from the tracked subscriptions
+        /// </summary>
+        private void RemoveClosedIterations()
+        {
+            foreach (var closedIterationId in this.trackedSubscriptions.Keys.Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x)).ToList())
+            {
+                this.trackedSubscriptions.Remove(closedIterationId);
+                this.subscriptionsWithUpdate.Remove(closedIterationId);
+            }
+        }
+
+        /// <summary>
         /// Compute the number of updates in an <see cref="Iteration" /> after a session refresh related to
         /// <see cref="ParameterSubscription" />
         /// </summary>
@@ -159,25 +170,27 @@ namespace COMETwebapp.Services.SubscriptionService
         /// <returns>The number of new updates</returns>
         private int ComputeUpdateSinceLastTracking(Iteration iteration, DomainOfExpertise domainOfExpertise)
         {
-            var newSubscriptions = iteration.QueryParameterSubscriptions(domainOfExpertise)
+            var newSubscriptions = iteration.QueryOwnedParameterSubscriptions(domainOfExpertise)
                 .Select(x => new TrackedParameterSubscription(x)).ToList();
 
             if (!this.trackedSubscriptions.ContainsKey(iteration.Iid))
             {
+                this.subscriptionsWithUpdate[iteration.Iid] = new List<Guid>();
                 this.UpdateTrackedSubscriptions(iteration);
                 return 0;
             }
 
+            this.subscriptionsWithUpdate[iteration.Iid].Clear();
+
             var oldSubcriptions = this.trackedSubscriptions[iteration.Iid];
-            var updateCount = 0;
 
             foreach (var subscription in newSubscriptions)
             {
                 var existingSubscription = oldSubcriptions.FirstOrDefault(x => x.ParameterSubscriptionId == subscription.ParameterSubscriptionId);
-                updateCount += existingSubscription?.ComputeNumberOfUpdates(subscription) ?? 1;
+                this.subscriptionsWithUpdate[iteration.Iid].AddRange(existingSubscription?.QueryChangedValueSet(subscription) ?? subscription.CountChanges.Keys);
             }
 
-            return updateCount;
+            return this.subscriptionsWithUpdate[iteration.Iid].Count;
         }
     }
 }

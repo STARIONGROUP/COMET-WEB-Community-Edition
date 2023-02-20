@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Shared
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Utilities.DisposableObject;
 
@@ -37,5 +38,15 @@ namespace COMETwebapp.ViewModels.Components.Shared
 		/// The current <see cref="Iteration" /> to work with
 		/// </summary>
 		Iteration CurrentIteration { get; set; }
-	}
+
+        /// <summary>
+        /// Value asserting that the view model has set initial values at least once
+        /// </summary>
+        bool HasSetInitialValuesOnce { get; set; }
+
+        /// <summary>
+        /// Gets the current <see cref="DomainOfExpertise" />
+        /// </summary>
+        DomainOfExpertise CurrentDomain { get; }
+    }
 }

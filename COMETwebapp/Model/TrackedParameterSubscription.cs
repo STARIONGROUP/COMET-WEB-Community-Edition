@@ -26,6 +26,8 @@ namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Extensions;
+
     /// <summary>
     /// Handles all required information to track any updates on a <see cref="ParameterSubscription" />
     /// </summary>
@@ -38,12 +40,15 @@ namespace COMETwebapp.Model
         public TrackedParameterSubscription(ParameterSubscription subscription)
         {
             this.ParameterSubscriptionId = subscription.Iid;
-           
-            foreach (var parameterSubscriptionValueSet in subscription.ValueSet)
-            {
-                this.ParameterValueSetsCurrentRevision[parameterSubscriptionValueSet.Iid] = parameterSubscriptionValueSet.RevisionNumber;
-            }
+
+            this.CountChanges = subscription.QueryParameterSubscriptionValueSetEvolution()
+                .ToDictionary(k => k.Key, v => v.Value.Count);
         }
+
+        /// <summary>
+        /// Count changes related to the <see cref="ParameterSubscription" />
+        /// </summary>
+        public Dictionary<Guid, int> CountChanges { get; set; }
 
         /// <summary>
         /// The <see cref="Guid" /> of the <see cref="ParameterSubscription" />
@@ -51,39 +56,36 @@ namespace COMETwebapp.Model
         public Guid ParameterSubscriptionId { get; set; }
 
         /// <summary>
-        /// A <see cref="Dictionary{TKey,TValue}"/> of revision number of the <see cref="ParameterSubscriptionValueSet" />
-        /// of the <see cref="ParameterSubscription" />
+        /// Query all <see cref="Guid"/> of <see cref="ParameterSubscriptionValueSet"/> that had change with an other
+        /// <see cref="TrackedParameterSubscription" /> related to the same <see cref="ParameterSubscription" />
         /// </summary>
-        public Dictionary<Guid,int> ParameterValueSetsCurrentRevision { get; } = new ();
-
-        /// <summary>
-        /// Computes the number of updates with an other <see cref="TrackedParameterSubscription"/> related to the same <see cref="ParameterSubscription"/>
-        /// </summary>
-        /// <param name="other">An other <see cref="TrackedParameterSubscription"/></param>
-        /// <returns>The number of updates</returns>
-        public int ComputeNumberOfUpdates(TrackedParameterSubscription other)
+        /// <param name="other">An other <see cref="TrackedParameterSubscription" /></param>
+        /// <returns>The collection of <see cref="ParameterSubscriptionValueSet"/> id</returns>
+        public IEnumerable<Guid> QueryChangedValueSet(TrackedParameterSubscription other)
         {
             if (other.ParameterSubscriptionId != this.ParameterSubscriptionId)
             {
                 throw new ArgumentException("The provided TrackedParameterSubscription is not related to the same ParameterSubscription");
             }
 
-            var updateCount = 0;
+            var changedValueSet = new List<Guid>();
 
-            foreach (var valueSet in this.ParameterValueSetsCurrentRevision)
+            foreach (var change in other.CountChanges)
             {
-                if (!other.ParameterValueSetsCurrentRevision.ContainsKey(valueSet.Key))
+                if (this.CountChanges.TryGetValue(change.Key, out var existingChange))
                 {
-                    updateCount++;
+                    if (change.Value - existingChange != 0)
+                    {
+                        changedValueSet.Add(change.Key);
+                    }
                 }
-
-                if (other.ParameterValueSetsCurrentRevision[valueSet.Key] != valueSet.Value)
+                else
                 {
-                    updateCount++;
+                    changedValueSet.Add(change.Key);
                 }
             }
 
-            return updateCount;
+            return changedValueSet;
         }
     }
 }

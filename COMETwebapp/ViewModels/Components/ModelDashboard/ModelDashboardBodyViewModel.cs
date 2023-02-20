@@ -40,7 +40,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
     public class ModelDashboardBodyViewModel : SingleIterationApplicationBaseViewModel, IModelDashboardBodyViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ModelDashboardBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="parameterDashboard">The <see cref="IParameterDashboardViewModel" /></param>

@@ -24,39 +24,39 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelDashboard
 {
-	using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
-	using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
-	using COMETwebapp.ViewModels.Components.Shared;
-	using COMETwebapp.ViewModels.Components.Shared.Selectors;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     /// <summary>
     /// View Model that handle the logic for the Model Dashboard application
     /// </summary>
     public interface IModelDashboardBodyViewModel : ISingleIterationApplicationBaseViewModel
-	{
-		/// <summary>
-		/// Gets the <see cref="IOptionSelectorViewModel" />
-		/// </summary>
-		IOptionSelectorViewModel OptionSelector { get; }
+    {
+        /// <summary>
+        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// </summary>
+        IOptionSelectorViewModel OptionSelector { get; }
 
-		/// <summary>
-		/// Gets the <see cref="IFiniteStateSelectorViewModel" />
-		/// </summary>
-		IFiniteStateSelectorViewModel FiniteStateSelector { get; }
+        /// <summary>
+        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// </summary>
+        IFiniteStateSelectorViewModel FiniteStateSelector { get; }
 
-		/// <summary>
-		/// Gets the <see cref="IParameterTypeSelectorViewModel" />
-		/// </summary>
-		IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+        /// <summary>
+        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// </summary>
+        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
-		/// <summary>
-		/// The <see cref="IParameterDashboardViewModel" />
-		/// </summary>
-		IParameterDashboardViewModel ParameterDashboard { get; }
+        /// <summary>
+        /// The <see cref="IParameterDashboardViewModel" />
+        /// </summary>
+        IParameterDashboardViewModel ParameterDashboard { get; }
 
-		/// <summary>
-		/// Gets the <see cref="IElementDashboardViewModel" />
-		/// </summary>
-		IElementDashboardViewModel ElementDashboard { get; }
-	}
+        /// <summary>
+        /// Gets the <see cref="IElementDashboardViewModel" />
+        /// </summary>
+        IElementDashboardViewModel ElementDashboard { get; }
+    }
 }

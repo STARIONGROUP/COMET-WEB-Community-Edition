@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTypeSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="EnumerableExtensions.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,29 +22,22 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Selectors
+namespace COMETwebapp.Extensions
 {
-    using CDP4Common.SiteDirectoryData;
-
     /// <summary>
-    /// View Model that enables the user to select an <see cref="ParameterType" />
+    /// Extension class for <see cref="IEnumerable{T}"/>
     /// </summary>
-    public interface IParameterTypeSelectorViewModel : IBelongsToIterationSelectorViewModel
+    public static class EnumerableExtensions
     {
         /// <summary>
-        /// The currently selected <see cref="ParameterType" />
+        ///     Converts a <see cref="IEnumerable{T}" /> to a comma seperated string
         /// </summary>
-        ParameterType SelectedParameterType { get; set; }
-
-        /// <summary>
-        /// A collection of available <see cref="ParameterType" />
-        /// </summary>
-        IEnumerable<ParameterType> AvailableParameterTypes { get; }
-
-        /// <summary>
-        /// Filter the collection of the <see cref="AvailableParameterTypes" /> with provided values
-        /// </summary>
-        /// <param name="parameterTypesId">A collection of <see cref="Guid" /> for <see cref="ParameterType" /></param>
-        void FilterAvailableParameterTypes(IEnumerable<Guid> parameterTypesId);
+        /// <param name="elements">The <see cref="IEnumerable{T}" /></param>
+        /// <returns>A string</returns>
+        public static string AsCommaSeparated(this IEnumerable<string> elements)
+        {
+            elements = elements.ToList();
+            return elements.Any() ? string.Join(", ", elements) : string.Empty;
+        }
     }
 }

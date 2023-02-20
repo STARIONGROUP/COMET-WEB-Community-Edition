@@ -1,330 +1,54 @@
 ﻿<!------------------------------------------------------------------------------
-Copyright (c) 2023 RHEA System S.A.
-
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
-
-    This file is part of COMET WEB Community Edition
-     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-
-    The COMET WEB Community Edition is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    The COMET WEB Community Edition is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see http://www.gnu.org/licenses/.
+// Copyright (c) 2023 RHEA System S.A.
+// 
+//     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+// 
+//     This file is part of COMET WEB Community Edition
+//      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//     Affero General Public License for more details.
+// 
+//     You should have received a copy of the GNU Affero General Public License
+//     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.EngineeringModelData
-@using CDP4Dal
-@using CDP4Dal.Events
-@using COMETwebapp.Extensions
-@using COMETwebapp.Services.SessionManagement
-@using COMETwebapp.SessionManagement
-
-@inject ISessionService SessionService
-@inject NavigationManager NavigationManager
-
-@implements IDisposable
-
-<div>
-    @if (this.Elements.Count == 0)
-    {
-        <div>
-            You don't have any subscribed Parameters.
-        </div>
-    } else
-    {
-        <div class="container-fluid" style="min-width: 1400px; max-width: 1400px;">
-            <div class="container-fluid m-2">
-                <div class="row">
-                    @{
-                        var iteration = this.SessionService.DefaultIteration;
-                    }
-                    @if (iteration != null && iteration.Option.ToList().Count > 1)
+@using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
+@inherits DisposableComponent
+@if (!this.ViewModel.Rows.Items.Any())
+{
+    <div>You don't have any subscribed parameters.</div>
+}
+else
+{
+    <div class="col align-self-end text-align-end" style="color:black;">
+        <span class="badge rounded-pill bg-info m-right-3px"> parameter </span>
+        = Missing Values
+    </div>
+    <DxGrid Data="@this.ViewModel.Rows.Items" ShowAllRows="true" RowClick="this.OnRowClick">
+        <Columns>
+            <DxGridDataColumn Caption="Element" FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ElementName)" GroupIndex="0" />
+            <DxGridDataColumn Caption="Parameter" FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterName)">
+                <CellDisplayTemplate>
+                    @if (context.DataItem is OwnedParameterOrOverrideBaseRowViewModel {HasMissingValues:true})
                     {
-                        var optionNames = iteration.Option.Select(o => o.Name).OrderBy(o => o).ToList();
-                        <div class="col">
-                            <h6 style="color: black">Filter on Option:</h6>
-                            <div class="width-fit-content">
-                                <DxComboBox Data="@optionNames"
-                                    AllowUserInput="true"
-                                    Value="this.OptionSelected"
-                                    ValueChanged="@((string option) => OnOptionFilterChange(option))"
-                                    FilteringMode="DataGridFilteringMode.Contains"/>
-                            </div>
-                        </div>
-                    }
-                    <div class="col align-self-end text-align-end" style="color:black;">
-                        <span class="badge rounded-pill bg-info m-right-3px"> parameter </span>
-                        = Missing Values
-                    </div>
-                </div>
-            </div>
-            <BSTable IsBordered="false" IsStriped="true" Class="text-align-center">
-                <BSTHead>
-                    <BSTR>
-                        <BSTD>
-                            <div class="row">
-                                <div style="width: 15%;">Element</div>
-                                <div style="width: 17.5%;">Parameter</div>
-                                <div style="width: 17.5%;">Model Code</div>
-                                <div style="width: 15%;">Is Option Dependent</div>
-                                <div style="width: 15%;">Is State Dependent</div>
-                                <div style="width: 20%">Domains Who Subscribed To</div>
-                            </div>
-                        </BSTD>
-                    </BSTR>
-                </BSTHead>
-                <BSTBody>
-                    <div style="max-height:600px;overflow-y:scroll">
-                        @foreach(var element in this.Filter(this.Elements.ToList()))
-                        {
-                            <div style="padding-right: 0px; border-bottom-color: black; border-bottom-style: double;">
-                                <BSTR AlignRow="AlignRow.Middle">
-                                    <BSTD Class="width-15">@element.Name</BSTD>
-                                    <BSTD Class="width-1400">
-                                        <BSTable IsBordered="false" IsStriped="true" Class="text-align-center margin-bottom-0">
-                                            <BSTBody>
-                                                @foreach(var parameter in this.GetSubscribedParameters(element))
-                                                {
-                                                    var isStateDependent = parameter.StateDependence != null;
-                                                    var subscriptionOwners = parameter.ParameterSubscription.Select(p => p.Owner.ShortName).OrderBy(s => s).ToList();
-                                                    <BSTR AlignRow="AlignRow.Middle" @onclick="() => OnRowClick(element, parameter)">
-                                                        <BSTD Class="width-15">
-                                                            @if (this.isIncomplete(parameter))
-                                                            {
-                                                                <span class="badge rounded-pill bg-info">@parameter.ParameterType.Name</span>
-                                                            } else
-                                                            {
-                                                                <div>@parameter.ParameterType.Name</div>
-                                                            }
-                                                        </BSTD>
-                                                        <BSTD Class="width-15">@parameter.ModelCode()</BSTD>
-                                                        <BSTD Class="width-15">@parameter.IsOptionDependent</BSTD>
-                                                        <BSTD Class="width-15">@isStateDependent</BSTD>
-                                                        <BSTD Class="width-15">@string.Join(", ", subscriptionOwners)</BSTD>
-                                                    </BSTR>
-                                                }
-                                            </BSTBody>
-                                        </BSTable>
-                                    </BSTD>
-                                </BSTR>
-                            </div>
-                        }
-                    </div>
-                </BSTBody>
-            </BSTable>
-        </div>
-    }
-</div>
-
-@code {
-    /// <summary>
-    /// List of <see cref="ElementBase"> containing at least one subscribed <see cref="ParameterOrOverrideBase">
-    /// </summary>
-    public List<ElementBase> Elements { get; set; } = new List<ElementBase>();
-
-    /// <summary>
-    /// Name of the option selected
-    /// </summary>
-    [Parameter]
-    public string? OptionSelected { get; set; }
-
-    /// <summary>
-    /// Listeners for the components to update it with ISession
-    /// </summary>
-    private Dictionary<string, IDisposable> listeners = new Dictionary<string, IDisposable>();
-
-    /// <summary>
-    /// Initialize component at first render and after session update
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        this.LoadElements();
-
-        if (!this.listeners.TryGetValue("UpToDate", out var listener))
-        {
-            this.listeners.Add("UpToDate", CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x =>
-            {
-                this.LoadElements();
-                this.StateHasChanged();
-            }));
-        }
-        if (!this.listeners.TryGetValue("DomainChangedEvent", out listener)) {
-            this.listeners.Add("DomainChangedEvent", CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
-            {
-                this.LoadElements();
-                this.StateHasChanged();
-            }));
-        }
-    }
-
-    /// <summary>
-    /// Stop and clear listeners of the component
-    /// </summary>
-    public void Dispose()
-    {
-        this.listeners.Values.ToList().ForEach(l => l.Dispose());
-        this.listeners.Clear();
-    }
-
-    /// <summary>
-    /// Load all data to create the table
-    /// </summary>
-    private void LoadElements()
-    {
-        this.Elements.Clear();
-        var iteration = this.SessionService.DefaultIteration;
-        if (iteration != null)
-        {
-            if (iteration.TopElement != null)
-            {
-                var parameters = iteration.TopElement.Parameter.FindAll(p => p.ParameterSubscription.Count != 0 && p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
-                if (parameters.Count != 0)
-                {
-                    this.Elements.Add(iteration.TopElement);
-                }
-            }
-            iteration.Element.ForEach(e =>
-            {
-                e.ContainedElement.ForEach(containedElement =>
-                {
-                    if (containedElement.ParameterOverride.Count == 0)
-                    {
-                        var parameters = containedElement.ElementDefinition.Parameter.FindAll(p => p.ParameterSubscription.Count != 0 && p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
-                        if (parameters.Count != 0)
-                        {
-                            this.Elements.Add(containedElement);
-                        }
+                        <span class="badge rounded-pill bg-info">@context.Value</span>
                     }
                     else
                     {
-                        var parameterOverrides = containedElement.ParameterOverride.FindAll(p => p.ParameterSubscription.Count != 0 && p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
-                        if (parameterOverrides.Count != 0)
-                        {
-                            this.Elements.Add(containedElement);
-                        }
-                        var parameters = containedElement.ElementDefinition.Parameter.FindAll(p => p.ParameterSubscription.Count != 0 && p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration));
-                        if (parameters.Count != 0)
-                        {
-                            if (!this.Elements.Contains(containedElement))
-                            {
-                                this.Elements.Add(containedElement);
-                            }
-                        }
+                        <div>@context.Value</div>
                     }
-                });
-            });
-        }
-
-        var incompleteElements = this.Elements.Where(e => this.GetSubscribedParameters(e).FindAll(p => this.isIncomplete(p)).Count != 0).OrderBy(e => e.Name);
-        var others = this.Elements.Where(e => !incompleteElements.Contains(e)).OrderBy(e => e.Name);
-        this.Elements = incompleteElements.Concat(others).ToList();
-    }
-
-    /// <summary>
-    /// Filter <see cref="ElementBase"> to show in the tree
-    /// </summary>
-    /// <param name="elements"></param>
-    /// <returns></returns>
-    public List<ElementBase> Filter(List<ElementBase> elements)
-    {
-        if(this.OptionSelected != null)
-        {
-            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(option => option.Name == this.OptionSelected);
-            var nestedElements = this.SessionService.DefaultIteration.QueryNestedElements(option).ToList();
-
-            var associatedElements = new List<ElementUsage>();
-            nestedElements.ForEach(element =>
-            {
-                associatedElements.AddRange(element.ElementUsage);
-            });
-            associatedElements = associatedElements.Distinct().ToList();
-
-            var elementsToRemove = new List<ElementBase>();
-            elements.ForEach(e =>
-            {
-                if (e.GetType().Equals(typeof(ElementUsage)) && !associatedElements.Contains(e))
-                {
-                    elementsToRemove.Add(e);
-                }
-            });
-            elements.RemoveAll(e => elementsToRemove.Contains(e));
-        }
-        return elements;
-    }
-
-    /// <summary>
-    /// Tells if a <see cref="ParameterOrOverrideBase"> needs to be complete
-    /// </summary>
-    /// <param name="parameter">The <see cref="ParameterOrOverrideBase"></param>
-    private bool isIncomplete(ParameterOrOverrideBase parameter)
-    {
-        if(parameter is Parameter)
-        {
-            return ((Parameter)parameter).ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;
-        } else
-        {
-            return ((ParameterOverride)parameter).ValueSet.FindAll(valueSet => valueSet.ActualValue.Count(el => !el.Equals("-")) == 0).Count != 0;                                                
-        }
-    }
-
-    /// <summary>
-    /// Gets <see cref="ParameterOrOverrideBase"> for the given <see cref="ElementBase"> owned by the active domain and subscribed by other domains
-    /// </summary>
-    /// <param name="element"><see cref="ElementBase"> for which you subscribed parameters</param>
-    private List<ParameterOrOverrideBase> GetSubscribedParameters(ElementBase element)
-    {
-        var parameters = new List<ParameterOrOverrideBase>();
-        if(element is ElementDefinition)
-        {
-            var e = (ElementDefinition)element;
-            parameters.AddRange(e.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) && p.ParameterSubscription.Count != 0));
-        } else
-        {
-            var e = (ElementUsage)element;
-            if (e.ParameterOverride.Count == 0)
-            {
-                parameters.AddRange(e.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) && p.ParameterSubscription.Count != 0));
-            }
-            else
-            {
-                parameters.AddRange(e.ParameterOverride.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) && p.ParameterSubscription.Count != 0));
-
-                parameters.AddRange(e.ElementDefinition.Parameter.FindAll(p => p.Owner == this.SessionService.GetDomainOfExpertise(this.SessionService.DefaultIteration) && p.ParameterSubscription.Count != 0));
-            }
-        }
-        var incompleteParameters = parameters.FindAll(p => this.isIncomplete(p)).OrderBy(p => p.ParameterType.Name);
-        var otherParameters = parameters.Where(p => !incompleteParameters.Contains(p)).OrderBy(p => p.ParameterType.Name);
-        return incompleteParameters.Concat(otherParameters).ToList();
-    }
-
-    /// <summary>
-    /// Navigate to Parameter Editor for the selected parameter
-    /// </summary>
-    /// <param name="parameter">The Parameter to edit</param>
-    private void OnRowClick(ElementBase element, ParameterOrOverrideBase parameter)
-    {
-        if (this.isIncomplete(parameter))
-        {
-            var option = this.SessionService.DefaultIteration?.Option.ToList().Find(o => o.Name == this.OptionSelected)?.Iid;
-            this.NavigationManager.NavigateTo($"ParameterEditor/?filteroption={option}&filterelementbase={element.Iid}"); 
-        }
-    }
-
-    /// <summary>
-    /// Updates Elements list when a filter for option is selected
-    /// </summary>
-    /// <param name="e">Name of the Option selected</param>
-    public void OnOptionFilterChange(string option)
-    {
-        this.OptionSelected = option;
-        var iid = this.SessionService.DefaultIteration?.Option.SingleOrDefault(o => o.Name.Equals(this.OptionSelected))?.Iid;
-        this.NavigationManager.NavigateTo($"/SubscriptionDashboard/?filteroption={iid}");
-    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Is Option Dependent" FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.IsOptionDependent)" />
+            <DxGridDataColumn Caption="Is State Dependent" FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.IsStateDependent)" />
+            <DxGridDataColumn Caption="Domains Who Subscribed To" FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.InterestedDomainsShortNames)" />
+        </Columns>
+    </DxGrid>
 }

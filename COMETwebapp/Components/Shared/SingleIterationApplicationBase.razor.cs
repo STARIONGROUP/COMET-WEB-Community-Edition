@@ -24,80 +24,93 @@
 
 namespace COMETwebapp.Components.Shared
 {
-	using CDP4Common.EngineeringModelData;
+    using CDP4Common.EngineeringModelData;
 
-	using COMETwebapp.Extensions;
-	using COMETwebapp.Utilities;
-	using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
 
-	using Microsoft.AspNetCore.Components;
-	using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.WebUtilities;
 
-	using ReactiveUI;
+    using ReactiveUI;
 
-	/// <summary>
-	/// Base component for any application that will need only one <see cref="Iteration" />
-	/// </summary>
-	/// <typeparam name="TViewModel">An <see cref="ISingleIterationApplicationBaseViewModel"/></typeparam>
-	public abstract partial class SingleIterationApplicationBase<TViewModel>
-	{
-		/// <summary>
-		/// The <see cref="TViewModel" />
-		/// </summary>
-		[Inject]
-		public TViewModel ViewModel { get; set; }
+    /// <summary>
+    /// Base component for any application that will need only one <see cref="Iteration" />
+    /// </summary>
+    /// <typeparam name="TViewModel">An <see cref="ISingleIterationApplicationBaseViewModel" /></typeparam>
+    public abstract partial class SingleIterationApplicationBase<TViewModel>
+    {
+        /// <summary>
+        /// The <see cref="TViewModel" />
+        /// </summary>
+        [Inject]
+        public TViewModel ViewModel { get; set; }
 
-		/// <summary>
-		/// The <see cref="NavigationManager"/>
-		/// </summary>
-		[Inject]
-		public NavigationManager NavigationManager { get; set; }
+        /// <summary>
+        /// The <see cref="NavigationManager" />
+        /// </summary>
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
 
-		/// <summary>
-		/// The <see cref="Iteration" />
-		/// </summary>
-		[CascadingParameter]
-		public Iteration CurrentIteration { get; set; }
+        /// <summary>
+        /// The <see cref="Iteration" />
+        /// </summary>
+        [CascadingParameter]
+        public Iteration CurrentIteration { get; set; }
 
-		/// <summary>
-		/// Method invoked when the component is ready to start, having received its
-		/// initial parameters from its parent in the render tree.
-		/// </summary>
-		protected override void OnInitialized()
-		{
-			base.OnInitialized();
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
 
-			this.Disposables.Add(this.ViewModel);
+            this.Disposables.Add(this.ViewModel);
 
-			this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.CurrentIteration)
-				.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-		}
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.CurrentIteration)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
 
-		/// <summary>
-		/// Method invoked when the component has received parameters from its parent in
-		/// the render tree, and the incoming values have been assigned to properties.
-		/// </summary>
-		protected override void OnParametersSet()
-		{
-			base.OnParametersSet();
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
 
-			this.ViewModel.CurrentIteration = this.CurrentIteration;
-		}
+            this.ViewModel.CurrentIteration = this.CurrentIteration;
 
-		/// <summary>
-		/// Updates the url of the <see cref="NavigationManager"/> with the <param name="additionalParameters"></param>
-		/// </summary>
-		/// <param name="additionalParameters">A <see cref="Dictionary{TKey,TValue}"/> of additional parameters</param>
-		/// <param name="pageName">The name of the ucrrent page</param>
-		protected void UpdateUrlWithParameters(Dictionary<string, string> additionalParameters, string pageName)
-		{
+            if (!this.ViewModel.HasSetInitialValuesOnce)
+            {
+                this.InitializeValues(this.NavigationManager.Uri.GetParametersFromUrl());
+                this.ViewModel.HasSetInitialValuesOnce = true;
+            }
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected abstract void InitializeValues(Dictionary<string, string> parameters);
+
+        /// <summary>
+        /// Updates the url of the <see cref="NavigationManager" /> with the
+        /// <param name="additionalParameters"></param>
+        /// </summary>
+        /// <param name="additionalParameters">A <see cref="Dictionary{TKey,TValue}" /> of additional parameters</param>
+        /// <param name="pageName">The name of the ucrrent page</param>
+        protected void UpdateUrlWithParameters(Dictionary<string, string> additionalParameters, string pageName)
+        {
             var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
-			var requiredOptions = new Dictionary<string, string>();
+            var requiredOptions = new Dictionary<string, string>();
 
-			if (currentOptions.TryGetValue(QueryKeys.IterationKey, out var iterationValue))
-			{
-				requiredOptions[QueryKeys.IterationKey] = iterationValue;
-			}
+            if (currentOptions.TryGetValue(QueryKeys.IterationKey, out var iterationValue))
+            {
+                requiredOptions[QueryKeys.IterationKey] = iterationValue;
+            }
 
             if (currentOptions.TryGetValue(QueryKeys.DomainKey, out var domainValue))
             {
@@ -105,26 +118,26 @@ namespace COMETwebapp.Components.Shared
             }
 
             if (currentOptions.TryGetValue(QueryKeys.ServerKey, out var serverValue))
-			{
-				requiredOptions[QueryKeys.ServerKey] = serverValue;
-			}
+            {
+                requiredOptions[QueryKeys.ServerKey] = serverValue;
+            }
 
-			if (currentOptions.TryGetValue(QueryKeys.ModelKey, out var modelValue))
-			{
-				requiredOptions[QueryKeys.ModelKey] = modelValue;
-			}
+            if (currentOptions.TryGetValue(QueryKeys.ModelKey, out var modelValue))
+            {
+                requiredOptions[QueryKeys.ModelKey] = modelValue;
+            }
 
             if (requiredOptions.Count != 4)
             {
-				return;
+                return;
             }
 
             foreach (var additionalParameter in additionalParameters)
-			{
-				requiredOptions.Add(additionalParameter.Key, additionalParameter.Value);
-			}
+            {
+                requiredOptions.Add(additionalParameter.Key, additionalParameter.Value);
+            }
 
-			this.NavigationManager.NavigateTo(QueryHelpers.AddQueryString($"/{pageName}", requiredOptions));
-		}
-	}
+            this.NavigationManager.NavigateTo(QueryHelpers.AddQueryString($"/{pageName}", requiredOptions));
+        }
+    }
 }

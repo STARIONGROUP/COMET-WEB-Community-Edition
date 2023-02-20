@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ThingExtensions.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -28,6 +28,7 @@ namespace COMETwebapp.Extensions
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     /// <summary>
     /// Extension class for <see cref="Thing" />
@@ -200,49 +201,49 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Queries all <see cref="ParameterSubscription" /> contained into an <see cref="Iteration" /> for a given
-        /// <see cref="DomainOfExpertise" />
+        /// Queries all <see cref="ParameterSubscription" /> owned by a given <see cref="DomainOfExpertise" />
+        /// contained into an <see cref="Iteration" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
         /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
-        public static IEnumerable<ParameterSubscription> QueryParameterSubscriptions(this Iteration iteration, DomainOfExpertise domain)
+        public static IEnumerable<ParameterSubscription> QueryOwnedParameterSubscriptions(this Iteration iteration, DomainOfExpertise domain)
         {
             var subscriptions = new List<ParameterSubscription>();
 
             if (iteration.TopElement != null)
             {
-                subscriptions.AddRange(iteration.TopElement.QueryParameterSubscriptions(domain));
+                subscriptions.AddRange(iteration.TopElement.QueryOwnedParameterSubscriptions(domain));
             }
 
-            subscriptions.AddRange(iteration.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.QueryParameterSubscriptions(domain)));
+            subscriptions.AddRange(iteration.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.QueryOwnedParameterSubscriptions(domain)));
             return subscriptions.DistinctBy(x => x.Iid).OrderBy(p => p.ParameterType.Name);
         }
 
         /// <summary>
-        /// Queries all <see cref="ParameterSubscription" /> contained into an <see cref="ElementBase" /> for a given
-        /// <see cref="DomainOfExpertise" />
+        /// Queries all <see cref="ParameterSubscription" /> owned by a given <see cref="DomainOfExpertise" />
+        /// contained into an <see cref="ElementBase" />
         /// </summary>
         /// <param name="element">The <see cref="ElementBase" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
         /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
-        public static IEnumerable<ParameterSubscription> QueryParameterSubscriptions(this ElementBase element, DomainOfExpertise domain)
+        public static IEnumerable<ParameterSubscription> QueryOwnedParameterSubscriptions(this ElementBase element, DomainOfExpertise domain)
         {
             var subscriptions = new List<ParameterSubscription>();
 
             switch (element)
             {
                 case ElementDefinition elementDefinition:
-                    subscriptions.AddRange(elementDefinition.Parameter.QueryParameterSubscriptions(domain));
+                    subscriptions.AddRange(elementDefinition.Parameter.QueryOwnedParameterSubscriptions(domain));
                     break;
                 case ElementUsage elementUsage when !elementUsage.ParameterOverride.Any():
-                    return elementUsage.ElementDefinition.QueryParameterSubscriptions(domain);
+                    return elementUsage.ElementDefinition.QueryOwnedParameterSubscriptions(domain);
                 case ElementUsage elementUsage:
                     var notOverridenParameters = elementUsage.ElementDefinition.Parameter.Where(x => elementUsage.ParameterOverride.All(p => p.Parameter.Iid != x.Iid));
 
-                    subscriptions.AddRange(elementUsage.ParameterOverride.QueryParameterSubscriptions(domain));
+                    subscriptions.AddRange(elementUsage.ParameterOverride.QueryOwnedParameterSubscriptions(domain));
 
-                    subscriptions.AddRange(notOverridenParameters.QueryParameterSubscriptions(domain));
+                    subscriptions.AddRange(notOverridenParameters.QueryOwnedParameterSubscriptions(domain));
                     break;
             }
 
@@ -250,17 +251,142 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Queries all <see cref="ParameterSubscription" /> contained into a collection of <see cref="ParameterOrOverrideBase" />
-        /// for a given <see cref="DomainOfExpertise" />
+        /// Queries all <see cref="ParameterSubscription" /> owned by a given <see cref="DomainOfExpertise" />
+        /// contained into a collection of <see cref="ParameterOrOverrideBase" />
         /// </summary>
         /// <param name="parameterOrOverrideBases">The collection of <see cref="ParameterOrOverrideBase" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
         /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
-        public static IEnumerable<ParameterSubscription> QueryParameterSubscriptions(this IEnumerable<ParameterOrOverrideBase> parameterOrOverrideBases,
+        public static IEnumerable<ParameterSubscription> QueryOwnedParameterSubscriptions(this IEnumerable<ParameterOrOverrideBase> parameterOrOverrideBases,
             DomainOfExpertise domain)
         {
             return parameterOrOverrideBases.Where(x => x.Owner.Iid != domain.Iid)
                 .SelectMany(x => x.ParameterSubscription.Where(p => p.Owner.Iid == domain.Iid));
+        }
+
+        /// <summary>
+        /// Queries owned <see cref="ParameterOrOverrideBase" /> contained into an <see cref="Iteration" />
+        /// that contains <see cref="ParameterSubscription" /> of other <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QuerySubscribedParameterByOthers(this Iteration iteration, DomainOfExpertise domain)
+        {
+            var subscriptions = new List<ParameterOrOverrideBase>();
+
+            if (iteration.TopElement != null)
+            {
+                subscriptions.AddRange(iteration.TopElement.QuerySubscribedParameterByOthers(domain));
+            }
+
+            subscriptions.AddRange(iteration.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.QuerySubscribedParameterByOthers(domain)));
+            return subscriptions.DistinctBy(x => x.Iid).OrderBy(p => p.ParameterType.Name);
+        }
+
+        /// <summary>
+        /// Queries owned <see cref="ParameterOrOverrideBase" /> contained into an <see cref="ElementBase" />
+        /// that contains <see cref="ParameterSubscription" /> of other <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="element">The <see cref="ElementBase" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QuerySubscribedParameterByOthers(this ElementBase element, DomainOfExpertise domain)
+        {
+            var subscriptions = new List<ParameterOrOverrideBase>();
+
+            switch (element)
+            {
+                case ElementDefinition elementDefinition:
+                    subscriptions.AddRange(elementDefinition.Parameter.QuerySubscribedParameterByOthers(domain));
+                    break;
+                case ElementUsage elementUsage when !elementUsage.ParameterOverride.Any():
+                    return elementUsage.ElementDefinition.QuerySubscribedParameterByOthers(domain);
+                case ElementUsage elementUsage:
+                    var notOverridenParameters = elementUsage.ElementDefinition.Parameter.Where(x => elementUsage.ParameterOverride.All(p => p.Parameter.Iid != x.Iid));
+                    subscriptions.AddRange(elementUsage.ParameterOverride.QuerySubscribedParameterByOthers(domain));
+                    subscriptions.AddRange(notOverridenParameters.QuerySubscribedParameterByOthers(domain));
+                    break;
+            }
+
+            return subscriptions;
+        }
+
+        /// <summary>
+        /// Queries all owned <see cref="ParameterOrOverrideBase" /> contained into a collection of
+        /// <see cref="ParameterOrOverrideBase" />
+        /// that contains <see cref="ParameterSubscription" /> of other <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="parameterOrOverrideBases">The collection of <see cref="ParameterOrOverrideBase" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterSubscription" /></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QuerySubscribedParameterByOthers(this IEnumerable<ParameterOrOverrideBase> parameterOrOverrideBases,
+            DomainOfExpertise domain)
+        {
+            return parameterOrOverrideBases.Where(x => x.Owner.Iid == domain.Iid
+                                                       && x.ParameterSubscription.Any(p => p.Owner.Iid != domain.Iid));
+        }
+
+        /// <summary>
+        /// Query the evolution of <see cref="ParameterSubscriptionValueSet" /> contained into a <see cref="ParameterSubscription" />
+        /// </summary>
+        /// <param name="parameterSubscription">The <see cref="ParameterSubscription" /></param>
+        /// <returns>
+        /// All changes for each <see cref="ParameterSubscriptionValueSet" />,
+        /// collected inside a <see cref="Dictionary{TKey,TValue}" /> where the key is the revision number
+        /// </returns>
+        public static Dictionary<Guid, Dictionary<int, ValueArray<string>>> QueryParameterSubscriptionValueSetEvolution(this ParameterSubscription parameterSubscription)
+        {
+            var changes = new Dictionary<Guid, Dictionary<int, ValueArray<string>>>();
+
+            foreach (var parameterSubscriptionValueSet in parameterSubscription.ValueSet)
+            {
+                changes[parameterSubscriptionValueSet.Iid] = parameterSubscriptionValueSet.QueryParameterSubscriptionValueSetEvolution();
+            }
+
+            return changes;
+        }
+
+        /// <summary>
+        /// Queries the evolution of the <see cref="ValueArray{T}" /> of the Computed Value of the
+        /// <see cref="ParameterSubscriptionValueSet" />
+        /// </summary>
+        /// <param name="valueSet">The <see cref="ParameterBase" /></param>
+        /// <returns>All changes, collected inside a <see cref="Dictionary{TKey,TValue}" /> where the key is the revision number</returns>
+        public static Dictionary<int, ValueArray<string>> QueryParameterSubscriptionValueSetEvolution(this ParameterSubscriptionValueSet valueSet)
+        {
+            var changes = new Dictionary<int, ValueArray<string>>();
+            var subscribedParameterValueSet = valueSet.SubscribedValueSet;
+
+            if (!subscribedParameterValueSet.Revisions.Any())
+            {
+                changes.Add(subscribedParameterValueSet.RevisionNumber, subscribedParameterValueSet.Published);
+                return changes;
+            }
+
+            var currentRevisionNumber = subscribedParameterValueSet.Revisions.Keys.Where(x => x >= valueSet.RevisionNumber).Min();
+            var currentValueSet = ((ParameterValueSetBase)subscribedParameterValueSet.Revisions[currentRevisionNumber]).Published;
+
+            changes.Add(currentRevisionNumber, currentValueSet);
+
+            foreach (var revisionNumber in subscribedParameterValueSet.Revisions.Keys.Where(x => x > currentRevisionNumber).ToList())
+            {
+                var publishedValueAtRevisionNumber = ((ParameterValueSetBase)subscribedParameterValueSet.Revisions[revisionNumber]).Published;
+
+                if (!publishedValueAtRevisionNumber.ContainsSameValues(currentValueSet))
+                {
+                    currentRevisionNumber = revisionNumber;
+                    currentValueSet = publishedValueAtRevisionNumber;
+                    changes.Add(currentRevisionNumber, currentValueSet);
+                }
+            }
+
+            if (currentRevisionNumber != subscribedParameterValueSet.RevisionNumber && !subscribedParameterValueSet.Published.ContainsSameValues(currentValueSet))
+            {
+                changes.Add(subscribedParameterValueSet.RevisionNumber, subscribedParameterValueSet.Published);
+            }
+
+            return changes;
         }
     }
 }

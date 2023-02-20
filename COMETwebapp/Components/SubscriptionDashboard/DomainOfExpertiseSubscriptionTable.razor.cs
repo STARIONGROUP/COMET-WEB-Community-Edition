@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SingleIterationPageTemplate.razor.cs" company="RHEA System S.A.">
+//  <copyright file="DomainOfExpertiseSubscriptionTable.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,30 +22,35 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages
+namespace COMETwebapp.Components.SubscriptionDashboard
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Extensions;
+    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
+    using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
+
+    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Base abstract component for any page that should use only one <see cref="Iteration" />
+    /// Component that display information related to owned <see cref="ParameterOrOverrideBase" /> where other domains placed
+    /// <see cref="ParameterSubscription" />
     /// </summary>
-    public abstract partial class SingleIterationPageTemplate
+    public partial class DomainOfExpertiseSubscriptionTable
     {
         /// <summary>
-        /// The <see cref="Guid" /> of an <see cref="Iteration" /> as a short string
+        /// The <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
         /// </summary>
         [Parameter]
-        [SupplyParameterFromQuery]
-        public string IterationId { get; set; }
+        public IDomainOfExpertiseSubscriptionTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The <see cref="Guid" /> of the requested <see cref="Iteration" />
+        /// Gets or sets the <see cref="EventCallback{TValue}" /> to call when the user click on a
+        /// <see cref="ParameterOrOverrideBase" /> that has a missing value
         /// </summary>
-        protected Guid RequestedIteration { get; private set; }
+        [Parameter]
+        public EventCallback<ParameterOrOverrideBase> OnMissingValueClick { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -55,9 +60,19 @@ namespace COMETwebapp.Pages
         {
             base.OnParametersSet();
 
-            if (!string.IsNullOrEmpty(this.IterationId))
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Handles the click on the row inside the gird
+        /// </summary>
+        /// <param name="clickEvent">The <see cref="GridRowClickEventArgs" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnRowClick(GridRowClickEventArgs clickEvent)
+        {
+            if (clickEvent.Grid.GetDataItem(clickEvent.VisibleIndex) is OwnedParameterOrOverrideBaseRowViewModel { HasMissingValues: true } ownedParameter)
             {
-                this.RequestedIteration = this.IterationId.FromShortGuid();
+                await this.InvokeAsync(() => this.OnMissingValueClick.InvokeAsync(ownedParameter.Parameter));
             }
         }
     }

@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ModelDashboard.ParameterValues
+namespace COMETwebapp.Components.Shared.ValueSetRenderers
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;

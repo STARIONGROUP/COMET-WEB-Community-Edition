@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTypeSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IDomainOfExpertiseSubscriptionTableViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,29 +22,38 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Selectors
+namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
+
+    using DynamicData;
+
     /// <summary>
-    /// View Model that enables the user to select an <see cref="ParameterType" />
+    /// View Model that provides content related to owned <see cref="ParameterOrOverrideBase"/> where other
+    /// <see cref="DomainOfExpertise"/> placed <see cref="ParameterSubscription"/>
     /// </summary>
-    public interface IParameterTypeSelectorViewModel : IBelongsToIterationSelectorViewModel
+    public interface IDomainOfExpertiseSubscriptionTableViewModel
     {
         /// <summary>
-        /// The currently selected <see cref="ParameterType" />
+        /// A reactive collection of <see cref="OwnedParameterOrOverrideBaseRowViewModel"/>
         /// </summary>
-        ParameterType SelectedParameterType { get; set; }
+        SourceList<OwnedParameterOrOverrideBaseRowViewModel> Rows { get; }
 
         /// <summary>
-        /// A collection of available <see cref="ParameterType" />
+        /// Updates this view model properties
         /// </summary>
-        IEnumerable<ParameterType> AvailableParameterTypes { get; }
+        /// <param name="parameters">A collection of <see cref="ParameterOrOverrideBase"/></param>
+        void UpdateProperties(IEnumerable<ParameterOrOverrideBase> parameters);
 
         /// <summary>
-        /// Filter the collection of the <see cref="AvailableParameterTypes" /> with provided values
+        /// Apply filters on <see cref="OwnedParameterOrOverrideBaseRowViewModel" /> based on the <see cref="Option" /> and
+        /// <see cref="ParameterType" />
         /// </summary>
-        /// <param name="parameterTypesId">A collection of <see cref="Guid" /> for <see cref="ParameterType" /></param>
-        void FilterAvailableParameterTypes(IEnumerable<Guid> parameterTypesId);
+        /// <param name="selectedOption">The selected <see cref="Option" /></param>
+        /// <param name="selectedParameterType">The selected <see cref="ParameterType" /></param>
+        void ApplyFilters(Option selectedOption, ParameterType selectedParameterType);
     }
 }

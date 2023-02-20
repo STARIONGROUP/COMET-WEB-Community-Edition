@@ -33,15 +33,16 @@ namespace COMETwebapp
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-    using COMETwebapp.ViewModels.Pages.Viewer;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
+    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Pages.ParameterEditor;
+    using COMETwebapp.ViewModels.Pages.Viewer;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -119,6 +120,8 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
             builder.Services.AddTransient<IParameterDashboardViewModel, ParameterDashboardViewModel>();
             builder.Services.AddTransient<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
+            builder.Services.AddTransient<ISubscriptionDashboardBodyViewModel, SubscriptionDashboardBodyViewModel>();
+            builder.Services.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
         }
     }
 }

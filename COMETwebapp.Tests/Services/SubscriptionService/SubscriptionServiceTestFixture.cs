@@ -25,9 +25,11 @@
 namespace COMETwebapp.Tests.Services.SubscriptionService
 {
     using System;
+    using System.Collections.Generic;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -123,7 +125,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                         Iid = Guid.NewGuid(),
                         ParameterType = massParameterType,
                         Owner = thermalOwner,
-                        ValueSet = { new ParameterValueSet() { Iid = Guid.NewGuid() } },
+                        ValueSet = { new ParameterValueSet() { Iid = Guid.NewGuid()} },
                         ParameterSubscription = { new ParameterSubscription() { Iid = Guid.NewGuid(), Owner = systemOwner } }
                     },
                     new Parameter()
@@ -136,7 +138,8 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                 }
             };
 
-            var valueSet = new ParameterSubscriptionValueSet() { Iid = Guid.NewGuid() };
+            var subscribed = new ParameterOverrideValueSet { Iid = Guid.NewGuid() };
+            var valueSet = new ParameterSubscriptionValueSet() { Iid = Guid.NewGuid() , SubscribedValueSet = subscribed };
 
             var accelerometerUsage = new ElementUsage()
             {
@@ -150,7 +153,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                         Iid = Guid.NewGuid(),
                         Parameter = accelerometerBox.Parameter[1],
                         Owner = thermalOwner,
-                        ValueSet = { new ParameterOverrideValueSet { Iid = Guid.NewGuid() } },
+                        ValueSet = {subscribed},
                         ParameterSubscription = {  new ParameterSubscription() { Iid = Guid.NewGuid(), Owner = systemOwner, ValueSet = { valueSet }} }
                     }
                 }
@@ -183,7 +186,9 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
             Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(0));
 
             var nameProperty = typeof(ParameterValueSet).GetProperty(nameof(ParameterValueSet.RevisionNumber))!;
-            nameProperty.SetValue(valueSet, 4);
+            nameProperty.SetValue(subscribed, 4);
+            subscribed.Revisions[0] = new ParameterValueSet() { Published = new ValueArray<string>(new List<string>(){"-"})};
+            subscribed.Published = new ValueArray<string>(new List<string>(){"45"});
 
             CDPMessageBus.Current.SendMessage(SessionStateKind.UpToDate);
 
@@ -192,7 +197,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                 Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(1));
                 Assert.That(() => CDPMessageBus.Current.SendMessage(SessionStateKind.Refreshing), Throws.Nothing);
 
-                Assert.That(() =>this.subscriptionService.TrackedSubscriptions[iteration.Iid][0].ComputeNumberOfUpdates(new TrackedParameterSubscription(new ParameterSubscription())),
+                Assert.That(() =>this.subscriptionService.TrackedSubscriptions[iteration.Iid][0].QueryChangedValueSet(new TrackedParameterSubscription(new ParameterSubscription())),
                     Throws.ArgumentException);
             });
 

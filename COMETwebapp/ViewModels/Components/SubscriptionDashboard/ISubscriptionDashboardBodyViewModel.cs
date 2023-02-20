@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IParameterTypeSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ISubscriptionDashboardBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,29 +22,34 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared.Selectors
+namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 {
-    using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     /// <summary>
-    /// View Model that enables the user to select an <see cref="ParameterType" />
+    /// View Model that handle the logic for the Subscription Dashboard application
     /// </summary>
-    public interface IParameterTypeSelectorViewModel : IBelongsToIterationSelectorViewModel
+    public interface ISubscriptionDashboardBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
-        /// The currently selected <see cref="ParameterType" />
+        /// Gets the <see cref="ISubscribedTableViewModel" />
         /// </summary>
-        ParameterType SelectedParameterType { get; set; }
+        ISubscribedTableViewModel SubscribedTable { get; }
 
         /// <summary>
-        /// A collection of available <see cref="ParameterType" />
+        /// Gets the <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
         /// </summary>
-        IEnumerable<ParameterType> AvailableParameterTypes { get; }
+        IDomainOfExpertiseSubscriptionTableViewModel DomainOfExpertiseSubscriptionTable { get; }
 
         /// <summary>
-        /// Filter the collection of the <see cref="AvailableParameterTypes" /> with provided values
+        /// Gets the <see cref="IOptionSelectorViewModel" />
         /// </summary>
-        /// <param name="parameterTypesId">A collection of <see cref="Guid" /> for <see cref="ParameterType" /></param>
-        void FilterAvailableParameterTypes(IEnumerable<Guid> parameterTypesId);
+        IOptionSelectorViewModel OptionSelector { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// </summary>
+        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
     }
 }

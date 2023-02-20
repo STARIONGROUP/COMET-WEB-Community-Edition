@@ -50,15 +50,7 @@ namespace COMETwebapp.Extensions
                 return false;
             }
 
-            for (int i = 0; i < valueArray.Count; i++)
-            {
-                if (valueArray[i] != comparison[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return !valueArray.Where((t, i) => !t.Equals(comparison[i])).Any();
         }
     }
 }
