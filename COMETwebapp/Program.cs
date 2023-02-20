@@ -2,7 +2,7 @@
 // <copyright file="Program.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Justine Veirier d'aiguebonne, Sam Gerenï¿½, Alex Vorobiev, Alexander van Delft
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -36,6 +36,7 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
+    using COMETwebapp.ViewModels.Pages.UserManagement;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -74,6 +75,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
+            builder.Services.AddTransient<IUserManagementPageViewModel, UserManagementPageViewModel>();
 
 
             builder.Services.AddDevExpressBlazor();

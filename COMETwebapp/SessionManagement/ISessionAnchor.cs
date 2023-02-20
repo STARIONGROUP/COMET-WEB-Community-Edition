@@ -128,6 +128,11 @@ namespace COMETwebapp.SessionManagement
         Participant? GetParticipant();
 
         /// <summary>
+        /// Gets ths <see cref="Participant"/>s in the opened iteration
+        /// </summary>
+        IEnumerable<Participant> GetParticipants();
+
+        /// <summary>
         /// Event for when the session has been refreshed.
         /// </summary>
         event EventHandler OnSessionRefreshed;

@@ -300,5 +300,14 @@ namespace COMETwebapp.SessionManagement
             return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(this.OpenIteration?.IterationSetup))?
                 .Participant.Find(p => p.Person.Iid == this.Session.ActivePerson.Iid);
         }
+
+        /// <summary>
+        /// Gets ths <see cref="Participant"/>s in the opened iteration
+        /// </summary>
+        public IEnumerable<Participant> GetParticipants()
+        {
+            return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(this.OpenIteration?.IterationSetup))?
+                .Participant;
+        }
     }
 }
