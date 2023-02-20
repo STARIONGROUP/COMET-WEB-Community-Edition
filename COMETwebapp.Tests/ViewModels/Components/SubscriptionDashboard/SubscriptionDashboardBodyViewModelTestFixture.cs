@@ -74,5 +74,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), null), Times.Once);
         }
+
+        [Test]
+        public void VerifySessionRefresh()
+        {
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
+                It.IsAny<IEnumerable<Option>>(), null), Times.Once);
+        }
     }
 }

@@ -27,7 +27,9 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     using System.Reactive.Linq;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.SessionManagement;
@@ -63,7 +65,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
             this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing)
                 .Subscribe(_ => { this.IsRefreshing = true; }));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate)
+            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate)
                 .Subscribe(_ => { this.IsRefreshing = false; }));
         }
 

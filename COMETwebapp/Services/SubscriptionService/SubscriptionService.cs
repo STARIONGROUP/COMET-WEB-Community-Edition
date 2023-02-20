@@ -32,6 +32,7 @@ namespace COMETwebapp.Services.SubscriptionService
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
@@ -82,7 +83,7 @@ namespace COMETwebapp.Services.SubscriptionService
                 }
             ));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate)
+            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate)
                 .Subscribe(_ => this.ComputeUpdateSinceLastTracking()));
         }
 

@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.ViewModels.Components.Shared;
@@ -97,6 +99,15 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 
             this.SubscribedTable.UpdateProperties(ownedSubscriptions, availableOptions, this.CurrentIteration);
             this.DomainOfExpertiseSubscriptionTable.UpdateProperties(subscribedParameters);
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        protected override void OnSessionRefreshed()
+        {
+            this.OnIterationChanged();
+            this.UpdateTables();
         }
 
         /// <summary>

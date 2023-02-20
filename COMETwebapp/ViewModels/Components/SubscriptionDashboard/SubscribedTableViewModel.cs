@@ -139,8 +139,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 
             this.allRows = rows;
             this.filteredRows = rows;
-            this.Rows.Clear();
-            this.Rows.AddRange(this.allRows);
+            this.UpdateRows();
+
             this.UpdateSubscriptionsChangedProperty();
         }
 
@@ -179,6 +179,25 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         }
 
         /// <summary>
+        /// Updates the <see cref="Rows" /> collection to not clear/addRange on any change
+        /// </summary>
+        private void UpdateRows()
+        {
+            var removedRows = this.Rows.Items.Where(x => this.filteredRows.All(r => r.SubscriptionValueSet.Iid != x.SubscriptionValueSet.Iid)).ToList();
+            var addedRows = this.filteredRows.Where(x => this.Rows.Items.All(r => r.SubscriptionValueSet.Iid != x.SubscriptionValueSet.Iid)).ToList();
+            var existingRows = this.filteredRows.Where(x => this.Rows.Items.Any(r => r.SubscriptionValueSet.Iid == x.SubscriptionValueSet.Iid)).ToList();
+
+            this.Rows.RemoveMany(removedRows);
+            this.Rows.AddRange(addedRows);
+
+            foreach (var parameterSubscriptionRowViewModel in existingRows)
+            {
+                this.Rows.Items.First(x => x.SubscriptionValueSet.Iid == parameterSubscriptionRowViewModel.SubscriptionValueSet.Iid)
+                    .UpdateRow(parameterSubscriptionRowViewModel);
+            }
+        }
+
+        /// <summary>
         /// Updates the <see cref="DidSubscriptionsChanged" /> property based on new values of the
         /// <see cref="ISubscriptionService" />
         /// </summary>
@@ -200,12 +219,16 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// </summary>
         private void ApplyRowsVisibility()
         {
-            this.Rows.Clear();
+            this.UpdateRows();
 
-            this.Rows.AddRange(this.ShowOnlyChangedSubscription
-                ? this.filteredRows.Where(x => this.subscriptionService.SubscriptionsWithUpdate[this.iteration.Iid]
-                    .Any(s => s == x.SubscriptionValueSet.Iid))
-                : this.filteredRows);
+            if (this.ShowOnlyChangedSubscription)
+            {
+                var hiddenRows = this.Rows.Items
+                    .Where(x => this.subscriptionService.SubscriptionsWithUpdate[this.iteration.Iid]
+                        .All(s => s != x.SubscriptionValueSet.Iid)).ToList();
+
+                this.Rows.RemoveMany(hiddenRows);
+            }
         }
 
         /// <summary>

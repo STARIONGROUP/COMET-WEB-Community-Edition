@@ -54,8 +54,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         public void UpdateProperties(IEnumerable<ParameterOrOverrideBase> parameters)
         {
             this.allRows = parameters.Select(x => new OwnedParameterOrOverrideBaseRowViewModel(x));
-            this.Rows.Clear();
-            this.Rows.AddRange(this.allRows);
+            this.UpdateRows(this.allRows);
         }
 
         /// <summary>
@@ -79,8 +78,29 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
                 filteredRows.RemoveAll(x => x.Parameter.ParameterType.Iid != selectedParameterType.Iid);
             }
 
-            this.Rows.Clear();
-            this.Rows.AddRange(filteredRows);
+            this.UpdateRows(filteredRows);
+        }
+
+        /// <summary>
+        /// Update the <see cref="Rows" /> collection based on a collection of
+        /// <see cref="OwnedParameterOrOverrideBaseRowViewModel" /> to display.
+        /// </summary>
+        /// <param name="rowsToDisplay">A collection of <see cref="OwnedParameterOrOverrideBaseRowViewModel" /></param>
+        private void UpdateRows(IEnumerable<OwnedParameterOrOverrideBaseRowViewModel> rowsToDisplay)
+        {
+            rowsToDisplay = rowsToDisplay.ToList();
+
+            var deletedRows = this.Rows.Items.Where(x => rowsToDisplay.All(r => r.Parameter.Iid != x.Parameter.Iid)).ToList();
+            var addedRows = rowsToDisplay.Where(x => this.Rows.Items.All(r => r.Parameter.Iid != x.Parameter.Iid)).ToList();
+            var existingRows = rowsToDisplay.Where(x => this.Rows.Items.Any(r => r.Parameter.Iid == x.Parameter.Iid)).ToList();
+
+            this.Rows.RemoveMany(deletedRows);
+            this.Rows.AddRange(addedRows);
+
+            foreach (var existingRow in existingRows)
+            {
+                this.Rows.Items.First(x => x.Parameter.Iid == existingRow.Parameter.Iid).UpdateProperties(existingRow);
+            }
         }
     }
 }

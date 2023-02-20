@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.SessionManagement
+namespace COMETwebapp.Enumerations
 {
     /// <summary>
     /// Define state of the ISession
@@ -43,11 +43,6 @@ namespace COMETwebapp.SessionManagement
         /// When refresh is in progress
         /// </summary>
         Refreshing,
-
-        /// <summary>
-        /// When action is done
-        /// </summary>
-        UpToDate,
 
         /// <summary>
         /// When some updates are validated

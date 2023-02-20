@@ -29,11 +29,23 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
 
     using COMETwebapp.Extensions;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Row View Model for owned <see cref="ParameterOrOverrideBase" />
     /// </summary>
-    public class OwnedParameterOrOverrideBaseRowViewModel
+    public class OwnedParameterOrOverrideBaseRowViewModel : ReactiveObject
     {
+        /// <summary>
+        /// Backing field for <see cref="HasMissingValues" />
+        /// </summary>
+        private bool hasMissingValues;
+
+        /// <summary>
+        /// Backing field for <see cref="InterestedDomains" />
+        /// </summary>
+        private IEnumerable<DomainOfExpertise> interestedDomains;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OwnedParameterOrOverrideBaseRowViewModel" /> class.
         /// </summary>
@@ -50,12 +62,20 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// <summary>
         /// Value indicating if the <see cref="ParameterOrOverrideBase" /> has a <see cref="ParameterValueSetBase" /> with a missing value
         /// </summary>
-        public bool HasMissingValues { get; }
+        public bool HasMissingValues
+        {
+            get => this.hasMissingValues;
+            set => this.RaiseAndSetIfChanged(ref this.hasMissingValues, value);
+        }
 
         /// <summary>
         /// A collection of <see cref="DomainOfExpertise" /> that have <see cref="ParameterSubscription" />
         /// </summary>
-        public IEnumerable<DomainOfExpertise> InterestedDomains { get; }
+        public IEnumerable<DomainOfExpertise> InterestedDomains
+        {
+            get => this.interestedDomains;
+            set => this.RaiseAndSetIfChanged(ref this.interestedDomains, value);
+        }
 
         /// <summary>
         /// A concatenation of all shortname of <see cref="DomainOfExpertise" />
@@ -91,5 +111,18 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// Value indicating if the <see cref="ParameterOrOverrideBase" /> is <see cref="Option" /> dependent
         /// </summary>
         public bool IsOptionDependent => this.Parameter.IsOptionDependent;
+
+        /// <summary>
+        /// Update this row view model properties
+        /// </summary>
+        /// <param name="ownedParameter">The <see cref="OwnedParameterOrOverrideBaseRowViewModel" /> to use for updating</param>
+        public void UpdateProperties(OwnedParameterOrOverrideBaseRowViewModel ownedParameter)
+        {
+            this.Parameter = ownedParameter.Parameter;
+            this.InterestedDomains = this.Parameter.ParameterSubscription.Select(x => x.Owner);
+
+            this.HasMissingValues = this.Parameter.ValueSets.OfType<ParameterValueSetBase>()
+                .Any(x => x.Published.All(p => p == "-"));
+        }
     }
 }

@@ -34,10 +34,10 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.SessionManagement;
 
     using DynamicData;
 
@@ -182,7 +182,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                 Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(0));
             });
 
-            CDPMessageBus.Current.SendMessage(SessionStateKind.UpToDate);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
             Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(0));
 
             var nameProperty = typeof(ParameterValueSet).GetProperty(nameof(ParameterValueSet.RevisionNumber))!;
@@ -190,7 +190,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
             subscribed.Revisions[0] = new ParameterValueSet() { Published = new ValueArray<string>(new List<string>(){"-"})};
             subscribed.Published = new ValueArray<string>(new List<string>(){"45"});
 
-            CDPMessageBus.Current.SendMessage(SessionStateKind.UpToDate);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
 
             Assert.Multiple(() =>
             {

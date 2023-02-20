@@ -30,11 +30,28 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
 
     using COMETwebapp.Extensions;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Row View Model that is used to display information related to <see cref="ParameterSubscription" />
     /// </summary>
-    public class ParameterSubscriptionRowViewModel
+    public class ParameterSubscriptionRowViewModel : ReactiveObject
     {
+        /// <summary>
+        /// Backing field for <see cref="Changes" />
+        /// </summary>
+        private Dictionary<int, ValueArray<string>> changes;
+
+        /// <summary>
+        /// Backing field for <see cref="SubscriptionValueSet" />
+        /// </summary>
+        private ParameterSubscriptionValueSet subscriptionValueSet;
+
+        /// <summary>
+        /// Backing field for <see cref="IValueSet" />
+        /// </summary>
+        private IValueSet valueSet;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterSubscriptionRowViewModel" /> class.
         /// </summary>
@@ -53,9 +70,13 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         }
 
         /// <summary>
-        /// <see cref="Dictionary{TKey,TValue}"/> that reflect changes of the referenced <see cref="ParameterValueSet"/>
+        /// <see cref="Dictionary{TKey,TValue}" /> that reflect changes of the referenced <see cref="ParameterValueSet" />
         /// </summary>
-        public Dictionary<int, ValueArray<string>> Changes { get; set; }
+        public Dictionary<int, ValueArray<string>> Changes
+        {
+            get => this.changes;
+            private set => this.RaiseAndSetIfChanged(ref this.changes, value);
+        }
 
         /// <summary>
         /// Gets the <see cref="ActualFiniteState" />
@@ -80,12 +101,20 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// <summary>
         /// The <see cref="IValueSet" /> of the associated <see cref="ParameterSubscription" />
         /// </summary>
-        public ParameterSubscriptionValueSet SubscriptionValueSet { get; }
+        public ParameterSubscriptionValueSet SubscriptionValueSet
+        {
+            get => this.subscriptionValueSet;
+            private set => this.RaiseAndSetIfChanged(ref this.subscriptionValueSet, value);
+        }
 
         /// <summary>
         /// The <see cref="IValueSet" /> of the associated <see cref="Parameter" />
         /// </summary>
-        public IValueSet ValueSet { get; }
+        public IValueSet ValueSet
+        {
+            get => this.valueSet;
+            private set => this.RaiseAndSetIfChanged(ref this.valueSet, value);
+        }
 
         /// <summary>
         /// The associated <see cref="ElementBase" />
@@ -106,5 +135,16 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// The name of the <see cref="ParameterType" />
         /// </summary>
         public string ParameterName => this.Parameter.ParameterType.Name;
+
+        /// <summary>
+        /// Updates this row view model based on another <see cref="ParameterSubscriptionRowViewModel" />
+        /// </summary>
+        /// <param name="parameterSubscriptionRowViewModel"></param>
+        public void UpdateRow(ParameterSubscriptionRowViewModel parameterSubscriptionRowViewModel)
+        {
+            this.Changes = parameterSubscriptionRowViewModel.Changes;
+            this.ValueSet = parameterSubscriptionRowViewModel.ValueSet;
+            this.SubscriptionValueSet = parameterSubscriptionRowViewModel.SubscriptionValueSet;
+        }
     }
 }

@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared
 {
+    using System.Reactive.Linq;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -32,7 +34,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
 
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities.DisposableObject;
-    
+
     using DynamicData.Binding;
 
     using ReactiveUI;
@@ -57,6 +59,10 @@ namespace COMETwebapp.ViewModels.Components.Shared
                 .Subscribe(_ => this.OnIterationChanged()));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(_ => this.OnDomainChanged()));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>()
+                .Where(x => x.Status == SessionStatus.EndUpdate)
+                .Subscribe(_ => this.OnSessionRefreshed()));
 
             this.SessionService = sessionService;
         }
@@ -84,6 +90,11 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// Value asserting that the view model has set initial values at least once
         /// </summary>
         public bool HasSetInitialValuesOnce { get; set; }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        protected abstract void OnSessionRefreshed();
 
         /// <summary>
         /// Handles the change of <see cref="DomainOfExpertise" />

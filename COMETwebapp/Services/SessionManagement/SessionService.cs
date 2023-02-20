@@ -34,6 +34,7 @@ namespace COMETwebapp.Services.SessionManagement
     using CDP4Dal.Exceptions;
     using CDP4Dal.Operations;
 
+    using COMETwebapp.Enumerations;
     using COMETwebapp.SessionManagement;
 
     using DynamicData;
@@ -207,7 +208,6 @@ namespace COMETwebapp.Services.SessionManagement
 
             await this.Session.Refresh();
 
-            CDPMessageBus.Current.SendMessage(SessionStateKind.UpToDate);
             Console.WriteLine($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
 
             this.OnSessionRefreshed?.Invoke(this, EventArgs.Empty);

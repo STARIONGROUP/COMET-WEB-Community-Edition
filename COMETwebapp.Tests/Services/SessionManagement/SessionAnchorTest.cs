@@ -36,8 +36,8 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     using CDP4Dal;
     using CDP4Dal.DAL;
 
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.SessionManagement;
 
     using Moq;
 
@@ -206,11 +206,9 @@ namespace COMETwebapp.Tests.Services.SessionManagement
             var beginRefreshReceived = false;
             var endRefreshReceived = false;
             CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x => { beginRefreshReceived = true; });
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.UpToDate).Subscribe(x => { endRefreshReceived = true; });
             this.sessionService.RefreshSession();
 
             Assert.That(beginRefreshReceived, Is.True);
-            Assert.That(endRefreshReceived, Is.True);
         }
 
         [Test]

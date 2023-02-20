@@ -32,6 +32,8 @@ namespace COMETwebapp.Components.SubscriptionDashboard
 
     using DevExpress.Blazor;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -70,6 +72,8 @@ namespace COMETwebapp.Components.SubscriptionDashboard
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.DidSubscriptionsChanged)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
