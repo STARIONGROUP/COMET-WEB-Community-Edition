@@ -27,8 +27,8 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
 
     using DynamicData;
 
@@ -38,9 +38,9 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     public interface IParameterEditorViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="IIterationService"/>
+        /// Gets or sets the <see cref="ISubscriptionService"/>
         /// </summary>
-        IIterationService IterationService { get; set; }
+        ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISessionService"/>

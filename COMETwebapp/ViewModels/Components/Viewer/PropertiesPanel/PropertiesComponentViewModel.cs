@@ -195,7 +195,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
                 if (valueSet is ParameterValueSetBase parameterValueSetBase)
                 {
-                    this.IterationService.NewUpdates.Add(parameterValueSetBase.Iid);
                     CDPMessageBus.Current.SendMessage(new NewUpdateEvent(this.SelectionMediator.SelectedSceneObject.ID));
 
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);

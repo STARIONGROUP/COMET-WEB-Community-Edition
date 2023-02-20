@@ -28,8 +28,8 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Extensions;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
 
     using DynamicData;
 
@@ -43,10 +43,10 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
     public class ParameterEditorViewModel : ReactiveObject, IParameterEditorViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="IIterationService"/>
+        /// Gets or sets the <see cref="ISubscriptionService"/>
         /// </summary>
         [Inject]
-        public IIterationService IterationService { get; set; }
+        public ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISessionService"/>
@@ -134,11 +134,11 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
         /// Creates a new instance of <see cref="ParameterEditorViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="iterationService">the <see cref="IIterationService"/></param>
-        public ParameterEditorViewModel(ISessionService sessionService, IIterationService iterationService)
+        /// <param name="subscriptionService">the <see cref="ISubscriptionService"/></param>
+        public ParameterEditorViewModel(ISessionService sessionService, ISubscriptionService subscriptionService)
         {
             this.SessionService = sessionService;
-            this.IterationService = iterationService;
+            this.SubscriptionService = subscriptionService;
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace COMETwebapp.ViewModels.Pages.ParameterEditor
             this.Elements = this.SessionService.DefaultIteration.QueryElementsBase().ToList();
             this.SelectedOptionFilter = this.SessionService.DefaultIteration.DefaultOption;
 
-            this.ParameterTypes = this.IterationService.GetParameterTypes(this.SessionService.DefaultIteration).OrderBy(p => p.Name).ToList();
+            this.ParameterTypes = this.SessionService.DefaultIteration.QueryUsedParameterTypes().OrderBy(p => p.Name).ToList();
             this.ApplyFilters(this.Elements);
         }
 
