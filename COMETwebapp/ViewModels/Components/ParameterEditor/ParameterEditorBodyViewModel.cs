@@ -165,7 +165,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        private IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements)
+        public IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements)
         {
             if (this.ElementSelector.SelectedElementBase is null)
             {
@@ -180,7 +180,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        private IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements)
+        public IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements)
         {
             var filteredElements = new List<ElementBase>();
 
@@ -219,7 +219,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        private IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements)
+        public IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements)
         {
             if (this.OptionSelector.SelectedOption is null)
             {
@@ -255,7 +255,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        private IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements)
+        public IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements)
         {
             if (this.FiniteStateSelector.SelectedActualFiniteState is null)
             {
@@ -270,7 +270,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
-        private IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements)
+        public IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements)
         {
             if (!this.IsOwnedParameters)
             {

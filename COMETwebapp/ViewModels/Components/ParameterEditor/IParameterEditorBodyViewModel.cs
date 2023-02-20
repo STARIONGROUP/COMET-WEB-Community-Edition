@@ -46,32 +46,32 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="IElementBaseSelectorViewModel"/>
         /// </summary>
-        IElementBaseSelectorViewModel ElementSelector { get; }
+        public IElementBaseSelectorViewModel ElementSelector { get; }
 
         /// <summary>
         /// Gets the <see cref="IOptionSelectorViewModel" />
         /// </summary>
-        IOptionSelectorViewModel OptionSelector { get; }
+        public IOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
         /// Gets the <see cref="IFiniteStateSelectorViewModel" />
         /// </summary>
-        IFiniteStateSelectorViewModel FiniteStateSelector { get; }
+        public IFiniteStateSelectorViewModel FiniteStateSelector { get; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
-        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; } 
 
         /// <summary>
-        /// All <see cref="ElementBase"/> of the iteration
+        /// All <see cref="ElementBase"/> of the iteration without filtering
         /// </summary>
-        List<ElementBase> Elements { get; }
+        public List<ElementBase> Elements { get; }
 
         /// <summary>
         /// Gets or sets the filtered <see cref="ElementBase"/>
         /// </summary>
-        SourceList<ElementBase> FilteredElements { get; }
+        public SourceList<ElementBase> FilteredElements { get; }
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
@@ -81,19 +81,54 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets or sets the <see cref="IParameterTableViewModel"/>
         /// </summary>
-        IParameterTableViewModel ParameterTableViewModel { get; set; }
+        public IParameterTableViewModel ParameterTableViewModel { get; set; }
 
         /// <summary>
-        /// Initializes the <see cref="IParameterEditorBodyViewModel"/>
+        /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
         /// </summary>
         void InitializeViewModel();
 
         /// <summary>
-        /// Apply all the filters selected in the <param name="elements"/>
+        /// Apply all the filters selected in the <param name="elements"/> and replace the data of <see cref="FilteredElements"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
         void ApplyFilters(IEnumerable<ElementBase> elements);
+
+        /// <summary>
+        /// Filters the <param name="elements"/> by the <see cref="ElementSelector"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <returns>the filtered elements</returns>
+        IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements);
+
+        /// <summary>
+        /// Filters the <param name="elements"/> by the <see cref="ParameterTypeSelector"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <returns>the filtered elements</returns>
+        IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements);
+
+        /// <summary>
+        /// Filters the <param name="elements"/> by the <see cref="OptionSelector"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <returns>the filtered elements</returns>
+        IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements);
+
+        /// <summary>
+        /// Filters the <param name="elements"/> by the <see cref="FiniteStateSelector"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <returns>the filtered elements</returns>
+        IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements);
+
+        /// <summary>
+        /// Filters the <param name="elements"/> by the <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="elements">the elements to filter</param>
+        /// <returns>the filtered elements</returns>
+        IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements);
 
         /// <summary>
         /// Queries the <see cref="DomainOfExpertise"/> of the current <see cref="Iteration"/>

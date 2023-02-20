@@ -29,11 +29,7 @@ namespace COMETwebapp.Components.ParameterEditor
 
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
-    using DynamicData;
-
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Class for the component <see cref="ParameterTable"/>

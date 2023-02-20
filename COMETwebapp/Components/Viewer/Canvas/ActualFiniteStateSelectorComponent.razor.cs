@@ -31,8 +31,6 @@ namespace COMETwebapp.Components.Viewer.Canvas
     using Microsoft.AspNetCore.Components;
     
     using ReactiveUI;
-    
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Class for the state selector component
@@ -58,32 +56,15 @@ namespace COMETwebapp.Components.Viewer.Canvas
         public EventCallback<List<ActualFiniteState>> OnActualFiniteStateChanged { get; set; }
 
         /// <summary>
-        /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
-        /// that would cause an infinite render loop.
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
-        /// on this component instance; otherwise <c>false</c>.
-        /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-        /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
-        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
-        /// once.
-        /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override void OnParametersSet()
         {
-            await base.OnAfterRenderAsync(firstRender);
-
-            if (firstRender)
-            {
-                this.ViewModel.ActualFiniteStateListsCollection = this.ActualFiniteStateListsCollection;
-                this.ViewModel.InitializeViewModel();
-                this.WhenAnyValue(x=>x.ViewModel.SelectedStates).Subscribe(states=> this.OnActualFiniteStateChanged.InvokeAsync(states));               
-                this.StateHasChanged();
-            }
+            base.OnParametersSet();
+            //this.ViewModel.ActualFiniteStateListsCollection = this.ActualFiniteStateListsCollection ?? new List<ActualFiniteStateList>();
+            //this.ViewModel.InitializeViewModel();
+            //this.WhenAnyValue(x => x.ViewModel.SelectedStates).Subscribe(states => this.OnActualFiniteStateChanged.InvokeAsync(states));
         }
     }
 }

@@ -26,8 +26,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using System.Linq;
 
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Enumerations;
-    
+    using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
+
     using ReactiveUI;
 
     /// <summary>
@@ -35,6 +39,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     /// </summary>
     public class ProductTreeViewModel : ReactiveObject, IProductTreeViewModel
     {
+        /// <summary>
+        /// Gets o sets the <see cref="SelectionMediator"/>
+        /// </summary>
+        public ISelectionMediator SelectionMediator { get; private set; }
+
         /// <summary>
         /// Gets or sets the filter options for the tree
         /// </summary>
@@ -55,9 +64,18 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         }
 
         /// <summary>
+        /// Backing field for the <see cref="RootViewModel"/>
+        /// </summary>
+        private INodeComponentViewModel rootViewModel;
+
+        /// <summary>
         /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
         /// </summary>
-        public INodeComponentViewModel RootViewModel { get; set; }
+        public INodeComponentViewModel RootViewModel
+        {
+            get => this.rootViewModel;
+            set => this.RaiseAndSetIfChanged(ref this.rootViewModel, value);
+        }
 
         /// <summary>
         /// Backing field for the <see cref="SearchText"/>
@@ -76,14 +94,98 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Creates a new instance of type <see cref="ProductTreeViewModel"/>
         /// </summary>
-        public ProductTreeViewModel()
+        public ProductTreeViewModel(ISelectionMediator selectionMediator)
         {
+            this.SelectionMediator = selectionMediator;
             var enumValues = Enum.GetValues(typeof(TreeFilter)).Cast<TreeFilter>();
             this.TreeFilters = enumValues.ToList();
             this.SelectedFilter = TreeFilter.ShowFullTree;
 
+            this.SelectionMediator.OnModelSelectionChanged += (sceneObject) =>
+            {
+                var treeNodes = this.RootViewModel.GetFlatListOfDescendants();
+                treeNodes.ForEach(x => x.IsSelected = false);
+
+                if (sceneObject != null)
+                {
+                    var node = treeNodes.FirstOrDefault(x => x.Node.SceneObject == sceneObject);
+
+                    if (node is not null)
+                    {
+                        node.IsSelected = true;
+                    }
+                }
+            };
+            
             this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange());
             this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged());
+        }
+
+        /// <summary>
+        /// Creates the product tree
+        /// </summary>
+        /// <param name="productTreeElements">the product tree elements</param>
+        /// <param name="selectedOption">the selected option</param>
+        /// <param name="selectedActualFiniteStates">the selected states</param>
+        /// <returns>the root node of the tree or null if the tree can not be created</returns>
+        public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption, 
+            IEnumerable<ActualFiniteState> selectedActualFiniteStates)
+        {
+            var treeElements = productTreeElements.ToList();
+
+            if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null) 
+            {
+                var topElement = treeElements.First();
+                var topSceneObject = SceneObject.Create(topElement, selectedOption, selectedActualFiniteStates.ToList());
+                this.RootViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
+                this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, selectedActualFiniteStates);
+                this.RootViewModel.OrderAllDescendantsByShortName();
+                return this.RootViewModel;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Creates the tree in a recursive way
+        /// </summary>
+        /// <param name="elementBase">the element base used in the node</param>
+        /// <param name="current">the current node</param>
+        /// <param name="parent">the parent of the current node. Null if the current node is the root node</param>
+        /// <param name="selectedOption">the selected <see cref="Option"/></param>
+        /// <param name="selectedActualFiniteStates">the selected <see cref="ActualFiniteState"/></param>
+        private void CreateTreeRecursively(ElementBase elementBase, INodeComponentViewModel current, INodeComponentViewModel parent, 
+            Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates)
+        {
+            List<ElementUsage> childsOfElementBase = null;
+
+            if (elementBase is ElementDefinition elementDefinition)
+            {
+                childsOfElementBase = elementDefinition.ContainedElement;
+            }
+            else if (elementBase is ElementUsage elementUsage)
+            {
+                childsOfElementBase = elementUsage.ElementDefinition.ContainedElement;
+            }
+
+            if (childsOfElementBase is not null)
+            {
+                if (parent is not null)
+                {
+                    parent.AddChild(current);
+                }
+
+                foreach (var child in childsOfElementBase)
+                {
+                    var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
+
+                    if (sceneObject is not null)
+                    {
+                        var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
+                        this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
+                    }
+                }
+            }
         }
 
         /// <summary>

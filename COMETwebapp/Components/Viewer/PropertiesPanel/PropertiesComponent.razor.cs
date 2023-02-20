@@ -38,7 +38,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Gets or sets the <see cref="IPropertiesComponentViewModel"/>
         /// </summary>
-        [Inject]
+        [Parameter]
         public IPropertiesComponentViewModel ViewModel { get; set; }
         
         /// <summary>
