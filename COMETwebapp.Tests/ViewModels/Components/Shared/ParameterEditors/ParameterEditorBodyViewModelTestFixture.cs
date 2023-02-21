@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using Moq;
@@ -147,7 +148,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.DefaultIteration).Returns(iteration);
 
-            var iterationService = new Mock<ISubscriptionService>();
+            var subscriptionService = new Mock<ISubscriptionService>();
 
             var paramerTypesList = new List<ParameterType>()
             {
@@ -158,8 +159,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 new TextParameterType(){ Name = "textParamType" }
             };
 
-            iterationService.Setup(x => x.GetParameterTypes(It.IsAny<Iteration>())).Returns(paramerTypesList);
-            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, iterationService.Object);
+            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object);
             this.viewModel.CurrentIteration = iteration;
         }
 
@@ -168,7 +168,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.IterationService, Is.Not.Null);
+                Assert.That(this.viewModel.SubscriptionService, Is.Not.Null);
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
                 Assert.That(this.viewModel.FilteredElements, Is.Not.Null);
                 Assert.That(this.viewModel.ElementSelector, Is.Not.Null);

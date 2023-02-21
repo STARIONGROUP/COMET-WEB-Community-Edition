@@ -42,6 +42,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMETwebapp.IterationServices;
     using COMETwebapp.Pages.ParameterEditor;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.Shared;
@@ -120,7 +121,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
-            this.context.Services.AddSingleton<IIterationService, IterationService>();
+            this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
         }
 
         [TearDown]

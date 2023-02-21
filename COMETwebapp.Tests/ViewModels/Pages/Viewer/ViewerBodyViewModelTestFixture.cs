@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
 
@@ -173,9 +174,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             var selectionMediatorMock = new Mock<ISelectionMediator>();
 
             var babylonInterop = new Mock<IBabylonInterop>();
-            var iterationService = new Mock<IIterationService>();
 
-            this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object, iterationService.Object);
+            this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object);
             this.viewModel.CurrentIteration = iteration;
             this.viewModel.InitializeViewModel();
         }

@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
@@ -61,10 +62,10 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             var sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(sessionService);
 
-            var iterationService = new Mock<IIterationService>();
+            var iterationService = new Mock<ISubscriptionService>();
             this.context.Services.AddSingleton(iterationService);
             
-            var viewModel = new PropertiesComponentViewModel(babylonService.Object,iterationService.Object, sessionService.Object, selectionMediator.Object);
+            var viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object);
             viewModel.IsVisible = true;
 
             this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters =>

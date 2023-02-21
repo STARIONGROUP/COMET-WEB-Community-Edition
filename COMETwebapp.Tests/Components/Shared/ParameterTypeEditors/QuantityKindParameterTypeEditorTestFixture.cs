@@ -71,7 +71,13 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 Manual = new ValueArray<string>(new List<string>(){"0","0","0"}),
             };
 
+            var parameterType = new SimpleQuantityKind()
+            {
+                Name = "QuantityKind"
+            };
+
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<QuantityKind>>();
+            this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             
             this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
