@@ -91,7 +91,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="finiteState">the new selected finite state</param>
         public void SelectActualFiniteState(ActualFiniteState finiteState)
         {
-            this.SelectedFiniteState = finiteState;
+            if (this.ActualFiniteStates.Contains(finiteState))
+            {
+                this.SelectedFiniteState = finiteState;
+            }
+
             this.OnActualFiniteStateSelected.InvokeAsync(this);
         }
     }

@@ -54,5 +54,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Initializes this viewmodel with the collection of <see cref="ActualFiniteStateList"/>
         /// </summary>
         void InitializeViewModel();
+
+        /// <summary>
+        /// Event for when a <see cref="ActualFiniteState"/> has been selected
+        /// </summary>
+        /// <param name="stateSelector">the selector that raised the event</param>
+        void OnActualFiniteStateSelectionChanged(IActualFiniteStateSelectorViewModel stateSelector);
     }
 }
