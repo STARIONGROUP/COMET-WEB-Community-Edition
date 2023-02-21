@@ -33,6 +33,8 @@ namespace COMETwebapp.Components.Viewer
     using Microsoft.AspNetCore.Components;
     
     using ReactiveUI;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Utilities;
 
     /// <summary>
     /// Support class for the <see cref="ViewerBody"/> component
@@ -44,12 +46,6 @@ namespace COMETwebapp.Components.Viewer
         /// </summary>
         public CanvasComponent CanvasComponent { get; private set; }
 
-        /// <summary>
-        /// The initial <see cref="Option" />
-        /// </summary>
-        [Parameter]
-        public Option InitialOption { get; set; }
-        
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
@@ -74,7 +70,6 @@ namespace COMETwebapp.Components.Viewer
             {
                 await base.OnInitializedAsync();
                 this.ViewModel.InitializeViewModel();
-                this.ViewModel.OptionSelector.SelectedOption = this.InitialOption;
 
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
 
@@ -85,6 +80,18 @@ namespace COMETwebapp.Components.Viewer
                 {
                     await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
                 }));
+            }
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
+            if (parameters.TryGetValue(QueryKeys.OptionKey, out var option))
+            {
+                this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
             }
         }
 

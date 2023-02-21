@@ -27,6 +27,8 @@ namespace COMETwebapp.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Utilities;
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -88,7 +90,29 @@ namespace COMETwebapp.Components.ParameterEditor
                     x => x.ViewModel.IsOwnedParameters)
                 .Subscribe(_ => this.UpdateUrl()));
         }
-        
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
+            if (parameters.TryGetValue(QueryKeys.OptionKey, out var option))
+            {
+                this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
+            }
+
+            if (parameters.TryGetValue(QueryKeys.StateKey, out var state))
+            {
+                this.ViewModel.FiniteStateSelector.SelectedActualFiniteState = this.ViewModel.FiniteStateSelector.AvailableFiniteStates.FirstOrDefault(x => x.Iid == state.FromShortGuid());
+            }
+
+            if (parameters.TryGetValue(QueryKeys.ParameterKey, out var parameter))
+            {
+                this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes.FirstOrDefault(x => x.Iid == parameter.FromShortGuid());
+            }
+        }
+
         /// <summary>
         /// Sets the url of the <see cref="NavigationManager" /> based on the current values
         /// </summary>

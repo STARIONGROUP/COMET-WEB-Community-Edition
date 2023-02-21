@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
@@ -119,6 +121,14 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             {
                 this.InitializeViewModel();
             }));
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        protected override void OnSessionRefreshed()
+        {
+            this.OnIterationChanged();
         }
 
         /// <summary>

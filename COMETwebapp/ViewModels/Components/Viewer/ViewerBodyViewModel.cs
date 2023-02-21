@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 {
     using CDP4Common.EngineeringModelData;
     
+    using CDP4Dal;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
@@ -106,6 +108,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             {
                 this.OnOptionChanged();
             }));
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        protected override void OnSessionRefreshed()
+        {
+            this.OnIterationChanged();
         }
 
         /// <summary>
