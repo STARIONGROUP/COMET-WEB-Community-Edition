@@ -117,7 +117,7 @@ namespace COMETwebapp.Components.Viewer
                 additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
             }
 
-            //this.UpdateUrlWithParameters(additionalParameters, nameof(Pages.Viewer.Viewer));
+            this.UpdateUrlWithParameters(additionalParameters, nameof(Pages.Viewer.Viewer));
         }
     }
 }

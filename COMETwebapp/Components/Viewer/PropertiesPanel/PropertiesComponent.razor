@@ -39,7 +39,7 @@ Copyright (c) 2023 RHEA System S.A.
                 @foreach (var parameter in parameters)
                 {
                     var classNames = parameter == this.ViewModel.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
-                    <p class="@classNames" @onclick="()=> this.ViewModel.SelectedParameter = parameter">@parameter.ParameterType.Name</p>
+                    <p class="@classNames" @onclick="()=> this.ViewModel.SelectedParameter = parameter">@parameter.ParameterType?.Name</p>
                 }
             }
         </div>
