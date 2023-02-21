@@ -101,12 +101,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
             this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates).Subscribe(_ =>
             {
-                this.OnActualFiniteStateSelectionChanged();
+                this.InitializeElementsAndCreateTree();
             }));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(_ =>
             {
-                this.OnOptionChanged();
+                this.InitializeElementsAndCreateTree();
             }));
         }
 
@@ -144,20 +144,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         {
             return this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
         }
-        
-        /// <summary>
-        /// Event for when the selected <see cref="Option"/> has changed
-        /// </summary>
-        public void OnOptionChanged()
-        {
-            this.Elements = this.InitializeElements().ToList();
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
-        }
 
         /// <summary>
-        /// Event for when an <see cref="ActualFiniteState"/> selection has changed
+        /// Initializes the elements and creates the tree based on that elements
         /// </summary>
-        public void OnActualFiniteStateSelectionChanged()
+        public void InitializeElementsAndCreateTree()
         {
             this.Elements = this.InitializeElements().ToList();
             this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);

@@ -83,13 +83,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         IEnumerable<ElementBase> InitializeElements();
 
         /// <summary>
-        /// Event for when the selected <see cref="Option"/> has changed
+        /// Initializes the elements and creates the tree based on that elements
         /// </summary>
-        void OnOptionChanged();
-
-        /// <summary>
-        /// Event for when an <see cref="ActualFiniteState"/> selection has changed
-        /// </summary>
-        void OnActualFiniteStateSelectionChanged();
+        void InitializeElementsAndCreateTree();
     }
 }

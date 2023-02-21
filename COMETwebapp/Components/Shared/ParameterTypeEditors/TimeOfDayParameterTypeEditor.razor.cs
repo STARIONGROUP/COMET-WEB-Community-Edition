@@ -33,8 +33,6 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
     
     using ReactiveUI;
 
-    using ReactiveUI;
-
     /// <summary>
     /// Support class for the <see cref="TimeOfDayParameterTypeEditor"/>
     /// </summary>

@@ -33,8 +33,6 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
     
     using ReactiveUI;
 
-    using ReactiveUI;
-
     /// <summary>
     /// Class for the <see cref="BooleanParameterTypeEditor"/> component
     /// </summary>
