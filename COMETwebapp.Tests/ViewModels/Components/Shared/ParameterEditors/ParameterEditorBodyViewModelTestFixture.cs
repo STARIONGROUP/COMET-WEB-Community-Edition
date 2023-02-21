@@ -185,14 +185,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
-                Assert.That(this.viewModel.Elements.ToList(), Has.Count.EqualTo(0));
-            });
-
-            this.viewModel.InitializeViewModel();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.Elements, Is.Not.Null);
                 Assert.That(this.viewModel.Elements.ToList(), Has.Count.EqualTo(5));
             });
         }

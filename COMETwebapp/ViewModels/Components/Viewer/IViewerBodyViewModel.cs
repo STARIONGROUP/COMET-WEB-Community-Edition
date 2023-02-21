@@ -48,6 +48,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         IOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
+        /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel"/>
+        /// </summary>
+        IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; }
+
+        /// <summary>
         /// Gets or sets the <see cref="IProductTreeViewModel"/>
         /// </summary>
         IProductTreeViewModel ProductTreeViewModel { get; }
@@ -67,16 +72,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         List<ElementBase> Elements { get; set; }
 
-        /// <summary>
-        /// List of the of <see cref="ActualFiniteStateList"/> 
-        /// </summary>        
-        List<ActualFiniteStateList> ListActualFiniteStateLists { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Selected <see cref="ActualFiniteState"/>
-        /// </summary>
-        List<ActualFiniteState> SelectedActualFiniteStates { get; }
-
        /// <summary>
         /// Initializes this <see cref="IViewerBodyViewModel"/>
         /// </summary>
@@ -90,13 +85,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <summary>
         /// Event for when the selected <see cref="Option"/> has changed
         /// </summary>
-        /// <param name="option">the new selected option</param>
-        void OnOptionChange(Option option);
+        void OnOptionChanged();
 
         /// <summary>
-        /// Event raised when an actual finite state has changed
+        /// Event for when an <see cref="ActualFiniteState"/> selection has changed
         /// </summary>
-        /// <param name="selectedActiveFiniteStates"></param>
-        void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates);
+        void OnActualFiniteStateSelectionChanged();
     }
 }

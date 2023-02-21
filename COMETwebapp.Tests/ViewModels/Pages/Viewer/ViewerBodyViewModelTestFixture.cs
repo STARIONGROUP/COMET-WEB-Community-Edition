@@ -190,10 +190,10 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                 Assert.That(this.viewModel.Elements, Has.Count.EqualTo(5));
                 Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
                 Assert.That(this.viewModel.OptionSelector.AvailableOptions.ToList(), Has.Count.EqualTo(2));
-                Assert.That(this.viewModel.ListActualFiniteStateLists, Is.Not.Null);
-                Assert.That(this.viewModel.ListActualFiniteStateLists, Has.Count.EqualTo(2));
-                Assert.That(this.viewModel.SelectedActualFiniteStates, Is.Not.Null);
-                Assert.That(this.viewModel.SelectedActualFiniteStates, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.MultipleFiniteStateSelector, Is.Not.Null);
+                Assert.That(this.viewModel.MultipleFiniteStateSelector.ActualFiniteStateListsCollection, Has.Count.EqualTo(2));
+                Assert.That(this.viewModel.MultipleFiniteStateSelector.SelectedFiniteStates, Is.Not.Null);
+                Assert.That(this.viewModel.MultipleFiniteStateSelector.SelectedFiniteStates.ToList(), Has.Count.EqualTo(1));
             });
         }
 
@@ -220,15 +220,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             var previousOption = this.viewModel.OptionSelector.SelectedOption;
             this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.Last();
             Assert.That(previousOption, Is.Not.EqualTo(this.viewModel.OptionSelector.SelectedOption));
-        }
-
-        [Test]
-        public void VerifyOnActualFiniteStateChanged()
-        {
-            var previousState = this.viewModel.SelectedActualFiniteStates;
-            var actualState = this.viewModel.ListActualFiniteStateLists.First().ActualState.Last();
-            this.viewModel.ActualFiniteStateChanged(new List<ActualFiniteState>() { actualState });
-            Assert.That(previousState, Is.Not.EqualTo(this.viewModel.SelectedActualFiniteStates));
         }
     }
 }

@@ -26,93 +26,73 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
+
+    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the allow to select multiple existing <see cref="ActualFiniteState"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.Canvas.ActualFiniteStateSelector"/>
     /// </summary>
-    public class ActualFiniteStateSelectorViewModel : ReactiveObject, IActualFiniteStateSelectorViewModel
+    public class ActualFiniteStateSelectorViewModel : BelongsToIterationSelectorViewModel, IActualFiniteStateSelectorViewModel
     {
         /// <summary>
-        /// Backing field for the <see cref="ActualFiniteStateListsCollection"/>
+        /// Gets or sets the <see cref="ActualFiniteStates"/> of this selector
         /// </summary>
-        private List<ActualFiniteStateList> actualFiniteStateListsCollection;
+        public IEnumerable<ActualFiniteState> ActualFiniteStates { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of <see cref="ActualFiniteStateList"/>
+        /// Backing field for the <see cref="SelectedFiniteState"/>
         /// </summary>
-        public List<ActualFiniteStateList> ActualFiniteStateListsCollection
-        {
-            get => this.actualFiniteStateListsCollection;
-            set => this.RaiseAndSetIfChanged(ref this.actualFiniteStateListsCollection, value);
-        }
-
-        /// <summary>
-        /// Field for keeping track of the selection state of the <see cref="ActualFiniteState"/>
-        /// </summary>
-        public Dictionary<ActualFiniteState, bool> SelectionStateActualFiniteState { get; set; } = new();
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedStates"/>
-        /// </summary>
-        private List<ActualFiniteState> selectedStates;
+        private ActualFiniteState selectedFiniteState;
 
         /// <summary>
         /// Gets or sets the selected <see cref="ActualFiniteState"/>
         /// </summary>
-        public List<ActualFiniteState> SelectedStates
+        public ActualFiniteState SelectedFiniteState
         {
-            get => this.selectedStates;
-            set => this.RaiseAndSetIfChanged(ref this.selectedStates, value);
+            get => this.selectedFiniteState;
+            set => this.RaiseAndSetIfChanged(ref this.selectedFiniteState, value);
         }
 
         /// <summary>
-        /// Initializes this view model
+        /// Eventcallback for when an <see cref="ActualFiniteState"/> has been selected
         /// </summary>
-        public void InitializeViewModel()
+        private EventCallback<ActualFiniteStateSelectorViewModel> OnActualFiniteStateSelected { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ActualFiniteStateSelectorViewModel"/>
+        /// </summary>
+        /// <param name="actualFiniteStateList">the <see cref="ActualFiniteStateList"/> that contains the states to select</param>
+        /// <param name="onActualFiniteStateSelected">the event used to update the parent data</param>
+        public ActualFiniteStateSelectorViewModel(ActualFiniteStateList actualFiniteStateList, 
+            EventCallback<ActualFiniteStateSelectorViewModel> onActualFiniteStateSelected)
         {
-            this.ResetDictionary();
-            this.WhenAnyValue(x => x.ActualFiniteStateListsCollection).Subscribe(_ => this.ResetDictionary());
-            this.SelectedStates = this.ActualFiniteStateListsCollection.SelectMany(x => x.ActualState.Where(x => x.IsDefault)).ToList();
+            this.ActualFiniteStates = actualFiniteStateList.ActualState;
+            this.SelectedFiniteState = this.ActualFiniteStates.FirstOrDefault(x => x.IsDefault);
+            this.OnActualFiniteStateSelected = onActualFiniteStateSelected;
         }
 
         /// <summary>
-        /// Resets the dictionary and fills it with the default states
+        /// Updates this view model properties
         /// </summary>
-        private void ResetDictionary()
+        protected override void UpdateProperties()
         {
-            this.SelectionStateActualFiniteState.Clear();
-            var totalActualFiniteStates = this.ActualFiniteStateListsCollection.SelectMany(x => x.ActualState).ToList();
-  
-            foreach (var actualFS in totalActualFiniteStates)
-            {
-                this.SelectionStateActualFiniteState.TryAdd(actualFS, actualFS.IsDefault);
-            }
+            this.ActualFiniteStates = this.CurrentIteration?.ActualFiniteStateList.OrderBy(x => x.Name).SelectMany(x => x.ActualState)
+                .OrderBy(x => x.Name) ?? Enumerable.Empty<ActualFiniteState>();
+
+            this.SelectedFiniteState = this.ActualFiniteStates.FirstOrDefault(x => x.IsDefault);
         }
 
         /// <summary>
-        /// Event for when a <see cref="ActualFiniteState"/> has been selected
+        /// Selects the current state and triggers the corresponding event
         /// </summary>
-        /// <param name="actualFiniteState">the selected <see cref="ActualFiniteState"/></param>
-        public void OnActualFiniteStateSelected(ActualFiniteState actualFiniteState)
+        /// <param name="finiteState">the new selected finite state</param>
+        public void SelectActualFiniteState(ActualFiniteState finiteState)
         {
-            if (actualFiniteState.Container is ActualFiniteStateList AFSlist)
-            {
-                foreach (var finiteState in AFSlist.ActualState)
-                {
-                    if (this.SelectionStateActualFiniteState.ContainsKey(finiteState))
-                    {
-                        this.SelectionStateActualFiniteState[finiteState] = false;
-                    }
-                }
-            }
-
-            if (this.SelectionStateActualFiniteState.ContainsKey(actualFiniteState))
-            {
-                this.SelectionStateActualFiniteState[actualFiniteState] = true;
-            }
-
-            this.SelectedStates = this.SelectionStateActualFiniteState.Where(x => x.Value).Select(x => x.Key).ToList();
+            this.SelectedFiniteState = finiteState;
+            this.OnActualFiniteStateSelected.InvokeAsync(this);
         }
     }
 }

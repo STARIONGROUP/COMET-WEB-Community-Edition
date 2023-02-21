@@ -28,7 +28,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     
     using COMETwebapp.Extensions;
     using COMETwebapp.IterationServices;
-    using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
@@ -36,8 +35,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-
-    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
@@ -55,6 +52,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// Gets or sets the <see cref="IOptionSelectorViewModel"/>
         /// </summary>
         public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel();
+
+        /// <summary>
+        /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel"/>
+        /// </summary>
+        public IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IProductTreeViewModel"/>
@@ -77,16 +79,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public List<ElementBase> Elements { get; set; }
 
         /// <summary>
-        /// List of the of <see cref="ActualFiniteStateList"/> 
-        /// </summary>        
-        public List<ActualFiniteStateList> ListActualFiniteStateLists { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Selected <see cref="ActualFiniteState"/>
-        /// </summary>
-        public List<ActualFiniteState> SelectedActualFiniteStates { get; private set; }
-
-        /// <summary>
         /// Creates a new instance of type <see cref="ViewerBodyViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
@@ -100,14 +92,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.ProductTreeViewModel = new ProductTreeViewModel(selectionMediator);
             this.CanvasViewModel = new CanvasViewModel(babylonInterop,selectionMediator);
             this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, iterationService, sessionService, selectionMediator);
-            
+            this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
+
             this.SessionService.OnSessionRefreshed += (_, _) =>
             {
                 this.Elements = this.InitializeElements().ToList();
-                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.SelectedActualFiniteStates);
+                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
             };
 
-            this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(this.OnOptionChange);
+            this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates).Subscribe(_ =>
+            {
+                this.OnActualFiniteStateSelectionChanged();
+            }));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(_ =>
+            {
+                this.OnOptionChanged();
+            }));
         }
 
         /// <summary>
@@ -116,6 +117,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         protected override void OnIterationChanged()
         {
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
+            this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
         }
 
         /// <summary>
@@ -124,10 +126,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public void InitializeViewModel()
         {
             this.Elements = this.InitializeElements().ToList();
-            this.ListActualFiniteStateLists = this.CurrentIteration?.ActualFiniteStateList.ToList() ?? new List<ActualFiniteStateList>();
-            this.SelectedActualFiniteStates = this.ListActualFiniteStateLists.SelectMany(x => x.ActualState).Where(x => x.IsDefault).ToList();
             this.OptionSelector.SelectedOption = this.CurrentIteration?.DefaultOption;
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.SelectedActualFiniteStates);
+            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
         }
 
         /// <summary>
@@ -141,22 +141,19 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <summary>
         /// Event for when the selected <see cref="Option"/> has changed
         /// </summary>
-        /// <param name="option">the new selected option</param>
-        public void OnOptionChange(Option option)
+        public void OnOptionChanged()
         {
             this.Elements = this.InitializeElements().ToList();
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.SelectedActualFiniteStates);
+            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
         }
 
         /// <summary>
-        /// Event raised when an actual finite state has changed
+        /// Event for when an <see cref="ActualFiniteState"/> selection has changed
         /// </summary>
-        /// <param name="selectedActiveFiniteStates"></param>
-        public void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates)
+        public void OnActualFiniteStateSelectionChanged()
         {
-            this.SelectedActualFiniteStates = selectedActiveFiniteStates;
             this.Elements = this.InitializeElements().ToList();
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.SelectedActualFiniteStates);
+            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
         }
     }
 }

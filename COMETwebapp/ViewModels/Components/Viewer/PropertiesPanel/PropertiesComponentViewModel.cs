@@ -260,7 +260,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <returns>the <see cref="IValueSet"/></returns>
         public IValueSet GetUsedValueSet()
         {
-            if (this.SelectedParameter is not null)
+            if (this.SelectedParameter is not null && this.ParameterValueSetRelations.ContainsKey(this.SelectedParameter))
             {
                 return this.ParameterValueSetRelations[this.SelectedParameter];
             }

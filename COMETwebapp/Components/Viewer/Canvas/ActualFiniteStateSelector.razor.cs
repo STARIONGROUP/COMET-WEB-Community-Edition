@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ActualFiniteStateSelectorComponent.razor.cs" company="RHEA System S.A.">
+// <copyright file="ActualFiniteStateSelector.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -24,36 +24,22 @@
 
 namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using CDP4Common.EngineeringModelData;
-    
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    
+
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>
-    /// Class for the state selector component
+    /// Support class for the <see cref="ActualFiniteStateSelector"/> component
     /// </summary>
-    public partial class ActualFiniteStateSelectorComponent
+    public partial class ActualFiniteStateSelector
     {
         /// <summary>
         /// Gets or sets the <see cref="IActualFiniteStateSelectorViewModel"/>
         /// </summary>
-        [Inject]
+        [Parameter]
         public IActualFiniteStateSelectorViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets or sets the list of <see cref="ActualFiniteStateList"/> used by the <see cref="ActualFiniteStateSelectorComponent"/>
-        /// </summary>
-        [Parameter]
-        public List<ActualFiniteStateList> ActualFiniteStateListsCollection { get; set; } = new();
-
-        /// <summary>
-        /// Event callback for when an <see cref="ActualFiniteState"/> has been selected
-        /// </summary>
-        [Parameter]
-        public EventCallback<List<ActualFiniteState>> OnActualFiniteStateChanged { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -62,9 +48,9 @@ namespace COMETwebapp.Components.Viewer.Canvas
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            //this.ViewModel.ActualFiniteStateListsCollection = this.ActualFiniteStateListsCollection ?? new List<ActualFiniteStateList>();
-            //this.ViewModel.InitializeViewModel();
-            //this.WhenAnyValue(x => x.ViewModel.SelectedStates).Subscribe(states => this.OnActualFiniteStateChanged.InvokeAsync(states));
+            
+            this.WhenAnyValue(x => x.ViewModel.SelectedFiniteState)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
         }
     }
 }

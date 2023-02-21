@@ -48,9 +48,10 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.WhenAnyValue(x => x.ViewModel.IsVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-            this.WhenAnyValue(x => x.ViewModel.SelectedParameter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-            this.WhenAnyValue(x => x.ViewModel.ParameterHaveChanges).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+
+            this.WhenAnyValue(x => x.ViewModel.IsVisible,
+            x => x.ViewModel.SelectedParameter,
+            x => x.ViewModel.ParameterHaveChanges).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
         }
     }
 }

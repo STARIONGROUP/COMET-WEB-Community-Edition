@@ -63,7 +63,11 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.viewModel = new CanvasViewModel(this.babylonInterop.Object, this.selectionMediator.Object);
             this.context.Services.AddSingleton(this.viewModel);
 
-            var rendererComponent = this.context.RenderComponent<CanvasComponent>();
+            var rendererComponent = this.context.RenderComponent<CanvasComponent>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModel);
+            });
+
             this.canvas = rendererComponent.Instance;
         }
 

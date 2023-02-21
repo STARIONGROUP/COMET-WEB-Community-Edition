@@ -37,8 +37,6 @@
     </div> 
     <div id="rightColumn">
         <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel"/>
-        <ActualFiniteStateSelectorComponent ActualFiniteStateListsCollection="@(this.ViewModel.ListActualFiniteStateLists)"
-                                            OnActualFiniteStateChanged="@(this.ViewModel.ActualFiniteStateChanged)">
-        </ActualFiniteStateSelectorComponent>
+        <MultipleActualFiniteStateSelector ViewModel="this.ViewModel.MultipleFiniteStateSelector"/>
     </div> 
 </div> 

@@ -34,10 +34,12 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using CDP4Common.SiteDirectoryData;
     
     using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Components.Shared.Selectors;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
-    
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
+
     using DevExpress.Blazor;
     
     using DynamicData;
@@ -63,6 +65,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
+            var sessionService = new Mock<ISessionService>();
             var parameterEditorViewModel = new Mock<IParameterEditorBodyViewModel>();
 
             var elements = new SourceList<ElementBase>();
@@ -72,6 +75,12 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             parameterEditorViewModel.Setup(x => x.Elements).Returns(elements.Items.ToList());
             parameterEditorViewModel.Setup(x => x.FilteredElements).Returns(elements);
+            parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.FiniteStateSelector).Returns(new FiniteStateSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object));
+
 
             this.context.Services.AddSingleton(parameterEditorViewModel.Object);
 
@@ -109,9 +118,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             valueSet.Setup(x => x.ValueSwitch).Returns(ParameterSwitchKind.MANUAL);
             valueSet.Setup(x => x.ActualState).Returns(actualFiniteStateList.ActualState[0]);
             valueSet.Setup(x => x.ActualOption).Returns(new Option() { Name = "option" });
-
-            var sessionService = new Mock<ISessionService>();
-
+            
             rowViewModels.Add(new ParameterBaseRowViewModel(sessionService.Object, parameter, valueSet.Object));
 
             parameterTableViewModelMock.Setup(x => x.Rows).Returns(rowViewModels);
@@ -141,10 +148,10 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         [Test]
         public void VerifyComponentUI()
         {
-            var elementFilterCombo = this.renderedComponent.Find(".element-filter");
-            var parameterFilterCombo = this.renderedComponent.Find(".parameter-filter");
-            var stateFilterCombo = this.renderedComponent.Find(".state-filter");
-            var optionFilterCombo = this.renderedComponent.Find(".option-filter");
+            var elementFilterCombo = this.renderedComponent.FindComponent<ElementBaseSelector>();
+            var parameterFilterCombo = this.renderedComponent.FindComponent<ParameterTypeSelector>();
+            var stateFilterCombo = this.renderedComponent.FindComponent<OptionSelector>();
+            var optionFilterCombo = this.renderedComponent.FindComponent<FiniteStateSelector>();
 
             var isOwnedCheckbox = this.renderedComponent.FindComponent<DxCheckBox<bool>>();
             var parameterTable = this.renderedComponent.FindComponent<ParameterTable>();

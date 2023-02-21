@@ -23,6 +23,11 @@
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 @{
+    if (!this.ViewModel.ValueSet.ActualValue.Any() || this.ViewModel.ValueSet.ActualValue.First() is null)
+    {
+        return;
+    }
+
     switch (this.ViewModel.ParameterType)
     {
         case BooleanParameterType:

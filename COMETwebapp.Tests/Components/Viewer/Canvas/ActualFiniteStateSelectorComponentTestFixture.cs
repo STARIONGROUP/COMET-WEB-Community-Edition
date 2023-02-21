@@ -53,7 +53,6 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         private TestContext context;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private Uri uri = new Uri("http://www.rheagroup.com");
-        private IRenderedComponent<ActualFiniteStateSelectorComponent> rendererComponent;
         private IActualFiniteStateSelectorViewModel viewModel;
         private ActualFiniteState actualFiniteState1;
         private ActualFiniteState actualFiniteState2;
@@ -66,7 +65,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         {
             this.context = new TestContext();
 
-            this.viewModel = new ActualFiniteStateSelectorViewModel();
+            //this.viewModel = new ActualFiniteStateSelectorViewModel();
 
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel>(this.viewModel);
             this.context.Services.AddBlazorStrap();
@@ -109,44 +108,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             actualFiniteStateList2.PossibleFiniteStateList.Add(possibleFiniteStateList2);
 
             this.collectionOfActualFiniteStateLists = new List<ActualFiniteStateList>() { actualFiniteStateList1, actualFiniteStateList2 };
-            
-            this.rendererComponent = this.context.RenderComponent<ActualFiniteStateSelectorComponent>(parameters =>
-            {
-                parameters.Add(p => p.ActualFiniteStateListsCollection, this.collectionOfActualFiniteStateLists);
-            });
-        }
 
-        [TearDown]
-        public void TearDown()
-        {
-            this.context.CleanContext();
-        }
-
-        [Test]
-        public void VerifyThatActualStateCanBeClicked()
-        {
-            var actualFiniteState = this.rendererComponent.Find(".actual-finite-state");
-            Assert.That(actualFiniteState, Is.Not.Null);
-            actualFiniteState.Click();
-        }
-
-        [Test]
-        public void VerifyOnActualFiniteStateSelected()
-        {
-            var previousStates = this.viewModel.SelectedStates;
-            this.viewModel.OnActualFiniteStateSelected(this.actualFiniteState2);
-            Assert.That(previousStates, Is.Not.EquivalentTo(this.viewModel.SelectedStates));
-        }
-
-        [Test]
-        public void VerifyThatViewModelCanBeInitialized()
-        {
-            var previousStates = this.viewModel.SelectedStates;
-            this.viewModel.ActualFiniteStateListsCollection.Clear();
-            Assert.DoesNotThrow(() => this.viewModel.InitializeViewModel());
-            this.viewModel.ActualFiniteStateListsCollection = this.collectionOfActualFiniteStateLists;
-            Assert.DoesNotThrow(() => this.viewModel.InitializeViewModel());
-            Assert.That(previousStates, Is.Not.EquivalentTo(this.viewModel.SelectedStates));
         }
     }
 }

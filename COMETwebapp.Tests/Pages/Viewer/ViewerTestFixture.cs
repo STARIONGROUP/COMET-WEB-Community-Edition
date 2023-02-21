@@ -24,47 +24,36 @@
 
 namespace COMETwebapp.Tests.Pages.Viewer
 {
+    using Bunit;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    using CDP4Dal;
+    using COMETwebapp.Components.Shared;
+    using COMETwebapp.Components.Shared.Selectors;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.IterationServices;
+    using COMETwebapp.Pages.Viewer;
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
+    using DevExpress.Blazor;
+    using DynamicData;
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.Extensions.DependencyInjection;
+    using Moq;
+    using NUnit.Framework;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Bunit;
-
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
-    using CDP4Dal;
-
-    using COMETwebapp.Components.Shared;
-    using COMETwebapp.Components.Shared.Selectors;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.Model;
-    using COMETwebapp.Pages.ModelDashboard;
-    using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
-    using COMETwebapp.ViewModels.Components.ModelDashboard;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-
-    using DevExpress.Blazor;
-
-    using DynamicData;
-
-    using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Web;
-    using Microsoft.Extensions.DependencyInjection;
-    using Moq;
-
-    using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
 
@@ -80,7 +69,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
         private Iteration secondIteration;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
             this.context = new TestContext();
             this.sessionService = new Mock<ISessionService>();
@@ -127,19 +116,14 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
-
-            var selectionMediator = new Mock<ISelectionMediator>();
-            var babylonInterop = new Mock<IBabylonInterop>();
-            var iterationService = new Mock<IIterationService>();
-
-            this.context.Services.AddSingleton(selectionMediator.Object);
-            this.context.Services.AddSingleton(babylonInterop.Object);
-            this.context.Services.AddSingleton(iterationService.Object);
+            this.context.Services.AddSingleton<IIterationService, IterationService>();
+            this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
         }
 
         [TearDown]
-        public void TearDown()
+        public void Teardown()
         {
             this.context.CleanContext();
         }

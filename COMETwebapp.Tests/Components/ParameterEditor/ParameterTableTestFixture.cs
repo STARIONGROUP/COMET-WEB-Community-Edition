@@ -58,6 +58,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context.Services.AddSingleton<ISessionService, SessionService>();
 
             var parameterTableViewModel = new Mock<IParameterTableViewModel>();
+            parameterTableViewModel.Setup(x => x.Rows).Returns(new SourceList<ParameterBaseRowViewModel>());
 
             var element1 = new ElementDefinition();
 

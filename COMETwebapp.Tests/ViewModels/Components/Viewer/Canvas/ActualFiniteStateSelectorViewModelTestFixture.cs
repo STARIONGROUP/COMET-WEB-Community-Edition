@@ -47,7 +47,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         [SetUp]
         public void SetUp()
         {
-            this.viewModel = new ActualFiniteStateSelectorViewModel();
+            //this.viewModel = new ActualFiniteStateSelectorViewModel();
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             
             var possibleFiniteStateList1 = new PossibleFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
@@ -82,33 +82,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
             actualFiniteStateList2.ActualState.Add(actualFiniteState3);
             actualFiniteStateList2.ActualState.Add(actualFiniteState4);
 
-            this.viewModel.ActualFiniteStateListsCollection = new List<ActualFiniteStateList> { actualFiniteStateList1, actualFiniteStateList2 };
-            this.viewModel.InitializeViewModel();
+
         }
 
-        [Test]
-        public void VerifyViewModelInitialization()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.ActualFiniteStateListsCollection, Is.Not.Null);
-                Assert.That(this.viewModel.SelectedStates, Is.Not.Null);
-            });
-        }
-
-        [Test]
-        public void VerifyOnActualFiniteStateSelected()
-        {
-            var previousStates = this.viewModel.SelectedStates;
-            this.viewModel.OnActualFiniteStateSelected(this.actualFiniteState);
-            var currentStates = this.viewModel.SelectedStates;
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(previousStates, Is.Not.Null);
-                Assert.That(currentStates, Is.Not.Null);
-                Assert.That(previousStates, Is.Not.EquivalentTo(currentStates));
-            });
-        }
     }
 }

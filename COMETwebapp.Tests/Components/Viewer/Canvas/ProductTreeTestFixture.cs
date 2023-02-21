@@ -84,9 +84,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             nodeVM1.AddChild(nodeVM4);
             rootNodeVM.AddChild(nodeVM1);
             rootNodeVM.AddChild(nodeVM5);
+
+            this.renderedComponent = this.context.RenderComponent<ProductTree>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, productTreeVM.Object);
+            });
             
-            this.renderedComponent = this.context.RenderComponent<ProductTree>();
- 
             this.productTree = this.renderedComponent.Instance;
         }
 
