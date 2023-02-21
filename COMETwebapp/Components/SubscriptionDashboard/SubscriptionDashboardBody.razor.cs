@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ModelDashboardBody.razor.cs" company="RHEA System S.A.">
+//  <copyright file="SubscriptionDashboardBody.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,8 +22,10 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ModelDashboard
+namespace COMETwebapp.Components.SubscriptionDashboard
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
 
@@ -32,10 +34,33 @@ namespace COMETwebapp.Components.ModelDashboard
     using ReactiveUI;
 
     /// <summary>
-    /// Core component for the Model Dashboard application
+    /// Core component for the Subscription Dashboard application
     /// </summary>
-    public partial class ModelDashboardBody
+    public partial class SubscriptionDashboardBody
     {
+        /// <summary>
+        /// The title for the <see cref="SubscribedTable"/>
+        /// </summary>
+        private string SubscriptionTableTitle => $"Parameters {this.ViewModel.CurrentDomain.Name} domain subscribed to";
+
+        /// <summary>
+        /// The title for the <see cref="DomainOfExpertiseSubscriptionTable"/>
+        /// </summary>
+        private string DomainOfExpertiseTableTitle => $"Parameters owned by {this.ViewModel.CurrentDomain.Name} domain, subscribed to by other domains";
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
+                    x => x.ViewModel.ParameterTypeSelector.SelectedParameterType)
+                .Subscribe(_ => this.UpdateUrl()));
+        }
+
         /// <summary>
         /// Initializes values of the component and of the ViewModel based on parameters provided from the url
         /// </summary>
@@ -47,36 +72,17 @@ namespace COMETwebapp.Components.ModelDashboard
                 this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
             }
 
-            if (parameters.TryGetValue(QueryKeys.StateKey, out var state))
-            {
-                this.ViewModel.FiniteStateSelector.SelectedActualFiniteState = this.ViewModel.FiniteStateSelector.AvailableFiniteStates.FirstOrDefault(x => x.Iid == state.FromShortGuid());
-            }
-
             if (parameters.TryGetValue(QueryKeys.ParameterKey, out var parameter))
             {
-                this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes.FirstOrDefault(x => x.Iid == parameter.FromShortGuid());
+                this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes
+                    .FirstOrDefault(x => x.Iid == parameter.FromShortGuid());
             }
-        }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
-                    x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,
-                    x => x.ViewModel.ParameterTypeSelector.SelectedParameterType)
-                .Subscribe(_ => this.UpdateUrl()));
         }
 
         /// <summary>
         /// Sets the url of the <see cref="NavigationManager" /> based on the current values
         /// </summary>
-        /// <param name="pageName">The name of the page to redirect to</param>
-        private void UpdateUrl(string pageName = nameof(ModelDashboard))
+        private void UpdateUrl()
         {
             var additionalParameters = new Dictionary<string, string>();
 
@@ -85,25 +91,26 @@ namespace COMETwebapp.Components.ModelDashboard
                 additionalParameters[QueryKeys.OptionKey] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToShortGuid();
             }
 
-            if (this.ViewModel.FiniteStateSelector.SelectedActualFiniteState != null)
-            {
-                additionalParameters[QueryKeys.StateKey] = this.ViewModel.FiniteStateSelector.SelectedActualFiniteState.Iid.ToShortGuid();
-            }
-
             if (this.ViewModel.ParameterTypeSelector.SelectedParameterType != null)
             {
                 additionalParameters[QueryKeys.ParameterKey] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, pageName);
+            this.UpdateUrlWithParameters(additionalParameters, nameof(SubscriptionDashboard));
         }
 
         /// <summary>
-        /// Redirects the user to the ParameterEditor page with the current selected filters
+        /// Redirect to the <see cref="ParameterEditor"/> page to complete missing values
         /// </summary>
-        private void RedirectToParameterEditor()
+        /// <param name="parameterOrOverrideBase">The <see cref="ParameterOrOverrideBase"/> to complete</param>
+        private void RedirectToParameterEditor(ParameterOrOverrideBase parameterOrOverrideBase)
         {
-            this.UpdateUrl(nameof(ParameterEditor));
+            var additionalParameters = new Dictionary<string, string>
+            {
+                [QueryKeys.ParameterKey] = parameterOrOverrideBase.ParameterType.Iid.ToShortGuid()
+            };
+
+            this.UpdateUrlWithParameters(additionalParameters, nameof(ParameterEditor));
         }
     }
 }

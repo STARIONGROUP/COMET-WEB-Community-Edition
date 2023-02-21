@@ -45,6 +45,11 @@ namespace COMETwebapp.Services.SubscriptionService
         IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions { get; }
 
         /// <summary>
+        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to <see cref="ParameterSubscriptionValueSet" /> that has changed
+        /// </summary>
+        IReadOnlyDictionary<Guid, List<Guid>> SubscriptionsWithUpdate { get; }
+
+        /// <summary>
         /// Updates the tracked subscriptions for all open <see cref="Iteration" />
         /// </summary>
         void UpdateTrackedSubscriptions();
@@ -54,5 +59,10 @@ namespace COMETwebapp.Services.SubscriptionService
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
         void UpdateTrackedSubscriptions(Iteration iteration);
+
+        /// <summary>
+        /// Computes the number of updates of <see cref="ParameterSubscription" /> since the last tracking
+        /// </summary>
+        void ComputeUpdateSinceLastTracking();
     }
 }

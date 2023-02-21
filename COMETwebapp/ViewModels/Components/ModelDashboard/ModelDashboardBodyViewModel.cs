@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
 {
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
@@ -40,7 +42,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
     public class ModelDashboardBodyViewModel : SingleIterationApplicationBaseViewModel, IModelDashboardBodyViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ModelDashboardBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="parameterDashboard">The <see cref="IParameterDashboardViewModel" /></param>
@@ -82,6 +84,14 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
         public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        protected override void OnSessionRefreshed()
+        {
+            this.OnIterationChanged();
+        }
 
         /// <summary>
         /// Handles the change of <see cref="DomainOfExpertise" />

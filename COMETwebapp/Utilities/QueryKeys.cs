@@ -51,5 +51,20 @@ namespace COMETwebapp.Utilities
         /// The query key for the <see cref="DomainOfExpertise" /> id
         /// </summary>
         public const string DomainKey = "domainId";
+
+		/// <summary>
+		/// The query key for the <see cref="Option"/>
+		/// </summary>
+        public const string OptionKey = "option";
+
+		/// <summary>
+		/// The query key for the <see cref="ActualFiniteState"/>
+		/// </summary>
+        public const string StateKey = "state";
+
+        /// <summary>
+        /// The query key for the <see cref="ParameterType"/>
+        /// </summary>
+        public const string ParameterKey = "parameter";
     }
 }

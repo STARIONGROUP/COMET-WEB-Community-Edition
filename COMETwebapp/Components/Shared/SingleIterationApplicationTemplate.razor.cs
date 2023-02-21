@@ -85,7 +85,6 @@ namespace COMETwebapp.Components.Shared
 				.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
 			this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedIteration)
-				.Where(x => x is not null)
 				.Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
 
 			this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
@@ -132,19 +131,29 @@ namespace COMETwebapp.Components.Shared
 		private void SetCorrectUrl()
 		{
             var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty).Split('?')[0];
+
             var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
-            currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
-			currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedIteration.IterationSetup.Container.Iid.ToShortGuid();
-			currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
-			currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
-			var targetOptions = new Dictionary<string, string>();
 
-			foreach (var currentOption in currentOptions.Where(x => !string.IsNullOrEmpty(x.Value)))
-			{
-				targetOptions[currentOption.Key] = currentOption.Value;
-			}
+            if (this.ViewModel.SelectedIteration != null)
+            {
+                currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
+                currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedIteration.IterationSetup.Container.Iid.ToShortGuid();
+                currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
+                currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
+            }
+            else
+            {
+				currentOptions.Clear();
+            }
 
-			var targetUrl = QueryHelpers.AddQueryString(urlPage, targetOptions);
+            var targetOptions = new Dictionary<string, string>();
+
+            foreach (var currentOption in currentOptions.Where(x => !string.IsNullOrEmpty(x.Value)))
+            {
+                targetOptions[currentOption.Key] = currentOption.Value;
+            }
+
+            var targetUrl = QueryHelpers.AddQueryString(urlPage, targetOptions);
 			this.NavigationManager.NavigateTo(targetUrl);
 		}
 	}

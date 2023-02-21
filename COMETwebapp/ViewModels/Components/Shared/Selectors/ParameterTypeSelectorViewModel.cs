@@ -24,43 +24,59 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
-	using CDP4Common.SiteDirectoryData;
+    using CDP4Common.SiteDirectoryData;
 
-	using COMETwebapp.Extensions;
+    using COMETwebapp.Extensions;
 
-	using ReactiveUI;
+    using ReactiveUI;
 
-	/// <summary>
-	/// View Model that enables the user to select an <see cref="ParameterType" />
-	/// </summary>
-	public class ParameterTypeSelectorViewModel : BelongsToIterationSelectorViewModel, IParameterTypeSelectorViewModel
-	{
-		/// <summary>
-		/// Backing field for <see cref="SelectedParameterType" />
-		/// </summary>
-		private ParameterType selectedParameterType;
+    /// <summary>
+    /// View Model that enables the user to select an <see cref="ParameterType" />
+    /// </summary>
+    public class ParameterTypeSelectorViewModel : BelongsToIterationSelectorViewModel, IParameterTypeSelectorViewModel
+    {
+        /// <summary>
+        /// A collection of all available <see cref="ParameterType" />
+        /// </summary>
+        private IEnumerable<ParameterType> allAvailableParameterTypes = new List<ParameterType>();
 
-		/// <summary>
-		/// The currently selected <see cref="ParameterType" />
-		/// </summary>
-		public ParameterType SelectedParameterType
-		{
-			get => this.selectedParameterType;
-			set => this.RaiseAndSetIfChanged(ref this.selectedParameterType, value);
-		}
+        /// <summary>
+        /// Backing field for <see cref="SelectedParameterType" />
+        /// </summary>
+        private ParameterType selectedParameterType;
 
-		/// <summary>
-		/// A collection of available <see cref="ParameterType" />
-		/// </summary>
-		public IEnumerable<ParameterType> AvailableParameterTypes { get; private set; } = Enumerable.Empty<ParameterType>();
+        /// <summary>
+        /// The currently selected <see cref="ParameterType" />
+        /// </summary>
+        public ParameterType SelectedParameterType
+        {
+            get => this.selectedParameterType;
+            set => this.RaiseAndSetIfChanged(ref this.selectedParameterType, value);
+        }
 
-		/// <summary>
-		/// Updates this view model properties
-		/// </summary>
-		protected override void UpdateProperties()
-		{
-			this.SelectedParameterType = null;
-			this.AvailableParameterTypes = this.CurrentIteration?.QueryUsedParameterTypes().OrderBy(x => x.Name) ?? Enumerable.Empty<ParameterType>();
-		}
-	}
+        /// <summary>
+        /// A collection of available <see cref="ParameterType" />
+        /// </summary>
+        public IEnumerable<ParameterType> AvailableParameterTypes { get; private set; } = Enumerable.Empty<ParameterType>();
+
+        /// <summary>
+        /// Filter the collection of the <see cref="IParameterTypeSelectorViewModel.AvailableParameterTypes" /> with provided values
+        /// </summary>
+        /// <param name="parameterTypesId">A collection of <see cref="Guid" /> for <see cref="ParameterType" /></param>
+        public void FilterAvailableParameterTypes(IEnumerable<Guid> parameterTypesId)
+        {
+            this.AvailableParameterTypes = this.allAvailableParameterTypes.Where(x => parameterTypesId.Any(p => p == x.Iid));
+            this.SelectedParameterType = this.AvailableParameterTypes.FirstOrDefault(x => x.Iid == this.SelectedParameterType?.Iid);
+        }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        protected override void UpdateProperties()
+        {
+            this.SelectedParameterType = null;
+            this.allAvailableParameterTypes = this.CurrentIteration?.QueryUsedParameterTypes().OrderBy(x => x.Name) ?? Enumerable.Empty<ParameterType>();
+            this.AvailableParameterTypes = new List<ParameterType>(this.allAvailableParameterTypes);
+        }
+    }
 }

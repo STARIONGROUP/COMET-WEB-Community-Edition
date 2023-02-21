@@ -337,6 +337,8 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
             Assert.That(navigation.Uri, Does.Contain("parameter="));
+
+            Assert.That(() => CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate)), Throws.Nothing);
         }
     }
 }

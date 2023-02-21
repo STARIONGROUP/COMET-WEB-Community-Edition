@@ -332,13 +332,20 @@ namespace COMETwebapp.Tests.Extensions
         [Test]
         public void VerifyGetParameterSubscriptionsByElement()
         {
-            var subscriptions = this.iteration.TopElement.QueryParameterSubscriptions(this.currentDomainOfExpertise).ToList();
+            var subscriptions = this.iteration.TopElement.QueryOwnedParameterSubscriptions(this.currentDomainOfExpertise).ToList();
 
             Assert.Multiple(() =>
             {
                 Assert.That(subscriptions, Has.Count.EqualTo(1));
                 Assert.That(subscriptions, Does.Contain(this.parameterSubscriptions[0]));
             });
+        }
+
+        [Test]
+        public void VerifyGetSubscribedParameters()
+        {
+            var subscriptions = this.iteration.QuerySubscribedParameterByOthers(this.domainOfExpertise).ToList();
+            Assert.That(subscriptions, Has.Count.EqualTo(1));
         }
 
         [Test]
