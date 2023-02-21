@@ -27,7 +27,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using CDP4Common.EngineeringModelData;
     
     using COMETwebapp.Extensions;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
@@ -84,14 +83,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
         /// <param name="selectionMediator"> the <see cref="ISelectionMediator"/></param>
         /// <param name="babylonInterop">the <see cref="IBabylonInterop"/></param>
-        /// <param name="iterationService"> the <see cref="IIterationService"/></param>
-        public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop, 
-            IIterationService iterationService) : base(sessionService)
+        public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop) : base(sessionService)
         {
             this.SelectionMediator = selectionMediator;
             this.ProductTreeViewModel = new ProductTreeViewModel(selectionMediator);
             this.CanvasViewModel = new CanvasViewModel(babylonInterop,selectionMediator);
-            this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, iterationService, sessionService, selectionMediator);
+            this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator);
             this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
 
             this.SessionService.OnSessionRefreshed += (_, _) =>

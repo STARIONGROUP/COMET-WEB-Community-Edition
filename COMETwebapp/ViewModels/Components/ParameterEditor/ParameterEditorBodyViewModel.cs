@@ -28,8 +28,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Extensions;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
@@ -45,9 +45,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets or sets the <see cref="ISubscriptionService"/>
         /// </summary>
-        [Inject]
         public ISubscriptionService SubscriptionService { get; set; }
-        public IIterationService IterationService { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IElementBaseSelectorViewModel"/>
@@ -102,10 +100,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Creates a new instance of <see cref="ParameterEditorBodyViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="iterationService">the <see cref="IIterationService"/></param>
-        public ParameterEditorBodyViewModel(ISessionService sessionService, IIterationService iterationService) : base(sessionService)
+        /// <param name="subscriptionService">the <see cref="ISubscriptionService"/></param>
+        public ParameterEditorBodyViewModel(ISessionService sessionService, ISubscriptionService subscriptionService) : base(sessionService)
         {
-            this.IterationService = iterationService;
+            this.SubscriptionService = subscriptionService;
             this.ParameterTableViewModel = new ParameterTableViewModel(sessionService);
 
             this.Disposables.Add(this.FilteredElements.CountChanged.Subscribe(_ =>

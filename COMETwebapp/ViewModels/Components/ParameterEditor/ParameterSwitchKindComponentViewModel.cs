@@ -78,20 +78,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.SwitchValue = switchValue;
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
-        {
+            {
                 var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                 clonedParameterValueSet.ValueSwitch = switchValue;
                 await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { clonedParameterValueSet });
 
                 CDPMessageBus.Current.SendMessage(new SwitchEvent(parameterValueSetBase.Iid, switchValue, false));
-        }
-
-        /// <summary>
-        /// Sends an event to write the selected switch on ISession
-        /// </summary>
-        public void OnSubmitSwitchChange()
-        {
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(this.ParameterValueSetIid, this.SwitchValue, true));
+            }
         }
     }
 }

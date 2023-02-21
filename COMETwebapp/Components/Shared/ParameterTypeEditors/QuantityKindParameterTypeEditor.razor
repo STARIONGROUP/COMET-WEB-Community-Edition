@@ -20,12 +20,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+<div>
     <DxTextBox InputCssClass="quantity-kind-parameter"
                Text="@this.ViewModel.ValueSet.ActualValue.First()"
                BindValueMode="BindValueMode.OnInput"
                CssClass="parameter-input"
-           @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))"
-           ReadOnly="this.ViewModel.IsReadOnly">
+               @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+               ReadOnly="this.ViewModel.IsReadOnly">
     </DxTextBox>
     <p>@this.ViewModel.ParameterType.DefaultScale.ShortName</p>
 </div>

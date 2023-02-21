@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.IterationServices;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
