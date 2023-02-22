@@ -102,33 +102,32 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         ///     Tries to create a new <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task Grid_ModelSaving(GridEditModelSavingEventArgs e)
+        public async Task Grid_ModelSaving()
         {
             var thingsToCreate = new List<Person>();
-            if (e.IsNew)
+            this.Person.EmailAddress.Add(this.EmailAddress);
+            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+            thingsToCreate.Add(this.Person);
+            
+            try
             {
-                this.Person.EmailAddress.Add(this.EmailAddress);
-                this.Person.TelephoneNumber.Add(this.TelephoneNumber);
-                thingsToCreate.Add(this.Person);
-                try
-                {
-                    await this.SessionAnchor.CreateThingsSiteDirectory(thingsToCreate);
-                }
-                catch (Exception exception)
-                {
-                    throw;
-                }        
+                await this.SessionAnchor.CreateThingsSiteDirectory(thingsToCreate);
             }
+            catch (Exception exception)
+            {
+                throw;
+            }        
+  
             this.Person = new Person();
             this.DataSource.Clear();
             this.DataSource.AddRange(this.SessionAnchor.GetPersons());
         }
 
         /// <summary>
-        ///     Tries to delete a <see cref="Person" />
+        ///     Tries to deprecate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+        public async Task Grid_DataItemDeprecating(GridDataItemDeletingEventArgs e)
         {
             var personToDeprecate = new List<Person>();
             var deprecatedPerson = (Person)e.DataItem;
@@ -156,6 +155,7 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         public void OnInitializedAsync()
         {
+            this.DataSource.Clear();
             this.DataSource.AddRange(this.SessionAnchor.GetPersons());
             this.AvailableOrganizations = this.SessionAnchor.GetAvailableOrganizations();
             this.AvailablePersonRoles = this.SessionAnchor.GetAvailablePersonRoles();

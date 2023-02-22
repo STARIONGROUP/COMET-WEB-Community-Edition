@@ -269,5 +269,40 @@ namespace COMETwebapp.Tests.Page.UserManagement
                 Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
         }
+
+        [Test]
+        public async Task TestGrid_ModelSaving()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            this.sessionAnchor.CurrentEngineeringModelName = "model";
+
+            var renderer = this.context.RenderComponent<UserManagementPage>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+
+            this.viewModel.Person = new Person()
+            {
+                GivenName = "Test",
+                Surname = "Test",
+                ShortName = "TT",
+                IsActive = true,
+                IsDeprecated = false,
+            };
+            this.siteDirectory.Person.Add(this.viewModel.Person);
+
+            this.viewModel.Grid_ModelSaving();
+            this.viewModel.OnInitializedAsync();
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(3));
+            });
+        }
     }
 }

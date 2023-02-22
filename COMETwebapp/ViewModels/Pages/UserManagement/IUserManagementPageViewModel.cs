@@ -83,13 +83,13 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         ///     Tries to create a new <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task Grid_ModelSaving(GridEditModelSavingEventArgs e);
+        Task Grid_ModelSaving();
 
         /// <summary>
-        ///     Tries to delete a <see cref="Person" />
+        ///     Tries to deprecate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e);
+        Task Grid_DataItemDeprecating(GridDataItemDeletingEventArgs e);
 
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its

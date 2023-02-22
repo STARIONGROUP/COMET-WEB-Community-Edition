@@ -178,7 +178,7 @@ namespace COMETwebapp.Tests.SessionManagement
         [Test]
         public void VerifyGetParticipantModels()
         {
-            Assert.That(this.sessionAnchor.GetParticipantModels(), Is.Not.Null);
+            Assert.That(this.sessionAnchor.GetParticipantModels().ToList(), Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -261,6 +261,7 @@ namespace COMETwebapp.Tests.SessionManagement
         [Test]
         public void VerifyCreateThingsSiteDirectory()
         {
+            Assert.ThrowsAsync<ArgumentException>(() => this.sessionAnchor.CreateThingsSiteDirectory(null));
             this.sessionAnchor.IsSessionOpen = true;
             var thingsToCreate = new List<Person>();
             var person = new Person();
@@ -273,6 +274,7 @@ namespace COMETwebapp.Tests.SessionManagement
         [Test]
         public void VerifyUpdateThingsSiteDirectory()
         {
+            Assert.ThrowsAsync<ArgumentException>(() => this.sessionAnchor.UpdateThingsSiteDirectory(null));
             var thingsToUpdate = new List<Person>();
             this.sessionAnchor.IsSessionOpen = true;
             var person = new Person();
