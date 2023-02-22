@@ -27,7 +27,11 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
     
     using COMETwebapp.Pages.UserManagement;
     using COMETwebapp.SessionManagement;
-
+    
+    using DevExpress.Blazor;
+    
+    using DynamicData;
+    
     using ReactiveUI;
 
     /// <summary>
@@ -35,12 +39,51 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
     /// </summary>
     public class UserManagementPageViewModel : ReactiveObject, IUserManagementPageViewModel
     {
-        
+        /// <summary>
+        ///     The <see cref="Person" /> to create
+        /// </summary>
+        public Person Person { get; set; } = new();
+
+        /// <summary>
+        ///     The <see cref="EmailAddress" /> to create
+        /// </summary>
+        public EmailAddress EmailAddress { get; set; } = new();
+
+        /// <summary>
+        ///     The <see cref="TelephoneNumber" /> to create
+        /// </summary>
+        public TelephoneNumber TelephoneNumber { get; set; } = new();
+
         /// <summary>
         ///     Gets or sets the data source for the grid control.
         /// </summary>
-        public IEnumerable<Person> DataSource { get; set; }
-        
+        public SourceList<Person> DataSource { get; } = new();
+
+        /// <summary>
+        ///    Available <see cref="Organization"/>s
+        /// </summary>
+        public IEnumerable<Organization> AvailableOrganizations { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="PersonRole"/>s
+        /// </summary>
+        public IEnumerable<PersonRole> AvailablePersonRoles { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="DomainOfExpertise"/>s
+        /// </summary>
+        public IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="VcardEmailAddressKind"/>s
+        /// </summary>
+        public IEnumerable<VcardEmailAddressKind> EmailAddressKinds { get; set; } = Enum.GetValues(typeof(VcardEmailAddressKind)).Cast<VcardEmailAddressKind>();
+
+        /// <summary>
+        ///    Available <see cref="VcardTelephoneNumberKind"/>s
+        /// </summary>
+        public IEnumerable<VcardTelephoneNumberKind> TelephoneNumberKinds { get; set; } = Enum.GetValues(typeof(VcardTelephoneNumberKind)).Cast<VcardTelephoneNumberKind>();
+
         /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
         /// </summary>
@@ -56,6 +99,55 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         }
 
         /// <summary>
+        ///     Tries to create a new <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task Grid_ModelSaving(GridEditModelSavingEventArgs e)
+        {
+            var thingsToCreate = new List<Person>();
+            if (e.IsNew)
+            {
+                this.Person.EmailAddress.Add(this.EmailAddress);
+                this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+                thingsToCreate.Add(this.Person);
+                try
+                {
+                    await this.SessionAnchor.CreateThingsSiteDirectory(thingsToCreate);
+                }
+                catch (Exception exception)
+                {
+                    throw;
+                }        
+            }
+            this.Person = new Person();
+            this.DataSource.Clear();
+            this.DataSource.AddRange(this.SessionAnchor.GetPersons());
+        }
+
+        /// <summary>
+        ///     Tries to delete a <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+        {
+            var personToDeprecate = new List<Person>();
+            var deprecatedPerson = (Person)e.DataItem;
+            var clonedPerson = deprecatedPerson.Clone(false);
+            clonedPerson.IsDeprecated = true;
+            personToDeprecate.Add(clonedPerson);
+            try
+            {
+                await this.SessionAnchor.UpdateThingsSiteDirectory(personToDeprecate);
+            }
+            catch (Exception exception)
+            {
+                throw;
+            }
+            this.DataSource.Clear();
+            this.DataSource.AddRange(this.SessionAnchor.GetPersons());
+        }
+
+        /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.
         ///     Override this method if you will perform an asynchronous operation and
@@ -64,7 +156,10 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         public void OnInitializedAsync()
         {
-            this.DataSource = this.SessionAnchor.GetParticipants().Select(p => p.Person);
+            this.DataSource.AddRange(this.SessionAnchor.GetPersons());
+            this.AvailableOrganizations = this.SessionAnchor.GetAvailableOrganizations();
+            this.AvailablePersonRoles = this.SessionAnchor.GetAvailablePersonRoles();
+            this.AvailableDomains = this.SessionAnchor.GetAvailableDomains();
         }
     }
 }

@@ -33,17 +33,31 @@ namespace COMETwebapp.Pages.UserManagement
     using DevExpress.Blazor;
     
     using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
 
     /// <summary>
     ///     Support class for the <see cref="UserManagementPage"/>
     /// </summary>
-    public partial class UserManagementPage
+    public partial class UserManagementPage : IDisposable
     {
+        /// <summary>
+        ///     A collection of <see cref="IDisposable" />
+        /// </summary>
+        private readonly List<IDisposable> disposables = new();
+        
         /// <summary>
         ///     The <see cref="IUserManagementPageViewModel" /> for this page
         /// </summary>
         [Inject]
         public IUserManagementPageViewModel ViewModel { get; set; }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this.disposables.ForEach(x => x.Dispose());
+        }
 
         /// <summary>
         ///     Gets or sets the grid control that is being customized.
@@ -58,7 +72,7 @@ namespace COMETwebapp.Pages.UserManagement
         {
             if( value)
             {
-                this.Grid.FilterBy("IsActive", GridFilterRowOperatorType.Equal, true);
+                this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
             }
             else
             {
@@ -113,6 +127,9 @@ namespace COMETwebapp.Pages.UserManagement
         protected override Task OnInitializedAsync()
         {
             this.ViewModel.OnInitializedAsync();
+
+            this.disposables.Add(this.ViewModel.DataSource.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
             return base.OnInitializedAsync();
         }
     }

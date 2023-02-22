@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Page.UserManagement
     using System.Threading.Tasks;
     
     using BlazorStrap;
+    
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -116,7 +117,8 @@ namespace COMETwebapp.Tests.Page.UserManagement
             {
                 GivenName = "Test1",
                 Surname = "Person1",
-                DefaultDomain = this.domain
+                DefaultDomain = this.domain,
+                IsDeprecated = true
             };
 
             this.participant = new Participant(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -222,6 +224,7 @@ namespace COMETwebapp.Tests.Page.UserManagement
                 Model = { this.engineeringSetup }
             };
             this.siteDirectory.Person.Add(this.person);
+            this.siteDirectory.Person.Add(this.person1);
             this.siteDirectory.Domain.Add(this.domain);
 
             this.session.Setup(x => x.Assembler).Returns(this.assembler);

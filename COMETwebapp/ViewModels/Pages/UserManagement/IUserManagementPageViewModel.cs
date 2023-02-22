@@ -24,6 +24,10 @@
 namespace COMETwebapp.ViewModels.Pages.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
+    
+    using DevExpress.Blazor;
+    
+    using DynamicData;
 
     /// <summary>
     ///     Interface definition for <see cref="UserManagementPageViewModel" />
@@ -31,10 +35,62 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
     public interface IUserManagementPageViewModel
     {
         /// <summary>
+        ///     The <see cref="Person" /> to create
+        /// </summary>
+        Person Person { get; set; }
+
+        /// <summary>
+        ///     The <see cref="EmailAddress" /> to create
+        /// </summary>
+        EmailAddress EmailAddress { get; set; }
+
+        /// <summary>
+        ///     The <see cref="TelephoneNumber" /> to create
+        /// </summary>
+        TelephoneNumber TelephoneNumber { get; set; } 
+
+        /// <summary>
         ///     Gets or sets the data source for the grid control.
         /// </summary>
-        IEnumerable<Person> DataSource { get; set; }
-        
+        SourceList<Person> DataSource { get; }
+
+        /// <summary>
+        ///    Available <see cref="Organization"/>s
+        /// </summary>
+        IEnumerable<Organization> AvailableOrganizations { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="PersonRole"/>s
+        /// </summary>
+        IEnumerable<PersonRole> AvailablePersonRoles { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="DomainOfExpertise"/>s
+        /// </summary>
+        IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="VcardEmailAddressKind"/>s
+        /// </summary>
+        IEnumerable<VcardEmailAddressKind> EmailAddressKinds { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="VcardTelephoneNumberKind"/>s
+        /// </summary>
+        IEnumerable<VcardTelephoneNumberKind> TelephoneNumberKinds { get; set; }
+
+        /// <summary>
+        ///     Tries to create a new <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task Grid_ModelSaving(GridEditModelSavingEventArgs e);
+
+        /// <summary>
+        ///     Tries to delete a <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e);
+
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.

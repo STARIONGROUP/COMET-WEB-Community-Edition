@@ -123,14 +123,41 @@ namespace COMETwebapp.SessionManagement
         Task UpdateThings(IEnumerable<Thing> thingsToUpdate);
 
         /// <summary>
+        ///     Write new Things in the session
+        /// </summary>
+        /// <param name="thingsToCreate">List of Things to create in the session</param>
+        Task CreateThingsSiteDirectory(IEnumerable<Thing> thingsToCreate);
+
+        /// <summary>
+        ///     Update Things in the session
+        /// </summary>
+        /// <param name="thingsToDelete">List of Things to update in the session</param>
+        Task UpdateThingsSiteDirectory(IEnumerable<Thing> thingsToDelete);
+
+        /// <summary>
         /// Gets ths <see cref="Participant"/> in the opened iteration
         /// </summary>
         Participant? GetParticipant();
 
         /// <summary>
-        /// Gets ths <see cref="Participant"/>s in the opened iteration
+        /// Gets ths <see cref="Person"/>s 
         /// </summary>
-        IEnumerable<Participant> GetParticipants();
+        IEnumerable<Person> GetPersons();
+
+        /// <summary>
+        /// Gets the <see cref="Organization"/>s 
+        /// </summary>
+        IEnumerable<Organization> GetAvailableOrganizations();
+
+        /// <summary>
+        /// Gets the <see cref="PersonRole"/>s 
+        /// </summary>
+        IEnumerable<PersonRole> GetAvailablePersonRoles();
+
+        /// <summary>
+        /// Gets the <see cref="DomainOfExpertise"/>s 
+        /// </summary>
+        IEnumerable<DomainOfExpertise> GetAvailableDomains();
 
         /// <summary>
         /// Event for when the session has been refreshed.
