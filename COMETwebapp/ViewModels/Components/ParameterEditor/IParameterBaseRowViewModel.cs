@@ -63,9 +63,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets the switch for the published value
         /// </summary>
         ParameterSwitchKind Switch { get; }
-        
+
         /// <summary>
-        /// Gets the <see cref="Parameter"/> model code
+        /// Gets the switch for the published value
         /// </summary>
         string ModelCode { get; }
 
@@ -80,6 +80,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         string State { get; }
 
         /// <summary>
+        /// Gets or sets the <see cref="IValueSet"/> of this <see cref="ParameterBaseRowViewModel"/>
+        /// </summary>
+        IValueSet ValueSet { get; }
+
+        /// <summary>
         /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
         /// </summary>
         /// <returns>a <see cref="IParameterTypeEditorSelectorViewModel{T}"/></returns>
@@ -90,5 +95,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <returns>a <see cref="IParameterSwitchKindComponentViewModel"/></returns>
         IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel();
+
+        /// <summary>
+        /// Event for when a parameter's value has changed
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        Task OnParameterValueChanged(IValueSet value);
     }
 }

@@ -41,22 +41,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     public class OrientationViewModelTestFixture
     {
         private IOrientationViewModel viewModel;
-        private EventCallback<Dictionary<ParameterBase, IValueSet>> onParameterValueSetChanged;
+        private EventCallback<IValueSet> onParameterValueSetChanged;
 
         [SetUp]
         public void SetUp()
         {
-            var orientation = Orientation.Identity();
-            var parameter = new Parameter();
-
             var valueSet = new ParameterValueSet()
             {
                 ValueSwitch = ParameterSwitchKind.MANUAL,
                 Manual = new ValueArray<string>(new List<string>() { "1", "0", "0", "0", "1", "0", "0", "0", "1" })
             };
 
-            this.onParameterValueSetChanged = new EventCallback<Dictionary<ParameterBase, IValueSet>>();
-            this.viewModel = new OrientationViewModel(orientation,valueSet,parameter,this.onParameterValueSetChanged);
+            this.onParameterValueSetChanged = new EventCallback<IValueSet>();
+            this.viewModel = new OrientationViewModel(valueSet,this.onParameterValueSetChanged);
         }
 
         [Test]
@@ -65,9 +62,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Orientation, Is.Not.Null);
-                Assert.That(this.viewModel.SelectedParameter, Is.Not.Null);
+                Assert.That(this.viewModel.AngleFormat, Is.EqualTo(AngleFormat.Degrees));
                 Assert.That(this.viewModel.CurrentValueSet, Is.Not.Null);
-                Assert.That(this.viewModel.OnParameterValueChanged, Is.Not.Null);
+                Assert.That(this.viewModel.ParameterValueChanged, Is.Not.Null);
             });
         }
 

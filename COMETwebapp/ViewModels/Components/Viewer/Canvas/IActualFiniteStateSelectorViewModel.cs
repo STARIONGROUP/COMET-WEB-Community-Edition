@@ -25,36 +25,28 @@
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
     using CDP4Common.EngineeringModelData;
+    
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     /// <summary>
-    /// View Model for the allow to select multiple existing <see cref="ActualFiniteState"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.Canvas.ActualFiniteStateSelector"/>
     /// </summary>
-    public interface IActualFiniteStateSelectorViewModel
+    public interface IActualFiniteStateSelectorViewModel : IBelongsToIterationSelectorViewModel
     {
         /// <summary>
-        /// Field for keeping track of the selection state of the <see cref="ActualFiniteState"/>
+        /// Gets or sets the <see cref="ActualFiniteStates"/> of this selector
         /// </summary>
-        Dictionary<ActualFiniteState, bool> SelectionStateActualFiniteState { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of <see cref="ActualFiniteStateList"/>
-        /// </summary>
-        public List<ActualFiniteStateList> ActualFiniteStateListsCollection { get; set; }
+        IEnumerable<ActualFiniteState> ActualFiniteStates { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ActualFiniteState"/>
         /// </summary>
-        public List<ActualFiniteState> SelectedStates { get; set; }
+        ActualFiniteState SelectedFiniteState { get; set; }
 
         /// <summary>
-        /// Initializes this view model
+        /// Selects the current state and triggers the corresponding event
         /// </summary>
-        void InitializeViewModel();
-
-        /// <summary>
-        /// Event for when a <see cref="ActualFiniteState"/> has been selected
-        /// </summary>
-        /// <param name="actualFiniteState">the selected <see cref="ActualFiniteState"/></param>
-        void OnActualFiniteStateSelected(ActualFiniteState actualFiniteState);
+        /// <param name="finiteState">the new selected finite state</param>
+        void SelectActualFiniteState(ActualFiniteState finiteState);
     }
 }

@@ -25,98 +25,172 @@
 namespace COMETwebapp.Tests.Pages.Viewer
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     using Bunit;
-
+    
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-
+    
     using CDP4Dal;
-
-    using COMETwebapp.Model;
+    
+    using COMETwebapp.Components.Shared;
+    using COMETwebapp.Components.Shared.Selectors;
+    using COMETwebapp.Extensions;
     using COMETwebapp.Pages.Viewer;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
+    using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-    using COMETwebapp.ViewModels.Pages.Viewer;
-
+    
+    using DevExpress.Blazor;
+    
     using DynamicData;
-
+    
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
-
+    
     using Moq;
-
+    
     using NUnit.Framework;
-
+    
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ViewerTestFixture
     {
         private TestContext context;
-        private IRenderedComponent<ViewerPage> renderedComponent;
-        private ViewerPage viewer;
-        private Mock<IViewerViewModel> viewerViewModel;
-        
+        private ISingleIterationApplicationTemplateViewModel viewModel;
+        private Mock<ISessionService> sessionService;
+        private SourceList<Iteration> openedIterations;
+        private Mock<ISession> session;
+        private Iteration firstIteration;
+        private Iteration secondIteration;
+
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
             this.context = new TestContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.openedIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openedIterations);
+            this.viewModel = new SingleIterationApplicationTemplateViewModel(this.sessionService.Object, new IterationSelectorViewModel());
+            this.session = new Mock<ISession>();
+            this.session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
+
+            this.firstIteration = new Iteration()
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup = new IterationSetup()
+                {
+                    Iid = Guid.NewGuid(),
+                    IterationNumber = 1,
+                    Container = new EngineeringModelSetup()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Name = "EnVision"
+                    }
+                }
+            };
+
+            this.secondIteration = new Iteration()
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup = new IterationSetup()
+                {
+                    Iid = Guid.NewGuid(),
+                    IterationNumber = 4,
+                    Container = new EngineeringModelSetup()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Name = "Loft"
+                    }
+                }
+            };
+
             this.context.ConfigureDevExpressBlazor();
-
-            var selectionMediator = new Mock<ISelectionMediator>();
-
-            this.viewerViewModel = new Mock<IViewerViewModel>();
-            var rootNodeVM = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), selectionMediator.Object);
-            this.viewerViewModel.Setup(x => x.RootNodeViewModel).Returns(rootNodeVM);
-            this.context.Services.AddSingleton(this.viewerViewModel.Object);
-
-            var canvasViewModel = new Mock<ICanvasViewModel>();
-            this.context.Services.AddSingleton(canvasViewModel.Object);
-
-            var sessionService = new Mock<ISessionService>();
-            sessionService.Setup(x => x.DefaultIteration).Returns(new Iteration());
-            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
-
-            var iterations = new SourceList<Iteration>();
-            iterations.Add(new Iteration(){IterationSetup = new IterationSetup(){Container = new EngineeringModelSetup(){Iid = Guid.NewGuid()}}});
-            sessionService.Setup(x => x.OpenIterations).Returns(iterations);
-            sessionService.Setup(x => x.Session).Returns(new Mock<ISession>().Object);
-            this.context.Services.AddSingleton(sessionService.Object);
-
-            var productTreeVM = new Mock<IProductTreeViewModel>();
-            this.context.Services.AddSingleton(productTreeVM.Object);
-
-            var propertiesVM = new Mock<IPropertiesComponentViewModel>();
-            this.context.Services.AddSingleton(propertiesVM.Object);
-
-            var actualFiniteStateSelectorVM = new Mock<IActualFiniteStateSelectorViewModel>();
-            this.context.Services.AddSingleton(actualFiniteStateSelectorVM.Object);
-            this.context.Services.AddSingleton<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
-            this.context.Services.AddSingleton<IIterationSelectorViewModel, IterationSelectorViewModel>();
-            this.renderedComponent = this.context.RenderComponent<ViewerPage>();
-            this.viewer = this.renderedComponent.Instance;
+            this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
+            this.context.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
+            this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
+            this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
         }
 
         [TearDown]
-        public void TearDown()
+        public void Teardown()
         {
             this.context.CleanContext();
         }
-        
+
         [Test]
-        public void VerifyComponent()
+        public void VerifyOpenModelPresent()
         {
+            var renderer = this.context.RenderComponent<Viewer>();
+            Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
+        }
+
+        [Test]
+        public async Task VerifyIterationSelection()
+        {
+            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration, this.secondIteration });
+            var renderer = this.context.RenderComponent<Viewer>();
+
+            Assert.That(this.viewModel.IterationSelectorViewModel.AvailableIterations.ToList(), Has.Count.EqualTo(2));
+            this.viewModel.IterationSelectorViewModel.SelectedIteration = this.viewModel.IterationSelectorViewModel.AvailableIterations.Last();
+            var iterationSelector = renderer.FindComponent<IterationSelector>();
+            var submitButton = iterationSelector.FindComponent<DxButton>();
+
+            await renderer.InvokeAsync(() => submitButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewer, Is.Not.Null);
-                Assert.That(this.viewer.ViewModel, Is.Not.Null);
-                Assert.That(this.viewer.CanvasComponent, Is.Not.Null);
+                Assert.That(this.viewModel.SelectedIteration, Is.Not.Null);
+                Assert.That(navigation.Uri.Contains("server"), Is.True);
+                Assert.That(navigation.Uri.Contains(this.secondIteration.Iid.ToShortGuid()), Is.True);
             });
+        }
+
+        [Test]
+        public void VerifyIterationPreselection()
+        {
+            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
+
+            this.context.RenderComponent<Viewer>(parameters =>
+            {
+                parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid());
+            });
+
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedIteration, Is.EqualTo(this.firstIteration));
+                Assert.That(navigation.Uri.Contains("server"), Is.True);
+                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
+            });
+
+            this.viewModel.SelectedIteration = null;
+
+            this.context.RenderComponent<Viewer>(parameters =>
+            {
+                parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
+            });
+
+            Assert.That(this.viewModel.SelectedIteration, Is.Null);
         }
     }
 }

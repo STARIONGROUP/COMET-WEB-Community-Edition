@@ -41,8 +41,6 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Pages;
-    using COMETwebapp.ViewModels.Pages.ParameterEditor;
-    using COMETwebapp.ViewModels.Pages.Viewer;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -51,7 +49,8 @@ namespace COMETwebapp
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-    
+    using COMETwebapp.ViewModels.Components.Viewer;
+
     /// <summary>
     /// Point of entry of the application
     /// </summary>
@@ -109,12 +108,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             builder.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             builder.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
-            builder.Services.AddTransient<IViewerViewModel, ViewerViewModel>();
             builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
-            builder.Services.AddTransient<IProductTreeViewModel, ProductTreeViewModel>();
-            builder.Services.AddTransient<ICanvasViewModel, CanvasViewModel>();
-            builder.Services.AddTransient<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
-            builder.Services.AddTransient<IParameterEditorViewModel,ParameterEditorViewModel>();
             builder.Services.AddTransient<IParameterTableViewModel, ParameterTableViewModel>();
             builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
             builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
@@ -122,6 +116,8 @@ namespace COMETwebapp
             builder.Services.AddTransient<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             builder.Services.AddTransient<ISubscriptionDashboardBodyViewModel, SubscriptionDashboardBodyViewModel>();
             builder.Services.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
+            builder.Services.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
+            builder.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
         }
     }
 }

@@ -29,10 +29,13 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -49,12 +52,26 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         public void SetUp()
         {
             this.context = new TestContext();
-            this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
-            this.context.Services.AddSingleton<ISessionService, SessionService>();
-            this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
-            this.context.Services.AddSingleton<IPropertiesComponentViewModel, PropertiesComponentViewModel>();
+
+            var babylonService = new Mock<IBabylonInterop>();
+            this.context.Services.AddSingleton(babylonService);
+
+            var selectionMediator = new Mock<ISelectionMediator>();
+            this.context.Services.AddSingleton(selectionMediator);
+
+            var sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(sessionService);
+
+            var iterationService = new Mock<ISubscriptionService>();
+            this.context.Services.AddSingleton(iterationService);
             
-            this.renderedComponent = this.context.RenderComponent<PropertiesComponent>();
+            var viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object);
+            viewModel.IsVisible = true;
+
+            this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, viewModel);
+            });
 
             this.properties = this.renderedComponent.Instance;
         }
@@ -66,18 +83,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             {
                 Assert.That(this.properties, Is.Not.Null);
                 Assert.That(this.properties.ViewModel, Is.Not.Null);
-            });
-        }
-
-        [Test]
-        public void VerifyThatDetailsComponentViewModelCanBeCreated()
-        {
-            var detailsViewModel = this.properties.CreateDetailsComponentViewModel();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(detailsViewModel, Is.Not.Null);
-                Assert.That(detailsViewModel.IsVisible, Is.False);
             });
         }
 

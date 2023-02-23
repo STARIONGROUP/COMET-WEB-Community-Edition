@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
-
+    
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;

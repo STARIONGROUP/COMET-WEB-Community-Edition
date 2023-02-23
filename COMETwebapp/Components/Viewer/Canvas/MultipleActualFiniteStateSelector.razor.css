@@ -1,0 +1,11 @@
+﻿#state-selector-title {
+    background: #eaecee;
+    padding: 2%;
+    font-weight: bold;
+}
+
+#state-selector-container {
+    border: 1px solid #eaecee;
+    margin: 0;
+    padding: 0;
+}

@@ -19,6 +19,15 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using System.Globalization
+@using DevExpress.Blazor
+@{
+    DateTime.TryParse(this.ViewModel.ValueSet.ActualValue.First(), out var dateTime);
 
-<h3>Component under development</h3>
-
+    <DxDateEdit CssClass="date-parameter-type"
+                Date="dateTime"
+                DateChanged="@((DateTime date) => this.ViewModel.OnParameterValueChanged(date.ToString("yyyy-MM-dd",CultureInfo.InvariantCulture)))"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                NullText="Select a date..."
+                ReadOnly="this.ViewModel.IsReadOnly" />
+}

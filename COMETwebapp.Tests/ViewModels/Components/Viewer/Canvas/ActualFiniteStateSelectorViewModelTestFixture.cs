@@ -24,90 +24,111 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
 {
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-
-    using NUnit.Framework;
     using System;
-
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.Types;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
+    using System.Linq;
 
     using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
+    
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
+    using Microsoft.AspNetCore.Components;
+
+    using NUnit.Framework;
+    
     [TestFixture]
     public class ActualFiniteStateSelectorViewModelTestFixture
     {
-        private IActualFiniteStateSelectorViewModel viewModel;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private readonly Uri uri = new("http://www.rheagroup.com");
-        private ActualFiniteState actualFiniteState;
+        private IActualFiniteStateSelectorViewModel viewModel;
+        private EventCallback<ActualFiniteStateSelectorViewModel> eventCallback;
+        private bool eventCallbackCalled;
 
         [SetUp]
         public void SetUp()
         {
-            this.viewModel = new ActualFiniteStateSelectorViewModel();
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
-            
+
             var possibleFiniteStateList1 = new PossibleFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
-            var possibleFiniteStateList2 = new PossibleFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
 
             var actualFiniteStateList1 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
-            var actualFiniteStateList2 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
 
             var possibleFiniteState1 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var possibleFiniteState2 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var possibleFiniteState3 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var possibleFiniteState4 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
-
             possibleFiniteStateList1.DefaultState = possibleFiniteState1;
-            possibleFiniteStateList2.DefaultState = possibleFiniteState3;
 
             actualFiniteStateList1.PossibleFiniteStateList.Add(possibleFiniteStateList1);
-            actualFiniteStateList2.PossibleFiniteStateList.Add(possibleFiniteStateList1);
 
             var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            this.actualFiniteState = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var actualFiniteState3 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var actualFiniteState4 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
-
-            actualFiniteState1.Container = possibleFiniteState1;
-            this.actualFiniteState.Container = possibleFiniteState2;
-            actualFiniteState3.Container = possibleFiniteState3;
-            actualFiniteState4.Container = possibleFiniteState4;
+            var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
 
             actualFiniteStateList1.ActualState.Add(actualFiniteState1);
-            actualFiniteStateList1.ActualState.Add(this.actualFiniteState);
-            actualFiniteStateList2.ActualState.Add(actualFiniteState3);
-            actualFiniteStateList2.ActualState.Add(actualFiniteState4);
+            actualFiniteStateList1.ActualState.Add(actualFiniteState2);
 
-            this.viewModel.ActualFiniteStateListsCollection = new List<ActualFiniteStateList> { actualFiniteStateList1, actualFiniteStateList2 };
-            this.viewModel.InitializeViewModel();
+            this.eventCallback = new EventCallbackFactory().Create(this, (ActualFiniteStateSelectorViewModel vm) =>
+            {
+                this.eventCallbackCalled = true;
+            });
+
+            this.eventCallbackCalled = false;
+
+            this.viewModel = new ActualFiniteStateSelectorViewModel(actualFiniteStateList1, this.eventCallback)
+            {
+                CurrentIteration = new Iteration
+                {
+                    Iid = Guid.NewGuid(),
+                    ActualFiniteStateList = { actualFiniteStateList1 }
+                }
+            };
         }
 
         [Test]
-        public void VerifyViewModelInitialization()
+        public void VerifyViewModel()
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.ActualFiniteStateListsCollection, Is.Not.Null);
-                Assert.That(this.viewModel.SelectedStates, Is.Not.Null);
+                Assert.That(this.viewModel, Is.Not.Null);
+                Assert.That(this.viewModel.ActualFiniteStates, Is.Not.Null);
+                Assert.That(this.viewModel.ActualFiniteStates.ToList(), Has.Count.EqualTo(2));
+                Assert.That(this.viewModel.SelectedFiniteState, Is.Not.Null);
+                Assert.That(this.viewModel.CurrentIteration, Is.Not.Null);
             });
         }
 
         [Test]
-        public void VerifyOnActualFiniteStateSelected()
+        public void VerifyThatUpdatePropertiesIsCalled()
         {
-            var previousStates = this.viewModel.SelectedStates;
-            this.viewModel.OnActualFiniteStateSelected(this.actualFiniteState);
-            var currentStates = this.viewModel.SelectedStates;
+            var oldFiniteStates = this.viewModel.ActualFiniteStates;
+            this.viewModel.CurrentIteration = new Iteration();
+            Assert.Multiple(() =>
+            {
+                Assert.That(oldFiniteStates, Is.Not.EqualTo(this.viewModel.ActualFiniteStates));
+                Assert.That(this.viewModel.ActualFiniteStates.ToList(), Is.Empty);
+            });
+        }
+
+        [Test]
+        public void VerifySelectActualFiniteState()
+        {
+            var oldSelectedFiniteState = this.viewModel.SelectedFiniteState;
+            this.viewModel.SelectActualFiniteState(new ActualFiniteState());
 
             Assert.Multiple(() =>
             {
-                Assert.That(previousStates, Is.Not.Null);
-                Assert.That(currentStates, Is.Not.Null);
-                Assert.That(previousStates, Is.Not.EquivalentTo(currentStates));
+                Assert.That(oldSelectedFiniteState, Is.EqualTo(this.viewModel.SelectedFiniteState));
+                Assert.That(this.eventCallbackCalled, Is.True);
+            });
+
+            this.eventCallbackCalled = false;
+            oldSelectedFiniteState = this.viewModel.SelectedFiniteState;
+            this.viewModel.SelectActualFiniteState(this.viewModel.ActualFiniteStates.Last());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(oldSelectedFiniteState, Is.Not.EqualTo(this.viewModel.SelectedFiniteState));
+                Assert.That(this.eventCallbackCalled, Is.True);
             });
         }
     }

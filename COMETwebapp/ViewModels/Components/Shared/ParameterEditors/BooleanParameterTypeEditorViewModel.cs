@@ -26,12 +26,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
+
     using System.Threading.Tasks;
+
+    using CDP4Common.Types;
 
     /// <summary>
     /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
-    /// </summary>
+        /// </summary>
     public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
     {
         /// <summary>
@@ -47,9 +49,30 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public override Task OnParameterValueChanged(object value)
+        public override async Task OnParameterValueChanged(object value)
         {
-            throw new NotImplementedException();
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
+            {
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
+                modifiedValueArray[0] = valueString;
+
+                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
+                sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
+
+                switch (this.ValueSet.ValueSwitch)
+                {
+                    case ParameterSwitchKind.MANUAL:
+                        sendingParameterValueSetBase.Manual = modifiedValueArray;
+                        break;
+                    case ParameterSwitchKind.COMPUTED:
+                        sendingParameterValueSetBase.Computed = modifiedValueArray;
+                        break;
+                    default:
+                        throw new NotImplementedException($"The value of the {this.ValueSet} can't be manually changed with the switch on {ParameterSwitchKind.REFERENCE}");
+                }
+
+                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+            }
         }
     }
 }

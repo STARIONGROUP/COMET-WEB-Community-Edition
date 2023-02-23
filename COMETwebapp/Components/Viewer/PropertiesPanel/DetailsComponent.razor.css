@@ -1,33 +1,15 @@
-﻿.parameter-row {
+﻿#details-header {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
+    align-items: start;
+    justify-content: start;
+    padding: 2% 3%;
 }
 
-.parameter-row-centered {
-    justify-content: stretch;
-    margin: 3%;
-} 
-
-.form-control.parameter-input{
-    margin: 2%;
+#details-header > p {
+    margin: 0;
+    font-weight: bold;
 }
 
-#color-text {
-    margin-left: 2%;
-    text-align: center;
-}
-
-p{
-    text-align: center;
-    margin:4%;
-}
-
-label {
-    text-align: center;
-} 
-
-input{
-    margin: 2%;
+#details-body {
+    padding: 3%;
 }

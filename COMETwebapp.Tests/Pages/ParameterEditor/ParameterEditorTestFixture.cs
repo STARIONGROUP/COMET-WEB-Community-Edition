@@ -27,22 +27,33 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.Components.ParameterEditor;
+    using CDP4Dal;
+
+    using COMETwebapp.Components.Shared.Selectors;
+    using COMETwebapp.Components.Shared;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.IterationServices;
     using COMETwebapp.Pages.ParameterEditor;
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
-    using COMETwebapp.ViewModels.Pages.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using DevExpress.Blazor;
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -55,78 +66,75 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     public class ParameterEditorTestFixture
     {
         private TestContext context;
-        private IRenderedComponent<ParameterEditor> renderedComponent;
-        private ParameterEditor editor;
+        private ISingleIterationApplicationTemplateViewModel viewModel;
+        private Mock<ISessionService> sessionService;
+        private SourceList<Iteration> openedIterations;
+        private Mock<ISession> session;
+        private Iteration firstIteration;
+        private Iteration secondIteration;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
             this.context = new TestContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.openedIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openedIterations);
+            this.viewModel = new SingleIterationApplicationTemplateViewModel(this.sessionService.Object, new IterationSelectorViewModel());
+            this.session = new Mock<ISession>();
+            this.session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
+
+            this.firstIteration = new Iteration()
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup = new IterationSetup()
+                {
+                    Iid = Guid.NewGuid(),
+                    IterationNumber = 1,
+                    Container = new EngineeringModelSetup()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Name = "EnVision"
+                    }
+                }
+            };
+
+            this.secondIteration = new Iteration()
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup = new IterationSetup()
+                {
+                    Iid = Guid.NewGuid(),
+                    IterationNumber = 4,
+                    Container = new EngineeringModelSetup()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Name = "Loft"
+                    }
+                }
+            };
+
             this.context.ConfigureDevExpressBlazor();
-            
-            var parameterEditorViewModel = new Mock<IParameterEditorViewModel>();
-            
-            var elements = new SourceList<ElementBase>();
-            elements.Add(new ElementDefinition() { Name = "Element1" });
-            elements.Add(new ElementDefinition() { Name = "Element2" });
-            elements.Add(new ElementDefinition() { Name = "Element3" });
+            this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
+            this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
+            this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+        }
 
-            parameterEditorViewModel.Setup(x => x.Elements).Returns(elements.Items.ToList());
-            parameterEditorViewModel.Setup(x => x.FilteredElements).Returns(elements);
+        [TearDown]
+        public void Teardown()
+        {
+            this.context.CleanContext();
+        }
 
-            parameterEditorViewModel.Setup(x => x.ParameterTypes).Returns(new List<ParameterType>()
-            {
-                new ArrayParameterType(),
-                new BooleanParameterType(),
-                new CompoundParameterType(),
-            });
-
-            this.context.Services.AddSingleton(parameterEditorViewModel.Object);
-
-            var parameterTableViewModelMock = new Mock<IParameterTableViewModel>();
-
-            var rowViewModels = new SourceList<ParameterBaseRowViewModel>();
-
-            var parameter = new Parameter()
-            {
-                ParameterType = new ArrayParameterType(){Name = "Orientation", ShortName = "orient"},
-                Owner = new DomainOfExpertise(){Name = "DoE1", ShortName = "doe1"},
-                Container = elements.Items.First(),
-            };
-            
-            var actualFiniteStateList = new ActualFiniteStateList()
-            {
-                Iid = Guid.NewGuid()
-            };
-
-            var possibleFiniteStateList = new List<PossibleFiniteState> { new() { Iid = Guid.NewGuid(), Name = "State1" }, new() { Iid = Guid.NewGuid(), Name = "State2" } };
-
-            actualFiniteStateList.PossibleFiniteStateList.Add(new PossibleFiniteStateList()
-            {
-                PossibleState = { possibleFiniteStateList[0], possibleFiniteStateList[1] }
-            });
-
-            actualFiniteStateList.ActualState.Add(new ActualFiniteState() { Iid = Guid.NewGuid(), PossibleState = { possibleFiniteStateList[0] } });
-            actualFiniteStateList.ActualState.Add(new ActualFiniteState() { Iid = Guid.NewGuid(), PossibleState = { possibleFiniteStateList[1] } });
-
-            var iteration = new Iteration();
-            iteration.Option.Add(new Option());
-            iteration.ActualFiniteStateList.Add(actualFiniteStateList);
-
-            parameterEditorViewModel.Setup(x => x.SessionService.DefaultIteration).Returns(iteration);
-
-            var valueSet = new Mock<IValueSet>();
-            valueSet.Setup(x => x.ValueSwitch).Returns(ParameterSwitchKind.MANUAL);
-            valueSet.Setup(x => x.ActualState).Returns(actualFiniteStateList.ActualState[0]);
-            valueSet.Setup(x => x.ActualOption).Returns(new Option() { Name = "option" });
-
-            rowViewModels.Add(new ParameterBaseRowViewModel(parameterEditorViewModel.Object.SessionService, parameter, valueSet.Object));
-
-            parameterTableViewModelMock.Setup(x => x.Rows).Returns(rowViewModels);
-            this.context.Services.AddSingleton(parameterTableViewModelMock.Object);
-            
-            this.renderedComponent = this.context.RenderComponent<ParameterEditor>();
-            this.editor = this.renderedComponent.Instance;
+        [Test]
+        public void VerifyOpenModelPresent()
+        {
+            var renderer = this.context.RenderComponent<ParameterEditor>();
+            Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
         }
 
         [TearDown]
@@ -136,36 +144,54 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         }
 
         [Test]
-        public void VerifyComponent()
+        public async Task VerifyIterationSelection()
         {
+            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration, this.secondIteration });
+            var renderer = this.context.RenderComponent<ParameterEditor>();
+
+            Assert.That(this.viewModel.IterationSelectorViewModel.AvailableIterations.ToList(), Has.Count.EqualTo(2));
+            this.viewModel.IterationSelectorViewModel.SelectedIteration = this.viewModel.IterationSelectorViewModel.AvailableIterations.Last();
+            var iterationSelector = renderer.FindComponent<IterationSelector>();
+            var submitButton = iterationSelector.FindComponent<DxButton>();
+
+            await renderer.InvokeAsync(() => submitButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
             Assert.Multiple(() =>
             {
-                Assert.That(this.editor, Is.Not.Null);
-                Assert.That(this.editor.ViewModel, Is.Not.Null);
-                Assert.That(this.renderedComponent, Is.Not.Null);
+                Assert.That(this.viewModel.SelectedIteration, Is.Not.Null);
+                Assert.That(navigation.Uri.Contains("server"), Is.True);
+                Assert.That(navigation.Uri.Contains(this.secondIteration.Iid.ToShortGuid()), Is.True);
             });
         }
 
         [Test]
-        public void VerifyComponentUI()
+        public void VerifyIterationPreselection()
         {
-            var elementFilterCombo = this.renderedComponent.Find(".element-filter");
-            var parameterFilterCombo = this.renderedComponent.Find(".parameter-filter");
-            var stateFilterCombo = this.renderedComponent.Find(".state-filter");
-            var optionFilterCombo = this.renderedComponent.Find(".option-filter");
+            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
 
-            var isOwnedCheckbox = this.renderedComponent.FindComponent<DxCheckBox<bool>>();
-            var parameterTable = this.renderedComponent.FindComponent<ParameterTable>();
-            
+            this.context.RenderComponent<ParameterEditor>(parameters =>
+            {
+                parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid());
+            });
+
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
             Assert.Multiple(() =>
             {
-                Assert.That(elementFilterCombo, Is.Not.Null);
-                Assert.That(parameterFilterCombo, Is.Not.Null);
-                Assert.That(stateFilterCombo, Is.Not.Null);
-                Assert.That(optionFilterCombo, Is.Not.Null);
-                Assert.That(isOwnedCheckbox, Is.Not.Null);
-                Assert.That(parameterTable, Is.Not.Null);
+                Assert.That(this.viewModel.SelectedIteration, Is.EqualTo(this.firstIteration));
+                Assert.That(navigation.Uri.Contains("server"), Is.True);
+                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
             });
+
+            this.viewModel.SelectedIteration = null;
+
+            this.context.RenderComponent<ParameterEditor>(parameters =>
+            {
+                parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
+            });
+
+            Assert.That(this.viewModel.SelectedIteration, Is.Null);
         }
     }
 }

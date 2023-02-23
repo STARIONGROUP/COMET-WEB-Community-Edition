@@ -24,14 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMETwebapp.Model;
-    using COMETwebapp.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
 
@@ -40,11 +38,6 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     /// </summary>
     public class ParameterTypeEditorSelectorViewModel : IParameterTypeEditorSelectorViewModel<ParameterType>
     {
-        /// <summary>
-        /// Gets or sets the <see cref="ISessionService"/>
-        /// </summary>
-        public ISessionService SessionService { get; set; }
-
         /// <summary>
         /// Gets or sets the <see cref="ParameterType"/>
         /// </summary>
@@ -68,12 +61,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel"/>
         /// </summary>
-        /// <param name="sessionService">the <see cref="ISessionService"/></param>
         /// <param name="parameterType">the <see cref="ParameterType"/> used for this view model</param>
         /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
-        public ParameterTypeEditorSelectorViewModel(ISessionService sessionService, ParameterType parameterType, IValueSet valueSet)
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet)
         {
-            this.SessionService = sessionService;
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
 
@@ -92,14 +83,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             switch (this.ParameterType)
             {
-                case BooleanParameterType booleanParamType: return new BooleanParameterTypeEditorViewModel(booleanParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case CompoundParameterType compoundParamType: return new CompoundParameterTypeEditorViewModel(compoundParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case DateParameterType dateParamType: return new DateParameterTypeEditorViewModel(dateParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case DateTimeParameterType dateTimeParamType: return new DateTimeParameterTypeEditorViewModel(dateTimeParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case EnumerationParameterType enumParamType: return new EnumerationParameterTypeEditorViewModel(enumParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case QuantityKind quantityKindParamType: return new QuantityKindParameterTypeEditorViewModel(quantityKindParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case TextParameterType textParamType: return new TextParameterTypeEditorViewModel(textParamType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
-                case TimeOfDayParameterType timeDayParameterType: return new TimeOfDayParameterTypeEditorViewModel(timeDayParameterType, this.ValueSet) as IParameterEditorBaseViewModel<T>;
+                case BooleanParameterType booleanParamType: return new BooleanParameterTypeEditorViewModel(booleanParamType, this.ValueSet) {IsReadOnly = this.IsReadOnly} as IParameterEditorBaseViewModel<T>;
+                case CompoundParameterType compoundParamType: return new CompoundParameterTypeEditorViewModel(compoundParamType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
+                case DateParameterType dateParamType: return new DateParameterTypeEditorViewModel(dateParamType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
+                case DateTimeParameterType dateTimeParamType: return new DateTimeParameterTypeEditorViewModel(dateTimeParamType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
+                case EnumerationParameterType enumParamType: return new EnumerationParameterTypeEditorViewModel(enumParamType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
+                case QuantityKind quantityKindParamType: return new QuantityKindParameterTypeEditorViewModel(quantityKindParamType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
+                case TextParameterType textParamType: return new TextParameterTypeEditorViewModel(textParamType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
+                case TimeOfDayParameterType timeDayParameterType: return new TimeOfDayParameterTypeEditorViewModel(timeDayParameterType, this.ValueSet) { IsReadOnly = this.IsReadOnly } as IParameterEditorBaseViewModel<T>;
                 
                 default: throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented");
             }
@@ -111,10 +102,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public async Task OnParameterValueChanged(IValueSet value)
         {
-            if (value is ParameterValueSetBase parameterValueSetBase)
-            {
-                await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { parameterValueSetBase });
-            }
+            await this.ParameterValueChanged.InvokeAsync(value);
         }
     }
 }

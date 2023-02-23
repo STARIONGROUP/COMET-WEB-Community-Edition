@@ -25,14 +25,11 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-    
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
-    using DynamicData;
-
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Class for the component <see cref="ParameterTable"/>
@@ -42,40 +39,21 @@ namespace COMETwebapp.Components.ParameterEditor
         /// <summary>
         /// Gets or sets the <see cref="IParameterTableViewModel"/>
         /// </summary>
-        [Inject]
+        [Parameter]
         public IParameterTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// All <see cref="ElementUsage"/> and the Top <see cref="ElementDefinition"/> of the iteration
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
         /// </summary>
-        [Parameter]
-        public SourceList<ElementBase> Elements { get; set; }
-        
-        /// <summary>
-        /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
-        /// that would cause an infinite render loop.
-        /// </summary>
-        /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
-        /// on this component instance; otherwise <c>false</c>.
-        /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-        /// <remarks>
-        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
-        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
-        /// once.
-        /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override void OnInitialized()
         {
-            await base.OnAfterRenderAsync(firstRender);
+            base.OnInitialized();
 
-            if (firstRender)
-            {
-                this.ViewModel.InitializeViewModel(this.Elements.Items);
-                this.WhenAnyValue(x => x.ViewModel.Rows.CountChanged).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-            }
+            this.ViewModel.Rows.CountChanged.Subscribe( _ =>
+            { 
+                this.InvokeAsync(this.StateHasChanged);
+            });
         }
     }
 }

@@ -19,26 +19,32 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.Shared.ParameterEditors
+@using COMETwebapp.Model
 
-@if (this.ViewModel.ParameterType.ShortName == SceneSettings.OrientationShortName && this.ViewModel.ValueSet is not null)
+@if (this.ViewModel.ParameterType.ShortName == SceneSettings.OrientationShortName)
 {
-    <h3>Component under development</h3>
+    var compoundParameterViewModel = this.ViewModel as CompoundParameterTypeEditorViewModel;
+    <OrientationComponent ViewModel="@compoundParameterViewModel?.CreateOrientationViewModel()"/>
 }
 else if (this.ViewModel.ValueSet is not null)
 {
-    for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
-    {
-        var index = i;
-        var comp = this.ViewModel.ParameterType.Component[i];
+    <div class="compound-editor-body">
+        @for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
+        {
+            var index = i;
+            var component = this.ViewModel.ParameterType.Component[i];
+        
+            <div class="compound-editor-item">
+                <p>@component.ShortName</p>
+                <DxTextBox InputCssClass="compound-parameter-type" 
+                           Text="@this.ViewModel.ValueSet?.ActualValue[i]" 
+                           BindValueMode="BindValueMode.OnInput" 
+                           CssClass="parameter-input"
+                           ReadOnly="this.ViewModel.IsReadOnly"
+                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"/>
 
-        <div class="parameter-row">
-            <p>@comp.ShortName</p>
-            <DxTextBox InputCssClass="compound-parameter-type" 
-                       Text="@this.ViewModel.ValueSet?.ActualValue[i]" 
-                       BindValueMode="BindValueMode.OnInput" 
-                       CssClass="parameter-input"
-                       ReadOnly="this.ViewModel.IsReadOnly"/>
-            <p>@comp.Scale.ShortName</p>
-        </div>
-    }
+            </div>
+        }
+    </div>
 }

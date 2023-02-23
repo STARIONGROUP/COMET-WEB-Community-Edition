@@ -24,10 +24,11 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
+    using System.Globalization;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-
-    using Microsoft.AspNetCore.Components;
+    using CDP4Common.Types;
 
     /// <summary>
     /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.DateTimeParameterTypeEditor"/>
@@ -35,21 +36,62 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     public class DateTimeParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<DateTimeParameterType>
     {
         /// <summary>
+        /// Gets or sets the string representation of the <see cref="DateTime"/>
+        /// </summary>
+        private string DateTimeString { get; set; }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="DateTimeParameterTypeEditorViewModel"/>
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         public DateTimeParameterTypeEditorViewModel(DateTimeParameterType parameterType, IValueSet valueSet) : base(parameterType,valueSet)
         {
+            this.DateTimeString = valueSet.ActualValue.First();
         }
 
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public override Task OnParameterValueChanged(object value)
+        public override async Task OnParameterValueChanged(object value)
         {
-            throw new NotImplementedException();
+            var auxiliarDateTime = this.DateTimeString;
+            var values = auxiliarDateTime.Split("T");
+
+            if (value is TimeSpan time)
+            {
+                values[1] = time.ToString();
+            }
+            else if(value is DateTime dateTime) 
+            {
+                values[0] = dateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            }
+
+            this.DateTimeString = string.Join('T',values);
+
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            {
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
+                modifiedValueArray[0] = this.DateTimeString;
+
+                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
+                sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
+
+                switch (this.ValueSet.ValueSwitch)
+                {
+                    case ParameterSwitchKind.MANUAL:
+                        sendingParameterValueSetBase.Manual = modifiedValueArray;
+                        break;
+                    case ParameterSwitchKind.COMPUTED:
+                        sendingParameterValueSetBase.Computed = modifiedValueArray;
+                        break;
+                    default:
+                        throw new NotImplementedException($"The value of the {this.ValueSet} can't be manually changed with the switch on {ParameterSwitchKind.REFERENCE}");
+                }
+
+                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+            }
         }
     }
 }

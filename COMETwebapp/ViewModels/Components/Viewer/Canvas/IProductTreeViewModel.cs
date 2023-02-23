@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Enumerations;
 
     /// <summary>
@@ -60,5 +62,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Event for when the text of the search filter is changing
         /// </summary>
         void OnSearchFilterChange();
+
+        /// <summary>
+        /// Creates the product tree
+        /// </summary>
+        /// <param name="productTreeElements">the product tree elements</param>
+        /// <param name="selectedOption">the selected option</param>
+        /// <param name="selectedActualFiniteStates">the selected states</param>
+        /// <returns>the root node of the tree or null if the tree can not be created</returns>
+        public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption,
+               IEnumerable<ActualFiniteState> selectedActualFiniteStates);
     }
 }

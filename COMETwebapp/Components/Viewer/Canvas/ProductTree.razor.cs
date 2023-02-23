@@ -40,14 +40,8 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// <summary>
         /// Gets or sets the <see cref="IProductTreeViewModel"/>
         /// </summary>
-        [Inject]
-        public IProductTreeViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// The root node of the tree
-        /// </summary>
         [Parameter]
-        public INodeComponentViewModel RootViewModel { get; set; }
+        public IProductTreeViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -71,9 +65,9 @@ namespace COMETwebapp.Components.Viewer.Canvas
 
             if (firstRender)
             {
-                this.ViewModel.RootViewModel = this.RootViewModel;
-                this.WhenAnyValue(x => x.ViewModel.SelectedFilter).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-                this.WhenAnyValue(x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                this.WhenAnyValue(x => x.ViewModel.RootViewModel,
+                    x => x.ViewModel.SelectedFilter,
+                    x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
             }
         }
     }

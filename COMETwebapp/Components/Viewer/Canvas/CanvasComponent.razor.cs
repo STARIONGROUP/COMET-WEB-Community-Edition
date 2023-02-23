@@ -39,7 +39,7 @@ namespace COMETwebapp.Components.Viewer.Canvas
         /// <summary>
         /// Gets or sets the <see cref="ICanvasViewModel"/>
         /// </summary>
-        [Inject]
+        [Parameter]
         public ICanvasViewModel ViewModel { get; set; }
 
         /// <summary>

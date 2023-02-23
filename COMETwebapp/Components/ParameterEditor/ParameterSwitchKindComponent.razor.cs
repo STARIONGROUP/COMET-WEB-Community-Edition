@@ -30,8 +30,6 @@ namespace COMETwebapp.Components.ParameterEditor
 
     using Microsoft.AspNetCore.Components;
 
-    using ReactiveUI;
-
     /// <summary>
     /// Class for the component <see cref="ParameterSwitchKindComponent"/>
     /// </summary>

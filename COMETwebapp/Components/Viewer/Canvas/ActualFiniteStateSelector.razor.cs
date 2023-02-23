@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterEditor.razor.cs" company="RHEA System S.A.">
+// <copyright file="ActualFiniteStateSelector.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,39 +22,35 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.ParameterEditor
+namespace COMETwebapp.Components.Viewer.Canvas
 {
-    using COMETwebapp.ViewModels.Pages.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     /// <summary>
-    /// Class for the <see cref="ParameterEditor"/> razor component
+    /// Support class for the <see cref="ActualFiniteStateSelector"/> component
     /// </summary>
-    public partial class ParameterEditor
+    public partial class ActualFiniteStateSelector
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterEditorViewModel"/>
+        /// Gets or sets the <see cref="IActualFiniteStateSelectorViewModel"/>
         /// </summary>
-        [Inject]
-        public IParameterEditorViewModel ViewModel { get; set; }
+        [Parameter]
+        public IActualFiniteStateSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnParametersSet()
         {
-            base.OnInitialized();
-            this.ViewModel.InitializeViewModel();
-            this.WhenAnyValue(x => x.ViewModel.FilteredElements.CountChanged).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-
-            this.WhenAnyValue(x => x.ViewModel.SelectedElementFilter,
-                x => x.ViewModel.SelectedOptionFilter,
-                x => x.ViewModel.SelectedParameterTypeFilter,
-                x => x.ViewModel.SelectedStateFilter).Subscribe(_ => this.ViewModel.ApplyFilters(this.ViewModel.Elements));
+            base.OnParametersSet();
+            
+            this.WhenAnyValue(x => x.ViewModel.SelectedFiniteState)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
         }
     }
 }

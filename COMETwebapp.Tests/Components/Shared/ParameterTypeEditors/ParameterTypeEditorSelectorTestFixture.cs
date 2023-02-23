@@ -25,14 +25,19 @@
 namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
     using System;
+    using System.Collections.Generic;
 
     using Bunit;
 
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+    using Microsoft.AspNetCore.Components;
 
     using Moq;
 
@@ -55,7 +60,16 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModelMock = new Mock<IParameterTypeEditorSelectorViewModel<ParameterType>>();
-            
+
+            var valueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string>() { "1" })
+            };
+
+            this.viewModelMock.Setup(x => x.ValueSet).Returns(valueSet);
+
             this.renderedComponent = this.context.RenderComponent<ParameterTypeEditorSelector>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
@@ -229,6 +243,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 Iid = Guid.NewGuid(),
             };
 
+            this.viewModelMock.Setup(x => x.ParameterValueChanged).Returns(new EventCallback<IValueSet>());
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
             this.renderedComponent.SetParametersAndRender(parameters =>

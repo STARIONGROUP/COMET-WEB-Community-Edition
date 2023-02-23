@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.Types;
 
     using COMETwebapp.Enumerations;
+    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
 
     using Microsoft.AspNetCore.Components;
@@ -49,17 +50,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Creates a new instance of type <see cref="Orientation" />
         /// </summary>
-        /// <param name="currentValueSet">the current value set that's being changed</param>
-        /// <param name="selectedParameter">the selected parameter for the current value set</param>
-        /// <param name="orientation">the orientation of the selected <see cref="SceneObject" /></param>
+        /// <param name="valueSet">the current value set that's being changed</param>
         /// <param name="onParameterValueSetChanged">event callback for when a value has changed</param>
-        public OrientationViewModel(Orientation orientation, IValueSet currentValueSet, ParameterBase selectedParameter,
-            EventCallback<Dictionary<ParameterBase, IValueSet>> onParameterValueSetChanged)
+        public OrientationViewModel(IValueSet valueSet, EventCallback<IValueSet> onParameterValueSetChanged)
         {
-            this.Orientation = orientation ?? throw new ArgumentNullException(nameof(orientation));
-            this.CurrentValueSet = currentValueSet;
-            this.SelectedParameter = selectedParameter;
-            this.OnParameterValueChanged = onParameterValueSetChanged;
+            this.CurrentValueSet = valueSet ?? throw new ArgumentNullException(nameof(valueSet));
+            this.Orientation = valueSet.ParseIValueToOrientation(AngleFormat.Degrees);
+            this.ParameterValueChanged = onParameterValueSetChanged;
         }
 
         /// <summary>
@@ -77,19 +74,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public Orientation Orientation { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected parameter used for the details
-        /// </summary>
-        public ParameterBase SelectedParameter { get; set; }
-
-        /// <summary>
         /// Gets or sets the current value set
         /// </summary>
         public IValueSet CurrentValueSet { get; set; }
 
         /// <summary>
-        /// Event callback for when a value of the <see cref="SelectedParameter" /> has changed
+        /// Event callback for when a value of the <see cref="IValueSet"/> has changed
         /// </summary>
-        public EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
+        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Gets all the possible <see cref="AngleFormat" />
@@ -205,13 +197,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
                 sendingParameterValueSetBase.Manual = modifiedValueArray;
                 sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
-
-                var parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>
-                {
-                    { this.SelectedParameter, sendingParameterValueSetBase }
-                };
-
-                await this.OnParameterValueChanged.InvokeAsync(parameterValueSetRelations);
+                
+                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
             }
         }
     }

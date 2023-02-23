@@ -25,7 +25,10 @@
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
 
@@ -37,85 +40,47 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     public class DetailsComponentViewModel : ReactiveObject, IDetailsComponentViewModel
     {
         /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> 
-        /// </summary>
-        private Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
-
-        /// <summary>
         /// Gets or sets if the component is visible
         /// </summary>
         public bool IsVisible { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected parameter used for the details
-        /// </summary>
-        public ParameterBase SelectedParameter { get; set; }
-
-        /// <summary>
         /// Gets or sets the current value set
         /// </summary>
-        public IValueSet CurrentValueSet { get; set; }
+        public IValueSet ValueSet { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterType"/> of the selected parameter
+        /// </summary>
+        public ParameterType ParameterType { get; set; }
 
         /// <summary> 
-        /// Event callback for when a value of the <see cref="SelectedParameter"/> has changed 
+        /// Event callback for when a value of the <see cref="IValueSet"/> has changed 
         /// </summary> 
-        public EventCallback<Dictionary<ParameterBase, IValueSet>> OnParameterValueChanged { get; set; }
+        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Creates a new instance of type <see cref="DetailsComponentViewModel"/>
         /// </summary>
         /// <param name="isVisible">if the component is visible/></param>
-        /// <param name="selectedParameter">the selected parameter</param>
-        /// <param name="parameterValueSetRelations">the relations between the <see cref="ParameterBase"/> and the <see cref="IValueSet"/></param>
-        /// <param name="onParameterValueSetChanged">event callback for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed</param>
-        public DetailsComponentViewModel(bool isVisible, ParameterBase selectedParameter, Dictionary<ParameterBase, IValueSet> parameterValueSetRelations,
-            EventCallback<Dictionary<ParameterBase,IValueSet>> onParameterValueSetChanged)
+        /// <param name="parameterType">the ParameterType of the selected parameter</param>
+        /// <param name="valueSet">the current <see cref="IValueSet"/></param>
+        /// <param name="parameterValueSetChanged">event callback for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed</param>
+        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<IValueSet> parameterValueSetChanged)
         {
             this.IsVisible = isVisible;
-            this.SelectedParameter = selectedParameter;
-            this.ParameterValueSetRelations = parameterValueSetRelations;
-            this.OnParameterValueChanged = onParameterValueSetChanged;
-
-            if (this.ParameterValueSetRelations is not null && this.SelectedParameter is not null)
-            {
-                this.CurrentValueSet = this.ParameterValueSetRelations.ContainsKey(this.SelectedParameter) ? this.ParameterValueSetRelations[this.SelectedParameter] : null;
-            }
+            this.ParameterType = parameterType;
+            this.ValueSet = valueSet;
+            this.ParameterValueChanged = parameterValueSetChanged;
         }
-
+        
         /// <summary>
-        /// Event for when the value of the parameter has changed
+        /// Creates a <see cref="ParameterTypeEditorSelectorViewModel"/> used for display the correct editor
         /// </summary>
-        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
-        /// <param name="value">the value of the <see cref="IValueSet"/> changed</param>
-        public async void OnParameterValueChange(int changedIndex, string value)
+        /// <returns>the <see cref="ParameterTypeEditorSelectorViewModel"/></returns>
+        public IParameterTypeEditorSelectorViewModel<ParameterType> CreateParameterTypeEditorSelectorViewModel()
         {
-            var modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
-            modifiedValueArray[changedIndex] = value;
-
-            if (this.CurrentValueSet is ParameterValueSetBase parameterValueSetBase)
-            {
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
-                sendingParameterValueSetBase.Manual = modifiedValueArray;
-                sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
-
-                var parameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>()
-                {
-                    {this.SelectedParameter, sendingParameterValueSetBase},
-                };
-
-                await this.OnParameterValueChanged.InvokeAsync(parameterValueSetRelations);
-            }
-        }
-
-        /// <summary>
-        /// Event for when the value of a parameter has changed
-        /// </summary>
-        /// <param name="changedIndex">The index of the changed value for the <see cref="ValueArray{T}"/></param>
-        /// <param name="e">Supplies information about an change event that is being raised.</param>
-        public async void OnParameterValueChange(int changedIndex, ChangeEventArgs e)
-        {
-            var value = e.Value as string;
-            this.OnParameterValueChange(changedIndex, value);
+            return new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet);
         }
     }
 }

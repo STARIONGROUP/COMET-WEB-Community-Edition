@@ -49,14 +49,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         private NodeComponentViewModel node3VM;
         private NodeComponentViewModel node4VM;
         private NodeComponentViewModel node5VM;
-
-
+        
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
-            this.viewModel = new ProductTreeViewModel();
             this.selectionMediator = new Mock<ISelectionMediator>();
+            this.viewModel = new ProductTreeViewModel(this.selectionMediator.Object);
 
             var rootNode = new TreeNode(new SceneObject(null)) { Title = "Loft" };
             var node1 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "Bus" };

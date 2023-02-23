@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IViewerViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IViewerBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,58 +22,60 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Pages.Viewer
+namespace COMETwebapp.ViewModels.Components.Viewer
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     /// <summary>
-    /// View Model for the 3D Viewer main component
+    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.ViewerBody"/>
     /// </summary>
-    public interface IViewerViewModel
+    public interface IViewerBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
-        /// <summary>
-        /// Gets or sets the <see cref="ISessionService"/>
-        /// </summary>
-        ISessionService SessionService { get; set; }
-
         /// <summary>
         /// Gets or sets the <see cref="ISelectionMediator"/>
         /// </summary>
         ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected <see cref="Option"/>
+        /// Gets or sets the <see cref="IOptionSelectorViewModel"/>
         /// </summary>
-        Option SelectedOption { get; set; }
+        IOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
-        /// Gets or sets the list of the available <see cref="Option"/>
+        /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel"/>
         /// </summary>
-        List<Option> TotalOptions { get; set; }
+        IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; }
 
         /// <summary>
-        /// Gets or sets the root VM of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
+        /// Gets or sets the <see cref="IProductTreeViewModel"/>
         /// </summary>
-        INodeComponentViewModel RootNodeViewModel { get; set; }
+        IProductTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
-        /// List of the of <see cref="ActualFiniteStateList"/> 
-        /// </summary>        
-        List<ActualFiniteStateList> ListActualFiniteStateLists { get; set; }
+        /// Gets or sets the <see cref="ICanvasViewModel"/>
+        /// </summary>
+        ICanvasViewModel CanvasViewModel { get; }
 
         /// <summary>
-        /// Gets or sets the Selected <see cref="ActualFiniteState"/>
+        /// Gets or sets the <see cref="IPropertiesComponentViewModel"/>
         /// </summary>
-        List<ActualFiniteState> SelectedActualFiniteStates { get; }
-
+        IPropertiesComponentViewModel PropertiesViewModel { get; }
+        
         /// <summary>
         /// All <see cref="ElementBase"/> of the iteration
         /// </summary>
         List<ElementBase> Elements { get; set; }
+
+       /// <summary>
+        /// Initializes this <see cref="IViewerBodyViewModel"/>
+        /// </summary>
+        void InitializeViewModel();
 
         /// <summary>
         /// Create the <see cref="ElementBase"/> based on the current <see cref="Iteration"/>
@@ -81,22 +83,8 @@ namespace COMETwebapp.ViewModels.Pages.Viewer
         IEnumerable<ElementBase> InitializeElements();
 
         /// <summary>
-        /// Creates the product tree
+        /// Initializes the elements and creates the tree based on that elements
         /// </summary>
-        /// <param name="productTreeElements">the product tree elements</param>
-        /// <returns>the root node of the tree or null if the tree can not be created</returns>
-        INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements);
-
-        /// <summary>
-        /// Event for when the selected <see cref="Option"/> has changed
-        /// </summary>
-        /// <param name="option">the new selected option</param>
-        void OnOptionChange(Option option);
-
-        /// <summary>
-        /// Event raised when an actual finite state has changed
-        /// </summary>
-        /// <param name="selectedActiveFiniteStates"></param>
-        void ActualFiniteStateChanged(List<ActualFiniteState> selectedActiveFiniteStates);
+        void InitializeElementsAndCreateTree();
     }
 }
