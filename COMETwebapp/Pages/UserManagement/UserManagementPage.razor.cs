@@ -24,15 +24,20 @@
 
 namespace COMETwebapp.Pages.UserManagement
 {
+    using System.Reactive.Linq;
     using System.Threading.Tasks;
     
     using CDP4Common.SiteDirectoryData;
     
+    using CDP4Dal;
+    using CDP4Dal.Events;
+
     using COMETwebapp.ViewModels.Pages.UserManagement;
     
     using DevExpress.Blazor;
     
     using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>

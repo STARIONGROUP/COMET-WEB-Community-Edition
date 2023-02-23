@@ -386,37 +386,5 @@ namespace COMETwebapp.SessionManagement
             return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(this.OpenIteration?.IterationSetup))?
                 .Participant.Find(p => p.Person.Iid == this.Session.ActivePerson.Iid);
         }
-
-        /// <summary>
-        /// Gets the <see cref="Person"/>s 
-        /// </summary>
-        public IEnumerable<Person> GetPersons()
-        {
-            return this.GetSiteDirectory().Person;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Organization"/>s
-        /// </summary>
-        public IEnumerable<Organization> GetAvailableOrganizations()
-        {
-            return this.GetSiteDirectory().Organization;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="PersonRole"/>s 
-        /// </summary>
-        public IEnumerable<PersonRole> GetAvailablePersonRoles()
-        {
-            return this.GetSiteDirectory().PersonRole;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="DomainOfExpertise"/>s 
-        /// </summary>
-        public IEnumerable<DomainOfExpertise> GetAvailableDomains()
-        {
-            return this.GetSiteDirectory().Domain;
-        }
     }
 }

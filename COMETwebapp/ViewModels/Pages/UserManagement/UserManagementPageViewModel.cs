@@ -24,20 +24,23 @@
 namespace COMETwebapp.ViewModels.Pages.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
-    
+    using CDP4Dal;
+    using CDP4Dal.Events;
     using COMETwebapp.Pages.UserManagement;
     using COMETwebapp.SessionManagement;
     
     using DevExpress.Blazor;
-    
+    using DevExpress.Blazor.Internal;
     using DynamicData;
     
     using ReactiveUI;
+    using System;
+    using System.Reactive.Linq;
 
     /// <summary>
     ///     View model for the <see cref="UserManagementPage" /> page
     /// </summary>
-    public class UserManagementPageViewModel : ReactiveObject, IUserManagementPageViewModel
+    public class UserManagementPageViewModel : ReactiveObject, IUserManagementPageViewModel, IDisposable
     {
         /// <summary>
         ///     The <see cref="Person" /> to create
@@ -90,19 +93,53 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         private readonly ISessionAnchor SessionAnchor;
 
         /// <summary>
+        ///     A collection of <see cref="IDisposable" />
+        /// </summary>
+        private readonly List<IDisposable> disposables = new();
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="UserManagementPageViewModel" /> class.
         /// </summary>
         /// <param name="sessionAnchor">The <see cref="ISessionAnchor" /></param>
         public UserManagementPageViewModel(ISessionAnchor sessionAnchor)
         {
             this.SessionAnchor = sessionAnchor;
+
+            var addListener =
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
+                    .Where(objectChange => objectChange.EventKind == EventKind.Added &&
+                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
+                    .Select(x => x.ChangedThing as Person)
+                    .Subscribe(person => this.DataSource.Add(person));
+            this.disposables.Add(addListener);
+
+            var updateListener =
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
+                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
+                    .Select(x => x.ChangedThing as Person)
+                    .Subscribe(person => this.DataSource.Edit(innerList =>
+                    {
+                        var index = innerList.FindIndex(x => x.Iid == person.Iid);
+                        innerList[index] = person;
+                    }));
+            this.disposables.Add(updateListener);
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this.disposables.ForEach(x => x.Dispose());
+            this.disposables.Clear();
         }
 
         /// <summary>
         ///     Tries to create a new <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task Grid_ModelSaving()
+        public async Task AddingPerson()
         {
             var thingsToCreate = new List<Person>();
             this.Person.EmailAddress.Add(this.EmailAddress);
@@ -117,17 +154,13 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
             {
                 throw;
             }        
-  
-            this.Person = new Person();
-            this.DataSource.Clear();
-            this.DataSource.AddRange(this.SessionAnchor.GetPersons());
         }
 
         /// <summary>
         ///     Tries to deprecate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task Grid_DataItemDeprecating(GridDataItemDeletingEventArgs e)
+        public async Task DeprecatingPerson(GridDataItemDeletingEventArgs e)
         {
             var personToDeprecate = new List<Person>();
             var deprecatedPerson = (Person)e.DataItem;
@@ -142,8 +175,6 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
             {
                 throw;
             }
-            this.DataSource.Clear();
-            this.DataSource.AddRange(this.SessionAnchor.GetPersons());
         }
 
         /// <summary>
@@ -156,10 +187,10 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         public void OnInitializedAsync()
         {
             this.DataSource.Clear();
-            this.DataSource.AddRange(this.SessionAnchor.GetPersons());
-            this.AvailableOrganizations = this.SessionAnchor.GetAvailableOrganizations();
-            this.AvailablePersonRoles = this.SessionAnchor.GetAvailablePersonRoles();
-            this.AvailableDomains = this.SessionAnchor.GetAvailableDomains();
+            this.DataSource.AddRange(this.SessionAnchor.Session.RetrieveSiteDirectory().Person);
+            this.AvailableOrganizations = this.SessionAnchor.Session.RetrieveSiteDirectory().Organization;
+            this.AvailablePersonRoles = this.SessionAnchor.Session.RetrieveSiteDirectory().PersonRole;
+            this.AvailableDomains = this.SessionAnchor.Session.RetrieveSiteDirectory().Domain;
         }
     }
 }

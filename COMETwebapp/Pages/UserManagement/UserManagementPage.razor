@@ -33,8 +33,8 @@ Copyright (c) 2023 RHEA System S.A.
         PopupEditFormCssClass="pw-800"
         PopupEditFormHeaderText="Create Person"
         EditMode="GridEditMode.PopupEditForm"
-        EditModelSaving="this.ViewModel.Grid_ModelSaving"
-        DataItemDeleting="this.ViewModel.Grid_DataItemDeprecating">
+        EditModelSaving="this.ViewModel.AddingPerson"
+        DataItemDeleting="this.ViewModel.DeprecatingPerson">
             <TotalSummary>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="IsActive" ValueDisplayFormat="{0} Total" />
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Custom" Name="Inactive" FieldName="IsActive"                />

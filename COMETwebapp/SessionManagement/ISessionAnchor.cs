@@ -140,26 +140,6 @@ namespace COMETwebapp.SessionManagement
         Participant? GetParticipant();
 
         /// <summary>
-        /// Gets ths <see cref="Person"/>s 
-        /// </summary>
-        IEnumerable<Person> GetPersons();
-
-        /// <summary>
-        /// Gets the <see cref="Organization"/>s 
-        /// </summary>
-        IEnumerable<Organization> GetAvailableOrganizations();
-
-        /// <summary>
-        /// Gets the <see cref="PersonRole"/>s 
-        /// </summary>
-        IEnumerable<PersonRole> GetAvailablePersonRoles();
-
-        /// <summary>
-        /// Gets the <see cref="DomainOfExpertise"/>s 
-        /// </summary>
-        IEnumerable<DomainOfExpertise> GetAvailableDomains();
-
-        /// <summary>
         /// Event for when the session has been refreshed.
         /// </summary>
         event EventHandler OnSessionRefreshed;

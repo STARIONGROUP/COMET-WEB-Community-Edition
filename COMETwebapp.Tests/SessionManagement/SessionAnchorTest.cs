@@ -292,7 +292,7 @@ namespace COMETwebapp.Tests.SessionManagement
         {
             this.sessionAnchor.IsSessionOpen = true;
             this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
-            Assert.That(this.sessionAnchor.GetPersons().ToList(), Has.Count.EqualTo(2));
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Person.ToList(), Has.Count.EqualTo(2));
         }
 
         [Test]
@@ -300,7 +300,7 @@ namespace COMETwebapp.Tests.SessionManagement
         {
             this.sessionAnchor.IsSessionOpen = true;
             this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
-            Assert.That(this.sessionAnchor.GetAvailableOrganizations().ToList(), Has.Count.EqualTo(1));
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Organization.ToList(), Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -308,7 +308,7 @@ namespace COMETwebapp.Tests.SessionManagement
         {
             this.sessionAnchor.IsSessionOpen = true;
             this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
-            Assert.That(this.sessionAnchor.GetAvailablePersonRoles().ToList(), Has.Count.EqualTo(1));
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().PersonRole.ToList(), Has.Count.EqualTo(1));
         }
         
         [Test]
@@ -316,7 +316,7 @@ namespace COMETwebapp.Tests.SessionManagement
         {
             this.sessionAnchor.IsSessionOpen = true;
             this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
-            Assert.That(this.sessionAnchor.GetAvailableDomains().ToList(), Has.Count.EqualTo(1));
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Domain.ToList(), Has.Count.EqualTo(1));
         }
     }
 }

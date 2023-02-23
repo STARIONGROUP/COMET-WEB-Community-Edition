@@ -297,7 +297,7 @@ namespace COMETwebapp.Tests.Page.UserManagement
             };
             this.siteDirectory.Person.Add(this.viewModel.Person);
 
-            this.viewModel.Grid_ModelSaving();
+            this.viewModel.AddingPerson();
             this.viewModel.OnInitializedAsync();
             Assert.Multiple(() =>
             {
