@@ -40,5 +40,24 @@ namespace COMETwebapp.Components.Shared
         /// </summary>
         [Parameter]
         public Card CurrentCard { get; set; }
+
+        /// <summary>
+        /// The HTML id for the current component
+        /// </summary>
+        private string cardId;
+
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+
+            if (this.CurrentCard != null)
+            {
+                this.cardId = this.CurrentCard.Name.Replace(" ", string.Empty).ToLower();
+            }
+        }
     }
 }

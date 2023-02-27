@@ -21,21 +21,23 @@
 ------------------------------------------------------------------------------->
 @inherits AuthorizedMenuEntry
 
-<DxMenuItem Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
+<DxMenuItem Name="session-entry" Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
     <TextTemplate>
-        @if (this.ViewModel.SubscriptionService.SubscriptionUpdateCount > 0)
-        {
-            <div>
-                @context.Text
-                <span class="notification">@this.ViewModel.SubscriptionService.SubscriptionUpdateCount</span>
-            </div>
-        }
-        else
-        {
-            <div>
-                @context.Text
-            </div>
-        }
+        <span id="@context.Name" >
+            @if (this.ViewModel.SubscriptionService.SubscriptionUpdateCount > 0)
+            {
+                <div>
+                    @context.Text
+                    <span class="notification">@this.ViewModel.SubscriptionService.SubscriptionUpdateCount</span>
+                </div>
+            }
+            else
+            {
+                <div>
+                    @context.Text
+                </div>
+            }
+        </span>
     </TextTemplate>
     <SubMenuTemplate>
         <div class="session__header">
@@ -49,16 +51,18 @@
         </div>
         <div class="session_content">
             <div class="content__autorefresh">
-                <DxCheckBox @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
+                <span id="autorefresh-check">
+                    <DxCheckBox  @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
+                </span>
                 Refresh every
                 <span></span>
-                <DxSpinEdit CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
+                <DxSpinEdit Id="autorefresh-value" CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
                             BindValueMode="BindValueMode.OnInput" MinValue="1"/>
                 sec
             </div>
             <div class="session__buttons">
-                <DxButton CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession"/>
-                <DxButton CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout"/>
+                <DxButton Id="refresh-button" CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout"/>
             </div>
         </div>
     </SubMenuTemplate>

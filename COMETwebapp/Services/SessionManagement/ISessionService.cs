@@ -38,9 +38,9 @@ namespace COMETwebapp.Services.SessionManagement
     public interface ISessionService
     {
         /// <summary>
-        /// Event for when the session has been refreshed.
+        /// The <see cref="Iteration" /> that is selected by default
         /// </summary>
-        event EventHandler OnSessionRefreshed;
+        Iteration DefaultIteration { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISession" />
@@ -48,7 +48,7 @@ namespace COMETwebapp.Services.SessionManagement
         ISession Session { get; set; }
 
         /// <summary>
-        /// A reactive collection of opened <see cref="Iteration"/>
+        /// A reactive collection of opened <see cref="Iteration" />
         /// </summary>
         SourceList<Iteration> OpenIterations { get; }
 
@@ -58,9 +58,9 @@ namespace COMETwebapp.Services.SessionManagement
         bool IsSessionOpen { get; set; }
 
         /// <summary>
-        /// The <see cref="Iteration" /> that is selected by default
+        /// Event for when the session has been refreshed.
         /// </summary>
-        Iteration DefaultIteration { get; set; }
+        event EventHandler OnSessionRefreshed;
 
         /// <summary>
         /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
@@ -78,18 +78,18 @@ namespace COMETwebapp.Services.SessionManagement
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
-        /// <param name="domain">The <see cref="DomainOfExpertise"/></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
         Task ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
 
         /// <summary>
-        /// Close all the opened <see cref="Iteration"/>
+        /// Close all the opened <see cref="Iteration" />
         /// </summary>
         void CloseIterations();
 
         /// <summary>
-        /// Closes an <see cref="Iteration"/>
+        /// Closes an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/></param>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
         void CloseIteration(Iteration iteration);
 
         /// <summary>
@@ -118,21 +118,21 @@ namespace COMETwebapp.Services.SessionManagement
         /// <summary>
         /// Switches the current domain for an opened iteration
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/></param>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <param name="domainOfExpertise">The domain</param>
         void SwitchDomain(Iteration iteration, DomainOfExpertise domainOfExpertise);
 
         /// <summary>
-        /// Write new Things in an <see cref="Iteration"/>
+        /// Write new Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/> where the <see cref="Thing"/>s should be created</param>
+        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
         Task CreateThings(Iteration iteration, IEnumerable<Thing> thingsToCreate);
 
         /// <summary>
-        /// Write updated Things in an <see cref="Iteration"/>
+        /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration"/> where the <see cref="Thing"/>s should be updated</param>
+        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
         Task UpdateThings(Iteration iteration, IEnumerable<Thing> thingsToUpdate);
 

@@ -1,5 +1,4 @@
-﻿@using CDP4Common.SiteDirectoryData
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -20,13 +19,16 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-<DxFormLayout>
-	<DxFormLayoutItem Caption="Domains of Expertise:" ColSpanLg="12">
-		<DxComboBox Data="@this.ViewModel.AvailableDomains"
-		            @bind-Value="@this.ViewModel.SelectedDomainOfExpertise"
-		            TextFieldName="@nameof(DomainOfExpertise.Name)"/>
-	</DxFormLayoutItem>
-</DxFormLayout>
-<div class="modal-footer">
-	<DxButton Text="Switch" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.ViewModel.OnSubmit.InvokeAsync(this.ViewModel.SelectedDomainOfExpertise))"/>
-</div> 
+@using CDP4Common.SiteDirectoryData
+<span id="switch-domain">
+    <DxFormLayout>
+        <DxFormLayoutItem Caption="Domains of Expertise:" ColSpanLg="12">
+            <DxComboBox Data="@this.ViewModel.AvailableDomains"
+                        @bind-Value="@this.ViewModel.SelectedDomainOfExpertise"
+                        TextFieldName="@nameof(DomainOfExpertise.Name)"/>
+        </DxFormLayoutItem>
+    </DxFormLayout>
+    <div class="modal-footer">
+        <DxButton id="switch-domain-button" Text="Switch" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.ViewModel.OnSubmit.InvokeAsync(this.ViewModel.SelectedDomainOfExpertise))"/>
+    </div> 
+</span>

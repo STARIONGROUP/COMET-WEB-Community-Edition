@@ -12,6 +12,8 @@
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
     </PropertyGroup>
     
     <ItemGroup>
