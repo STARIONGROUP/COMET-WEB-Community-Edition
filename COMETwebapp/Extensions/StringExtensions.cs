@@ -143,5 +143,15 @@ namespace COMETwebapp.Extensions
 
             return parameters;
         }
+
+        /// <summary>
+        /// Queries the name of the body component of a page
+        /// </summary>
+        /// <param name="pageName">The page name</param>
+        /// <returns>The compute name for the body component</returns>
+        public static string QueryPageBodyName(this string pageName)
+        {
+            return $"{pageName}-body".ToLower();
+        }
     }
 }

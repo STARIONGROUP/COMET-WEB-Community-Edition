@@ -21,8 +21,9 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
 @using COMETwebapp.Components.Viewer;
+@using COMETwebapp.Utilities
 @inherits SingleIterationPageTemplate
-@page "/3DViewer"
+@attribute [Route(ConstantValues.ViewerPage)]
 
 <SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
     <Body>

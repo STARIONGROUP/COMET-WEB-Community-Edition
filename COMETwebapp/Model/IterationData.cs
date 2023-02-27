@@ -39,7 +39,7 @@ namespace COMETwebapp.Model
 	    public IterationData(IterationSetup iterationSetup, bool displayModelName = false)
         {
             this.IterationSetupId = iterationSetup.Iid;
-            this.IterationName = $"Iteration - {iterationSetup.IterationNumber} - ";
+            this.IterationName = $"Iteration {iterationSetup.IterationNumber} - ";
             this.IterationName += iterationSetup.FrozenOn == null ? "Active" : iterationSetup.FrozenOn;
 
             if (displayModelName)

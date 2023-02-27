@@ -35,7 +35,6 @@ namespace COMETwebapp.Services.SessionManagement
     using CDP4Dal.Operations;
 
     using COMETwebapp.Enumerations;
-    using COMETwebapp.SessionManagement;
 
     using DynamicData;
 

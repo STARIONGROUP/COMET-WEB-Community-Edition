@@ -19,9 +19,11 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Utilities
+@using COMETwebapp.Extensions
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.Viewer.IViewerBodyViewModel>
 
-<div class="row">
+<div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
     <div class="col">
         <div class="width-fit-content">
             <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>

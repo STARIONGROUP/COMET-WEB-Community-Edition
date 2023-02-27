@@ -20,8 +20,9 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@using COMETwebapp.Utilities
 @inherits SingleIterationPageTemplate
-@page "/ParameterEditor"
+@attribute [Route(ConstantValues.ParameterEditorPage)]
 
 <SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
     <Body>

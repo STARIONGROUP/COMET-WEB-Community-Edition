@@ -31,18 +31,39 @@ namespace COMETwebapp.Shared.TopMenuEntry
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component that handle an open <see cref="Iteration"/> into the <see cref="ModelMenu"/>
+    /// Component that handle an open <see cref="Iteration" /> into the <see cref="ModelMenu" />
     /// </summary>
     public partial class ModelMenuRow
     {
         /// <summary>
-        /// The <see cref="ModelMenuRowViewModel"/>
+        /// The <see cref="ModelMenuRowViewModel" />
         /// </summary>
         [Parameter]
         public ModelMenuRowViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Value asserting if the current <see cref="Iteration"/> is the default one
+        /// The current index of the <see cref="ModelMenuRow" />
+        /// </summary>
+        [Parameter]
+        public int RowIndex { get; set; }
+
+        /// <summary>
+        /// The unique id of the <see cref="ModelMenuRow" />
+        /// </summary>
+        private string RowId => $"model-entry-row-{this.RowIndex}";
+
+        /// <summary>
+        /// The unique id of the close model row
+        /// </summary>
+        private string CloseModelId => $"{this.RowId}-close";
+
+        /// <summary>
+        /// The unique id of the switch domain model row
+        /// </summary>
+        private string SwitchModelId => $"{this.RowId}-switch";
+
+        /// <summary>
+        /// Value asserting if the current <see cref="Iteration" /> is the default one
         /// </summary>
         [Parameter]
         public bool IsDefault { get; set; }

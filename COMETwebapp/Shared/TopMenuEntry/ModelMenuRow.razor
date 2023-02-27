@@ -19,9 +19,26 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-<DxMenuItem Text="@(this.ViewModel.IterationName)" IconCssClass="@(this.GetIconCssClass())">
-	<Items>
-		<DxMenuItem Text="Switch Domain" Click="@(this.ViewModel.SwitchDomain)"/>
-		<DxMenuItem Text="Close Iteration" Click="@(this.ViewModel.CloseIteration)"/>
-	</Items>
+<DxMenuItem Name="@this.RowId" Text="@(this.ViewModel.IterationName)" IconCssClass="@(this.GetIconCssClass())">
+    <TextTemplate>
+        <span id="@context.Name">
+            @context.Text
+        </span>
+    </TextTemplate>
+    <Items>
+        <DxMenuItem Name="@this.SwitchModelId" Text="Switch Domain" Click="@(this.ViewModel.SwitchDomain)">
+            <TextTemplate Context="contextSwitch">
+                <span id="@contextSwitch.Name">
+                        @contextSwitch.Text
+                </span>
+            </TextTemplate>
+        </DxMenuItem>
+        <DxMenuItem Name="@this.CloseModelId" Text="Close Iteration" Click="@(this.ViewModel.CloseIteration)">
+            <TextTemplate Context="contextClose">
+                    <span id="@contextClose.Name">
+                        @contextClose.Text
+                </span>
+            </TextTemplate>
+        </DxMenuItem>
+    </Items>
 </DxMenuItem>
