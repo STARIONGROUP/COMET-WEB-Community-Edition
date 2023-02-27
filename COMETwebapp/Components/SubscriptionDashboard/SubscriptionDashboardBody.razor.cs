@@ -96,7 +96,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 additionalParameters[QueryKeys.ParameterKey] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, nameof(SubscriptionDashboard));
+            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.SubscriptionDashboardPage);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 [QueryKeys.ParameterKey] = parameterOrOverrideBase.ParameterType.Iid.ToShortGuid()
             };
 
-            this.UpdateUrlWithParameters(additionalParameters, nameof(ParameterEditor));
+            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.ParameterEditorPage);
         }
     }
 }

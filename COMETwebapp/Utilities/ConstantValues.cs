@@ -70,5 +70,40 @@ namespace COMETwebapp.Utilities
         /// Label used for <see cref="ElementBase" /> that are  referenced
         /// </summary>
         public const string ReferencedElements = "Referenced Elements";
+
+        /// <summary>
+        /// The page name for the Model Dashboard
+        /// </summary>
+        public const string ModelDashboardPage = "ModelDashboard";
+
+        /// <summary>
+        /// The page name of the Parameter Editor
+        /// </summary>
+        public const string ParameterEditorPage = "ParameterEditor";
+
+        /// <summary>
+        /// The page name of the Subscription Dashboard
+        /// </summary>
+        public const string SubscriptionDashboardPage = "SubscriptionDashboard";
+
+        /// <summary>
+        /// The page name of the 3D Viewer
+        /// </summary>
+        public const string ViewerPage = "3DViewer";
+
+        /// <summary>
+        /// The page name of the System Representation
+        /// </summary>
+        public const string SystemRepresentationPage = "SystemRepresentation";
+
+        /// <summary>
+        /// The page name of the Requirement Management
+        /// </summary>
+        public const string RequirementManagementPage = "RequirementManagement";
+
+        /// <summary>
+        /// The page name of the Budget Editor
+        /// </summary>
+        public const string BudgetEditorPage = "BudgetEditor";
     }
 }

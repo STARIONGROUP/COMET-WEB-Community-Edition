@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Model
 {
+    using COMETwebapp.Utilities;
+
     /// <summary>
     /// Provides all available application contained into the current web application
     /// </summary>
@@ -39,49 +41,56 @@ namespace COMETwebapp.Model
                 Name = "Parameter Editor",
                 Color = "#76b8fc",
                 Icon = "spreadsheet",
-                Description = "Table of element usages with their associated parameters."
+                Description = "Table of element usages with their associated parameters.",
+                Url = ConstantValues.ParameterEditorPage
             },
             new Card
             {
                 Name = "Model Dashboard",
                 Color = "#c3cffd",
                 Icon = "task",
-                Description = "Summarize the model progress."
+                Description = "Summarize the model progress.",
+                Url = ConstantValues.ModelDashboardPage
             },
             new Card
             {
                 Name = "Subscription Dashboard",
                 Color = "#76fd98",
                 Icon = "person",
-                Description = "Table of subscribed values."
+                Description = "Table of subscribed values.",
+                Url = ConstantValues.SubscriptionDashboardPage
             },
             new Card
             {
                 Name = "System Representation",
                 Color = "#a7f876",
                 Icon = "fork",
-                Description = "Represent relations between elements."
+                Description = "Represent relations between elements.",
+                Url = ConstantValues.SystemRepresentationPage
             },
             new Card
             {
                 Name = "Requirement Management",
                 Color = "#fda966",
                 Icon = "link-intact",
-                Description = "Edit requirements in the model."
+                Description = "Edit requirements in the model.",
+                Url = ConstantValues.RequirementManagementPage
             },
             new Card
             {
                 Name = "Budget Editor",
                 Color = "#fc3a1aad",
                 Icon = "brush",
-                Description = "Create budget tables."
+                Description = "Create budget tables.",
+                Url = ConstantValues.BudgetEditorPage
             },
             new Card
             {
                 Name = "3D Viewer",
                 Color = "#76fd98",
                 Icon = "eye",
-                Description = "Show 3D Viewer"
+                Description = "Show 3D Viewer",
+                Url = ConstantValues.ViewerPage
             }
         };
     }

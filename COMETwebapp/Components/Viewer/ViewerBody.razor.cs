@@ -124,7 +124,7 @@ namespace COMETwebapp.Components.Viewer
                 additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, "3DViewer");
+            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.ViewerPage);
         }
     }
 }

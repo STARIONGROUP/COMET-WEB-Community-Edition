@@ -76,7 +76,7 @@ namespace COMETwebapp.Components.ModelDashboard
         /// Sets the url of the <see cref="NavigationManager" /> based on the current values
         /// </summary>
         /// <param name="pageName">The name of the page to redirect to</param>
-        private void UpdateUrl(string pageName = nameof(ModelDashboard))
+        private void UpdateUrl(string pageName = ConstantValues.ModelDashboardPage)
         {
             var additionalParameters = new Dictionary<string, string>();
 
@@ -103,7 +103,7 @@ namespace COMETwebapp.Components.ModelDashboard
         /// </summary>
         private void RedirectToParameterEditor()
         {
-            this.UpdateUrl(nameof(ParameterEditor));
+            this.UpdateUrl(ConstantValues.ParameterEditorPage);
         }
     }
 }

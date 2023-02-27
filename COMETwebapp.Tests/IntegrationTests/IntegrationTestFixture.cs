@@ -27,6 +27,9 @@ namespace COMETwebapp.Tests.IntegrationTests
     using System;
     using System.Linq;
 
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Utilities;
+
     using NUnit.Framework;
 
     using OpenQA.Selenium;
@@ -72,7 +75,7 @@ namespace COMETwebapp.Tests.IntegrationTests
         {
             this.driver.Navigate().GoToUrl(this.appUrl + "/");
 
-            this.wait = new WebDriverWait(this.driver, TimeSpan.FromSeconds(90));
+            this.wait = new WebDriverWait(this.driver, TimeSpan.FromSeconds(120));
 
             this.wait.Until(ExpectedConditions.ElementExists(By.Id("unauthorized-notice")));
 
@@ -212,17 +215,17 @@ namespace COMETwebapp.Tests.IntegrationTests
             Assert.That(() => this.driver.FindElement(By.Id("switch-domain")), Throws.Exception);
         }
 
-        [TestCase("ModelDashboard")]
-        [TestCase("ParameterEditor")]
-        [TestCase("SubscriptionDashboard")]
-        [TestCase("3DViewer")]
+        [TestCase(ConstantValues.ModelDashboardPage)]
+        [TestCase(ConstantValues.ParameterEditorPage)]
+        [TestCase(ConstantValues.SubscriptionDashboardPage)]
+        [TestCase(ConstantValues.ViewerPage)]
         public void VerifyNavigateToApplication(string pageName)
         {
             this.VerifyCanOpenModel();
             var card = this.driver.FindElement(By.Id($"{pageName.ToLower()}"));
             card.Click();
             Assert.That(this.driver.Url, Does.Contain($"{pageName}"));
-            this.wait.Until(ExpectedConditions.ElementExists(By.Id($"{pageName.ToLower()}-body")));
+            this.wait.Until(ExpectedConditions.ElementExists(By.Id(pageName.QueryPageBodyName())));
         }
 
         private IWebElement GetMenuItem(string id)

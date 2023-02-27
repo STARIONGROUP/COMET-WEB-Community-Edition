@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.ParameterEditor
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
+
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -145,7 +146,7 @@ namespace COMETwebapp.Components.ParameterEditor
                 additionalParameters["owned"] = this.ViewModel.IsOwnedParameters.ToString();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, nameof(Pages.ParameterEditor.ParameterEditor));
+            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.ParameterEditorPage);
         }
     }
 }
