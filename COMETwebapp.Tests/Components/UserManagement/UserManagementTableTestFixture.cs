@@ -39,6 +39,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using CDP4Dal.Events;
     using COMETwebapp.Components.UserManagement;
     using COMETwebapp.IterationServices;
     using COMETwebapp.Pages.UserManagement;
@@ -110,7 +111,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 GivenName = "Test",
                 Surname = "Person",
                 DefaultDomain = domain,
-                IsActive = true
+                IsActive = true,
+                IsDeprecated = false
             };
 
             person1 = new Person(Guid.NewGuid(), assembler.Cache, uri)
@@ -277,7 +279,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             sessionAnchor.ReadIteration(iteration.IterationSetup);
             sessionAnchor.CurrentEngineeringModelName = "model";
 
-            var renderer = context.RenderComponent<UserManagementPage>();
+            var renderer = context.RenderComponent<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
@@ -299,6 +301,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             };
 
             viewModel.AddingPerson();
+            CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(viewModel.Person, EventKind.Added));
 
             Assert.Multiple(() =>
             {
@@ -307,13 +310,13 @@ namespace COMETwebapp.Tests.Components.UserManagement
         }
 
         [Test]
-        public async Task VerifyDeprecatingUser()
+        public async Task VerifyDeprecatingPerson()
         {
             sessionAnchor.IsSessionOpen = true;
             sessionAnchor.ReadIteration(iteration.IterationSetup);
             sessionAnchor.CurrentEngineeringModelName = "model";
 
-            var renderer = context.RenderComponent<UserManagementPage>();
+            var renderer = context.RenderComponent<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
@@ -322,28 +325,34 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Assert.That(renderer.Markup, Does.Contain(person1.Name));
             });
 
-            var deprecatButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "deprecateButton");
+            var deprecateButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "deprecateButton");
             var currentPerson = viewModel.Person;
 
             Assert.That(viewModel.popupVisible, Is.False);
 
-            await renderer.InvokeAsync(deprecatButton.Instance.Click.InvokeAsync);
+            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
                 Assert.That(viewModel.popupVisible, Is.True);
                 Assert.That(viewModel.Person, Is.Not.EqualTo(currentPerson));
             });
+
+            viewModel.Person = this.person;
+
+            this.viewModel.OnConfirmButtonClick();
+
+            Assert.That(viewModel.popupVisible, Is.False);
         }
 
         [Test]
-        public async Task VerifyUnDeprecatingUser()
+        public async Task VerifyUnDeprecatingPerson()
         {
             sessionAnchor.IsSessionOpen = true;
             sessionAnchor.ReadIteration(iteration.IterationSetup);
             sessionAnchor.CurrentEngineeringModelName = "model";
 
-            var renderer = context.RenderComponent<UserManagementPage>();
+            var renderer = context.RenderComponent<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
@@ -352,18 +361,56 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Assert.That(renderer.Markup, Does.Contain(person1.Name));
             });
 
-            var undeprecatButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "undeprecateButton");
+            var undeprecateButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "undeprecateButton");
             var currentPerson = viewModel.Person;
 
             Assert.That(viewModel.popupVisible, Is.False);
 
-            await renderer.InvokeAsync(undeprecatButton.Instance.Click.InvokeAsync);
+            await renderer.InvokeAsync(undeprecateButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
                 Assert.That(viewModel.popupVisible, Is.True);
                 Assert.That(viewModel.Person, Is.Not.EqualTo(currentPerson));
             });
+
+            viewModel.Person = this.person1;
+
+            this.viewModel.OnConfirmButtonClick();
+
+            Assert.That(viewModel.popupVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyActivatingPerson()
+        {
+            sessionAnchor.IsSessionOpen = true;
+            sessionAnchor.ReadIteration(iteration.IterationSetup);
+            sessionAnchor.CurrentEngineeringModelName = "model";
+
+            var renderer = context.RenderComponent<UserManagementTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(person.Name));
+                Assert.That(renderer.Markup, Does.Contain(person1.Name));
+            });
+
+            var checkBox = renderer.FindComponents<DxCheckBox<bool>>().FirstOrDefault(x => x.Instance.Id == "activatePerson");
+             Assert.Multiple(() =>
+            {
+                Assert.That(checkBox.Instance.Checked, Is.True);
+                Assert.That(renderer.Markup, Does.Contain(person.Name));
+                Assert.That(renderer.Markup, Does.Contain(person1.Name));
+            });
+
+            await renderer.InvokeAsync(() => checkBox.Instance.Checked = false);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(checkBox.Instance.Checked, Is.False);
+            }); 
         }
     }
 }
