@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IUserManagementPageViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IUserManagementTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -21,18 +21,18 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace COMETwebapp.ViewModels.Pages.UserManagement
+namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
-    
+    using COMETwebapp.ViewModels.Components.UserManagement.Rows;
     using DevExpress.Blazor;
-    
+
     using DynamicData;
 
     /// <summary>
-    ///     Interface definition for <see cref="UserManagementPageViewModel" />
+    ///     Interface definition for <see cref="UserManagementTableViewModel" />
     /// </summary>
-    public interface IUserManagementPageViewModel
+    public interface IUserManagementTableViewModel
     {
         /// <summary>
         ///     The <see cref="Person" /> to create
@@ -47,12 +47,17 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         /// <summary>
         ///     The <see cref="TelephoneNumber" /> to create
         /// </summary>
-        TelephoneNumber TelephoneNumber { get; set; } 
+        TelephoneNumber TelephoneNumber { get; set; }
 
         /// <summary>
         ///     Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<Person> DataSource { get; }
+
+        /// <summary>
+        /// A reactive collection of <see cref="PersonRowViewModel" />
+        /// </summary>
+        SourceList<PersonRowViewModel> Rows { get; }
 
         /// <summary>
         ///    Available <see cref="Organization"/>s
@@ -75,9 +80,39 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         IEnumerable<VcardEmailAddressKind> EmailAddressKinds { get; set; }
 
         /// <summary>
+        ///    Indicates if the <see cref="EmailAddress"/> is the default email address
+        /// </summary>
+        bool IsDefaultEmail { get; set; }
+
+        /// <summary>
         ///    Available <see cref="VcardTelephoneNumberKind"/>s
         /// </summary>
         IEnumerable<VcardTelephoneNumberKind> TelephoneNumberKinds { get; set; }
+
+        /// <summary>
+        ///  Indicates if the <see cref="TelephoneNumber"/> is the default telephone number
+        /// </summary>
+        bool IsDefaultTelephoneNumber { get; set; }
+
+        /// <summary>
+        ///  Indicates if confirmation popup is visible
+        /// </summary>
+        bool popupVisible { get; set; }
+
+        /// <summary>
+        ///     popum message dialog
+        /// </summary>
+        string popupDialog { get; set; }
+
+        /// <summary>
+        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person"/>
+        /// </summary>
+        void OnConfirmButtonClick();
+
+        /// <summary>
+        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Person"/>
+        /// </summary>
+        void OnCancelButtonClick();
 
         /// <summary>
         ///     Tries to create a new <see cref="Person" />
@@ -86,10 +121,15 @@ namespace COMETwebapp.ViewModels.Pages.UserManagement
         Task AddingPerson();
 
         /// <summary>
-        ///     Tries to deprecate a <see cref="Person" />
+        /// Action invoked when the deprecate or undeprecate button is clicked
+        /// </summary>
+        void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context);
+
+        /// <summary>
+        ///     Tries to activate or disactivate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task DeprecatingPerson(GridDataItemDeletingEventArgs e);
+        Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value);
 
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="UserManagementPage.razor.cs" company="RHEA System S.A.">
+// <copyright file="UserManagementTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -22,39 +22,35 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.UserManagement
+namespace COMETwebapp.Components.UserManagement
 {
     using System.Reactive.Linq;
     using System.Threading.Tasks;
-    
+
     using CDP4Common.SiteDirectoryData;
-    
-    using CDP4Dal;
-    using CDP4Dal.Events;
 
-    using COMETwebapp.ViewModels.Pages.UserManagement;
-    
+    using COMETwebapp.ViewModels.Components.UserManagement;
+    using COMETwebapp.ViewModels.Components.UserManagement.Rows;
     using DevExpress.Blazor;
-    
+    using DynamicData;
     using Microsoft.AspNetCore.Components;
-
     using ReactiveUI;
 
     /// <summary>
-    ///     Support class for the <see cref="UserManagementPage"/>
+    ///     Support class for the <see cref="UserManagementTable"/>
     /// </summary>
-    public partial class UserManagementPage : IDisposable
+    public partial class UserManagementTable : IDisposable
     {
         /// <summary>
         ///     A collection of <see cref="IDisposable" />
         /// </summary>
         private readonly List<IDisposable> disposables = new();
-        
+
         /// <summary>
-        ///     The <see cref="IUserManagementPageViewModel" /> for this page
+        ///     The <see cref="IUserManagementTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IUserManagementPageViewModel ViewModel { get; set; }
+        public IUserManagementTableViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -75,7 +71,7 @@ namespace COMETwebapp.Pages.UserManagement
         /// <param name="value">A <see cref="bool"/> that indicates whether deprecated items should be shown or hidden.</param>
         public void HideOrShowDeprecatedItems(bool value)
         {
-            if( value)
+            if (value)
             {
                 this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
             }
@@ -90,7 +86,7 @@ namespace COMETwebapp.Pages.UserManagement
         ///     perform custom calculations based on the data displayed in the grid.
         /// </summary>
         /// <param name="e">A <see cref="GridCustomSummaryEventArgs"/>
-        void Grid_CustomSummary(GridCustomSummaryEventArgs e)
+        void CustomSummary(GridCustomSummaryEventArgs e)
         {
             switch (e.SummaryStage)
             {
@@ -98,7 +94,7 @@ namespace COMETwebapp.Pages.UserManagement
                     e.TotalValue = 0;
                     break;
                 case GridCustomSummaryStage.Calculate:
-                    if (e.DataItem is Person person)
+                    if (e.DataItem is PersonRowViewModel person)
                     {
                         if (!person.IsActive)
                         {
@@ -112,14 +108,38 @@ namespace COMETwebapp.Pages.UserManagement
         }
 
         /// <summary>
+        ///     Method invoked when creating a new person
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
+        async Task CustomizeEditPerson(GridCustomizeEditModelEventArgs e)
+        {
+            var dataItem = (Person)e.DataItem;
+            if (dataItem == null)
+                e.EditModel = new Person { };
+            this.ViewModel.Person = new Person();
+        }
+
+        /// <summary>
         ///     Method invoked when the summary text of a summary item is being displayed, allowing you to customize
         ///     the text as needed. Override this method to modify the summary text based on specific conditions.
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeSummaryDisplayTextEventArgs"/> that contains information about the summary.</param>
-        void Grid_CustomizeSummaryDisplayText(GridCustomizeSummaryDisplayTextEventArgs e)
+        /// <param name="e">A <see cref="GridCustomizeSummaryDisplayTextEventArgs"/>  
+        void CustomizeSummaryDisplayText(GridCustomizeSummaryDisplayTextEventArgs e)
         {
             if (e.Item.Name == "Inactive")
                 e.DisplayText = string.Format("{0} Inactive", e.Value);
+        }
+
+        /// <summary>
+        ///     Method invoked to highlight deprecated persons
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
+        void DisableDeprecatedPerson(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex,"IsDeprecated") == true)
+            {
+                e.CssClass = "highlighted-item";
+            }
         }
 
         /// <summary>
@@ -133,7 +153,8 @@ namespace COMETwebapp.Pages.UserManagement
         {
             this.ViewModel.OnInitializedAsync();
 
-            this.disposables.Add(this.ViewModel.DataSource.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
         }
