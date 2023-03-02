@@ -79,6 +79,13 @@ namespace COMETwebapp.Model
                 Color = "#76fd98",
                 Icon = "eye",
                 Description = "Show 3D Viewer"
+            },
+            new Card()
+            {
+                Name = "Reference Data",
+                Color = "#fc3a1aad",
+                Icon = "file",
+                Description = "Visualize reference data"
             }
         };
     }

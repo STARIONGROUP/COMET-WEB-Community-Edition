@@ -33,6 +33,7 @@ namespace COMETwebapp
     using COMETwebapp.Primitives;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components.Authorization;
@@ -72,6 +73,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISystemRepresentationPageViewModel, SystemRepresentationPageViewModel>();
             builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
+            builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
 
 
             builder.Services.AddDevExpressBlazor();
