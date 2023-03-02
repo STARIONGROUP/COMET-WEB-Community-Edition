@@ -363,3 +363,7 @@ html, body, #app {
 .width-12.5{
     width:12.5%;
 }
+
+.highlighted-item {
+    background-color: #DEDFE4;
+}
