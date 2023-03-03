@@ -86,7 +86,7 @@ namespace COMETwebapp.Components.ReferenceData
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
         void DisableDeprecatedCategories(GridCustomizeElementEventArgs e)
         {
-            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated") == true)
+            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
                 e.CssClass = "highlighted-item";
             }

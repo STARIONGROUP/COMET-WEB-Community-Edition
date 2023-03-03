@@ -136,7 +136,7 @@ namespace COMETwebapp.Components.UserManagement
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
         void DisableDeprecatedPerson(GridCustomizeElementEventArgs e)
         {
-            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex,"IsDeprecated") == true)
+            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex,"IsDeprecated"))
             {
                 e.CssClass = "highlighted-item";
             }
