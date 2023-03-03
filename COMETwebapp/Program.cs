@@ -75,7 +75,6 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
-            builder.Services.AddTransient<IUserManagementPageViewModel, UserManagementPageViewModel>();
             builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
 
 
