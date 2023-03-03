@@ -22,20 +22,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests
+namespace COMETwebapp.Tests.SessionManagement
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reactive.Linq;
     using System.Threading.Tasks;
+    
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
+    
     using CDP4Dal;
     using CDP4Dal.DAL;
+    
     using COMETwebapp.SessionManagement;
+    
     using Moq;
+    
     using NUnit.Framework;
 
     [TestFixture]
@@ -45,6 +50,9 @@ namespace COMETwebapp.Tests
         private ISessionAnchor sessionAnchor;
         private Participant participant;
         private Person person;
+        private Person person1;
+        private Organization organization;
+        private PersonRole personRole;
         private DomainOfExpertise domain;
         private Iteration iteration;
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
@@ -63,6 +71,11 @@ namespace COMETwebapp.Tests
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
+            this.person1 = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
+
+            this.organization = new Organization(Guid.NewGuid(), this.assembler.Cache, this.uri);
+
+            this.personRole = new PersonRole(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
             this.participant = new Participant(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
@@ -125,6 +138,9 @@ namespace COMETwebapp.Tests
                 Model = { this.engineeringSetup }
             };
             this.siteDirectory.Person.Add(this.person);
+            this.siteDirectory.Person.Add(this.person1);
+            this.siteDirectory.Organization.Add(this.organization);
+            this.siteDirectory.PersonRole.Add(this.personRole);
             this.siteDirectory.Domain.Add(this.domain);
 
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
@@ -162,7 +178,7 @@ namespace COMETwebapp.Tests
         [Test]
         public void VerifyGetParticipantModels()
         {
-            Assert.That(this.sessionAnchor.GetParticipantModels(), Is.Not.Null);
+            Assert.That(this.sessionAnchor.GetParticipantModels().ToList(), Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -240,6 +256,67 @@ namespace COMETwebapp.Tests
             this.sessionAnchor.IsSessionOpen = true;
             this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
             Assert.That(this.sessionAnchor.GetParticipant(), Is.EqualTo(this.participant));
+        }
+
+        [Test]
+        public void VerifyCreateThingsSiteDirectory()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => this.sessionAnchor.CreateThingsSiteDirectory(null));
+            this.sessionAnchor.IsSessionOpen = true;
+            var thingsToCreate = new List<Person>();
+            var person = new Person();
+            person.ShortName = "USR1";
+            person.GivenName = "USR1";
+            thingsToCreate.Add(person.Clone(false));
+            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThingsSiteDirectory(thingsToCreate));
+        }
+
+        [Test]
+        public void VerifyUpdateThingsSiteDirectory()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => this.sessionAnchor.UpdateThingsSiteDirectory(null));
+            var thingsToUpdate = new List<Person>();
+            this.sessionAnchor.IsSessionOpen = true;
+            var person = new Person();
+            person.ShortName = "USR";
+            person.IsDeprecated = false;
+
+            var clone = person.Clone(false);
+            clone.IsDeprecated = true;
+            thingsToUpdate.Add(clone);
+            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThingsSiteDirectory(thingsToUpdate));
+        }
+
+        [Test]
+        public void VerifyGetPersons()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Person.ToList(), Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void VerifyGetAvailableOrganizations()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Organization.ToList(), Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyGetAvailablePersonRoles()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().PersonRole.ToList(), Has.Count.EqualTo(1));
+        }
+        
+        [Test]
+        public void VerifyGetAvailableDomains()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Domain.ToList(), Has.Count.EqualTo(1));
         }
     }
 }
