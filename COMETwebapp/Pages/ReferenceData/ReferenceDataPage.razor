@@ -24,6 +24,21 @@ Copyright (c) 2023 RHEA System S.A.
 
 <ApplicationTemplate Title="Reference Data">
     <Body>
-        <ParameterTypeTable />
+        <DxToolbar ItemClick="@OnItemClick">
+            <Items>
+                <DxToolbarItem Name="ParameterTypes" Text="Parameter Types" Tooltip="Parameter Types" />
+                <DxToolbarItem Name="Categories" Text="Categories" Tooltip="Categories" />
+            </Items>
+        </DxToolbar>
+
+        @if (this.selectedComponentName == "ParameterTypes")
+        {
+            <ParameterTypeTable />
+        }
+        else if (this.selectedComponentName == "Categories")
+        {
+            <CategoriesTable />
+        }
     </Body>
 </ApplicationTemplate>
+

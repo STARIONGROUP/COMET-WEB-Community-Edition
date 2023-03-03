@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterTypeTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="CategoriesTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -32,32 +32,32 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    
+
     using DevExpress.Blazor.Internal;
-    
+
     using DynamicData;
 
     using ReactiveUI;
 
     /// <summary>
-    ///     View model for the <see cref="ParameterTypeTable" /> component
+    ///     View model for the <see cref="CategoriesTable" /> component
     /// </summary>
-    public class ParameterTypeTableViewModel : ReactiveObject, IParameterTypeTableViewModel, IDisposable
+    public class CategoriesTableViewModel : ReactiveObject, ICategoriesTableViewModel, IDisposable
     {
         /// <summary>
-        /// A collection of all <see cref="ParameterTypeRowViewModel" />
+        /// A collection of all <see cref="CategoryRowViewModel" />
         /// </summary>
-        private IEnumerable<ParameterTypeRowViewModel> allRows = new List<ParameterTypeRowViewModel>();
+        private IEnumerable<CategoryRowViewModel> allRows = new List<CategoryRowViewModel>();
 
         /// <summary>
-        /// A reactive collection of <see cref="ParameterTypeRowViewModel" />
+        /// A reactive collection of <see cref="CategoryRowViewModel" />
         /// </summary>
-        public SourceList<ParameterTypeRowViewModel> Rows { get; } = new();
+        public SourceList<CategoryRowViewModel> Rows { get; } = new();
 
         /// <summary>
         ///     Gets or sets the data source for the grid control.
         /// </summary>
-        public SourceList<ParameterType> DataSource { get; } = new();
+        public SourceList<Category> DataSource { get; } = new();
 
         /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
@@ -70,27 +70,27 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private readonly List<IDisposable> disposables = new();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
+        ///     Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionAnchor">The <see cref="ISessionAnchor" /></param>
-        public ParameterTypeTableViewModel(ISessionAnchor sessionAnchor)
+        public CategoriesTableViewModel(ISessionAnchor sessionAnchor)
         {
             this.SessionAnchor = sessionAnchor;
 
             var addListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
                     .Where(objectChange => objectChange.EventKind == EventKind.Added &&
                                            objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as ParameterType)
-                    .Subscribe(ParameterType => this.addNewParameterType(ParameterType));
+                    .Select(x => x.ChangedThing as Category)
+                    .Subscribe(Category => this.addNewCategory(Category));
             this.disposables.Add(addListener);
 
             var updateListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
                     .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                            objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as ParameterType)
-                    .Subscribe(ParameterType => this.updateParameterType(ParameterType));
+                    .Select(x => x.ChangedThing as Category)
+                    .Subscribe(Category => this.updateCategory(Category));
             this.disposables.Add(updateListener);
 
             var rdlUpdateListener =
@@ -110,33 +110,33 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </param>
         private void RefreshContainerName(ReferenceDataLibrary rdl)
         {
-            foreach (var parameter in this.Rows.Items)
+            foreach (var category in this.Rows.Items)
             {
-                if (parameter.ContainerName != rdl.ShortName)
+                if (category.ContainerName != rdl.ShortName)
                 {
-                    parameter.ContainerName = rdl.ShortName;
+                    category.ContainerName = rdl.ShortName;
                 }
             }
         }
 
         /// <summary>
-        ///   Adds a new <see cref="ParameterType" /> 
+        ///   Adds a new <see cref="Category" /> 
         /// </summary>
-        public void addNewParameterType(ParameterType parameterType)
+        public void addNewCategory(Category category)
         {
-            var newRows = new List<ParameterTypeRowViewModel>(this.allRows);
-            newRows.Add(new ParameterTypeRowViewModel(parameterType));
+            var newRows = new List<CategoryRowViewModel>(this.allRows);
+            newRows.Add(new CategoryRowViewModel(category));
             this.UpdateRows(newRows);
         }
 
         /// <summary>
-        ///   Updates the <see cref="ParameterType" /> 
+        ///   Updates the <see cref="Category" /> 
         /// </summary>  
-        public void updateParameterType(ParameterType parameterType)
+        public void updateCategory(Category category)
         {
-            var updatedRows = new List<ParameterTypeRowViewModel>(this.allRows);
-            var index = updatedRows.FindIndex(x => x.ParameterType.Iid == parameterType.Iid);
-            updatedRows[index] = new ParameterTypeRowViewModel(parameterType);
+            var updatedRows = new List<CategoryRowViewModel>(this.allRows);
+            var index = updatedRows.FindIndex(x => x.Category.Iid == category.Iid);
+            updatedRows[index] = new CategoryRowViewModel(category);
             this.UpdateRows(updatedRows);
         }
 
@@ -152,32 +152,32 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Updates this view model properties
         /// </summary>
-        /// <param name="parameterTypes">A collection of <see cref="ParameterType" /></param>
-        public void UpdateProperties(IEnumerable<ParameterType> parameterTypes)
+        /// <param name="categories">A collection of <see cref="Category" /></param>
+        public void UpdateProperties(IEnumerable<Category> categories)
         {
-            this.allRows = parameterTypes.Select(x => new ParameterTypeRowViewModel(x));
+            this.allRows = categories.Select(x => new CategoryRowViewModel(x));
             this.UpdateRows(this.allRows);
         }
 
         /// <summary>
         /// Update the <see cref="Rows" /> collection based on a collection of
-        /// <see cref="ParameterTypeRowViewModel" /> to display.
+        /// <see cref="CategoryRowViewModel" /> to display.
         /// </summary>
-        /// <param name="rowsToDisplay">A collection of <see cref="ParameterTypeRowViewModel" /></param>
-        private void UpdateRows(IEnumerable<ParameterTypeRowViewModel> rowsToDisplay)
+        /// <param name="rowsToDisplay">A collection of <see cref="CategoryRowViewModel" /></param>
+        private void UpdateRows(IEnumerable<CategoryRowViewModel> rowsToDisplay)
         {
             rowsToDisplay = rowsToDisplay.ToList();
 
-            var deletedRows = this.Rows.Items.Where(x => rowsToDisplay.All(r => r.ParameterType.Iid != x.ParameterType.Iid)).ToList();
-            var addedRows = rowsToDisplay.Where(x => this.Rows.Items.All(r => r.ParameterType.Iid != x.ParameterType.Iid)).ToList();
-            var existingRows = rowsToDisplay.Where(x => this.Rows.Items.Any(r => r.ParameterType.Iid == x.ParameterType.Iid)).ToList();
+            var deletedRows = this.Rows.Items.Where(x => rowsToDisplay.All(r => r.Category.Iid != x.Category.Iid)).ToList();
+            var addedRows = rowsToDisplay.Where(x => this.Rows.Items.All(r => r.Category.Iid != x.Category.Iid)).ToList();
+            var existingRows = rowsToDisplay.Where(x => this.Rows.Items.Any(r => r.Category.Iid == x.Category.Iid)).ToList();
 
             this.Rows.RemoveMany(deletedRows);
             this.Rows.AddRange(addedRows);
 
             foreach (var existingRow in existingRows)
             {
-                this.Rows.Items.First(x => x.ParameterType.Iid == existingRow.ParameterType.Iid).UpdateProperties(existingRow);
+                this.Rows.Items.First(x => x.Category.Iid == existingRow.Category.Iid).UpdateProperties(existingRow);
             }
         }
 
@@ -192,7 +192,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             foreach (var siteReferenceDataLibrary in this.SessionAnchor.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary)
             {
-                this.DataSource.AddRange(siteReferenceDataLibrary.ParameterType);
+                this.DataSource.AddRange(siteReferenceDataLibrary.DefinedCategory);
             }
             this.UpdateProperties(this.DataSource.Items);
         }
