@@ -103,6 +103,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
             builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
+            builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
 
         /// <summary>
         /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder" />
