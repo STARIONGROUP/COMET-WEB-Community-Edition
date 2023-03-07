@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterTypeTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="CategoriesTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -36,9 +36,9 @@ namespace COMETwebapp.Components.ReferenceData
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    ///     Support class for the <see cref="ParameterTypeTable"/>
+    ///     Support class for the <see cref="CategoriesTable"/>
     /// </summary>
-    public partial class ParameterTypeTable : IDisposable
+    public partial class CategoriesTable : IDisposable
     {
         /// <summary>
         ///     A collection of <see cref="IDisposable" />
@@ -46,10 +46,10 @@ namespace COMETwebapp.Components.ReferenceData
         private readonly List<IDisposable> disposables = new();
 
         /// <summary>
-        ///     The <see cref="IParameterTypeTableViewModel" /> for this component
+        ///     The <see cref="ICategoriesTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IParameterTypeTableViewModel ViewModel { get; set; }
+        public ICategoriesTableViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -81,10 +81,10 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        ///     Method invoked to highlight deprecated parameter types
+        ///     Method invoked to highlight deprecated categories
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
-        void DisableDeprecatedParameterType(GridCustomizeElementEventArgs e)
+        void DisableDeprecatedCategories(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {

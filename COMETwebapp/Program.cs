@@ -76,6 +76,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
             builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
+            builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
 
 
             builder.Services.AddDevExpressBlazor();

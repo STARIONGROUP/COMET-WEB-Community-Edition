@@ -25,37 +25,33 @@ Copyright (c) 2023 RHEA System S.A.
         Data="this.ViewModel.Rows.Items"
         ShowSearchBox="true"
         ShowAllRows="true"
-        SearchBoxNullText="Search for a parameter type..."
-        PopupEditFormCssClass="pw-800"
-        PopupEditFormHeaderText="Create Parameter Type"
+        SearchBoxNullText="Search for a category..."
         EditMode="GridEditMode.PopupEditForm"
-        CustomizeElement="DisableDeprecatedParameterType">
+        CustomizeElement="DisableDeprecatedCategories">
     <Columns>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Symbol)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.DefaultScale)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.Name)" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.SuperCategories)" Caption="Super Categories" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
         <DxGridCommandColumn Width="200px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addParameterButton" Text="Add Parameter Type" IconCssClass="oi oi-plus" />
+                <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
-                    var row = (ParameterTypeRowViewModel)context.DataItem;
+                    var row = (CategoryRowViewModel)context.DataItem;
                     if (row.IsDeprecated)
                     {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate"/>
+                        <DxButton Id="undeprecateButton" Text="Un-deprecate" />
                     }
                     else
                     {
-                        <DxButton Id="deprecateButton" Text="Deprecate"/>
+                        <DxButton Id="deprecateButton" Text="Deprecate" />
                     }
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
 </DxGrid>
-<DxCheckBox Id="hideDeprecatedItems" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.HideOrShowDeprecatedItems(value))">Show/Hide Deprecated Parameter Types</DxCheckBox>
+<DxCheckBox Id="hideDeprecatedItems" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.HideOrShowDeprecatedItems(value))">Show/Hide Deprecated Categories</DxCheckBox>
