@@ -35,7 +35,7 @@ Copyright (c) 2023 RHEA System S.A.
         <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.SuperCategories)" Caption="Super Categories" MinWidth="80" SearchEnabled="false" />
         <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
         <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="200px" EditButtonVisible="false" Visible="this.ViewModel.IsAllowedToWrite">
+        <DxGridCommandColumn Width="200px" EditButtonVisible="false">
             <HeaderTemplate>
                 <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" />
             </HeaderTemplate>
