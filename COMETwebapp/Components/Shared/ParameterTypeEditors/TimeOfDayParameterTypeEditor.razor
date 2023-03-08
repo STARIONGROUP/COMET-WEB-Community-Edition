@@ -27,9 +27,9 @@ along with this program. If not, see http://www.gnu.org/licenses/.
     int.TryParse(values[1], out var minutes);
     int.TryParse(values[2], out var seconds);
 
-    var time = new TimeSpan(hours, minutes, seconds);
+    var timeSpan = new TimeSpan(hours, minutes, seconds);
 
-    <DxTimeEdit @bind-Time="@time" 
-                CssClass="cw-320"
-                ReadOnly="this.ViewModel.IsReadOnly"/>
+    <DxTimeEdit Time="@timeSpan" CssClass="cw-320"
+                TimeChanged="@((TimeSpan time) => this.ViewModel.OnParameterValueChanged(time))"
+                ReadOnly="this.ViewModel.IsReadOnly" />
 }

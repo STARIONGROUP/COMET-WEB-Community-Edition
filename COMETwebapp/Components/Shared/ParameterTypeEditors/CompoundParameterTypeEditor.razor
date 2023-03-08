@@ -42,7 +42,8 @@ else if (this.ViewModel.ValueSet is not null)
                            Text="@this.ViewModel.ValueArray[index]" 
                            CssClass="parameter-input"
                            ReadOnly="this.ViewModel.IsReadOnly"
-                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))" />
+                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"
+                           BindValueMode="@this.BindValueMode"/>
 
             </div>
         }

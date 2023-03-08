@@ -29,6 +29,8 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components;
     
     using ReactiveUI;
@@ -43,6 +45,12 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         /// </summary>
         [Parameter]
         public IParameterEditorBaseViewModel<CompoundParameterType> ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="BindValueMode"/> used for the inputs 
+        /// </summary>
+        [Parameter]
+        public BindValueMode BindValueMode { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in

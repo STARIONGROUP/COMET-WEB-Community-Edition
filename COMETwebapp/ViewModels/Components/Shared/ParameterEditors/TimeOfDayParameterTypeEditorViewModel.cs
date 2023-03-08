@@ -26,6 +26,9 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
+    using Newtonsoft.Json.Linq;
+    using System.Globalization;
 
     /// <summary>
     /// ViewModel used to edit <see cref="TimeOfDayParameterType"/>
@@ -46,9 +49,17 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public override Task OnParameterValueChanged(object value)
+        public override async Task OnParameterValueChanged(object value)
         {
-            throw new NotImplementedException();
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is TimeSpan time)
+            {
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                {
+                    [0] = time.ToString()
+                };
+
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            }
         }
     }
 }

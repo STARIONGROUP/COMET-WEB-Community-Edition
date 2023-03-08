@@ -29,5 +29,5 @@
 	</DxFormLayoutItem>
 </DxFormLayout>
 <div class="modal-footer">
-	<DxButton Text="Select" CssClass="btn btn-connect" Click="@this.ViewModel.Submit"/>
+    <DxButton Text="Select" CssClass="btn btn-connect" Click="@this.ViewModel.Submit" Enabled="@(this.ViewModel.SelectedIteration != null)"/>
 </div>
