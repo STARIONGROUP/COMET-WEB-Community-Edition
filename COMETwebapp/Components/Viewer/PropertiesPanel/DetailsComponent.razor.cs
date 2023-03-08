@@ -27,8 +27,6 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     
     using Microsoft.AspNetCore.Components;
-    
-    using ReactiveUI;
 
     /// <summary>
     /// The component used for showing the details of the current selected <see cref="Model.SceneObject"/>
@@ -40,15 +38,5 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         [Parameter]
         public IDetailsComponentViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.WhenAnyValue(x => x.ViewModel.ValueSet).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-        }
     }
 }

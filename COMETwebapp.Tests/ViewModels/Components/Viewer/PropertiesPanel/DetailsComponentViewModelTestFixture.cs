@@ -71,8 +71,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsVisible, Is.True);
-                Assert.That(this.viewModel.ValueSet, Is.Not.Null);
-                Assert.That(this.viewModel.ParameterValueChanged, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterType, Is.Not.Null);
             });
         }

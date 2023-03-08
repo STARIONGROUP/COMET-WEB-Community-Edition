@@ -52,9 +52,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.IsVisible = isVisible;
             this.ParameterType = parameterType;
-            this.ValueSet = valueSet;
-            this.ParameterValueChanged = parameterValueSetChanged;
-            this.ParameterEditorSelector = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, false);
+            this.ParameterEditorSelector = new ParameterTypeEditorSelectorViewModel(this.ParameterType, valueSet, false);
+            this.ParameterEditorSelector.ParameterValueChanged = parameterValueSetChanged;
         }
 
         /// <summary>
@@ -68,18 +67,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public bool IsVisible { get; set; }
 
         /// <summary>
-        /// Gets or sets the current value set
-        /// </summary>
-        public IValueSet ValueSet { get; set; }
-
-        /// <summary>
         /// Gets or sets the <see cref="ParameterType" /> of the selected parameter
         /// </summary>
         public ParameterType ParameterType { get; set; }
-
-        /// <summary>
-        /// Event callback for when a value of the <see cref="IValueSet" /> has changed
-        /// </summary>
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
     }
 }
