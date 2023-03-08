@@ -202,11 +202,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             {
                 Assert.That(timeOfDayParameterEditor, Is.TypeOf<TimeOfDayParameterTypeEditorViewModel>());
                 Assert.That(timeOfDayParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Exception);
+                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
-            Assert.That(timeOfDayParameterEditor.IsReadOnly, Is.True);
+            this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);            
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(timeOfDayParameterEditor.IsReadOnly, Is.True);
+                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+            });
         }
 
         private IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T: ParameterType, new()
