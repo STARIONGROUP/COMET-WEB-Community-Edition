@@ -103,7 +103,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="switchValue">The <see cref="ParameterSwitchKind" /></param>
         public void UpdateSwitchKind(ParameterSwitchKind switchValue)
         {
-            this.haveValueSetViewModel.UpdateParameterSwitchKind(switchValue);
+            this.haveValueSetViewModel?.UpdateParameterSwitchKind(switchValue);
         }
     }
 }

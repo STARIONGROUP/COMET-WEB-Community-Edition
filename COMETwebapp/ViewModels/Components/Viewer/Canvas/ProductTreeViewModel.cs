@@ -31,13 +31,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
+    using COMETwebapp.Utilities.DisposableObject;
 
     using ReactiveUI;
 
     /// <summary>
     /// View Model for building the product tree
     /// </summary>
-    public class ProductTreeViewModel : ReactiveObject, IProductTreeViewModel
+    public class ProductTreeViewModel : DisposableObject, IProductTreeViewModel
     {
         /// <summary>
         /// Gets o sets the <see cref="SelectionMediator"/>
@@ -117,8 +118,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                 }
             };
             
-            this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange());
-            this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged());
+            this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
         }
 
         /// <summary>
