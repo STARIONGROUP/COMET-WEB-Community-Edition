@@ -24,12 +24,14 @@
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using System.Reactive.Linq;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
+    
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     
