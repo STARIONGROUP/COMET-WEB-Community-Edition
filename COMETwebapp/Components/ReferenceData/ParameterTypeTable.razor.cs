@@ -34,6 +34,7 @@ namespace COMETwebapp.Components.ReferenceData
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
 
     /// <summary>
     ///     Support class for the <see cref="ParameterTypeTable"/>
@@ -102,6 +103,8 @@ namespace COMETwebapp.Components.ReferenceData
         protected override Task OnInitializedAsync()
         {
             this.ViewModel.OnInitializedAsync();
+
+            this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
             this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));

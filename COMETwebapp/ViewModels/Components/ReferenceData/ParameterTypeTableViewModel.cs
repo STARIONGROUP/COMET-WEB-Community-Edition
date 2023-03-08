@@ -24,12 +24,12 @@
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using System.Reactive.Linq;
-
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
     using CDP4Dal.Events;
-
+    using CDP4Dal.Permission;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     
@@ -65,6 +65,25 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private readonly ISessionAnchor SessionAnchor;
 
         /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Value indicating if the <see cref="ParameterType" /> is deprecated
+        /// </summary>
+        public bool IsAllowedToWrite
+        {
+            get => this.isAllowedToWrite;
+            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
+        }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IPermissionService"/>
+        /// </summary>
+        private readonly IPermissionService permissionService;
+
+        /// <summary>
         ///     A collection of <see cref="IDisposable" />
         /// </summary>
         private readonly List<IDisposable> disposables = new();
@@ -76,6 +95,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public ParameterTypeTableViewModel(ISessionAnchor sessionAnchor)
         {
             this.SessionAnchor = sessionAnchor;
+            this.permissionService = sessionAnchor.Session.PermissionService;
 
             var addListener =
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))
@@ -100,6 +120,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     .Select(x => x.ChangedThing as ReferenceDataLibrary)
                     .Subscribe(this.RefreshContainerName);
             this.disposables.Add(rdlUpdateListener);
+
+            var updateAccessRight = CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
+                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
+                    .Select(x => x.ChangedThing as PersonRole)
+                    .Subscribe(x => this.RefreshAccessRight());
+            this.disposables.Add(updateAccessRight);
         }
 
         /// <summary>
@@ -160,6 +187,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
+        ///   Updates the active user access rights
+        /// </summary>  
+        private void RefreshAccessRight()
+        {
+            this.IsAllowedToWrite = this.SessionAnchor.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary.All(s => this.permissionService.CanWrite(ClassKind.ParameterType, s));
+        }
+
+        /// <summary>
         /// Update the <see cref="Rows" /> collection based on a collection of
         /// <see cref="ParameterTypeRowViewModel" /> to display.
         /// </summary>
@@ -195,6 +230,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 this.DataSource.AddRange(siteReferenceDataLibrary.ParameterType);
             }
             this.UpdateProperties(this.DataSource.Items);
+            this.RefreshAccessRight();
         }
     }
 }

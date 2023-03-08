@@ -40,7 +40,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using CDP4Dal;
     using CDP4Dal.DAL;
-    
+    using CDP4Dal.Permission;
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.IterationServices;
     using COMETwebapp.SessionManagement;
@@ -65,6 +65,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private ICategoriesTableViewModel viewModel;
         private Mock<ISession> session;
         private Mock<IIterationService> iterationService;
+        private Mock<IPermissionService> permissionService;
         private ISessionAnchor sessionAnchor;
         private Assembler assembler;
         private Participant participant;
@@ -96,6 +97,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             iterationService = new Mock<IIterationService>();
 
             iterationService.Setup(x => x.GetNestedElementsByOption(It.IsAny<Iteration>(), It.IsAny<Guid>())).Returns(new List<NestedElement>());
+
+            permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+
+            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
 
             context.Services.AddBlazorStrap();
             context.Services.AddAntDesign();
@@ -296,6 +303,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(elementDefinitionCategory_1.Name));
                 Assert.That(renderer.Markup, Does.Contain(elementDefinitionCategory_2.Name));
+                Assert.That(viewModel.IsAllowedToWrite, Is.True);
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>().FirstOrDefault(x => x.Instance.Id == "hideDeprecatedItems");
