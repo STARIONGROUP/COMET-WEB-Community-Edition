@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ModelMenuRow.razor.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterSwitchKindComponent.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,44 +22,33 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared.TopMenuEntry
+namespace COMETwebapp.Components.Shared.Selectors
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
-    /// Component that handle an open <see cref="Iteration" /> into the <see cref="ModelMenu" />
+    /// Class for the component <see cref="ParameterSwitchKindSelector" />
     /// </summary>
-    public partial class ModelMenuRow
+    public partial class ParameterSwitchKindSelector
     {
         /// <summary>
-        /// The <see cref="ModelMenuRowViewModel" />
+        /// Gets or sets the <see cref="IParameterSwitchKindSelectorViewModel" />
         /// </summary>
         [Parameter]
-        public ModelMenuRowViewModel ViewModel { get; set; }
+        public IParameterSwitchKindSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The current index of the <see cref="ModelMenuRow" />
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        [Parameter]
-        public int RowIndex { get; set; }
-
-        /// <summary>
-        /// The unique id of the <see cref="ModelMenuRow" />
-        /// </summary>
-        private string RowId => $"model-entry-row-{this.RowIndex}";
-
-        /// <summary>
-        /// The unique id of the close model row
-        /// </summary>
-        private string CloseModelId => $"{this.RowId}-close";
-
-        /// <summary>
-        /// The unique id of the switch domain model row
-        /// </summary>
-        private string SwitchModelId => $"{this.RowId}-switch";
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -19,16 +19,13 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Components.Shared.ParameterTypeEditors
-@{
-    if (this.ViewModel.IsVisible && this.ViewModel.ParameterType is not null)
-    {
-        <div id ="details-header">
-            <p>@this.ViewModel.ParameterType.ShortName - [Scale]</p>
-        </div>
-        <div id="details-body">
-            <ParameterTypeEditorSelector ViewModel="this.ViewModel.ParameterEditorSelector" />
-        </div>
-    }
-}
+@using CDP4Common.EngineeringModelData
+@inherits DisposableComponent
 
+@{
+    var values = Enum.GetValues(typeof(ParameterSwitchKind)).Cast<ParameterSwitchKind>();
+    <DxComboBox Data="@values"
+                @bind-Value="@this.ViewModel.SwitchValue"
+                ReadOnly="@this.ViewModel.IsReadOnly">
+    </DxComboBox>
+}

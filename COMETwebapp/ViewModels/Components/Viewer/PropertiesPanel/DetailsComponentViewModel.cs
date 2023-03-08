@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
@@ -35,10 +34,34 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using ReactiveUI;
 
     /// <summary>
-    /// View Model that provide details for <see cref="ParameterBase"/>
+    /// View Model that provide details for <see cref="ParameterBase" />
     /// </summary>
     public class DetailsComponentViewModel : ReactiveObject, IDetailsComponentViewModel
     {
+        /// <summary>
+        /// Creates a new instance of type <see cref="DetailsComponentViewModel" />
+        /// </summary>
+        /// <param name="isVisible">if the component is visible/></param>
+        /// <param name="parameterType">the ParameterType of the selected parameter</param>
+        /// <param name="valueSet">the current <see cref="IValueSet" /></param>
+        /// <param name="parameterValueSetChanged">
+        /// event callback for when a <see cref="IValueSet" /> asociated to a
+        /// <see cref="ParameterBase" /> has changed
+        /// </param>
+        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<IValueSet> parameterValueSetChanged)
+        {
+            this.IsVisible = isVisible;
+            this.ParameterType = parameterType;
+            this.ValueSet = valueSet;
+            this.ParameterValueChanged = parameterValueSetChanged;
+            this.ParameterEditorSelector = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, false);
+        }
+
+        /// <summary>
+        /// The <see cref="IParameterTypeEditorSelectorViewModel" />
+        /// </summary>
+        public IParameterTypeEditorSelectorViewModel ParameterEditorSelector { get; }
+
         /// <summary>
         /// Gets or sets if the component is visible
         /// </summary>
@@ -50,37 +73,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public IValueSet ValueSet { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ParameterType"/> of the selected parameter
+        /// Gets or sets the <see cref="ParameterType" /> of the selected parameter
         /// </summary>
         public ParameterType ParameterType { get; set; }
 
-        /// <summary> 
-        /// Event callback for when a value of the <see cref="IValueSet"/> has changed 
-        /// </summary> 
+        /// <summary>
+        /// Event callback for when a value of the <see cref="IValueSet" /> has changed
+        /// </summary>
         public EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="DetailsComponentViewModel"/>
-        /// </summary>
-        /// <param name="isVisible">if the component is visible/></param>
-        /// <param name="parameterType">the ParameterType of the selected parameter</param>
-        /// <param name="valueSet">the current <see cref="IValueSet"/></param>
-        /// <param name="parameterValueSetChanged">event callback for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed</param>
-        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<IValueSet> parameterValueSetChanged)
-        {
-            this.IsVisible = isVisible;
-            this.ParameterType = parameterType;
-            this.ValueSet = valueSet;
-            this.ParameterValueChanged = parameterValueSetChanged;
-        }
-        
-        /// <summary>
-        /// Creates a <see cref="ParameterTypeEditorSelectorViewModel"/> used for display the correct editor
-        /// </summary>
-        /// <returns>the <see cref="ParameterTypeEditorSelectorViewModel"/></returns>
-        public IParameterTypeEditorSelectorViewModel<ParameterType> CreateParameterTypeEditorSelectorViewModel()
-        {
-            return new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet);
-        }
     }
 }

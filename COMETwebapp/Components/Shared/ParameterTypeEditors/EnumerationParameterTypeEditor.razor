@@ -19,11 +19,12 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@inherits DisposableComponent
 
 <DxComboBox CssClass="enumeration-parameter-type"
             Data="this.ViewModel.ParameterType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name)"
             NullText="-"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-            Value="@(this.ViewModel.ValueSet.ActualValue.First())"
+            Value="@(this.ViewModel.ValueArray.First())"
             ReadOnly="this.ViewModel.IsReadOnly"
             ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)"/>

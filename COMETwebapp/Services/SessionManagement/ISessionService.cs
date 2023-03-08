@@ -38,11 +38,6 @@ namespace COMETwebapp.Services.SessionManagement
     public interface ISessionService
     {
         /// <summary>
-        /// The <see cref="Iteration" /> that is selected by default
-        /// </summary>
-        Iteration DefaultIteration { get; set; }
-
-        /// <summary>
         /// Gets or sets the <see cref="ISession" />
         /// </summary>
         ISession Session { get; set; }

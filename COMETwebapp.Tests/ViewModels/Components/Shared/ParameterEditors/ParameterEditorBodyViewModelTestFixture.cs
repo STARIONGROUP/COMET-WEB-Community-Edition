@@ -34,6 +34,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+    using CDP4Dal.Permission;
+
     using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
@@ -146,7 +149,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             iteration.DefaultOption = iteration.Option.First();
 
             var sessionService = new Mock<ISessionService>();
-            sessionService.Setup(x => x.DefaultIteration).Returns(iteration);
+            var session = new Mock<ISession>();
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            sessionService.Setup(x => x.Session).Returns(session.Object);
 
             var subscriptionService = new Mock<ISubscriptionService>();
 

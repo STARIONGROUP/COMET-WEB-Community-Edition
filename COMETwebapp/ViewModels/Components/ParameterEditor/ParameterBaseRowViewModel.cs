@@ -28,44 +28,83 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using CDP4Dal;
-    
-    using COMETwebapp.Model;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
+
+    using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the rows asociated to a <see cref="ParameterBase"/>
+    /// ViewModel for the rows asociated to a <see cref="ParameterBase" />
     /// </summary>
-    public class ParameterBaseRowViewModel : IParameterBaseRowViewModel
+    public class ParameterBaseRowViewModel : DisposableObject, IParameterBaseRowViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISessionService"/>
+        /// Creates a new instance of type <see cref="ParameterBaseRowViewModel" />
+        /// </summary>
+        /// <param name="sessionService">the <see cref="ISessionService" /></param>
+        /// <param name="isReadOnly">Value asserting if the row is readonly or not</param>
+        /// <param name="parameterBase">the parameter of this row</param>
+        /// <param name="valueSet">the valueSet of the parameter</param>
+        public ParameterBaseRowViewModel(ISessionService sessionService, bool isReadOnly, ParameterBase parameterBase, IValueSet valueSet)
+        {
+            this.SessionService = sessionService;
+            this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
+            this.ParameterType = this.Parameter.ParameterType;
+            this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
+            this.OwnerName = this.Parameter.Owner is not null ? this.Parameter.Owner.ShortName : string.Empty;
+            this.ModelCode = this.Parameter.ModelCode();
+            this.ElementBaseName = (parameterBase.Container as ElementBase)?.Name;
+            this.ValueSet = valueSet;
+            this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
+            this.State = valueSet.ActualState is not null ? valueSet.ActualState.Name : string.Empty;
+            this.Switch = valueSet.ValueSwitch;
+            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(this.Switch, isReadOnly);
+
+            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, isReadOnly)
+            {
+                ParameterValueChanged = new EventCallbackFactory().Create<IValueSet>(this, this.OnParameterValueChanged)
+            };
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ParameterSwitchKindSelectorViewModel.SwitchValue)
+                .Subscribe(async _ => await this.OnParameterValueSwitchChanged()));
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISessionService" />
         /// </summary>
         public ISessionService SessionService { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ParameterBase"/> for this <see cref="ParameterBaseRowViewModel"/>
+        /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
+        /// </summary>
+        public IParameterTypeEditorSelectorViewModel ParameterTypeEditorSelectorViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterBase" /> for this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         public ParameterBase Parameter { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ParameterType"/> for this <see cref="ParameterBaseRowViewModel"/>
+        /// Gets or sets the <see cref="ParameterType" /> for this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         public ParameterType ParameterType { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ElementBase"/> used for grouping this <see cref="ParameterBaseRowViewModel"/>
+        /// Gets or sets the <see cref="ElementBase" /> used for grouping this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         public string ElementBaseName { get; }
 
         /// <summary>
-        /// Gets the <see cref="Parameter"/> type name
+        /// Gets the <see cref="Parameter" /> type name
         /// </summary>
         public string ParameterName { get; }
 
         /// <summary>
-        /// Gets the <see cref="Parameter"/> owner name
+        /// Gets the <see cref="Parameter" /> owner name
         /// </summary>
         public string OwnerName { get; }
 
@@ -75,69 +114,29 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ParameterSwitchKind Switch { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="Parameter"/> model code
+        /// Gets the <see cref="Parameter" /> model code
         /// </summary>
         public string ModelCode { get; }
 
         /// <summary>
-        /// Gets the <see cref="Option"/> name this <see cref="Parameter"/> is dependant on
+        /// Gets the <see cref="Option" /> name this <see cref="Parameter" /> is dependant on
         /// </summary>
-        public string Option { get; } 
+        public string Option { get; }
 
         /// <summary>
-        /// Gets the <see cref="ActualFiniteState"/> name this <see cref="Parameter"/> is dependant on
+        /// Gets the <see cref="ActualFiniteState" /> name this <see cref="Parameter" /> is dependant on
         /// </summary>
         public string State { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IValueSet"/> of this <see cref="ParameterBaseRowViewModel"/>
+        /// Gets or sets the <see cref="IValueSet" /> of this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         public IValueSet ValueSet { get; }
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ParameterBaseRowViewModel"/>
+        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
-        /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="parameterBase">the parameter of this row</param>
-        /// /// <param name="valueSet">the valueSet of the parameter</param>
-        public ParameterBaseRowViewModel(ISessionService sessionService,ParameterBase parameterBase, IValueSet valueSet)
-        {
-            this.SessionService = sessionService;
-            this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
-            this.ParameterType = this.Parameter.ParameterType;
-            this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
-            this.OwnerName = this.Parameter.Owner is not null ? this.Parameter.Owner.ShortName : string.Empty;
-            this.ModelCode = this.Parameter.ModelCode();
-            this.ElementBaseName = (parameterBase.Container as ElementBase)?.ShortName;
-            this.ValueSet = valueSet;
-            this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
-            this.State = valueSet.ActualState is not null ? valueSet.ActualState.Name : string.Empty;
-            this.Switch = valueSet.ValueSwitch;
-
-            CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
-            {
-                this.Switch = x.SelectedSwitch;
-                this.ValueSet.ValueSwitch = x.SelectedSwitch;
-            });
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
-        /// </summary>
-        /// <returns></returns>
-        public IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType
-        {
-            return new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet) as IParameterTypeEditorSelectorViewModel<T>;
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IParameterSwitchKindComponentViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
-        /// </summary>
-        /// <returns>a <see cref="IParameterSwitchKindComponentViewModel"/></returns>
-        public IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel()
-        {
-            return new ParameterSwitchKindComponentViewModel(this.SessionService, this.ValueSet);
-        }
+        public IParameterSwitchKindSelectorViewModel ParameterSwitchKindSelectorViewModel { get; }
 
         /// <summary>
         /// Event for when a parameter's value has changed
@@ -147,7 +146,23 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             if (value is ParameterValueSetBase parameterValueSetBase)
             {
-                await this.SessionService.UpdateThings(this.SessionService.DefaultIteration, new List<Thing>() { parameterValueSetBase });
+                await this.SessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { parameterValueSetBase });
+            }
+        }
+
+        /// <summary>
+        /// Handles the change of <see cref="ParameterSwitchKind"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnParameterValueSwitchChanged()
+        {
+            if (this.ParameterSwitchKindSelectorViewModel.SwitchValue != this.ValueSet.ValueSwitch && this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            {
+                this.ParameterTypeEditorSelectorViewModel.UpdateSwitchKind(this.ParameterSwitchKindSelectorViewModel.SwitchValue);
+
+                var clonedParameterValueSet = parameterValueSetBase.Clone(false);
+                clonedParameterValueSet.ValueSwitch = this.ParameterSwitchKindSelectorViewModel.SwitchValue;
+                await this.SessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
             }
         }
     }

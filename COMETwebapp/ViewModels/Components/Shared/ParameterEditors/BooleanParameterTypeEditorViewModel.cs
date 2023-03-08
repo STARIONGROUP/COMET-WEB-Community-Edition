@@ -32,8 +32,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.Types;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
-        /// </summary>
+    /// ViewModel used to edit <see cref="BooleanParameterType"/>
+    /// </summary>
     public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
     {
         /// <summary>
@@ -41,7 +41,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         /// <param name="parameterType">the parameter used for this editor view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
-        public BooleanParameterTypeEditorViewModel(BooleanParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        /// <param name="isReadOnly">The readonly state</param>
+        public BooleanParameterTypeEditorViewModel(BooleanParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
         {
         }
 
@@ -53,25 +54,12 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
-                modifiedValueArray[0] = valueString;
-
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
-                sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
-
-                switch (this.ValueSet.ValueSwitch)
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
-                    case ParameterSwitchKind.MANUAL:
-                        sendingParameterValueSetBase.Manual = modifiedValueArray;
-                        break;
-                    case ParameterSwitchKind.COMPUTED:
-                        sendingParameterValueSetBase.Computed = modifiedValueArray;
-                        break;
-                    default:
-                        throw new NotImplementedException($"The value of the {this.ValueSet} can't be manually changed with the switch on {ParameterSwitchKind.REFERENCE}");
-                }
+                    [0] = valueString
+                };
 
-                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }
     }

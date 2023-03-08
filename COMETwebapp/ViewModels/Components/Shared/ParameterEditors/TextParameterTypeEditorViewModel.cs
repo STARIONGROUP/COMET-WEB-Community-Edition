@@ -28,19 +28,18 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.TextParameterTypeEditor"/>
+    /// ViewModel used to edit <see cref="TextParameterType" />
     /// </summary>
     public class TextParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<TextParameterType>
     {
         /// <summary>
-        /// Creates a new instance of type <see cref="TextParameterTypeEditorViewModel"/>
+        /// Creates a new instance of type <see cref="TextParameterTypeEditorViewModel" />
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
-        public TextParameterTypeEditorViewModel(TextParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        /// <param name="isReadOnly">The readonly state</param>
+        public TextParameterTypeEditorViewModel(TextParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
         {
         }
 
@@ -50,17 +49,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && 
-                value is ChangeEventArgs args && args.Value is string valueString)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
-                modifiedValueArray[0] = valueString;
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                {
+                    [0] = valueString
+                };
 
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
-                sendingParameterValueSetBase.Manual = modifiedValueArray;
-                sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
-
-                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }
     }

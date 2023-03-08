@@ -55,11 +55,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// Event callback for when a value of the <see cref="IValueSet"/> has changed 
         /// </summary> 
         EventCallback<IValueSet> ParameterValueChanged { get; set; }
-        
+
         /// <summary>
-        /// Creates a <see cref="ParameterTypeEditorSelectorViewModel"/> used for display the correct editor
+        /// The <see cref="IParameterTypeEditorSelectorViewModel" />
         /// </summary>
-        /// <returns>the <see cref="ParameterTypeEditorSelectorViewModel"/></returns>
-        IParameterTypeEditorSelectorViewModel<ParameterType> CreateParameterTypeEditorSelectorViewModel();
+        IParameterTypeEditorSelectorViewModel ParameterEditorSelector { get; }
     }
 }

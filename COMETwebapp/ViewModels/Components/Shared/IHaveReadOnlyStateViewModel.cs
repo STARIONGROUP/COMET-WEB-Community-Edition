@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ModelMenuRow.razor.cs" company="RHEA System S.A.">
+//  <copyright file="IHaveReadOnlyStateViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,44 +22,16 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared.TopMenuEntry
+namespace COMETwebapp.ViewModels.Components.Shared
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    /// Component that handle an open <see cref="Iteration" /> into the <see cref="ModelMenu" />
+    /// Base View Model for any View model that can be readonly
     /// </summary>
-    public partial class ModelMenuRow
+    public interface IHaveReadOnlyStateViewModel
     {
         /// <summary>
-        /// The <see cref="ModelMenuRowViewModel" />
+        /// Gets or sets the readonly state
         /// </summary>
-        [Parameter]
-        public ModelMenuRowViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// The current index of the <see cref="ModelMenuRow" />
-        /// </summary>
-        [Parameter]
-        public int RowIndex { get; set; }
-
-        /// <summary>
-        /// The unique id of the <see cref="ModelMenuRow" />
-        /// </summary>
-        private string RowId => $"model-entry-row-{this.RowIndex}";
-
-        /// <summary>
-        /// The unique id of the close model row
-        /// </summary>
-        private string CloseModelId => $"{this.RowId}-close";
-
-        /// <summary>
-        /// The unique id of the switch domain model row
-        /// </summary>
-        private string SwitchModelId => $"{this.RowId}-switch";
+        bool IsReadOnly { get; set; }
     }
 }

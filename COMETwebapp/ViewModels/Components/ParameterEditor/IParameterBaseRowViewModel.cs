@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     /// <summary>
     /// Interface for the <see cref="ParameterBaseRowViewModel"/>
@@ -85,21 +86,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         IValueSet ValueSet { get; }
 
         /// <summary>
-        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel{T}"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// Gets the <see cref="IParameterTypeSelectorViewModel"/>
         /// </summary>
-        /// <returns>a <see cref="IParameterTypeEditorSelectorViewModel{T}"/></returns>
-        IParameterTypeEditorSelectorViewModel<T> CreateParameterTypeEditorSelectorViewModel<T>() where T : ParameterType;
+        IParameterSwitchKindSelectorViewModel ParameterSwitchKindSelectorViewModel { get; }
 
         /// <summary>
-        /// Creates a <see cref="IParameterSwitchKindComponentViewModel"/> based on the data of this <see cref="IParameterBaseRowViewModel"/>
+        /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
         /// </summary>
-        /// <returns>a <see cref="IParameterSwitchKindComponentViewModel"/></returns>
-        IParameterSwitchKindComponentViewModel CreateParameterSwitchKindComponentViewModel();
-
-        /// <summary>
-        /// Event for when a parameter's value has changed
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        Task OnParameterValueChanged(IValueSet value);
+        IParameterTypeEditorSelectorViewModel ParameterTypeEditorSelectorViewModel { get; }
     }
 }

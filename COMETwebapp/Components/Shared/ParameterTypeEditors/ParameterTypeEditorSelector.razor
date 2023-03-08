@@ -23,51 +23,38 @@
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 @{
-    if (!this.ViewModel.ValueSet.ActualValue.Any() || this.ViewModel.ValueSet.ActualValue.First() is null)
-    {
-        return;
-    }
-
     switch (this.ViewModel.ParameterType)
     {
         case BooleanParameterType:
-            <BooleanParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<BooleanParameterType>()" 
-                                        ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)"/>
+            <BooleanParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<BooleanParameterType>()"/>
             break;
 
         case CompoundParameterType:
-            <CompoundParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<CompoundParameterType>()"
-                                         ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)"/>
+            <CompoundParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<CompoundParameterType>()"/>
             break;
 
         case DateParameterType:
-            <DateParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<DateParameterType>()"
-                                     ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            <DateParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<DateParameterType>()"/>
             break;
 
         case DateTimeParameterType:
-            <DateTimeParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<DateTimeParameterType>()"
-                                         ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            <DateTimeParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<DateTimeParameterType>()"/>
             break;
 
         case EnumerationParameterType:
-            <EnumerationParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<EnumerationParameterType>()"
-                                            ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            <EnumerationParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<EnumerationParameterType>()"/>
             break;
 
         case QuantityKind:
-            <QuantityKindParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<QuantityKind>()"
-                                             ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            <QuantityKindParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<QuantityKind>()"/>
             break;
 
         case TextParameterType:
-            <TextParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TextParameterType>()"
-                                     ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            <TextParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TextParameterType>()"/>
             break;
 
         case TimeOfDayParameterType:
-            <TimeOfDayParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TimeOfDayParameterType>()"
-                                          ParameterValueChanged="(e) => this.ViewModel.OnParameterValueChanged(e)" />
+            <TimeOfDayParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TimeOfDayParameterType>()"/>
             break;
 
         default:

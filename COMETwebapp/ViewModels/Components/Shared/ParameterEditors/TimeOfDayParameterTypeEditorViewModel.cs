@@ -28,7 +28,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.SiteDirectoryData;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.TimeOfDayParameterTypeEditor"/>
+    /// ViewModel used to edit <see cref="TimeOfDayParameterType"/>
     /// </summary>
     public class TimeOfDayParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<TimeOfDayParameterType>
     {
@@ -37,7 +37,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
-        public TimeOfDayParameterTypeEditorViewModel(TimeOfDayParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        /// <param name="isReadOnly">The readonly state</param>
+        public TimeOfDayParameterTypeEditorViewModel(TimeOfDayParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
         {
         }
 

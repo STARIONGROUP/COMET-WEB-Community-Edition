@@ -50,7 +50,7 @@
 
             foreach (var iteration in this.ViewModel.SessionService.OpenIterations.Items)
             {
-                <ModelMenuRow ViewModel="@(this.ViewModel.CreateRowViewModel(iteration))" IsDefault="@(this.ViewModel.SessionService.DefaultIteration.Iid == iteration.Iid)"
+                <ModelMenuRow ViewModel="@(this.ViewModel.CreateRowViewModel(iteration))"
                               RowIndex="@rowIndex"/>
                 rowIndex++;
             }

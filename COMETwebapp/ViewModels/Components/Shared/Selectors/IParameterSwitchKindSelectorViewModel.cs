@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ModelMenuRow.razor.cs" company="RHEA System S.A.">
+//  <copyright file="IParameterSwitchKindComponentViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,44 +22,18 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared.TopMenuEntry
+namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    /// Component that handle an open <see cref="Iteration" /> into the <see cref="ModelMenu" />
+    /// View Model to sets the current <see cref="ParameterSwitchKind"/> value
     /// </summary>
-    public partial class ModelMenuRow
+    public interface IParameterSwitchKindSelectorViewModel: IHaveReadOnlyStateViewModel
     {
         /// <summary>
-        /// The <see cref="ModelMenuRowViewModel" />
+        /// Get or set the <see cref="ParameterSwitchKind" />
         /// </summary>
-        [Parameter]
-        public ModelMenuRowViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// The current index of the <see cref="ModelMenuRow" />
-        /// </summary>
-        [Parameter]
-        public int RowIndex { get; set; }
-
-        /// <summary>
-        /// The unique id of the <see cref="ModelMenuRow" />
-        /// </summary>
-        private string RowId => $"model-entry-row-{this.RowIndex}";
-
-        /// <summary>
-        /// The unique id of the close model row
-        /// </summary>
-        private string CloseModelId => $"{this.RowId}-close";
-
-        /// <summary>
-        /// The unique id of the switch domain model row
-        /// </summary>
-        private string SwitchModelId => $"{this.RowId}-switch";
+        ParameterSwitchKind SwitchValue { get; set; }
     }
 }

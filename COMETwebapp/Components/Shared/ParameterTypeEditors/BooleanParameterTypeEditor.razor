@@ -19,15 +19,17 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@inherits DisposableComponent
 
 @{
-    var values = new [] { "-", "true", "false" };
+    var values = new[] { "-", "true", "false" };
     <DxComboBox CssClass="boolean-parameter-type"
-                Data="@values"
-                NullText="-"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-                Value="@this.ViewModel.ValueSet.ActualValue.First()"
-                ValueChanged="@((string result) => this.ViewModel.OnParameterValueChanged(result))"
-                ReadOnly="this.ViewModel.IsReadOnly"/>
+            Data="@values"
+            NullText="-"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+            Value="@this.ViewModel.ValueArray.First()"
+            ValueChanged="@((string result) => this.ViewModel.OnParameterValueChanged(result))"
+            ReadOnly="this.ViewModel.IsReadOnly" />
 }
+
 

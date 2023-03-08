@@ -54,20 +54,6 @@ namespace COMETwebapp.Services.SessionManagement
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Backing field for <see cref="DefaultIteration" />
-        /// </summary>
-        private Iteration defaultIteration;
-
-        /// <summary>
-        /// The <see cref="Iteration" /> that is selected by default
-        /// </summary>
-        public Iteration DefaultIteration
-        {
-            get => this.defaultIteration;
-            set => this.RaiseAndSetIfChanged(ref this.defaultIteration, value);
-        }
-
-        /// <summary>
         /// Event for when the session has been refreshed.
         /// </summary>
         public event EventHandler OnSessionRefreshed;
@@ -132,7 +118,6 @@ namespace COMETwebapp.Services.SessionManagement
                 }
 
                 var openedIteration = this.Session.OpenIterations.FirstOrDefault(x => x.Key.Iid == iterationSetup.IterationIid).Key;
-                this.DefaultIteration = openedIteration;
                 this.OpenIterations.Add(openedIteration);
 
                 CDPMessageBus.Current.SendMessage(SessionStateKind.IterationOpened);
@@ -163,11 +148,6 @@ namespace COMETwebapp.Services.SessionManagement
         {
             this.Session.CloseIterationSetup(iteration.IterationSetup);
             this.OpenIterations.Remove(this.OpenIterations.Items.First(x => x.Iid == iteration.Iid));
-
-            if (this.DefaultIteration.Iid == iteration.Iid)
-            {
-                this.DefaultIteration = this.OpenIterations.Items.FirstOrDefault();
-            }
         }
 
         /// <summary>

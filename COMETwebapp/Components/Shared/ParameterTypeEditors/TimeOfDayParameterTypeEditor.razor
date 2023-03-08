@@ -19,9 +19,9 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
+@inherits DisposableComponent
 @{
-    var values = this.ViewModel.ValueSet.ActualValue.First().Split(':');
+    var values = this.ViewModel.ValueArray.First().Split(':');
         
     int.TryParse(values[0], out var hours);
     int.TryParse(values[1], out var minutes);

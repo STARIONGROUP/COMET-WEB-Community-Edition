@@ -26,7 +26,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -75,19 +74,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
                 Assert.That(this.viewModel.ValueSet, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterValueChanged, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterType, Is.Not.Null);
-            });
-        }
-
-        [Test]
-        public void VerifyThatParameterTypeEditorViewModelCanBeCreated()
-        {
-            var parameterTypeSelectorViewModel = this.viewModel.CreateParameterTypeEditorSelectorViewModel();
-            
-            Assert.Multiple(() =>
-            {
-                Assert.That(parameterTypeSelectorViewModel, Is.Not.Null);
-                Assert.That(parameterTypeSelectorViewModel.ParameterType, Is.EqualTo(this.parameterType));
-                Assert.That(parameterTypeSelectorViewModel.ValueSet, Is.EqualTo(this.valueSet));
             });
         }
     }
