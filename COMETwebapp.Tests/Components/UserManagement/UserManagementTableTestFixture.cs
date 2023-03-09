@@ -33,16 +33,17 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using BlazorStrap;
 
     using Bunit;
-
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4Dal.Events;
+    using CDP4Dal.Permission;
+    
     using COMETwebapp.Components.UserManagement;
     using COMETwebapp.IterationServices;
-    using COMETwebapp.Pages.UserManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
@@ -65,6 +66,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
         private IUserManagementTableViewModel viewModel;
         private Mock<ISession> session;
         private Mock<IIterationService> iterationService;
+        private Mock<IPermissionService> permissionService;
         private ISessionAnchor sessionAnchor;
         private Assembler assembler;
         private Participant participant;
@@ -90,6 +92,12 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             iterationService = new Mock<IIterationService>();
 
+            permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+
+            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+
             iterationService.Setup(x => x.GetNestedElementsByOption(It.IsAny<Iteration>(), It.IsAny<Guid>())).Returns(new List<NestedElement>());
 
             context.Services.AddBlazorStrap();
@@ -105,7 +113,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             viewModel = new UserManagementTableViewModel(sessionAnchor);
 
             context.Services.AddSingleton(viewModel);
-
+            
             person = new Person(Guid.NewGuid(), assembler.Cache, uri)
             {
                 GivenName = "Test",
@@ -250,6 +258,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(person.Name));
                 Assert.That(renderer.Markup, Does.Contain(person1.Name));
+                Assert.That(viewModel.IsAllowedToWrite, Is.True);
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>().FirstOrDefault(x => x.Instance.Id == "hideDeprecatedItems");

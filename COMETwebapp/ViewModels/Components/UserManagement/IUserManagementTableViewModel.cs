@@ -105,6 +105,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         string popupDialog { get; set; }
 
         /// <summary>
+        ///  Indicates if the active user is allowed to write
+        /// </summary>
+        bool IsAllowedToWrite { get; set; }
+
+        /// <summary>
         /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person"/>
         /// </summary>
         void OnConfirmButtonClick();

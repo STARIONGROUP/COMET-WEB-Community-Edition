@@ -25,17 +25,22 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    
     using CDP4Dal;
     using CDP4Dal.Events;
-    using COMETwebapp.Components;
+    using CDP4Dal.Permission;
+    
     using COMETwebapp.Components.UserManagement;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
+    
     using DevExpress.Blazor;
     using DevExpress.Blazor.Internal;
+    
     using DynamicData;
 
     using ReactiveUI;
+    
     using System;
     using System.Reactive.Linq;
 
@@ -115,9 +120,28 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public bool popupVisible { get; set; } = false;
 
         /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Value indicating if the <see cref="ParameterType" /> is deprecated
+        /// </summary>
+        public bool IsAllowedToWrite
+        {
+            get => this.isAllowedToWrite;
+            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
+        }
+
+        /// <summary>
         /// Injected property to get access to <see cref="ISessionAnchor"/>
         /// </summary>
         private readonly ISessionAnchor SessionAnchor;
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IPermissionService"/>
+        /// </summary>
+        private readonly IPermissionService permissionService;
 
         /// <summary>
         ///     A collection of <see cref="IDisposable" />
@@ -130,12 +154,13 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public string popupDialog { get; set; }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="UserManagementPageViewModel" /> class.
+        ///     Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionAnchor">The <see cref="ISessionAnchor" /></param>
         public UserManagementTableViewModel(ISessionAnchor sessionAnchor)
         {
             this.SessionAnchor = sessionAnchor;
+            this.permissionService = sessionAnchor.Session.PermissionService;
 
             var addListener =
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
@@ -152,6 +177,13 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                     .Select(x => x.ChangedThing as Person)
                     .Subscribe(person => this.updatePerson(person));
             this.disposables.Add(updateListener);
+
+            var updateAccessRight = CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
+                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
+                    .Select(x => x.ChangedThing as PersonRole)
+                    .Subscribe(x => this.RefreshAccessRight());
+            this.disposables.Add(updateAccessRight);
         }
 
         /// <summary>
@@ -173,6 +205,14 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             var index = updatedRows.FindIndex(x => x.Person.Iid == person.Iid);
             updatedRows[index] = new PersonRowViewModel(person);
             this.UpdateRows(updatedRows);
+        }
+
+        /// <summary>
+        ///   Updates the active user access rights
+        /// </summary>  
+        private void RefreshAccessRight()
+        {
+            this.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.SessionAnchor.GetSiteDirectory());
         }
 
         /// <summary>
@@ -358,6 +398,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             this.AvailableOrganizations = this.SessionAnchor.Session.RetrieveSiteDirectory().Organization;
             this.AvailablePersonRoles = this.SessionAnchor.Session.RetrieveSiteDirectory().PersonRole;
             this.AvailableDomains = this.SessionAnchor.Session.RetrieveSiteDirectory().Domain;
+            this.RefreshAccessRight();
         }
     }
 }
