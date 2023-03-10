@@ -241,5 +241,66 @@ namespace COMETwebapp.Tests.Services.SessionManagement
             thingsToUpdate.Add(clone);
             Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
         }
+
+        [Test]
+        public void VerifyCreateThingsSiteDirectory()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => this.sessionAnchor.CreateThingsSiteDirectory(null));
+            this.sessionAnchor.IsSessionOpen = true;
+            var thingsToCreate = new List<Person>();
+            var person = new Person();
+            person.ShortName = "USR1";
+            person.GivenName = "USR1";
+            thingsToCreate.Add(person.Clone(false));
+            Assert.DoesNotThrow(() => this.sessionAnchor.CreateThingsSiteDirectory(thingsToCreate));
+        }
+
+        [Test]
+        public void VerifyUpdateThingsSiteDirectory()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => this.sessionAnchor.UpdateThingsSiteDirectory(null));
+            var thingsToUpdate = new List<Person>();
+            this.sessionAnchor.IsSessionOpen = true;
+            var person = new Person();
+            person.ShortName = "USR";
+            person.IsDeprecated = false;
+
+            var clone = person.Clone(false);
+            clone.IsDeprecated = true;
+            thingsToUpdate.Add(clone);
+            Assert.DoesNotThrow(() => this.sessionAnchor.UpdateThingsSiteDirectory(thingsToUpdate));
+        }
+
+        [Test]
+        public void VerifyGetPersons()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Person.ToList(), Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void VerifyGetAvailableOrganizations()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Organization.ToList(), Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyGetAvailablePersonRoles()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().PersonRole.ToList(), Has.Count.EqualTo(1));
+        }
+        
+        [Test]
+        public void VerifyGetAvailableDomains()
+        {
+            this.sessionAnchor.IsSessionOpen = true;
+            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
+            Assert.That(this.sessionAnchor.Session.RetrieveSiteDirectory().Domain.ToList(), Has.Count.EqualTo(1));
+        }
     }
 }

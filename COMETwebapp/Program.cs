@@ -47,6 +47,7 @@ namespace COMETwebapp
     using DevExpress.Blazor;
 
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
@@ -101,6 +102,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
+            builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
 
         /// <summary>
         /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder" />
