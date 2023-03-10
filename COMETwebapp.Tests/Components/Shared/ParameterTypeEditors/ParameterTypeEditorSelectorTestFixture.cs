@@ -25,13 +25,11 @@
 namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
     using System;
-    using System.Collections.Generic;
 
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Tests.Helpers;
@@ -51,7 +49,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<ParameterTypeEditorSelector> renderedComponent;
         private ParameterTypeEditorSelector editorSelector;
-        private Mock<IParameterTypeEditorSelectorViewModel<ParameterType>> viewModelMock;
+        private Mock<IParameterTypeEditorSelectorViewModel> viewModelMock;
 
         [SetUp]
         public void SetUp()
@@ -59,16 +57,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            this.viewModelMock = new Mock<IParameterTypeEditorSelectorViewModel<ParameterType>>();
-
-            var valueSet = new ParameterValueSet()
-            {
-                Iid = Guid.NewGuid(),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
-                Manual = new ValueArray<string>(new List<string>() { "1" })
-            };
-
-            this.viewModelMock.Setup(x => x.ValueSet).Returns(valueSet);
+            this.viewModelMock = new Mock<IParameterTypeEditorSelectorViewModel>();
 
             this.renderedComponent = this.context.RenderComponent<ParameterTypeEditorSelector>(parameters =>
             {

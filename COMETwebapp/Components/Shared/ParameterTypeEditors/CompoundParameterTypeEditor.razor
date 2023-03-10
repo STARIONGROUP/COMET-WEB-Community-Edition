@@ -21,6 +21,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 @using COMETwebapp.Model
+@inherits DisposableComponent
 
 @if (this.ViewModel.ParameterType.ShortName == SceneSettings.OrientationShortName)
 {
@@ -38,11 +39,11 @@ else if (this.ViewModel.ValueSet is not null)
             <div class="compound-editor-item">
                 <p>@component.ShortName</p>
                 <DxTextBox InputCssClass="compound-parameter-type" 
-                           Text="@this.ViewModel.ValueSet?.ActualValue[i]" 
-                           BindValueMode="BindValueMode.OnInput" 
+                           Text="@this.ViewModel.ValueArray[index]" 
                            CssClass="parameter-input"
                            ReadOnly="this.ViewModel.IsReadOnly"
-                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"/>
+                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"
+                           BindValueMode="@this.BindValueMode"/>
 
             </div>
         }

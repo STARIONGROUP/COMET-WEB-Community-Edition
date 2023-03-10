@@ -29,8 +29,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
     /// View Model that provide details for <see cref="ParameterBase"/>
     /// </summary>
@@ -42,24 +40,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         bool IsVisible { get; set; }
 
         /// <summary>
-        /// Gets or sets the current value set
-        /// </summary>
-        IValueSet ValueSet { get; set; }
-
-        /// <summary>
         /// Gets or sets the <see cref="ParameterType"/> of the selected parameter
         /// </summary>
         ParameterType ParameterType { get; set; }
 
-        /// <summary> 
-        /// Event callback for when a value of the <see cref="IValueSet"/> has changed 
-        /// </summary> 
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
-        
         /// <summary>
-        /// Creates a <see cref="ParameterTypeEditorSelectorViewModel"/> used for display the correct editor
+        /// The <see cref="IParameterTypeEditorSelectorViewModel" />
         /// </summary>
-        /// <returns>the <see cref="ParameterTypeEditorSelectorViewModel"/></returns>
-        IParameterTypeEditorSelectorViewModel<ParameterType> CreateParameterTypeEditorSelectorViewModel();
+        IParameterTypeEditorSelectorViewModel ParameterEditorSelector { get; }
     }
 }

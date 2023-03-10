@@ -51,7 +51,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<DateParameterTypeEditor> renderedComponent;
         private DateParameterTypeEditor editor;
-        private bool eventCallbackCalled = false;
+        private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<DateParameterType>> viewModelMock;
         private EventCallback<IValueSet> eventCallback;
 
@@ -70,16 +70,18 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<DateParameterType>>();
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
-            
+            this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
+
             this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet valueSet) =>
             {
                 this.eventCallbackCalled = true;
             });
 
+            this.viewModelMock.Setup(x => x.ParameterValueChanged).Returns(this.eventCallback);
+
             this.renderedComponent = this.context.RenderComponent<DateParameterTypeEditor>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
-                parameters.Add(p => p.ParameterValueChanged, this.eventCallback);
             });
             
             this.editor = this.renderedComponent.Instance;
@@ -99,7 +101,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 Assert.That(this.renderedComponent, Is.Not.Null);
                 Assert.That(this.editor, Is.Not.Null);
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
-                Assert.That(this.editor.ParameterValueChanged, Is.Not.Null);
             });
         }
     }

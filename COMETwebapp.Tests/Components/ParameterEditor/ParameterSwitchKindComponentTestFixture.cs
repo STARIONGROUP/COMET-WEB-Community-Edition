@@ -28,14 +28,11 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.ParameterEditor;
-    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Components.Shared.Selectors;
     using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using DevExpress.Blazor;
-
-    using Moq;
 
     using NUnit.Framework;
 
@@ -44,8 +41,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     public class ParameterSwitchKindComponentTestFixture
     {
         private TestContext context;
-        private IRenderedComponent<ParameterSwitchKindComponent> renderedComponent;
-        private ParameterSwitchKindComponent parameterSwitch;
+        private IRenderedComponent<ParameterSwitchKindSelector> renderedComponent;
+        private ParameterSwitchKindSelector parameterSwitch;
 
         [SetUp]
         public void SetUp()
@@ -53,13 +50,10 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            var sessionMock = new Mock<ISessionService>();
+            var viewModel = new ParameterSwitchKindSelectorViewModel(ParameterSwitchKind.MANUAL, false);
 
-            var viewModel = new ParameterSwitchKindComponentViewModel(sessionMock.Object, null);
-
-            this.renderedComponent = this.context.RenderComponent<ParameterSwitchKindComponent>(parameters =>
+            this.renderedComponent = this.context.RenderComponent<ParameterSwitchKindSelector>(parameters =>
             {
-                parameters.Add(p => p.SwitchValue, ParameterSwitchKind.MANUAL);
                 parameters.Add(p => p.ViewModel, viewModel);
             });
 

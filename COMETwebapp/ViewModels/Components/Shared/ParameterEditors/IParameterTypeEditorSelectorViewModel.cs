@@ -26,42 +26,33 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+
     using Microsoft.AspNetCore.Components;
 
-    public interface IParameterTypeEditorSelectorViewModel<T> where T : ParameterType
+    public interface IParameterTypeEditorSelectorViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> for this <see cref="IParameterEditorBaseViewModel{T}"/>
+        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> for this
+        /// <see cref="IParameterEditorBaseViewModel{T}" />
         /// </summary>
-        public T ParameterType { get; set; }
+        public ParameterType ParameterType { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback{T}"/> for when the parameter value has changed
+        /// Gets or sets the <see cref="EventCallback{T}" /> for when the parameter value has changed
         /// </summary>
         EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the <i>ParameterTypeEditor</i> is readonly. For a <see cref="ParameterSwitchKind"/> with values MANUAL,REFERENCE the value of this
-        /// property is false, for a value of COMPUTED the value of this property is true;
-        /// </summary>
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value set of this <see cref="T"/>
-        /// </summary>
-        IValueSet ValueSet { get; set; }
-
-        /// <summary>
-        /// Event for when a parameter's value has changed
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        public abstract Task OnParameterValueChanged(IValueSet value);
 
         /// <summary>
         /// Creates a view model for the corresponding editor
         /// </summary>
         /// <typeparam name="T">the parameter type</typeparam>
         /// <returns>the view model</returns>
-        public IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType;
+        IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType;
+
+        /// <summary>
+        /// Updates the <see cref="ParameterSwitchKind" /> value
+        /// </summary>
+        /// <param name="switchValue">The <see cref="ParameterSwitchKind" /></param>
+        void UpdateSwitchKind(ParameterSwitchKind switchValue);
     }
 }

@@ -29,6 +29,8 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components;
     
     using ReactiveUI;
@@ -45,10 +47,10 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         public IParameterEditorBaseViewModel<CompoundParameterType> ViewModel { get; set; }
 
         /// <summary>
-        /// Event Callback for when a value has changed on the parameter
+        /// Gets or sets the <see cref="BindValueMode"/> used for the inputs 
         /// </summary>
         [Parameter]
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public BindValueMode BindValueMode { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -57,8 +59,9 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            this.ViewModel.ParameterValueChanged = this.ParameterValueChanged;
-            this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.StateHasChanged());
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly, 
+                x => x.ViewModel.ValueArray).Subscribe(_ => this.StateHasChanged()));
         }
     }
 }

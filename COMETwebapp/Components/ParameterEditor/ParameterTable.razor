@@ -45,8 +45,7 @@ Copyright (c) 2023 RHEA System S.A.
             
             <DxGridDataColumn Caption="@("Published Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
-                    @if (@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel 
-                         && parameterBaseRowViewModel.ValueSet is ParameterValueSet parameterValueSet)
+                    @if (context.DataItem is IParameterBaseRowViewModel {ValueSet: ParameterValueSet parameterValueSet })
                     {
                         <p style="margin: 0">@(parameterValueSet.Published.Any() ? parameterValueSet.Published.First() : "-")</p>
                     }
@@ -55,20 +54,18 @@ Copyright (c) 2023 RHEA System S.A.
             
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
-                    @if(@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    @if(context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.CreateParameterTypeEditorSelectorViewModel<ParameterType>()" 
-                                                     ParameterValueChanged="parameterBaseRowViewModel.OnParameterValueChanged"/>
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
                 <CellDisplayTemplate>
-                    @if (@context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    @if (context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterSwitchKindComponent ViewModel="parameterBaseRowViewModel.CreateParameterSwitchKindComponentViewModel()" 
-                                                      SwitchValue="parameterBaseRowViewModel.Switch"/>
+                        <ParameterSwitchKindSelector ViewModel="parameterBaseRowViewModel.ParameterSwitchKindSelectorViewModel" />
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>

@@ -28,21 +28,21 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.BooleanParameterTypeEditor"/>
+    /// ViewModel used to edit <see cref="CompoundParameterType" />
     /// </summary>
     public class CompoundParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<CompoundParameterType>
     {
         /// <summary>
-        /// Creates a new instance of type <see cref="CompoundParameterTypeEditorViewModel"/>
+        /// Creates a new instance of type <see cref="CompoundParameterTypeEditorViewModel" />
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
-        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        /// <param name="isReadOnly">The readonly state</param>
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
         {
         }
 
@@ -54,32 +54,19 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is CompoundParameterTypeValueChangedEventArgs args)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue);
-                modifiedValueArray[args.Index] = args.Value;
-
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
-                sendingParameterValueSetBase.ValueSwitch = this.ValueSet.ValueSwitch;
-
-                switch (this.ValueSet.ValueSwitch)
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
-                    case ParameterSwitchKind.MANUAL:
-                        sendingParameterValueSetBase.Manual = modifiedValueArray;
-                        break;
-                    case ParameterSwitchKind.COMPUTED:
-                        sendingParameterValueSetBase.Computed = modifiedValueArray;
-                        break;
-                    default:
-                        throw new NotImplementedException($"The value of the {this.ValueSet} can't be manually changed with the switch on {ParameterSwitchKind.REFERENCE}");
-                }
+                    [args.Index] = args.Value
+                };
 
-                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }
 
         /// <summary>
-        /// Creates a view model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.OrientationComponent"/>
+        /// Creates a view model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.OrientationComponent" />
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The <see cref="IOrientationViewModel" /></returns>
         public IOrientationViewModel CreateOrientationViewModel()
         {
             return new OrientationViewModel(this.ValueSet, this.ParameterValueChanged);

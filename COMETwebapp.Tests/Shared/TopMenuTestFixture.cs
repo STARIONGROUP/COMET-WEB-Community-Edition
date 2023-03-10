@@ -138,7 +138,6 @@ namespace COMETwebapp.Tests.Shared
 
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.sessionService.Setup(x => x.DefaultIteration).Returns(iteration);
 
             var systemDomain = new DomainOfExpertise
             {

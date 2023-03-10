@@ -26,9 +26,12 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
+    using Newtonsoft.Json.Linq;
+    using System.Globalization;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Shared.ParameterTypeEditors.TimeOfDayParameterTypeEditor"/>
+    /// ViewModel used to edit <see cref="TimeOfDayParameterType"/>
     /// </summary>
     public class TimeOfDayParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<TimeOfDayParameterType>
     {
@@ -37,7 +40,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
-        public TimeOfDayParameterTypeEditorViewModel(TimeOfDayParameterType parameterType, IValueSet valueSet) : base(parameterType, valueSet)
+        /// <param name="isReadOnly">The readonly state</param>
+        public TimeOfDayParameterTypeEditorViewModel(TimeOfDayParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
         {
         }
 
@@ -45,9 +49,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public override Task OnParameterValueChanged(object value)
+        public override async Task OnParameterValueChanged(object value)
         {
-            throw new NotImplementedException();
+            var timeString = string.Empty;
+
+            if (value is TimeSpan time)
+            {
+                timeString = time.ToString();
+            }
+
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            {
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                {
+                    [0] = timeString
+                };
+
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            }
         }
     }
 }

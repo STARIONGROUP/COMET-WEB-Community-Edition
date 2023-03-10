@@ -26,39 +26,35 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Base interface for all the interfaces of type <i>ParameterTypeEditorViewModel</i>
     /// </summary>
-    public interface IParameterEditorBaseViewModel<T> where T : ParameterType
+    public interface IParameterEditorBaseViewModel<T> : IHaveValueSetViewModel, IHaveReadOnlyStateViewModel where T : ParameterType
     {
         /// <summary>
-        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> for this <see cref="IParameterEditorBaseViewModel{T}"/>
+        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> for this
+        /// <see cref="IParameterEditorBaseViewModel{T}" />
         /// </summary>
-        public T ParameterType { get; set; }
+        T ParameterType { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback{T}"/> for when the parameter value has changed
+        /// Gets or sets the <see cref="EventCallback{T}" /> for when the parameter value has changed
         /// </summary>
         EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
-        /// Gets or sets if the <i>ParameterTypeEditor</i> is readonly. For a <see cref="ParameterSwitchKind"/> with values MANUAL,REFERENCE the value of this
-        /// property is false, for a value of COMPUTED the value of this property is true;
+        /// The <see cref="ValueArray{T}" /> to work with
         /// </summary>
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value set of this <see cref="T"/>
-        /// </summary>
-        IValueSet ValueSet { get; set; }
+        ValueArray<string> ValueArray { get; set; }
 
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public abstract Task OnParameterValueChanged(object value);
+        Task OnParameterValueChanged(object value);
     }
 }

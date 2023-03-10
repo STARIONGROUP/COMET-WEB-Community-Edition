@@ -54,7 +54,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<QuantityKindParameterTypeEditor> renderedComponent;
         private QuantityKindParameterTypeEditor editor;
-        private bool eventCallbackCalled = false;
+        private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<QuantityKind>> viewModelMock;
         private EventCallback<IValueSet> eventCallback;
 
@@ -79,16 +79,19 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<QuantityKind>>();
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
-            
+            this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
+
             this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
             {
                 this.eventCallbackCalled = true;
             });
 
+            this.viewModelMock.Setup(x => x.OnParameterValueChanged(It.IsAny<object>()))
+                .Callback(() => this.eventCallback.InvokeAsync());
+
             this.renderedComponent = this.context.RenderComponent<QuantityKindParameterTypeEditor>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
-                parameters.Add(p => p.ParameterValueChanged, this.eventCallback);
             });
             
             this.editor = this.renderedComponent.Instance;
@@ -108,7 +111,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 Assert.That(this.renderedComponent, Is.Not.Null);
                 Assert.That(this.editor, Is.Not.Null);
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
-                Assert.That(this.editor.ParameterValueChanged, Is.Not.Null);
             });
         }
 
@@ -117,7 +119,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         {
             var textbox = this.renderedComponent.FindComponent<DxTextBox>();
             Assert.That(textbox, Is.Not.Null);
-            await this.editor.ParameterValueChanged.InvokeAsync();
+            await this.renderedComponent.InvokeAsync(() => textbox.Instance.TextChanged.InvokeAsync("value"));
             Assert.That(this.eventCallbackCalled, Is.True);
         }
 
@@ -129,7 +131,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.renderedComponent.SetParametersAndRender(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
-                parameters.Add(p => p.ParameterValueChanged, this.eventCallback);
             });
 
             var textbox = this.renderedComponent.FindComponent<DxTextBox>();

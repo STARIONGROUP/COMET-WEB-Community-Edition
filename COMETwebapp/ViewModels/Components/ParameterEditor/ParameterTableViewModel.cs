@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using CDP4Dal.Permission;
+
     using COMETwebapp.Services.SessionManagement;
 
     using DynamicData;
@@ -37,6 +39,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     /// </summary>
     public class ParameterTableViewModel : ReactiveObject, IParameterTableViewModel
     {
+        /// <summary>
+        /// The <see cref="IPermissionService"/>
+        /// </summary>
+        private readonly IPermissionService permissionService;
+
         /// <summary>
         /// Gets or sets the <see cref="ISessionService"/>
         /// </summary>
@@ -54,6 +61,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ParameterTableViewModel(ISessionService sessionService)
         {
             this.SessionService = sessionService;
+            this.permissionService = this.SessionService.Session.PermissionService;
         }
 
         /// <summary>
@@ -81,9 +89,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 {
                     elementDefinition.Parameter.ForEach(parameter =>
                     {
+                        var isReadOnly = !this.permissionService.CanWrite(parameter);
+
                         parameter.ValueSet.ForEach(valueSet =>
                         {
-                            rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService,parameter, valueSet));
+                            rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService,isReadOnly, parameter, valueSet));
                         });
                     });
                 }
@@ -93,9 +103,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                     {
                         elementUsage.ParameterOverride.ForEach(parameter =>
                         {
+                            var isReadOnly = !this.permissionService.CanWrite(parameter);
+
                             parameter.ValueSet.ForEach(valueSet =>
                             {
-                                rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService, parameter, valueSet));
+                                rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService,isReadOnly, parameter, valueSet));
                             });
                         });
                     }
@@ -103,9 +115,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                     {
                         elementUsage.ElementDefinition.Parameter.ForEach(parameter =>
                         {
+                            var isReadOnly = !this.permissionService.CanWrite(parameter);
+
                             parameter.ValueSet.ForEach(valueSet =>
                             {
-                                rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService, parameter, valueSet));
+                                rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService, isReadOnly, parameter, valueSet));
                             });
                         });
                     }

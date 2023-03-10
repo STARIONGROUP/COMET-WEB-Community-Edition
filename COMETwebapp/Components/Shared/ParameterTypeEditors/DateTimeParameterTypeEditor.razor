@@ -19,10 +19,10 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
+@inherits DisposableComponent
 @using System.Globalization
 @{
-    var dateTimeStringSplitted = this.ViewModel.ValueSet.ActualValue.First().Split('T');
+    var dateTimeStringSplitted = this.ViewModel.ValueArray.First().Split('T');
     DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime);
 
     var timeString = dateTimeStringSplitted[1];

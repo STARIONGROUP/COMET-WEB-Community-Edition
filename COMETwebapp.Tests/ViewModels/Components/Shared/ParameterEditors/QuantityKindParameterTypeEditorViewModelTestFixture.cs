@@ -35,10 +35,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
     using System;
     
     using CDP4Common.SiteDirectoryData;
-
-    using CDP4Dal;
-
-    using COMETwebapp.Model;
     
     [TestFixture]
     public class QuantityKindParameterTypeEditorViewModelTestFixture
@@ -60,7 +56,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Iid = Guid.NewGuid(),
             };
 
-            this.viewModel = new QuantityKindParameterTypeEditorViewModel(textParameterType, parameterValueSet);
+            this.viewModel = new QuantityKindParameterTypeEditorViewModel(textParameterType, parameterValueSet, false);
         }
 
         [Test]
@@ -78,21 +74,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         [Test]
         public void VerifyThatSwitchEventChangeData()
         {
-            Assert.That(this.viewModel.ValueSet.ValueSwitch, Is.EqualTo(ParameterSwitchKind.MANUAL));
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(Guid.NewGuid(), ParameterSwitchKind.COMPUTED, false));
-            
+            Assert.That(this.viewModel.CurrentParameterSwitchKind, Is.EqualTo(ParameterSwitchKind.MANUAL));
+            this.viewModel.UpdateParameterSwitchKind(ParameterSwitchKind.COMPUTED);
+
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.ValueSet.ValueSwitch, Is.EqualTo(ParameterSwitchKind.COMPUTED));
-                Assert.That(this.viewModel.IsReadOnly, Is.False);
+                Assert.That(this.viewModel.CurrentParameterSwitchKind, Is.EqualTo(ParameterSwitchKind.COMPUTED));
+                Assert.That(this.viewModel.IsReadOnly, Is.True);
             });
 
-            CDPMessageBus.Current.SendMessage(new SwitchEvent(Guid.NewGuid(), ParameterSwitchKind.REFERENCE, false));
+            this.viewModel.UpdateParameterSwitchKind(ParameterSwitchKind.REFERENCE);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.ValueSet.ValueSwitch, Is.EqualTo(ParameterSwitchKind.REFERENCE));
-                Assert.That(this.viewModel.IsReadOnly, Is.True);
+                Assert.That(this.viewModel.CurrentParameterSwitchKind, Is.EqualTo(ParameterSwitchKind.REFERENCE));
+                Assert.That(this.viewModel.IsReadOnly, Is.False);
             });
         }
     }

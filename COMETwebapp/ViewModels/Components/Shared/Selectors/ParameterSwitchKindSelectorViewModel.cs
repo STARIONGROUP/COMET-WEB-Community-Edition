@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ModelMenuRow.razor.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterSwitchKindSelectorViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,44 +22,54 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared.TopMenuEntry
+namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-
-    using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
 
     /// <summary>
-    /// Component that handle an open <see cref="Iteration" /> into the <see cref="ModelMenu" />
+    /// View Model to sets the current <see cref="ParameterSwitchKind" /> value
     /// </summary>
-    public partial class ModelMenuRow
+    public class ParameterSwitchKindSelectorViewModel : ReactiveObject, IParameterSwitchKindSelectorViewModel
     {
         /// <summary>
-        /// The <see cref="ModelMenuRowViewModel" />
+        /// Backing field for <see cref="IsReadOnly" />
         /// </summary>
-        [Parameter]
-        public ModelMenuRowViewModel ViewModel { get; set; }
+        private bool isReadOnly;
 
         /// <summary>
-        /// The current index of the <see cref="ModelMenuRow" />
+        /// Backing field for <see cref="SwitchValue" />
         /// </summary>
-        [Parameter]
-        public int RowIndex { get; set; }
+        private ParameterSwitchKind switchValue;
 
         /// <summary>
-        /// The unique id of the <see cref="ModelMenuRow" />
+        /// Creates a new instance of type <see cref="ParameterSwitchKindSelectorViewModel" />
         /// </summary>
-        private string RowId => $"model-entry-row-{this.RowIndex}";
+        /// <param name="switchKind">The <see cref="ParameterSwitchKind"/></param>
+        /// <param name="isReadOnly">The readonly state</param>
+        public ParameterSwitchKindSelectorViewModel(ParameterSwitchKind switchKind, bool isReadOnly)
+        {
+            this.SwitchValue = switchKind;
+            this.IsReadOnly = isReadOnly;
+        }
 
         /// <summary>
-        /// The unique id of the close model row
+        /// Get or set the <see cref="ParameterSwitchKind" />
         /// </summary>
-        private string CloseModelId => $"{this.RowId}-close";
+        public ParameterSwitchKind SwitchValue
+        {
+            get => this.switchValue;
+            set => this.RaiseAndSetIfChanged(ref this.switchValue, value);
+        }
 
         /// <summary>
-        /// The unique id of the switch domain model row
+        /// Gets or sets the readonly state
         /// </summary>
-        private string SwitchModelId => $"{this.RowId}-switch";
+        public bool IsReadOnly
+        {
+            get => this.isReadOnly;
+            set => this.RaiseAndSetIfChanged(ref this.isReadOnly, value);
+        }
     }
 }

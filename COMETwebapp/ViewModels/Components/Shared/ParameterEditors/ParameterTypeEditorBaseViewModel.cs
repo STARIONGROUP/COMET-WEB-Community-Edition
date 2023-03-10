@@ -26,21 +26,61 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
-    using CDP4Dal;
+    using COMETwebapp.Utilities.DisposableObject;
 
-    using COMETwebapp.Model;
+    using Microsoft.AspNetCore.Components;
 
-    using Microsoft.AspNetCore.Components;using ReactiveUI;
+    using ReactiveUI;
 
     /// <summary>
-    /// Base ViewModel for the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/> editors
+    /// Base ViewModel for the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> editors
     /// </summary>
-    /// <typeparam name="T">the type of the <see cref="Parameter"/></typeparam>
-    public abstract class ParameterTypeEditorBaseViewModel<T> : ReactiveObject, IParameterEditorBaseViewModel<T> where T : ParameterType
+    /// <typeparam name="T">the type of the <see cref="Parameter" /></typeparam>
+    public abstract class ParameterTypeEditorBaseViewModel<T> : DisposableObject, IParameterEditorBaseViewModel<T> where T : ParameterType
     {
         /// <summary>
-        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType"/>
+        /// Reference to the initial <see cref="IsReadOnly" /> value
+        /// </summary>
+        private readonly bool initialReadOnlyValue;
+
+        /// <summary>
+        /// Backing field for the <see cref="IsReadOnly" /> property
+        /// </summary>
+        private bool isReadOnly;
+
+        /// <summary>
+        /// Backing field for <see cref="ValueArray" />
+        /// </summary>
+        private ValueArray<string> valueArray;
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
+        /// </summary>
+        /// <param name="parameterType">the parameter type of this view model</param>
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        /// <param name="isReadOnly">The readonly state</param>
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly)
+        {
+            this.ParameterType = parameterType;
+            this.ValueSet = valueSet;
+            this.initialReadOnlyValue = isReadOnly;
+
+            this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
+        }
+
+        /// <summary>
+        /// The <see cref="ValueArray{T}" /> to work with
+        /// </summary>
+        public ValueArray<string> ValueArray
+        {
+            get => this.valueArray;
+            set => this.RaiseAndSetIfChanged(ref this.valueArray, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType" />
         /// </summary>
         public T ParameterType { get; set; }
 
@@ -48,11 +88,6 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Event Callback for when a value has changed on the parameter
         /// </summary>
         public EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Backing field for the <see cref="IsReadOnly"/> property
-        /// </summary>
-        private bool isReadOnly;
 
         /// <summary>
         /// Gets or sets if the Editor is readonly.
@@ -64,25 +99,31 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         }
 
         /// <summary>
-        /// Gets or sets the value set of this <see cref="T"/>
+        /// Gets or sets the value set of this <see cref="T" />
         /// </summary>
         public IValueSet ValueSet { get; set; }
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}"/>
+        /// The current <see cref="ParameterSwitchKind" />
         /// </summary>
-        /// <param name="parameterType">the parameter type of this view model</param>
-        /// <param name="valueSet">the value set asociated to this editor</param>
-        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet)
-        {
-            this.ParameterType = parameterType;
-            this.ValueSet = valueSet;
+        public ParameterSwitchKind CurrentParameterSwitchKind { get; private set; }
 
-            CDPMessageBus.Current.Listen<SwitchEvent>().Subscribe(x =>
+        /// <summary>
+        /// Sets the <see cref="ParameterSwitchKind" />
+        /// </summary>
+        /// <param name="parameterSwitchKind">The <see cref="ParameterSwitchKind" /></param>
+        public void UpdateParameterSwitchKind(ParameterSwitchKind parameterSwitchKind)
+        {
+            this.CurrentParameterSwitchKind = parameterSwitchKind;
+            this.IsReadOnly = this.initialReadOnlyValue || this.CurrentParameterSwitchKind == ParameterSwitchKind.COMPUTED;
+
+            this.ValueArray = this.CurrentParameterSwitchKind switch
             {
-                this.ValueSet.ValueSwitch = x.SelectedSwitch;
-                this.IsReadOnly = x.SelectedSwitch == ParameterSwitchKind.REFERENCE;
-            });
+                ParameterSwitchKind.MANUAL => this.ValueSet.Manual,
+                ParameterSwitchKind.COMPUTED => this.ValueSet.Computed,
+                ParameterSwitchKind.REFERENCE => this.ValueSet.Reference,
+                _ => throw new ArgumentOutOfRangeException(nameof(parameterSwitchKind), parameterSwitchKind, "Unknowned ParameterSwitchKind")
+            };
         }
 
         /// <summary>
@@ -90,5 +131,36 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         /// <returns>an asynchronous operation</returns>
         public abstract Task OnParameterValueChanged(object value);
+
+        /// <summary>
+        /// Updates the <see cref="ParameterValueSetBase" /> with the new
+        /// <param name="newValueArray"></param>
+        /// </summary>
+        /// <param name="valueSet">The <see cref="ParameterValueSetBase" /></param>
+        /// <param name="newValueArray"></param>
+        /// <returns>A <see cref="Task" /></returns>
+        /// <exception cref="InvalidOperationException">
+        /// If the current <see cref="ParameterSwitchKind" /> is
+        /// <see cref="ParameterSwitchKind.COMPUTED" />
+        /// </exception>
+        protected async Task UpdateValueSet(ParameterValueSetBase valueSet, ValueArray<string> newValueArray)
+        {
+            var clone = valueSet.Clone(false);
+            clone.ValueSwitch = this.CurrentParameterSwitchKind;
+
+            switch (this.CurrentParameterSwitchKind)
+            {
+                case ParameterSwitchKind.MANUAL:
+                    clone.Manual = newValueArray;
+                    break;
+                case ParameterSwitchKind.REFERENCE:
+                    clone.Reference = newValueArray;
+                    break;
+                default:
+                    throw new InvalidOperationException($"The value of the {nameof(this.ValueSet)} can't be manually changed with the switch on {ParameterSwitchKind.COMPUTED}");
+            }
+
+            await this.ParameterValueChanged.InvokeAsync(clone);
+        }
     }
 }

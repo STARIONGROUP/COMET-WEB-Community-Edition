@@ -29,43 +29,25 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
 
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components;
     
-    using ReactiveUI;
-
     /// <summary>
     /// Partial class for the <see cref="ParameterTypeEditorSelector"/> component
     /// </summary>
     public partial class ParameterTypeEditorSelector
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel{T}"/>
+        /// Gets or sets the <see cref="IParameterTypeEditorSelectorViewModel"/>
         /// </summary>
         [Parameter]
-        public IParameterTypeEditorSelectorViewModel<ParameterType> ViewModel { get; set; }
+        public IParameterTypeEditorSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Event Callback for when a value has changed on the parameter
+        /// Gets or sets the <see cref="BindValueMode"/> used for the inputs 
         /// </summary>
         [Parameter]
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the Editor created by this selector is readonly
-        /// </summary>
-        [Parameter]
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-            this.ViewModel.ParameterValueChanged = this.ParameterValueChanged;
-            this.ViewModel.IsReadOnly = this.IsReadOnly;
-            this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.StateHasChanged());
-        }
+        public BindValueMode BindValueMode { get; set; } = BindValueMode.OnLostFocus;
     }
 }

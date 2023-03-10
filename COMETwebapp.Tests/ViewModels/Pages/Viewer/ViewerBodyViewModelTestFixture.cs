@@ -31,10 +31,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
 
@@ -168,8 +166,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 
             iteration.ActualFiniteStateList.Add(actualFiniteStateList);
             iteration.ActualFiniteStateList.Add(new ActualFiniteStateList());
-
-            sessionServiceMock.Setup(x => x.DefaultIteration).Returns(iteration);
 
             var selectionMediatorMock = new Mock<ISelectionMediator>();
 

@@ -45,20 +45,16 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         public IParameterEditorBaseViewModel<DateTimeParameterType> ViewModel { get; set; }
 
         /// <summary>
-        /// Event Callback for when a value has changed on the parameter
-        /// </summary>
-        [Parameter]
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
-
-        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            this.ViewModel.ParameterValueChanged = this.ParameterValueChanged;
-            this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.StateHasChanged());
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly, 
+                x => x.ViewModel.ValueArray)
+                .Subscribe(_ => this.StateHasChanged()));
         }
     }
 }

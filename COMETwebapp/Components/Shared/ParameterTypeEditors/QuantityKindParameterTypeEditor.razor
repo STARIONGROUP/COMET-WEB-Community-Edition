@@ -19,13 +19,13 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
+@inherits DisposableComponent
 <div>
     <DxTextBox InputCssClass="quantity-kind-parameter"
-               Text="@this.ViewModel.ValueSet.ActualValue.First()"
-               BindValueMode="BindValueMode.OnInput"
+               Text="@this.ViewModel.ValueArray.First()"
                CssClass="parameter-input"
-               @oninput="@((e) => this.ViewModel.OnParameterValueChanged(e))"
-               ReadOnly="this.ViewModel.IsReadOnly">
+               TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+               ReadOnly="this.ViewModel.IsReadOnly"
+               BindValueMode="@this.BindValueMode">
     </DxTextBox>
 </div>
