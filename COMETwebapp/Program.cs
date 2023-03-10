@@ -46,6 +46,8 @@ namespace COMETwebapp
 
     using DevExpress.Blazor;
 
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -95,6 +97,9 @@ namespace COMETwebapp
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddAntDesign();
         }
+            builder.Services.AddTransient<ISystemRepresentationPageViewModel, SystemRepresentationPageViewModel>();
+            builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
+            builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
 
         /// <summary>
         /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder" />
