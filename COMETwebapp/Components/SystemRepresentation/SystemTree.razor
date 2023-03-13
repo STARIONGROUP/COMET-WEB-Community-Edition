@@ -22,7 +22,7 @@
 @using COMETwebapp.Model
 @using AntDesign
 
-<Tree @ref="this.tree" DefaultExpandAll Draggable
+<Tree DefaultExpandAll Draggable
       Selectable ShowLine DataSource="@this.ViewModel.SystemNodes"
       TitleExpression="x => x.DataItem.Title"
       ChildrenExpression="x => x.DataItem.GetChildren()"

@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.Components.SystemRepresentation
 {
     using AntDesign;
@@ -40,10 +41,5 @@ namespace COMETwebapp.Components.SystemRepresentation
         /// </summary>
         [Parameter]
         public ISystemTreeViewModel ViewModel { get; set; }
-
-        /// <summary>
-        ///    The <see cref="Tree{T}" /> to display
-        /// </summary>
-        Tree<SystemNode> tree;
     }
 }

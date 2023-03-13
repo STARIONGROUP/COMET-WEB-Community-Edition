@@ -39,76 +39,31 @@ namespace COMETwebapp.Model
     public class SceneObject
     {
         /// <summary>
-        /// Gets the ID of the <see cref="SceneObject"/>. Used to identify the <see cref="SceneObject"/> between JS and C# interop.
-        /// </summary>
-        public Guid ID { get; } = Guid.NewGuid();
-
-        /// <summary>
-        /// Gets or sets the <see cref="Primitives.Primitive"/> related to this <see cref="SceneObject"/>.
-        /// Can be NULL is a <see cref="SceneObject"/> don't have a <see cref="Primitive"/> asociated
-        /// </summary>
-        public Primitive Primitive { get; private set; }
-
-        /// <summary> 
-        /// Gets or sets if this SceneObject is a clone of other <see cref="SceneObject"/> 
-        /// </summary> 
-        public bool IsClone { get; private set; }
-
-        /// <summary>
-        /// Gets or sets if the <see cref="Primitive"/> have enough parameters to be created.
-        /// </summary>
-        public bool PrimitiveCanBeCreated { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the element usage that contains the data for creating the <see cref="Primitive"/>
-        /// </summary>
-        [JsonIgnore]
-        public ElementBase ElementBase { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the selected option for this <see cref="SceneObject"/>
-        /// </summary>
-        [JsonIgnore]
-        public Option Option { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the possible actual finite states for this <see cref="SceneObject"/>
-        /// </summary>
-        [JsonIgnore]
-        public List<ActualFiniteState> States { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the asociated <see cref="ParameterBase"/> of the <see cref="ElementBase"/>
-        /// </summary>
-        [JsonIgnore]
-        public IReadOnlyList<ParameterBase> ParametersAsociated => this.ElementBase?.GetParametersInUse().ToList();
-
-        /// <summary>
         /// Collection that handles the relation between a primitive and the necessary parameters for creating that primitive.
         /// </summary>
-        private readonly Dictionary<Type, List<string>> shapeAndParametersRelation = new ()
+        private readonly Dictionary<Type, List<string>> shapeAndParametersRelation = new()
         {
-            { typeof(Cone), new List<string>{ SceneSettings.DiameterShortName, SceneSettings. HeightShortName } },
-            { typeof(Cube), new List<string>{ SceneSettings.WidthShortName, SceneSettings.HeightShortName, SceneSettings.LengthShortName } },
-            { typeof(Cylinder), new List<string>{ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
-            { typeof(Disc), new List<string>{ SceneSettings.DiameterShortName } },
-            { typeof(EquilateralTriangle), new List<string>{ SceneSettings.DiameterShortName } },
-            { typeof(HexagonalPrism), new List<string>{ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
-            { typeof(Rectangle), new List<string>{ SceneSettings.WidthShortName, SceneSettings.HeightShortName } },
-            { typeof(Sphere), new List<string>{ SceneSettings.DiameterShortName } },
-            { typeof(Torus), new List<string>{ SceneSettings.DiameterShortName, SceneSettings.ThicknessShortName} },
-            { typeof(TriangularPrism), new List<string>{ SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Cone), new List<string> { SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Cube), new List<string> { SceneSettings.WidthShortName, SceneSettings.HeightShortName, SceneSettings.LengthShortName } },
+            { typeof(Cylinder), new List<string> { SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Disc), new List<string> { SceneSettings.DiameterShortName } },
+            { typeof(EquilateralTriangle), new List<string> { SceneSettings.DiameterShortName } },
+            { typeof(HexagonalPrism), new List<string> { SceneSettings.DiameterShortName, SceneSettings.HeightShortName } },
+            { typeof(Rectangle), new List<string> { SceneSettings.WidthShortName, SceneSettings.HeightShortName } },
+            { typeof(Sphere), new List<string> { SceneSettings.DiameterShortName } },
+            { typeof(Torus), new List<string> { SceneSettings.DiameterShortName, SceneSettings.ThicknessShortName } },
+            { typeof(TriangularPrism), new List<string> { SceneSettings.DiameterShortName, SceneSettings.HeightShortName } }
         };
 
         /// <summary>
-        /// Creates a new instance of type <see cref="SceneObject"/>
+        /// Creates a new instance of type <see cref="SceneObject" />
         /// </summary>
         private SceneObject()
         {
         }
 
         /// <summary>
-        /// Creates a new empty instance of type <see cref="SceneObject"/>. Used only for testing. 
+        /// Creates a new empty instance of type <see cref="SceneObject" />. Used only for testing.
         /// </summary>
         /// <param name="primitive">the primitive that contains</param>
         public SceneObject(Primitive primitive)
@@ -116,18 +71,66 @@ namespace COMETwebapp.Model
             this.Primitive = primitive;
         }
 
-        /// <summary> 
-        /// Creates a new full <see cref="SceneObject"/>. Used for drawing normal scene objects in scene. 
-        /// </summary> 
-        /// <param name="elementBase">the <see cref="ElementBase"/> that contains the data for creating the <see cref="Primitive"/></param> 
-        /// <param name="option">the selected option</param> 
-        /// <param name="states">the possible actual finite states</param> 
-        /// <returns>the <see cref="SceneObject"/></returns> 
+        /// <summary>
+        /// Gets the ID of the <see cref="SceneObject" />. Used to identify the <see cref="SceneObject" /> between JS and C# interop.
+        /// </summary>
+        public Guid ID { get; } = Guid.NewGuid();
+
+        /// <summary>
+        /// Gets or sets the <see cref="Primitives.Primitive" /> related to this <see cref="SceneObject" />.
+        /// Can be NULL is a <see cref="SceneObject" /> don't have a <see cref="Primitive" /> asociated
+        /// </summary>
+        public Primitive Primitive { get; private set; }
+
+        /// <summary>
+        /// Gets or sets if this SceneObject is a clone of other <see cref="SceneObject" />
+        /// </summary>
+        public bool IsClone { get; private init; }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="Primitive" /> have enough parameters to be created.
+        /// </summary>
+        public bool PrimitiveCanBeCreated { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the element usage that contains the data for creating the <see cref="Primitive" />
+        /// </summary>
+        [JsonIgnore]
+        public ElementBase ElementBase { get; private init; }
+
+        /// <summary>
+        /// Gets or sets the selected option for this <see cref="SceneObject" />
+        /// </summary>
+        [JsonIgnore]
+        public Option Option { get; private init; }
+
+        /// <summary>
+        /// Gets or sets the possible actual finite states for this <see cref="SceneObject" />
+        /// </summary>
+        [JsonIgnore]
+        public List<ActualFiniteState> States { get; private init; }
+
+        /// <summary>
+        /// Gets or sets the asociated <see cref="ParameterBase" /> of the <see cref="ElementBase" />
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<ParameterBase> ParametersAsociated => this.QueryParametersAssociated();
+
+        /// <summary>
+        /// Creates a new full <see cref="SceneObject" />. Used for drawing normal scene objects in scene.
+        /// </summary>
+        /// <param name="elementBase">
+        /// the <see cref="ElementBase" /> that contains the data for creating the
+        /// <see cref="Primitive" />
+        /// </param>
+        /// <param name="option">the selected option</param>
+        /// <param name="states">the possible actual finite states</param>
+        /// <returns>the <see cref="SceneObject" /></returns>
         public static SceneObject Create(ElementBase elementBase, Option option, List<ActualFiniteState> states)
         {
-            var sceneObj = new SceneObject() { ElementBase = elementBase, Option = option, States = states };
+            var sceneObj = new SceneObject { ElementBase = elementBase, Option = option, States = states };
             var shapeKindParameter = sceneObj.ParametersAsociated.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
-            
+
             if (shapeKindParameter is not null)
             {
                 sceneObj.ParseParameter(shapeKindParameter);
@@ -146,7 +149,7 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Checks if the <see cref="SceneObject"/> contains the necessary parameters to create the <see cref="Primitive"/>
+        /// Checks if the <see cref="SceneObject" /> contains the necessary parameters to create the <see cref="Primitive" />
         /// </summary>
         public void CheckIfPrimitiveCanBeCreatedWithAvailableParameters()
         {
@@ -167,7 +170,7 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Parses the value of the <see cref="ParameterBase"/> into the corresponding property of this <see cref="SceneObject"/>
+        /// Parses the value of the <see cref="ParameterBase" /> into the corresponding property of this <see cref="SceneObject" />
         /// </summary>
         /// <param name="parameterBase">the parameter used for the parse</param>
         public void ParseParameter(ParameterBase parameterBase)
@@ -177,7 +180,7 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Updates the properties of <see cref="SceneObject"/> that are related to the <paramref name="parameterBase"/>
+        /// Updates the properties of <see cref="SceneObject" /> that are related to the <paramref name="parameterBase" />
         /// </summary>
         /// <param name="parameterBase">the parameter base used for updating the values</param>
         /// <param name="valueSet">the new values set used to update</param>
@@ -201,16 +204,16 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Gets the value sets for this <see cref="SceneObject"/>
+        /// Gets the value sets for this <see cref="SceneObject" />
         /// </summary>
-        /// <returns>a collection of <see cref="ParameterBase"/> and its related <see cref="IValueSet"/></returns>
-        public Dictionary<ParameterBase,IValueSet> GetParameterValueSetRelations()
+        /// <returns>a collection of <see cref="ParameterBase" /> and its related <see cref="IValueSet" /></returns>
+        public Dictionary<ParameterBase, IValueSet> GetParameterValueSetRelations()
         {
             var collection = new Dictionary<ParameterBase, IValueSet>();
-            
+
             if (this.ParametersAsociated is null)
             {
-                return new();
+                return new Dictionary<ParameterBase, IValueSet>();
             }
 
             foreach (var parameter in this.ParametersAsociated)
@@ -227,7 +230,7 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Sets the current <see cref="Primitive"/> for this <see cref="SceneObject"/>
+        /// Sets the current <see cref="Primitive" /> for this <see cref="SceneObject" />
         /// </summary>
         /// <param name="primitive">the new primitive</param>
         public void SetPrimitive(Primitive primitive)
@@ -244,12 +247,12 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Creates a clone of this <see cref="SceneObject"/>
+        /// Creates a clone of this <see cref="SceneObject" />
         /// </summary>
         /// <returns>the clone</returns>
         public SceneObject Clone()
         {
-            return new SceneObject()
+            return new SceneObject
             {
                 ElementBase = this.ElementBase,
                 Option = this.Option,
@@ -258,6 +261,15 @@ namespace COMETwebapp.Model
                 PrimitiveCanBeCreated = this.PrimitiveCanBeCreated,
                 Primitive = this.Primitive
             };
+        }
+
+        /// <summary>
+        /// Query the associated <see cref="ParameterBase" />
+        /// </summary>
+        /// <returns>An <see cref="IReadOnlyList{T}" /> of associated <see cref="ParameterBase" /></returns>
+        private IReadOnlyList<ParameterBase> QueryParametersAssociated()
+        {
+            return this.ElementBase.GetParametersInUse().ToList();
         }
     }
 }

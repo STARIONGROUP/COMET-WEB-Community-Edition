@@ -61,6 +61,7 @@ namespace COMETwebapp.Extensions
         /// Parses an <see cref="IValueSet"/> to rotation matrix
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
+        /// <param name="angleFormat">The format of the angle</param>
         /// <returns>And array of type [Rx,Ry,Rz]</returns>
         public static Orientation ParseIValueToOrientation(this IValueSet valueSet, AngleFormat angleFormat)
         {
@@ -90,7 +91,7 @@ namespace COMETwebapp.Extensions
                 }
                 else
                 {
-                    result = new double[] { };
+                    result = Enumerable.Empty<double>();
                     return false;
                 }
             }

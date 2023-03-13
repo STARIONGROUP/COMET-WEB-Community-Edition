@@ -31,8 +31,8 @@ namespace COMETwebapp.Tests.Extensions
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    
-    using COMETwebapp.Utilities;
+
+    using COMETwebapp.Extensions;
     
     using NUnit.Framework;
 
@@ -40,7 +40,7 @@ namespace COMETwebapp.Tests.Extensions
     public class ParameterValueSetRelationExtensionsTestFixture
     {
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
-        private Uri uri = new Uri("http://www.rheagroup.com");
+        private Uri uri = new ("http://www.rheagroup.com");
         private Dictionary<ParameterBase, IValueSet> relations1;
         private Dictionary<ParameterBase, IValueSet> relations2;
         private Dictionary<ParameterBase, IValueSet> relations3;

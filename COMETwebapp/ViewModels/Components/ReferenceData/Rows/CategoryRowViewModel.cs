@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Extensions;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -36,23 +36,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     public class CategoryRowViewModel : ReactiveObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CategoryRowViewModel" /> class.
+        /// Backing field for <see cref="ContainerName" />
         /// </summary>
-        public CategoryRowViewModel(Category category)
-        {
-            this.Category = category;
-            this.Name = this.Category.Name;
-            this.ShortName = this.Category.ShortName;
-            this.SuperCategories = this.Category.SuperCategory.Select(x => x.Name).AsCommaSeparated();
-            var container = (ReferenceDataLibrary)this.Category.Container;
-            this.ContainerName = container.ShortName;
-            this.IsDeprecated = this.Category.IsDeprecated;
-        }
+        private string containerName;
 
         /// <summary>
-        /// The <see cref="Category" /> that is represented by this row
+        /// Backing field for <see cref="IsDeprecated" />
         /// </summary>
-        public Category Category;
+        private bool isDeprecated;
 
         /// <summary>
         /// Backing field for <see cref="Name" />
@@ -60,18 +51,43 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         private string name;
 
         /// <summary>
-        ///     The name of the <see cref="Category" />
+        /// Backing field for <see cref="ShortName" />
+        /// </summary>
+        private string shortName;
+
+        /// <summary>
+        /// Backing field for <see cref="SuperCategories" />
+        /// </summary>
+        private string superCategories;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CategoryRowViewModel" /> class.
+        /// </summary>
+        /// <param name="category">The associated <see cref="Category" /></param>
+        public CategoryRowViewModel(Category category)
+        {
+            this.Category = category;
+            this.Name = category.Name;
+            this.ShortName = category.ShortName;
+            this.SuperCategories = category.SuperCategory.Select(x => x.Name).AsCommaSeparated();
+            var container = (ReferenceDataLibrary)category.Container;
+            this.ContainerName = container.ShortName;
+            this.IsDeprecated = category.IsDeprecated;
+        }
+
+        /// <summary>
+        /// The represented <see cref="Category" />
+        /// </summary>
+        public Category Category { get; }
+
+        /// <summary>
+        /// The name of the <see cref="Category" />
         /// </summary>
         public string Name
         {
             get => this.name;
             set => this.RaiseAndSetIfChanged(ref this.name, value);
         }
-
-        /// <summary>
-        /// Backing field for <see cref="ShortName" />
-        /// </summary>
-        private string shortName;
 
         /// <summary>
         /// The short name of the <see cref="Category" />
@@ -83,11 +99,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Backing field for <see cref="Category" />
-        /// </summary>
-        private string superCategories;
-
-        /// <summary>
         /// super categories name of the <see cref="Category" />
         /// </summary>
         public string SuperCategories
@@ -97,23 +108,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Backing field for <see cref="ContainerName" />
-        /// </summary>
-        private string containerName;
-
-        /// <summary>
         /// The <see cref="Category" /> container name
-        /// </summary>  
+        /// </summary>
         public string ContainerName
         {
             get => this.containerName;
             set => this.RaiseAndSetIfChanged(ref this.containerName, value);
         }
-
-        /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
 
         /// <summary>
         /// Value indicating if the <see cref="Category" /> is deprecated

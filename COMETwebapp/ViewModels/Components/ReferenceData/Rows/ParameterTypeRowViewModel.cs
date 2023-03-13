@@ -25,7 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 {
     using CDP4Common.SiteDirectoryData;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -34,26 +34,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     public class ParameterTypeRowViewModel : ReactiveObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ParameterTypeRowViewModel" /> class.
+        /// Backing field for <see cref="ContainerName" />
         /// </summary>
-        public ParameterTypeRowViewModel(ParameterType parameterType)
-        {
-            this.ParameterType = parameterType;
-            this.Name = this.ParameterType.Name;
-            this.ShortName = this.ParameterType.ShortName;
-            this.Symbol = this.ParameterType.Symbol;
-            var scale = this.ParameterType is QuantityKind quantityKind ? quantityKind.DefaultScale : null;
-            this.DefaultScale = scale?.ShortName;
-            this.Type = this.ParameterType.ClassKind.ToString();
-            var container = (ReferenceDataLibrary) this.ParameterType.Container;
-            this.ContainerName = container.ShortName;
-            this.IsDeprecated = this.ParameterType.IsDeprecated;
-        }
+        private string containerName;
 
         /// <summary>
-        /// The <see cref="ParameterType" /> that is represented by this row
+        /// Backing field for <see cref="DefaultScale" />
         /// </summary>
-        public ParameterType ParameterType;
+        private string defaultScale;
+
+        /// <summary>
+        /// Backing field for <see cref="IsDeprecated" />
+        /// </summary>
+        private bool isDeprecated;
 
         /// <summary>
         /// Backing field for <see cref="Name" />
@@ -61,18 +54,51 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         private string name;
 
         /// <summary>
-        ///     The name of the <see cref="ParameterType" />
+        /// Backing field for <see cref="ShortName" />
+        /// </summary>
+        private string shortName;
+
+        /// <summary>
+        /// Backing field for <see cref="Symbol" />
+        /// </summary>
+        private string symbol;
+
+        /// <summary>
+        /// Backing field for <see cref="Type" />
+        /// </summary>
+        private string type;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParameterTypeRowViewModel" /> class.
+        /// </summary>
+        /// <param name="parameterType">The associated <see cref="ParameterType" /></param>
+        public ParameterTypeRowViewModel(ParameterType parameterType)
+        {
+            this.ParameterType = parameterType;
+            this.Name = parameterType.Name;
+            this.ShortName = parameterType.ShortName;
+            this.Symbol = parameterType.Symbol;
+            var scale = parameterType is QuantityKind quantityKind ? quantityKind.DefaultScale : null;
+            this.DefaultScale = scale?.ShortName;
+            this.Type = parameterType.ClassKind.ToString();
+            var container = (ReferenceDataLibrary)parameterType.Container;
+            this.ContainerName = container.ShortName;
+            this.IsDeprecated = parameterType.IsDeprecated;
+        }
+
+        /// <summary>
+        /// The associated <see cref="ParameterType" />
+        /// </summary>
+        public ParameterType ParameterType { get; private set; }
+
+        /// <summary>
+        /// The name of the <see cref="ParameterType" />
         /// </summary>
         public string Name
         {
             get => this.name;
             set => this.RaiseAndSetIfChanged(ref this.name, value);
         }
-
-        /// <summary>
-        /// Backing field for <see cref="ShortName" />
-        /// </summary>
-        private string shortName;
 
         /// <summary>
         /// The short name of the <see cref="ParameterType" />
@@ -84,11 +110,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Backing field for <see cref="Symbol" />
-        /// </summary>
-        private string symbol;
-
-        /// <summary>
         /// The symbol of the <see cref="ParameterType" />
         /// </summary>
         public string Symbol
@@ -96,11 +117,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
             get => this.symbol;
             set => this.RaiseAndSetIfChanged(ref this.symbol, value);
         }
-
-        /// <summary>
-        /// Backing field for <see cref="DefaultScale" />
-        /// </summary>
-        private string defaultScale;
 
         /// <summary>
         /// The default scale of the <see cref="ParameterType" />
@@ -112,13 +128,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Backing field for <see cref="Type" />
+        /// The <see cref="ParameterType" /> type
         /// </summary>
-        private string type;
-
-        /// <summary>
-        /// The <see cref="ParamerType" /> type
-        /// </summary>  
         public string Type
         {
             get => this.type;
@@ -126,23 +137,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Backing field for <see cref="ContainerName" />
+        /// The <see cref="ParameterType" /> container name
         /// </summary>
-        private string containerName;
-
-        /// <summary>
-        /// The <see cref="ParamerType" /> container name
-        /// </summary>  
         public string ContainerName
         {
             get => this.containerName;
             set => this.RaiseAndSetIfChanged(ref this.containerName, value);
         }
-
-        /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
 
         /// <summary>
         /// Value indicating if the <see cref="ParameterType" /> is deprecated
