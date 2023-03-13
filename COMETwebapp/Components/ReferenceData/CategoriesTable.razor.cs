@@ -72,7 +72,7 @@ namespace COMETwebapp.Components.ReferenceData
         ///     Method invoked to highlight deprecated categories
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
-        private void DisableDeprecatedCategories(GridCustomizeElementEventArgs e)
+        private static void DisableDeprecatedCategories(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {

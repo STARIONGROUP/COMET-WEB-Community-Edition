@@ -73,7 +73,7 @@ namespace COMETwebapp.Components.ReferenceData
         ///     Method invoked to highlight deprecated parameter types
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
-        private void DisableDeprecatedParameterType(GridCustomizeElementEventArgs e)
+        private static void DisableDeprecatedParameterType(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
