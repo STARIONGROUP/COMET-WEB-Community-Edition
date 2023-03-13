@@ -32,26 +32,13 @@ namespace COMETwebapp.Components.SystemRepresentation
     /// <summary>
     ///     Partial class for the component <see cref="ElementDefinitionDetails"/>
     /// </summary>
-    public partial class ElementDefinitionDetails : IDisposable
+    public partial class ElementDefinitionDetails
     {
         /// <summary>
         ///     The <see cref="IElementDefinitionDetailsViewModel" /> for the component
         /// </summary>
         [Parameter]
         public IElementDefinitionDetailsViewModel ViewModel { get; set; }
-
-        /// <summary>
-        ///     The collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-        }
 
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its
@@ -62,8 +49,9 @@ namespace COMETwebapp.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedSystemNode)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedSystemNode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
             return base.OnInitializedAsync();
         }
     }

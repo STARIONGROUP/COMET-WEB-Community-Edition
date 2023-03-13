@@ -20,6 +20,7 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@inherits DisposableComponent
 
 <DxGrid @ref="Grid"
         Data="this.ViewModel.Rows.Items"

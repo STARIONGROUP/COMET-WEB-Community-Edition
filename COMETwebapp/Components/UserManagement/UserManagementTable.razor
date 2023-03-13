@@ -21,6 +21,7 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.UserManagement.Rows
 @using CDP4Common.SiteDirectoryData
+@inherits DisposableComponent
 
 <DxGrid @ref="Grid"
         Data="this.ViewModel.Rows.Items"

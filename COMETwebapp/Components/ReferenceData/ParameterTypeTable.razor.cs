@@ -34,18 +34,14 @@ namespace COMETwebapp.Components.ReferenceData
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
     ///     Support class for the <see cref="ParameterTypeTable"/>
     /// </summary>
-    public partial class ParameterTypeTable : IDisposable
+    public partial class ParameterTypeTable
     {
-        /// <summary>
-        ///     A collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
         /// <summary>
         ///     The <see cref="IParameterTypeTableViewModel" /> for this component
         /// </summary>
@@ -53,17 +49,9 @@ namespace COMETwebapp.Components.ReferenceData
         public IParameterTypeTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-        }
-
-        /// <summary>
         ///     Gets or sets the grid control that is being customized.
         /// </summary>
-        IGrid Grid { get; set; }
+        private IGrid Grid { get; set; }
 
         /// <summary>
         ///     Method invoked when the "Show/Hide Deprecated Items" checkbox is checked or unchecked.
@@ -84,8 +72,8 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         ///     Method invoked to highlight deprecated parameter types
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
-        void DisableDeprecatedParameterType(GridCustomizeElementEventArgs e)
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
+        private void DisableDeprecatedParameterType(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
@@ -104,10 +92,10 @@ namespace COMETwebapp.Components.ReferenceData
         {
             this.ViewModel.OnInitializedAsync();
 
-            this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
         }

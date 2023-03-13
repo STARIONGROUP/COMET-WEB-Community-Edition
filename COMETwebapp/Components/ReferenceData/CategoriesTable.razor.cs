@@ -39,26 +39,13 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     ///     Support class for the <see cref="CategoriesTable"/>
     /// </summary>
-    public partial class CategoriesTable : IDisposable
+    public partial class CategoriesTable
     {
-        /// <summary>
-        ///     A collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
         /// <summary>
         ///     The <see cref="ICategoriesTableViewModel" /> for this component
         /// </summary>
         [Inject]
         public ICategoriesTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-        }
 
         /// <summary>
         ///     Gets or sets the grid control that is being customized.
@@ -84,8 +71,8 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         ///     Method invoked to highlight deprecated categories
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
-        void DisableDeprecatedCategories(GridCustomizeElementEventArgs e)
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
+        private void DisableDeprecatedCategories(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
@@ -104,10 +91,10 @@ namespace COMETwebapp.Components.ReferenceData
         {
             this.ViewModel.OnInitializedAsync();
 
-            this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
         }

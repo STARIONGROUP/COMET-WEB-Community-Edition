@@ -40,13 +40,8 @@ namespace COMETwebapp.Components.UserManagement
     /// <summary>
     /// Support class for the <see cref="UserManagementTable" />
     /// </summary>
-    public partial class UserManagementTable : IDisposable
+    public partial class UserManagementTable
     {
-        /// <summary>
-        /// A collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
         /// <summary>
         /// The <see cref="IUserManagementTableViewModel" /> for this component
         /// </summary>
@@ -57,14 +52,6 @@ namespace COMETwebapp.Components.UserManagement
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-        }
 
         /// <summary>
         /// Method invoked when the "Show/Hide Deprecated Items" checkbox is checked or unchecked.
@@ -118,10 +105,10 @@ namespace COMETwebapp.Components.UserManagement
         {
             this.ViewModel.OnInitializedAsync();
 
-            this.disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
         }
