@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -28,5 +28,13 @@
         <PackageReference Include="ReactiveUI" Version="18.4.1" />
         <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Components\SystemRepresentation\SystemRepresentationBody.razor" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\SystemRepresentation\SystemRepresentationBody.razor" />
     </ItemGroup>
 </Project>

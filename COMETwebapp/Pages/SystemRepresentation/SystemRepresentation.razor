@@ -1,7 +1,7 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
 
     This file is part of COMET WEB Community Edition
      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -20,10 +20,11 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Utilities
+@inherits SingleIterationPageTemplate
 @attribute [Route(ConstantValues.SystemRepresentationPage)]
 
-<SingleIterationApplicationTemplate >
+<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
     <Body>
-        Application in development.
+        <SystemRepresentationBody />
     </Body>
 </SingleIterationApplicationTemplate>

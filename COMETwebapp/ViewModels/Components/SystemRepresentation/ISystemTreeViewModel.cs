@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NewUpdateEvent.cs" company="RHEA System S.A.">
+// <copyright file="ISystemTreeViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,26 +21,25 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-namespace COMETwebapp.Services.IterationServices
+namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
+    using COMETwebapp.Model;
+    
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// Event when a Thing is updated for the first time
+    ///     Interface definition for <see cref="SystemTreeViewModel" />
     /// </summary>
-    public class NewUpdateEvent
+    public interface ISystemTreeViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="NewUpdateEvent"/> class.
+        ///     The <see cref=IEnumerable{SystemNode} /> to display
         /// </summary>
-        /// <param name="updateIid">Iid of the updated Thing</param>
-        public NewUpdateEvent(Guid? updateIid)
-        {
-            UpdatedThingIid = updateIid;
-        }
+        IEnumerable<SystemNode> SystemNodes { get; set; }
 
         /// <summary>
-        /// Iid of the updated Thing
+        ///     The <see cref="EventCallback" /> to call on node selection
         /// </summary>
-        public Guid? UpdatedThingIid { get; set; }
+        EventCallback<SystemNode> OnClick { get; set; }
     }
 }

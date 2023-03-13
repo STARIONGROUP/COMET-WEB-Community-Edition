@@ -1,4 +1,4 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
     font-size: 16px !important;
@@ -403,4 +403,9 @@ html, body, #app {
 
 .small-margin {
     margin: 0.2rem;
+}
+
+
+.highlighted-item {
+    background-color: #DEDFE4;
 }

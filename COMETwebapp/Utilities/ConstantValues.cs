@@ -105,5 +105,15 @@ namespace COMETwebapp.Utilities
         /// The page name of the Budget Editor
         /// </summary>
         public const string BudgetEditorPage = "BudgetEditor";
+
+        /// <summary>
+        /// The page name of the Reference Data
+        /// </summary>
+        public const string ReferenceDataPage = "ReferenceData";
+
+        /// <summary>
+        /// The page name of the User Management
+        /// </summary>
+        public const string UserManagementPage = "UserManagement";
     }
 }

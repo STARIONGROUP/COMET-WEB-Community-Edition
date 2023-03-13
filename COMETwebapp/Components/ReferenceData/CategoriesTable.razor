@@ -1,0 +1,58 @@
+﻿!------------------------------------------------------------------------------
+Copyright (c) 2023 RHEA System S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
+
+    This file is part of COMET WEB Community Edition
+     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@inherits DisposableComponent
+
+<DxGrid @ref="Grid"
+        Data="this.ViewModel.Rows.Items"
+        ShowSearchBox="true"
+        ShowAllRows="true"
+        SearchBoxNullText="Search for a category..."
+        EditMode="GridEditMode.PopupEditForm"
+        CustomizeElement="DisableDeprecatedCategories">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.Name)" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.SuperCategories)" Caption="Super Categories" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
+        <DxGridCommandColumn Width="200px" EditButtonVisible="false" Visible="this.ViewModel.IsAllowedToWrite">
+            <HeaderTemplate>
+                <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" />
+            </HeaderTemplate>
+            <CellDisplayTemplate>
+                @{
+                    var row = (CategoryRowViewModel)context.DataItem;
+                    if (row.IsDeprecated)
+                    {
+                        <DxButton Id="undeprecateButton" Text="Un-deprecate" />
+                    }
+                    else
+                    {
+                        <DxButton Id="deprecateButton" Text="Deprecate" />
+                    }
+                }
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+<DxCheckBox Id="hideDeprecatedItems" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.HideOrShowDeprecatedItems(value))">Show/Hide Deprecated Categories</DxCheckBox>

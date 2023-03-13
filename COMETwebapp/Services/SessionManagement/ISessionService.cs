@@ -143,5 +143,17 @@ namespace COMETwebapp.Services.SessionManagement
         /// <returns>The <see cref="DomainOfExpertise" /></returns>
         /// <exception cref="ArgumentException">If the <see cref="Iteration" /> is not opened</exception>
         DomainOfExpertise GetDomainOfExpertise(Iteration iteration);
+
+        /// <summary>
+        ///     Write new Things in the session
+        /// </summary>
+        /// <param name="thingsToCreate">List of Things to create in the session</param>
+        Task CreateThingsSiteDirectory(IEnumerable<Thing> thingsToCreate);
+
+        /// <summary>
+        ///     Update Things in the session
+        /// </summary>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        Task UpdateThingsSiteDirectory(IEnumerable<Thing> thingsToUpdate);
     }
 }

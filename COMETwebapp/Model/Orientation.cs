@@ -25,7 +25,6 @@
 namespace COMETwebapp.Model
 {
     using COMETwebapp.Enumerations;
-    using DevExpress.Entity.Model.Metadata;
 
     /// <summary>
     /// Class to represent a orientation in space.

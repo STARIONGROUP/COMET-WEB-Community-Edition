@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ApplicationCards.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
@@ -91,6 +91,22 @@ namespace COMETwebapp.Model
                 Icon = "eye",
                 Description = "Show 3D Viewer",
                 Url = ConstantValues.ViewerPage
+            },
+            new Card()
+            {
+                Name = "Reference Data",
+                Color = "#fc3a1aad",
+                Icon = "file",
+                Description = "Visualize reference data",
+                Url = ConstantValues.ReferenceDataPage
+            },
+            new Card()
+            {
+                Name = "User Management",
+                Color = "#76fd98",
+                Icon = "people",
+                Description = "Manage users",
+                Url = ConstantValues.UserManagementPage
             }
         };
     }

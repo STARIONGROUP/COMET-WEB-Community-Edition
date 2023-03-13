@@ -81,7 +81,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-
+            
             this.stateProvider.AuthenticationStateChanged -= this.HandleAuthenticationState;
         }
 

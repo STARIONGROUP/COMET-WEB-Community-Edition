@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ValidateUpdate.cs" company="RHEA System S.A.">
+// <copyright file="SystemTreeViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,26 +21,26 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-namespace COMETwebapp.IterationServices
+namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.Model;
+    
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// Event when an update is validated
+    ///     View model for the <see cref="SystemTree" /> component
     /// </summary>
-    public class ValidateUpdate
+    public class SystemTreeViewModel : ISystemTreeViewModel
     {
         /// <summary>
-        /// Iid of the subscribed ParameterValueSet
+        ///     The <see cref=IEnumerable{SystemNode} /> to display
         /// </summary>
-        public Guid? Iid { get; set; }
+        public IEnumerable<SystemNode> SystemNodes { get; set; } = new List<SystemNode>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ValidateUpdate"/> class.
+        ///     The <see cref="EventCallback" /> to call on node selection
         /// </summary>
-        /// <param name="iid">Iid of the subscribed ParameterValueSet</param>
-        public ValidateUpdate(Guid? iid)
-        {
-            Iid = iid;
-        }   
+        public EventCallback<SystemNode> OnClick { get; set; }
     }
 }

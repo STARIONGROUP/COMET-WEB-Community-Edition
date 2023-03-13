@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SessionServiceTest.cs" company="RHEA System S.A.">
+// <copyright file="SystemTreeTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,13 +22,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Services.SessionManagement
+namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Reactive.Linq;
-    using System.Threading.Tasks;
+    using System.Linq;
+
+    using Bunit;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -36,36 +37,59 @@ namespace COMETwebapp.Tests.Services.SessionManagement
     using CDP4Dal;
     using CDP4Dal.DAL;
 
-    using COMETwebapp.Enumerations;
+    using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+
+    using DevExpress.Blazor;
+
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
     using NUnit.Framework;
 
+    using TestContext = Bunit.TestContext;
+
     [TestFixture]
-    public class SessionServiceTest
+    public class SystemRepresentationPageTestFixture
     {
+        private TestContext context;
+        private ISystemRepresentationBodyViewModel viewModel;
         private Mock<ISession> session;
         private ISessionService sessionService;
+        private Assembler assembler;
         private Participant participant;
         private Person person;
-        private DomainOfExpertise domain;
-        private Iteration iteration;
-        private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
-        private Assembler assembler;
         private readonly Uri uri = new("http://test.com");
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
+        private DomainOfExpertise domain;
+        private Iteration iteration;
+        private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
+            this.context = new TestContext();
+
             this.session = new Mock<ISession>();
             this.sessionService = new SessionService { Session = this.session.Object };
+
+            this.context.Services.AddSingleton(this.sessionService);
+            this.context.ConfigureDevExpressBlazor();
+            this.context.Services.AddAntDesign();
+            this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
+
+            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService);
+
+            this.context.Services.AddSingleton(this.viewModel);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
@@ -81,6 +105,7 @@ namespace COMETwebapp.Tests.Services.SessionManagement
 
             this.engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
+                Name = "TestModel",
                 RequiredRdl =
                 {
                     this.referenceDataLibrary
@@ -90,6 +115,29 @@ namespace COMETwebapp.Tests.Services.SessionManagement
 
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
+                Element =
+                {
+                    new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                    {
+                        Name = "TestElement",
+                        Owner = this.domain,
+                        ShortName = "TE",
+                        ContainedElement =
+                        {
+                            new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                            {
+                                Owner = this.domain,
+                                ShortName = "TEU",
+                                ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                                {
+                                    Name = "TestElementUsage",
+                                    Owner = this.domain,
+                                    ShortName = "TEU"
+                                }
+                            }
+                        }
+                    }
+                },
                 Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
                     EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -116,8 +164,25 @@ namespace COMETwebapp.Tests.Services.SessionManagement
                 DomainFileStore =
                 {
                     new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
+                },
+                Option =
+                {
+                    new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                    {
+                        Name = "TestOption",
+                        ShortName = "TO"
+                    }
                 }
             };
+
+            var option1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                ShortName = "OPT_1",
+                Name = "Option1"
+            };
+
+            this.iteration.Option.Add(option1);
+            this.iteration.DefaultOption = option1;
 
             this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
 
@@ -143,103 +208,36 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         }
 
         [Test]
-        public void VerifyClose()
+        public void VerifyOnInitialized()
         {
-            this.sessionService.IsSessionOpen = true;
-            this.session.Setup(x => x.Close()).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-            this.session.Setup(x => x.Close()).Throws<Exception>();
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-            this.sessionService.IsSessionOpen = true;
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-        }
-
-        [Test]
-        public void VerifyCloseIteration()
-        {
-            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
+            var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
             {
-                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant) }
+                parameters.Add(p => p.CurrentIteration, this.iteration);
             });
 
-            this.sessionService.IsSessionOpen = true;
-            this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
-            this.session.Setup(x => x.CloseIterationSetup(It.IsAny<IterationSetup>())).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => this.sessionService.CloseIterations());
-        }
+            var filterAndDomainComboBox = renderer.FindComponents<DxComboBox<string, string>>();
 
-        [Test]
-        public void VerifyCreateThings()
-        {
-            this.sessionService.IsSessionOpen = true;
-            var thingsToCreate = new List<ElementDefinition>();
-            var element = new ElementDefinition();
-            element.Name = "Battery";
-            element.Owner = this.sessionService.GetDomainOfExpertise(this.iteration);
-            thingsToCreate.Add(element.Clone(false));
-            Assert.DoesNotThrow(() => this.sessionService.CreateThings(this.iteration, thingsToCreate));
-        }
-
-        [Test]
-        public void VerifyGetModelDomains()
-        {
-            Assert.That(this.sessionService.GetModelDomains(this.engineeringSetup), Is.Not.Null);
-        }
-
-        [Test]
-        public void VerifyGetParticipant()
-        {
-            this.sessionService.IsSessionOpen = true;
-            this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
-            Assert.That(this.sessionService.GetParticipant(this.iteration), Is.EqualTo(this.participant));
-        }
-
-        [Test]
-        public void VerifyGetParticipantModels()
-        {
-            Assert.That(this.sessionService.GetParticipantModels(), Is.Not.Null);
-        }
-
-        [Test]
-        public void VerifyRefreshSession()
-        {
-            var beginRefreshReceived = false;
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing).Subscribe(x => { beginRefreshReceived = true; });
-            this.sessionService.RefreshSession();
-
-            Assert.That(beginRefreshReceived, Is.True);
-        }
-
-        [Test]
-        public void VerifySwitchDomain()
-        {
-            Assert.DoesNotThrow(() => this.sessionService.SwitchDomain(this.iteration, this.domain));
-
-            this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
+            Assert.Multiple(() =>
             {
-                { this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant) }
+                Assert.That(filterAndDomainComboBox, Is.Not.Null);
+                Assert.That(filterAndDomainComboBox.Count, Is.EqualTo(2));
             });
 
-            this.sessionService.IsSessionOpen = true;
-            this.sessionService.ReadIteration(this.iteration.IterationSetup, this.domain);
+            this.viewModel.OnOptionFilterChange("Option1");
 
-            this.sessionService.SwitchDomain(this.iteration, this.domain);
-            Assert.That(this.sessionService.GetDomainOfExpertise(this.iteration), Is.EqualTo(this.domain));
-        }
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
+            });
 
-        [Test]
-        public void VerifyUpdateThings()
-        {
-            var thingsToUpdate = new List<ElementDefinition>();
-            this.sessionService.IsSessionOpen = true;
-            var element = new ElementDefinition();
-            element.Name = "Battery";
-            element.Owner = this.sessionService.GetDomainOfExpertise(this.iteration);
+            this.viewModel.OnDomainFilterChange(this.domain.Name);
 
-            var clone = element.Clone(false);
-            clone.Name = "Satellite";
-            thingsToUpdate.Add(clone);
-            Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
+                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
+            });
         }
     }
 }

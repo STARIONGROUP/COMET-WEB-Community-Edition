@@ -28,13 +28,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
     
-    using CDP4Dal;
-    
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.IterationServices;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
 
@@ -195,8 +192,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
                 if (valueSet is ParameterValueSetBase parameterValueSetBase)
                 {
-                    CDPMessageBus.Current.SendMessage(new NewUpdateEvent(this.SelectionMediator.SelectedSceneObject.ID));
-
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
                     clonedParameterValueSet.Manual = valueSetNewValue;
