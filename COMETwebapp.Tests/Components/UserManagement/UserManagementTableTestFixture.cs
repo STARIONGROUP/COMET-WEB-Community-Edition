@@ -30,9 +30,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using System.Linq;
     using System.Threading.Tasks;
 
-    using BlazorStrap;
-
     using Bunit;
+
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -41,12 +40,10 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using CDP4Dal.DAL;
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
-    
+
     using COMETwebapp.Components.UserManagement;
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.SessionManagement;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.UserManagement;
 
     using DevExpress.Blazor;
@@ -65,15 +62,14 @@ namespace COMETwebapp.Tests.Components.UserManagement
         private TestContext context;
         private IUserManagementTableViewModel viewModel;
         private Mock<ISession> session;
-        private Mock<IIterationService> iterationService;
         private Mock<IPermissionService> permissionService;
-        private ISessionAnchor sessionAnchor;
+        private Mock<ISessionService> sessionService;
         private Assembler assembler;
         private Participant participant;
         private Participant participant1;
         private Person person;
         private Person person1;
-        private readonly Uri uri = new Uri("http://test.com");
+        private readonly Uri uri = new("http://test.com");
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
         private DomainOfExpertise domain;
@@ -81,132 +77,128 @@ namespace COMETwebapp.Tests.Components.UserManagement
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
 
-
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
+            this.context = new TestContext();
 
-            session = new Mock<ISession>();
-            sessionAnchor = new SessionAnchor() { Session = session.Object };
+            this.session = new Mock<ISession>();
+            this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
-            iterationService = new Mock<IIterationService>();
+            this.permissionService = new Mock<IPermissionService>();
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
 
-            permissionService = new Mock<IPermissionService>();
-            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
-            permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+            this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
 
-            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            this.context.Services.AddSingleton(this.sessionService);
+            this.context.ConfigureDevExpressBlazor();
 
-            iterationService.Setup(x => x.GetNestedElementsByOption(It.IsAny<Iteration>(), It.IsAny<Guid>())).Returns(new List<NestedElement>());
+            this.assembler = new Assembler(this.uri);
+            this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            context.Services.AddBlazorStrap();
-            context.Services.AddAntDesign();
-            context.Services.AddSingleton(sessionAnchor);
-            context.Services.AddDevExpressBlazor();
-            context.ConfigureDevExpressBlazor();
-            context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object);
 
-            assembler = new Assembler(uri);
-            domain = new DomainOfExpertise(Guid.NewGuid(), assembler.Cache, uri);
+            this.context.Services.AddSingleton(this.viewModel);
 
-            viewModel = new UserManagementTableViewModel(sessionAnchor);
-
-            context.Services.AddSingleton(viewModel);
-            
-            person = new Person(Guid.NewGuid(), assembler.Cache, uri)
+            this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 GivenName = "Test",
                 Surname = "Person",
-                DefaultDomain = domain,
+                DefaultDomain = this.domain,
                 IsActive = true,
                 IsDeprecated = false
             };
 
-            person1 = new Person(Guid.NewGuid(), assembler.Cache, uri)
+            this.person1 = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 GivenName = "Test1",
                 Surname = "Person1",
-                DefaultDomain = domain,
+                DefaultDomain = this.domain,
                 IsDeprecated = true
             };
 
-            participant = new Participant(Guid.NewGuid(), assembler.Cache, uri)
+            this.participant = new Participant(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Person = person
+                Person = this.person
             };
 
-            participant1 = new Participant(Guid.NewGuid(), assembler.Cache, uri)
+            this.participant1 = new Participant(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Person = person1
+                Person = this.person1
             };
 
-            referenceDataLibrary = new ModelReferenceDataLibrary(Guid.NewGuid(), assembler.Cache, uri)
+            this.referenceDataLibrary = new ModelReferenceDataLibrary(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 ShortName = "ARDL"
             };
 
-            engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), assembler.Cache, uri)
+            this.engineeringSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 Name = "TestModel",
                 RequiredRdl =
                 {
-                    referenceDataLibrary
+                    this.referenceDataLibrary
                 },
-                Participant = { participant, participant1 }
+                Participant = { this.participant, this.participant1 }
             };
 
-            iteration = new Iteration(Guid.NewGuid(), assembler.Cache, uri)
+            this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 Element =
                 {
-                    new ElementDefinition(Guid.NewGuid(), assembler.Cache, uri)
+                    new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
                     {
                         Name = "TestElement",
-                        Owner = domain,
+                        Owner = this.domain,
                         ShortName = "TE",
-                        ContainedElement = { new ElementUsage(Guid.NewGuid(), assembler.Cache, uri) {
-                            Owner = domain,
-                            ShortName = "TEU",
-                            ElementDefinition = new ElementDefinition(Guid.NewGuid(), assembler.Cache, uri)
+                        ContainedElement =
+                        {
+                            new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri)
                             {
-                                Name = "TestElementUsage",
-                                Owner = domain,
-                                ShortName = "TEU"
+                                Owner = this.domain,
+                                ShortName = "TEU",
+                                ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                                {
+                                    Name = "TestElementUsage",
+                                    Owner = this.domain,
+                                    ShortName = "TEU"
+                                }
                             }
-                        } }
+                        }
                     }
                 },
-                Container = new EngineeringModel(Guid.NewGuid(), assembler.Cache, uri)
+                Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
-                    EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), assembler.Cache, uri)
+                    EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
                     {
                         RequiredRdl =
                         {
-                            new ModelReferenceDataLibrary(Guid.NewGuid(), assembler.Cache, uri)
+                            new ModelReferenceDataLibrary(Guid.NewGuid(), this.assembler.Cache, this.uri)
                             {
                                 FileType =
                                 {
-                                    new FileType(Guid.NewGuid(), assembler.Cache, uri) { Extension = "tar" },
-                                    new FileType(Guid.NewGuid(), assembler.Cache, uri) { Extension = "gz" },
-                                    new FileType(Guid.NewGuid(), assembler.Cache, uri) { Extension = "zip" }
+                                    new FileType(Guid.NewGuid(), this.assembler.Cache, this.uri) { Extension = "tar" },
+                                    new FileType(Guid.NewGuid(), this.assembler.Cache, this.uri) { Extension = "gz" },
+                                    new FileType(Guid.NewGuid(), this.assembler.Cache, this.uri) { Extension = "zip" }
                                 }
                             }
                         },
-                        Participant = { participant }
+                        Participant = { this.participant }
                     }
                 },
-                IterationSetup = new IterationSetup(Guid.NewGuid(), assembler.Cache, uri)
+                IterationSetup = new IterationSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
-                    Container = engineeringSetup
+                    Container = this.engineeringSetup
                 },
                 DomainFileStore =
                 {
-                    new DomainFileStore(Guid.NewGuid(), assembler.Cache, uri) { Owner = domain }
+                    new DomainFileStore(Guid.NewGuid(), this.assembler.Cache, this.uri) { Owner = this.domain }
                 },
                 Option =
                 {
-                    new Option(Guid.NewGuid(), assembler.Cache, uri)
+                    new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
                     {
                         Name = "TestOption",
                         ShortName = "TO"
@@ -214,60 +206,146 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 }
             };
 
-            var option_1 = new Option(Guid.NewGuid(), assembler.Cache, uri)
+            var option_1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 ShortName = "OPT_1",
                 Name = "Option1"
             };
 
-            iteration.Option.Add(option_1);
-            iteration.DefaultOption = option_1;
+            this.iteration.Option.Add(option_1);
+            this.iteration.DefaultOption = option_1;
 
-            engineeringSetup.IterationSetup.Add(iteration.IterationSetup);
-            openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
-               new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
-               {
-                    new KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>(iteration, new Tuple<DomainOfExpertise, Participant>(domain, participant))
-               });
-            siteDirectory = new SiteDirectory(Guid.NewGuid(), assembler.Cache, uri)
+            this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
+
+            this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
+                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>
+                {
+                    new(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
+                });
+
+            this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Model = { engineeringSetup }
+                Model = { this.engineeringSetup }
             };
-            siteDirectory.Person.Add(person);
-            siteDirectory.Person.Add(person1);
-            siteDirectory.Domain.Add(domain);
 
-            session.Setup(x => x.Assembler).Returns(assembler);
-            session.Setup(x => x.OpenIterations).Returns(openIteration);
-            session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", uri));
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
-            session.Setup(x => x.ActivePerson).Returns(person);
+            this.siteDirectory.Person.Add(this.person);
+            this.siteDirectory.Person.Add(this.person1);
+            this.siteDirectory.Domain.Add(this.domain);
+
+            this.session.Setup(x => x.Assembler).Returns(this.assembler);
+            this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);
+            this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
+            this.session.Setup(x => x.ActivePerson).Returns(this.person);
+        }
+
+        [Test]
+        public async Task VerifyActivatingPerson()
+        {
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
+                .First(x => x.Instance.Id == "activatePerson");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(checkBox.Instance.Checked, Is.True);
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            await renderer.InvokeAsync(() => checkBox.Instance.Checked = false);
+
+            Assert.Multiple(() => { Assert.That(checkBox.Instance.Checked, Is.False); });
+        }
+
+        [Test]
+        public async Task VerifyAddingPerson()
+        {
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            this.viewModel.Person = new Person
+            {
+                GivenName = "Test",
+                Surname = "Test",
+                ShortName = "TT",
+                IsActive = true,
+                IsDeprecated = false
+            };
+
+            await this.viewModel.AddingPerson();
+            CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Added));
+
+            Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
+        }
+
+        [Test]
+        public async Task VerifyDeprecatingPerson()
+        { 
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
+            var currentPerson = this.viewModel.Person;
+
+            Assert.That(this.viewModel.PopupVisible, Is.False);
+
+            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.PopupVisible, Is.True);
+                Assert.That(this.viewModel.Person, Is.Not.EqualTo(currentPerson));
+            });
+
+            this.viewModel.Person = this.person;
+
+            await this.viewModel.OnConfirmButtonClick();
+
+            Assert.That(this.viewModel.PopupVisible, Is.False);
         }
 
         [Test]
         public async Task VerifyOnInitialized()
         {
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            sessionAnchor.CurrentEngineeringModelName = "model";
-
-            var renderer = context.RenderComponent<UserManagementTable>();
+            var renderer = this.context.RenderComponent<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
-                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
-                Assert.That(viewModel.IsAllowedToWrite, Is.True);
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(this.viewModel.IsAllowedToWrite, Is.True);
             });
 
-            var checkBox = renderer.FindComponents<DxCheckBox<bool>>().FirstOrDefault(x => x.Instance.Id == "hideDeprecatedItems");
+            var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
+                .First(x => x.Instance.Id == "hideDeprecatedItems");
 
             Assert.Multiple(() =>
             {
                 Assert.That(checkBox.Instance.Checked, Is.False);
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
 
             await renderer.InvokeAsync(() => checkBox.Instance.Checked = true);
@@ -276,150 +354,41 @@ namespace COMETwebapp.Tests.Components.UserManagement
             Assert.Multiple(() =>
             {
                 Assert.That(checkBox.Instance.Checked, Is.True);
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Not.Contain(person1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
-        }
-
-        [Test]
-        public async Task VerifyAddingPerson()
-        {
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            sessionAnchor.CurrentEngineeringModelName = "model";
-
-            var renderer = context.RenderComponent<UserManagementTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
-            });
-
-            var addPersonButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "addPersonButton");
-            var currentPerson = viewModel.Person;
-
-            viewModel.Person = new Person()
-            {
-                GivenName = "Test",
-                Surname = "Test",
-                ShortName = "TT",
-                IsActive = true,
-                IsDeprecated = false,
-            };
-
-            viewModel.AddingPerson();
-            CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(viewModel.Person, EventKind.Added));
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(viewModel.Rows.Count, Is.EqualTo(2));
-            });
-        }
-
-        [Test]
-        public async Task VerifyDeprecatingPerson()
-        {
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            sessionAnchor.CurrentEngineeringModelName = "model";
-
-            var renderer = context.RenderComponent<UserManagementTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
-            });
-
-            var deprecateButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "deprecateButton");
-            var currentPerson = viewModel.Person;
-
-            Assert.That(viewModel.popupVisible, Is.False);
-
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(viewModel.popupVisible, Is.True);
-                Assert.That(viewModel.Person, Is.Not.EqualTo(currentPerson));
-            });
-
-            viewModel.Person = this.person;
-
-            this.viewModel.OnConfirmButtonClick();
-
-            Assert.That(viewModel.popupVisible, Is.False);
         }
 
         [Test]
         public async Task VerifyUnDeprecatingPerson()
         {
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            sessionAnchor.CurrentEngineeringModelName = "model";
-
-            var renderer = context.RenderComponent<UserManagementTable>();
+            var renderer = this.context.RenderComponent<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
-                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
 
-            var undeprecateButton = renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "undeprecateButton");
-            var currentPerson = viewModel.Person;
+            var undeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
+            var currentPerson = this.viewModel.Person;
 
-            Assert.That(viewModel.popupVisible, Is.False);
+            Assert.That(this.viewModel.PopupVisible, Is.False);
 
             await renderer.InvokeAsync(undeprecateButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(viewModel.popupVisible, Is.True);
-                Assert.That(viewModel.Person, Is.Not.EqualTo(currentPerson));
+                Assert.That(this.viewModel.PopupVisible, Is.True);
+                Assert.That(this.viewModel.Person, Is.Not.EqualTo(currentPerson));
             });
 
-            viewModel.Person = this.person1;
+            this.viewModel.Person = this.person1;
 
-            this.viewModel.OnConfirmButtonClick();
+            await this.viewModel.OnConfirmButtonClick();
 
-            Assert.That(viewModel.popupVisible, Is.False);
-        }
-
-        [Test]
-        public async Task VerifyActivatingPerson()
-        {
-            sessionAnchor.IsSessionOpen = true;
-            sessionAnchor.ReadIteration(iteration.IterationSetup);
-            sessionAnchor.CurrentEngineeringModelName = "model";
-
-            var renderer = context.RenderComponent<UserManagementTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
-            });
-
-            var checkBox = renderer.FindComponents<DxCheckBox<bool>>().FirstOrDefault(x => x.Instance.Id == "activatePerson");
-             Assert.Multiple(() =>
-            {
-                Assert.That(checkBox.Instance.Checked, Is.True);
-                Assert.That(renderer.Markup, Does.Contain(person.Name));
-                Assert.That(renderer.Markup, Does.Contain(person1.Name));
-            });
-
-            await renderer.InvokeAsync(() => checkBox.Instance.Checked = false);
-            
-            Assert.Multiple(() =>
-            {
-                Assert.That(checkBox.Instance.Checked, Is.False);
-            }); 
+            Assert.That(this.viewModel.PopupVisible, Is.False);
         }
     }
 }

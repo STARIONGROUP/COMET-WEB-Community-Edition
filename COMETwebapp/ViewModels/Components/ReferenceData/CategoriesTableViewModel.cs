@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using System.Reactive.Linq;
@@ -31,25 +32,73 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal;
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
-    
-    using COMETwebapp.SessionManagement;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using DevExpress.Blazor.Internal;
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DynamicData;
 
     using ReactiveUI;
 
     /// <summary>
-    ///     View model for the <see cref="CategoriesTable" /> component
+    /// View model used to manage <see cref="Category" />
     /// </summary>
-    public class CategoriesTableViewModel : ReactiveObject, ICategoriesTableViewModel, IDisposable
+    public class CategoriesTableViewModel : DisposableObject, ICategoriesTableViewModel
     {
+        /// <summary>
+        /// Injected property to get access to <see cref="IPermissionService" />
+        /// </summary>
+        private readonly IPermissionService permissionService;
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionService" />
+        /// </summary>
+        private readonly ISessionService sessionService;
+
         /// <summary>
         /// A collection of all <see cref="CategoryRowViewModel" />
         /// </summary>
         private IEnumerable<CategoryRowViewModel> allRows = new List<CategoryRowViewModel>();
+
+        /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        public CategoriesTableViewModel(ISessionService sessionService)
+        {
+            this.sessionService = sessionService;
+            this.permissionService = sessionService.Session.PermissionService;
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
+                .Where(objectChange => objectChange.EventKind == EventKind.Added &&
+                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                .Select(x => x.ChangedThing as Category)
+                .Subscribe(this.AddNewCategory));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
+                .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                .Select(x => x.ChangedThing as Category)
+                .Subscribe(this.UpdateCategory));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
+                .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                .Select(x => x.ChangedThing as ReferenceDataLibrary)
+                .Subscribe(this.RefreshContainerName));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
+                .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                .Select(x => x.ChangedThing as PersonRole)
+                .Subscribe(_=> this.RefreshAccessRight()));
+        }
 
         /// <summary>
         /// A reactive collection of <see cref="CategoryRowViewModel" />
@@ -57,19 +106,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public SourceList<CategoryRowViewModel> Rows { get; } = new();
 
         /// <summary>
-        ///     Gets or sets the data source for the grid control.
+        /// Gets or sets the data source for the grid control.
         /// </summary>
         public SourceList<Category> DataSource { get; } = new();
-
-        /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
-        /// </summary>
-        private readonly ISessionAnchor SessionAnchor;
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
 
         /// <summary>
         /// Value indicating if the <see cref="ParameterType" /> is deprecated
@@ -81,61 +120,62 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        /// Injected property to get access to <see cref="IPermissionService"/>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
         /// </summary>
-        private readonly IPermissionService permissionService;
-
-        /// <summary>
-        ///     A collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.
-        /// </summary>
-        /// <param name="sessionAnchor">The <see cref="ISessionAnchor" /></param>
-        public CategoriesTableViewModel(ISessionAnchor sessionAnchor)
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        public void OnInitializedAsync()
         {
-            this.SessionAnchor = sessionAnchor;
-            this.permissionService = sessionAnchor.Session.PermissionService;
+            foreach (var siteReferenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary)
+            {
+                this.DataSource.AddRange(siteReferenceDataLibrary.DefinedCategory);
+            }
 
-            var addListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Added &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as Category)
-                    .Subscribe(Category => this.addNewCategory(Category));
-            this.disposables.Add(addListener);
+            this.UpdateProperties(this.DataSource.Items);
+            this.RefreshAccessRight();
+        }
 
-            var updateListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as Category)
-                    .Subscribe(Category => this.updateCategory(Category));
-            this.disposables.Add(updateListener);
+        /// <summary>
+        /// Adds a new <see cref="Category" />
+        /// </summary>
+        public void AddNewCategory(Category category)
+        {
+            var newRows = new List<CategoryRowViewModel>(this.allRows)
+            {
+                new(category)
+            };
 
-            var rdlUpdateListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as ReferenceDataLibrary)
-                    .Subscribe(this.RefreshContainerName);
-            this.disposables.Add(rdlUpdateListener);
+            this.UpdateRows(newRows);
+        }
 
-            var updateAccessRight = CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as PersonRole)
-                    .Subscribe(x => this.RefreshAccessRight());
-            this.disposables.Add(updateAccessRight);
+        /// <summary>
+        /// Updates the <see cref="Category" />
+        /// </summary>
+        public void UpdateCategory(Category category)
+        {
+            var updatedRows = new List<CategoryRowViewModel>(this.allRows);
+            var index = updatedRows.FindIndex(x => x.Category.Iid == category.Iid);
+            updatedRows[index] = new CategoryRowViewModel(category);
+            this.UpdateRows(updatedRows);
+        }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        /// <param name="categories">A collection of <see cref="Category" /></param>
+        public void UpdateProperties(IEnumerable<Category> categories)
+        {
+            this.allRows = categories.Select(x => new CategoryRowViewModel(x));
+            this.UpdateRows(this.allRows);
         }
 
         /// <summary>
         /// Refresh the displayed container name for the category rows
         /// </summary>
         /// <param name="rdl">
-        /// The updated <see cref="ReferenceDataLibrary"/>.
+        /// The updated <see cref="ReferenceDataLibrary" />.
         /// </param>
         private void RefreshContainerName(ReferenceDataLibrary rdl)
         {
@@ -149,51 +189,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        ///   Adds a new <see cref="Category" /> 
+        /// Updates the active user access rights
         /// </summary>
-        public void addNewCategory(Category category)
-        {
-            var newRows = new List<CategoryRowViewModel>(this.allRows);
-            newRows.Add(new CategoryRowViewModel(category));
-            this.UpdateRows(newRows);
-        }
-
-        /// <summary>
-        ///   Updates the <see cref="Category" /> 
-        /// </summary>  
-        public void updateCategory(Category category)
-        {
-            var updatedRows = new List<CategoryRowViewModel>(this.allRows);
-            var index = updatedRows.FindIndex(x => x.Category.Iid == category.Iid);
-            updatedRows[index] = new CategoryRowViewModel(category);
-            this.UpdateRows(updatedRows);
-        }
-
-        /// <summary>
-        ///   Updates the active user access rights
-        /// </summary>  
         private void RefreshAccessRight()
         {
-            this.IsAllowedToWrite = this.SessionAnchor.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary.All(s => this.permissionService.CanWrite(ClassKind.Category, s));
-        }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-            this.disposables.Clear();
-        }
-
-        /// <summary>
-        /// Updates this view model properties
-        /// </summary>
-        /// <param name="categories">A collection of <see cref="Category" /></param>
-        public void UpdateProperties(IEnumerable<Category> categories)
-        {
-            this.allRows = categories.Select(x => new CategoryRowViewModel(x));
-            this.UpdateRows(this.allRows);
+            this.IsAllowedToWrite = this.sessionService.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary.All(s => this.permissionService.CanWrite(ClassKind.Category, s));
         }
 
         /// <summary>
@@ -216,23 +216,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.Rows.Items.First(x => x.Category.Iid == existingRow.Category.Iid).UpdateProperties(existingRow);
             }
-        }
-
-        /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync()
-        {
-            foreach (var siteReferenceDataLibrary in this.SessionAnchor.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary)
-            {
-                this.DataSource.AddRange(siteReferenceDataLibrary.DefinedCategory);
-            }
-            this.UpdateProperties(this.DataSource.Items);
-            this.RefreshAccessRight();
         }
     }
 }

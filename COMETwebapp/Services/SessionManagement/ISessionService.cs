@@ -153,7 +153,7 @@ namespace COMETwebapp.Services.SessionManagement
         /// <summary>
         ///     Update Things in the session
         /// </summary>
-        /// <param name="thingsToDelete">List of Things to update in the session</param>
-        Task UpdateThingsSiteDirectory(IEnumerable<Thing> thingsToDelete);
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        Task UpdateThingsSiteDirectory(IEnumerable<Thing> thingsToUpdate);
     }
 }

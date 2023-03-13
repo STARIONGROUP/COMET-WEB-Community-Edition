@@ -22,54 +22,48 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Page.SystemRepresentation
+namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    
-    using BlazorStrap;
+
     using Bunit;
-    
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
+
     using CDP4Dal;
     using CDP4Dal.DAL;
-    
-    using COMETwebapp.IterationServices;
-    using COMETwebapp.Model;
-    using COMETwebapp.Pages.SystemRepresentation;
-    using COMETwebapp.SessionManagement;
+
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
-    
+
     using DevExpress.Blazor;
-    
+
     using Microsoft.Extensions.DependencyInjection;
-    
+
     using Moq;
-    
+
     using NUnit.Framework;
-    
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SystemRepresentationPageTestFixture
     {
         private TestContext context;
-        private ISystemRepresentationPageViewModel viewModel;
-        private ISystemTreeViewModel systemTreeViewModel;
+        private ISystemRepresentationBodyViewModel viewModel;
         private Mock<ISession> session;
-        private Mock<IIterationService> iterationService;
-        private ISessionAnchor sessionAnchor;
+        private ISessionService sessionService;
         private Assembler assembler;
         private Participant participant;
         private Person person;
-        private readonly Uri uri = new Uri("http://test.com");
+        private readonly Uri uri = new("http://test.com");
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
         private DomainOfExpertise domain;
@@ -77,35 +71,23 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
 
-
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
-            
+
             this.session = new Mock<ISession>();
-            this.sessionAnchor = new SessionAnchor() { Session = this.session.Object };
+            this.sessionService = new SessionService { Session = this.session.Object };
 
-            this.iterationService = new Mock<IIterationService>();
-
-            this.iterationService.Setup(x => x.GetNestedElementsByOption(It.IsAny<Iteration>(), It.IsAny<Guid>())).Returns(new List<NestedElement>());
-
-            this.context.Services.AddBlazorStrap();
-            this.context.Services.AddAntDesign();
-            this.context.Services.AddSingleton(this.sessionAnchor);
-            this.context.Services.AddDevExpressBlazor();
+            this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
+            this.context.Services.AddAntDesign();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
 
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.systemTreeViewModel = new SystemTreeViewModel()
-            {
-                SystemNodes = new List<SystemNode>()
-            };
-
-            this.viewModel = new SystemRepresentationPageViewModel(this.systemTreeViewModel, null, iterationService.Object, sessionAnchor);
+            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -140,16 +122,20 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                         Name = "TestElement",
                         Owner = this.domain,
                         ShortName = "TE",
-                        ContainedElement = { new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri) {
-                            Owner = this.domain,
-                            ShortName = "TEU",
-                            ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                        ContainedElement =
+                        {
+                            new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri)
                             {
-                                Name = "TestElementUsage",
                                 Owner = this.domain,
-                                ShortName = "TEU"
+                                ShortName = "TEU",
+                                ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                                {
+                                    Name = "TestElementUsage",
+                                    Owner = this.domain,
+                                    ShortName = "TEU"
+                                }
                             }
-                        } }
+                        }
                     }
                 },
                 Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -189,25 +175,28 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
                 }
             };
 
-            var option_1 = new Option(Guid.NewGuid(), this.assembler.Cache, uri)
+            var option1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 ShortName = "OPT_1",
                 Name = "Option1"
             };
 
-            this.iteration.Option.Add(option_1);
-            this.iteration.DefaultOption = option_1;
+            this.iteration.Option.Add(option1);
+            this.iteration.DefaultOption = option1;
 
             this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
+
             this.openIteration = new ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>>(
-               new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>()
-               {
-                    new KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
-               });
+                new List<KeyValuePair<Iteration, Tuple<DomainOfExpertise, Participant>>>
+                {
+                    new(this.iteration, new Tuple<DomainOfExpertise, Participant>(this.domain, this.participant))
+                });
+
             this.siteDirectory = new SiteDirectory(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 Model = { this.engineeringSetup }
             };
+
             this.siteDirectory.Person.Add(this.person);
             this.siteDirectory.Domain.Add(this.domain);
 
@@ -221,19 +210,10 @@ namespace COMETwebapp.Tests.Page.SystemRepresentation
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<SystemRepresentation>();
-
-            Assert.Multiple(() =>
+            var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
             {
-                Assert.That(renderer.Instance, Is.Not.Null);
-                Assert.That(renderer.Markup, Does.Contain("You have to open a model first"));
+                parameters.Add(p => p.CurrentIteration, this.iteration);
             });
-
-            this.sessionAnchor.IsSessionOpen = true;
-            this.sessionAnchor.ReadIteration(this.iteration.IterationSetup);
-            this.sessionAnchor.CurrentEngineeringModelName = "model";
-
-            renderer.Render();
 
             var filterAndDomainComboBox = renderer.FindComponents<DxComboBox<string, string>>();
 

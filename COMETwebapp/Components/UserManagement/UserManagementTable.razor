@@ -20,6 +20,7 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.UserManagement.Rows
+@using CDP4Common.SiteDirectoryData
 
 <DxGrid @ref="Grid"
         Data="this.ViewModel.Rows.Items"
@@ -29,7 +30,7 @@ Copyright (c) 2023 RHEA System S.A.
         ValidationEnabled="false"
         CustomSummary="CustomSummary"
         CustomizeSummaryDisplayText="CustomizeSummaryDisplayText"
-        CustomizeEditModel="CustomizeEditPerson"
+        CustomizeEditModel="this.CustomizeEditPerson"
         PopupEditFormCssClass="pw-800"
         PopupEditFormHeaderText="Create Person"
         EditMode="GridEditMode.PopupEditForm"
@@ -137,8 +138,8 @@ Copyright (c) 2023 RHEA System S.A.
         </DxFormLayout>
     </EditFormTemplate>
 </DxGrid>
-<DxPopup @bind-Visible="@this.ViewModel.popupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @this.ViewModel.popupDialog
+<DxPopup @bind-Visible="@this.ViewModel.PopupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @this.ViewModel.PopupDialog
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelButtonClick" />
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmButtonClick" />

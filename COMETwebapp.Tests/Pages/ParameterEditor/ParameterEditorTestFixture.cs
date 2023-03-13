@@ -39,7 +39,6 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMETwebapp.Components.Shared.Selectors;
     using COMETwebapp.Components.Shared;
     using COMETwebapp.Extensions;
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Pages.ParameterEditor;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;

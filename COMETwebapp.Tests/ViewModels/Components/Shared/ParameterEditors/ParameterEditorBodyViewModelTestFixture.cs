@@ -37,7 +37,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
     using CDP4Dal;
     using CDP4Dal.Permission;
 
-    using COMETwebapp.IterationServices;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;

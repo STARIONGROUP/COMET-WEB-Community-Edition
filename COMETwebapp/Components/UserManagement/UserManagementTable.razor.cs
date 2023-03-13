@@ -24,36 +24,42 @@
 
 namespace COMETwebapp.Components.UserManagement
 {
-    using System.Reactive.Linq;
-    using System.Threading.Tasks;
-
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
+
     using DevExpress.Blazor;
+
     using DynamicData;
+
     using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
-    ///     Support class for the <see cref="UserManagementTable"/>
+    /// Support class for the <see cref="UserManagementTable" />
     /// </summary>
     public partial class UserManagementTable : IDisposable
     {
         /// <summary>
-        ///     A collection of <see cref="IDisposable" />
+        /// A collection of <see cref="IDisposable" />
         /// </summary>
         private readonly List<IDisposable> disposables = new();
 
         /// <summary>
-        ///     The <see cref="IUserManagementTableViewModel" /> for this component
+        /// The <see cref="IUserManagementTableViewModel" /> for this component
         /// </summary>
         [Inject]
         public IUserManagementTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Gets or sets the grid control that is being customized.
+        /// </summary>
+        private IGrid Grid { get; set; }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -61,14 +67,9 @@ namespace COMETwebapp.Components.UserManagement
         }
 
         /// <summary>
-        ///     Gets or sets the grid control that is being customized.
+        /// Method invoked when the "Show/Hide Deprecated Items" checkbox is checked or unchecked.
         /// </summary>
-        IGrid Grid { get; set; }
-
-        /// <summary>
-        ///     Method invoked when the "Show/Hide Deprecated Items" checkbox is checked or unchecked.
-        /// </summary>
-        /// <param name="value">A <see cref="bool"/> that indicates whether deprecated items should be shown or hidden.</param>
+        /// <param name="value">A <see cref="bool" /> that indicates whether deprecated items should be shown or hidden.</param>
         public void HideOrShowDeprecatedItems(bool value)
         {
             if (value)
@@ -82,11 +83,11 @@ namespace COMETwebapp.Components.UserManagement
         }
 
         /// <summary>
-        ///     Method invoked when a custom summary calculation is required, allowing you to
-        ///     perform custom calculations based on the data displayed in the grid.
+        /// Method invoked when a custom summary calculation is required, allowing you to
+        /// perform custom calculations based on the data displayed in the grid.
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomSummaryEventArgs"/>
-        void CustomSummary(GridCustomSummaryEventArgs e)
+        /// <param name="e">A <see cref="GridCustomSummaryEventArgs" /></param>
+        public static void CustomSummary(GridCustomSummaryEventArgs e)
         {
             switch (e.SummaryStage)
             {
@@ -94,59 +95,23 @@ namespace COMETwebapp.Components.UserManagement
                     e.TotalValue = 0;
                     break;
                 case GridCustomSummaryStage.Calculate:
-                    if (e.DataItem is PersonRowViewModel person)
+                    if (e.DataItem is PersonRowViewModel { IsActive: false })
                     {
-                        if (!person.IsActive)
-                        {
-                            e.TotalValue = (int)e.TotalValue + 1;
-                        }
+                        e.TotalValue = (int)e.TotalValue + 1;
                     }
+
                     break;
                 case GridCustomSummaryStage.Finalize:
+                default:
                     break;
             }
         }
 
         /// <summary>
-        ///     Method invoked when creating a new person
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
-        async Task CustomizeEditPerson(GridCustomizeEditModelEventArgs e)
-        {
-            var dataItem = (Person)e.DataItem;
-            if (dataItem == null)
-                e.EditModel = new Person { };
-            this.ViewModel.Person = new Person();
-        }
-
-        /// <summary>
-        ///     Method invoked when the summary text of a summary item is being displayed, allowing you to customize
-        ///     the text as needed. Override this method to modify the summary text based on specific conditions.
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeSummaryDisplayTextEventArgs"/>  
-        void CustomizeSummaryDisplayText(GridCustomizeSummaryDisplayTextEventArgs e)
-        {
-            if (e.Item.Name == "Inactive")
-                e.DisplayText = string.Format("{0} Inactive", e.Value);
-        }
-
-        /// <summary>
-        ///     Method invoked to highlight deprecated persons
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> 
-        void DisableDeprecatedPerson(GridCustomizeElementEventArgs e)
-        {
-            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex,"IsDeprecated"))
-            {
-                e.CssClass = "highlighted-item";
-            }
-        }
-
-        /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
@@ -159,6 +124,47 @@ namespace COMETwebapp.Components.UserManagement
             this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
+        }
+
+        /// <summary>
+        /// Method invoked when creating a new person
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
+        private void CustomizeEditPerson(GridCustomizeEditModelEventArgs e)
+        {
+            var dataItem = (Person)e.DataItem;
+
+            if (dataItem == null)
+            {
+                e.EditModel = new Person();
+            }
+
+            this.ViewModel.Person = new Person();
+        }
+
+        /// <summary>
+        /// Method invoked when the summary text of a summary item is being displayed, allowing you to customize
+        /// the text as needed. Override this method to modify the summary text based on specific conditions.
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeSummaryDisplayTextEventArgs" /></param>
+        private static void CustomizeSummaryDisplayText(GridCustomizeSummaryDisplayTextEventArgs e)
+        {
+            if (e.Item.Name == "Inactive")
+            {
+                e.DisplayText = $"{e.Value} Inactive";
+            }
+        }
+
+        /// <summary>
+        /// Method invoked to highlight deprecated persons
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs" /></param>
+        private static void DisableDeprecatedPerson(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
+            {
+                e.CssClass = "highlighted-item";
+            }
         }
     }
 }

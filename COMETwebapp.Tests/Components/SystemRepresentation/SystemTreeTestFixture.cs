@@ -47,7 +47,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         private TestContext context;
         private ISystemTreeViewModel systemTreeViewModel;
 
-
         [SetUp]
         public void SetUp()
         {

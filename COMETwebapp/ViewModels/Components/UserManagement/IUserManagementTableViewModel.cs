@@ -21,36 +21,39 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
+
     using DevExpress.Blazor;
 
     using DynamicData;
 
     /// <summary>
-    ///     Interface definition for <see cref="UserManagementTableViewModel" />
+    /// View model used to manage <see cref="Person" />
     /// </summary>
-    public interface IUserManagementTableViewModel
+    public interface IUserManagementTableViewModel : IDisposable
     {
         /// <summary>
-        ///     The <see cref="Person" /> to create
+        /// The <see cref="Person" /> to create
         /// </summary>
         Person Person { get; set; }
 
         /// <summary>
-        ///     The <see cref="EmailAddress" /> to create
+        /// The <see cref="EmailAddress" /> to create
         /// </summary>
         EmailAddress EmailAddress { get; set; }
 
         /// <summary>
-        ///     The <see cref="TelephoneNumber" /> to create
+        /// The <see cref="TelephoneNumber" /> to create
         /// </summary>
         TelephoneNumber TelephoneNumber { get; set; }
 
         /// <summary>
-        ///     Gets or sets the data source for the grid control.
+        /// Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<Person> DataSource { get; }
 
@@ -60,67 +63,68 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         SourceList<PersonRowViewModel> Rows { get; }
 
         /// <summary>
-        ///    Available <see cref="Organization"/>s
+        /// Available <see cref="Organization" />s
         /// </summary>
         IEnumerable<Organization> AvailableOrganizations { get; set; }
 
         /// <summary>
-        ///    Available <see cref="PersonRole"/>s
+        /// Available <see cref="PersonRole" />s
         /// </summary>
         IEnumerable<PersonRole> AvailablePersonRoles { get; set; }
 
         /// <summary>
-        ///    Available <see cref="DomainOfExpertise"/>s
+        /// Available <see cref="DomainOfExpertise" />s
         /// </summary>
         IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
 
         /// <summary>
-        ///    Available <see cref="VcardEmailAddressKind"/>s
+        /// Available <see cref="VcardEmailAddressKind" />s
         /// </summary>
         IEnumerable<VcardEmailAddressKind> EmailAddressKinds { get; set; }
 
         /// <summary>
-        ///    Indicates if the <see cref="EmailAddress"/> is the default email address
+        /// Indicates if the <see cref="EmailAddress" /> is the default email address
         /// </summary>
         bool IsDefaultEmail { get; set; }
 
         /// <summary>
-        ///    Available <see cref="VcardTelephoneNumberKind"/>s
+        /// Available <see cref="VcardTelephoneNumberKind" />s
         /// </summary>
         IEnumerable<VcardTelephoneNumberKind> TelephoneNumberKinds { get; set; }
 
         /// <summary>
-        ///  Indicates if the <see cref="TelephoneNumber"/> is the default telephone number
+        /// Indicates if the <see cref="TelephoneNumber" /> is the default telephone number
         /// </summary>
         bool IsDefaultTelephoneNumber { get; set; }
 
         /// <summary>
-        ///  Indicates if confirmation popup is visible
+        /// Indicates if confirmation popup is visible
         /// </summary>
-        bool popupVisible { get; set; }
+        bool PopupVisible { get; set; }
 
         /// <summary>
-        ///     popum message dialog
+        /// Popup message dialog
         /// </summary>
-        string popupDialog { get; set; }
+        string PopupDialog { get; set; }
 
         /// <summary>
-        ///  Indicates if the active user is allowed to write
+        /// Indicates if the active user is allowed to write
         /// </summary>
         bool IsAllowedToWrite { get; set; }
 
         /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person"/>
+        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
-        void OnConfirmButtonClick();
+        /// <returns>A <see cref="Task" /></returns>
+        Task OnConfirmButtonClick();
 
         /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Person"/>
+        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
         void OnCancelButtonClick();
 
         /// <summary>
-        ///     Tries to create a new <see cref="Person" />
+        /// Tries to create a new <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task AddingPerson();
@@ -131,16 +135,16 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context);
 
         /// <summary>
-        ///     Tries to activate or disactivate a <see cref="Person" />
+        /// Tries to activate or disactivate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value);
 
         /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         void OnInitializedAsync();

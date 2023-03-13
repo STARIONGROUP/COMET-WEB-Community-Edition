@@ -21,38 +21,42 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.UserManagement
 {
+    using System.Reactive.Linq;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-    
+
     using CDP4Dal;
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
-    
-    using COMETwebapp.Components.UserManagement;
-    using COMETwebapp.SessionManagement;
+
+    using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
-    
+
     using DevExpress.Blazor;
-    using DevExpress.Blazor.Internal;
-    
+
     using DynamicData;
 
     using ReactiveUI;
-    
-    using System;
-    using System.Reactive.Linq;
 
     /// <summary>
-    ///     View model for the <see cref="UserManagementTable" /> component
+    /// View model used to manage <see cref="Person" />
     /// </summary>
-    public class UserManagementTableViewModel : ReactiveObject, IUserManagementTableViewModel, IDisposable
+    public class UserManagementTableViewModel : DisposableObject, IUserManagementTableViewModel
     {
         /// <summary>
-        ///     The <see cref="Person" /> to create or edit
+        /// Injected property to get access to <see cref="IPermissionService" />
         /// </summary>
-        public Person Person { get; set; } = new();
+        private readonly IPermissionService permissionService;
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionService" />
+        /// </summary>
+        private readonly ISessionService sessionService;
 
         /// <summary>
         /// A collection of all <see cref="PersonRowViewModel" />
@@ -60,69 +64,104 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         private IEnumerable<PersonRowViewModel> allRows = new List<PersonRowViewModel>();
 
         /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        public UserManagementTableViewModel(ISessionService sessionService)
+        {
+            this.sessionService = sessionService;
+            this.permissionService = sessionService.Session.PermissionService;
+
+            this.Disposables.Add(
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
+                    .Where(objectChange => objectChange.EventKind == EventKind.Added &&
+                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                    .Select(x => x.ChangedThing as Person)
+                    .Subscribe(this.AddNewPerson));
+
+            this.Disposables.Add(
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
+                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                    .Select(x => x.ChangedThing as Person)
+                    .Subscribe(this.UpdatePerson));
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
+                .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
+                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
+                .Select(x => x.ChangedThing as PersonRole)
+                .Subscribe(_ => this.RefreshAccessRight()));
+        }
+
+        /// <summary>
+        /// The <see cref="Person" /> to create or edit
+        /// </summary>
+        public Person Person { get; set; } = new();
+
+        /// <summary>
         /// A reactive collection of <see cref="PersonRowViewModel" />
         /// </summary>
         public SourceList<PersonRowViewModel> Rows { get; } = new();
 
         /// <summary>
-        ///     The <see cref="EmailAddress" /> to create
+        /// The <see cref="EmailAddress" /> to create
         /// </summary>
         public EmailAddress EmailAddress { get; set; } = new();
 
         /// <summary>
-        ///     The <see cref="TelephoneNumber" /> to create
+        /// The <see cref="TelephoneNumber" /> to create
         /// </summary>
         public TelephoneNumber TelephoneNumber { get; set; } = new();
 
         /// <summary>
-        ///     Gets or sets the data source for the grid control.
+        /// Gets or sets the data source for the grid control.
         /// </summary>
         public SourceList<Person> DataSource { get; } = new();
 
         /// <summary>
-        ///    Available <see cref="Organization"/>s
+        /// Available <see cref="Organization" />s
         /// </summary>
         public IEnumerable<Organization> AvailableOrganizations { get; set; }
 
         /// <summary>
-        ///    Available <see cref="PersonRole"/>s
+        /// Available <see cref="PersonRole" />s
         /// </summary>
         public IEnumerable<PersonRole> AvailablePersonRoles { get; set; }
 
         /// <summary>
-        ///    Available <see cref="DomainOfExpertise"/>s
+        /// Available <see cref="DomainOfExpertise" />s
         /// </summary>
         public IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
 
         /// <summary>
-        ///    Available <see cref="VcardEmailAddressKind"/>s
+        /// Available <see cref="VcardEmailAddressKind" />s
         /// </summary>
         public IEnumerable<VcardEmailAddressKind> EmailAddressKinds { get; set; } = Enum.GetValues(typeof(VcardEmailAddressKind)).Cast<VcardEmailAddressKind>();
 
         /// <summary>
-        ///    Indicates if the <see cref="EmailAddress"/> is the default email address
+        /// Indicates if the <see cref="EmailAddress" /> is the default email address
         /// </summary>
         public bool IsDefaultEmail { get; set; }
 
         /// <summary>
-        ///    Available <see cref="VcardTelephoneNumberKind"/>s
+        /// Available <see cref="VcardTelephoneNumberKind" />s
         /// </summary>
         public IEnumerable<VcardTelephoneNumberKind> TelephoneNumberKinds { get; set; } = Enum.GetValues(typeof(VcardTelephoneNumberKind)).Cast<VcardTelephoneNumberKind>();
 
         /// <summary>
-        ///  Indicates if the <see cref="TelephoneNumber"/> is the default telephone number
+        /// Indicates if the <see cref="TelephoneNumber" /> is the default telephone number
         /// </summary>
         public bool IsDefaultTelephoneNumber { get; set; }
 
         /// <summary>
-        ///  Indicates if confirmation popup is visible
+        /// Indicates if confirmation popup is visible
         /// </summary>
-        public bool popupVisible { get; set; } = false;
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
+        public bool PopupVisible { get; set; }
 
         /// <summary>
         /// Value indicating if the <see cref="ParameterType" /> is deprecated
@@ -134,85 +173,126 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
+        /// popum message dialog
         /// </summary>
-        private readonly ISessionAnchor SessionAnchor;
+        public string PopupDialog { get; set; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="IPermissionService"/>
+        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
-        private readonly IPermissionService permissionService;
-
-        /// <summary>
-        ///     A collection of <see cref="IDisposable" />
-        /// </summary>
-        private readonly List<IDisposable> disposables = new();
-
-        /// <summary>
-        ///     popum message dialog
-        /// </summary>
-        public string popupDialog { get; set; }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
-        /// </summary>
-        /// <param name="sessionAnchor">The <see cref="ISessionAnchor" /></param>
-        public UserManagementTableViewModel(ISessionAnchor sessionAnchor)
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task OnConfirmButtonClick()
         {
-            this.SessionAnchor = sessionAnchor;
-            this.permissionService = sessionAnchor.Session.PermissionService;
+            if (this.Person.IsDeprecated)
+            {
+                await this.UnDeprecatingPerson();
+            }
+            else
+            {
+                await this.DeprecatingPerson();
+            }
 
-            var addListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Added &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as Person)
-                    .Subscribe(person => this.addNewPerson(person));
-            this.disposables.Add(addListener);
-
-            var updateListener =
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as Person)
-                    .Subscribe(person => this.updatePerson(person));
-            this.disposables.Add(updateListener);
-
-            var updateAccessRight = CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.SessionAnchor.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as PersonRole)
-                    .Subscribe(x => this.RefreshAccessRight());
-            this.disposables.Add(updateAccessRight);
+            this.PopupVisible = false;
         }
 
         /// <summary>
-        ///   Adds a new <see cref="Person" /> to the <see cref="DataSource" />
+        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
-        public void addNewPerson(Person person)
+        public void OnCancelButtonClick()
         {
-            var newRows = new List<PersonRowViewModel>(this.allRows);
-            newRows.Add(new PersonRowViewModel(person));
+            this.PopupVisible = false;
+        }
+
+        /// <summary>
+        /// Tries to create a new <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task AddingPerson()
+        {
+            var thingsToCreate = new List<Thing>();
+
+            if (this.IsDefaultEmail)
+            {
+                this.Person.DefaultEmailAddress = this.EmailAddress;
+            }
+
+            if (this.IsDefaultTelephoneNumber)
+            {
+                this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
+            }
+
+            this.Person.EmailAddress.Add(this.EmailAddress);
+            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+            thingsToCreate.Add(this.Person);
+            await this.sessionService.CreateThingsSiteDirectory(thingsToCreate);
+        }
+
+        /// <summary>
+        /// Action invoked when the deprecate or undeprecate button is clicked
+        /// </summary>
+        public void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context)
+        {
+            this.Person = new Person();
+            var personRow = (PersonRowViewModel)context.DataItem;
+            this.Person = personRow.Person;
+            this.PopupDialog = this.Person.IsDeprecated ? "You are about to un-deprecate the user: " + personRow.PersonName : "You are about to deprecate the user: " + personRow.PersonName;
+            this.PopupVisible = true;
+        }
+
+        /// <summary>
+        /// Tries to activate or disactivate a <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value)
+        {
+            var personRow = (PersonRowViewModel)context.DataItem;
+            var personToActivateOrDesactivate = new List<Person>();
+            var personToUpdate = personRow.Person;
+            var clonedPerson = personToUpdate.Clone(false);
+            clonedPerson.IsActive = value;
+            personToActivateOrDesactivate.Add(clonedPerson);
+            await this.sessionService.UpdateThingsSiteDirectory(personToActivateOrDesactivate);
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        public void OnInitializedAsync()
+        {
+            this.DataSource.AddRange(this.sessionService.Session.RetrieveSiteDirectory().Person);
+            this.UpdateProperties(this.DataSource.Items);
+            this.AvailableOrganizations = this.sessionService.Session.RetrieveSiteDirectory().Organization;
+            this.AvailablePersonRoles = this.sessionService.Session.RetrieveSiteDirectory().PersonRole;
+            this.AvailableDomains = this.sessionService.Session.RetrieveSiteDirectory().Domain;
+            this.RefreshAccessRight();
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="Person" /> to the <see cref="DataSource" />
+        /// </summary>
+        public void AddNewPerson(Person person)
+        {
+            var newRows = new List<PersonRowViewModel>(this.allRows)
+            {
+                new(person)
+            };
+
             this.UpdateRows(newRows);
         }
 
         /// <summary>
-        ///   Updates the <see cref="Person" /> in the <see cref="DataSource" />
-        /// </summary>  
-        public void updatePerson(Person person)
+        /// Updates the <see cref="Person" /> in the <see cref="DataSource" />
+        /// </summary>
+        public void UpdatePerson(Person person)
         {
             var updatedRows = new List<PersonRowViewModel>(this.allRows);
             var index = updatedRows.FindIndex(x => x.Person.Iid == person.Iid);
             updatedRows[index] = new PersonRowViewModel(person);
             this.UpdateRows(updatedRows);
-        }
-
-        /// <summary>
-        ///   Updates the active user access rights
-        /// </summary>  
-        private void RefreshAccessRight()
-        {
-            this.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.SessionAnchor.GetSiteDirectory());
         }
 
         /// <summary>
@@ -223,6 +303,42 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         {
             this.allRows = persons.Select(x => new PersonRowViewModel(x));
             this.UpdateRows(this.allRows);
+        }
+
+        /// <summary>
+        /// Tries to undeprecate a <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task UnDeprecatingPerson()
+        {
+            var personToUnDeprecate = new List<Person>();
+            var clonedPerson = this.Person.Clone(false);
+            clonedPerson.IsDeprecated = false;
+            personToUnDeprecate.Add(clonedPerson);
+            await this.sessionService.UpdateThingsSiteDirectory(personToUnDeprecate);
+            this.PopupVisible = false;
+        }
+
+        /// <summary>
+        /// Tries to deprecate a <see cref="Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task DeprecatingPerson()
+        {
+            var personToDeprecate = new List<Person>();
+            var clonedPerson = this.Person.Clone(false);
+            clonedPerson.IsDeprecated = true;
+            personToDeprecate.Add(clonedPerson);
+            await this.sessionService.UpdateThingsSiteDirectory(personToDeprecate);
+            this.PopupVisible = false;
+        }
+
+        /// <summary>
+        /// Updates the active user access rights
+        /// </summary>
+        private void RefreshAccessRight()
+        {
+            this.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
         }
 
         /// <summary>
@@ -245,160 +361,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             {
                 this.Rows.Items.First(x => x.Person.Iid == existingRow.Person.Iid).UpdateProperties(existingRow);
             }
-        }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-            this.disposables.Clear();
-        }
-
-        /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person"/>
-        /// </summary>
-        public void OnConfirmButtonClick()
-        {
-            if (this.Person.IsDeprecated)
-            {
-                this.UnDeprecatingPerson();
-            }
-            else
-            {
-                this.DeprecatingPerson();
-            }
-            popupVisible = false;
-        }
-
-        /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Person"/>
-        /// </summary>
-        public void OnCancelButtonClick()
-        {
-            this.popupVisible = false;
-        }
-
-        /// <summary>
-        ///     Tries to create a new <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingPerson()
-        {
-            var thingsToCreate = new List<Thing>();
-            if (this.IsDefaultEmail)
-            {
-                this.Person.DefaultEmailAddress = this.EmailAddress;
-            }
-            if (this.IsDefaultTelephoneNumber)
-            {
-                this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
-            }
-            this.Person.EmailAddress.Add(this.EmailAddress);
-            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
-            thingsToCreate.Add(this.Person);
-            try
-            {
-                await this.SessionAnchor.CreateThingsSiteDirectory(thingsToCreate);
-            }
-            catch (Exception exception)
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        public void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context)
-        {
-            this.Person = new Person();
-            var personRow = (PersonRowViewModel)context.DataItem;
-            this.Person = personRow.Person;
-            this.popupDialog = this.Person.IsDeprecated ? "You are about to un-deprecate the user: " + personRow.PersonName : "You are about to deprecate the user: " + personRow.PersonName;
-            this.popupVisible = true;
-        }
-
-        /// <summary>
-        ///     Tries to undeprecate a <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task UnDeprecatingPerson()
-        {
-            var personToUnDeprecate = new List<Person>();
-            var clonedPerson = this.Person.Clone(false);
-            clonedPerson.IsDeprecated = false;
-            personToUnDeprecate.Add(clonedPerson);
-            try
-            {
-                await this.SessionAnchor.UpdateThingsSiteDirectory(personToUnDeprecate);
-            }
-            catch (Exception exception)
-            {
-                throw;
-            }
-            this.popupVisible = false;
-        }
-
-        /// <summary>
-        ///     Tries to deprecate a <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task DeprecatingPerson()
-        {
-            var personToDeprecate = new List<Person>();
-            var clonedPerson = this.Person.Clone(false);
-            clonedPerson.IsDeprecated = true;
-            personToDeprecate.Add(clonedPerson);
-            try
-            {
-                await this.SessionAnchor.UpdateThingsSiteDirectory(personToDeprecate);
-            }
-            catch (Exception exception)
-            {
-                throw;
-            }
-            this.popupVisible = false;
-        }
-
-        /// <summary>
-        ///     Tries to activate or disactivate a <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value)
-        {
-            var personRow = (PersonRowViewModel)context.DataItem;
-            var personToActivateOrDesactivate = new List<Person>();
-            var personToUpdate = personRow.Person;
-            var clonedPerson = personToUpdate.Clone(false);
-            clonedPerson.IsActive = value;
-            personToActivateOrDesactivate.Add(clonedPerson);
-            try
-            {
-                await this.SessionAnchor.UpdateThingsSiteDirectory(personToActivateOrDesactivate);
-            }
-            catch (Exception exception)
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync()
-        {
-            this.DataSource.AddRange(this.SessionAnchor.Session.RetrieveSiteDirectory().Person);
-            this.UpdateProperties(this.DataSource.Items);
-            this.AvailableOrganizations = this.SessionAnchor.Session.RetrieveSiteDirectory().Organization;
-            this.AvailablePersonRoles = this.SessionAnchor.Session.RetrieveSiteDirectory().PersonRole;
-            this.AvailableDomains = this.SessionAnchor.Session.RetrieveSiteDirectory().Domain;
-            this.RefreshAccessRight();
         }
     }
 }

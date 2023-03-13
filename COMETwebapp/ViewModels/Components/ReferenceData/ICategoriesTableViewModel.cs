@@ -21,6 +21,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
@@ -30,12 +31,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using DynamicData;
 
     /// <summary>
-    ///     Interface definition for <see cref="CategoryRowViewModel" />
+    /// View model used to manage <see cref="Category" />
     /// </summary>
-    public interface ICategoriesTableViewModel
+    public interface ICategoriesTableViewModel : IDisposable
     {
         /// <summary>
-        ///     Gets or sets the data source for the grid control.
+        /// Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<Category> DataSource { get; }
 
@@ -45,15 +46,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         SourceList<CategoryRowViewModel> Rows { get; }
 
         /// <summary>
-        ///  Indicates if the active user is allowed to write
+        /// Indicates if the active user is allowed to write
         /// </summary>
         bool IsAllowedToWrite { get; set; }
 
         /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         void OnInitializedAsync();

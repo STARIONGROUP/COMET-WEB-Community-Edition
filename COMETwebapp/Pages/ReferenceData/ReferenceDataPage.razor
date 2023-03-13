@@ -19,26 +19,24 @@ Copyright (c) 2023 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@page "/ReferenceData"
-@using COMETwebapp.Components.ReferenceData
+@attribute [Route(ConstantValues.ReferenceDataPage)]
+@using COMETwebapp.Utilities
 
-<ApplicationTemplate Title="Reference Data">
-    <Body>
-        <DxToolbar ItemClick="@OnItemClick">
-            <Items>
-                <DxToolbarItem Name="ParameterTypes" Text="Parameter Types" Tooltip="Parameter Types" />
-                <DxToolbarItem Name="Categories" Text="Categories" Tooltip="Categories" />
-            </Items>
-        </DxToolbar>
+<DxToolbar ItemClick="@this.OnItemClick">
+    <Items>
+        <DxToolbarItem Name="ParameterTypes" Text="Parameter Types" Tooltip="Parameter Types" />
+        <DxToolbarItem Name="Categories" Text="Categories" Tooltip="Categories" />
+    </Items>
+</DxToolbar>
 
-        @if (this.selectedComponentName == "ParameterTypes")
-        {
-            <ParameterTypeTable />
-        }
-        else if (this.selectedComponentName == "Categories")
-        {
-            <CategoriesTable />
-        }
-    </Body>
-</ApplicationTemplate>
+@switch (this.selectedComponentName)
+{
+    case "ParameterTypes":
+        <ParameterTypeTable />
+        break;
+    case "Categories":
+        <CategoriesTable />
+        break;
+}
+
 

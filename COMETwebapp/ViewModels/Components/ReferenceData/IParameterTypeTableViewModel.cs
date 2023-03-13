@@ -30,9 +30,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using DynamicData;
 
     /// <summary>
-    ///     Interface definition for <see cref="ParameterTypeTableViewModel" />
+    /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public interface IParameterTypeTableViewModel
+    public interface IParameterTypeTableViewModel: IDisposable
     {
         /// <summary>
         ///     Gets or sets the data source for the grid control.

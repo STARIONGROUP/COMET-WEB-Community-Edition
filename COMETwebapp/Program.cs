@@ -24,6 +24,8 @@
 
 namespace COMETwebapp
 {
+    using System.Diagnostics.CodeAnalysis;
+
     using CDP4Dal;
 
     using COMETwebapp.Components.Viewer.Canvas;
@@ -35,28 +37,28 @@ namespace COMETwebapp
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.UserManagement;
+    using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
 
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.UserManagement;
-    using COMETwebapp.ViewModels.Pages.SystemRepresentation;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-    using COMETwebapp.ViewModels.Components.Viewer;
 
     /// <summary>
     /// Point of entry of the application
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         /// <summary>
@@ -98,12 +100,6 @@ namespace COMETwebapp
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddAntDesign();
         }
-            builder.Services.AddTransient<ISystemRepresentationPageViewModel, SystemRepresentationPageViewModel>();
-            builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
-            builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
-            builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
-            builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
-            builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
 
         /// <summary>
         /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder" />
@@ -127,6 +123,12 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
             builder.Services.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             builder.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
+            builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
+            builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
+            builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
+            builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
+            builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
+            builder.Services.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
         }
     }
 }

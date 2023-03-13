@@ -97,14 +97,16 @@ namespace COMETwebapp.Model
                 Name = "Reference Data",
                 Color = "#fc3a1aad",
                 Icon = "file",
-                Description = "Visualize reference data"
+                Description = "Visualize reference data",
+                Url = ConstantValues.ReferenceDataPage
             },
             new Card()
             {
                 Name = "User Management",
                 Color = "#76fd98",
                 Icon = "people",
-                Description = "Manage users"
+                Description = "Manage users",
+                Url = ConstantValues.UserManagementPage
             }
         };
     }

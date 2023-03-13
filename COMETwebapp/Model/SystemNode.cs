@@ -29,7 +29,7 @@ namespace COMETwebapp.Model
     /// <summary>
     /// Represents the node of the tree in the <see cref="SystemTree"/>
     /// </summary>
-    public record class SystemNode
+    public class SystemNode
     {
         /// <summary>
         ///     The children of this <see cref="SystemNode"/>
@@ -44,7 +44,7 @@ namespace COMETwebapp.Model
         /// <summary>
         ///     The parent of this <see cref="SystemNode"/>
         /// </summary>
-        private SystemNode? Parent { get; set; }
+        private SystemNode Parent { get; set; }
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SystemNode"/>

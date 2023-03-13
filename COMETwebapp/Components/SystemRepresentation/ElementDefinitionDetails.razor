@@ -20,6 +20,7 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Model
+@using CDP4Common.EngineeringModelData
 
 
 @if (this.ViewModel.SelectedSystemNode != null)
@@ -72,10 +73,9 @@
 					</tr>
 				</thead>
 				<tbody>
-				@if (this.ViewModel.SelectedSystemNode.GetType().Equals(typeof(ElementDefinition)))
+				@if (this.ViewModel.SelectedSystemNode is ElementDefinition elementDefinition)
 				{
-					var elementDefinition = (ElementDefinition)this.ViewModel.SelectedSystemNode;
-					@if (elementDefinition != null && elementDefinition.Parameter.Count != 0)
+					@if (elementDefinition.Parameter.Count != 0)
 					{
 						foreach (var parameter in elementDefinition.Parameter)
 						{
@@ -104,15 +104,14 @@
 						}
 					}
 				}
-				else if (this.ViewModel.SelectedSystemNode.GetType().Equals(typeof(ElementUsage)))
+				else if (this.ViewModel.SelectedSystemNode is ElementUsage elementUsage)
 					{
-						var elementUsage = (ElementUsage)this.ViewModel.SelectedSystemNode;
 					@if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.Count != 0)
 						{
 							foreach (var parameter in elementUsage.ElementDefinition.Parameter)
 							{
 								var valueSet = new List<ParameterValueSetBase>();
-								valueSet.AddRange(parameter?.ValueSet);
+								valueSet.AddRange(parameter.ValueSet);
 								foreach (var parameterValueSet in valueSet)
 								{
 									<tr>

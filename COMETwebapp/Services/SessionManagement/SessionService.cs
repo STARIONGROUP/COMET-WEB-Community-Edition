@@ -310,10 +310,12 @@ namespace COMETwebapp.Services.SessionManagement
         public async Task CreateThingsSiteDirectory(IEnumerable<Thing> thingsToCreate)
         {
             var openedSiteDirectory = this.GetSiteDirectory();
+
             if (openedSiteDirectory == null)
             {
                 throw new InvalidOperationException("At first a SiteDirectory should be opened");
             }
+
             if (thingsToCreate == null)
             {
                 throw new ArgumentException("Please add at least one Thing to be created");
@@ -335,6 +337,7 @@ namespace COMETwebapp.Services.SessionManagement
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
             // to the site directory (the list of contained elements is updated).
             var operationContainer = transaction.FinalizeTransaction();
+
             try
             {
                 await this.Session.Write(operationContainer);
@@ -353,6 +356,7 @@ namespace COMETwebapp.Services.SessionManagement
         public async Task UpdateThingsSiteDirectory(IEnumerable<Thing> thingsToUpdate)
         {
             var openedSiteDirectory = this.GetSiteDirectory();
+
             if (openedSiteDirectory == null)
             {
                 throw new InvalidOperationException("At first a SiteDirectory should be opened");
