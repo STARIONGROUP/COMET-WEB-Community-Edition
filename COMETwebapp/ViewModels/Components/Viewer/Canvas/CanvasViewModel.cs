@@ -63,12 +63,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Collection of scene objects in the scene.
         /// </summary>
-        private List<SceneObject> SceneObjects = new();
+        private readonly List<SceneObject> sceneObjects = new();
 
         /// <summary>
         /// Collection of temporary scene objects in scene.
         /// </summary>
-        private List<SceneObject> TemporarySceneObjects = new();
+        private readonly List<SceneObject> temporarySceneObjects = new();
 
         /// <summary>
         /// Creates a new instance of type <see cref="CanvasViewModel"/>
@@ -90,7 +90,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             {
                 await this.ClearTemporarySceneObjects();
                 
-                if (nodeViewModel.Node.SceneObject is not null && nodeViewModel.Node.SceneObject.Primitive is not null)
+                if (nodeViewModel.Node.SceneObject?.Primitive != null)
                 {
                     await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
                 }
@@ -107,7 +107,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                 }
             };
 
-            this.ConfirmChangeSelectionPopUp.OnResponse += async (sender, response) =>
+            this.ConfirmChangeSelectionPopUp.OnResponse += async (_, response) =>
             {
                 if (response)
                 {
@@ -171,7 +171,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="sceneObject"></param>
         public async Task AddSceneObject(SceneObject sceneObject)
         {
-            this.SceneObjects.Add(sceneObject);
+            this.sceneObjects.Add(sceneObject);
             await this.BabylonInterop.AddSceneObject(sceneObject);
         }
 
@@ -184,13 +184,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             if (sceneObject.Primitive is not null)
             {
                 sceneObject.Primitive.HasHalo = true;
-          this.TemporarySceneObjects.Add(sceneObject);
+          this.temporarySceneObjects.Add(sceneObject);
                 await this.BabylonInterop.AddSceneObject(sceneObject);
             }
         }
 
         /// <summary> 
-        /// Clears the scene deleting the <see cref="SceneObjects"/> and <see cref="TemporarySceneObjects"/> lists 
+        /// Clears the scene deleting the <see cref="sceneObjects"/> and <see cref="temporarySceneObjects"/> lists 
         /// </summary> 
         /// <returns>an asynchronous task</returns> 
         public async Task ClearScene()
@@ -204,8 +204,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         public async Task ClearSceneObjects()
         {
-            await this.BabylonInterop.ClearSceneObjects(this.SceneObjects);
-            this.SceneObjects.Clear();
+            await this.BabylonInterop.ClearSceneObjects(this.sceneObjects);
+            this.sceneObjects.Clear();
         }
 
         /// <summary>
@@ -213,8 +213,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         public async Task ClearTemporarySceneObjects()
         {
-            await this.BabylonInterop.ClearSceneObjects(this.TemporarySceneObjects);
-            this.TemporarySceneObjects.Clear();
+            await this.BabylonInterop.ClearSceneObjects(this.temporarySceneObjects);
+            this.temporarySceneObjects.Clear();
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <exception cref="ArgumentException">If the Id don't exist in the current scene.</exception>
         public SceneObject GetSceneObjectById(Guid id)
         {
-            return this.SceneObjects.FirstOrDefault(x => x.ID == id, null);
+            return this.sceneObjects.FirstOrDefault(x => x.ID == id, null);
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>the <see cref="SceneObject"/></returns>
         public IReadOnlyList<SceneObject> GetAllSceneObjects()
         {
-            return this.SceneObjects.AsReadOnly();
+            return this.sceneObjects.AsReadOnly();
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>the temporary <see cref="SceneObject"/></returns>
         public IReadOnlyList<SceneObject> GetAllTemporarySceneObjects()
         {
-            return this.TemporarySceneObjects.AsReadOnly();
+            return this.temporarySceneObjects.AsReadOnly();
         }
     }
 }

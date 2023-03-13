@@ -22,15 +22,14 @@
 // </copyright> 
 // -------------------------------------------------------------------------------------------------------------------- 
 
-namespace COMETwebapp.Utilities
+namespace COMETwebapp.Extensions
 {
     using CDP4Common.EngineeringModelData;
-    using COMETwebapp.Extensions;
 
     /// <summary> 
     /// Class used for extension of the relation between <see cref="ParameterBase"/> and <see cref="IValueSet"/> 
     /// </summary> 
-    public static class ParameterValueSetRelationExtensionscs
+    public static class ParameterValueSetRelationExtensions
     {
         /// <summary> 
         /// Gets the parameters and values of the <paramref name="relation2"/> that are different from <paramref name="relation1"/> for the same <see cref="ParameterBase"/> 
@@ -42,12 +41,12 @@ namespace COMETwebapp.Utilities
         {
             if(relation1 == null)
             {
-                throw new ArgumentNullException("relation1");
+                throw new ArgumentNullException(nameof(relation1));
             }
 
             if(relation2 == null)
             {
-                throw new ArgumentNullException("relation2");
+                throw new ArgumentNullException(nameof(relation2));
             }
 
             var changes = new Dictionary<ParameterBase, IValueSet>();
@@ -56,12 +55,9 @@ namespace COMETwebapp.Utilities
             {
                 var orignalValueSet = originalKeyValuePair.Value.ActualValue;
 
-                if (relation2.TryGetValue(originalKeyValuePair.Key, out var cloneValueSet))
+                if (relation2.TryGetValue(originalKeyValuePair.Key, out var cloneValueSet) && !orignalValueSet.ContainsSameValues(cloneValueSet.ActualValue))
                 {
-                    if (!orignalValueSet.ContainsSameValues(cloneValueSet.ActualValue))
-                    {
-                        changes.Add(originalKeyValuePair.Key, cloneValueSet);
-                    }
+                    changes.Add(originalKeyValuePair.Key, cloneValueSet);
                 }
             }
 

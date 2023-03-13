@@ -79,7 +79,7 @@ namespace COMETwebapp.Extensions
         /// <returns>the parsed color</returns>
         public static Vector3 ParseToColorVector(this string text)
         {
-            Color color = text.ParseToColor();
+            var color = text.ParseToColor();
             return new Vector3(color.R, color.G, color.B);
         }
 
@@ -96,15 +96,18 @@ namespace COMETwebapp.Extensions
             {
                 color = ColorTranslator.FromHtml(text);
             }
-            else if (text.Contains(":"))
+            else if (text.Contains(':'))
             {
                 var textSplitted = text.Split(':');
 
-                int.TryParse(textSplitted[0], out var r);
-                int.TryParse(textSplitted[1], out var g);
-                int.TryParse(textSplitted[2], out var b);
-
-                color = Color.FromArgb(r, g, b);
+                if (int.TryParse(textSplitted[0], out var r) && int.TryParse(textSplitted[1], out var g) && int.TryParse(textSplitted[2], out var b))
+                {
+                    color = Color.FromArgb(r, g, b);
+                }
+                else
+                {
+                    color = Color.White;
+                }
             }
             else
             {
@@ -122,8 +125,8 @@ namespace COMETwebapp.Extensions
         public static string ParseToHexColor(this string text)
         {
             var color = text.ParseToColor();
-            var colorRGB = Color.FromArgb(color.R, color.G, color.B);
-            return ColorTranslator.ToHtml(colorRGB);
+            var colorRgb = Color.FromArgb(color.R, color.G, color.B);
+            return ColorTranslator.ToHtml(colorRgb);
         }
 
         /// <summary>

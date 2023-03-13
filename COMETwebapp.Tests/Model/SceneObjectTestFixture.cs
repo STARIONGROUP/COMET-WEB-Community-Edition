@@ -61,87 +61,95 @@ namespace COMETwebapp.Tests.Model
         private List<Primitive> primitives;
         private ElementDefinition elementDef;
         private ElementUsage elementUsage;
-        private readonly Uri uri = new Uri("http://test.com");
+        private readonly Uri uri = new("http://test.com");
         private DomainOfExpertise domain;
         private Option option;
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
-        private double delta = 0.001;
+        private const double Delta = 0.001;
 
         [SetUp]
         public void SetUp()
         {
-            cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
-            domain = new DomainOfExpertise(Guid.NewGuid(), cache, uri) { Name = "domain" };
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            this.domain = new DomainOfExpertise(Guid.NewGuid(), this.cache, this.uri) { Name = "domain" };
 
-            context = new TestContext();
-            context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context = new TestContext();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
 
             var session = new Mock<ISessionService>();
-            context.Services.AddSingleton(session.Object);
+            this.context.Services.AddSingleton(session.Object);
 
-            context.Services.AddTransient<ISceneSettings, SceneSettings>();
+            this.context.Services.AddTransient<ISceneSettings, SceneSettings>();
 
-            positionables = new List<Primitive>();
-            positionables.Add(new Cube(1, 1, 1));
-            positionables.Add(new Cylinder(1, 1));
-            positionables.Add(new Sphere(1));
-            positionables.Add(new Torus(2, 1));
+            this.positionables = new List<Primitive>()
+            {
+                new Cube(1, 1, 1),
+                new Cylinder(1, 1),
+                new Sphere(1),
+                new Torus(2, 1)
+            };
 
-            primitives = new List<Primitive>(positionables);
-            primitives.Add(new Line(new Vector3(), new Vector3(1, 1, 1)));
-            primitives.Add(new CustomPrimitive(string.Empty, string.Empty));
+            this.primitives = new List<Primitive>(this.positionables)
+            {
+                new Line(new Vector3(), new Vector3(1, 1, 1)),
+                new CustomPrimitive(string.Empty, string.Empty)
+            };
 
-            option = new Option(Guid.NewGuid(), cache, uri);
+            this.option = new Option(Guid.NewGuid(), this.cache, this.uri);
 
-            var shapeKindParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var shapeKindParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "box" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), cache, uri) { Name = "Shape Kind", ShortName = SceneSettings.ShapeKindShortName, };
-            var shapeKindParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = shapeKindParameterType };
+
+            var shapeKindParameterType = new EnumerationParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Shape Kind", ShortName = SceneSettings.ShapeKindShortName };
+            var shapeKindParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = shapeKindParameterType };
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
-            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "255:155:25" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
-            var colorParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = colorParameterType };
+
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName };
+            var colorParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
-            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "0", "0", "0" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
-            var positionParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = positionParameterType };
+
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName };
+            var positionParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = positionParameterType };
             positionParameter.ValueSet.Add(positionParameterValueSet);
 
-            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "0", "0", "0" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
-            var orientationParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = orientationParameterType };
+
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName };
+            var orientationParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 
-            elementDef = new ElementDefinition(Guid.NewGuid(), cache, uri) { Owner = domain };
-            elementUsage = new ElementUsage(Guid.NewGuid(), cache, uri) { ElementDefinition = elementDef, Owner = domain };
-            elementDef.ContainedElement.Add(elementUsage);
-            elementDef.Parameter.Add(shapeKindParameter);
-            elementDef.Parameter.Add(colorParameter);
-            elementDef.Parameter.Add(positionParameter);
-            elementDef.Parameter.Add(orientationParameter);
+            this.elementDef = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri) { Owner = this.domain };
+            this.elementUsage = new ElementUsage(Guid.NewGuid(), this.cache, this.uri) { ElementDefinition = this.elementDef, Owner = this.domain };
+            this.elementDef.ContainedElement.Add(this.elementUsage);
+            this.elementDef.Parameter.Add(shapeKindParameter);
+            this.elementDef.Parameter.Add(colorParameter);
+            this.elementDef.Parameter.Add(positionParameter);
+            this.elementDef.Parameter.Add(orientationParameter);
         }
 
         [Test]
         public void VerifySceneObjectData()
         {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
 
             Assert.Multiple(() =>
             {
@@ -154,140 +162,65 @@ namespace COMETwebapp.Tests.Model
         }
 
         [Test]
-        public void VerifyThatSceneObjectCanBeCreatedByElementUsage()
-        {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            Assert.That(sceneObject, Is.Not.Null);
-        }
-
-        [Test]
-        public void VerifyThatPrimitivesHaveValidPropertyName()
-        {
-            foreach (var primitive in primitives)
-            {
-                Assert.AreEqual(primitive.GetType().Name, primitive.Type);
-            }
-
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            var parameters = sceneObject.ParametersAsociated;
-            Assert.IsNotNull(parameters);
-            Assert.IsTrue(parameters.Count() > 0);
-            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
-            Assert.IsNotNull(parameter);
-        }
-
-        [Test]
-        public void VerifyThatValueSetsCanBeRetrievedFromSceneObjects()
-        {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            var valueSets = sceneObject.GetParameterValueSetRelations();
-
-            Assert.IsNotNull(valueSets);
-            Assert.IsTrue(valueSets.Count > 0);
-            foreach (var primitive in positionables)
-            {
-                Assert.AreEqual(0.0, primitive.X, delta);
-                Assert.AreEqual(0.0, primitive.Y, delta);
-                Assert.AreEqual(0.0, primitive.Z, delta);
-
-                primitive.X = 1.0;
-                primitive.Y = 1.0;
-                primitive.Z = 1.0;
-
-                Assert.AreEqual(1.0, primitive.X, delta);
-                Assert.AreEqual(1.0, primitive.Y, delta);
-                Assert.AreEqual(1.0, primitive.Z, delta);
-            }
-
-        }
-
-        [Test]
         public void VerifyThatCanGetValueSets()
         {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
             var valueSets = sceneObject.GetParameterValueSetRelations();
-            Assert.IsNotNull(valueSets);
+            Assert.That(valueSets, Is.Not.Null);
         }
 
         [Test]
         public void VerifyThatColorCanBeSetFromElementUsage()
         {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
 
             Assert.Multiple(() =>
             {
-                Assert.AreNotEqual(Primitive.DefaultColor, sceneObject.Primitive.Color);
-                Assert.AreEqual(new Vector3(255, 155, 25), sceneObject.Primitive.Color);
+                Assert.That(sceneObject.Primitive.Color, Is.Not.EqualTo(Primitive.DefaultColor));
+                Assert.That(sceneObject.Primitive.Color, Is.EqualTo(new Vector3(255, 155, 25)));
             });
         }
 
         [Test]
         public void VerifyThatColorCanBeUpdated()
         {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
             var basicShape = sceneObject.Primitive;
 
-            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var colorParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "#CCCDDD" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Color", ShortName = SceneSettings.ColorShortName, };
-            var colorParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = colorParameterType };
+
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName };
+            var colorParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
             var colorBefore = basicShape.Color;
 
             basicShape.ParseParameter(colorParameter, colorParameterValueSet);
 
-            Assert.AreNotEqual(colorBefore, basicShape.Color);
+            Assert.That(basicShape.Color, Is.Not.EqualTo(colorBefore));
 
             basicShape.SetColor(0, 0, 0);
             Assert.That(basicShape.Color, Is.EqualTo(Vector3.Zero));
         }
 
         [Test]
-        public void VerifyThatPositionCanBeUpdated()
-        {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            var basicShape = sceneObject.Primitive;
-
-            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
-            {
-                Manual = new ValueArray<string>(new List<string> { "1", "1", "1" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
-            };
-            var positionParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Position", ShortName = SceneSettings.PositionShortName, };
-            var positionParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = positionParameterType };
-            positionParameter.ValueSet.Add(positionParameterValueSet);
-
-            var x = basicShape.X;
-            var y = basicShape.Y;
-            var z = basicShape.Z;
-
-            basicShape.ParseParameter(positionParameter, positionParameterValueSet);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(x, Is.Not.EqualTo(basicShape.X));
-                Assert.That(y, Is.Not.EqualTo(basicShape.Y));
-                Assert.That(z, Is.Not.EqualTo(basicShape.Z));
-            });
-        }
-
-        [Test]
         public void VerifyThatOrientationCanBeUpdated()
         {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
             var basicShape = sceneObject.Primitive;
 
-            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var orientationParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "1", "1", "1" }),
-                ValueSwitch = ParameterSwitchKind.MANUAL,
+                ValueSwitch = ParameterSwitchKind.MANUAL
             };
-            var orientationParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName, };
-            var orientationParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = orientationParameterType };
+
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName };
+            var orientationParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 
             var rx = basicShape.RX;
@@ -305,15 +238,83 @@ namespace COMETwebapp.Tests.Model
         }
 
         [Test]
+        public void VerifyThatPositionCanBeUpdated()
+        {
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var basicShape = sceneObject.Primitive;
+
+            var positionParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                Manual = new ValueArray<string>(new List<string> { "1", "1", "1" }),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            };
+
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName };
+            var positionParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = positionParameterType };
+            positionParameter.ValueSet.Add(positionParameterValueSet);
+
+            var x = basicShape.X;
+            var y = basicShape.Y;
+            var z = basicShape.Z;
+
+            basicShape.ParseParameter(positionParameter, positionParameterValueSet);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(x, Is.Not.EqualTo(basicShape.X));
+                Assert.That(y, Is.Not.EqualTo(basicShape.Y));
+                Assert.That(z, Is.Not.EqualTo(basicShape.Z));
+            });
+        }
+
+        [Test]
+        public void VerifyThatPrimitivesHaveValidPropertyName()
+        {
+            foreach (var primitive in this.primitives)
+            {
+                Assert.AreEqual(primitive.GetType().Name, primitive.Type);
+            }
+
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+
+            var parameters = sceneObject.ParametersAsociated;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(parameters, Is.Not.Null);
+                Assert.That(parameters, Is.Not.Empty);
+            });
+            
+            var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
+            Assert.IsNotNull(parameter);
+        }
+
+        [Test]
+        public void VerifyThatSceneObjectCanBeCloned()
+        {
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var newSceneObject = sceneObject.Clone();
+
+            Assert.That(sceneObject, Is.Not.EqualTo(newSceneObject));
+        }
+
+        [Test]
+        public void VerifyThatSceneObjectCanBeCreatedByElementUsage()
+        {
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            Assert.That(sceneObject, Is.Not.Null);
+        }
+
+        [Test]
         public void VerifyThatTransformationsCanBeReseted()
         {
             var cube = new Cube(1.0, 1.0, 1.0);
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0.0, cube.X, delta);
-                Assert.AreEqual(0.0, cube.Y, delta);
-                Assert.AreEqual(0.0, cube.Z, delta);
+                Assert.That(cube.X, Is.EqualTo(0.0).Within(Delta));
+                Assert.That(cube.Y, Is.EqualTo(0.0).Within(Delta));
+                Assert.That(cube.Z, Is.EqualTo(0.0).Within(Delta));
             });
 
             cube.X = 1.0;
@@ -322,28 +323,50 @@ namespace COMETwebapp.Tests.Model
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1.0, cube.X, delta);
-                Assert.AreEqual(2.0, cube.Y, delta);
-                Assert.AreEqual(3.0, cube.Z, delta);
+                Assert.That(cube.X, Is.EqualTo(1.0).Within(Delta));
+                Assert.That(cube.Y, Is.EqualTo(2.0).Within(Delta));
+                Assert.That(cube.Z, Is.EqualTo(3.0).Within(Delta));
             });
 
             cube.ResetTransformations();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0.0, cube.X, delta);
-                Assert.AreEqual(0.0, cube.Y, delta);
-                Assert.AreEqual(0.0, cube.Z, delta);
+                Assert.That(cube.X, Is.EqualTo(0.0).Within(Delta));
+                Assert.That(cube.Y, Is.EqualTo(0.0).Within(Delta));
+                Assert.That(cube.Z, Is.EqualTo(0.0).Within(Delta));
             });
         }
 
         [Test]
-        public void VerifyThatSceneObjectCanBeCloned()
+        public void VerifyThatValueSetsCanBeRetrievedFromSceneObjects()
         {
-            var sceneObject = SceneObject.Create(elementUsage, option, new List<ActualFiniteState>());
-            var newSceneObject = sceneObject.Clone();
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var valueSets = sceneObject.GetParameterValueSetRelations();
 
-            Assert.That(sceneObject, Is.Not.EqualTo(newSceneObject));
+            Assert.Multiple(() =>
+            {
+                Assert.That(valueSets, Is.Not.Null);
+                Assert.That(valueSets, Is.Not.Empty);
+            });
+
+            foreach (var primitive in this.positionables)
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(primitive.X, Is.EqualTo(0.0).Within(Delta));
+                    Assert.That(primitive.Y, Is.EqualTo(0.0).Within(Delta));
+                    Assert.That(primitive.Z, Is.EqualTo(0.0).Within(Delta));
+                });
+
+                primitive.X = 1.0;
+                primitive.Y = 1.0;
+                primitive.Z = 1.0;
+
+                Assert.That(primitive.X, Is.EqualTo(1.0).Within(Delta));
+                Assert.That(primitive.Y, Is.EqualTo(1.0).Within(Delta));
+                Assert.That(primitive.Z, Is.EqualTo(1.0).Within(Delta));
+            }
         }
     }
 }

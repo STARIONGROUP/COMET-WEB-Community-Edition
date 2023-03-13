@@ -36,12 +36,12 @@ namespace COMETwebapp.Utilities
     /// <summary>
     /// Class that contains the common parsers used for the <see cref="ParameterBase"/>
     /// </summary>
-    public class ParameterParser
+    public static class ParameterParser
     {
         /// <summary>
         /// Collection of names and related shapes
         /// </summary>
-        private static Dictionary<string, Func<Primitive>> ShapeCreatorCollection = new()
+        private static readonly Dictionary<string, Func<Primitive>> ShapeCreatorCollection = new()
         {
             { "box", () => new Cube(1, 1, 1) },
             { "cone", () => new Cone(1, 1) },
@@ -61,13 +61,13 @@ namespace COMETwebapp.Utilities
         /// <param name="parameterBase">the parameter to parse</param>
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
-        /// <returns>the parsed <see cref="Primitives"/></returns>
+        /// <returns>the parsed <see cref="Primitive"/></returns>
         /// <exception cref="ArgumentNullException">if the parameter is null</exception>
-        public static Primitive? ShapeKindParser(ParameterBase parameterBase, Option option, List<ActualFiniteState> states)
+        public static Primitive ShapeKindParser(ParameterBase parameterBase, Option option, List<ActualFiniteState> states)
         {
             if (parameterBase == null)
             {
-                throw new ArgumentNullException("The parameter base can not be null");
+                throw new ArgumentNullException(nameof(parameterBase), "The parameter base can not be null");
             }
 
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(option, states);
@@ -79,18 +79,15 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>the primitive if the value can be parsed, null otherwise</returns>
-        public static Primitive? ShapeKindParser(IValueSet? valueSet)
+        public static Primitive ShapeKindParser(IValueSet valueSet)
         {
-            Primitive? primitive = null;
+            Primitive primitive = null;
 
-            if (valueSet is not null)
+            var shapeKind = valueSet?.ActualValue.FirstOrDefault()?.ToLowerInvariant();
+
+            if (shapeKind != null && ShapeCreatorCollection.TryGetValue(shapeKind, out var primiviteFunc))
             {
-                var shapeKind = valueSet.ActualValue.FirstOrDefault()?.ToLowerInvariant();
-
-                if (shapeKind is not null && ShapeCreatorCollection.ContainsKey(shapeKind))
-                {
-                    primitive = ShapeCreatorCollection[shapeKind].Invoke();
-                }
+                primitive = primiviteFunc.Invoke();
             }
 
             return primitive;
@@ -102,13 +99,13 @@ namespace COMETwebapp.Utilities
         /// <param name="parameterBase">the parameter to parse</param>
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
-        /// <returns>the parsed <see cref="Primitives"/></returns>
+        /// <returns>the parsed <see cref="Primitive"/></returns>
         /// <exception cref="ArgumentNullException">if the parameter is null</exception>
         public static Orientation OrientationParser(ParameterBase parameterBase, Option option, List<ActualFiniteState> states)
         {
             if (parameterBase == null)
             {
-                throw new ArgumentNullException("The parameter base can not be null");
+                throw new ArgumentNullException(nameof(parameterBase), "The parameter base can not be null");
             }
 
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(option, states);
@@ -120,14 +117,9 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>the Orientation if the value can be parsed, a Orientation.Identity otherwise</returns>
-        public static Orientation OrientationParser(IValueSet? valueSet)
+        public static Orientation OrientationParser(IValueSet valueSet)
         {
-            if (valueSet is not null)
-            {
-                return valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians);
-            }
-
-            return Orientation.Identity(Enumerations.AngleFormat.Radians);
+            return valueSet is not null ? valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians) : Orientation.Identity(Enumerations.AngleFormat.Radians);
         }
 
         /// <summary>
@@ -136,13 +128,13 @@ namespace COMETwebapp.Utilities
         /// <param name="parameterBase">the parameter to parse</param>
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
-        /// <returns>the parsed <see cref="Primitives"/></returns>
+        /// <returns>the parsed <see cref="Primitive"/></returns>
         /// <exception cref="ArgumentNullException">if the parameter is null</exception>
         public static Vector3 PositionParser(ParameterBase parameterBase, Option option, List<ActualFiniteState> states)
         {
             if (parameterBase == null)
             {
-                throw new ArgumentNullException("The parameter base can not be null");
+                throw new ArgumentNullException(nameof(parameterBase),"The parameter base can not be null");
             }
 
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(option, states);
@@ -154,15 +146,15 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>the <see cref="Vector3"/> if the value can be parsed, zero vector otherwise</returns>
-        public static Vector3 PositionParser(IValueSet? valueSet)
+        public static Vector3 PositionParser(IValueSet valueSet)
         {
-            if (valueSet is not null)
+            if (valueSet is null)
             {
-                var values = valueSet.ParseIValueToPosition();
-                return new Vector3((float)values[0], (float)values[1], (float)values[2]);
+                return Vector3.Zero;
             }
 
-            return Vector3.Zero;
+            var values = valueSet.ParseIValueToPosition();
+            return new Vector3((float)values[0], (float)values[1], (float)values[2]);
         }
 
         /// <summary>
@@ -171,13 +163,13 @@ namespace COMETwebapp.Utilities
         /// <param name="parameterBase">the parameter to parse</param>
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
-        /// <returns>the parsed <see cref="Primitives"/></returns>
+        /// <returns>the parsed <see cref="Primitive"/></returns>
         /// <exception cref="ArgumentNullException">if the parameter is null</exception>
         public static double DoubleParser(ParameterBase parameterBase, Option option, List<ActualFiniteState> states)
         {
             if (parameterBase == null)
             {
-                throw new ArgumentNullException("The parameter base can not be null");
+                throw new ArgumentNullException(nameof(parameterBase),"The parameter base can not be null");
             }
 
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(option, states);
@@ -189,7 +181,7 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>the <see cref="double"/> if the value can be parsed, NaN otherwise</returns>
-        public static double DoubleParser(IValueSet? valueSet)
+        public static double DoubleParser(IValueSet valueSet)
         {
             if (valueSet is not null && double.TryParse(valueSet.ActualValue.First(), NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
             {
@@ -205,13 +197,13 @@ namespace COMETwebapp.Utilities
         /// <param name="parameterBase">the parameter to parse</param>
         /// <param name="option">the selected option</param>
         /// <param name="states">the possible actual finite states</param>
-        /// <returns>the parsed <see cref="Primitives"/></returns>
+        /// <returns>the parsed <see cref="Primitive"/></returns>
         /// <exception cref="ArgumentNullException">if the parameter is null</exception>
         public static Vector3 ColorParser(ParameterBase parameterBase, Option option, List<ActualFiniteState> states)
         {
             if (parameterBase == null)
             {
-                throw new ArgumentNullException("The parameter base can not be null");
+                throw new ArgumentNullException(nameof(parameterBase),"The parameter base can not be null");
             }
 
             var valueSet = parameterBase.GetValueSetFromOptionAndStates(option, states);
@@ -223,15 +215,15 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="valueSet">the value set to parse</param>
         /// <returns>the <see cref="Vector3"/> if the value can be parsed, zero vector otherwise</returns>
-        public static Vector3 ColorParser(IValueSet? valueSet)
+        public static Vector3 ColorParser(IValueSet valueSet)
         {
-            if (valueSet is not null)
+            if (valueSet is null)
             {
-                var textColor = valueSet.ActualValue.First();
-                return textColor.ParseToColorVector();
+                return Vector3.Zero;
             }
 
-            return Vector3.Zero;
+            var textColor = valueSet.ActualValue.First();
+            return textColor.ParseToColorVector();
         }
     }
 }
