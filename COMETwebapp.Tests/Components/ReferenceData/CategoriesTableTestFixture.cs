@@ -291,9 +291,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(elementDefinitionCategory_1.Name));
-                Assert.That(renderer.Markup, Does.Contain(elementDefinitionCategory_2.Name));
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>()

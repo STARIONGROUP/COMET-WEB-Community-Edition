@@ -36,10 +36,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    
-    using COMETwebapp.SessionManagement;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
+    
     using DevExpress.Blazor;
     using DevExpress.Blazor.Internal;
 
@@ -70,11 +68,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// A collection of all <see cref="CategoryRowViewModel" />
         /// </summary>
         private IEnumerable<CategoryRowViewModel> allRows = new List<CategoryRowViewModel>();
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.
@@ -141,11 +134,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public IEnumerable<Category> SelectedSuperCategories { get; set; } = new List<Category>();
 
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionAnchor"/>
-        /// </summary>
-        private readonly ISessionAnchor SessionAnchor;
-
-        /// <summary>
         ///  Indicates if confirmation popup is visible
         /// </summary>
         public bool popupVisible { get; set; } = false;
@@ -159,24 +147,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         ///     selected container
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync()
-        {
-            foreach (var siteReferenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary)
-            {
-                this.DataSource.AddRange(siteReferenceDataLibrary.DefinedCategory);
-            }
-
-            this.UpdateProperties(this.DataSource.Items);
-            this.RefreshAccessRight();
-        }
 
         /// <summary>
         /// Adds a new <see cref="Category" />
@@ -234,30 +204,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         private void RefreshAccessRight()
         {
-            this.IsAllowedToWrite = this.sessionService.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary.All(s => this.permissionService.CanWrite(ClassKind.Category, s));
             foreach (var row in Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, this.ReferenceDataLibraries.FirstOrDefault(x => x.ShortName == row.ContainerName));
             }
-        }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.disposables.ForEach(x => x.Dispose());
-            this.disposables.Clear();
-        }
-
-        /// <summary>
-        /// Updates this view model properties
-        /// </summary>
-        /// <param name="categories">A collection of <see cref="Category" /></param>
-        public void UpdateProperties(IEnumerable<Category> categories)
-        {
-            this.allRows = categories.Select(x => new CategoryRowViewModel(x));
-            this.UpdateRows(this.allRows);
         }
 
         /// <summary>
@@ -330,7 +280,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             cateoryToUnDeprecate.Add(clonedCateory);
             try
             {
-                await this.SessionAnchor.UpdateThingsSiteDirectory(cateoryToUnDeprecate);
+                await this.sessionService.UpdateThingsSiteDirectory(cateoryToUnDeprecate);
             }
             catch (Exception exception)
             {
@@ -351,7 +301,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             categoryToDeprecate.Add(clonedCategory);
             try
             {
-                await this.SessionAnchor.UpdateThingsSiteDirectory(categoryToDeprecate);
+                await this.sessionService.UpdateThingsSiteDirectory(categoryToDeprecate);
             }
             catch (Exception exception)
             {
@@ -380,7 +330,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             thingsToCreate.Add(this.Category);
             try
             {
-                await this.SessionAnchor.CreateThingsRDL(thingsToCreate, this.SelectedReferenceDataLibrary);
+                //await this.SessionsAnchor.CreateThingsRDL(thingsToCreate, this.SelectedReferenceDataLibrary);
             }
             catch (Exception exception)
             {
@@ -397,11 +347,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         public void OnInitializedAsync()
         {
-            foreach (var referenceDataLibrary in this.SessionAnchor.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
+            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
                 this.DataSource.AddRange(referenceDataLibrary.DefinedCategory);
             }
-            this.ReferenceDataLibraries = this.SessionAnchor.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
+            this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
             this.UpdateProperties(this.DataSource.Items);
             this.RefreshAccessRight();
         }

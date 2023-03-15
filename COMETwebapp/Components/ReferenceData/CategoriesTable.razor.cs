@@ -26,17 +26,17 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using System.Reactive.Linq;
     using System.Threading.Tasks;
-    using CDP4Common.CommonData;
+    
     using CDP4Common.SiteDirectoryData;
+    
     using COMETwebapp.ViewModels.Components.ReferenceData;
-    using COMETwebapp.Wrappers;
+
     using DevExpress.Blazor;
 
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
-    using ReactiveUI;
-
+    
     /// <summary>
     ///     Support class for the <see cref="CategoriesTable"/>
     /// </summary>
@@ -104,8 +104,8 @@ namespace COMETwebapp.Components.ReferenceData
         {
             this.ViewModel.OnInitializedAsync();
 
-            this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
         }
