@@ -159,6 +159,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             };
 
             this.UpdateRows(newRows);
+            this.RefreshAccessRight();
         }
 
         /// <summary>
@@ -170,6 +171,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             var index = updatedRows.FindIndex(x => x.Category.Iid == category.Iid);
             updatedRows[index] = new CategoryRowViewModel(category);
             this.UpdateRows(updatedRows);
+            this.RefreshAccessRight();
         }
 
         /// <summary>

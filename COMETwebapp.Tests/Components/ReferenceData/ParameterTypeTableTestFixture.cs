@@ -285,7 +285,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType2.Name));
-                Assert.That(this.viewModel.IsAllowedToWrite, Is.True);
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>()

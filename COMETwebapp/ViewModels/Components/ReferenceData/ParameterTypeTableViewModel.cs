@@ -62,9 +62,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private IEnumerable<ParameterTypeRowViewModel> allRows = new List<ParameterTypeRowViewModel>();
 
         /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
+        ///    Available <see cref="ReferenceDataLibrary"/>s
         /// </summary>
-        private bool isAllowedToWrite;
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
@@ -114,15 +114,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public SourceList<ParameterType> DataSource { get; } = new();
 
         /// <summary>
-        /// Value indicating if the <see cref="ParameterType" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
-        }
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// Override this method if you will perform an asynchronous operation and
@@ -131,11 +122,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         public void OnInitializedAsync()
         {
-            foreach (var siteReferenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary)
+            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
-                this.DataSource.AddRange(siteReferenceDataLibrary.ParameterType);
+                this.DataSource.AddRange(referenceDataLibrary.ParameterType);
             }
-
+            this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
             this.UpdateProperties(this.DataSource.Items);
             this.RefreshAccessRight();
         }
@@ -151,6 +142,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             };
 
             this.UpdateRows(newRows);
+            this.RefreshAccessRight();
         }
 
         /// <summary>
@@ -162,6 +154,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             var index = updatedRows.FindIndex(x => x.ParameterType.Iid == parameterType.Iid);
             updatedRows[index] = new ParameterTypeRowViewModel(parameterType);
             this.UpdateRows(updatedRows);
+            this.RefreshAccessRight();
         }
 
         /// <summary>
@@ -196,7 +189,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         private void RefreshAccessRight()
         {
-            this.IsAllowedToWrite = this.sessionService.Session.RetrieveSiteDirectory().SiteReferenceDataLibrary.All(s => this.permissionService.CanWrite(ClassKind.ParameterType, s));
+            foreach (var row in Rows.Items)
+            {
+                row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, this.ReferenceDataLibraries.FirstOrDefault(x => x.ShortName == row.ContainerName));
+            }
         }
 
         /// <summary>

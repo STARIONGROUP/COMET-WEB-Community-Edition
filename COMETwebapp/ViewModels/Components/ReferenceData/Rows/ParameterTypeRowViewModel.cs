@@ -155,6 +155,20 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Value indicating if the <see cref="ParameterType" /> is deprecated
+        /// </summary>
+        public bool IsAllowedToWrite
+        {
+            get => this.isAllowedToWrite;
+            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
+        }
+
+        /// <summary>
         /// Update this row view model properties
         /// </summary>
         /// <param name="parameterTypeRow">The <see cref="ParameterTypeRowViewModel" /> to use for updating</param>

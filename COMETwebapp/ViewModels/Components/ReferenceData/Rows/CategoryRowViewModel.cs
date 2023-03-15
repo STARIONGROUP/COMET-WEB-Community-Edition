@@ -131,7 +131,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         private bool isAllowedToWrite;
 
         /// <summary>
-        /// Value indicating if the <see cref="ParameterType" /> is deprecated
+        /// Value indicating if the <see cref="Category" /> is deprecated
         /// </summary>
         public bool IsAllowedToWrite
         {
