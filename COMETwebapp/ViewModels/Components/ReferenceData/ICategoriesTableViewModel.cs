@@ -24,10 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
+    using COMETwebapp.Wrappers;
+    using DevExpress.Blazor;
     using DynamicData;
 
     /// <summary>
@@ -36,7 +38,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     public interface ICategoriesTableViewModel : IDisposable
     {
         /// <summary>
-        /// Gets or sets the data source for the grid control.
+        ///     The <see cref="Category" /> to create or edit
+        /// </summary>
+        Category Category { get; set; } 
+        
+        /// <summary>
+        ///     Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<Category> DataSource { get; }
 
@@ -46,9 +53,60 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         SourceList<CategoryRowViewModel> Rows { get; }
 
         /// <summary>
-        /// Indicates if the active user is allowed to write
+        ///    Available <see cref="ReferenceDataLibrary"/>s
         /// </summary>
-        bool IsAllowedToWrite { get; set; }
+        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+
+        /// <summary>
+        ///    Available <see cref="ClassKind"/>s
+        /// </summary>
+        IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; }
+
+        /// <summary>
+        ///    Selected <see cref="ClassKind"/>s
+        /// </summary>
+        IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; }
+
+        /// <summary>
+        ///    Selected super <see cref="Category"/>
+        /// </summary>
+        IEnumerable<Category> SelectedSuperCategories { get; set; }
+
+        /// <summary>
+        /// Action invoked when the deprecate or undeprecate button is clicked
+        /// </summary>
+        void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context);
+
+        /// <summary>
+        ///  Indicates if confirmation popup is visible
+        /// </summary>
+        bool popupVisible { get; set; }
+
+        /// <summary>
+        ///     popum message dialog
+        /// </summary>
+        string popupDialog { get; set; }
+
+        /// <summary>
+        ///     selected container
+        /// </summary>
+        ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category"/>
+        /// </summary>
+        void OnConfirmButtonClick();
+
+        /// <summary>
+        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category"/>
+        /// </summary>
+        void OnCancelButtonClick();
+
+        /// <summary>
+        ///     Tries to create a new <see cref="Category" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task AddingCategory();
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

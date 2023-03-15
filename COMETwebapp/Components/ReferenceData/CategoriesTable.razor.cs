@@ -26,9 +26,10 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using System.Reactive.Linq;
     using System.Threading.Tasks;
-
+    using CDP4Common.CommonData;
+    using CDP4Common.SiteDirectoryData;
     using COMETwebapp.ViewModels.Components.ReferenceData;
-
+    using COMETwebapp.Wrappers;
     using DevExpress.Blazor;
 
     using DynamicData;
@@ -81,6 +82,18 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
+        ///     Method invoked when creating a new category
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
+        async Task CustomizeEditCategory(GridCustomizeEditModelEventArgs e)
+        {
+            var dataItem = (Category)e.DataItem;
+            if (dataItem == null)
+                e.EditModel = new Category { };
+            this.ViewModel.Category = new Category();
+        }
+
+        /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.
         ///     Override this method if you will perform an asynchronous operation and
@@ -91,10 +104,8 @@ namespace COMETwebapp.Components.ReferenceData
         {
             this.ViewModel.OnInitializedAsync();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
         }
