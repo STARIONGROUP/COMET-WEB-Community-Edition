@@ -26,11 +26,10 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using System.Reactive.Linq;
     using System.Threading.Tasks;
-    
     using CDP4Common.SiteDirectoryData;
     
     using COMETwebapp.ViewModels.Components.ReferenceData;
-
+    using COMETwebapp.Wrappers;
     using DevExpress.Blazor;
 
     using DynamicData;
@@ -91,6 +90,8 @@ namespace COMETwebapp.Components.ReferenceData
             if (dataItem == null)
                 e.EditModel = new Category { };
             this.ViewModel.Category = new Category();
+            this.ViewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>();
+            this.ViewModel.SelectedSuperCategories = new List<Category>();
         }
 
         /// <summary>

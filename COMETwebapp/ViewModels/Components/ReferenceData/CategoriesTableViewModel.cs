@@ -328,9 +328,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
             this.Category.Container = this.SelectedReferenceDataLibrary;
             thingsToCreate.Add(this.Category);
+            var clonedRDL = this.SelectedReferenceDataLibrary.Clone(false);
+            clonedRDL.DefinedCategory.Add(this.Category);
             try
             {
-                //await this.SessionsAnchor.CreateThingsRDL(thingsToCreate, this.SelectedReferenceDataLibrary);
+                await this.sessionService.CreateThings(clonedRDL, thingsToCreate);
             }
             catch (Exception exception)
             {

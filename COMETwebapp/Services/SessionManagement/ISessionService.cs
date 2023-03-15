@@ -120,16 +120,16 @@ namespace COMETwebapp.Services.SessionManagement
         /// <summary>
         /// Write new Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be created</param>
+        /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
-        Task CreateThings(Iteration iteration, IEnumerable<Thing> thingsToCreate);
+        Task CreateThings(Thing thing, IEnumerable<Thing> thingsToCreate);
 
         /// <summary>
         /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        Task UpdateThings(Iteration iteration, IEnumerable<Thing> thingsToUpdate);
+        Task UpdateThings(Thing thing, IEnumerable<Thing> thingsToUpdate);
 
         /// <summary>
         /// Gets the <see cref="ParticipantRole" /> inside an iteration
