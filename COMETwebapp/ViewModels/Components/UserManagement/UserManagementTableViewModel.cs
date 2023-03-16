@@ -173,15 +173,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Value indicating if the <see cref="ParameterType" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
-        }
-
-        /// <summary>
         /// popum message dialog
         /// </summary>
         public string PopupDialog { get; set; }
@@ -246,15 +237,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             this.Person = personRow.Person;
             this.PopupDialog = this.Person.IsDeprecated ? "You are about to un-deprecate the user: " + personRow.PersonName : "You are about to deprecate the user: " + personRow.PersonName;
             this.IsOnDeprecationMode = true;
-        }
-
-        /// <summary>
-        /// checks if a row represents the active user on the session
-        /// </summary>
-        /// <param name="row">A <see cref="PersonRowViewModel" /></param>
-        public bool IsActivePerson(PersonRowViewModel row)
-        {
-            return this.sessionService.Session.ActivePerson == row.Person;
         }
 
         /// <summary>
@@ -355,7 +337,17 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         private void RefreshAccessRight()
         {
-            this.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
+            foreach (var row in Rows.Items)
+            {
+                if(row.Person == this.sessionService.Session.ActivePerson)
+                {
+                    row.IsAllowedToWrite = false;
+                }
+                else
+                {
+                    row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
+                }
+            }
         }
 
         /// <summary>

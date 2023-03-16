@@ -153,6 +153,20 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
         }
 
         /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Value indicating if the <see cref="Person" /> is deprecated
+        /// </summary>
+        public bool IsAllowedToWrite
+        {
+            get => this.isAllowedToWrite;
+            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
+        }
+
+        /// <summary>
         /// Update this row view model properties
         /// </summary>
         /// <param name="person">The <see cref="PersonRowViewModel" /> to use for updating</param>

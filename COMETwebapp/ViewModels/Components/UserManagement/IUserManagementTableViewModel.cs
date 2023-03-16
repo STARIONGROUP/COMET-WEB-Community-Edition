@@ -108,11 +108,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         string PopupDialog { get; set; }
 
         /// <summary>
-        /// Indicates if the active user is allowed to write
-        /// </summary>
-        bool IsAllowedToWrite { get; set; }
-
-        /// <summary>
         /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -128,12 +123,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task AddingPerson();
-
-        /// <summary>
-        /// checks if a row represents the active user on the session
-        /// </summary>
-        /// <param name="row">A <see cref="PersonRowViewModel" /></param>
-        bool IsActivePerson(PersonRowViewModel row);
 
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked

@@ -47,19 +47,12 @@ Copyright (c) 2023 RHEA System S.A.
             <CellDisplayTemplate>
                 @{
                     var row = (PersonRowViewModel)context.DataItem;
-                    if(this.ViewModel.IsActivePerson(row))
-                    {
-                        <DxCheckBox Id="activatePerson" CssClass="d-inline-block" Checked="(bool)context.Value" Enabled="false" />
-                    }
-                    else
-                    {
-                        <DxCheckBox Id="activatePerson" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.ViewModel.ActivatingOrDisactivatingPerson(context, value))" Checked="(bool)context.Value" Enabled="this.ViewModel.IsAllowedToWrite" />
-                    }
+                    <DxCheckBox Id="activatePerson" CssClass="d-inline-block" Checked="(bool)context.Value" Enabled="row.IsAllowedToWrite" />
                 }
             </CellDisplayTemplate>
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Role" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="200px" EditButtonVisible="false" Visible="this.ViewModel.IsAllowedToWrite">
+        <DxGridCommandColumn Width="200px" EditButtonVisible="false">
             <HeaderTemplate>
                 <DxButton Id="addPersonButton" Text="Add User" IconCssClass="oi oi-plus" CssClass="my-custom-style" Click="() => Grid.StartEditNewRowAsync()" />
             </HeaderTemplate>
@@ -68,11 +61,11 @@ Copyright (c) 2023 RHEA System S.A.
                     var row = (PersonRowViewModel)context.DataItem;
                     if (row.IsDeprecated)
                     {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="!this.ViewModel.IsActivePerson(row)" />
+                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />
                     }
                     else
                     {
-                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="!this.ViewModel.IsActivePerson(row)" />
+                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />
                     }
                 }  
             </CellDisplayTemplate>
