@@ -30,8 +30,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
-    using DevExpress.Blazor;
-
     using DynamicData;
 
     /// <summary>
@@ -77,17 +75,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context);
+        void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel context);
 
         /// <summary>
         ///  Indicates if confirmation popup is visible
         /// </summary>
-        bool popupVisible { get; set; }
+        bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
         ///     popum message dialog
         /// </summary>
-        string popupDialog { get; set; }
+        string ConfirmationMessageDialog { get; set; }
 
         /// <summary>
         ///     selected container
@@ -116,7 +114,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        void OnInitializedAsync();
+        void OnInitialized();
     }
 }

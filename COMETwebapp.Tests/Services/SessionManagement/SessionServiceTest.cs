@@ -256,42 +256,6 @@ namespace COMETwebapp.Tests.Services.SessionManagement
         }
 
         [Test]
-        public void VerifyCreateThingsSiteDirectory()
-        {
-            Assert.ThrowsAsync<ArgumentException>(() => this.sessionService.CreateThingsSiteDirectory(null));
-            this.sessionService.IsSessionOpen = true;
-            var thingsToCreate = new List<Person>();
-
-            var personToCreate = new Person()
-            {
-                ShortName = "USR1",
-                GivenName = "USR1"
-            };
-
-            thingsToCreate.Add(personToCreate.Clone(false));
-            Assert.DoesNotThrow(() => this.sessionService.CreateThingsSiteDirectory(thingsToCreate));
-        }
-
-        [Test]
-        public void VerifyUpdateThingsSiteDirectory()
-        {
-            Assert.ThrowsAsync<ArgumentException>(() => this.sessionService.UpdateThingsSiteDirectory(null));
-            var thingsToUpdate = new List<Person>();
-            this.sessionService.IsSessionOpen = true;
-
-            var personToUpdate = new Person()
-            {
-                ShortName = "USR",
-                IsDeprecated = false
-            };
-
-            var clone = personToUpdate.Clone(false);
-            clone.IsDeprecated = true;
-            thingsToUpdate.Add(clone);
-            Assert.DoesNotThrow(() => this.sessionService.UpdateThingsSiteDirectory(thingsToUpdate));
-        }
-
-        [Test]
         public void VerifyGetPersons()
         {
             this.sessionService.IsSessionOpen = true;

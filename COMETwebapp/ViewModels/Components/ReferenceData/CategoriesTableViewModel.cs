@@ -38,11 +38,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
     
-    using DevExpress.Blazor;
-    using DevExpress.Blazor.Internal;
-
     using DynamicData;
-
     using ReactiveUI;
 
     /// <summary>
@@ -134,14 +130,23 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public IEnumerable<Category> SelectedSuperCategories { get; set; } = new List<Category>();
 
         /// <summary>
-        ///  Indicates if confirmation popup is visible
+        ///     Backing field for <see cref="IsOnDeprecationMode" />
         /// </summary>
-        public bool popupVisible { get; set; } = false;
+        private bool isOnDeprecationMode;
+
+        /// <summary>
+        /// Indicates if confirmation popup is visible
+        /// </summary>
+        public bool IsOnDeprecationMode
+        {
+            get => this.isOnDeprecationMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnDeprecationMode, value);
+        }
 
         /// <summary>
         ///     popum message dialog
         /// </summary>
-        public string popupDialog { get; set; }
+        public string ConfirmationMessageDialog { get; set; }
 
         /// <summary>
         ///     selected container
@@ -239,7 +244,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         public void OnCancelButtonClick()
         {
-            this.popupVisible = false;
+            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>
@@ -255,19 +260,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 await this.DeprecatingCategory();
             }
-            popupVisible = false;
+            IsOnDeprecationMode = false;
         }
 
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        public void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context)
+        /// <param name="categoryRow"> The <see cref="CategoryRowViewModel" /> to deprecate or undeprecate </param>
+        public void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel categoryRow)
         {
             this.Category = new Category();
-            var categoryRow = (CategoryRowViewModel)context.DataItem;
             this.Category = categoryRow.Category;
-            this.popupDialog = this.Category.IsDeprecated ? "You are about to un-deprecate the category: " + categoryRow.Name : "You are about to deprecate the category: " + categoryRow.Name;
-            this.popupVisible = true;
+            this.ConfirmationMessageDialog = this.Category.IsDeprecated ? "You are about to un-deprecate the category: " + categoryRow.Name : "You are about to deprecate the category: " + categoryRow.Name;
+            this.IsOnDeprecationMode = true;
         }
 
         /// <summary>
@@ -282,16 +287,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             cateoryToUnDeprecate.Add(clonedCateory);
             try
             {
-                await this.sessionService.UpdateThingsSiteDirectory(cateoryToUnDeprecate);
+                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), cateoryToUnDeprecate);
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
                 throw;
             }
-            this.popupVisible = false;
+            this.IsOnDeprecationMode = false;
         }
-
+        
         /// <summary>
         ///     Tries to deprecate a <see cref="Category" />
         /// </summary>
@@ -304,14 +309,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             categoryToDeprecate.Add(clonedCategory);
             try
             {
-                await this.sessionService.UpdateThingsSiteDirectory(categoryToDeprecate);
+                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), categoryToDeprecate);
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
                 throw;
             }
-            this.popupVisible = false;
+            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>
@@ -326,14 +331,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.Category.SuperCategory = this.SelectedSuperCategories.ToList();
             }
+
             if (this.SelectedPermissibleClasses.Any())
             {
                 this.Category.PermissibleClass = this.SelectedPermissibleClasses.Select(x => x.ClassKind).ToList();
             }
+
             this.Category.Container = this.SelectedReferenceDataLibrary;
             thingsToCreate.Add(this.Category);
             var clonedRDL = this.SelectedReferenceDataLibrary.Clone(false);
             clonedRDL.DefinedCategory.Add(this.Category);
+
             try
             {
                 await this.sessionService.CreateThings(clonedRDL, thingsToCreate);
@@ -351,13 +359,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         ///     Override this method if you will perform an asynchronous operation and
         ///     want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync()
+        public void OnInitialized()
         {
             foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
                 this.DataSource.AddRange(referenceDataLibrary.DefinedCategory);
             }
+
             this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
             this.UpdateProperties(this.DataSource.Items);
             this.RefreshAccessRight();

@@ -103,7 +103,7 @@ namespace COMETwebapp.Components.UserManagement
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.ViewModel.OnInitializedAsync();
+            this.ViewModel.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsAllowedToWrite).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 

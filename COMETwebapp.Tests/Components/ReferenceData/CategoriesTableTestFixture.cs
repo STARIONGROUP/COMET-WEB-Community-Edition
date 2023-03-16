@@ -334,13 +334,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
             var currentCategory = this.viewModel.Category;
 
-            Assert.That(this.viewModel.popupVisible, Is.False);
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
 
             await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.popupVisible, Is.True);
+                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
                 Assert.That(this.viewModel.Category, Is.Not.EqualTo(currentCategory));
             });
 
@@ -348,7 +348,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.OnConfirmButtonClick();
 
-            Assert.That(this.viewModel.popupVisible, Is.False);
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
 
         [Test]
@@ -366,13 +366,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
             var currentCategory = this.viewModel.Category;
 
-            Assert.That(this.viewModel.popupVisible, Is.False);
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
 
             await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.popupVisible, Is.True);
+                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
                 Assert.That(this.viewModel.Category, Is.Not.EqualTo(currentCategory));
             });
 
@@ -380,7 +380,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.OnConfirmButtonClick();
 
-            Assert.That(this.viewModel.popupVisible, Is.False);
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
 
         [Test]

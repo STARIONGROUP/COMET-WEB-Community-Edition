@@ -37,7 +37,8 @@ namespace COMETwebapp.Components.ReferenceData
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
-    
+    using ReactiveUI;
+
     /// <summary>
     ///     Support class for the <see cref="CategoriesTable"/>
     /// </summary>
@@ -105,7 +106,10 @@ namespace COMETwebapp.Components.ReferenceData
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.ViewModel.OnInitializedAsync();
+            this.ViewModel.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeprecationMode)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
