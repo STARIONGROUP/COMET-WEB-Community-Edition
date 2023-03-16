@@ -90,8 +90,12 @@ namespace COMETwebapp.Components.ReferenceData
         private void CustomizeEditCategory(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (Category)e.DataItem;
+
             if (dataItem == null)
+            {
                 e.EditModel = new Category { };
+            }
+
             this.ViewModel.Category = new Category();
             this.ViewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>();
             this.ViewModel.SelectedSuperCategories = new List<Category>();
