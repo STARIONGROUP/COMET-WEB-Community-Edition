@@ -108,11 +108,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         string PopupDialog { get; set; }
 
         /// <summary>
-        /// Indicates if the active user is allowed to write
-        /// </summary>
-        bool IsAllowedToWrite { get; set; }
-
-        /// <summary>
         /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -132,7 +127,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context);
+        /// <param name="personRow">A <see cref="PersonRowViewModel" /> that represents the person to deprecate or undeprecate </param>
+        void OnDeprecateUnDeprecateButtonClick(PersonRowViewModel personRow);
 
         /// <summary>
         /// Tries to activate or disactivate a <see cref="Person" />

@@ -77,6 +77,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
             this.Person = person;
             this.PersonName = person.Name;
             this.PersonShortName = person.ShortName;
+            this.Role = person.Role?.Name;
             this.PersonEmailAddress = person.DefaultEmailAddress?.Value;
             this.PersonTelephoneNumber = person.DefaultTelephoneNumber?.Value;
             this.IsActive = person.IsActive;
@@ -149,6 +150,20 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
         {
             get => this.isDeprecated;
             set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="IsAllowedToWrite" />
+        /// </summary>
+        private bool isAllowedToWrite;
+
+        /// <summary>
+        /// Value indicating if the <see cref="Person" /> is deprecated
+        /// </summary>
+        public bool IsAllowedToWrite
+        {
+            get => this.isAllowedToWrite;
+            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
         }
 
         /// <summary>

@@ -64,11 +64,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         private IEnumerable<PersonRowViewModel> allRows = new List<PersonRowViewModel>();
 
         /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -173,15 +168,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Value indicating if the <see cref="ParameterType" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
-        }
-
-        /// <summary>
         /// popum message dialog
         /// </summary>
         public string PopupDialog { get; set; }
@@ -239,10 +225,10 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        public void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context)
+        /// <param name="personRow">A <see cref="PersonRowViewModel" /> that represents the person to deprecate or undeprecate </param>
+        public void OnDeprecateUnDeprecateButtonClick(PersonRowViewModel personRow)
         {
             this.Person = new Person();
-            var personRow = (PersonRowViewModel)context.DataItem;
             this.Person = personRow.Person;
             this.PopupDialog = this.Person.IsDeprecated ? "You are about to un-deprecate the user: " + personRow.PersonName : "You are about to deprecate the user: " + personRow.PersonName;
             this.IsOnDeprecationMode = true;
@@ -346,7 +332,17 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         private void RefreshAccessRight()
         {
-            this.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
+            foreach (var row in Rows.Items)
+            {
+                if(row.Person == this.sessionService.Session.ActivePerson)
+                {
+                    row.IsAllowedToWrite = false;
+                }
+                else
+                {
+                    row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
+                }
+            }
         }
 
         /// <summary>

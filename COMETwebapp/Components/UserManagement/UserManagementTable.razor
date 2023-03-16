@@ -45,11 +45,14 @@ Copyright (c) 2023 RHEA System S.A.
         <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.Role)" Caption="Role" MinWidth="80" SearchEnabled="false" />
         <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.IsActive)" UnboundType="GridUnboundColumnType.Boolean" MinWidth="80" SearchEnabled="false">
             <CellDisplayTemplate>
-                <DxCheckBox Id="activatePerson" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.ViewModel.ActivatingOrDisactivatingPerson(context, value))" Checked="(bool)context.Value" Enabled="this.ViewModel.IsAllowedToWrite" />
+                @{
+                    var row = (PersonRowViewModel)context.DataItem;
+                    <DxCheckBox Id="activatePerson" CssClass="d-inline-block" Checked="(bool)context.Value" Enabled="row.IsAllowedToWrite" />
+                }
             </CellDisplayTemplate>
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Role" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="200px" EditButtonVisible="false" Visible="this.ViewModel.IsAllowedToWrite">
+        <DxGridCommandColumn Width="200px" EditButtonVisible="false">
             <HeaderTemplate>
                 <DxButton Id="addPersonButton" Text="Add User" IconCssClass="oi oi-plus" CssClass="my-custom-style" Click="() => Grid.StartEditNewRowAsync()" />
             </HeaderTemplate>
@@ -58,11 +61,11 @@ Copyright (c) 2023 RHEA System S.A.
                     var row = (PersonRowViewModel)context.DataItem;
                     if (row.IsDeprecated)
                     {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(context)" />
+                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />
                     }
                     else
                     {
-                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(context)" />
+                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />
                     }
                 }  
             </CellDisplayTemplate>
@@ -142,4 +145,4 @@ Copyright (c) 2023 RHEA System S.A.
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmButtonClick" />
     </div>
 </DxPopup>
-<DxCheckBox Id="hideDeprecatedItems" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.HideOrShowDeprecatedItems(value))">Show/Hide Deprecated Persons</DxCheckBox>
+<DxCheckBox Id="hideDeprecatedItems" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.HideOrShowDeprecatedItems(value))">Show Deprecated Persons</DxCheckBox>
