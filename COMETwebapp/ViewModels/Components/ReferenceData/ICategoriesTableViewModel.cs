@@ -29,7 +29,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
+
     using DevExpress.Blazor;
+
     using DynamicData;
 
     /// <summary>

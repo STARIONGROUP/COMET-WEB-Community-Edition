@@ -191,7 +191,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             foreach (var row in Rows.Items)
             {
-                row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, this.ReferenceDataLibraries.FirstOrDefault(x => x.ShortName == row.ContainerName));
+                row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.ParameterType.Container);
             }
         }
 
