@@ -245,15 +245,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category"/>
         /// </summary>
-        public void OnConfirmButtonClick()
+        public async void OnConfirmButtonClick()
         {
             if (this.Category.IsDeprecated)
             {
-                this.UnDeprecatingCategory();
+                await this.UnDeprecatingCategory();
             }
             else
             {
-                this.DeprecatingCategory();
+                await this.DeprecatingCategory();
             }
             popupVisible = false;
         }
@@ -286,6 +286,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
             catch (Exception exception)
             {
+                Console.WriteLine(exception.Message);
                 throw;
             }
             this.popupVisible = false;
@@ -307,6 +308,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
             catch (Exception exception)
             {
+                Console.WriteLine(exception.Message);
                 throw;
             }
             this.popupVisible = false;
@@ -338,6 +340,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
             catch (Exception exception)
             {
+                Console.WriteLine(exception.Message);
                 throw;
             }
         }

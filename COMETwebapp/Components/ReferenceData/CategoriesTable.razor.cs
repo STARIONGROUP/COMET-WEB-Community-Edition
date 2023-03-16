@@ -84,7 +84,7 @@ namespace COMETwebapp.Components.ReferenceData
         ///     Method invoked when creating a new category
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
-        async Task CustomizeEditCategory(GridCustomizeEditModelEventArgs e)
+        private void CustomizeEditCategory(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (Category)e.DataItem;
             if (dataItem == null)

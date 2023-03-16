@@ -221,9 +221,6 @@ namespace COMETwebapp.Services.SessionManagement
                 thingClone = thing.Clone(false);
             }
 
-            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
-            //var thingClone = thing.Clone(false);
-
             // set the context of the transaction to the thing changes need to be added to.
             var context = TransactionContextResolver.ResolveContext(thingClone);
             var transaction = new ThingTransaction(context);
