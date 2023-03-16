@@ -64,11 +64,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         private IEnumerable<PersonRowViewModel> allRows = new List<PersonRowViewModel>();
 
         /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
