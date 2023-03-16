@@ -45,11 +45,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         SourceList<ParameterTypeRowViewModel> Rows { get; }
 
         /// <summary>
-        ///  Indicates if the active user is allowed to write
-        /// </summary>
-        bool IsAllowedToWrite { get; set; }
-
-        /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.
         ///     Override this method if you will perform an asynchronous operation and

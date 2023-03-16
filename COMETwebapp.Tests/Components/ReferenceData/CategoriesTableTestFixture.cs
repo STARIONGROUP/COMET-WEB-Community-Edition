@@ -38,12 +38,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
 
@@ -294,7 +296,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
-                Assert.That(this.viewModel.IsAllowedToWrite, Is.True);
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
@@ -316,6 +317,98 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
                 Assert.That(renderer.Markup, Does.Not.Contain(this.elementDefinitionCategory2.Name));
             });
+        }
+
+        [Test]
+        public async Task VerifyDeprecatingCategory()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
+            });
+
+            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
+            var currentCategory = this.viewModel.Category;
+
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
+
+            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
+                Assert.That(this.viewModel.Category, Is.Not.EqualTo(currentCategory));
+            });
+
+            this.viewModel.Category = this.elementDefinitionCategory1;
+
+            this.viewModel.OnConfirmButtonClick();
+
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyUnDeprecatingCategory()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
+            });
+
+            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
+            var currentCategory = this.viewModel.Category;
+
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
+
+            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
+                Assert.That(this.viewModel.Category, Is.Not.EqualTo(currentCategory));
+            });
+
+            this.viewModel.Category = this.elementDefinitionCategory2;
+
+            this.viewModel.OnConfirmButtonClick();
+
+            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyAddingCategory()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
+            });
+
+            this.viewModel.Category = new Category
+            {
+                Name = "Cat1",
+                ShortName = "TT",
+                IsAbstract = true,
+                IsDeprecated = false,
+            };
+            this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
+            this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new ClassKindWrapper(ClassKind.ElementDefinition) };
+
+            await this.viewModel.AddingCategory();
+            CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(this.viewModel.Category, EventKind.Added));
+
+            Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
         }
     }
 }

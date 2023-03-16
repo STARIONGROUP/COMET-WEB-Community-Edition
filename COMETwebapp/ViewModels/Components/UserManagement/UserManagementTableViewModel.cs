@@ -159,9 +159,18 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public bool IsDefaultTelephoneNumber { get; set; }
 
         /// <summary>
+        ///     Backing field for <see cref="IsOnDeprecationMode" />
+        /// </summary>
+        private bool isOnDeprecationMode;
+
+        /// <summary>
         /// Indicates if confirmation popup is visible
         /// </summary>
-        public bool PopupVisible { get; set; }
+        public bool IsOnDeprecationMode
+        {
+            get => this.isOnDeprecationMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnDeprecationMode, value);
+        }
 
         /// <summary>
         /// Value indicating if the <see cref="ParameterType" /> is deprecated
@@ -192,7 +201,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                 await this.DeprecatingPerson();
             }
 
-            this.PopupVisible = false;
+            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>
@@ -200,7 +209,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         public void OnCancelButtonClick()
         {
-            this.PopupVisible = false;
+            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>
@@ -224,7 +233,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             this.Person.EmailAddress.Add(this.EmailAddress);
             this.Person.TelephoneNumber.Add(this.TelephoneNumber);
             thingsToCreate.Add(this.Person);
-            await this.sessionService.CreateThingsSiteDirectory(thingsToCreate);
+            await this.sessionService.CreateThings(this.sessionService.GetSiteDirectory(), thingsToCreate);
         }
 
         /// <summary>
@@ -236,7 +245,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             var personRow = (PersonRowViewModel)context.DataItem;
             this.Person = personRow.Person;
             this.PopupDialog = this.Person.IsDeprecated ? "You are about to un-deprecate the user: " + personRow.PersonName : "You are about to deprecate the user: " + personRow.PersonName;
-            this.PopupVisible = true;
+            this.IsOnDeprecationMode = true;
         }
 
         /// <summary>
@@ -251,7 +260,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             var clonedPerson = personToUpdate.Clone(false);
             clonedPerson.IsActive = value;
             personToActivateOrDesactivate.Add(clonedPerson);
-            await this.sessionService.UpdateThingsSiteDirectory(personToActivateOrDesactivate);
+            await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), personToActivateOrDesactivate);
         }
 
         /// <summary>
@@ -260,8 +269,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync()
+        public void OnInitialized()
         {
             this.DataSource.AddRange(this.sessionService.Session.RetrieveSiteDirectory().Person);
             this.UpdateProperties(this.DataSource.Items);
@@ -315,8 +323,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             var clonedPerson = this.Person.Clone(false);
             clonedPerson.IsDeprecated = false;
             personToUnDeprecate.Add(clonedPerson);
-            await this.sessionService.UpdateThingsSiteDirectory(personToUnDeprecate);
-            this.PopupVisible = false;
+            await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), personToUnDeprecate);
+            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>
@@ -329,8 +337,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             var clonedPerson = this.Person.Clone(false);
             clonedPerson.IsDeprecated = true;
             personToDeprecate.Add(clonedPerson);
-            await this.sessionService.UpdateThingsSiteDirectory(personToDeprecate);
-            this.PopupVisible = false;
+            await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), personToDeprecate);
+            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>

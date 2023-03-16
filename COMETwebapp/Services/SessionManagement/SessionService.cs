@@ -205,27 +205,31 @@ namespace COMETwebapp.Services.SessionManagement
         /// <summary>
         /// Write new Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be created</param>
+        /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
-        public async Task CreateThings(Iteration iteration, IEnumerable<Thing> thingsToCreate)
+        public async Task CreateThings(Thing thing, IEnumerable<Thing> thingsToCreate)
         {
             if (thingsToCreate == null)
             {
                 return;
             }
 
-            // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
-            var iterationClone = iteration.Clone(false);
+            var thingClone = thing;
 
-            // set the context of the transaction to the iteration changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(iterationClone);
+            if (thing.Original == null)
+            {
+                thingClone = thing.Clone(false);
+            }
+
+            // set the context of the transaction to the thing changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(thingClone);
             var transaction = new ThingTransaction(context);
 
-            // register new Things and the container Iteration (clone) with the transaction.
-            thingsToCreate.ToList().ForEach(thing => { transaction.Create(thing, iterationClone); });
+            // register new Things and the container Thing (clone) with the transaction.
+            thingsToCreate.ToList().ForEach(thing => { transaction.Create(thing, thingClone); });
 
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the Iteration object (the list of contained elements is updated) and and the new ElementDefinition.
+            // to the Thing object.
             var operationContainer = transaction.FinalizeTransaction();
 
             try
@@ -242,9 +246,9 @@ namespace COMETwebapp.Services.SessionManagement
         /// <summary>
         /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        public async Task UpdateThings(Iteration iteration, IEnumerable<Thing> thingsToUpdate)
+        public async Task UpdateThings(Thing thing, IEnumerable<Thing> thingsToUpdate)
         {
             if (thingsToUpdate == null)
             {
@@ -253,18 +257,18 @@ namespace COMETwebapp.Services.SessionManagement
 
             var sw = Stopwatch.StartNew();
 
-            // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
-            var iterationClone = iteration.Clone(false);
+            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
+            var thingClone = thing.Clone(false);
 
-            // set the context of the transaction to the iteration changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(iterationClone);
+            // set the context of the transaction to the thing changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(thingClone);
             var transaction = new ThingTransaction(context);
 
             // register all updates with the transaction.
             thingsToUpdate.ToList().ForEach(thing => { transaction.CreateOrUpdate(thing); });
 
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the Iteration object (the list of contained elements is updated) and and the new ElementDefinition.
+            // to the Thing object.
             var operationContainer = transaction.FinalizeTransaction();
 
             try
@@ -302,95 +306,5 @@ namespace COMETwebapp.Services.SessionManagement
 
             return participantInformation.Item1;
         }
-
-        /// <summary>
-        /// Write new Things in the session
-        /// </summary>
-        /// <param name="thingsToCreate">List of Things to create in the session</param>
-        public async Task CreateThingsSiteDirectory(IEnumerable<Thing> thingsToCreate)
-        {
-            var openedSiteDirectory = this.GetSiteDirectory();
-
-            if (openedSiteDirectory == null)
-            {
-                throw new InvalidOperationException("At first a SiteDirectory should be opened");
-            }
-
-            if (thingsToCreate == null)
-            {
-                throw new ArgumentException("Please add at least one Thing to be created");
-            }
-
-            // CreateThings a shallow clone of the site directory. The cached site directory object should not be changed, so we record the change on a clone.
-            var siteDirectoryClone = openedSiteDirectory.Clone(false);
-
-            // set the context of the transaction to the site directory changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(siteDirectoryClone);
-            var transaction = new ThingTransaction(context);
-
-            // register new Things and the container site directory (clone) with the transaction.
-            thingsToCreate.ToList().ForEach(thing =>
-            {
-                transaction.Create(thing, siteDirectoryClone);
-            });
-
-            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the site directory (the list of contained elements is updated).
-            var operationContainer = transaction.FinalizeTransaction();
-
-            try
-            {
-                await this.Session.Write(operationContainer);
-                Console.WriteLine("Writing done !");
-            }
-            catch (DalWriteException ex)
-            {
-                Console.WriteLine($"The create operation failed: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        ///     Update Things in the session
-        /// </summary>
-        /// <param name="thingsToUpdate">List of Things to update in the session</param>  
-        public async Task UpdateThingsSiteDirectory(IEnumerable<Thing> thingsToUpdate)
-        {
-            var openedSiteDirectory = this.GetSiteDirectory();
-
-            if (openedSiteDirectory == null)
-            {
-                throw new InvalidOperationException("At first a SiteDirectory should be opened");
-            }
-            if (thingsToUpdate == null)
-            {
-                throw new ArgumentException("Please add at least one Thing to be deleted");
-            }
-
-            // CreateThings a shallow clone of the iteration. The cached Iteration object should not be changed, so we record the change on a clone.
-            var siteDirectoryClone = openedSiteDirectory.Clone(false);
-
-            // set the context of the transaction to the iteration changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(siteDirectoryClone);
-            var transaction = new ThingTransaction(context);
-
-            // register new Things and the container Iteration (clone) with the transaction.
-            thingsToUpdate.ToList().ForEach(thing =>
-            {
-                transaction.CreateOrUpdate(thing);
-            });
-
-            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the Iteration object (the list of contained elements is updated) and and the new ElementDefinition.
-            var operationContainer = transaction.FinalizeTransaction();
-            try
-            {
-                await this.Session.Write(operationContainer);
-                Console.WriteLine("Update writing done !");
-            }
-            catch (DalWriteException ex)
-            {
-                Console.WriteLine($"The update operation failed: {ex.Message}");
-            }
-        }  
     }
 }

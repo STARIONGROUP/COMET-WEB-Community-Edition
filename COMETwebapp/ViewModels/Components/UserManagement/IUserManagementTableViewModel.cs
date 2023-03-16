@@ -100,7 +100,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <summary>
         /// Indicates if confirmation popup is visible
         /// </summary>
-        bool PopupVisible { get; set; }
+        bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
         /// Popup message dialog
@@ -146,7 +146,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        void OnInitializedAsync();
+        void OnInitialized();
     }
 }
