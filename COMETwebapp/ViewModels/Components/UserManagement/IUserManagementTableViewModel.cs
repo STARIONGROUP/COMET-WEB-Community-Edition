@@ -130,9 +130,16 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         Task AddingPerson();
 
         /// <summary>
+        /// checks if a row represents the active user on the session
+        /// </summary>
+        /// <param name="row">A <see cref="PersonRowViewModel" /></param>
+        bool IsActivePerson(PersonRowViewModel row);
+
+        /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context);
+        /// <param name="personRow">A <see cref="PersonRowViewModel" /> that represents the person to deprecate or undeprecate </param>
+        void OnDeprecateUnDeprecateButtonClick(PersonRowViewModel personRow);
 
         /// <summary>
         /// Tries to activate or disactivate a <see cref="Person" />

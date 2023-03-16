@@ -239,13 +239,22 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        public void OnDeprecateUnDeprecateButtonClick(GridCommandColumnCellDisplayTemplateContext context)
+        /// <param name="personRow">A <see cref="PersonRowViewModel" /> that represents the person to deprecate or undeprecate </param>
+        public void OnDeprecateUnDeprecateButtonClick(PersonRowViewModel personRow)
         {
             this.Person = new Person();
-            var personRow = (PersonRowViewModel)context.DataItem;
             this.Person = personRow.Person;
             this.PopupDialog = this.Person.IsDeprecated ? "You are about to un-deprecate the user: " + personRow.PersonName : "You are about to deprecate the user: " + personRow.PersonName;
             this.IsOnDeprecationMode = true;
+        }
+
+        /// <summary>
+        /// checks if a row represents the active user on the session
+        /// </summary>
+        /// <param name="row">A <see cref="PersonRowViewModel" /></param>
+        public bool IsActivePerson(PersonRowViewModel row)
+        {
+            return this.sessionService.Session.ActivePerson == row.Person;
         }
 
         /// <summary>

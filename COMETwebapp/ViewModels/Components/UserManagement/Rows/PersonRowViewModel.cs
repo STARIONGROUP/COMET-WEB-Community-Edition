@@ -77,6 +77,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
             this.Person = person;
             this.PersonName = person.Name;
             this.PersonShortName = person.ShortName;
+            this.Role = person.Role?.Name;
             this.PersonEmailAddress = person.DefaultEmailAddress?.Value;
             this.PersonTelephoneNumber = person.DefaultTelephoneNumber?.Value;
             this.IsActive = person.IsActive;
