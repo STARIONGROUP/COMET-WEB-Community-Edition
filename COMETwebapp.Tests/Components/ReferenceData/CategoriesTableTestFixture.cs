@@ -42,11 +42,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMETwebapp.Components.ReferenceData;
-    using COMETwebapp.Components.UserManagement;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.Wrappers;
+
     using DevExpress.Blazor;
 
     using Microsoft.Extensions.DependencyInjection;

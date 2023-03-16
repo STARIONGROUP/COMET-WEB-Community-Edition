@@ -1,5 +1,4 @@
-﻿
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="EnumeratorExtensions.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -43,9 +42,9 @@ namespace COMETwebapp.Extensions
         /// <returns>The <see cref="DisplayAttribute" /> value if found</returns>
         public static string GetEnumDisplayName(this Enum value)
         {
-            if (displayName.ContainsKey(value))
+            if (displayName.TryGetValue(value, out string enumDisplayName))
             {
-                return displayName[value];
+                return enumDisplayName;
             }
 
             var fi = value.GetType().GetField(value.ToString());
@@ -56,7 +55,7 @@ namespace COMETwebapp.Extensions
             }
 
             var attributes = (DisplayAttribute[])fi.GetCustomAttributes(typeof(DisplayAttribute), false);
-            var enumDisplayName = attributes is { Length: > 0 } ? attributes[0].Name : value.ToString();
+            enumDisplayName = attributes is { Length: > 0 } ? attributes[0].Name : value.ToString();
             displayName[value] = enumDisplayName;
             return enumDisplayName;
         }
