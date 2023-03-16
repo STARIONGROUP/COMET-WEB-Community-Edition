@@ -248,7 +248,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
@@ -258,7 +258,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(checkBox.Instance.Checked, Is.True);
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
 
             await renderer.InvokeAsync(() => checkBox.Instance.Checked = false);
@@ -275,7 +275,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
 
             this.viewModel.Person = new Person
@@ -302,7 +302,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
 
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
@@ -334,19 +334,12 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
                 Assert.That(this.viewModel.IsAllowedToWrite, Is.True);
             });
 
             var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
                 .First(x => x.Instance.Id == "hideDeprecatedItems");
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(checkBox.Instance.Checked, Is.False);
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
 
             await renderer.InvokeAsync(() => checkBox.Instance.Checked = true);
             await renderer.InvokeAsync(() => renderer.Instance.HideOrShowDeprecatedItems(true));
@@ -355,7 +348,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(checkBox.Instance.Checked, Is.True);
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
         }
 
@@ -368,8 +361,14 @@ namespace COMETwebapp.Tests.Components.UserManagement
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+                Assert.That(renderer.Markup, Does.Not.Contain(this.person1.Name));
             });
+
+            var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
+               .First(x => x.Instance.Id == "hideDeprecatedItems");
+
+            await renderer.InvokeAsync(() => checkBox.Instance.Checked = true);
+            await renderer.InvokeAsync(() => renderer.Instance.HideOrShowDeprecatedItems(true));
 
             var undeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
             var currentPerson = this.viewModel.Person;
