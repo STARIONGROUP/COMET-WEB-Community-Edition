@@ -42,6 +42,12 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
             this.ElementName = ((ElementBase)valueSet.Container.Container).Name;
             var parameter = (ParameterOrOverrideBase)valueSet.Container;
             this.ParameterName = parameter.ParameterType.Name;
+
+            if (parameter.Scale != null)
+            {
+                this.ParameterName += $" [{parameter.Scale.ShortName}]";
+            }
+
             this.ParameterType = parameter.ParameterType;
             this.OptionName = valueSet.ActualOption?.Name ?? "-";
             this.ActualFiniteStateName = valueSet.ActualState?.Name ?? "-";
