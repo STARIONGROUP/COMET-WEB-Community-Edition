@@ -36,7 +36,7 @@ Copyright (c) 2023 RHEA System S.A.
 				</div>
 			</div>
 			@{
-				var publishedValues = Math.Round((double)this.ValueSets.Count(d => d.Published.SequenceEqual(d.ActualValue)) * 100 / this.ValueSets.Count());
+				var publishedValues = Math.Round(this.ValueSets.Count(d => d.Published.SequenceEqual(d.ActualValue)) * 100.0 / this.ValueSets.Count());
 				var publishableValues = 100 - publishedValues;
 				<div class="row m-0">
 					<AntDesign.Progress Percent="publishedValues"></AntDesign.Progress>
@@ -59,7 +59,7 @@ Copyright (c) 2023 RHEA System S.A.
 				</div>
 			</div>
 			@{
-				var defaultValues = Math.Round((double)this.ValueSets.Count(d => d.ActualValue.Count(el => !el.Equals("-")) == 0) * 100 / this.ValueSets.Count());
+				var defaultValues = Math.Round(this.ValueSets.Count(d => d.ActualValue.Count(el => !el.Equals("-")) == 0) * 100.0 / this.ValueSets.Count());
 				var notDefaultValues = 100 - defaultValues;
 				var parameterValueSets = this.ValueSets.Where(d => d.ActualValue.Count(el => !el.Equals("-")) == 0);
 				<div class="row m-0">
