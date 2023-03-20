@@ -69,8 +69,9 @@ namespace COMETwebapp.Components.Shared
 
             this.Disposables.Add(this.ViewModel);
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.CurrentIteration)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.CurrentIteration
+                , x => x.ViewModel.IsLoading)
+                .Subscribe(_ =>  this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

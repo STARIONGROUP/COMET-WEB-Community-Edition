@@ -153,9 +153,10 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
-        protected override void OnIterationChanged()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnIterationChanged()
         {
-            base.OnIterationChanged();
+            await base.OnIterationChanged();
 
             this.Elements.Clear();
 
@@ -173,14 +174,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.Domains.AddRange(this.TotalDomains.Select(d => d.Name));
 
             this.Options = this.CurrentIteration.Option.OrderBy(x => x.Name).Select(x => x.Name).ToList();
+            this.IsLoading = false;
         }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        protected override void OnSessionRefreshed()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override Task OnSessionRefreshed()
         {
-            this.OnIterationChanged();
+            return this.OnIterationChanged();
         }
 
         /// <summary>

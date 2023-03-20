@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
 
     using CDP4Dal;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
@@ -51,8 +52,9 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
             this.ParameterDashboard = parameterDashboard;
 
             this.Disposables.Add(this.WhenAnyValue(x => x.FiniteStateSelector.SelectedActualFiniteState,
-                    x => x.OptionSelector.SelectedOption, x => x.ParameterTypeSelector.SelectedParameterType)
-                .Subscribe(_ => this.UpdateDashboards()));
+                    x => x.OptionSelector.SelectedOption, 
+                    x => x.ParameterTypeSelector.SelectedParameterType)
+                .SubscribeAsync(_ => this.UpdateDashboards()));
         }
 
         /// <summary>
@@ -88,25 +90,29 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        protected override void OnSessionRefreshed()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override Task OnSessionRefreshed()
         {
-            this.OnIterationChanged();
+            return this.OnIterationChanged();
         }
 
         /// <summary>
         /// Handles the change of <see cref="DomainOfExpertise" />
         /// </summary>
-        protected override void OnDomainChanged()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnDomainChanged()
         {
-            base.OnDomainChanged();
-            this.UpdateDashboards();
+            await base.OnDomainChanged();
+            await this.UpdateDashboards();
         }
 
         /// <summary>
         /// Update this view model properties
         /// </summary>
-        protected override void OnIterationChanged()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
         {
+            await base.OnIterationChanged();
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.FiniteStateSelector.CurrentIteration = this.CurrentIteration;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
@@ -116,19 +122,24 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
                 : this.SessionService.GetModelDomains((EngineeringModelSetup)this.CurrentIteration.IterationSetup.Container);
 
             this.CurrentDomain = this.CurrentIteration == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
-            this.UpdateDashboards();
+            await this.UpdateDashboards();
         }
 
         /// <summary>
         /// Update the dashboard view models properties
         /// </summary>
-        private void UpdateDashboards()
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task UpdateDashboards()
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
+
             this.ParameterDashboard.UpdateProperties(this.CurrentIteration, this.OptionSelector.SelectedOption,
                 this.FiniteStateSelector.SelectedActualFiniteState, this.ParameterTypeSelector.SelectedParameterType,
                 this.CurrentDomain, this.AvailableDomains);
 
             this.ElementDashboard.UpdateProperties(this.CurrentIteration, this.CurrentDomain);
+            this.IsLoading = false;
         }
     }
 }

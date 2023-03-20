@@ -27,12 +27,14 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
 
@@ -173,12 +175,19 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 
             this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object);
             this.viewModel.CurrentIteration = iteration;
-            this.viewModel.InitializeViewModel();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.viewModel.Dispose();
         }
 
         [Test]
-        public void VerifyViewModel()
+        public async Task VerifyViewModel()
         {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SelectionMediator, Is.Not.Null);
@@ -194,8 +203,9 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
         }
 
         [Test]
-        public void VerifyInitializeElements()
+        public async Task VerifyInitializeElements()
         {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             var elements = this.viewModel.InitializeElements().ToList();
 
             Assert.Multiple(() =>
@@ -211,8 +221,9 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
         }
 
         [Test]
-        public void VerifyOnOptionChange()
+        public async Task VerifyOnOptionChange()
         {
+            await this.viewModel.InitializeViewModel();
             var previousOption = this.viewModel.OptionSelector.SelectedOption;
             this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.Last();
             Assert.That(previousOption, Is.Not.EqualTo(this.viewModel.OptionSelector.SelectedOption));

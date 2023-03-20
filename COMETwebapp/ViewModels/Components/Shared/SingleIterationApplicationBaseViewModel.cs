@@ -34,6 +34,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
 
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities.DisposableObject;
+    using COMETwebapp.Extensions;
 
     using DynamicData.Binding;
 
@@ -50,15 +51,20 @@ namespace COMETwebapp.ViewModels.Components.Shared
         private Iteration currentIteration;
 
         /// <summary>
+        /// Backing field for <see cref="IsLoading" />
+        /// </summary>
+        private bool isLoading;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         protected SingleIterationApplicationBaseViewModel(ISessionService sessionService)
         {
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.CurrentIteration))
-                .Subscribe(_ => this.OnIterationChanged()));
+                .SubscribeAsync(_ => this.OnIterationChanged()));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(_ => this.OnDomainChanged()));
+            this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().SubscribeAsync(_ => this.OnDomainChanged()));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>()
                 .Where(x => x.Status == SessionStatus.EndUpdate)
@@ -78,6 +84,15 @@ namespace COMETwebapp.ViewModels.Components.Shared
         public DomainOfExpertise CurrentDomain { get; protected set; }
 
         /// <summary>
+        /// Value asserting that the current <see cref="ISingleIterationApplicationBaseViewModel" /> is loading
+        /// </summary>
+        public bool IsLoading
+        {
+            get => this.isLoading;
+            set => this.RaiseAndSetIfChanged(ref this.isLoading, value);
+        }
+
+        /// <summary>
         /// The current <see cref="Iteration" /> to work with
         /// </summary>
         public Iteration CurrentIteration
@@ -94,22 +109,28 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        protected abstract void OnSessionRefreshed();
+        /// <returns>A <see cref="Task"/></returns>
+        protected abstract Task OnSessionRefreshed();
 
         /// <summary>
         /// Handles the change of <see cref="DomainOfExpertise" />
         /// </summary>
-        protected virtual void OnDomainChanged()
+        /// <returns>A <see cref="Task"/></returns>
+        protected virtual Task OnDomainChanged()
         {
             this.CurrentDomain = this.CurrentIteration == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
-        protected virtual void OnIterationChanged()
+        /// <returns>A <see cref="Task" /></returns>
+        protected virtual async Task OnIterationChanged()
         {
+            this.IsLoading = true;
             this.CurrentDomain = this.CurrentIteration == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
+            await Task.CompletedTask;
         }
     }
 }

@@ -24,42 +24,40 @@
 
 namespace COMETwebapp.Components.Viewer
 {
-    using CDP4Common.EngineeringModelData;
-    
-    using COMETwebapp.Model;
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Support class for the <see cref="ViewerBody"/> component
+    /// Support class for the <see cref="ViewerBody" /> component
     /// </summary>
     public partial class ViewerBody
     {
         /// <summary>
-        /// The reference to the <see cref="CanvasComponent"/> component
+        /// The reference to the <see cref="CanvasComponent" /> component
         /// </summary>
         public CanvasComponent CanvasComponent { get; private set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// not automatically re-render after the completion of any returned <see cref="Task" />, because
         /// that would cause an infinite render loop.
         /// </summary>
         /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)" /> has been invoked
         /// on this component instance; otherwise <c>false</c>.
         /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// The <see cref="OnAfterRender(bool)" /> and <see cref="OnAfterRenderAsync(bool)" /> lifecycle methods
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// Use the <paramref name="firstRender" /> parameter to ensure that initialization work is only performed
         /// once.
         /// </remarks>
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -68,19 +66,23 @@ namespace COMETwebapp.Components.Viewer
 
             if (firstRender)
             {
-                await base.OnInitializedAsync();
-                this.ViewModel.InitializeViewModel();
-
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
-
-                this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
-                    .Subscribe(_ => this.UpdateUrl()));
-
-                this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ProductTreeViewModel.RootViewModel).Subscribe(async _ =>
-                {
-                    await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
-                }));
             }
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
+                .Subscribe(_ => this.UpdateUrl()));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ProductTreeViewModel.RootViewModel)
+                .SubscribeAsync(_ => this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel)));
         }
 
         /// <summary>
@@ -95,13 +97,19 @@ namespace COMETwebapp.Components.Viewer
             }
         }
 
-        /// <summary> 
-        /// Repopulates the scene starting from the passed <see cref="TreeNode"/>  
-        /// </summary> 
-        /// <param name="rootNode">the top node of the hierarchy that needs to be on scene</param> 
-        /// <returns>an asynchronous operation</returns> 
+        /// <summary>
+        /// Repopulates the scene starting from the passed <see cref="TreeNode" />
+        /// </summary>
+        /// <param name="rootNode">the top node of the hierarchy that needs to be on scene</param>
+        /// <returns>an asynchronous operation</returns>
         private async Task RepopulateScene(INodeComponentViewModel rootNode)
         {
+            if (this.CanvasComponent == null)
+            {
+                return;
+            }
+
+            this.ViewModel.IsLoading = true;
             await this.CanvasComponent.ViewModel.ClearScene();
 
             var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.Node.SceneObject.Primitive is not null).Select(x => x.Node.SceneObject).ToList();
@@ -110,6 +118,8 @@ namespace COMETwebapp.Components.Viewer
             {
                 await this.CanvasComponent.ViewModel.AddSceneObject(sceneObject);
             }
+
+            this.ViewModel.IsLoading = false;
         }
 
         /// <summary>
