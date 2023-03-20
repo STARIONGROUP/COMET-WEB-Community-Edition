@@ -282,7 +282,8 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             iteration.Element.AddRange(new List<ElementDefinition>{element1, element2, element3});
             iteration.TopElement = element1;
             this.viewModel.CurrentIteration = iteration;
-            
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OptionSelector.AvailableOptions.ToList(), Has.Count.EqualTo(1));
@@ -294,6 +295,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(themalDomain);
             CDPMessageBus.Current.SendMessage(new DomainChangedEvent(iteration, themalDomain));
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             var buttonToDo = renderer.Find(".todo-btn");
             await renderer.InvokeAsync(() => buttonToDo.ClickAsync(new MouseEventArgs()));

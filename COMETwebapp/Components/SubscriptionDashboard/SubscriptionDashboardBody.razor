@@ -23,34 +23,35 @@
 @using COMETwebapp.Extensions
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SubscriptionDashboard.ISubscriptionDashboardBodyViewModel>
 
-<div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
-    <div class="col-2 width-fit-content">
-        <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
+        <div class="col-2 width-fit-content">
+            <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
+        </div>
+        <div class="col-2 width-fit-content">
+            <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+        </div>
+        <DxTreeView>
+            <Nodes>
+                <DxTreeViewNode Name="SubscribedTable" Text="@this.SubscriptionTableTitle" Expanded="true" CssClass="color-title">
+                    <Nodes>
+                        <DxTreeViewNode>
+                            <Template>
+                                <SubscribedTable ViewModel="@this.ViewModel.SubscribedTable"/>
+                            </Template>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeViewNode>
+                <DxTreeViewNode Name="DomainOfExpertiseTable" Text="@this.DomainOfExpertiseTableTitle" Expanded="true" CssClass="color-title">
+                    <Nodes>
+                        <DxTreeViewNode>
+                            <Template>
+                                <DomainOfExpertiseSubscriptionTable ViewModel="@this.ViewModel.DomainOfExpertiseSubscriptionTable" OnMissingValueClick="@this.RedirectToParameterEditor"/>
+                            </Template>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeViewNode>
+            </Nodes>
+        </DxTreeView>
     </div>
-    <div class="col-2 width-fit-content">
-        <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
-    </div>
-    <DxTreeView>
-        <Nodes>
-            <DxTreeViewNode Name="SubscribedTable" Text="@this.SubscriptionTableTitle" Expanded="true" CssClass="color-title">
-                <Nodes>
-                    <DxTreeViewNode>
-                        <Template>
-                            <SubscribedTable ViewModel="@this.ViewModel.SubscribedTable"/>
-                        </Template>
-                    </DxTreeViewNode>
-                </Nodes>
-            </DxTreeViewNode>
-            <DxTreeViewNode Name="DomainOfExpertiseTable" Text="@this.DomainOfExpertiseTableTitle" Expanded="true" CssClass="color-title">
-                <Nodes>
-                    <DxTreeViewNode>
-                        <Template>
-                            <DomainOfExpertiseSubscriptionTable ViewModel="@this.ViewModel.DomainOfExpertiseSubscriptionTable" OnMissingValueClick="@this.RedirectToParameterEditor"/>
-                        </Template>
-                    </DxTreeViewNode>
-                </Nodes>
-            </DxTreeViewNode>
-        </Nodes>
-    </DxTreeView>
-</div>
-
+</LoadingComponent>

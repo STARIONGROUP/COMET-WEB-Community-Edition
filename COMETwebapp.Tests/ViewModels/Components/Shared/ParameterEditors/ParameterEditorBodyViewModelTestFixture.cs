@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -39,6 +40,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
+    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using Moq;
@@ -156,17 +158,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
             var subscriptionService = new Mock<ISubscriptionService>();
 
-            var paramerTypesList = new List<ParameterType>()
-            {
-                new TextParameterType() {Name = "textParamType"},
-                new BooleanParameterType(){ Name = "booleanParamType" },
-                new CompoundParameterType(){ Name = "compoundParamType" },
-                new EnumerationParameterType(){ Name = "enumParamType" },
-                new TextParameterType(){ Name = "textParamType" }
-            };
-
             this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object);
             this.viewModel.CurrentIteration = iteration;
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.viewModel.Dispose();
         }
 
         [Test]
@@ -186,8 +185,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         }
 
         [Test]
-        public void VerifyInitializeViewModel()
+        public async Task VerifyInitializeViewModel()
         {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Elements, Is.Not.Null);
@@ -196,9 +197,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         }
 
         [Test]
-        public void VerifyApplyFilters()
+        public async Task VerifyApplyFilters()
         {
-            this.viewModel.InitializeViewModel();
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             var firstElement = this.viewModel.Elements.First();
 
             this.viewModel.OptionSelector.SelectedOption = null;
@@ -216,6 +218,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
             this.viewModel.ElementSelector.SelectedElementBase = null;
             this.viewModel.ParameterTypeSelector.SelectedParameterType = new TextParameterType() { Name = "textParamType" };
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             this.viewModel.ApplyFilters(this.viewModel.Elements);
 
             Assert.Multiple(() =>
@@ -225,6 +229,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
             this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
             this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentIteration.DefaultOption;
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             this.viewModel.ApplyFilters(this.viewModel.Elements);
 
             Assert.Multiple(() =>

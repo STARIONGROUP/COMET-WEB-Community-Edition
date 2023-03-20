@@ -23,22 +23,24 @@
 @using COMETwebapp.Extensions
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.Viewer.IViewerBodyViewModel>
 
-<div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
-    <div class="col">
-        <div class="width-fit-content">
-            <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
+        <div class="col">
+            <div class="width-fit-content">
+                <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+            </div> 
         </div> 
+        <div id="gridParent">
+            <div id="leftColumn">
+                <ProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
+            </div>
+            <div id="center-container">
+                <CanvasComponent @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel" />
+            </div>
+            <div id="rightColumn">
+                <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel" />
+                <MultipleActualFiniteStateSelector ViewModel="this.ViewModel.MultipleFiniteStateSelector" />
+            </div>
+        </div>
     </div> 
-</div> 
-<div id="gridParent"> 
-    <div id="leftColumn">
-        <ProductTree ViewModel="this.ViewModel.ProductTreeViewModel"/>
-    </div> 
-    <div id="center-container"> 
-        <CanvasComponent @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel"/> 
-    </div> 
-    <div id="rightColumn">
-        <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel"/>
-        <MultipleActualFiniteStateSelector ViewModel="this.ViewModel.MultipleFiniteStateSelector"/>
-    </div> 
-</div> 
+</LoadingComponent>

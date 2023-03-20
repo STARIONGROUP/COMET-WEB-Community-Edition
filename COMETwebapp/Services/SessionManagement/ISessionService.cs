@@ -53,11 +53,6 @@ namespace COMETwebapp.Services.SessionManagement
         bool IsSessionOpen { get; set; }
 
         /// <summary>
-        /// Event for when the session has been refreshed.
-        /// </summary>
-        event EventHandler OnSessionRefreshed;
-
-        /// <summary>
         /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
         /// </summary>
         /// <returns>The <see cref="SiteDirectory" /></returns>

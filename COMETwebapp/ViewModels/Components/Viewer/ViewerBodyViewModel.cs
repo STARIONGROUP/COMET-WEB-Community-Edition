@@ -93,48 +93,45 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator);
             this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
 
-            this.SessionService.OnSessionRefreshed += (_, _) =>
-            {
-                this.Elements = this.InitializeElements().ToList();
-                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
-            };
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates).Subscribe(_ =>
-            {
-                this.InitializeElementsAndCreateTree();
-            }));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(_ =>
-            {
-                this.InitializeElementsAndCreateTree();
-            }));
+            this.Disposables.Add(this.WhenAnyValue(/*Need fix of issue #308 x => x.MultipleFiniteStateSelector.SelectedFiniteStates,*/
+                x => x.OptionSelector.SelectedOption)
+                .Subscribe(_ => this.InitializeElementsAndCreateTree()));
         }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        protected override void OnSessionRefreshed()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override Task OnSessionRefreshed()
         {
-            this.OnIterationChanged();
+            return this.OnIterationChanged();
         }
 
         /// <summary>
         /// Update this view model properties
         /// </summary>
-        protected override void OnIterationChanged()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
         {
+            await base.OnIterationChanged();
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
+
+            await this.InitializeViewModel();
         }
 
         /// <summary>
         /// Initializes this <see cref="IViewerBodyViewModel"/>
         /// </summary>
-        public void InitializeViewModel()
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task InitializeViewModel()
         {
-            this.Elements = this.InitializeElements().ToList();
+            this.IsLoading = true;
+            await Task.Delay(1);
+
             this.OptionSelector.SelectedOption = this.CurrentIteration?.DefaultOption;
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
+            
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -151,6 +148,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public void InitializeElementsAndCreateTree()
         {
             this.Elements = this.InitializeElements().ToList();
+
             this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
         }
     }

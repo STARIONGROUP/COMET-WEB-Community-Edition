@@ -72,10 +72,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         List<ElementBase> Elements { get; set; }
 
-       /// <summary>
+        /// <summary>
         /// Initializes this <see cref="IViewerBodyViewModel"/>
         /// </summary>
-        void InitializeViewModel();
+        /// <returns>A <see cref="Task"/></returns>
+        Task InitializeViewModel();
 
         /// <summary>
         /// Create the <see cref="ElementBase"/> based on the current <see cref="Iteration"/>

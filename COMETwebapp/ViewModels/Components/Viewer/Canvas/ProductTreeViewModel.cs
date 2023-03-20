@@ -133,7 +133,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             IEnumerable<ActualFiniteState> selectedActualFiniteStates)
         {
             var treeElements = productTreeElements.ToList();
-
+            
             if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null) 
             {
                 var topElement = treeElements.First();

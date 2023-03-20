@@ -84,11 +84,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IParameterTableViewModel ParameterTableViewModel { get; set; }
 
         /// <summary>
-        /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
-        /// </summary>
-        void InitializeViewModel();
-
-        /// <summary>
         /// Apply all the filters selected in the <param name="elements"/> and replace the data of <see cref="FilteredElements"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
@@ -135,5 +130,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <returns>the name of the <see cref="DomainOfExpertise"/></returns>
         string QueryDomainOfExpertiseName();
+
+        /// <summary>
+        /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        Task InitializeViewModel();
     }
 }

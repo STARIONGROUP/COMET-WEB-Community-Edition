@@ -24,9 +24,6 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
 
@@ -35,54 +32,17 @@ namespace COMETwebapp.Components.ParameterEditor
     using ReactiveUI;
 
     /// <summary>
-    /// Support class for the <see cref="ParameterEditorBody"/> component
+    /// Support class for the <see cref="ParameterEditorBody" /> component
     /// </summary>
     public partial class ParameterEditorBody
     {
         /// <summary>
-        /// The initial <see cref="ElementBase" />
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
         /// </summary>
-        [Parameter]
-        public ElementBase InitialElementBase { get; set; }
-
-        /// <summary>
-        /// The initial <see cref="Option" />
-        /// </summary>
-        [Parameter]
-        public Option InitialOption { get; set; }
-
-        /// <summary>
-        /// The initial <see cref="ActualFiniteState" />
-        /// </summary>
-        [Parameter]
-        public ActualFiniteState InitialActualFiniteState { get; set; }
-
-        /// <summary>
-        /// The initial <see cref="ParameterType" />
-        /// </summary>
-        [Parameter]
-        public ParameterType InitialParameterType { get; set; }
-
-        /// <summary>
-        /// The initial <see cref="ElementBase" />
-        /// </summary>
-        [Parameter]
-        public bool IsOwnedParameters { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
+        protected override void OnInitialized()
         {
-            base.OnParametersSet();
-            this.ViewModel.InitializeViewModel();
-
-            this.ViewModel.ElementSelector.SelectedElementBase = this.InitialElementBase;
-            this.ViewModel.OptionSelector.SelectedOption = this.InitialOption;
-            this.ViewModel.FiniteStateSelector.SelectedActualFiniteState = this.InitialActualFiniteState;
-            this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.InitialParameterType;
-            this.ViewModel.IsOwnedParameters = this.IsOwnedParameters;
+            base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
                     x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,

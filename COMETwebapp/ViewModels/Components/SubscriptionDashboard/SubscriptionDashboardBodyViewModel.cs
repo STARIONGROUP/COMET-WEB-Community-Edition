@@ -52,7 +52,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 
             this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption,
                     x => x.ParameterTypeSelector.SelectedParameterType)
-                .Subscribe(_ => this.UpdateTables()));
+                .SubscribeAsync(_ => this.UpdateTables()));
         }
 
         /// <summary>
@@ -78,9 +78,10 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// <summary>
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
-        protected override void OnIterationChanged()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
         {
-            base.OnIterationChanged();
+            await base.OnIterationChanged();
 
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
@@ -104,28 +105,35 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        protected override void OnSessionRefreshed()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnSessionRefreshed()
         {
-            this.OnIterationChanged();
-            this.UpdateTables();
+            await this.OnIterationChanged();
+            await this.UpdateTables();
         }
 
         /// <summary>
         /// Handles the change of <see cref="DomainOfExpertise" />
         /// </summary>
-        protected override void OnDomainChanged()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override Task OnDomainChanged()
         {
             base.OnDomainChanged();
-            this.OnIterationChanged();
+            return this.OnIterationChanged();
         }
 
         /// <summary>
         /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
         /// </summary>
-        private void UpdateTables()
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task UpdateTables()
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
+
             this.SubscribedTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
             this.DomainOfExpertiseSubscriptionTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
+            this.IsLoading = false;
         }
     }
 }

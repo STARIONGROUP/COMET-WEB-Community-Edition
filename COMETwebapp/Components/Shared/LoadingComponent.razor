@@ -19,28 +19,14 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Utilities
-@using COMETwebapp.Extensions
-@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelDashboard.IModelDashboardBodyViewModel>
 
-<LoadingComponent IsVisible="this.ViewModel.IsLoading">
-    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="container-fluid">
-        <div class="row">
-            <div class="col-2 width-fit-content">
-                <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
-            </div>
-            <div class="col-2 width-fit-content">
-                <FiniteStateSelector ViewModel="@(this.ViewModel.FiniteStateSelector)"/>
-            </div>
-            <div class="col-2 width-fit-content">
-                <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
-            </div>
-            <div class="row">
-                <ParameterDashboard ViewModel="@(this.ViewModel.ParameterDashboard)" OnToDoClick="@(this.RedirectToParameterEditor)"/>
-            </div>
-            <div class="row">
-                <ElementDashboard ViewModel="@(this.ViewModel.ElementDashboard)"/>
-            </div>
-        </div>
+@if (this.IsVisible)
+{
+    <div class="splash-screen">
+            <div class="spinner-border"></div>
+            <div class="splash-screen-caption">COMET Community Edition</div>
+            <div class="splash-screen-text">Loading...</div>
     </div>
-</LoadingComponent>
+}
+
+@this.ChildContent

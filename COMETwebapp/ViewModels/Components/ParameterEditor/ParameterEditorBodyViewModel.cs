@@ -117,39 +117,45 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 x=>x.OptionSelector.SelectedOption,
                 x=>x.FiniteStateSelector.SelectedActualFiniteState,
                 x=>x.ParameterTypeSelector.SelectedParameterType,
-                x=>x.IsOwnedParameters).Subscribe(_ =>
-            {
-                this.InitializeViewModel();
-            }));
+                x=>x.IsOwnedParameters).SubscribeAsync(_ => this.InitializeViewModel()));
         }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        protected override void OnSessionRefreshed()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override Task OnSessionRefreshed()
         {
-            this.OnIterationChanged();
+            return this.OnIterationChanged();
         }
 
         /// <summary>
         /// Update this view model properties
         /// </summary>
-        protected override void OnIterationChanged()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
         {
+            await base.OnIterationChanged();
             this.ElementSelector.CurrentIteration = this.CurrentIteration;
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.FiniteStateSelector.CurrentIteration = this.CurrentIteration;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
-            this.InitializeViewModel();
+            await this.InitializeViewModel();
         }
 
         /// <summary>
         /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
         /// </summary>
-        public void InitializeViewModel()
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task InitializeViewModel()
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
+
             this.Elements = this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
             this.ApplyFilters(this.Elements);
+
+            this.IsLoading = false;
         }
 
         /// <summary>

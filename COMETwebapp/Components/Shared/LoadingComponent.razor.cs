@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ISingleIterationApplicationBaseViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="LoadingComponent.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,36 +22,25 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Shared
+namespace COMETwebapp.Components.Shared
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp.Utilities.DisposableObject;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Base view model for any application that will need only one <see cref="Iteration" />
+    /// The <see cref="LoadingComponent" /> is used to warn the user that something is loading and aware him that the application is not frozen/not responsive.
     /// </summary>
-    public interface ISingleIterationApplicationBaseViewModel : IDisposableObject
+    public partial class LoadingComponent
     {
         /// <summary>
-        /// The current <see cref="Iteration" /> to work with
+        /// Value asserting that the <see cref="LoadingComponent" /> should be visible or not
         /// </summary>
-        Iteration CurrentIteration { get; set; }
+        [Parameter]
+        public bool IsVisible { get; set; }
 
         /// <summary>
-        /// Value asserting that the view model has set initial values at least once
+        /// The child content of the component
         /// </summary>
-        bool HasSetInitialValuesOnce { get; set; }
-
-        /// <summary>
-        /// Gets the current <see cref="DomainOfExpertise" />
-        /// </summary>
-        DomainOfExpertise CurrentDomain { get; }
-
-        /// <summary>
-        /// Value asserting that the current <see cref="ISingleIterationApplicationBaseViewModel" /> is loading
-        /// </summary>
-        bool IsLoading { get; set; }
+        [Parameter]
+        public RenderFragment ChildContent { get; set; }
     }
 }

@@ -21,35 +21,37 @@
 ------------------------------------------------------------------------------->
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SystemRepresentation.ISystemRepresentationBodyViewModel>
 
-<div class="row">
-    <div class="col">
-        <h6>Filter on Option:</h6>
-        <div class="width-fit-content">
-            <DxComboBox Data="this.ViewModel.Options"
-                        AllowUserInput="true"
-                        NullText="--Select--"
-                        Value="this.OptionSelected"
-                        ValueChanged="@((string option) => this.OnOptionFilterChange(option))"
-                        FilteringMode="DataGridFilteringMode.Contains"/>
-        </div>
-        <h6>Filter on Domain:</h6>
-        <div class="width-fit-content">
-            <DxComboBox Data="this.ViewModel.Domains"
-                        AllowUserInput="true"
-                        NullText="--Select--"
-                        Value="this.DomainSelected"
-                        ValueChanged="@((string domain) => this.OnDomainFilterChange(domain))"
-                        FilteringMode="DataGridFilteringMode.Contains"/>
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <div class="row">
+        <div class="col">
+            <h6>Filter on Option:</h6>
+            <div class="width-fit-content">
+                <DxComboBox Data="this.ViewModel.Options"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.OptionSelected"
+                            ValueChanged="@((string option) => this.OnOptionFilterChange(option))"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+            </div>
+            <h6>Filter on Domain:</h6>
+            <div class="width-fit-content">
+                <DxComboBox Data="this.ViewModel.Domains"
+                            AllowUserInput="true"
+                            NullText="--Select--"
+                            Value="this.DomainSelected"
+                            ValueChanged="@((string domain) => this.OnDomainFilterChange(domain))"
+                            FilteringMode="DataGridFilteringMode.Contains"/>
+            </div>
         </div>
     </div>
-</div>
 
 
-<div id="gridParent">
-    <div id="leftColumn">
-        <SystemTree ViewModel="this.ViewModel.SystemTreeViewModel"/>
+    <div id="gridParent">
+        <div id="leftColumn">
+            <SystemTree ViewModel="this.ViewModel.SystemTreeViewModel"/>
+        </div>
+        <div id="rightColumn">
+            <ElementDefinitionDetails ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
+        </div>
     </div>
-    <div id="rightColumn">
-        <ElementDefinitionDetails ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
-    </div>
-</div>
+</LoadingComponent>

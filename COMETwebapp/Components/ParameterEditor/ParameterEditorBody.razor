@@ -23,39 +23,40 @@
 @using COMETwebapp.Extensions
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
-<div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="container-fluid">
-    <div class="row ">
-        <div class="col">
-            <div class="width-fit-content">
-                <ElementBaseSelector ViewModel="this.ViewModel.ElementSelector"></ElementBaseSelector>
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="container-fluid">
+        <div class="row ">
+            <div class="col">
+                <div class="width-fit-content">
+                    <ElementBaseSelector ViewModel="this.ViewModel.ElementSelector"></ElementBaseSelector>
+                </div>
+            </div>
+            <div class="col">
+                <div class="width-fit-content">
+                    <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelector"></ParameterTypeSelector>
+                </div>
+            </div>
+            <div class="col">
+                <div class="width-fit-content">
+                    <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
+                </div>
+            </div>
+            <div class="col">
+                <div class="width-fit-content">
+                    <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelector"></FiniteStateSelector>
+                </div>
+            </div>
+            <div class="col">
+                <div class="width-fit-content">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
+                                CheckType="CheckType.Switch">
+                        Only Parameters owned by @this.ViewModel.QueryDomainOfExpertiseName() domain
+                    </DxCheckBox>
+                </div>
             </div>
         </div>
-        <div class="col">
-            <div class="width-fit-content">
-                <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelector"></ParameterTypeSelector>
-            </div>
-        </div>
-        <div class="col">
-            <div class="width-fit-content">
-                <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
-            </div>
-        </div>
-        <div class="col">
-            <div class="width-fit-content">
-                <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelector"></FiniteStateSelector>
-            </div>
-        </div>
-        <div class="col">
-            <div class="width-fit-content">
-                <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
-                            CheckType="CheckType.Switch">
-                    Only Parameters owned by @this.ViewModel.QueryDomainOfExpertiseName() domain
-                </DxCheckBox>
-            </div>
+        <div class="row">
+            <ParameterTable ViewModel="this.ViewModel.ParameterTableViewModel"/>
         </div>
     </div>
-    <div class="row">
-        <ParameterTable ViewModel="this.ViewModel.ParameterTableViewModel"/>
-    </div>
-</div>
-
+</LoadingComponent>
