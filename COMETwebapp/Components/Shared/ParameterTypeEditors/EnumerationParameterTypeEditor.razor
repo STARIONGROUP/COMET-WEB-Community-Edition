@@ -21,17 +21,20 @@
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 @using CDP4Common.SiteDirectoryData;
+
+@using COMETwebapp.Extensions;
 @using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-@{
-    if (this.ViewModel is EnumerationParameterTypeEditorViewModel enumerationParameterTypeEditorViewModel)
-    {
-         if (this.ViewModel.ParameterType.AllowMultiSelect)
-        {
 
-            <div class="input-group" id="dropdown-customization-target-container" style="width:200px">
-                <DxTextBox ReadOnly=true>@(this.ViewModel.ValueArray.First().Length > 15 ? this.ViewModel.ValueArray.First().Substring(0, 11) + "..." : this.ViewModel.ValueArray.First())</DxTextBox>
-                <span class="dropdownIcon" @onclick="@(() => enumerationParameterTypeEditorViewModel.IsOnEditMode = !enumerationParameterTypeEditorViewModel.IsOnEditMode)"><i class="oi oi-caret-bottom"></i></span>
+    @if (this.ViewModel is IEnumerationParameterTypeEditorViewModel enumerationParameterTypeEditorViewModel)
+    {
+        @if (this.ViewModel.ParameterType.AllowMultiSelect)
+        {
+            <div  id="dropdown-customization-target-container">
+                <DxTextBox NullText="-" Text="@enumerationParameterTypeEditorViewModel.SelectedEnumerationValueDefinitions.AsCommaSeparated()" CssClass="textBoxEllipsis" ReadOnly=true/>
+                <div class="dropdownIcon">
+                    <span @onclick="@(() => enumerationParameterTypeEditorViewModel.IsOnEditMode = !enumerationParameterTypeEditorViewModel.IsOnEditMode)"><i class="oi oi-caret-bottom"></i></span>
+                </div>
             </div>
             <DxDropDown @bind-IsOpen="@enumerationParameterTypeEditorViewModel.IsOnEditMode"
             Width="300" AllowResize="true"
@@ -70,8 +73,5 @@
             ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)" />
         }      
     }
-}
-
-
 
 

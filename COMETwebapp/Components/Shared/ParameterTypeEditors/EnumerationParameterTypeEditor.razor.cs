@@ -52,13 +52,14 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         {
             base.OnParametersSet();
 
-            var vm = (EnumerationParameterTypeEditorViewModel) ViewModel;
-             
-            this.Disposables.Add(vm.WhenAnyValue(x => x.IsOnEditMode)
+            if (this.ViewModel is IEnumerationParameterTypeEditorViewModel vm)
+            {
+                this.Disposables.Add(vm.WhenAnyValue(x => x.IsOnEditMode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            
-            this.Disposables.Add(vm.WhenAnyValue(x => x.SelectAllChecked)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+                this.Disposables.Add(vm.WhenAnyValue(x => x.SelectAllChecked)
+                    .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            }
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly, 
                 x => x.ViewModel.ValueArray)

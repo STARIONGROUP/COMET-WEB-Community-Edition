@@ -57,6 +57,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<EnumerationParameterType>> viewModelMock;
         private EventCallback<IValueSet> eventCallback;
+        private EnumerationParameterType parameterType1;
 
         [SetUp]
         public void SetUp()
@@ -94,12 +95,23 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
             var parameterType = new EnumerationParameterType
             {
-                Iid = Guid.NewGuid(),
+                Iid = Guid.NewGuid()
             };
-            
+
+            this.parameterType1 = new EnumerationParameterType
+            {
+                Iid = Guid.NewGuid(),
+                AllowMultiSelect = true
+            };
+
+            this.parameterType1.ValueDefinition.AddRange(enumerationData);
+
             parameterType.ValueDefinition.AddRange(enumerationData);
 
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<EnumerationParameterType>>();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.SelectedEnumerationValueDefinitions).Returns(enumerationValues);
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.EnumerationValueDefinitions).Returns(enumerationData);
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
@@ -159,6 +171,18 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             var textbox = this.renderedComponent.FindComponent<DxComboBox<string, string>>();
             this.editor.ViewModel.IsReadOnly = true;
             Assert.That(textbox.Instance.ReadOnly, Is.True);
+        }
+
+        [Test]
+        public void VerifyMultipleSelection()
+        {
+            this.viewModelMock.Setup(x => x.ParameterType).Returns(this.parameterType1);
+
+            this.renderedComponent.Render();
+
+            var textBox = this.renderedComponent.FindComponent<DxTextBox>();
+            Assert.That(textBox, Is.Not.Null);
+            Assert.That(textBox.Markup, Does.Contain("cube"));
         }
     }
 }

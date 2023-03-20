@@ -35,7 +35,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     /// <summary>
     /// ViewModel used to edit <see cref="EnumerationParameterType"/>
     /// </summary>
-    public class EnumerationParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<EnumerationParameterType>
+    public class EnumerationParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<EnumerationParameterType>, IEnumerationParameterTypeEditorViewModel
     {
         /// <summary>
         ///    The available <see cref="EnumerationValueDefinition"/>s
@@ -115,6 +115,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
+                if(this.SelectedEnumerationValueDefinitions.Count() == 0)
+                {
+                    valueString = "-";
+                }
+
                 var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
                     [0] = valueString
@@ -131,6 +136,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         public void OnCancelButtonClick()
         {
+            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
             this.IsOnEditMode = false;
         }
 
