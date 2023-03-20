@@ -28,11 +28,20 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using ReactiveUI;
+
+    using System.Collections.Generic;
+
     /// <summary>
     /// ViewModel used to edit <see cref="EnumerationParameterType"/>
     /// </summary>
     public class EnumerationParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<EnumerationParameterType>
     {
+        /// <summary>
+        ///    The available <see cref="EnumerationValueDefinition"/>s
+        /// </summary>
+        public IEnumerable<EnumerationValueDefinition> EnumerationValueDefinitions { get; set; }
+
         /// <summary>
         /// Creates a new instance of type <see cref="EnumerationParameterType"/>
         /// </summary>
@@ -41,6 +50,88 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="isReadOnly">The readonly state</param>
         public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
         {
+            this.EnumerationValueDefinitions = parameterType.ValueDefinition;
+            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
+        }
+
+        /// <summary>
+        ///    Names of selected <see cref="EnumerationValueDefinition"/>s
+        /// </summary>
+        public IEnumerable<string> SelectedEnumerationValueDefinitions { get; set; }
+
+        /// <summary>
+        ///     Backing field for <see cref="SelectAllChecked" />
+        /// </summary>
+        private bool selectAllChecked;
+
+        /// <summary>
+        /// Indicates if all elements are checked
+        /// </summary>
+        public bool SelectAllChecked
+        {
+            get => this.selectAllChecked;
+            set => this.RaiseAndSetIfChanged(ref this.selectAllChecked, value);
+        }
+        
+        /// <summary>
+        ///     Backing field for <see cref="IsOnEditMode" />
+        /// </summary>
+        private bool isOnEditMode;
+
+        /// <summary>
+        /// Indicates if confirmation popup is visible
+        /// </summary>
+        public bool IsOnEditMode
+        {
+            get => this.isOnEditMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
+        }
+
+        /// <summary>
+        /// Method invoked when select all is checked
+        /// </summary>
+        public void OnSelectAllChanged(bool value)
+        {
+            if (this.SelectAllChecked && !value)
+            {
+                this.SelectedEnumerationValueDefinitions = new List<string>();
+            }
+            else if (value)
+            {
+                this.SelectedEnumerationValueDefinitions = new List<string>(this.ParameterType.ValueDefinition.Select(x => x.Name));
+            }
+
+            this.SelectAllChecked = value;
+        }
+
+        /// <summary>
+        /// Method invoked when confirming selection of  <see cref="EnumerationValueDefinition"/>
+        /// </summary>
+        public async void OnConfirmButtonClick()
+        {
+            IEnumerable<string> elements = this.EnumerationValueDefinitions.Where(x => SelectedEnumerationValueDefinitions.Contains(x.Name)).Select(x => x.ShortName);
+
+            var value = string.Join("|", elements);
+
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
+            {
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                {
+                    [0] = valueString
+                };
+
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            }
+
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Method invoked when canceling the selection of <see cref="EnumerationValueDefinition"/>
+        /// </summary>
+        public void OnCancelButtonClick()
+        {
+            this.IsOnEditMode = false;
         }
 
         /// <summary>

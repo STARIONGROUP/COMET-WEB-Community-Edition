@@ -409,3 +409,10 @@ html, body, #app {
 .highlighted-item {
     background-color: #DEDFE4;
 }
+
+.dropdownIcon {
+    position: absolute;
+    right: 10px;
+    top: 4px;
+}
+
