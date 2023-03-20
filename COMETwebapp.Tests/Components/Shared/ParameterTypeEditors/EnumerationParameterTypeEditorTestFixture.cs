@@ -27,7 +27,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
+    
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -43,7 +43,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using Microsoft.AspNetCore.Components;
 
     using Moq;
-
+    
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -179,10 +179,36 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ParameterType).Returns(this.parameterType1);
 
             this.renderedComponent.Render();
-
+            
             var textBox = this.renderedComponent.FindComponent<DxTextBox>();
             Assert.That(textBox, Is.Not.Null);
             Assert.That(textBox.Markup, Does.Contain("cube"));
+
+            var dropDownButton = this.renderedComponent.Find(".dropdownIcon");
+            Assert.That(dropDownButton, Is.Not.Null);
+
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.IsOnEditMode).Returns(true);
+
+            this.renderedComponent.Render();
+
+            var listBox = this.renderedComponent.FindComponent<DxListBox<string, string>>();
+            Assert.That(listBox, Is.Not.Null);
+
+            var confirmButton = this.renderedComponent.Find("#confirmButton");
+            Assert.That(confirmButton, Is.Not.Null);
+
+            confirmButton.Click();
+
+            var cancelButton = this.renderedComponent.Find("#cancelButton");
+            Assert.That(cancelButton, Is.Not.Null);
+            cancelButton.Click();
+            
+            var checkBox = renderedComponent.FindComponent<DxCheckBox<bool>>();
+            Assert.That(checkBox, Is.Not.Null);
+
+            checkBox.Instance.Checked = true;
+
+            Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.SelectedEnumerationValueDefinitions, Has.Count.EqualTo(3));
         }
     }
 }
