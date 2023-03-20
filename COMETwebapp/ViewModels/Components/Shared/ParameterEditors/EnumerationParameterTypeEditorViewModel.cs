@@ -115,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                if(this.SelectedEnumerationValueDefinitions.Count() == 0)
+                if(!this.SelectedEnumerationValueDefinitions.Any())
                 {
                     valueString = "-";
                 }

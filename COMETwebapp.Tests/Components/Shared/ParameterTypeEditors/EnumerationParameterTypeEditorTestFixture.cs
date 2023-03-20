@@ -196,17 +196,19 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
             var confirmButton = this.renderedComponent.Find("#confirmButton");
             Assert.That(confirmButton, Is.Not.Null);
-
             confirmButton.Click();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnConfirmButtonClick();
 
             var cancelButton = this.renderedComponent.Find("#cancelButton");
             Assert.That(cancelButton, Is.Not.Null);
             cancelButton.Click();
-            
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnCancelButtonClick();
+
             var checkBox = renderedComponent.FindComponent<DxCheckBox<bool>>();
             Assert.That(checkBox, Is.Not.Null);
 
             checkBox.Instance.Checked = true;
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnSelectAllChanged(true);
 
             Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.SelectedEnumerationValueDefinitions, Has.Count.EqualTo(3));
         }
