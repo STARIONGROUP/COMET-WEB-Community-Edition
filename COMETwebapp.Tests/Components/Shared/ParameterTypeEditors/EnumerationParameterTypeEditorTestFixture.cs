@@ -203,7 +203,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             Assert.That(confirmButton, Is.Not.Null);
             confirmButton.Click();
             this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnConfirmButtonClick();
-
+            
             var cancelButton = this.renderedComponent.Find("#cancelButton");
             Assert.That(cancelButton, Is.Not.Null);
             cancelButton.Click();
@@ -215,6 +215,8 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             checkBox.Instance.Checked = true;
 
             Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.SelectedEnumerationValueDefinitions, Has.Count.EqualTo(3));
+
+            this.renderedComponent.InvokeAsync(() => this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnSelectAllChanged(true));
         }
     }
 }
