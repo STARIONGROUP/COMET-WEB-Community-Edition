@@ -117,7 +117,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         }
 
         [Test]
-        public async Task VerifySelectAll()
+        public void VerifySelectAll()
         {
             this.viewModel.OnSelectAllChanged(true);
             
@@ -134,7 +134,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         }
 
         [Test]
-        public async Task VerifyCancelSelection()
+        public void VerifyCancelSelection()
         {
             this.viewModel.OnCancelButtonClick();
 
@@ -147,7 +147,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         }
 
         [Test]
-        public async Task VerifyConfirmSelection()
+        public void VerifyConfirmSelection()
         {
             this.viewModel.OnSelectAllChanged(true);
 
