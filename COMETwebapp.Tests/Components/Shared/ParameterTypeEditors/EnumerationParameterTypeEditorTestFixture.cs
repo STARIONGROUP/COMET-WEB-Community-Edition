@@ -112,6 +112,8 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>();
             this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.SelectedEnumerationValueDefinitions).Returns(enumerationValues);
             this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.EnumerationValueDefinitions).Returns(enumerationData);
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.SelectAllChecked).Returns(false);
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.IsOnEditMode).Returns(true);
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
@@ -181,16 +183,19 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.renderedComponent.Render();
             
             var textBox = this.renderedComponent.FindComponent<DxTextBox>();
-            Assert.That(textBox, Is.Not.Null);
-            Assert.That(textBox.Markup, Does.Contain("cube"));
-
+            Assert.Multiple(() =>
+            {
+                Assert.That(textBox, Is.Not.Null);
+                Assert.That(textBox.Markup, Does.Contain("cube"));
+            });
+            
             var dropDownButton = this.renderedComponent.Find(".dropdownIcon");
-            Assert.That(dropDownButton, Is.Not.Null);
-
-            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.IsOnEditMode).Returns(true);
-
-            this.renderedComponent.Render();
-
+            Assert.Multiple(() =>
+            {
+                Assert.That(dropDownButton, Is.Not.Null);
+                Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.IsOnEditMode, Is.True);
+            });
+            
             var listBox = this.renderedComponent.FindComponent<DxListBox<string, string>>();
             Assert.That(listBox, Is.Not.Null);
 
@@ -208,7 +213,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             Assert.That(checkBox, Is.Not.Null);
 
             checkBox.Instance.Checked = true;
-            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnSelectAllChanged(true);
 
             Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.SelectedEnumerationValueDefinitions, Has.Count.EqualTo(3));
         }
