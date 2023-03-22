@@ -22,7 +22,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @inherits DisposableComponent
 <div>
     <DxTextBox InputCssClass="quantity-kind-parameter"
-               Text="@this.ViewModel.ValueArray.First()"
+               Text="@( this.ViewModel.CompoundIndex != -1 ? this.ViewModel.ValueArray[this.ViewModel.CompoundIndex] : this.ViewModel.ValueArray.First())"
                CssClass="parameter-input"
                TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
                ReadOnly="this.ViewModel.IsReadOnly"

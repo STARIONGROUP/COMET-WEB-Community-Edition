@@ -21,7 +21,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 @{
-    var values = this.ViewModel.ValueArray.First().Split(':');
+    var values = this.ViewModel.CompoundIndex != -1 ? this.ViewModel.ValueArray[this.ViewModel.CompoundIndex].Split(':') : this.ViewModel.ValueArray.First().Split(':');
         
     int.TryParse(values[0], out var hours);
     int.TryParse(values[1], out var minutes);

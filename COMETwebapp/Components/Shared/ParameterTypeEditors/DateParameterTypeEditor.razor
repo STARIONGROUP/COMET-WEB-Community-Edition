@@ -22,7 +22,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @using System.Globalization
 @inherits DisposableComponent
 @{
-    DateTime.TryParse(this.ViewModel.ValueArray.First(), out var dateTime);
+    DateTime.TryParse(this.ViewModel.CompoundIndex != -1 ? this.ViewModel.ValueArray[this.ViewModel.CompoundIndex] : this.ViewModel.ValueArray.First(), out var dateTime);
 
     <DxDateEdit CssClass="date-parameter-type"
                 Date="dateTime"

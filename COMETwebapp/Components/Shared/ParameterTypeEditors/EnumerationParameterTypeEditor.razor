@@ -68,7 +68,7 @@
             Data="this.ViewModel.ParameterType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name)"
             NullText="-"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-            Value="@(this.ViewModel.ValueArray.First())"
+            Value="@( this.ViewModel.CompoundIndex != -1 ? this.ViewModel.ValueArray[this.ViewModel.CompoundIndex] : this.ViewModel.ValueArray.First())"
             ReadOnly="this.ViewModel.IsReadOnly"
             ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)" />
         }      

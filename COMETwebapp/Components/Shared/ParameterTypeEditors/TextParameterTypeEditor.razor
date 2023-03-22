@@ -24,7 +24,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @{
     if (this.ViewModel.ParameterType.ShortName == SceneSettings.ColorShortName)
     {
-        var colorValue = this.ViewModel.ValueArray.First().ParseToHexColor();
+        var colorValue = this.ViewModel.CompoundIndex != -1 ? this.ViewModel.ValueArray[this.ViewModel.CompoundIndex].ParseToHexColor() : this.ViewModel.ValueArray.First().ParseToHexColor();
         <div class="parameter-row" id="color-section">
             <input type="color" 
                    id="color-picker" 

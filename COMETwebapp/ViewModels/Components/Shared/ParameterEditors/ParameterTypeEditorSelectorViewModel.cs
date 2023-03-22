@@ -40,6 +40,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         private readonly bool isReadOnly;
 
         /// <summary>
+        /// Gets the index of the value changed in the value sets
+        /// </summary>
+        private int CompoundIndex { get; set; }
+
+        /// <summary>
         /// The <see cref="IHaveValueSetViewModel" />
         /// </summary>
         private IHaveValueSetViewModel haveValueSetViewModel;
@@ -50,11 +55,12 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
         /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
         /// <param name="isReadOnly">Value asserting that the <see cref="IParameterEditorBaseViewModel{T}" /> should be readonly</param>
-        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly)
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1)
         {
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
             this.isReadOnly = isReadOnly;
+            this.CompoundIndex = compoundIndex;
         }
 
         /// <summary>
@@ -81,14 +87,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             this.haveValueSetViewModel = this.ParameterType switch
             {
-                BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly),
-                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly),
-                DateParameterType dateParameterType => new DateParameterTypeEditorViewModel(dateParameterType, this.ValueSet, this.isReadOnly),
-                DateTimeParameterType dateTimeParameterType => new DateTimeParameterTypeEditorViewModel(dateTimeParameterType, this.ValueSet, this.isReadOnly),
-                EnumerationParameterType enumerationParameterType => new EnumerationParameterTypeEditorViewModel(enumerationParameterType, this.ValueSet, this.isReadOnly),
-                QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly),
-                TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly),
-                TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly),
+                BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                DateParameterType dateParameterType => new DateParameterTypeEditorViewModel(dateParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                DateTimeParameterType dateTimeParameterType => new DateTimeParameterTypeEditorViewModel(dateTimeParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                EnumerationParameterType enumerationParameterType => new EnumerationParameterTypeEditorViewModel(enumerationParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
+                TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly, this.CompoundIndex),
                 _ => throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented")
             };
 

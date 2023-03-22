@@ -34,7 +34,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     /// <summary>
     /// ViewModel used to edit <see cref="CompoundParameterType" />
     /// </summary>
-    public class CompoundParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<CompoundParameterType>
+    public class CompoundParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<CompoundParameterType>, ICompoundParameterTypeEditorViewModel
     {
         /// <summary>
         /// Creates a new instance of type <see cref="CompoundParameterTypeEditorViewModel" />
@@ -42,7 +42,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1) : base(parameterType, valueSet, isReadOnly, compoundIndex)
         {
         }
 
@@ -70,6 +70,17 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         public IOrientationViewModel CreateOrientationViewModel()
         {
             return new OrientationViewModel(this.ValueSet, this.ParameterValueChanged);
+        }
+
+        /// <summary>
+        /// Creates a view model for the corresponding editor
+        /// </summary>
+        /// <param name="parameterType">the parameter type</param>
+        /// <param name="compoundIndex" the index of the <see cref="CompoundParameterType"/> in the <see cref="ParameterTypeComponent"/></param>
+        /// <returns>the view model</returns>
+        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int compoundIndex)
+        {
+            return new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, compoundIndex);
         }
     }
 }
