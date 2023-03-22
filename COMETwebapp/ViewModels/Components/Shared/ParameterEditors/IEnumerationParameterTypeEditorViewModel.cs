@@ -26,6 +26,9 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.SiteDirectoryData;
 
+    /// <summary>
+    ///     Interface definition for <see cref="EnumerationParameterTypeEditorViewModel" />
+    /// </summary>
     public interface IEnumerationParameterTypeEditorViewModel
     {
         /// <summary>

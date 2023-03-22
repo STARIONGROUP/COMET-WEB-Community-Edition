@@ -156,7 +156,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(this.viewModel.SelectedEnumerationValueDefinitions, Is.Not.Null);
                 Assert.That(this.viewModel.SelectedEnumerationValueDefinitions.ToList(), Has.Count.EqualTo(3));
                 Assert.That(this.viewModel.IsOnEditMode, Is.False);
-                Assert.That(async () => this.viewModel.OnConfirmButtonClick(), Throws.Nothing);
+                Assert.That(() => this.viewModel.OnConfirmButtonClick(), Throws.Nothing);
             });
         }
     }
