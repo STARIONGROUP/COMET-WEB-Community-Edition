@@ -20,11 +20,58 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
+@using CDP4Common.SiteDirectoryData;
 
-<DxComboBox CssClass="enumeration-parameter-type"
+@using COMETwebapp.Extensions;
+@using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
+
+    @if (this.ViewModel is IEnumerationParameterTypeEditorViewModel enumerationParameterTypeEditorViewModel)
+    {
+        @if (this.ViewModel.ParameterType.AllowMultiSelect)
+        {
+            <div  id="dropdown-customization-target-container">
+                <DxTextBox NullText="-" Text="@enumerationParameterTypeEditorViewModel.SelectedEnumerationValueDefinitions.AsCommaSeparated()" CssClass="textBoxEllipsis" ReadOnly=true/>
+                <div class="dropdownIcon">
+                    <span @onclick="@(() => enumerationParameterTypeEditorViewModel.IsOnEditMode = !enumerationParameterTypeEditorViewModel.IsOnEditMode)"><i class="oi oi-caret-bottom"></i></span>
+                </div>
+            </div>
+            <DxDropDown @bind-IsOpen="@enumerationParameterTypeEditorViewModel.IsOnEditMode"
+            Width="300" AllowResize="true"
+            PositionMode="DropDownPositionMode.Bottom"
+            PositionTarget="#dropdown-customization-target-container"
+            RestrictionTarget="#Navigation-DropDown-Customization"
+            CloseMode="DropDownCloseMode.Close"
+            PreventCloseOnPositionTargetClick="true"
+            HeaderVisible="false"
+            FooterVisible="true">
+                <BodyTemplate>
+
+                    <DxCheckBox CheckedChanged="@((bool value) => enumerationParameterTypeEditorViewModel.OnSelectAllChanged(value))">Select All</DxCheckBox>
+
+                    <DxListBox CssClass="enumeration-parameter-type"
+                   Data="enumerationParameterTypeEditorViewModel.EnumerationValueDefinitions.OrderBy(x=>x.Name).Select(x=>x.Name)"
+                       @bind-Values="enumerationParameterTypeEditorViewModel.SelectedEnumerationValueDefinitions"
+                   ReadOnly="this.ViewModel.IsReadOnly"
+                   SelectionMode="ListBoxSelectionMode.Multiple"
+                   ShowCheckboxes="true" />
+                </BodyTemplate>
+                <FooterTextTemplate>
+                    <DxButton Id="confirmButton" RenderStyle="ButtonRenderStyle.Primary" Text="Ok" Click="enumerationParameterTypeEditorViewModel.OnConfirmButtonClick" />
+                    <DxButton Id="cancelButton" RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="enumerationParameterTypeEditorViewModel.OnCancelButtonClick" />
+                </FooterTextTemplate>
+            </DxDropDown>
+        }
+        else
+        {
+            <DxComboBox CssClass="enumeration-parameter-type"
             Data="this.ViewModel.ParameterType.ValueDefinition.OrderBy(x=>x.Name).Select(x=>x.Name)"
             NullText="-"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
             Value="@(this.ViewModel.ValueArray.First())"
             ReadOnly="this.ViewModel.IsReadOnly"
-            ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)"/>
+            ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)" />
+        }      
+    }
+
+

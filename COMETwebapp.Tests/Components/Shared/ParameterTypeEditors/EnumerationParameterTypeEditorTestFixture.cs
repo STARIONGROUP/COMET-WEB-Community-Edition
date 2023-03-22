@@ -27,7 +27,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
+    
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -43,7 +43,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using Microsoft.AspNetCore.Components;
 
     using Moq;
-
+    
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -57,6 +57,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<EnumerationParameterType>> viewModelMock;
         private EventCallback<IValueSet> eventCallback;
+        private EnumerationParameterType parameterType1;
 
         [SetUp]
         public void SetUp()
@@ -94,12 +95,25 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
             var parameterType = new EnumerationParameterType
             {
-                Iid = Guid.NewGuid(),
+                Iid = Guid.NewGuid()
             };
-            
+
+            this.parameterType1 = new EnumerationParameterType
+            {
+                Iid = Guid.NewGuid(),
+                AllowMultiSelect = true
+            };
+
+            this.parameterType1.ValueDefinition.AddRange(enumerationData);
+
             parameterType.ValueDefinition.AddRange(enumerationData);
 
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<EnumerationParameterType>>();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.SelectedEnumerationValueDefinitions).Returns(enumerationValues);
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.EnumerationValueDefinitions).Returns(enumerationData);
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.SelectAllChecked).Returns(false);
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Setup(x => x.IsOnEditMode).Returns(true);
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
@@ -159,6 +173,50 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             var textbox = this.renderedComponent.FindComponent<DxComboBox<string, string>>();
             this.editor.ViewModel.IsReadOnly = true;
             Assert.That(textbox.Instance.ReadOnly, Is.True);
+        }
+
+        [Test]
+        public void VerifyMultipleSelection()
+        {
+            this.viewModelMock.Setup(x => x.ParameterType).Returns(this.parameterType1);
+
+            this.renderedComponent.Render();
+            
+            var textBox = this.renderedComponent.FindComponent<DxTextBox>();
+            Assert.Multiple(() =>
+            {
+                Assert.That(textBox, Is.Not.Null);
+                Assert.That(textBox.Markup, Does.Contain("cube"));
+            });
+            
+            var dropDownButton = this.renderedComponent.Find(".dropdownIcon");
+            Assert.Multiple(() =>
+            {
+                Assert.That(dropDownButton, Is.Not.Null);
+                Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.IsOnEditMode, Is.True);
+            });
+            
+            var listBox = this.renderedComponent.FindComponent<DxListBox<string, string>>();
+            Assert.That(listBox, Is.Not.Null);
+
+            var confirmButton = this.renderedComponent.Find("#confirmButton");
+            Assert.That(confirmButton, Is.Not.Null);
+            confirmButton.Click();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnConfirmButtonClick();
+            
+            var cancelButton = this.renderedComponent.Find("#cancelButton");
+            Assert.That(cancelButton, Is.Not.Null);
+            cancelButton.Click();
+            this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnCancelButtonClick();
+
+            var checkBox = renderedComponent.FindComponent<DxCheckBox<bool>>();
+            Assert.That(checkBox, Is.Not.Null);
+
+            checkBox.Instance.Checked = true;
+
+            Assert.That(this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.SelectedEnumerationValueDefinitions, Has.Count.EqualTo(3));
+
+            this.renderedComponent.InvokeAsync(() => this.viewModelMock.As<IEnumerationParameterTypeEditorViewModel>().Object.OnSelectAllChanged(true));
         }
     }
 }

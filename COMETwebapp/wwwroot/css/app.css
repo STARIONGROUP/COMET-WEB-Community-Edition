@@ -409,3 +409,23 @@ html, body, #app {
 .highlighted-item {
     background-color: #DEDFE4;
 }
+
+.dropdownIcon {
+    top: 4px;
+    display: flex;
+    border: 1px solid #ccc;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.textBoxEllipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 86%;
+}
+
+#dropdown-customization-target-container {
+    display: flex;
+}
