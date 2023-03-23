@@ -25,21 +25,26 @@
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-
+    using CDP4Dal;
     using CDP4Dal.Permission;
-
+    
     using COMETwebapp.Services.SessionManagement;
 
     using DevExpress.Utils.Internal;
 
+    using COMETwebapp.Utilities;
+    using COMETwebapp.Utilities.DisposableObject;
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+    
     using DynamicData;
-
+    
     using ReactiveUI;
+    using System.Reactive.Linq;
 
     /// <summary>
     /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterTable"/>
     /// </summary>
-    public class ParameterTableViewModel : ReactiveObject, IParameterTableViewModel
+    public class ParameterTableViewModel : DisposableObject, IParameterTableViewModel
     {
         /// <summary>
         /// The <see cref="IPermissionService"/>
@@ -52,9 +57,38 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ISessionService SessionService { get; set; }
 
         /// <summary>
+        ///     Backing field for <see cref="IsOnEditMode" />
+        /// </summary>
+        private bool isOnEditMode;
+
+        /// <summary>
+        /// Indicates if compound parameter edit popup is visible
+        /// </summary>
+        public bool IsOnEditMode
+        {
+            get => this.isOnEditMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
+        }
+
+        /// <summary>
         /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
         /// </summary>
         public SourceList<ParameterBaseRowViewModel> Rows { get; } = new();
+
+        /// <summary>
+        /// The <see cref="CompoundParameterTypeEditorViewModel"/> to show in the popup
+        /// </summary>
+        public CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
+
+        /// <summary>
+        /// Set the <see cref="CompoundParameterTypeEditorViewModel"/> to show in the popup
+        /// </summary>
+        /// <param name="compoundParameterTypeEditorViewModel">A collection of <see cref="CompoundParameterTypeEditorViewModel" /></param>
+        public void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+        {   
+            this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
+            this.IsOnEditMode = true;
+        }
 
         /// <summary>
         /// Creates a new instance of <see cref="ParameterTableViewModel"/>
@@ -62,6 +96,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
         public ParameterTableViewModel(ISessionService sessionService)
         {
+            this.Disposables.Add(CDPMessageBus.Current.Listen<CompoundComponentSelectedEvent>()
+               .Select(x => x.CompoundParameterTypeEditorViewModel)
+               .Subscribe(this.HandleComponentSelected));
+            
             this.SessionService = sessionService;
             this.permissionService = this.SessionService.Session.PermissionService;
         }

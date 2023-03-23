@@ -58,12 +58,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 timeString = time.ToString();
             }
 
+            ValueArray<string> modifiedValueArray;
+
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                if (this.CompoundIndex != -1)
                 {
-                    [0] = timeString
-                };
+                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    {
+                        [this.CompoundIndex] = timeString
+                    };
+                }
+                else
+                {
+                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    {
+                        [0] = timeString
+                    };
+                }
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }

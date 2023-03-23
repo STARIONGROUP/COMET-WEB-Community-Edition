@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
     
+    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+    
     using DynamicData;
 
     /// <summary>
@@ -37,6 +39,22 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
         /// </summary>
         SourceList<ParameterBaseRowViewModel> Rows { get; }
+
+        /// <summary>
+        /// The <see cref="CompoundParameterTypeEditorViewModel"/> to show in the popup
+        /// </summary>
+        CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
+
+        /// <summary>
+        /// Set the <see cref="CompoundParameterTypeEditorViewModel"/> to show in the popup
+        /// </summary>
+        /// <param name="compoundParameterTypeEditorViewModel">A collection of <see cref="CompoundParameterTypeEditorViewModel" /></param>
+        void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel);
+
+        /// <summary>
+        /// Indicates if confirmation popup is visible
+        /// </summary>
+        bool IsOnEditMode { get; set; }
 
         /// <summary>
         /// Initializes this <see cref="IParameterTableViewModel"/>

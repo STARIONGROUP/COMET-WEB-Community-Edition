@@ -51,12 +51,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
+            ValueArray<string> modifiedValueArray;
+
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                if (this.CompoundIndex != -1)
                 {
-                    [0] = valueString
-                };
+                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    {
+                        [this.CompoundIndex] = valueString
+                    };
+                }
+                else
+                {
+                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    {
+                        [0] = valueString
+                    };
+                }
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }

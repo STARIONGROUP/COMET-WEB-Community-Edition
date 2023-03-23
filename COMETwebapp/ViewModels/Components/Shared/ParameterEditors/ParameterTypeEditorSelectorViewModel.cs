@@ -55,18 +55,28 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
         /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
         /// <param name="isReadOnly">Value asserting that the <see cref="IParameterEditorBaseViewModel{T}" /> should be readonly</param>
-        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1)
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1, EventCallback<IValueSet>? onParameterValueSetChanged = null)
         {
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
             this.isReadOnly = isReadOnly;
             this.CompoundIndex = compoundIndex;
+            
+            if (onParameterValueSetChanged.HasValue)
+            {
+                this.ParameterValueChanged = onParameterValueSetChanged.Value;
+            }
         }
 
         /// <summary>
         /// Gets or sets the value set of this <see cref="ParameterType" />
         /// </summary>
         public IValueSet ValueSet { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value set of this <see cref="ParameterType" />
+        /// </summary>
+        public CompoundParameterTypeEditorViewModel SelectedCompoundParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ParameterType" />
@@ -100,6 +110,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             var parameterViewModel = (this.haveValueSetViewModel as IParameterEditorBaseViewModel<T>)!;
             parameterViewModel.ParameterValueChanged = this.ParameterValueChanged;
+
             return parameterViewModel;
         }
 

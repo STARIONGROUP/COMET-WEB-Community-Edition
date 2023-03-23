@@ -19,6 +19,7 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Extensions;
 @using COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 @using COMETwebapp.Model
 @inherits DisposableComponent
@@ -30,25 +31,36 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 }
 else if (this.ViewModel.ValueSet is not null)
 {
-    <div class="compound-editor-body">
-        @for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
+    if (this.ViewModel is ICompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+    {
+        if (compoundParameterTypeEditorViewModel.IsOnEditMode)
         {
-            var index = i;
-            var component = this.ViewModel.ParameterType.Component[i];
-        
             <div class="compound-editor-item">
-                <p>@component.ShortName</p>
-                <DxTextBox InputCssClass="compound-parameter-type" 
-                           Text="@this.ViewModel.ValueArray[index]" 
-                           CssClass="parameter-input"
-                           ReadOnly="this.ViewModel.IsReadOnly"
-                           TextChanged="@((string value) => this.ViewModel.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(index,value)))"
-                           BindValueMode="@this.BindValueMode"/>
-
+                @{
+                    @for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
+                    {
+                        var index = i;
+                        var component = this.ViewModel.ParameterType.Component[i];
+                        <DxFormLayout CssClass="w-200">
+                            <DxFormLayoutItem ColSpanMd="12" Caption=@component.ShortName>
+                                <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" />
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+                    }
+                }
             </div>
-            var compoundParameterViewModel = this.ViewModel as CompoundParameterTypeEditorViewModel;
-            <ParameterTypeEditorSelector ViewModel="@compoundParameterViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" />
-            
         }
-    </div>
+        else
+        {
+            <div class="input-group">
+                <div class="compound-editor">
+                    @{
+                        var componentLabels = this.ViewModel.ParameterType.Component.Select(x => x.ShortName).AsCommaSeparated();
+                        <div>[@componentLabels]</div>
+                    }
+                </div>
+                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="icon icon-edit" SizeMode="SizeMode.Small" Click="@(()=> compoundParameterTypeEditorViewModel.OnComponentSelected())" />
+            </div>
+        }
+    }
 }

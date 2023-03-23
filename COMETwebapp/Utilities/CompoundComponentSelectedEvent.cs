@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ICompoundParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="CompoundComponentSelectedEvent.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -15,32 +15,30 @@
 //     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//     Affero General Public License for more details.
+//    Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
+using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
+namespace COMETwebapp.Utilities
 {
-    using CDP4Common.SiteDirectoryData;
-
-    public interface ICompoundParameterTypeEditorViewModel
+    public class CompoundComponentSelectedEvent
     {
         /// <summary>
-        /// Indicates if confirmation popup is visible
+        /// Gets or sets the <see cref="CompoundParameterTypeEditorViewModel" />
         /// </summary>
-        bool IsOnEditMode { get; set; }
-
-        void OnComponentSelected();
+        public CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
-        /// Creates a view model for the corresponding editor
+        /// Initializes a new instance of the <see cref="CompoundComponentSelectedEvent" /> class.
         /// </summary>
-        /// <param name="parameterType">the parameter type</param>
-        /// <param name="compoundIndex" the index of the <see cref="CompoundParameterType"/> in the <see cref="ParameterTypeComponent"/></param>
-        /// <returns>the view model</returns>
-        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int compoundIndex);
+        /// <param name="compoundParameterTypeEditorViewModel">The <see cref="CompoundParameterTypeEditorViewModel" /></param>
+        public CompoundComponentSelectedEvent(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+        {
+            CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
+        }
     }
 }

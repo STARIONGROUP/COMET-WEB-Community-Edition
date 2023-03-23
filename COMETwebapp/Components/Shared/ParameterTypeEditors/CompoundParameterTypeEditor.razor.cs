@@ -56,9 +56,14 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        protected override void OnParametersSet()
+        protected async override void OnParametersSet()
         {
             base.OnParametersSet();
+
+            if (this.ViewModel is ICompoundParameterTypeEditorViewModel vm)
+            {
+                this.Disposables.Add(vm.WhenAnyValue(x => x.IsOnEditMode).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            }
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly, 
                 x => x.ViewModel.ValueArray).Subscribe(_ => this.StateHasChanged()));

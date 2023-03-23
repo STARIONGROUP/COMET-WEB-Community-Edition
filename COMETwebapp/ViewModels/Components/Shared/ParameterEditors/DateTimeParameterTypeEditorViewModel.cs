@@ -71,12 +71,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             this.DateTimeString = string.Join('T',values);
 
+            ValueArray<string> modifiedValueArray;
+
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                if (this.CompoundIndex != -1)
                 {
-                    [0] = this.DateTimeString
-                };
+                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    {
+                        [this.CompoundIndex] = this.DateTimeString
+                    };
+                }
+                else
+                {
+                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    {
+                        [0] = this.DateTimeString
+                    };
+                }
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }

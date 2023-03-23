@@ -1,9 +1,6 @@
-﻿.compound-editor-body {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+﻿.compound-editor {
+    float: right;
+    margin-right:20%
 }
 
 .compound-editor-item {
