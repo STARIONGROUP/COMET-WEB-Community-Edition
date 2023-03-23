@@ -43,6 +43,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     public class ParameterBaseRowViewModel : DisposableObject, IParameterBaseRowViewModel
     {
         /// <summary>
+        /// Value asserting that the <see cref="ParameterBaseRowViewModel" /> is readonly
+        /// </summary>
+        private readonly bool isReadOnly;
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISessionService" />
+        /// </summary>
+        private readonly ISessionService sessionService;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
@@ -51,7 +61,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="valueSet">the valueSet of the parameter</param>
         public ParameterBaseRowViewModel(ISessionService sessionService, bool isReadOnly, ParameterBase parameterBase, IValueSet valueSet)
         {
-            this.SessionService = sessionService;
+            this.isReadOnly = isReadOnly;
+            this.sessionService = sessionService;
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
             this.ParameterType = this.Parameter.ParameterType;
             this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
@@ -62,7 +73,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
             this.State = valueSet.ActualState is not null ? valueSet.ActualState.Name : string.Empty;
             this.Switch = valueSet.ValueSwitch;
-            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(this.Switch, isReadOnly);
+
+            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(this.Switch, isReadOnly)
+            {
+                OnUpdate = new EventCallbackFactory().Create(this, this.UpdateParameterValueSwitch)
+            };
 
             this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, isReadOnly)
             {
@@ -70,13 +85,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterSwitchKindSelectorViewModel.SwitchValue)
-                .Subscribe(async _ => await this.OnParameterValueSwitchChanged()));
+                .Subscribe(_ => this.OnParameterValueSwitchChanged()));
         }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ISessionService" />
-        /// </summary>
-        public ISessionService SessionService { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
@@ -142,27 +152,37 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
-        public async Task OnParameterValueChanged(IValueSet value)
+        private async Task OnParameterValueChanged(IValueSet value)
         {
-            if (value is ParameterValueSetBase parameterValueSetBase)
+            if (!this.isReadOnly && value is ParameterValueSetBase parameterValueSetBase)
             {
-                await this.SessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { parameterValueSetBase });
+                await this.sessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { parameterValueSetBase });
             }
         }
 
         /// <summary>
-        /// Handles the change of <see cref="ParameterSwitchKind"/>
+        /// Handles the change of <see cref="ParameterSwitchKind" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task OnParameterValueSwitchChanged()
+        /// <returns>A <see cref="Task" /></returns>
+        private void OnParameterValueSwitchChanged()
         {
-            if (this.ParameterSwitchKindSelectorViewModel.SwitchValue != this.ValueSet.ValueSwitch && this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            if (!this.isReadOnly)
             {
                 this.ParameterTypeEditorSelectorViewModel.UpdateSwitchKind(this.ParameterSwitchKindSelectorViewModel.SwitchValue);
+            }
+        }
 
+        /// <summary>
+        /// Update the <see cref="ParameterSwitchKind" />
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateParameterValueSwitch()
+        {
+            if (!this.isReadOnly && this.ParameterSwitchKindSelectorViewModel.SwitchValue != this.ValueSet.ValueSwitch && this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            {
                 var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                 clonedParameterValueSet.ValueSwitch = this.ParameterSwitchKindSelectorViewModel.SwitchValue;
-                await this.SessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
+                await this.sessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
             }
         }
     }

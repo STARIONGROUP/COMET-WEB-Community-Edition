@@ -45,7 +45,6 @@ namespace COMETwebapp.Components.ParameterEditor
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
-                    x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,
                     x => x.ViewModel.ParameterTypeSelector.SelectedParameterType,
                     x => x.ViewModel.ElementSelector.SelectedElementBase,
                     x => x.ViewModel.IsOwnedParameters)
@@ -61,11 +60,6 @@ namespace COMETwebapp.Components.ParameterEditor
             if (parameters.TryGetValue(QueryKeys.OptionKey, out var option))
             {
                 this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
-            }
-
-            if (parameters.TryGetValue(QueryKeys.StateKey, out var state))
-            {
-                this.ViewModel.FiniteStateSelector.SelectedActualFiniteState = this.ViewModel.FiniteStateSelector.AvailableFiniteStates.FirstOrDefault(x => x.Iid == state.FromShortGuid());
             }
 
             if (parameters.TryGetValue(QueryKeys.ParameterKey, out var parameter))
@@ -89,11 +83,6 @@ namespace COMETwebapp.Components.ParameterEditor
             if (this.ViewModel.OptionSelector.SelectedOption != null)
             {
                 additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
-            }
-
-            if (this.ViewModel.FiniteStateSelector.SelectedActualFiniteState != null)
-            {
-                additionalParameters["state"] = this.ViewModel.FiniteStateSelector.SelectedActualFiniteState.Iid.ToString();
             }
 
             if (this.ViewModel.ParameterTypeSelector.SelectedParameterType != null)

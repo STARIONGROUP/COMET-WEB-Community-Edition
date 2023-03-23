@@ -179,7 +179,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(this.viewModel.ElementSelector, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterTypeSelector, Is.Not.Null);
                 Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
-                Assert.That(this.viewModel.FiniteStateSelector, Is.Not.Null);
                 Assert.That(this.viewModel.IsOwnedParameters, Is.False);
             });
         }
@@ -205,7 +204,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
             this.viewModel.OptionSelector.SelectedOption = null;
             this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
-            this.viewModel.FiniteStateSelector.SelectedActualFiniteState = null;
 
             this.viewModel.ElementSelector.SelectedElementBase = firstElement;
             this.viewModel.ApplyFilters(this.viewModel.Elements);

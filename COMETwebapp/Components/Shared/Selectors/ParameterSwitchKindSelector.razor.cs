@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.Shared.Selectors
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using Microsoft.AspNetCore.Components;
@@ -31,10 +33,15 @@ namespace COMETwebapp.Components.Shared.Selectors
     using ReactiveUI;
 
     /// <summary>
-    /// Class for the component <see cref="ParameterSwitchKindSelector" />
+    /// Component used to select a <see cref="ParameterSwitchKind" />
     /// </summary>
     public partial class ParameterSwitchKindSelector
     {
+        /// <summary>
+        /// A collection of all available <see cref="ParameterSwitchKind" />
+        /// </summary>
+        private readonly IEnumerable<ParameterSwitchKind> availableValues = Enum.GetValues(typeof(ParameterSwitchKind)).Cast<ParameterSwitchKind>();
+
         /// <summary>
         /// Gets or sets the <see cref="IParameterSwitchKindSelectorViewModel" />
         /// </summary>
@@ -48,7 +55,19 @@ namespace COMETwebapp.Components.Shared.Selectors
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Gets the css class based on the current value of the <see cref="ParameterSwitchKind"/>
+        /// </summary>
+        /// <param name="switchKind">The <see cref="ParameterSwitchKind"/></param>
+        /// <returns>A css class if the <see cref="ParameterSwitchKind"/> correspond to the <see cref="IParameterSwitchKindSelectorViewModel.InitialSwitchValue"/></returns>
+        private string GetCssClass(ParameterSwitchKind switchKind)
+        {
+            return switchKind == this.ViewModel.InitialSwitchValue ? "highlighted" : string.Empty;
         }
     }
 }

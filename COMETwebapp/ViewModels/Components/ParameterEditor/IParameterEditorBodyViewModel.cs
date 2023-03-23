@@ -54,11 +54,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
-        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
-        /// </summary>
-        public IFiniteStateSelectorViewModel FiniteStateSelector { get; }
-
-        /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
         public IParameterTypeSelectorViewModel ParameterTypeSelector { get; } 
@@ -110,13 +105,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="elements">the elements to filter</param>
         /// <returns>the filtered elements</returns>
         IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements);
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="FiniteStateSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements);
 
         /// <summary>
         /// Filters the <param name="elements"/> by the <see cref="DomainOfExpertise"/>

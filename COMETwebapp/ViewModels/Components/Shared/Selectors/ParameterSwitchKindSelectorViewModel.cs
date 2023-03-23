@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
 
+    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
@@ -46,13 +48,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
         /// <summary>
         /// Creates a new instance of type <see cref="ParameterSwitchKindSelectorViewModel" />
         /// </summary>
-        /// <param name="switchKind">The <see cref="ParameterSwitchKind"/></param>
+        /// <param name="switchKind">The <see cref="ParameterSwitchKind" /></param>
         /// <param name="isReadOnly">The readonly state</param>
         public ParameterSwitchKindSelectorViewModel(ParameterSwitchKind switchKind, bool isReadOnly)
         {
+            this.InitialSwitchValue = switchKind;
             this.SwitchValue = switchKind;
             this.IsReadOnly = isReadOnly;
         }
+
+        /// <summary>
+        /// The initial <see cref="ParameterSwitchKind"/>
+        /// </summary>
+        public ParameterSwitchKind InitialSwitchValue { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback{TValue}" /> to be called to perfom an update
+        /// </summary>
+        public EventCallback OnUpdate { get; set; }
 
         /// <summary>
         /// Get or set the <see cref="ParameterSwitchKind" />
@@ -60,7 +73,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
         public ParameterSwitchKind SwitchValue
         {
             get => this.switchValue;
-            set => this.RaiseAndSetIfChanged(ref this.switchValue, value);
+            set
+            {
+                if (!this.IsReadOnly)
+                {
+                    this.RaiseAndSetIfChanged(ref this.switchValue, value);
+                }
+            }
         }
 
         /// <summary>

@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 {
     using CDP4Common.EngineeringModelData;
 
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
     /// View Model to sets the current <see cref="ParameterSwitchKind"/> value
     /// </summary>
@@ -35,5 +37,15 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
         /// Get or set the <see cref="ParameterSwitchKind" />
         /// </summary>
         ParameterSwitchKind SwitchValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback" /> to be called to perfom an update
+        /// </summary>
+        EventCallback OnUpdate { get; set; }
+
+        /// <summary>
+        /// The initial <see cref="ParameterSwitchKind"/>
+        /// </summary>
+        ParameterSwitchKind InitialSwitchValue { get; }
     }
 }

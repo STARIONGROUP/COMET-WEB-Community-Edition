@@ -26,23 +26,23 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.ParameterEditor
 @using COMETwebapp.Components.Shared.ParameterTypeEditors;
 
-<div class="container-fluid" style="min-width: 1400px; margin-top: 15px;">
+<div class="container-fluid table-container">
     <DxGrid CssClass="default-grid"
             ShowAllRows="true"
             Data="@this.ViewModel.Rows.Items"
             SelectionMode="GridSelectionMode.Single"
             AllowSelectRowByClick="false"
             ShowFilterRow="true"
-            ShowGroupPanel="true"
-            FocusedRowEnabled="true"
-            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto">
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+            VerticalScrollBarMode="ScrollBarMode.Visible"
+            HorizontalScrollBarMode="ScrollBarMode.Visible">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterName)" GroupIndex="1" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Parameter")" AllowGroup="true" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true"/>
 
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Option)" Caption="@("Option")" GroupIndex="2" GroupInterval="GridColumnGroupInterval.Value" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
-            
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Option)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true"/>
+
             <DxGridDataColumn Caption="@("Published Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
                     @if (context.DataItem is IParameterBaseRowViewModel {ValueSet: ParameterValueSet parameterValueSet })
@@ -51,26 +51,26 @@ Copyright (c) 2023 RHEA System S.A.
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            
+
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
-                    @if(context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
+                    @if (context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
                         <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            
+
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
                 <CellDisplayTemplate>
                     @if (context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterSwitchKindSelector ViewModel="parameterBaseRowViewModel.ParameterSwitchKindSelectorViewModel" />
+                        <ParameterSwitchKindSelector ViewModel="parameterBaseRowViewModel.ParameterSwitchKindSelectorViewModel"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true"/>
         </Columns>
     </DxGrid>
 </div>
