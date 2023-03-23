@@ -67,7 +67,7 @@ namespace COMETwebapp.Components.Shared.Selectors
         /// <returns>A css class if the <see cref="ParameterSwitchKind"/> correspond to the <see cref="IParameterSwitchKindSelectorViewModel.InitialSwitchValue"/></returns>
         private string GetCssClass(ParameterSwitchKind switchKind)
         {
-            return switchKind == this.ViewModel.InitialSwitchValue ? "highlighted" : string.Empty;
+            return switchKind == this.ViewModel.InitialSwitchValue && switchKind != this.ViewModel.SwitchValue ? "highlighted" : string.Empty;
         }
     }
 }
