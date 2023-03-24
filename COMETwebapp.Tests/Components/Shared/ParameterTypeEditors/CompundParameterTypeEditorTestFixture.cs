@@ -55,7 +55,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private CompoundParameterTypeEditor editor;
         private Mock<IParameterEditorBaseViewModel<CompoundParameterType>> viewModelMock;
         private Mock<IParameterTypeEditorSelectorViewModel> parameterEditorSelectorViewModelMock;
-        private EventCallback<IValueSet> eventCallback;
 
         [SetUp]
         public void SetUp()

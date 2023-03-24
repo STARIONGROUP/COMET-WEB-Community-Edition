@@ -253,6 +253,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
+            timeOfDayParameterEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(timeOfDayParameterEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
+            });
+
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);            
 
             Assert.Multiple(() =>
