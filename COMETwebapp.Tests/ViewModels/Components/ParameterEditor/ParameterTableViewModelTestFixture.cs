@@ -190,7 +190,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             Assert.Multiple(() =>
             {
                 Assert.That(() => parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue = ParameterSwitchKind.MANUAL, Throws.Nothing);
-                Assert.That(parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue != ParameterSwitchKind.MANUAL);
+                Assert.That(parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue == ParameterSwitchKind.MANUAL);
                 Assert.That(editorViewModel.CurrentParameterSwitchKind == ParameterSwitchKind.COMPUTED);
             });
 

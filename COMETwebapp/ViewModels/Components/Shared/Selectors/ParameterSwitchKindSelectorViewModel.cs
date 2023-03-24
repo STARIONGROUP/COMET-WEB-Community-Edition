@@ -73,13 +73,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
         public ParameterSwitchKind SwitchValue
         {
             get => this.switchValue;
-            set
-            {
-                if (!this.IsReadOnly)
-                {
-                    this.RaiseAndSetIfChanged(ref this.switchValue, value);
-                }
-            }
+            set => this.RaiseAndSetIfChanged(ref this.switchValue, value);
         }
 
         /// <summary>
