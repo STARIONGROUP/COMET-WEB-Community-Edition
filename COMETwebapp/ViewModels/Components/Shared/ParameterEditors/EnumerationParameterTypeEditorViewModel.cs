@@ -54,11 +54,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
             
             if (compoundIndex != -1)
             {
-                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray[compoundIndex].Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
+                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray[compoundIndex].Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
             }
             else
             {
-                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
+                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
             }
         }
 
@@ -156,7 +156,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         public void OnCancelButtonClick()
         {
-            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
+            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
             this.IsOnEditMode = false;
         }
 

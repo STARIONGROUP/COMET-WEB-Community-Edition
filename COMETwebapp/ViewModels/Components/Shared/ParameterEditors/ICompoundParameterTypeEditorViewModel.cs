@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     public interface ICompoundParameterTypeEditorViewModel
     {
@@ -33,7 +34,16 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         bool IsOnEditMode { get; set; }
 
+        /// <summary>
+        /// Event for when the edit button is clicked
+        /// </summary>
         void OnComponentSelected();
+
+        /// <summary>
+        /// Creates a view model for the <see cref="COMETwebapp.Components.Viewer.PropertiesPanel.OrientationComponent" />
+        /// </summary>
+        /// <returns>The <see cref="IOrientationViewModel" /></returns>
+        IOrientationViewModel CreateOrientationViewModel();
 
         /// <summary>
         /// Creates a view model for the corresponding editor

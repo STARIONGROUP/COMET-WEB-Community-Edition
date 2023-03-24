@@ -36,18 +36,19 @@ else if (this.ViewModel.ValueSet is not null)
         if (compoundParameterTypeEditorViewModel.IsOnEditMode)
         {
             <div class="compound-editor-item">
+                <DxFormLayout ItemCaptionAlignment="ItemCaptionAlignment.All">
                 @{
                     @for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
                     {
                         var index = i;
                         var component = this.ViewModel.ParameterType.Component[i];
-                        <DxFormLayout CssClass="w-200">
                             <DxFormLayoutItem ColSpanMd="12" Caption=@component.ShortName>
                                 <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" />
                             </DxFormLayoutItem>
-                        </DxFormLayout>
+                        
                     }
                 }
+                </DxFormLayout>
             </div>
         }
         else

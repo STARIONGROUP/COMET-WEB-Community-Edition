@@ -134,8 +134,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<CompoundParameterType>>();
             this.parameterEditorSelectorViewModelMock = new Mock<IParameterTypeEditorSelectorViewModel>();
-           /* this.parameterEditorSelectorViewModelMock.Setup(x => x.ParameterType).Returns(parametertype.Component[0].ParameterType);
-            this.parameterEditorSelectorViewModelMock.Setup(x => x.CreateParameterEditorViewModel<QuantityKind>()).Returns(new Mock<IParameterEditorBaseViewModel<QuantityKind>>().Object);*/
             this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>();
             this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>().Setup(x => x.IsOnEditMode).Returns(true);
             this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>().Setup(x => x.CreateParameterTypeEditorSelectorViewModel(It.IsAny<ParameterType>(), It.IsAny<int>())).Returns(this.parameterEditorSelectorViewModelMock.Object);
