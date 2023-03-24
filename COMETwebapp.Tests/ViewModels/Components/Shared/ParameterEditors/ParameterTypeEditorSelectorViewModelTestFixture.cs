@@ -50,6 +50,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await booleanParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
             });
 
+            booleanParameterEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(booleanParameterEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await booleanParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
+            });
+
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
            
             Assert.Multiple(() =>
@@ -92,6 +100,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await dateParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
+            dateParameterEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(dateParameterEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await dateParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
+            });
+
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
             
             Assert.Multiple(() =>
@@ -111,6 +127,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(dateTimeParameterEditor, Is.TypeOf<DateTimeParameterTypeEditorViewModel>());
                 Assert.That(dateTimeParameterEditor.IsReadOnly, Is.False);
                 Assert.That(async () => await dateTimeParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
+            });
+
+            dateTimeParameterEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(dateTimeParameterEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await dateTimeParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -134,6 +158,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await enumerationParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
+            enumerationParameterEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(enumerationParameterEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await enumerationParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
+            });
+
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
 
             Assert.Multiple(() =>
@@ -155,6 +187,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await textParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
+            textParameterEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(textParameterEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await textParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
+            });
+            
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
             
             Assert.Multiple(() =>
@@ -176,6 +216,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             var parameter = new SimpleQuantityKind();
             this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false);
             var quantityKindEditor = this.viewModel.CreateParameterEditorViewModel<QuantityKind>();
+
+            quantityKindEditor.CompoundIndex = 0;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(quantityKindEditor.IsReadOnly, Is.False);
+                Assert.That(async () => await quantityKindEditor.OnParameterValueChanged("false"), Throws.Nothing);
+            });
 
             Assert.Multiple(() =>
             {
