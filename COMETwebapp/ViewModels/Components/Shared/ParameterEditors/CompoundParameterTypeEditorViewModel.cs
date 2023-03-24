@@ -74,7 +74,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is CompoundParameterTypeValueChangedEventArgs args)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [args.Index] = args.Value
                 };

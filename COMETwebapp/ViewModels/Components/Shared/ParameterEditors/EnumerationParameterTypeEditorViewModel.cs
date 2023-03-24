@@ -129,7 +129,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                     valueString = "-";
                 }
                     
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [this.ValueArrayIndex] = valueString
                 };
@@ -159,7 +159,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
             {  
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [this.ValueArrayIndex] = valueString
                 };

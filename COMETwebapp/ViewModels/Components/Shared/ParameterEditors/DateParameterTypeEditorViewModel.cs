@@ -52,7 +52,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [this.ValueArrayIndex] = valueString
                 };
