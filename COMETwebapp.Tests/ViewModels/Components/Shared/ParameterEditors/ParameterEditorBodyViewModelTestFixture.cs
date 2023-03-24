@@ -206,6 +206,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
 
             this.viewModel.ElementSelector.SelectedElementBase = firstElement;
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             this.viewModel.ApplyFilters(this.viewModel.Elements);
 
             Assert.Multiple(() =>
