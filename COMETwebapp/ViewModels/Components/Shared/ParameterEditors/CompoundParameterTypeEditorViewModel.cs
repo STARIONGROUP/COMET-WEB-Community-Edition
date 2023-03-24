@@ -27,10 +27,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+    
     using CDP4Dal;
+    
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+
     using ReactiveUI;
 
     /// <summary>
@@ -44,7 +47,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1) : base(parameterType, valueSet, isReadOnly, compoundIndex)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
         }
 
@@ -101,11 +105,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Creates a view model for the corresponding editor
         /// </summary>
         /// <param name="parameterType">the parameter type</param>
-        /// <param name="compoundIndex" the index of the <see cref="CompoundParameterType"/> in the <see cref="ParameterTypeComponent"/></param>
+        /// <param name="valueArrayIndex" the index of the <see cref="CompoundParameterType"/> in the <see cref="ParameterTypeComponent"/></param>
         /// <returns>the view model</returns>
-        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int compoundIndex)
+        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int valueArrayIndex)
         {
-            return new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, compoundIndex, this.ParameterValueChanged);
+            var parameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, valueArrayIndex);
+            parameterTypeEditorSelectorViewModel.ParameterValueChanged = this.ParameterValueChanged;
+            return parameterTypeEditorSelectorViewModel;
         }
     }
 }

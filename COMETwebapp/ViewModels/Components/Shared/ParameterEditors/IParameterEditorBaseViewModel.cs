@@ -54,7 +54,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <summary>
         /// Gets the index of the value changed in the value sets
         /// </summary>
-        int CompoundIndex { get; set; }
+        int ValueArrayIndex { get; set; }
 
         /// <summary>
         /// Event for when a parameter's value has changed

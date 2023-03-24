@@ -22,7 +22,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @inherits DisposableComponent
 @using System.Globalization
 @{
-    var dateTimeStringSplitted = this.ViewModel.CompoundIndex != -1 ? this.ViewModel.ValueArray[this.ViewModel.CompoundIndex].Split('T') : this.ViewModel.ValueArray.First().Split('T');
+    var dateTimeStringSplitted = this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex].Split('T');
     DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime);
 
     var timeString = dateTimeStringSplitted[1];

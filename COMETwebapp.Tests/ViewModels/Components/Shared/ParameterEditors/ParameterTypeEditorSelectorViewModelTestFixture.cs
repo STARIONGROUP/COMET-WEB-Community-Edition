@@ -50,7 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await booleanParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
             });
 
-            booleanParameterEditor.CompoundIndex = 0;
+            booleanParameterEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {
@@ -100,7 +100,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await dateParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            dateParameterEditor.CompoundIndex = 0;
+            dateParameterEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {
@@ -129,7 +129,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await dateTimeParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            dateTimeParameterEditor.CompoundIndex = 0;
+            dateTimeParameterEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {
@@ -158,7 +158,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await enumerationParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            enumerationParameterEditor.CompoundIndex = 0;
+            enumerationParameterEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {
@@ -187,7 +187,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await textParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            textParameterEditor.CompoundIndex = 0;
+            textParameterEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {
@@ -217,7 +217,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false);
             var quantityKindEditor = this.viewModel.CreateParameterEditorViewModel<QuantityKind>();
 
-            quantityKindEditor.CompoundIndex = 0;
+            quantityKindEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {
@@ -253,7 +253,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            timeOfDayParameterEditor.CompoundIndex = 0;
+            timeOfDayParameterEditor.ValueArrayIndex = 0;
 
             Assert.Multiple(() =>
             {

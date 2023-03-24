@@ -48,13 +48,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter used for this editor view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1) : base(parameterType, valueSet, isReadOnly, compoundIndex)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
             this.EnumerationValueDefinitions = parameterType.ValueDefinition;
             
-            if (compoundIndex != -1)
+            if (valueArrayIndex != 0)
             {
-                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray[compoundIndex].Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
+                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray[valueArrayIndex].Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
             }
             else
             {
@@ -123,28 +124,16 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                ValueArray<string> modifiedValueArray;
-
                 if (!this.SelectedEnumerationValueDefinitions.Any())
                 {
                     valueString = "-";
                 }
-                
-                if(this.CompoundIndex != -1)
+                    
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [this.CompoundIndex] = valueString
-                    };
-                }
-                else
-                {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [0] = valueString
-                    };
-                }  
-                
+                    [this.ValueArrayIndex] = valueString
+                };
+                        
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
 
@@ -166,26 +155,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            ValueArray<string> modifiedValueArray;
-
             var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
-            {
-                if (this.CompoundIndex != -1)
+            {  
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [this.CompoundIndex] = valueString
-                    };
-                }
-                else
-                {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [0] = valueString
-                    };
-                }
+                    [this.ValueArrayIndex] = valueString
+                };
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }

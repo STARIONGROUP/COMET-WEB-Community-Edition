@@ -25,20 +25,23 @@ using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
 namespace COMETwebapp.Utilities
 {
+    /// <summary>
+    /// Class used to notify an observer that the <see cref="CompoundParameterTypeEditorViewModel"/> is selected.
+    /// </summary>
     public class CompoundComponentSelectedEvent
     {
         /// <summary>
         /// Gets or sets the <see cref="CompoundParameterTypeEditorViewModel" />
         /// </summary>
         public CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="CompoundComponentSelectedEvent" /> class.
         /// </summary>
         /// <param name="compoundParameterTypeEditorViewModel">The <see cref="CompoundParameterTypeEditorViewModel" /></param>
         public CompoundComponentSelectedEvent(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
         {
-            CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
+            this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
         }
     }
 }

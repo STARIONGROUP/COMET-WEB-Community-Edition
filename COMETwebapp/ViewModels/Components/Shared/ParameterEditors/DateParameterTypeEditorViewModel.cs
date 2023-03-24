@@ -39,7 +39,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public DateParameterTypeEditorViewModel(DateParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1) : base(parameterType, valueSet, isReadOnly, compoundIndex)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public DateParameterTypeEditorViewModel(DateParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
         }
 
@@ -49,25 +50,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            ValueArray<string> modifiedValueArray;
-
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                if (this.CompoundIndex != -1)
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [this.CompoundIndex] = valueString
-                    };
-                }
-                else
-                {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [0] = valueString
-                    };
-                }
-
+                    [this.ValueArrayIndex] = valueString
+                };
+                
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }

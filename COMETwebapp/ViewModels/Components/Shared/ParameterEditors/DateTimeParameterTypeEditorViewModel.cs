@@ -46,7 +46,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public DateTimeParameterTypeEditorViewModel(DateTimeParameterType parameterType, IValueSet valueSet, bool isReadOnly, int compoundIndex = -1) : base(parameterType,valueSet, isReadOnly, compoundIndex)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public DateTimeParameterTypeEditorViewModel(DateTimeParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType,valueSet, isReadOnly, valueArrayIndex)
         {
             this.DateTimeString = valueSet.ActualValue.First();
         }
@@ -71,24 +72,12 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             this.DateTimeString = string.Join('T',values);
 
-            ValueArray<string> modifiedValueArray;
-
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                if (this.CompoundIndex != -1)
+                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
                 {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [this.CompoundIndex] = this.DateTimeString
-                    };
-                }
-                else
-                {
-                    modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
-                    {
-                        [0] = this.DateTimeString
-                    };
-                }
+                    [this.ValueArrayIndex] = this.DateTimeString
+                };
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
