@@ -24,7 +24,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="container-fluid">
+    <div id="@ConstantValues.ParameterEditorPage.QueryPageBodyName()" class="container-fluid">
         <div class="row ">
             <div class="col">
                 <div class="width-fit-content">
@@ -39,11 +39,6 @@
             <div class="col">
                 <div class="width-fit-content">
                     <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
-                </div>
-            </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelector"></FiniteStateSelector>
                 </div>
             </div>
             <div class="col">

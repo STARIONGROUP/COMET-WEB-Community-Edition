@@ -9,7 +9,7 @@
       <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
       <RepositoryType>Git</RepositoryType>
       <Nullable>disable</Nullable>
-      <ImplicitUsings>disable</ImplicitUsings>
+      <ImplicitUsings>enable</ImplicitUsings>
       <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -35,6 +35,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\Components\ParameterEditor\" />
   </ItemGroup>
 
 </Project>

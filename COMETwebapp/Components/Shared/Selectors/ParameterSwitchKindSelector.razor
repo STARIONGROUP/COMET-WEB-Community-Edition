@@ -20,12 +20,22 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.Enumerations
 @inherits DisposableComponent
 
-@{
-    var values = Enum.GetValues(typeof(ParameterSwitchKind)).Cast<ParameterSwitchKind>();
-    <DxComboBox Data="@values"
-                @bind-Value="@this.ViewModel.SwitchValue"
-                ReadOnly="@this.ViewModel.IsReadOnly">
-    </DxComboBox>
-}
+<DxComboBox Data="@this.availableValues"
+            @bind-Value="@this.ViewModel.SwitchValue">
+    <Buttons>
+        <DxEditorButton IconCssClass="icon icon-save"
+                        Tooltip="Update the ParameterValueSwitch for the current Parameter Value Set"
+                        Click="@this.ViewModel.OnUpdate"
+                        Enabled="@(!this.ViewModel.IsReadOnly && this.ViewModel.InitialSwitchValue != this.ViewModel.SwitchValue)"
+                        Visible="@this.ViewModel.OnUpdate.HasDelegate"/>
+    </Buttons>
+    <ItemTemplate>
+        <div class="@this.GetCssClass(context)">
+            @context
+        </div>
+    </ItemTemplate>
+</DxComboBox>        
+

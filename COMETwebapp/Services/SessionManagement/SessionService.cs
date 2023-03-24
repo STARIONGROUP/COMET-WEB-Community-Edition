@@ -219,7 +219,7 @@ namespace COMETwebapp.Services.SessionManagement
             var transaction = new ThingTransaction(context);
 
             // register new Things and the container Thing (clone) with the transaction.
-            thingsToCreate.ToList().ForEach(thing => { transaction.Create(thing, thingClone); });
+            thingsToCreate.ToList().ForEach(x => { transaction.Create(x, thingClone); });
 
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
             // to the Thing object.
@@ -258,7 +258,7 @@ namespace COMETwebapp.Services.SessionManagement
             var transaction = new ThingTransaction(context);
 
             // register all updates with the transaction.
-            thingsToUpdate.ToList().ForEach(thing => { transaction.CreateOrUpdate(thing); });
+            thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
 
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
             // to the Thing object.
@@ -272,6 +272,10 @@ namespace COMETwebapp.Services.SessionManagement
             catch (Exception ex)
             {
                 Console.WriteLine($"The update operation failed: {ex.Message}");
+            }
+            finally
+            {
+                sw.Stop();
             }
         }
 

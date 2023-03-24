@@ -60,11 +60,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
-        /// </summary>
-        public IFiniteStateSelectorViewModel FiniteStateSelector { get; private set; } = new FiniteStateSelectorViewModel();
-
-        /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
         public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
@@ -115,7 +110,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
             this.Disposables.Add(this.WhenAnyValue(x=>x.ElementSelector.SelectedElementBase,
                 x=>x.OptionSelector.SelectedOption,
-                x=>x.FiniteStateSelector.SelectedActualFiniteState,
                 x=>x.ParameterTypeSelector.SelectedParameterType,
                 x=>x.IsOwnedParameters).SubscribeAsync(_ => this.InitializeViewModel()));
         }
@@ -138,7 +132,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             await base.OnIterationChanged();
             this.ElementSelector.CurrentIteration = this.CurrentIteration;
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
-            this.FiniteStateSelector.CurrentIteration = this.CurrentIteration;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
             await this.InitializeViewModel();
         }
@@ -169,7 +162,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             var filteredElements = this.FilterByElement(elements);
             filteredElements = this.FilterByOption(filteredElements);
             filteredElements = this.FilterByParameterType(filteredElements);
-            filteredElements = this.FilterByState(filteredElements);
             filteredElements = this.FilterByOwnedByActiveDomain(filteredElements);
             this.FilteredElements.AddRange(filteredElements);
         }
@@ -262,21 +254,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             filteredElements.RemoveAll(e => elementsToRemove.Contains(e));
 
             return filteredElements;
-        }
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="FiniteStateSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByState(IEnumerable<ElementBase> elements)
-        {
-            if (this.FiniteStateSelector.SelectedActualFiniteState is null)
-            {
-                return elements;
-            }
-
-            return elements.FilterByState(this.FiniteStateSelector.SelectedActualFiniteState);
         }
 
         /// <summary>

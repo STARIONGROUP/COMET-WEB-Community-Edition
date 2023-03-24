@@ -30,6 +30,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
     using COMETwebapp.Services.SessionManagement;
 
+    using DevExpress.Utils.Internal;
+
     using DynamicData;
 
     using ReactiveUI;
@@ -90,11 +92,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                     elementDefinition.Parameter.ForEach(parameter =>
                     {
                         var isReadOnly = !this.permissionService.CanWrite(parameter);
-
-                        parameter.ValueSet.ForEach(valueSet =>
-                        {
-                            rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService,isReadOnly, parameter, valueSet));
-                        });
+                        rowViewModels.AddRange(parameter.ValueSet.Select(x => new ParameterBaseRowViewModel(this.SessionService, isReadOnly, parameter, x)));
                     });
                 }
                 else if (element is ElementUsage elementUsage)
@@ -104,25 +102,15 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                         elementUsage.ParameterOverride.ForEach(parameter =>
                         {
                             var isReadOnly = !this.permissionService.CanWrite(parameter);
-
-                            parameter.ValueSet.ForEach(valueSet =>
-                            {
-                                rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService,isReadOnly, parameter, valueSet));
-                            });
+                            rowViewModels.AddRange(parameter.ValueSet.Select(x => new ParameterBaseRowViewModel(this.SessionService, isReadOnly, parameter, x)));
                         });
                     }
-                    else
+
+                    elementUsage.ElementDefinition.Parameter.Where(p => rowViewModels.All(x => x.Parameter.Iid != p.Iid)).ToList().ForEach(parameter =>
                     {
-                        elementUsage.ElementDefinition.Parameter.ForEach(parameter =>
-                        {
-                            var isReadOnly = !this.permissionService.CanWrite(parameter);
-
-                            parameter.ValueSet.ForEach(valueSet =>
-                            {
-                                rowViewModels.Add(new ParameterBaseRowViewModel(this.SessionService, isReadOnly, parameter, valueSet));
-                            });
-                        });
-                    }
+                        var isReadOnly = !this.permissionService.CanWrite(parameter);
+                        rowViewModels.AddRange(parameter.ValueSet.Select(x => new ParameterBaseRowViewModel(this.SessionService, isReadOnly, parameter, x)));
+                    });
                 }
             }
 

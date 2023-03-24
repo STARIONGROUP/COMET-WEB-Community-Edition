@@ -86,7 +86,6 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             parameterEditorViewModel.Setup(x => x.FilteredElements).Returns(elements);
             parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
-            parameterEditorViewModel.Setup(x => x.FiniteStateSelector).Returns(new FiniteStateSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object));
 
@@ -158,8 +157,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         {
             var elementFilterCombo = this.renderedComponent.FindComponent<ElementBaseSelector>();
             var parameterFilterCombo = this.renderedComponent.FindComponent<ParameterTypeSelector>();
-            var stateFilterCombo = this.renderedComponent.FindComponent<OptionSelector>();
-            var optionFilterCombo = this.renderedComponent.FindComponent<FiniteStateSelector>();
+            var optionFilterCombo = this.renderedComponent.FindComponent<OptionSelector>();
 
             var isOwnedCheckbox = this.renderedComponent.FindComponent<DxCheckBox<bool>>();
             var parameterTable = this.renderedComponent.FindComponent<ParameterTable>();
@@ -168,7 +166,6 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             {
                 Assert.That(elementFilterCombo, Is.Not.Null);
                 Assert.That(parameterFilterCombo, Is.Not.Null);
-                Assert.That(stateFilterCombo, Is.Not.Null);
                 Assert.That(optionFilterCombo, Is.Not.Null);
                 Assert.That(isOwnedCheckbox, Is.Not.Null);
                 Assert.That(parameterTable, Is.Not.Null);
