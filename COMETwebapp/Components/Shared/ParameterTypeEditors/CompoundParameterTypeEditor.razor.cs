@@ -56,7 +56,7 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        protected async override void OnParametersSet()
+        protected override void OnParametersSet()
         {
             base.OnParametersSet();
 

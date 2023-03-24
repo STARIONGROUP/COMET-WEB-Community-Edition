@@ -168,7 +168,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             ValueArray<string> modifiedValueArray;
 
-            var element = value != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value).Select(x => x.ShortName).FirstOrDefault() : value;
+            var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
             {

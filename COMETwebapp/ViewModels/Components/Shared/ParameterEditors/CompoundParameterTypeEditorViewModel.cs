@@ -84,7 +84,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         public void OnComponentSelected()
         {
-            CDPMessageBus.Current.SendMessage(new CompoundComponentSelectedEvent((CompoundParameterTypeEditorViewModel)this));
+            CDPMessageBus.Current.SendMessage(new CompoundComponentSelectedEvent(this));
             this.IsOnEditMode = true;
         }
 

@@ -26,7 +26,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     using Bunit;
 
@@ -39,8 +38,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -56,7 +53,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<CompoundParameterTypeEditor> renderedComponent;
         private CompoundParameterTypeEditor editor;
-        private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<CompoundParameterType>> viewModelMock;
         private Mock<IParameterTypeEditorSelectorViewModel> parameterEditorSelectorViewModelMock;
         private EventCallback<IValueSet> eventCallback;
@@ -140,14 +136,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parametertype);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
-
-            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
-            {
-                this.eventCallbackCalled = true;
-            });
-
-            this.viewModelMock.Setup(x => x.OnParameterValueChanged(It.IsAny<object>()))
-                .Callback(() => this.eventCallback.InvokeAsync());
 
             this.renderedComponent = this.context.RenderComponent<CompoundParameterTypeEditor>(parameters =>
             {
