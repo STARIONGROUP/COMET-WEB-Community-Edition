@@ -32,4 +32,6 @@ along with this program. If not, see http://www.gnu.org/licenses/.
     <DxTimeEdit Time="@timeSpan" CssClass="cw-320"
                 TimeChanged="@((TimeSpan time) => this.ViewModel.OnParameterValueChanged(time))"
                 ReadOnly="this.ViewModel.IsReadOnly" />
+
+    <ValidationMessageComponent ViewModel="this.ViewModel.ValidationMessageViewModel" />
 }

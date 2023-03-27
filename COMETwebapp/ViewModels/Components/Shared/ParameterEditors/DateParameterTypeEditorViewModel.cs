@@ -25,8 +25,10 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+    using DynamicData;
 
     /// <summary>
     /// ViewModel used to edit <see cref="DateParameterType"/>
@@ -50,14 +52,25 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
+            this.ValidationMessageViewModel.Messages.Clear();
+
+            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
+
+            if (validationMessage != null)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                this.ValidationMessageViewModel.Messages.Add(validationMessage);
+            }
+            else
+            {
+                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
                 {
-                    [this.ValueArrayIndex] = valueString
-                };
-                
-                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                    {
+                        [this.ValueArrayIndex] = valueString
+                    };
+
+                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                }
             }
         }
     }

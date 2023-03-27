@@ -25,8 +25,10 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+    using DynamicData;
     using Newtonsoft.Json.Linq;
     using System.Globalization;
 
@@ -59,14 +61,25 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 timeString = time.ToString();
             }
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
-            {
-                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
-                {
-                    [this.ValueArrayIndex] = timeString
-                };
+            this.ValidationMessageViewModel.Messages.Clear();
 
-                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
+
+            if (validationMessage != null)
+            {
+                this.ValidationMessageViewModel.Messages.Add(validationMessage);
+            }
+            else
+            {
+                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+                {
+                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                    {
+                        [this.ValueArrayIndex] = timeString
+                    };
+
+                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                }
             }
         }
     }

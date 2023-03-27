@@ -26,10 +26,13 @@ along with this program. If not, see http://www.gnu.org/licenses/.
     <DxComboBox CssClass="boolean-parameter-type"
             Data="@values"
             NullText="-"
+            AllowUserInput="true"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
             Value="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
             ValueChanged="@((string result) => this.ViewModel.OnParameterValueChanged(result))"
             ReadOnly="this.ViewModel.IsReadOnly" />
+
+    <ValidationMessageComponent ViewModel="this.ViewModel.ValidationMessageViewModel" />
 }
 
 

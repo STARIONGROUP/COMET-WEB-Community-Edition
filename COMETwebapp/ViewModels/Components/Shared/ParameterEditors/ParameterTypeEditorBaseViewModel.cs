@@ -55,14 +55,19 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         private ValueArray<string> valueArray;
 
-        /// <summary>
-        /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
-        /// </summary>
-        /// <param name="parameterType">the parameter type of this view model</param>
-        /// <param name="valueSet">the value set asociated to this editor</param>
-        /// <param name="isReadOnly">The readonly state</param>
-        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
+		/// <summary>
+		///     The <see cref="IValidationMessageViewModel" />
+		/// </summary>
+		public IValidationMessageViewModel ValidationMessageViewModel { get; } = new ValidationMessageViewModel();
+
+		/// <summary>
+		/// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
+		/// </summary>
+		/// <param name="parameterType">the parameter type of this view model</param>
+		/// <param name="valueSet">the value set asociated to this editor</param>
+		/// <param name="isReadOnly">The readonly state</param>
+		/// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+		protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
         {
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;

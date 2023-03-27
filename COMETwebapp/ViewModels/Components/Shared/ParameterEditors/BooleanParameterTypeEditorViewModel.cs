@@ -24,17 +24,19 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
     using System.Threading.Tasks;
 
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    /// <summary>
-    /// ViewModel used to edit <see cref="BooleanParameterType"/>
-    /// </summary>
-    public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
+	using DynamicData;
+
+	/// <summary>
+	/// ViewModel used to edit <see cref="BooleanParameterType"/>
+	/// </summary>
+	public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
     {
         /// <summary>
         /// Creates a new instance of type <see cref="BooleanParameterTypeEditorViewModel"/>
@@ -53,14 +55,25 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
+            this.ValidationMessageViewModel.Messages.Clear();
+
+            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
+
+			if (validationMessage != null)
+			{
+				this.ValidationMessageViewModel.Messages.Add(validationMessage);
+			}
+            else
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
                 {
-                    [this.ValueArrayIndex] = valueString
-                };
-                
-                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                    {
+                        [this.ValueArrayIndex] = valueString
+                    };
+
+                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                }
             }
         }
     }

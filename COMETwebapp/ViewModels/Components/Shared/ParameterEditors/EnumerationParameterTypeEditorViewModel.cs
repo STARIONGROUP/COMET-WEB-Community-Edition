@@ -25,8 +25,11 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+
+    using DynamicData;
 
     using ReactiveUI;
 
@@ -157,14 +160,25 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
-            {  
-                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
-                {
-                    [this.ValueArrayIndex] = valueString
-                };
+            this.ValidationMessageViewModel.Messages.Clear();
 
-                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
+
+            if (validationMessage != null)
+            {
+                this.ValidationMessageViewModel.Messages.Add(validationMessage);
+            }
+            else
+            {
+                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
+                {
+                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                    {
+                        [this.ValueArrayIndex] = valueString
+                    };
+
+                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                }
             }
         }
     }

@@ -37,6 +37,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Tests.Helpers;
+    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DevExpress.Blazor;
@@ -56,6 +57,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private IRenderedComponent<TextParameterTypeEditor> renderedComponent;
         private TextParameterTypeEditor editor;
         private Mock<IParameterEditorBaseViewModel<TextParameterType>> viewModelMock;
+        private IValidationMessageViewModel validationMessageViewModel;
         private EventCallback<IValueSet> eventCallback;
         private bool eventCallbackCalled;
 
@@ -64,6 +66,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
+            this.validationMessageViewModel = new ValidationMessageViewModel();
 
             var parameterValueSet = new ParameterValueSet()
             {
@@ -82,6 +85,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
+            this.viewModelMock.Setup(x => x.ValidationMessageViewModel).Returns(this.validationMessageViewModel);
 
             this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
             {

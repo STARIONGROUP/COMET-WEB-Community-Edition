@@ -56,10 +56,15 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         int ValueArrayIndex { get; set; }
 
-        /// <summary>
-        /// Event for when a parameter's value has changed
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        Task OnParameterValueChanged(object value);
+		/// <summary>
+		///     The <see cref="IValidationMessageViewModel" />
+		/// </summary>
+		IValidationMessageViewModel ValidationMessageViewModel { get; }
+
+		/// <summary>
+		/// Event for when a parameter's value has changed
+		/// </summary>
+		/// <returns>an asynchronous operation</returns>
+		Task OnParameterValueChanged(object value);
     }
 }

@@ -27,8 +27,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using System.Globalization;
 
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+    using DynamicData;
 
     /// <summary>
     /// ViewModel used to edit <see cref="DateTimeParameterType"/>
@@ -72,14 +74,25 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             this.DateTimeString = string.Join('T',values);
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
-            {
-                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
-                {
-                    [this.ValueArrayIndex] = this.DateTimeString
-                };
+            this.ValidationMessageViewModel.Messages.Clear();
 
-                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
+
+            if (validationMessage != null)
+            {
+                this.ValidationMessageViewModel.Messages.Add(validationMessage);
+            }
+            else
+            {
+                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+                {
+                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                    {
+                        [this.ValueArrayIndex] = this.DateTimeString
+                    };
+
+                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                }
             }
         }
     }
