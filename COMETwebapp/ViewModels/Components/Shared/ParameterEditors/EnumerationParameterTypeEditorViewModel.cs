@@ -131,13 +131,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 {
                     valueString = "-";
                 }
-                    
-                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+
+                this.ValidationMessageViewModel.Messages.Clear();
+
+                var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
+
+                if (validationMessage != null)
                 {
-                    [this.ValueArrayIndex] = valueString
-                };
-                        
-                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                    this.ValidationMessageViewModel.Messages.Add(validationMessage);
+                }
+                else
+                {
+                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
+                    {
+                        [this.ValueArrayIndex] = valueString
+                    };
+
+                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+                }
             }
 
             this.IsOnEditMode = false;
