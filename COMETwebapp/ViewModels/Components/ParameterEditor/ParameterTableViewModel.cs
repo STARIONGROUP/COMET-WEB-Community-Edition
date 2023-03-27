@@ -223,7 +223,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 switch (parameterOrOverrideBase.Container)
                 {
                     case ElementDefinition elementDefinition when elementDefinition.Iid != elementBaseId:
-                    case ElementUsage elementUsage when elementUsage.Iid != elementBaseId || elementUsage.ElementDefinition.Iid != elementBaseId:
+                    case ElementUsage elementUsage when elementUsage.Iid != elementBaseId && elementUsage.ElementDefinition.Iid != elementBaseId:
                         parametersToRemove.Add(parameterOrOverrideBase.Iid);
                         break;
                 }

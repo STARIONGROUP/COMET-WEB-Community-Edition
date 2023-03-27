@@ -58,7 +58,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.viewModel = new ParameterTableViewModel(this.sessionService.Object);
-            
+
+            this.option = new Option() { Iid = Guid.NewGuid() };
+            var option2 = new Option() { Iid = Guid.NewGuid() };
+
             this.domain = new DomainOfExpertise()
             {
                 Iid = Guid.NewGuid(),
@@ -67,6 +70,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             var parameterType = new SimpleQuantityKind()
             {
+                Iid = Guid.NewGuid(),
                 Name = "mass",
                 ShortName = "m",
             };
@@ -171,7 +175,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 ElementDefinition = elementDefinition,
-                ParameterOverride = { parameterOverride }
+                ParameterOverride = { parameterOverride },
+                ExcludeOption = new List<Option>{option2}
             };
 
             topElement.ContainedElement.Add(usage1);
@@ -180,11 +185,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 Element = { topElement, elementDefinition },
-                TopElement = topElement
+                TopElement = topElement,
+                DefaultOption = this.option
             };
 
-            this.option = new Option() { Iid = Guid.NewGuid() };
             this.iteration.Option.Add(this.option);
+            this.iteration.Option.Add(option2);
         }
 
         [Test]
@@ -250,6 +256,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync(parameterRow.Parameter.ValueSets.First());
             this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Exactly(2));
+        }
+
+        [Test]
+        public void VerifyFiltering()
+        {
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
+
+            this.viewModel.ApplyFilters(this.iteration.Option.Last(), null, null, true);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
+
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, this.iteration.Element.Last(), null, true);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
+
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption,null, new ArrayParameterType(){Iid = Guid.NewGuid()}, true);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(0));
+
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, this.iteration.TopElement.Parameter.First().ParameterType, true);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
+
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, false);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
         }
     }
 }
