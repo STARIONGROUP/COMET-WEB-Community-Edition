@@ -25,6 +25,11 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.SessionManagement
 @using COMETwebapp.ViewModels.Components.ParameterEditor
 @using COMETwebapp.Components.Shared.ParameterTypeEditors;
+@inherits DisposableComponent
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" HeaderText="Edit Compound ParameterType" Width="auto" CloseOnOutsideClick="false">
+        <CompoundParameterTypeEditor ViewModel="this.ViewModel.CompoundParameterTypeEditorViewModel" />
+</DxPopup>
 
 <div class="container-fluid table-container">
     <DxGrid CssClass="default-grid"
@@ -56,7 +61,7 @@ Copyright (c) 2023 RHEA System S.A.
                 <CellDisplayTemplate>
                     @if (context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel"/>
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel" />
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>

@@ -42,7 +42,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         public void VerifyCreateBooleanParameterTypeEditor()
         {
             var booleanParameterEditor = this.CreateParameterEditorViewModel<BooleanParameterType>();
-
+                        
             Assert.Multiple(() =>
             {
                 Assert.That(booleanParameterEditor, Is.TypeOf<BooleanParameterTypeEditorViewModel>());
@@ -51,7 +51,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
-           
+
+            booleanParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
+
             Assert.Multiple(() =>
             {
                 Assert.That(booleanParameterEditor.IsReadOnly, Is.True);
@@ -72,6 +74,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
+
+            compoundParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
             
             Assert.Multiple(() =>
             {
@@ -93,6 +97,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
+
+            dateParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
             
             Assert.Multiple(() =>
             {
@@ -114,7 +120,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
-            
+
+            dateTimeParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
+
             Assert.Multiple(() =>
             {
                 Assert.That(dateTimeParameterEditor.IsReadOnly, Is.True);
@@ -136,6 +144,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
 
+            enumerationParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
+
             Assert.Multiple(() =>
             { 
                 Assert.That(enumerationParameterEditor.IsReadOnly, Is.True); 
@@ -154,9 +164,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(textParameterEditor.IsReadOnly, Is.False);
                 Assert.That(async () => await textParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
-
-            this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
             
+            this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
+
+            textParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
+
             Assert.Multiple(() =>
             {
                 Assert.That(textParameterEditor.IsReadOnly, Is.True);
@@ -185,7 +197,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
-            
+
+            quantityKindEditor.ValueArray = new ValueArray<string>(new[] { "" });
+
             Assert.Multiple(() =>
             {
                 Assert.That(quantityKindEditor.IsReadOnly, Is.True); 
@@ -205,7 +219,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
-            this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);            
+            this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
+
+            timeOfDayParameterEditor.ValueArray = new ValueArray<string>(new[] { "" });
 
             Assert.Multiple(() =>
             {

@@ -35,7 +35,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     /// <summary>
     /// ViewModel used to edit <see cref="EnumerationParameterType"/>
     /// </summary>
-    public class EnumerationParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<EnumerationParameterType>, IEnumerationParameterTypeEditorViewModel
+    public class EnumerationParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<EnumerationParameterType>, IEnumerationParameterTypeEditorViewModel 
     {
         /// <summary>
         ///    The available <see cref="EnumerationValueDefinition"/>s
@@ -48,10 +48,19 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter used for this editor view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
             this.EnumerationValueDefinitions = parameterType.ValueDefinition;
-            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
+            
+            if (valueArrayIndex != 0)
+            {
+                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray[valueArrayIndex].Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
+            }
+            else
+            {
+                this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
+            }
         }
 
         /// <summary>
@@ -111,20 +120,20 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             IEnumerable<string> elements = this.EnumerationValueDefinitions.Where(x => SelectedEnumerationValueDefinitions.Contains(x.Name)).Select(x => x.ShortName);
 
-            var value = string.Join("|", elements);
+            var value = string.Join(" | ", elements);
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                if(!this.SelectedEnumerationValueDefinitions.Any())
+                if (!this.SelectedEnumerationValueDefinitions.Any())
                 {
                     valueString = "-";
                 }
-
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                    
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    [0] = valueString
+                    [this.ValueArrayIndex] = valueString
                 };
-
+                        
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
 
@@ -136,7 +145,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         public void OnCancelButtonClick()
         {
-            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split('|').ToList().Contains(x.ShortName)).Select(x => x.Name);
+            this.SelectedEnumerationValueDefinitions = this.EnumerationValueDefinitions.Where(x => ValueArray.First().Split(" | ").ToList().Contains(x.ShortName)).Select(x => x.Name);
             this.IsOnEditMode = false;
         }
 
@@ -146,11 +155,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
-            {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+            var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
+
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
+            {  
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    [0] = valueString
+                    [this.ValueArrayIndex] = valueString
                 };
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);

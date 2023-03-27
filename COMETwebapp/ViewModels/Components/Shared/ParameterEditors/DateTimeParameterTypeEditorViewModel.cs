@@ -46,7 +46,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public DateTimeParameterTypeEditorViewModel(DateTimeParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType,valueSet, isReadOnly)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public DateTimeParameterTypeEditorViewModel(DateTimeParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType,valueSet, isReadOnly, valueArrayIndex)
         {
             this.DateTimeString = valueSet.ActualValue.First();
         }
@@ -73,9 +74,9 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    [0] = this.DateTimeString
+                    [this.ValueArrayIndex] = this.DateTimeString
                 };
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);

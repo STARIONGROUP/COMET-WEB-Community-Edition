@@ -26,7 +26,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     using Bunit;
 
@@ -39,8 +38,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -56,9 +53,8 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<CompoundParameterTypeEditor> renderedComponent;
         private CompoundParameterTypeEditor editor;
-        private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<CompoundParameterType>> viewModelMock;
-        private EventCallback<IValueSet> eventCallback;
+        private Mock<IParameterTypeEditorSelectorViewModel> parameterEditorSelectorViewModelMock;
 
         [SetUp]
         public void SetUp()
@@ -85,6 +81,11 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                     {
                         Iid = Guid.NewGuid(),
                         ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
                     }
                 },
                 new ParameterTypeComponent
@@ -95,6 +96,11 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                     {
                         Iid = Guid.NewGuid(),
                         ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
                     }
                 },
                 new ParameterTypeComponent
@@ -102,6 +108,11 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                     Iid = Guid.NewGuid(),
                     ShortName = "thirdValue",
                     Scale = new OrdinalScale()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind()
                     {
                         Iid = Guid.NewGuid(),
                         ShortName = "m"
@@ -117,17 +128,13 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             parametertype.Component.AddRange(compoundData);
 
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<CompoundParameterType>>();
+            this.parameterEditorSelectorViewModelMock = new Mock<IParameterTypeEditorSelectorViewModel>();
+            this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>();
+            this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>().Setup(x => x.IsOnEditMode).Returns(true);
+            this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>().Setup(x => x.CreateParameterTypeEditorSelectorViewModel(It.IsAny<ParameterType>(), It.IsAny<int>())).Returns(this.parameterEditorSelectorViewModelMock.Object);
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parametertype);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
-
-            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
-            {
-                this.eventCallbackCalled = true;
-            });
-
-            this.viewModelMock.Setup(x => x.OnParameterValueChanged(It.IsAny<object>()))
-                .Callback(() => this.eventCallback.InvokeAsync());
 
             this.renderedComponent = this.context.RenderComponent<CompoundParameterTypeEditor>(parameters =>
             {
@@ -152,30 +159,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 Assert.That(this.editor, Is.Not.Null);
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
             });
-        }
-
-        [Test]
-        public async Task VerifyParameterValueChanged()
-        {
-            var textbox = this.renderedComponent.FindComponent<DxTextBox>();
-            Assert.That(textbox, Is.Not.Null);
-            await this.renderedComponent.InvokeAsync(() => this.viewModelMock.Object.OnParameterValueChanged("value"));
-            Assert.That(this.eventCallbackCalled, Is.True);
-        }
-
-        [Test]
-        public void VerifyThatComponetCanBeReadOnly()
-        {
-            this.viewModelMock.Setup(x => x.IsReadOnly).Returns(true);
-
-            this.renderedComponent.SetParametersAndRender(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
-            });
-
-            var textbox = this.renderedComponent.FindComponent<DxTextBox>();
-            this.editor.ViewModel.IsReadOnly = true;
-            Assert.That(textbox.Instance.ReadOnly, Is.True);
         }
 
         [Test]

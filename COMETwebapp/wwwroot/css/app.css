@@ -399,6 +399,10 @@ html, body, #app {
     background-image: url(SVG/icons/save.svg)
 }
 
+.icon-edit {
+    background-image: url(SVG/icons/edit.svg)
+}
+
 .todo-table {
     border: 2px solid #008bd2;
     border-radius: 5px;

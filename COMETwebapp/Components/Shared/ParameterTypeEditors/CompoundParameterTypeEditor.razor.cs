@@ -60,6 +60,11 @@ namespace COMETwebapp.Components.Shared.ParameterTypeEditors
         {
             base.OnParametersSet();
 
+            if (this.ViewModel is ICompoundParameterTypeEditorViewModel vm)
+            {
+                this.Disposables.Add(vm.WhenAnyValue(x => x.IsOnEditMode).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            }
+
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly, 
                 x => x.ViewModel.ValueArray).Subscribe(_ => this.StateHasChanged()));
         }

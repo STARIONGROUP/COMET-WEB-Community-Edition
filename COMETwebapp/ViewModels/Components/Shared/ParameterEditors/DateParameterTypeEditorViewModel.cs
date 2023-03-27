@@ -39,7 +39,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        public DateParameterTypeEditorViewModel(DateParameterType parameterType, IValueSet valueSet, bool isReadOnly) : base(parameterType, valueSet, isReadOnly)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public DateParameterTypeEditorViewModel(DateParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
         }
 
@@ -51,11 +52,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
             {
-                var modifiedValueArray = new ValueArray<string>(this.ValueSet.ActualValue)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    [0] = valueString
+                    [this.ValueArrayIndex] = valueString
                 };
-
+                
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }

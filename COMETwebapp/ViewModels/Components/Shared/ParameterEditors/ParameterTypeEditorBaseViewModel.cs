@@ -61,11 +61,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
-        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly)
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
         {
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
             this.initialReadOnlyValue = isReadOnly;
+            this.ValueArrayIndex = valueArrayIndex;
 
             this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
         }
@@ -102,6 +104,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Gets or sets the value set of this <see cref="T" />
         /// </summary>
         public IValueSet ValueSet { get; set; }
+
+        /// <summary>
+        /// Gets the index of the value changed in the value sets
+        /// </summary>
+        public int ValueArrayIndex { get; set; }
 
         /// <summary>
         /// The current <see cref="ParameterSwitchKind" />

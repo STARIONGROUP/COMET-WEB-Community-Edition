@@ -25,11 +25,12 @@
 namespace COMETwebapp.Components.ParameterEditor
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using Microsoft.AspNetCore.Components;
+    
+    using ReactiveUI;
 
     /// <summary>
     /// Class for the component <see cref="ParameterTable"/>
@@ -50,6 +51,9 @@ namespace COMETwebapp.Components.ParameterEditor
         {
             base.OnInitialized();
 
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
+                            .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            
             this.ViewModel.Rows.CountChanged.Subscribe( _ =>
             { 
                 this.InvokeAsync(this.StateHasChanged);

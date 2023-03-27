@@ -27,7 +27,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
             Data="@values"
             NullText="-"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-            Value="@this.ViewModel.ValueArray.First()"
+            Value="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
             ValueChanged="@((string result) => this.ViewModel.OnParameterValueChanged(result))"
             ReadOnly="this.ViewModel.IsReadOnly" />
 }
