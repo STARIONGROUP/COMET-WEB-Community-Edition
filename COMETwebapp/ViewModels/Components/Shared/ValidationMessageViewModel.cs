@@ -36,15 +36,5 @@ namespace COMETwebapp.ViewModels.Components.Shared
 		///     A collection of validation messages to display
 		/// </summary>
 		public SourceList<string> Messages { get; private set; } = new();
-
-		/// <summary>
-		///     Display the new collection of messages
-		/// </summary>
-		/// <param name="messages">The new collection of messages</param>
-		public void HandleValidationMessages(IEnumerable<string> messages)
-		{
-			this.Messages.Clear();
-			this.Messages.AddRange(messages);
-		}
 	}
 }
