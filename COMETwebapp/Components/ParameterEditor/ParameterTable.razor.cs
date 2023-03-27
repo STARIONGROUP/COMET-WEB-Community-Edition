@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterTable.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -33,12 +33,12 @@ namespace COMETwebapp.Components.ParameterEditor
     using ReactiveUI;
 
     /// <summary>
-    /// Class for the component <see cref="ParameterTable"/>
+    /// Class for the component <see cref="ParameterTable" />
     /// </summary>
     public partial class ParameterTable
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTableViewModel"/>
+        /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         [Parameter]
         public IParameterTableViewModel ViewModel { get; set; }
@@ -54,10 +54,7 @@ namespace COMETwebapp.Components.ParameterEditor
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
                             .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
             
-            this.ViewModel.Rows.CountChanged.Subscribe( _ =>
-            { 
-                this.InvokeAsync(this.StateHasChanged);
-            });
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe( _ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

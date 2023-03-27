@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IParameterTableViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -24,8 +24,10 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
-    
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
     
     using DynamicData;
@@ -36,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     public interface IParameterTableViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ParameterBaseRowViewModel"/> for this <see cref="ParameterTableViewModel"/>
+        /// Gets the collection of the <see cref="ParameterBaseRowViewModel"/>
         /// </summary>
         SourceList<ParameterBaseRowViewModel> Rows { get; }
 
@@ -59,7 +61,24 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Initializes this <see cref="IParameterTableViewModel"/>
         /// </summary>
-        /// <param name="elements">the elements of the table</param>
-        void InitializeViewModel(IEnumerable<ElementBase> elements);
+        /// <param name="currentIteration">The current <see cref="Iteration"/></param>
+        /// <param name="currentDomain">The <see cref="DomainOfExpertise"/></param>
+        /// <param name="selectedOption">The select <see cref="Option"/></param>
+        void InitializeViewModel(Iteration currentIteration, DomainOfExpertise currentDomain, Option selectedOption);
+
+        /// <summary>
+        /// Update the current <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="currentDomain">The new <see cref="DomainOfExpertise"/></param>
+        void UpdateDomain(DomainOfExpertise currentDomain);
+
+        /// <summary>
+        /// Apply filters based on <see cref="Option"/>, <see cref="ElementBase"/>, <see cref="ParameterType"/> and <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="selectedOption">The selected <see cref="Option"/></param>
+        /// <param name="selectedElementBase">The selected <see cref="ElementBase"/></param>
+        /// <param name="selectedParameterType">The selected <see cref="ParameterType"/></param>
+        /// <param name="isOwnedParameters">Value asserting that the only <see cref="Thing"/> owned by the current <see cref="DomainOfExpertise"/> should be visible</param>
+        void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, ParameterType selectedParameterType, bool isOwnedParameters);
     }
 }

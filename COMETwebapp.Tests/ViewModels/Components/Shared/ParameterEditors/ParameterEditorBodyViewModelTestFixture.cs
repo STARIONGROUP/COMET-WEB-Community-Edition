@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterEditorBodyViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -51,13 +51,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
     public class ParameterEditorBodyViewModelTestFixture
     {
         private IParameterEditorBodyViewModel viewModel;
+        private Mock<IParameterTableViewModel> tableViewModel;
+        private Iteration iteration;
 
         [SetUp]
         public void SetUp()
         {
             var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             var uri = new Uri("http://localhost");
-
+            var domain = new DomainOfExpertise() { Iid = Guid.NewGuid()};
             var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
             var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
             var elementUsage3 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element3" };
@@ -67,13 +69,25 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             {
                 Iid = Guid.NewGuid(),
                 Name = "element1",
-                ContainedElement = { elementUsage1 },
                 Parameter =
                 {
                     new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new TextParameterType { Name = "textParamType" }
+                        Owner = domain,
+                        ParameterType = new TextParameterType
+                        {
+                            Name = "textParamType"
+                        }, 
+                        ValueSet = 
+                        {
+                            new ParameterValueSet()
+                            {
+                                Iid = Guid.NewGuid(),
+                                Computed = new ValueArray<string>(new []{"-"}),
+                                Formula = new ValueArray<string>(new []{"-"})
+                            }
+                        }
                     }
                 }
             };
@@ -82,13 +96,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             {
                 Iid = Guid.NewGuid(),
                 Name = "element2",
-                ContainedElement = { elementUsage2 },
                 Parameter =
                 {
                     new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new EnumerationParameterType { Name = "enumParamType" }
+                        Owner = domain,
+                        ParameterType = new EnumerationParameterType { Name = "enumParamType" },
+                        ValueSet =
+                        {
+                            new ParameterValueSet()
+                            {
+                                Iid = Guid.NewGuid(),
+                                Computed = new ValueArray<string>(new []{"-"}),
+                                Formula = new ValueArray<string>(new []{"-"})
+                            }
+                        }
                     }
                 }
             };
@@ -97,13 +120,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             {
                 Iid = Guid.NewGuid(),
                 Name = "element3",
-                ContainedElement = { elementUsage3 },
                 Parameter =
                 {
                     new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new CompoundParameterType { Name = "compoundParamType" }
+                        Owner = domain,
+                        ParameterType = new CompoundParameterType { Name = "compoundParamType" },
+                        ValueSet =
+                        {
+                            new ParameterValueSet()
+                            {
+                                Iid = Guid.NewGuid(),
+                                Computed = new ValueArray<string>(new []{"-"}),
+                                Formula = new ValueArray<string>(new []{"-"})
+                            }
+                        }
                     }
                 }
             };
@@ -112,13 +144,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             {
                 Iid = Guid.NewGuid(),
                 Name = "element4",
-                ContainedElement = { elementUsage4 },
                 Parameter =
                 {
                     new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new BooleanParameterType { Name = "booleanParamType" }
+                        Owner = domain,
+                        ParameterType = new BooleanParameterType { Name = "booleanParamType" },
+                        ValueSet =
+                        {
+                            new ParameterValueSet()
+                            {
+                                Iid = Guid.NewGuid(),
+                                Computed = new ValueArray<string>(new []{"-"}),
+                                Formula = new ValueArray<string>(new []{"-"})
+                            }
+                        }
                     }
                 }
             };
@@ -137,17 +178,31 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                     new Parameter
                     {
                         Iid = Guid.NewGuid(),
-                        ParameterType = new TextParameterType {Name = "textParamType"}
+                        Owner = domain,
+                        ParameterType = new TextParameterType {Name = "textParamType"},
+                        ValueSet =
+                        {
+                            new ParameterValueSet()
+                            {
+                                Iid = Guid.NewGuid(),
+                                Computed = new ValueArray<string>(new []{"-"}),
+                                Formula = new ValueArray<string>(new []{"-"})
+                            }
+                        }
                     }
+                },
+                ContainedElement =
+                {
+                    elementUsage1, elementUsage2, elementUsage3, elementUsage4
                 }
             };
 
-            var iteration = new Iteration();
-            iteration.TopElement = topElement;
-            iteration.Element.AddRange(new List<ElementDefinition>() { elementDefinition1, elementDefinition2, elementDefinition3, elementDefinition4 });
-            iteration.Option.Add(new Option(Guid.NewGuid(), cache, uri));
-            iteration.Option.Add(new Option(Guid.NewGuid(), cache, uri));
-            iteration.DefaultOption = iteration.Option.First();
+            this.iteration = new Iteration();
+            this.iteration.TopElement = topElement;
+            this.iteration.Element.AddRange(new List<ElementDefinition> { topElement, elementDefinition1, elementDefinition2, elementDefinition3, elementDefinition4 });
+            this.iteration.Option.Add(new Option(Guid.NewGuid(), cache, uri));
+            this.iteration.Option.Add(new Option(Guid.NewGuid(), cache, uri));
+            this.iteration.DefaultOption = this.iteration.Option.First();
 
             var sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
@@ -155,11 +210,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             sessionService.Setup(x => x.Session).Returns(session.Object);
+            sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(domain);
 
             var subscriptionService = new Mock<ISubscriptionService>();
+            this.tableViewModel = new Mock<IParameterTableViewModel>();
 
-            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object);
-            this.viewModel.CurrentIteration = iteration;
+            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object, this.tableViewModel.Object);
+            this.viewModel.CurrentIteration = this.iteration;
         }
 
         [TearDown]
@@ -174,24 +231,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SubscriptionService, Is.Not.Null);
-                Assert.That(this.viewModel.Elements, Is.Not.Null);
-                Assert.That(this.viewModel.FilteredElements, Is.Not.Null);
                 Assert.That(this.viewModel.ElementSelector, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterTypeSelector, Is.Not.Null);
                 Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
-                Assert.That(this.viewModel.IsOwnedParameters, Is.False);
-            });
-        }
-
-        [Test]
-        public async Task VerifyInitializeViewModel()
-        {
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.Elements, Is.Not.Null);
-                Assert.That(this.viewModel.Elements.ToList(), Has.Count.EqualTo(5));
+                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
+                Assert.That(this.viewModel.IsOwnedParameters, Is.True);
             });
         }
 
@@ -200,43 +244,35 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            var firstElement = this.viewModel.Elements.First();
-
-            this.viewModel.OptionSelector.SelectedOption = null;
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
-
-            this.viewModel.ElementSelector.SelectedElementBase = firstElement;
+            this.viewModel.ElementSelector.SelectedElementBase = this.viewModel.ElementSelector.AvailableElements.First();
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.ApplyFilters(this.viewModel.Elements);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(1));
-                Assert.That(this.viewModel.FilteredElements.Items.Contains(firstElement), Is.True);
-            });
+            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption, 
+                    this.viewModel.ElementSelector.SelectedElementBase, null, true), Times.Once);
 
             this.viewModel.ElementSelector.SelectedElementBase = null;
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = new TextParameterType() { Name = "textParamType" };
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.ApplyFilters(this.viewModel.Elements);
+            this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(2));
-            });
+            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption,
+                null, this.viewModel.ParameterTypeSelector.SelectedParameterType, true), Times.Once);
 
             this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
-            this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentIteration.DefaultOption;
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.ApplyFilters(this.viewModel.Elements);
+            this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentIteration.Option.Last();
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.FilteredElements, Has.Count.EqualTo(1));
-            });
+            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.Option.Last(),
+                null, null, true), Times.Once);
+
+            this.viewModel.IsOwnedParameters = false;
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.Option.Last(),
+                null, null, false), Times.Once);
         }
     }
 }

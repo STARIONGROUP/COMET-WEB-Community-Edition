@@ -94,5 +94,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
         /// </summary>
         IParameterTypeEditorSelectorViewModel ParameterTypeEditorSelectorViewModel { get; }
+
+        /// <summary>
+        /// Gets the published value
+        /// </summary>
+        string PublishedValue { get; }
     }
 }

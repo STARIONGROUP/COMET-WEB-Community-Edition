@@ -76,10 +76,19 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
                 Name = "QuantityKind"
             };
 
+            var parameter = new Parameter()
+            {
+                Scale = new RatioScale()
+                {
+                    ShortName = "kg"
+                }
+            };
+
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<QuantityKind>>();
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
+            this.viewModelMock.Setup(x => x.Parameter).Returns(parameter);
 
             this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet _) =>
             {

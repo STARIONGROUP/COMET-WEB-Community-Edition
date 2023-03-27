@@ -45,7 +45,7 @@
                 <div class="width-fit-content">
                     <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
                                 CheckType="CheckType.Switch">
-                        Only Parameters owned by @this.ViewModel.QueryDomainOfExpertiseName() domain
+                        Only Parameters owned by @this.ViewModel.CurrentDomain?.Name domain
                     </DxCheckBox>
                 </div>
             </div>

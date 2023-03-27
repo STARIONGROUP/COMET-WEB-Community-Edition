@@ -66,10 +66,22 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
             this.ParameterType = this.Parameter.ParameterType;
             this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
+            
+            if (valueSet is ParameterValueSetBase valueSetBase)
+            {
+                this.PublishedValue = valueSetBase.Published.First();
+
+                if (this.Parameter.Scale != null)
+                {
+                    this.PublishedValue += $" [{this.Parameter.Scale.ShortName}]";
+                }
+            }
+
             this.OwnerName = this.Parameter.Owner is not null ? this.Parameter.Owner.ShortName : string.Empty;
             this.ModelCode = this.Parameter.ModelCode();
             this.ElementBaseName = (parameterBase.Container as ElementBase)?.Name;
             this.ValueSet = valueSet;
+            this.ValueSetId = (this.ValueSet as ParameterValueSetBase)?.Iid ?? Guid.Empty;
             this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
             this.State = valueSet.ActualState is not null ? valueSet.ActualState.Name : string.Empty;
             this.Switch = valueSet.ValueSwitch;
@@ -87,6 +99,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterSwitchKindSelectorViewModel.SwitchValue)
                 .Subscribe(_ => this.OnParameterValueSwitchChanged()));
         }
+
+        /// <summary>
+        /// Gets the published value
+        /// </summary>
+        public string PublishedValue { get; }
+
+        /// <summary>
+        /// The <see cref="Guid" /> of the represented <see cref="IValueSet" />
+        /// </summary>
+        public Guid ValueSetId { get; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />

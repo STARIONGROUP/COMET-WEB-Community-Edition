@@ -27,11 +27,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Permission;
 
-    using COMETwebapp.Extensions;
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -45,9 +45,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private ParameterTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
-        private IEnumerable<ElementBase> elementBases;
         private DomainOfExpertise domain;
         private Iteration iteration;
+        private Option option;
 
         [SetUp]
         public void Setup()
@@ -58,10 +58,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.viewModel = new ParameterTableViewModel(this.sessionService.Object);
-            this.elementBases = new List<ElementBase>();
             
             this.domain = new DomainOfExpertise()
             {
+                Iid = Guid.NewGuid(),
                 ShortName = "SYS"
             };
 
@@ -80,22 +80,38 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             var parameter1 = new Parameter()
             {
                 Iid = Guid.NewGuid(),
+                Owner = this.domain,
                 ParameterType = parameterType,
                 Scale = scale,
                 ValueSet = 
                 { 
                     new ParameterValueSet()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Manual = new ValueArray<string>(new []{"-"}),
+                        Published = new ValueArray<string>(new []{"-"}),
+                        Formula = new ValueArray<string>(new []{"-"}),
+                        ValueSwitch = ParameterSwitchKind.MANUAL
+                    }
                 }
             };
 
             var parameter2 = new Parameter()
             {
                 Iid = Guid.NewGuid(),
+                Owner = this.domain,
                 ParameterType = parameterType,
                 Scale = scale,
                 ValueSet =
                 {
                     new ParameterValueSet()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Published = new ValueArray<string>(new []{"-"}),
+                        Manual = new ValueArray<string>(new []{"-"}),
+                        Formula = new ValueArray<string>(new []{"-"}),
+                        ValueSwitch = ParameterSwitchKind.MANUAL
+                    }
                 }
             };
 
@@ -108,18 +124,31 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 ValueSet =
                 {
                     new ParameterValueSet()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Published = new ValueArray<string>(new []{"-"}),
+                        Manual = new ValueArray<string>(new []{"-"}),
+                        Formula = new ValueArray<string>(new []{"-"}),
+                        ValueSwitch = ParameterSwitchKind.MANUAL
+                    }
                 }
             };
 
             var parameterOverride = new ParameterOverride
             {
                 Iid = Guid.NewGuid(),
+                Owner = this.domain,
                 Parameter = parameter1,
                 ValueSet =
                 {
                     new ParameterOverrideValueSet
                     {
-                        ParameterValueSet = parameter1.ValueSet[0]
+                        Iid = Guid.NewGuid(),
+                        Published = new ValueArray<string>(new []{"-"}),
+                        ParameterValueSet = parameter1.ValueSet[0],
+                        Manual =  new ValueArray<string>(new []{"-"}),
+                        Formula = new ValueArray<string>(new []{"-"}),
+                        ValueSwitch = ParameterSwitchKind.MANUAL
                     }
                 }
             };
@@ -154,20 +183,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 TopElement = topElement
             };
 
-            this.elementBases = this.iteration.QueryElementsBase();
+            this.option = new Option() { Iid = Guid.NewGuid() };
+            this.iteration.Option.Add(this.option);
         }
 
         [Test]
         public void VerifyInitializeViewModel()
         {
-            this.viewModel.InitializeViewModel(this.elementBases);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(4));
         }
 
         [Test]
         public void VerifyParameterRowProperties()
         {
-            this.viewModel.InitializeViewModel(this.elementBases);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
             var parameterRow = this.viewModel.Rows.Items.First();
             
             Assert.Multiple(() =>
@@ -183,15 +213,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         [Test]
         public async Task VerifyParameterRowBehavior()
         {
-            this.viewModel.InitializeViewModel(this.elementBases);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
             var parameterRow = this.viewModel.Rows.Items.First();
-            var editorViewModel = parameterRow.ParameterTypeEditorSelectorViewModel.CreateParameterEditorViewModel<QuantityKind>();
 
             Assert.Multiple(() =>
             {
                 Assert.That(() => parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue = ParameterSwitchKind.MANUAL, Throws.Nothing);
                 Assert.That(parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue == ParameterSwitchKind.MANUAL);
-                Assert.That(editorViewModel.CurrentParameterSwitchKind == ParameterSwitchKind.COMPUTED);
             });
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
@@ -202,18 +230,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
 
-            this.viewModel.InitializeViewModel(this.elementBases);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
             parameterRow = this.viewModel.Rows.Items.First();
-            editorViewModel = parameterRow.ParameterTypeEditorSelectorViewModel.CreateParameterEditorViewModel<QuantityKind>();
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
             this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Never);
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue = ParameterSwitchKind.MANUAL, Throws.Nothing);
-                Assert.That(parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue == ParameterSwitchKind.MANUAL);
-                Assert.That(editorViewModel.CurrentParameterSwitchKind == ParameterSwitchKind.MANUAL);
+                Assert.That(() => parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue = ParameterSwitchKind.REFERENCE, Throws.Nothing);
+                Assert.That(parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue == ParameterSwitchKind.REFERENCE);
             });
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();

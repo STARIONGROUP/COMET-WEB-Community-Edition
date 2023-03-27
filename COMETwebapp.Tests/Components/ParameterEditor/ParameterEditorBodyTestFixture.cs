@@ -82,8 +82,6 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             elements.Add(new ElementDefinition() { Name = "Element2" });
             elements.Add(new ElementDefinition() { Name = "Element3" });
 
-            parameterEditorViewModel.Setup(x => x.Elements).Returns(elements.Items.ToList());
-            parameterEditorViewModel.Setup(x => x.FilteredElements).Returns(elements);
             parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());

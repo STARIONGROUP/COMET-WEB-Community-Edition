@@ -40,5 +40,10 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 		/// A collection of available <see cref="Option" />
 		/// </summary>
 		IEnumerable<Option> AvailableOptions { get; }
-	}
+
+        /// <summary>
+        /// Value asserting that the current <see cref="Option"/> can be set to null or not
+        /// </summary>
+        bool AllowNullOption { get; }
+    }
 }

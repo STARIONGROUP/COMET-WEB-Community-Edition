@@ -30,6 +30,6 @@
 	            @bind-Value="@this.ViewModel.SelectedOption"
 	            FilteringMode="DataGridFilteringMode.Contains"
 	            TextFieldName="@nameof(Option.Name)"
-	            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+	            ClearButtonDisplayMode="@(this.ViewModel.AllowNullOption ? DataEditorClearButtonDisplayMode.Auto : DataEditorClearButtonDisplayMode.Never)"
 	            NullText="Select an Option"/>
 }
