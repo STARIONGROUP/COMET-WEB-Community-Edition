@@ -183,7 +183,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Shared.ParameterEditors
                 Assert.That(async () => await textParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
             });
 
-            Assert.That(async () => await textParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
+            Assert.That(async () => await textParameterEditor.OnParameterValueChanged(5), Throws.Nothing);
         }
 
         [Test]
