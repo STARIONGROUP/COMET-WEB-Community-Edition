@@ -57,8 +57,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         int ValueArrayIndex { get; set; }
 
         /// <summary>
-		///     The validation messages to display
-		/// </summary>
+        ///     The validation messages to display
+        /// </summary>
         string ValidationMessage { get; set; }
 
         /// <summary>

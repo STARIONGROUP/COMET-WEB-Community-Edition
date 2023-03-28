@@ -37,7 +37,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.Components.Shared.ParameterTypeEditors;
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DevExpress.Blazor;

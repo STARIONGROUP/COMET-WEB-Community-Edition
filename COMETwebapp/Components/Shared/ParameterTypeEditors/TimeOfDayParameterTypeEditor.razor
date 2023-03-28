@@ -33,8 +33,5 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                 TimeChanged="@((TimeSpan time) => this.ViewModel.OnParameterValueChanged(time))"
                 ReadOnly="this.ViewModel.IsReadOnly" />
 
-    if (!string.IsNullOrEmpty(this.ViewModel.ValidationMessage))
-    {
-        <li class="text-danger">@this.ViewModel.ValidationMessage</li>
-    }
+    <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
 }

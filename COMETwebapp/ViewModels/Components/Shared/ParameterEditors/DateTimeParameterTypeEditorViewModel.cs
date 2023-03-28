@@ -27,12 +27,9 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using System.Globalization;
 
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
     
-    using DynamicData;
-
     /// <summary>
     /// ViewModel used to edit <see cref="DateTimeParameterType"/>
     /// </summary>

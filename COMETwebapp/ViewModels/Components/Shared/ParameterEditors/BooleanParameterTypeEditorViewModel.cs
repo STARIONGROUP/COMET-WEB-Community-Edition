@@ -27,16 +27,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using System.Threading.Tasks;
 
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-	using DynamicData;
-
-	/// <summary>
-	/// ViewModel used to edit <see cref="BooleanParameterType"/>
-	/// </summary>
-	public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
+    /// <summary>
+    /// ViewModel used to edit <see cref="BooleanParameterType"/>
+    /// </summary>
+    public class BooleanParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<BooleanParameterType>
     {
         /// <summary>
         /// Creates a new instance of type <see cref="BooleanParameterTypeEditorViewModel"/>
