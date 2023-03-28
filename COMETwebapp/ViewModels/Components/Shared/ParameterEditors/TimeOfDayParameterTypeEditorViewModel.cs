@@ -28,9 +28,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
+    
     using DynamicData;
-    using Newtonsoft.Json.Linq;
-    using System.Globalization;
 
     /// <summary>
     /// ViewModel used to edit <see cref="TimeOfDayParameterType"/>
@@ -61,25 +60,14 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 timeString = time.ToString();
             }
 
-            this.ValidationMessageViewModel.Messages.Clear();
-
-            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
-
-            if (validationMessage != null)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && this.AreChangesValid(value))
             {
-                this.ValidationMessageViewModel.Messages.Add(validationMessage);
-            }
-            else
-            {
-                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
-                    {
-                        [this.ValueArrayIndex] = timeString
-                    };
+                    [this.ValueArrayIndex] = timeString
+                };
 
-                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
-                }
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }
     }

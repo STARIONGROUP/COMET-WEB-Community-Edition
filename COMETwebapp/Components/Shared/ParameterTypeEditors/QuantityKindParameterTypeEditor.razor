@@ -29,5 +29,8 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                BindValueMode="@this.BindValueMode">
     </DxTextBox>
 
-    <ValidationMessageComponent ViewModel="this.ViewModel.ValidationMessageViewModel" />
+    @if (!string.IsNullOrEmpty(this.ViewModel.ValidationMessage))
+    {
+        <li class="text-danger">@this.ViewModel.ValidationMessage</li>
+    }
 </div>

@@ -125,30 +125,19 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             var value = string.Join(" | ", elements);
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString && this.AreChangesValid(value))
             {
                 if (!this.SelectedEnumerationValueDefinitions.Any())
                 {
                     valueString = "-";
                 }
 
-                this.ValidationMessageViewModel.Messages.Clear();
-
-                var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
-
-                if (validationMessage != null)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    this.ValidationMessageViewModel.Messages.Add(validationMessage);
-                }
-                else
-                {
-                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
-                    {
-                        [this.ValueArrayIndex] = valueString
-                    };
+                    [this.ValueArrayIndex] = valueString
+                };
 
-                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
-                }
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
 
             this.IsOnEditMode = false;
@@ -171,26 +160,15 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
 
-            this.ValidationMessageViewModel.Messages.Clear();
-
-            var validationMessage = ParameterValueValidator.Validate(value, this.ParameterType);
-
-            if (validationMessage != null)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString && this.AreChangesValid(value))
             {
-                this.ValidationMessageViewModel.Messages.Add(validationMessage);
-            }
-            else
-            {
-                if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
+                var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    var modifiedValueArray = new ValueArray<string>(this.ValueArray)
-                    {
-                        [this.ValueArrayIndex] = valueString
-                    };
+                    [this.ValueArrayIndex] = valueString
+                };
 
-                    await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
-                }
-            }
+                await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
+            }               
         }
     }
 }

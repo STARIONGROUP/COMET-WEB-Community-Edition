@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -55,19 +56,19 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// </summary>
         private ValueArray<string> valueArray;
 
-		/// <summary>
-		///     The <see cref="IValidationMessageViewModel" />
+        /// <summary>
+		///     The validation messages to display
 		/// </summary>
-		public IValidationMessageViewModel ValidationMessageViewModel { get; } = new ValidationMessageViewModel();
+        public string ValidationMessage { get; set; }
 
-		/// <summary>
-		/// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
-		/// </summary>
-		/// <param name="parameterType">the parameter type of this view model</param>
-		/// <param name="valueSet">the value set asociated to this editor</param>
-		/// <param name="isReadOnly">The readonly state</param>
-		/// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-		protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
+        /// </summary>
+        /// <param name="parameterType">the parameter type of this view model</param>
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        /// <param name="isReadOnly">The readonly state</param>
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
         {
             this.ParameterType = parameterType;
             this.ValueSet = valueSet;
@@ -136,6 +137,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 ParameterSwitchKind.REFERENCE => this.ValueSet.Reference,
                 _ => throw new ArgumentOutOfRangeException(nameof(parameterSwitchKind), parameterSwitchKind, "Unknowned ParameterSwitchKind")
             };
+        }
+
+        /// <summary>
+        /// Verifies if the changing value is valid
+        /// </summary>
+        /// <param name="value">The value to validate </param>
+        public bool AreChangesValid(object value) {
+            
+            if (this.ParameterType is QuantityKind quantityKind)
+            {
+                this.ValidationMessage = string.Empty + ParameterValueValidator.Validate(value, quantityKind, quantityKind.DefaultScale);
+            }
+            else
+            {
+                this.ValidationMessage = string.Empty + ParameterValueValidator.Validate(value, this.ParameterType);
+            }
+            
+            return this.ValidationMessage == string.Empty; 
         }
 
         /// <summary>

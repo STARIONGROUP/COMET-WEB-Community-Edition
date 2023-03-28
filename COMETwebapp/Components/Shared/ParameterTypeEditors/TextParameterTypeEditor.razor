@@ -46,13 +46,10 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                        ReadOnly="this.ViewModel.IsReadOnly"
                        BindValueMode="@this.BindValueMode"/>
         </div>
-
-        <DxTextBox InputCssClass="text-parameter-type"
-           Text="@this.ViewModel.ValueArray.First()"
-           CssClass="parameter-input"
-           TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
-           ReadOnly="this.ViewModel.IsReadOnly" />
-
     }
-    <ValidationMessageComponent ViewModel="this.ViewModel.ValidationMessageViewModel" />
+    
+    if (!string.IsNullOrEmpty(this.ViewModel.ValidationMessage))
+    {
+        <li class="text-danger">@this.ViewModel.ValidationMessage</li>
+    }
 }

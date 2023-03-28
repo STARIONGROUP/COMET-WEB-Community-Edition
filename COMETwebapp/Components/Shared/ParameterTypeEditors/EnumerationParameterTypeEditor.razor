@@ -72,5 +72,9 @@
             ReadOnly="this.ViewModel.IsReadOnly"
             ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)" />
         }
-    <ValidationMessageComponent ViewModel="this.ViewModel.ValidationMessageViewModel" />
+        
+        if (!string.IsNullOrEmpty(this.ViewModel.ValidationMessage))
+        {
+            <li class="text-danger">@this.ViewModel.ValidationMessage</li>
+        }
     }
