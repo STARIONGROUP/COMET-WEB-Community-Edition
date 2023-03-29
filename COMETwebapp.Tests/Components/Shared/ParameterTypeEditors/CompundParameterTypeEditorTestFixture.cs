@@ -39,8 +39,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-    using Microsoft.AspNetCore.Components;
-
     using Moq;
 
     using NUnit.Framework;

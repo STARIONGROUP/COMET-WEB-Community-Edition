@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -54,6 +55,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Backing field for <see cref="ValueArray" />
         /// </summary>
         private ValueArray<string> valueArray;
+
+        /// <summary>
+        ///     The validation messages to display
+        /// </summary>
+        public string ValidationMessage { get; set; }
 
         /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
@@ -131,6 +137,24 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 ParameterSwitchKind.REFERENCE => this.ValueSet.Reference,
                 _ => throw new ArgumentOutOfRangeException(nameof(parameterSwitchKind), parameterSwitchKind, "Unknowned ParameterSwitchKind")
             };
+        }
+
+        /// <summary>
+        /// Verifies if the changing value is valid
+        /// </summary>
+        /// <param name="value">The value to validate </param>
+        public bool AreChangesValid(object value) 
+        {      
+            if (this.ParameterType is QuantityKind quantityKind)
+            {
+                this.ValidationMessage = string.Empty + ParameterValueValidator.Validate(value, quantityKind, quantityKind.DefaultScale);
+            }
+            else
+            {
+                this.ValidationMessage = string.Empty + ParameterValueValidator.Validate(value, this.ParameterType);
+            }
+            
+            return this.ValidationMessage == string.Empty; 
         }
 
         /// <summary>

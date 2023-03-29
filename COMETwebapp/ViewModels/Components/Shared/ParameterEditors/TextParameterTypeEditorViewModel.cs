@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-
+    
     /// <summary>
     /// ViewModel used to edit <see cref="TextParameterType" />
     /// </summary>
@@ -50,13 +50,13 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// <returns>an asynchronous operation</returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
-            {    
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString && this.AreChangesValid(value))
+            {
                 var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [this.ValueArrayIndex] = valueString
                 };
-                
+
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
         }

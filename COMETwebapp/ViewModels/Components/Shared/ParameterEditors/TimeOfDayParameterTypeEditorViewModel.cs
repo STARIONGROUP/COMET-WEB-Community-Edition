@@ -27,9 +27,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-    using Newtonsoft.Json.Linq;
-    using System.Globalization;
-
+    
     /// <summary>
     /// ViewModel used to edit <see cref="TimeOfDayParameterType"/>
     /// </summary>
@@ -59,7 +57,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
                 timeString = time.ToString();
             }
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && this.AreChangesValid(value))
             {
                 var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {

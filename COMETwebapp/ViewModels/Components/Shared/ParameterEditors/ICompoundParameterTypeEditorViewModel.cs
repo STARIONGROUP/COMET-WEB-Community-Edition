@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 {
     using CDP4Common.SiteDirectoryData;
+    
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     public interface ICompoundParameterTypeEditorViewModel

@@ -71,7 +71,7 @@
             Value="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
             ReadOnly="this.ViewModel.IsReadOnly"
             ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)" />
-        }      
+        }
+
+    <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
     }
-
-

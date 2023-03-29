@@ -37,8 +37,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
-    using Microsoft.AspNetCore.Components;
-
     using Moq;
 
     using NUnit.Framework;
@@ -51,9 +49,7 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
         private TestContext context;
         private IRenderedComponent<DateParameterTypeEditor> renderedComponent;
         private DateParameterTypeEditor editor;
-        private bool eventCallbackCalled;
         private Mock<IParameterEditorBaseViewModel<DateParameterType>> viewModelMock;
-        private EventCallback<IValueSet> eventCallback;
 
         [SetUp]
         public void SetUp()
@@ -71,13 +67,6 @@ namespace COMETwebapp.Tests.Components.Shared.ParameterTypeEditors
             this.viewModelMock = new Mock<IParameterEditorBaseViewModel<DateParameterType>>();
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
-
-            this.eventCallback = new EventCallbackFactory().Create(this, (IValueSet valueSet) =>
-            {
-                this.eventCallbackCalled = true;
-            });
-
-            this.viewModelMock.Setup(x => x.ParameterValueChanged).Returns(this.eventCallback);
 
             this.renderedComponent = this.context.RenderComponent<DateParameterTypeEditor>(parameters =>
             {

@@ -122,18 +122,18 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
 
             var value = string.Join(" | ", elements);
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString)
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString && this.AreChangesValid(value))
             {
                 if (!this.SelectedEnumerationValueDefinitions.Any())
                 {
                     valueString = "-";
                 }
-                    
+
                 var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [this.ValueArrayIndex] = valueString
                 };
-                        
+
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
             }
 
@@ -157,15 +157,15 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         {
             var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString)
-            {  
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is string valueString && this.AreChangesValid(value))
+            {
                 var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
                     [this.ValueArrayIndex] = valueString
                 };
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);
-            }
+            }               
         }
     }
 }

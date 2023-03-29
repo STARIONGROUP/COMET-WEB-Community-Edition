@@ -57,6 +57,17 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         int ValueArrayIndex { get; set; }
 
         /// <summary>
+        ///     The validation messages to display
+        /// </summary>
+        string ValidationMessage { get; set; }
+
+        /// <summary>
+        /// Verifies if the changing value is valid
+        /// </summary>
+        /// <param name="value">The value to validate </param>
+        bool AreChangesValid(object value);
+
+        /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
