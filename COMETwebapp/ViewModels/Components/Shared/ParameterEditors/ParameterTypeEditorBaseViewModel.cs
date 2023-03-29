@@ -143,7 +143,8 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Verifies if the changing value is valid
         /// </summary>
         /// <param name="value">The value to validate </param>
-        public bool AreChangesValid(object value) {      
+        public bool AreChangesValid(object value) 
+        {      
             if (this.ParameterType is QuantityKind quantityKind)
             {
                 this.ValidationMessage = string.Empty + ParameterValueValidator.Validate(value, quantityKind, quantityKind.DefaultScale);

@@ -10,17 +10,17 @@
 
 #leftColumn {
     grid-area: 1 / 1 / 2 / 2;
-    margin: 0;
     margin-left: 2%;
     margin-right: 2%;
+    width : 240px;
+    overflow-y: auto;
+    height:97vh;
+    bottom: 0
 }
 
 #center-container {
     margin: 0;
     grid-area: 1 / 2 / 2 / 3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 #rightColumn {
