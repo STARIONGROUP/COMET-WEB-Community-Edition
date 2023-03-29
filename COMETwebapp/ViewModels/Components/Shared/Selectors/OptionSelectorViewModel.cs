@@ -39,6 +39,20 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 		private Option selectedOption;
 
 		/// <summary>
+		/// Value asserting that the current <see cref="Option"/> can be set to null or not
+		/// </summary>
+        public bool AllowNullOption { get; }
+
+        /// <summary>
+        /// Initializes a new <see cref="OptionSelectorViewModel" />
+        /// </summary>
+        /// <param name="allowNullOption">Value asserting that the current <see cref="Option"/> can be set to null or not</param>
+        public OptionSelectorViewModel(bool allowNullOption = true)
+        {
+            this.AllowNullOption = allowNullOption;
+        }
+
+        /// <summary>
 		/// The currently selected <see cref="Option" />
 		/// </summary>
 		public Option SelectedOption
@@ -57,8 +71,16 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
 		/// </summary>
 		protected override void UpdateProperties()
 		{
-			this.SelectedOption = null;
 			this.AvailableOptions = this.CurrentIteration?.Option.OrderBy(x => x.Name)?? Enumerable.Empty<Option>();
-		}
+
+            if (this.AllowNullOption || this.CurrentIteration == null)
+            {
+                this.SelectedOption = null;
+            }
+            else
+            {
+				this.selectedOption = this.CurrentIteration.DefaultOption ?? this.CurrentIteration.Option.FirstOrDefault();
+            }
+        }
 	}
 }

@@ -61,7 +61,7 @@ namespace COMETwebapp.ViewModels.Components.Shared.Selectors
         {
             this.SelectedElementBase = null;
 
-            this.AvailableElements = this.CurrentIteration?.QueryElementsBase().OrderBy(x => x.Name) ?? Enumerable.Empty<ElementBase>();
+            this.AvailableElements = this.CurrentIteration?.QueryUsedElementDefinitions().OrderBy(x => x.Name) ?? Enumerable.Empty<ElementBase>();
         }
     }
 }

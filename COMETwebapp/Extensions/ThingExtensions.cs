@@ -101,6 +101,98 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
+        /// Queries all <see cref="ParameterOrOverrideBase" /> that belongs to a given <see cref="Option" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> to get the <see cref="ParameterOrOverrideBase" />s</param>
+        /// <param name="option">The <see cref="Option" /></param>
+        /// <returns>A collection of <see cref="ParameterOrOverrideBase" /></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QueryParameterAndOverrideBases(this Iteration iteration, Option option)
+        {
+            var elements = iteration.QueryNestedElements(option);
+            var parameters = new List<ParameterOrOverrideBase>();
+
+            foreach (var nestedElement in elements.Select(x => x.GetElementBase()))
+            {
+                parameters.AddRange(nestedElement.QueryParameterAndOverrideBases());
+            }
+
+            return parameters.DistinctBy(x => x.Iid);
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterOrOverrideBase" /> that belongs to a given <see cref="Option" /> owned by a
+        /// <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> to get the <see cref="ParameterOrOverrideBase" />s</param>
+        /// <param name="option">The <see cref="Option" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>A collection of <see cref="ParameterOrOverrideBase" /></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QueryParameterAndOverrideBases(this Iteration iteration, Option option, DomainOfExpertise domain)
+        {
+            var elements = iteration.QueryNestedElements(option);
+            var parameters = new List<ParameterOrOverrideBase>();
+
+            foreach (var nestedElement in elements.Select(x => x.GetElementBase()))
+            {
+                parameters.AddRange(nestedElement.QueryParameterAndOverrideBases(domain));
+            }
+
+            return parameters.DistinctBy(x => x.Iid);
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterOrOverrideBase" /> contains in an <see cref="ElementBase" />
+        /// </summary>
+        /// <param name="elementBase">The <see cref="ElementBase" /></param>
+        /// <returns>A collection of <see cref="ParameterOrOverrideBase" /></returns>
+        /// <remarks>
+        /// If the <see cref="ElementBase" /> is an <see cref="ElementUsage" />, it will retrieve all
+        /// <see cref="ParameterOverride" />
+        /// and <see cref="Parameter" /> of its <see cref="ElementDefinition" />
+        /// </remarks>
+        public static IEnumerable<ParameterOrOverrideBase> QueryParameterAndOverrideBases(this ElementBase elementBase)
+        {
+            switch (elementBase)
+            {
+                case ElementDefinition elementDefinition:
+                    return elementDefinition.Parameter;
+                case ElementUsage usage:
+                    var parameterAndOverrideBases = new List<ParameterOrOverrideBase>(usage.ParameterOverride);
+                    parameterAndOverrideBases.AddRange(usage.ElementDefinition.QueryParameterAndOverrideBases());
+                    return parameterAndOverrideBases;
+                default:
+                    return Enumerable.Empty<ParameterOrOverrideBase>();
+            }
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterOrOverrideBase" /> contains in an <see cref="ElementBase" /> owned by a
+        /// <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <param name="elementBase">The <see cref="ElementBase" /></param>
+        /// <param name="domain">The <see cref="DomainOfExpertise" /> owner</param>
+        /// <returns>A collection of <see cref="ParameterOrOverrideBase" /></returns>
+        /// <remarks>
+        /// If the <see cref="ElementBase" /> is an <see cref="ElementUsage" />, it will retrieve all
+        /// <see cref="ParameterOverride" />
+        /// and <see cref="Parameter" /> of its <see cref="ElementDefinition" />
+        /// </remarks>
+        public static IEnumerable<ParameterOrOverrideBase> QueryParameterAndOverrideBases(this ElementBase elementBase, DomainOfExpertise domain)
+        {
+            switch (elementBase)
+            {
+                case ElementDefinition elementDefinition:
+                    return elementDefinition.Parameter.Where(x => x.Owner.Iid == domain.Iid);
+                case ElementUsage usage:
+                    var parameterAndOverrideBases = new List<ParameterOrOverrideBase>(usage.ParameterOverride.Where(x => x.Owner.Iid == domain.Iid));
+                    parameterAndOverrideBases.AddRange(usage.ElementDefinition.QueryParameterAndOverrideBases(domain));
+                    return parameterAndOverrideBases;
+                default:
+                    return Enumerable.Empty<ParameterOrOverrideBase>();
+            }
+        }
+
+        /// <summary>
         /// Queries all the unreferenced <see cref="ElementDefinition" /> in an <see cref="Iteration" />
         /// An unreferenced element is an element with no associated ElementUsage
         /// </summary>
@@ -176,10 +268,10 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Gets the <see cref="ElementBase"/> from this iteration
+        /// Gets the <see cref="ElementBase" /> from this iteration
         /// </summary>
         /// <param name="iteration">the iteration used for retrieving the elements</param>
-        /// <returns>an <see cref="IEnumerable{ElementBase}"/></returns>
+        /// <returns>an <see cref="IEnumerable{ElementBase}" /></returns>
         /// <exception cref="ArgumentNullException">if the iteration is null</exception>
         public static IEnumerable<ElementBase> QueryElementsBase(this Iteration iteration)
         {
@@ -198,6 +290,37 @@ namespace COMETwebapp.Extensions
             iteration.Element.ForEach(e => elements.AddRange(e.ContainedElement));
 
             return elements;
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ElementDefinition" /> that are used inside an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>A collection of <see cref="ElementDefinition" /></returns>
+        public static IEnumerable<ElementDefinition> QueryUsedElementDefinitions(this Iteration iteration)
+        {
+            if (iteration is null)
+            {
+                throw new ArgumentNullException(nameof(iteration));
+            }
+
+            var elementBase = iteration.QueryNestedElements();
+            var elementDefinitions = new List<ElementDefinition>();
+
+            foreach (var nestedElement in elementBase)
+            {
+                switch (nestedElement.GetElementBase())
+                {
+                    case ElementDefinition elementDefinition:
+                        elementDefinitions.Add(elementDefinition);
+                        break;
+                    case ElementUsage elementUsage:
+                        elementDefinitions.Add(elementUsage.ElementDefinition);
+                        break;
+                }
+            }
+
+            return elementDefinitions.DistinctBy(x => x.Iid);
         }
 
         /// <summary>
@@ -328,7 +451,8 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
-        /// Query the evolution of <see cref="ParameterSubscriptionValueSet" /> contained into a <see cref="ParameterSubscription" />
+        /// Query the evolution of <see cref="ParameterSubscriptionValueSet" /> contained into a
+        /// <see cref="ParameterSubscription" />
         /// </summary>
         /// <param name="parameterSubscription">The <see cref="ParameterSubscription" /></param>
         /// <returns>

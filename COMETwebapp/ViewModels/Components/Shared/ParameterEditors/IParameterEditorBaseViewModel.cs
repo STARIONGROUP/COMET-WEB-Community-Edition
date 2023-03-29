@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IParameterEditorBaseViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -55,6 +55,11 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
         /// Gets the index of the value changed in the value sets
         /// </summary>
         int ValueArrayIndex { get; set; }
+
+        /// <summary>
+        /// Gets the associated <see cref="ParameterOrOverrideBase" />
+        /// </summary>
+        ParameterOrOverrideBase Parameter { get; }
 
         /// <summary>
         ///     The validation messages to display

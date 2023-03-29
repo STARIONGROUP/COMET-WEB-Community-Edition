@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
 Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -20,7 +20,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
-<div>
+<div class="editor-row">
     <DxTextBox InputCssClass="quantity-kind-parameter"
                Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                CssClass="parameter-input"
@@ -28,6 +28,11 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                ReadOnly="this.ViewModel.IsReadOnly"
                BindValueMode="@this.BindValueMode">
     </DxTextBox>
+    
+    @if (this.ViewModel.Parameter.Scale != null)
+    {
+        <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
+    }
 
     <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
 </div>

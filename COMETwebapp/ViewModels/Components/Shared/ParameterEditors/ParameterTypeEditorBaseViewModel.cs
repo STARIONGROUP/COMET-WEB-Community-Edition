@@ -75,8 +75,18 @@ namespace COMETwebapp.ViewModels.Components.Shared.ParameterEditors
             this.initialReadOnlyValue = isReadOnly;
             this.ValueArrayIndex = valueArrayIndex;
 
+            if (this.ValueSet is ParameterValueSetBase valueSetBase)
+            {
+                this.Parameter = valueSetBase.Container as ParameterOrOverrideBase;
+            }
+
             this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
         }
+
+        /// <summary>
+        /// Gets the associated <see cref="ParameterOrOverrideBase" />
+        /// </summary>
+        public ParameterOrOverrideBase Parameter { get; }
 
         /// <summary>
         /// The <see cref="ValueArray{T}" /> to work with

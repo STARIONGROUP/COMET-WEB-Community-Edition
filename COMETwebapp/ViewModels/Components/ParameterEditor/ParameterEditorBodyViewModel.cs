@@ -24,7 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
-    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -35,49 +34,55 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
-    using DynamicData;
-
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody" />
     /// </summary>
     public class ParameterEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IParameterEditorBodyViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISubscriptionService"/>
+        /// Backing field for the <see cref="IsOwnedParameters" />
+        /// </summary>
+        private bool isOwnedParameters;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="ParameterEditorBodyViewModel" />
+        /// </summary>
+        /// <param name="sessionService">the <see cref="ISessionService" /></param>
+        /// <param name="subscriptionService">the <see cref="ISubscriptionService" /></param>
+        /// <param name="parameterTableView">The <see cref="IParameterTableViewModel"/></param>
+        public ParameterEditorBodyViewModel(ISessionService sessionService, ISubscriptionService subscriptionService, 
+            IParameterTableViewModel parameterTableView) : base(sessionService)
+        {
+            this.SubscriptionService = subscriptionService;
+            this.ParameterTableViewModel = parameterTableView;
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ElementSelector.SelectedElementBase,
+                x => x.OptionSelector.SelectedOption,
+                x => x.ParameterTypeSelector.SelectedParameterType,
+                x => x.IsOwnedParameters).SubscribeAsync(_ => this.ApplyFilters()));
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISubscriptionService" />
         /// </summary>
         public ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IElementBaseSelectorViewModel"/>
+        /// Gets the <see cref="IElementBaseSelectorViewModel" />
         /// </summary>
         public IElementBaseSelectorViewModel ElementSelector { get; private set; } = new ElementBaseSelectorViewModel();
 
         /// <summary>
         /// Gets the <see cref="IOptionSelectorViewModel" />
         /// </summary>
-        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel();
+        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel(false);
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
         public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
-
-        /// <summary>
-        /// All <see cref="ElementBase"/> of the iteration without filtering
-        /// </summary>
-        public List<ElementBase> Elements { get; private set; } = new();
-
-        /// <summary>
-        /// Gets or sets the filtered <see cref="ElementBase"/>
-        /// </summary>
-        public SourceList<ElementBase> FilteredElements { get; } = new();
-
-        /// <summary>
-        /// Backing field for the <see cref="IsOwnedParameters"/>
-        /// </summary>
-        private bool isOwnedParameters;
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
@@ -89,38 +94,40 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTableViewModel"/>
+        /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         public IParameterTableViewModel ParameterTableViewModel { get; set; }
 
         /// <summary>
-        /// Creates a new instance of <see cref="ParameterEditorBodyViewModel"/>
+        /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="subscriptionService">the <see cref="ISubscriptionService"/></param>
-        public ParameterEditorBodyViewModel(ISessionService sessionService, ISubscriptionService subscriptionService) : base(sessionService)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnSessionRefreshed()
         {
-            this.SubscriptionService = subscriptionService;
-            this.ParameterTableViewModel = new ParameterTableViewModel(sessionService);
-
-            this.Disposables.Add(this.FilteredElements.CountChanged.Subscribe(_ =>
-            {
-                this.ParameterTableViewModel.InitializeViewModel(this.FilteredElements.Items);
-            }));
-
-            this.Disposables.Add(this.WhenAnyValue(x=>x.ElementSelector.SelectedElementBase,
-                x=>x.OptionSelector.SelectedOption,
-                x=>x.ParameterTypeSelector.SelectedParameterType,
-                x=>x.IsOwnedParameters).SubscribeAsync(_ => this.InitializeViewModel()));
+            return this.ApplyFilters();
         }
 
         /// <summary>
-        /// Handles the refresh of the current <see cref="ISession" />
+        /// Handles the change of <see cref="DomainOfExpertise" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        protected override Task OnSessionRefreshed()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnDomainChanged()
         {
-            return this.OnIterationChanged();
+            await base.OnDomainChanged();
+
+            if (this.CurrentDomain != null)
+            {
+                this.IsLoading = true;
+                await Task.Delay(1);
+                this.ParameterTableViewModel.UpdateDomain(this.CurrentDomain);
+
+                if (this.IsOwnedParameters)
+                {
+                    await this.ApplyFilters();
+                }
+
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
@@ -130,190 +137,41 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         protected override async Task OnIterationChanged()
         {
             await base.OnIterationChanged();
+            this.IsOwnedParameters = true;
             this.ElementSelector.CurrentIteration = this.CurrentIteration;
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
-            await this.InitializeViewModel();
+            await this.InitializeTable();
         }
 
         /// <summary>
-        /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
+        /// Initialize the <see cref="IParameterTableViewModel" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        public async Task InitializeViewModel()
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task InitializeTable()
         {
             this.IsLoading = true;
             await Task.Delay(1);
-
-            this.Elements = this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
-            this.ApplyFilters(this.Elements);
-
+            this.ParameterTableViewModel.InitializeViewModel(this.CurrentIteration, this.CurrentDomain, this.OptionSelector.SelectedOption);
             this.IsLoading = false;
         }
 
         /// <summary>
-        /// Apply all the filters selected in the <param name="elements"/> and replace the data of <see cref="FilteredElements"/>
+        /// Apply all the filters on the <see cref="IParameterTableViewModel" />
         /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        public void ApplyFilters(IEnumerable<ElementBase> elements)
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ApplyFilters()
         {
-            this.FilteredElements.Clear();
-            var filteredElements = this.FilterByElement(elements);
-            filteredElements = this.FilterByOption(filteredElements);
-            filteredElements = this.FilterByParameterType(filteredElements);
-            filteredElements = this.FilterByOwnedByActiveDomain(filteredElements);
-            this.FilteredElements.AddRange(filteredElements);
-        }
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="ElementSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements)
-        {
-            if (this.ElementSelector.SelectedElementBase is null)
+            if (this.CurrentIteration != null)
             {
-                return elements;
+                this.IsLoading = true;
+                await Task.Delay(1);
+
+                this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOption, this.ElementSelector.SelectedElementBase,
+                    this.ParameterTypeSelector.SelectedParameterType, this.IsOwnedParameters);
+
+                this.IsLoading = false;
             }
-
-            return elements.Where(x => x == this.ElementSelector.SelectedElementBase);
-        }
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="ParameterTypeSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements)
-        {
-            var filteredElements = new List<ElementBase>();
-
-            if (this.ParameterTypeSelector.SelectedParameterType is null)
-            {
-                return elements;
-            }
-
-            foreach (var element in elements)
-            {
-                if (element is ElementDefinition elementDefinition)
-                {
-                    if (elementDefinition.Parameter.Any(p => p.ParameterType.Name == this.ParameterTypeSelector.SelectedParameterType.Name))
-                    {
-                        filteredElements.Add(elementDefinition);
-                    }
-                }
-                else if (element is ElementUsage elementUsage)
-                {
-                    if (elementUsage.ElementDefinition.Parameter.Any(p => p.ParameterType.Name == this.ParameterTypeSelector.SelectedParameterType.Name))
-                    {
-                        filteredElements.Add(elementUsage);
-                    }
-                    else if (elementUsage.ParameterOverride.Any(p => p.ParameterType.Name == this.ParameterTypeSelector.SelectedParameterType.Name))
-                    {
-                        filteredElements.Add(elementUsage);
-                    }
-                }
-            }
-
-            return filteredElements;
-        }
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="OptionSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements)
-        {
-            if (this.OptionSelector.SelectedOption is null)
-            {
-                return elements;
-            }
-
-            var nestedElements = this.CurrentIteration.QueryNestedElements(this.OptionSelector.SelectedOption);
-
-            var associatedElements = new List<ElementUsage>();
-            nestedElements.ToList().ForEach(element => associatedElements.AddRange(element.ElementUsage));
-
-            associatedElements = associatedElements.Distinct().ToList();
-
-            var elementsToRemove = new List<ElementBase>();
-
-            var filteredElements = elements.ToList();
-
-            foreach (var element in filteredElements)
-            {
-                if (element is ElementUsage elementUsage && !associatedElements.Contains(elementUsage))
-                {
-                    elementsToRemove.Add(elementUsage);
-                }
-            }
-
-            filteredElements.RemoveAll(e => elementsToRemove.Contains(e));
-
-            return filteredElements;
-        }
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="DomainOfExpertise"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        public IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements)
-        {
-            if (!this.IsOwnedParameters)
-            {
-                return elements;
-            }
-
-            var filteredElements = new List<ElementBase>();
-            var domainOfExpertise = this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
-
-            foreach (var element in elements)
-            {
-                if (element is ElementDefinition elementDefinition)
-                {
-                    if (elementDefinition.Parameter.Any(p => p.Owner == domainOfExpertise))
-                    {
-                        filteredElements.Add(elementDefinition);
-                    }
-                }
-                else if (element is ElementUsage elementUsage)
-                {
-                    if (!elementUsage.ParameterOverride.Any())
-                    {
-                        if (elementUsage.ElementDefinition.Parameter.Any(p => p.Owner == domainOfExpertise))
-                        {
-                            filteredElements.Add(elementUsage);
-                        }
-                    }
-                    else
-                    {
-                        if (elementUsage.ParameterOverride.Any(p => p.Owner == domainOfExpertise))
-                        {
-                            filteredElements.Add(elementUsage);
-                        }
-
-                        if (elementUsage.ElementDefinition.Parameter.Any(p => p.Owner == domainOfExpertise) && !filteredElements.Contains(elementUsage))
-                        {
-                            filteredElements.Add(elementUsage);
-                        }
-                    }
-                }
-            }
-
-            return filteredElements;
-        }
-
-        /// <summary>
-        /// Queries the <see cref="DomainOfExpertise"/> of the current <see cref="Iteration"/>
-        /// </summary>
-        /// <returns>the name of the <see cref="DomainOfExpertise"/></returns>
-        public string QueryDomainOfExpertiseName()
-        {
-            return this.SessionService.GetDomainOfExpertise(this.CurrentIteration)?.Name ?? string.Empty;
         }
     }
 }

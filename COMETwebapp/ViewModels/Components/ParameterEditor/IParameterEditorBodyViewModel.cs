@@ -24,27 +24,22 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
-    using DynamicData;
-
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody" />
     /// </summary>
     public interface IParameterEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISubscriptionService"/>
+        /// Gets or sets the <see cref="ISubscriptionService" />
         /// </summary>
         ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IElementBaseSelectorViewModel"/>
+        /// Gets the <see cref="IElementBaseSelectorViewModel" />
         /// </summary>
         public IElementBaseSelectorViewModel ElementSelector { get; }
 
@@ -56,17 +51,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
-        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; } 
-
-        /// <summary>
-        /// All <see cref="ElementBase"/> of the iteration without filtering
-        /// </summary>
-        public List<ElementBase> Elements { get; }
-
-        /// <summary>
-        /// Gets or sets the filtered <see cref="ElementBase"/>
-        /// </summary>
-        public SourceList<ElementBase> FilteredElements { get; }
+        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
@@ -74,55 +59,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         bool IsOwnedParameters { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IParameterTableViewModel"/>
+        /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         public IParameterTableViewModel ParameterTableViewModel { get; set; }
-
-        /// <summary>
-        /// Apply all the filters selected in the <param name="elements"/> and replace the data of <see cref="FilteredElements"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        void ApplyFilters(IEnumerable<ElementBase> elements);
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="ElementSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        IEnumerable<ElementBase> FilterByElement(IEnumerable<ElementBase> elements);
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="ParameterTypeSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        IEnumerable<ElementBase> FilterByParameterType(IEnumerable<ElementBase> elements);
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="OptionSelector"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        IEnumerable<ElementBase> FilterByOption(IEnumerable<ElementBase> elements);
-
-        /// <summary>
-        /// Filters the <param name="elements"/> by the <see cref="DomainOfExpertise"/>
-        /// </summary>
-        /// <param name="elements">the elements to filter</param>
-        /// <returns>the filtered elements</returns>
-        IEnumerable<ElementBase> FilterByOwnedByActiveDomain(IEnumerable<ElementBase> elements);
-
-        /// <summary>
-        /// Queries the <see cref="DomainOfExpertise"/> of the current <see cref="Iteration"/>
-        /// </summary>
-        /// <returns>the name of the <see cref="DomainOfExpertise"/></returns>
-        string QueryDomainOfExpertiseName();
-
-        /// <summary>
-        /// Initializes the <see cref="ParameterEditorBodyViewModel"/>
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        Task InitializeViewModel();
     }
 }

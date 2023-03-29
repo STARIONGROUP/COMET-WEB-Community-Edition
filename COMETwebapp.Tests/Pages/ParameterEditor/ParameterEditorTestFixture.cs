@@ -121,6 +121,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
         }
 
         [TearDown]

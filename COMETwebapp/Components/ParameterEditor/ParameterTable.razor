@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023 RHEA System S.A.
 
     Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -48,15 +48,7 @@ Copyright (c) 2023 RHEA System S.A.
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.Option)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true"/>
 
-            <DxGridDataColumn Caption="@("Published Value")" AllowGroup="false" AllowSort="false">
-                <CellDisplayTemplate>
-                    @if (context.DataItem is IParameterBaseRowViewModel {ValueSet: ParameterValueSet parameterValueSet })
-                    {
-                        <p style="margin: 0">@(parameterValueSet.Published.Any() ? parameterValueSet.Published.First() : "-")</p>
-                    }
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-
+            <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false" AllowSort="false" />
             <DxGridDataColumn FieldName="@nameof(IParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
                     @if (context.DataItem is IParameterBaseRowViewModel parameterBaseRowViewModel)
