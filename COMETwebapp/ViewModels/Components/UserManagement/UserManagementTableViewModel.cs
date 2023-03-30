@@ -34,6 +34,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using CDP4Dal.Permission;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
 
@@ -59,6 +60,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
         /// A collection of all <see cref="PersonRowViewModel" />
         /// </summary>
         private IEnumerable<PersonRowViewModel> allRows = new List<PersonRowViewModel>();
@@ -67,10 +73,12 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public UserManagementTableViewModel(ISessionService sessionService)
+        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
+        public UserManagementTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
+            this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.Disposables.Add(
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))

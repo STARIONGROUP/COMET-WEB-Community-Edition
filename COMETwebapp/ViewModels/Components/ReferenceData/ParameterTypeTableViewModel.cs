@@ -34,12 +34,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DynamicData;
-
-    using ReactiveUI;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
@@ -57,6 +56,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
         /// A collection of all <see cref="ParameterTypeRowViewModel" />
         /// </summary>
         private IEnumerable<ParameterTypeRowViewModel> allRows = new List<ParameterTypeRowViewModel>();
@@ -70,10 +74,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public ParameterTypeTableViewModel(ISessionService sessionService)
+        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
+        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
+            this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.Disposables.Add(
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))

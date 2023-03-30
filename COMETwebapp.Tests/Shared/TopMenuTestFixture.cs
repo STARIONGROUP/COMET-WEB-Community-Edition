@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Shared
 
     using COMETwebapp.Components.Shared;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
@@ -64,6 +65,7 @@ namespace COMETwebapp.Tests.Shared
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
         private Mock<IAuthenticationService> authenticationService;
+        private Mock<IShowHideDeprecatedThingsService> showHideDeprecatedThingsService;
         private SourceList<Iteration> sourceList;
 
         [SetUp]
@@ -74,6 +76,7 @@ namespace COMETwebapp.Tests.Shared
             this.stateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
             this.authenticationService = new Mock<IAuthenticationService>();
             this.autoRefreshService = new Mock<IAutoRefreshService>();
+            this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
 
@@ -81,10 +84,13 @@ namespace COMETwebapp.Tests.Shared
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.autoRefreshService.Object);
+            this.context.Services.AddSingleton(this.showHideDeprecatedThingsService.Object);
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
+            this.context.Services.AddSingleton<IShowHideDeprecatedThingsViewModel, ShowHideDeprecatedThingsViewModel>();
             this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            this.context.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             this.context.ConfigureDevExpressBlazor();
         }
 
@@ -198,6 +204,14 @@ namespace COMETwebapp.Tests.Shared
                 Assert.That(modelMenuViewModel.ConfirmCancelViewModel.IsVisible, Is.False);
                 this.sessionService.Verify(x => x.CloseIteration(It.IsAny<Iteration>()), Times.Once);
             });
+
+            var showHideDeprecated = authorizedMenuEntries[3];
+            var showHideDeprecatedInstance = (ShowHideDeprecatedThings)showHideDeprecated.Instance;
+            var showHideDeprecatedViewModel = showHideDeprecatedInstance.ViewModel;
+
+            showHideDeprecatedViewModel.OnShowHideDeprecatedItems();
+                
+            Assert.That(showHideDeprecatedViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings, Is.True);
         }
     }
 }

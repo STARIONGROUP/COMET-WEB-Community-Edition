@@ -26,7 +26,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-
+    
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
@@ -51,6 +52,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// A reactive collection of <see cref="CategoryRowViewModel" />
         /// </summary>
         SourceList<CategoryRowViewModel> Rows { get; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         ///    Available <see cref="ReferenceDataLibrary"/>s

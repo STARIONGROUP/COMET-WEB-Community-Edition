@@ -27,10 +27,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
-
-    using Bunit;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -42,10 +39,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ReferenceData;
-
-    using DevExpress.Blazor;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -63,6 +59,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private Mock<ISession> session;
         private Mock<IPermissionService> permissionService;
         private Mock<ISessionService> sessionService;
+        private Mock<IShowHideDeprecatedThingsService> showHideDeprecatedThingsService;
         private Assembler assembler;
         private Participant participant;
         private Participant participant1;
@@ -86,11 +83,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
+            this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
             this.permissionService = new Mock<IPermissionService>();
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+
+            this.showHideDeprecatedThingsService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
             this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
 
@@ -100,7 +100,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object);
+            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -276,7 +276,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyOnInitialized()
+        public void VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<ParameterTypeTable>();
 
@@ -285,26 +285,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType2.Name));
-            });
-
-            var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
-                .First(x => x.Instance.Id == "hideDeprecatedItems");
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(checkBox.Instance.Checked, Is.False);
-                Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType2.Name));
-            });
-
-            await renderer.InvokeAsync(() => checkBox.Instance.Checked = true);
-            await renderer.InvokeAsync(() => renderer.Instance.HideOrShowDeprecatedItems(true));
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(checkBox.Instance.Checked, Is.True);
-                Assert.That(renderer.Markup, Does.Contain(this.sourceParameterType1.Name));
-                Assert.That(renderer.Markup, Does.Not.Contain(this.sourceParameterType2.Name));
             });
         }
     }

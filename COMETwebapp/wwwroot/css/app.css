@@ -403,6 +403,14 @@ html, body, #app {
     background-image: url(SVG/icons/edit.svg)
 }
 
+.icon-eye-show {
+    background-image: url(../images/Show.svg)
+}
+
+.icon-eye-hide {
+    background-image: url(../images/Hide.svg)
+}
+
 .todo-table {
     border: 2px solid #008bd2;
     border-radius: 5px;

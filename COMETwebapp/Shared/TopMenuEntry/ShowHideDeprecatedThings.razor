@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -19,23 +19,7 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-<nav class="navbar header-navbar p-0">
-	<DxMenu Title="COMET"
-	        CollapseItemsToHamburgerMenu="true"
-	        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-	        DisplayMode="MenuDisplayMode.Auto"
-	        Orientation="Orientation.Horizontal"
-			HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
-	        CssClass="topmenu">
-		<TitleTemplate>
-			<TopMenuTitle/>
-		</TitleTemplate>
-		<Items>
-			<ApplicationMenu />
-			<ModelMenu />
-			<SessionMenu />
-			<AboutMenu/>
-			<ShowHideDeprecatedThings />
-		</Items>
-	</DxMenu>
-</nav>
+@inherits AuthorizedMenuEntry
+
+<DxMenuItem Id="showHideIcon" Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" IconCssClass="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "icon icon-eye-hide" : "icon icon-eye-show")" Click="(() => this.ViewModel.OnShowHideDeprecatedItems())" />
+
