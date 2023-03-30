@@ -26,7 +26,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-
+    
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;

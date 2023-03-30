@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.ReferenceData
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
-
+    
     using ReactiveUI;
 
     /// <summary>

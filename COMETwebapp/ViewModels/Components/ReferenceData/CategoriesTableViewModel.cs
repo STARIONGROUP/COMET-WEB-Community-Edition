@@ -40,7 +40,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using COMETwebapp.Wrappers;
     
     using DynamicData;
-
+    
     using ReactiveUI;
 
     /// <summary>
