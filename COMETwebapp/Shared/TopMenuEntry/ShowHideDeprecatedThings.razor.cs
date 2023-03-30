@@ -29,11 +29,11 @@ namespace COMETwebapp.Shared.TopMenuEntry
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components;
-
+    
     using ReactiveUI;
 
     /// <summary>
-    /// Menu entry to access to the <see cref="ISession" /> content
+    /// The <see cref="ShowHideDeprecatedThings" /> component used to show hide deprecated things
     /// </summary>
     public partial class ShowHideDeprecatedThings
     {

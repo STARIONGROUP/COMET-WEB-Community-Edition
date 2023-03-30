@@ -290,7 +290,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyOnInitialized()
+        public void VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
 

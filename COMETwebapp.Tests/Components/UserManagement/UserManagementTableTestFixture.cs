@@ -331,7 +331,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
         }
 
         [Test]
-        public async Task VerifyOnInitialized()
+        public void VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<UserManagementTable>();
 
