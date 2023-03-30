@@ -48,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
-        IShowHideDeprecatedThingsService showHideDeprecatedThingsService { get; }
+        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         ///     Method invoked when the component is ready to start, having received its

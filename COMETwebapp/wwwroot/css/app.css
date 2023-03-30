@@ -404,11 +404,11 @@ html, body, #app {
 }
 
 .icon-eye-show {
-    background-image: url(SVG/icons/eye.svg)
+    background-image: url(../images/Show.svg)
 }
 
 .icon-eye-hide {
-    background-image: url(SVG/icons/eye-off.svg)
+    background-image: url(../images/Hide.svg)
 }
 
 .todo-table {

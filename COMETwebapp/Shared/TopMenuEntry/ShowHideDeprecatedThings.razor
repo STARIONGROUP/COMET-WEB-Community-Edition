@@ -21,5 +21,5 @@
 ------------------------------------------------------------------------------->
 @inherits AuthorizedMenuEntry
 
-<DxMenuItem Id="showHideIcon" Text="@(this.ViewModel.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" IconCssClass="@(this.ViewModel.ShowDeprecatedThings ? "icon icon-eye-hide" : "icon icon-eye-show")" Click="(() => this.ViewModel.OnShowHideDeprecatedItems())" />
+<DxMenuItem Id="showHideIcon" Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" IconCssClass="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "icon icon-eye-hide" : "icon icon-eye-show")" Click="(() => this.ViewModel.OnShowHideDeprecatedItems())" />
 

@@ -32,13 +32,8 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     /// <summary>
     /// View model that handles the display of deprecated items.
     /// </summary>
-    public class ShowHideDeprecatedThingsViewModel : DisposableObject, IShowHideDeprecatedThingsViewModel
+    public class ShowHideDeprecatedThingsViewModel : IShowHideDeprecatedThingsViewModel
     {
-        /// <summary>
-        /// Backing field for <see cref="ShowDeprecatedThings" />
-        /// </summary>
-        private bool showDeprecatedThings;
-
         /// <summary>
         /// Initializes a <see cref="SessionMenuViewModel" />
         /// </summary>
@@ -46,15 +41,6 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         public ShowHideDeprecatedThingsViewModel(IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
         {
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
-        }
-
-        /// <summary>
-        /// Value indicating whether to display deprecated items.
-        /// </summary>
-        public bool ShowDeprecatedThings
-        {
-            get => this.showDeprecatedThings;
-            set => this.RaiseAndSetIfChanged(ref this.showDeprecatedThings, value);
         }
 
         /// <summary>
@@ -67,8 +53,7 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         /// </summary>
         public void OnShowHideDeprecatedItems()
         {
-            this.ShowDeprecatedThings = !this.ShowDeprecatedThings;
-            this.ShowHideDeprecatedThingsService.ShowDeprecatedThings = this.ShowDeprecatedThings;
+            this.ShowHideDeprecatedThingsService.ShowDeprecatedThings = !this.ShowHideDeprecatedThingsService.ShowDeprecatedThings;
         }
     }
 }

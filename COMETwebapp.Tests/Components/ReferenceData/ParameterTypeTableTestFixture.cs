@@ -90,6 +90,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
 
+            this.showHideDeprecatedThingsService.Setup(x => x.ShowDeprecatedThings).Returns(true);
+
             this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
 
             this.context.Services.AddSingleton(this.sessionService);

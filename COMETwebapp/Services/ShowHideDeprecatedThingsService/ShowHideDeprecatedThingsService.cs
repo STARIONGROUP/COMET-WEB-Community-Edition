@@ -46,21 +46,5 @@ namespace COMETwebapp.Services.ShowHideDeprecatedThingsService
             get => this.showDeprecatedThings;
             set => this.RaiseAndSetIfChanged(ref this.showDeprecatedThings, value);
         }
-
-        /// <summary>
-        ///     Method invoked to "Show/Hide Deprecated Items" 
-        /// </summary>
-        /// <param name="grid"> the <see cref="IGrid"/> to filter </param>
-        public void HideOrShowDeprecatedItems(IGrid grid)
-        {
-             if (this.ShowDeprecatedThings)
-            {
-                grid.ClearFilter();
-            }
-            else
-            {
-                grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
-            }
-        }
     }
 }

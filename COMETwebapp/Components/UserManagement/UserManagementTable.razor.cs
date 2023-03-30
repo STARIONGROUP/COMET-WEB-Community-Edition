@@ -79,44 +79,32 @@ namespace COMETwebapp.Components.UserManagement
         }
 
         /// <summary>
+        ///     Method invoked to "Show/Hide Deprecated Items" 
+        /// </summary>
+        public void HideOrShowDeprecatedItems()
+        {
+            if (this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+            {
+                this.Grid.ClearFilter();
+            }
+            else
+            {
+                this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
+            }
+        }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
+            base.OnInitialized();
+
             this.ViewModel.OnInitialized();
 
             this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            return base.OnInitializedAsync();
-        }
-
-        /// <summary>
-        /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
-        /// that would cause an infinite render loop.
-        /// </summary>
-        /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
-        /// on this component instance; otherwise <c>false</c>.
-        /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-        /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
-        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
-        /// once.
-        /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await base.OnAfterRenderAsync(firstRender);
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.showHideDeprecatedThingsService.ShowDeprecatedThings)
-                .Subscribe(_ => this.ViewModel.showHideDeprecatedThingsService.HideOrShowDeprecatedItems(this.Grid)));
         }
 
         /// <summary>
@@ -157,6 +145,33 @@ namespace COMETwebapp.Components.UserManagement
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
                 e.CssClass = "highlighted-item";
+            }
+        }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Note that the component does
+        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
+        /// that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.HideOrShowDeprecatedItems()));
             }
         }
     }

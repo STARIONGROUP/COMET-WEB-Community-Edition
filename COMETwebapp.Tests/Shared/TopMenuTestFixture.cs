@@ -209,15 +209,9 @@ namespace COMETwebapp.Tests.Shared
             var showHideDeprecatedInstance = (ShowHideDeprecatedThings)showHideDeprecated.Instance;
             var showHideDeprecatedViewModel = showHideDeprecatedInstance.ViewModel;
 
-            Assert.That(showHideDeprecatedViewModel.ShowDeprecatedThings, Is.False);
-
             showHideDeprecatedViewModel.OnShowHideDeprecatedItems();
-            
-            Assert.Multiple(() =>
-            {
-                Assert.That(showHideDeprecatedViewModel.ShowDeprecatedThings, Is.True);
-                Assert.That(showHideDeprecatedViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings, Is.True);
-            });
+                
+            Assert.That(showHideDeprecatedViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings, Is.True);
         }
     }
 }

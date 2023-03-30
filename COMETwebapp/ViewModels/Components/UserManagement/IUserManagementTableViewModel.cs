@@ -96,7 +96,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <summary>
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
-        IShowHideDeprecatedThingsService showHideDeprecatedThingsService { get; }
+        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         /// Indicates if the <see cref="TelephoneNumber" /> is the default telephone number

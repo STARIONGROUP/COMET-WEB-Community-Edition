@@ -51,7 +51,7 @@ namespace COMETwebapp.Shared.TopMenuEntry
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowDeprecatedThings)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }

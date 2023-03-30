@@ -35,11 +35,5 @@ namespace COMETwebapp.Services.ShowHideDeprecatedThingsService
         ///    Value indicating whether to display deprecated items.
         /// </summary>
         bool ShowDeprecatedThings { get; set; }
-
-        /// <summary>
-        ///     Method invoked when the "Show/Hide Deprecated Items" checkbox is checked or unchecked.
-        /// </summary>
-        /// <param name="grid"> the <see cref="IGrid"/> to filter </param>
-        void HideOrShowDeprecatedItems(IGrid grid);
     }
 }

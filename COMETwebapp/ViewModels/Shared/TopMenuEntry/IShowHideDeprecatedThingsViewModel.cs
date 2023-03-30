@@ -30,13 +30,8 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     /// <summary>
     /// Interface definition for <see cref="ShowHideDeprecatedThingsViewModel" />
     /// </summary>
-    public interface IShowHideDeprecatedThingsViewModel : IDisposableObject
+    public interface IShowHideDeprecatedThingsViewModel
     {
-        /// <summary>
-        /// Value indicating whether to display deprecated items.
-        /// </summary>
-        bool ShowDeprecatedThings { get; set; }
-
         /// <summary>
         /// Gets the <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>

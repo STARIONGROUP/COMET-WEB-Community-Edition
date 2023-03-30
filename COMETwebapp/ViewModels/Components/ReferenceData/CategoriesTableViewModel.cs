@@ -40,7 +40,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using COMETwebapp.Wrappers;
     
     using DynamicData;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -61,7 +61,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
-        public IShowHideDeprecatedThingsService showHideDeprecatedThingsService { get; }
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         ///     The <see cref="Category" /> to create or edit
         /// </summary>
@@ -81,7 +81,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
-            this.showHideDeprecatedThingsService = showHideDeprecatedThingsService;
+            this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
                 .Where(objectChange => objectChange.EventKind == EventKind.Added &&

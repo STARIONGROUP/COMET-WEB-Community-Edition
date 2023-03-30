@@ -87,14 +87,28 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
+        ///     Method invoked to "Show/Hide Deprecated Items" 
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override Task OnInitializedAsync()
+        public void HideOrShowDeprecatedItems()
         {
+            if (this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+            {
+                this.Grid.ClearFilter();
+            }
+            else
+            {
+                this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
+            }
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
             this.ViewModel.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeprecationMode)
@@ -102,8 +116,6 @@ namespace COMETwebapp.Components.ReferenceData
 
             this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            return base.OnInitializedAsync();
         }
 
         /// <summary>
@@ -126,8 +138,11 @@ namespace COMETwebapp.Components.ReferenceData
         {
             await base.OnAfterRenderAsync(firstRender);
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.showHideDeprecatedThingsService.ShowDeprecatedThings)
-                .Subscribe(_ => this.ViewModel.showHideDeprecatedThingsService.HideOrShowDeprecatedItems(this.Grid)));
+            if (firstRender)
+            {
+                this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.HideOrShowDeprecatedItems()));
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
-        public IShowHideDeprecatedThingsService showHideDeprecatedThingsService { get; }
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         /// A collection of all <see cref="ParameterTypeRowViewModel" />
@@ -79,7 +79,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
-            this.showHideDeprecatedThingsService = showHideDeprecatedThingsService;
+            this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.Disposables.Add(
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))

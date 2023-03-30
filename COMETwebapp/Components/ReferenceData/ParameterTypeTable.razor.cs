@@ -66,6 +66,21 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
+        ///     Method invoked to "Show/Hide Deprecated Items" 
+        /// </summary>
+        public void HideOrShowDeprecatedItems()
+        {
+            if (this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+            {
+                this.Grid.ClearFilter();
+            }
+            else
+            {
+                this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
+            }
+        }
+
+        /// <summary>
         ///     Method invoked when the component is ready to start, having received its
         ///     initial parameters from its parent in the render tree.
         ///     Override this method if you will perform an asynchronous operation and
@@ -102,8 +117,11 @@ namespace COMETwebapp.Components.ReferenceData
         {
             await base.OnAfterRenderAsync(firstRender);
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.showHideDeprecatedThingsService.ShowDeprecatedThings)
-                .Subscribe(_ => this.ViewModel.showHideDeprecatedThingsService.HideOrShowDeprecatedItems(this.Grid)));
+            if (firstRender)
+            {
+                this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.HideOrShowDeprecatedItems()));
+            }
         }
     }
 }
