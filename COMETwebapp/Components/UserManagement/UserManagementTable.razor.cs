@@ -54,22 +54,6 @@ namespace COMETwebapp.Components.UserManagement
         private IGrid Grid { get; set; }
 
         /// <summary>
-        /// Method invoked when the "Show/Hide Deprecated Items" checkbox is checked or unchecked.
-        /// </summary>
-        /// <param name="value">A <see cref="bool" /> that indicates whether deprecated items should be shown or hidden.</param>
-        public void HideOrShowDeprecatedItems(bool value)
-        {
-            if (value)
-            {
-                this.Grid.ClearFilter();
-            }
-            else
-            {
-                this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
-            }
-        }
-
-        /// <summary>
         /// Method invoked when a custom summary calculation is required, allowing you to
         /// perform custom calculations based on the data displayed in the grid.
         /// </summary>
@@ -117,12 +101,12 @@ namespace COMETwebapp.Components.UserManagement
         /// that would cause an infinite render loop.
         /// </summary>
         /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRenderAsync(bool)"/> has been invoked
+        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
         /// on this component instance; otherwise <c>false</c>.
         /// </param>
         /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
         /// <remarks>
-        /// The <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
         /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
         /// once.
@@ -131,10 +115,8 @@ namespace COMETwebapp.Components.UserManagement
         {
             await base.OnAfterRenderAsync(firstRender);
 
-            if (firstRender)
-            {
-                this.Grid.FilterBy("IsDeprecated", GridFilterRowOperatorType.Equal, false);
-            }
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.showHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.ViewModel.showHideDeprecatedThingsService.HideOrShowDeprecatedItems(this.Grid)));
         }
 
         /// <summary>

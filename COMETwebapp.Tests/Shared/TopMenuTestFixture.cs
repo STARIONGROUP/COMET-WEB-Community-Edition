@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Shared
 
     using COMETwebapp.Components.Shared;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.SessionManagement;
     using COMETwebapp.Shared;
@@ -83,8 +84,10 @@ namespace COMETwebapp.Tests.Shared
             this.context.Services.AddSingleton(this.autoRefreshService.Object);
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
+            this.context.Services.AddSingleton<IShowHideDeprecatedThingsViewModel, ShowHideDeprecatedThingsViewModel>();
             this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            this.context.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             this.context.ConfigureDevExpressBlazor();
         }
 

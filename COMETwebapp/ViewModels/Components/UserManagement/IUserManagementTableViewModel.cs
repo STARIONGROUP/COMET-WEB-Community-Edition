@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
 
     using DevExpress.Blazor;
@@ -91,6 +92,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Available <see cref="VcardTelephoneNumberKind" />s
         /// </summary>
         IEnumerable<VcardTelephoneNumberKind> TelephoneNumberKinds { get; set; }
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        IShowHideDeprecatedThingsService showHideDeprecatedThingsService { get; }
 
         /// <summary>
         /// Indicates if the <see cref="TelephoneNumber" /> is the default telephone number

@@ -34,11 +34,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
     
     using DynamicData;
+
     using ReactiveUI;
 
     /// <summary>
@@ -56,6 +58,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         private readonly ISessionService sessionService;
 
+        /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        public IShowHideDeprecatedThingsService showHideDeprecatedThingsService { get; }
+
         ///     The <see cref="Category" /> to create or edit
         /// </summary>
         public Category Category { get; set; } = new();
@@ -69,10 +76,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public CategoriesTableViewModel(ISessionService sessionService)
+        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
+        public CategoriesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
+            this.showHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
                 .Where(objectChange => objectChange.EventKind == EventKind.Added &&
@@ -204,7 +213,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     category.ContainerName = rdl.ShortName;
                 }
             }
-        }
+        }   
 
         /// <summary>
         /// Updates the active user access rights

@@ -31,6 +31,7 @@ namespace COMETwebapp
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SessionManagement;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Services.VersionService;
     using COMETwebapp.SessionManagement;
@@ -93,6 +94,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
+            builder.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
@@ -111,6 +113,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<IIndexViewModel, IndexViewModel>();
             builder.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             builder.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
+            builder.Services.AddSingleton<IShowHideDeprecatedThingsViewModel, ShowHideDeprecatedThingsViewModel>();
             builder.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
             builder.Services.AddTransient<IParameterTableViewModel, ParameterTableViewModel>();
