@@ -2,7 +2,7 @@
 //  <copyright file="ModelDashboardBodyTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -38,12 +38,14 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Components.ModelDashboard;
     using COMETwebapp.Components.ModelDashboard.Elements;
     using COMETwebapp.Components.ModelDashboard.ParameterValues;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
@@ -319,15 +321,15 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.UnusedElements, "SYS")), Throws.Nothing);
-                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.UsedElements, "SYS")), Throws.Nothing);
-                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.UnreferencedElements, "SYS")), Throws.Nothing);
-                Assert.That(() => elementDashboard.Instance.OnAccessData((ConstantValues.ReferencedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((WebAppConstantValues.UnusedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((WebAppConstantValues.UsedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((WebAppConstantValues.UnreferencedElements, "SYS")), Throws.Nothing);
+                Assert.That(() => elementDashboard.Instance.OnAccessData((WebAppConstantValues.ReferencedElements, "SYS")), Throws.Nothing);
                 Assert.That(() => elementDashboard.Instance.OnAccessData(("Referenced", "SYS")), Throws.Nothing);
-                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.PublishedParameters, "THE")), Throws.Nothing);
-                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.PublishableParameters, "THE")), Throws.Nothing);    
-                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.ParametersWithMissingValues, "THE")), Throws.Nothing);    
-                Assert.That(() => parameterDashboard.Instance.OnAccessData((ConstantValues.ParametersWithValues, "THE")), Throws.Nothing);    
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((WebAppConstantValues.PublishedParameters, "THE")), Throws.Nothing);
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((WebAppConstantValues.PublishableParameters, "THE")), Throws.Nothing);    
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((WebAppConstantValues.ParametersWithMissingValues, "THE")), Throws.Nothing);    
+                Assert.That(() => parameterDashboard.Instance.OnAccessData((WebAppConstantValues.ParametersWithValues, "THE")), Throws.Nothing);    
                 Assert.That(() => parameterDashboard.Instance.OnAccessData(("Referenced", "THE")), Throws.Nothing);  
             });
 

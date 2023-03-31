@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CategoriesTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -33,12 +33,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using COMETwebapp.Services.SessionManagement;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
-    
+
     using DynamicData;
 
     using ReactiveUI;
@@ -73,6 +74,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private IEnumerable<CategoryRowViewModel> allRows = new List<CategoryRowViewModel>();
 
         /// <summary>
+        /// Backing field for <see cref="IsOnDeprecationMode" />
+        /// </summary>
+        private bool isOnDeprecationMode;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -105,8 +111,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as PersonRole)
-                .Subscribe(_=> this.RefreshAccessRight()));
+                .Subscribe(_ => this.RefreshAccessRight()));
         }
+
+        /// <summary>The
+        /// <see cref="Category" />
+        /// to create or edit
+        /// </summary>
+        public Category Category { get; set; } = new();
 
         /// <summary>
         /// A reactive collection of <see cref="CategoryRowViewModel" />
@@ -119,29 +131,24 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public SourceList<Category> DataSource { get; } = new();
 
         /// <summary>
-        ///    Available <see cref="ReferenceDataLibrary"/>s
+        /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
-        ///    Available <see cref="ClassKind"/>s
+        /// Available <see cref="ClassKind" />s
         /// </summary>
         public IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; } = Enum.GetValues<ClassKind>().Select(x => new ClassKindWrapper(x));
 
         /// <summary>
-        ///    Selected <see cref="ClassKind"/>s
+        /// Selected <see cref="ClassKind" />s
         /// </summary>
         public IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; } = new List<ClassKindWrapper>();
 
         /// <summary>
-        ///    Selected super <see cref="Category"/>
+        /// Selected super <see cref="Category" />
         /// </summary>
         public IEnumerable<Category> SelectedSuperCategories { get; set; } = new List<Category>();
-
-        /// <summary>
-        ///     Backing field for <see cref="IsOnDeprecationMode" />
-        /// </summary>
-        private bool isOnDeprecationMode;
 
         /// <summary>
         /// Indicates if confirmation popup is visible
@@ -153,14 +160,103 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        ///     popum message dialog
+        /// popum message dialog
         /// </summary>
         public string ConfirmationMessageDialog { get; set; }
 
         /// <summary>
-        ///     selected container
+        /// selected container
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category" />
+        /// </summary>
+        public void OnCancelButtonClick()
+        {
+            this.IsOnDeprecationMode = false;
+        }
+
+        /// <summary>
+        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category" />
+        /// </summary>
+        public async void OnConfirmButtonClick()
+        {
+            if (this.Category.IsDeprecated)
+            {
+                await this.UnDeprecatingCategory();
+            }
+            else
+            {
+                await this.DeprecatingCategory();
+            }
+
+            this.IsOnDeprecationMode = false;
+        }
+
+        /// <summary>
+        /// Action invoked when the deprecate or undeprecate button is clicked
+        /// </summary>
+        /// <param name="categoryRow"> The <see cref="CategoryRowViewModel" /> to deprecate or undeprecate </param>
+        public void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel categoryRow)
+        {
+            this.Category = new Category();
+            this.Category = categoryRow.Category;
+            this.ConfirmationMessageDialog = this.Category.IsDeprecated ? "You are about to un-deprecate the category: " + categoryRow.Name : "You are about to deprecate the category: " + categoryRow.Name;
+            this.IsOnDeprecationMode = true;
+        }
+
+        /// <summary>
+        /// Tries to create a new <see cref="Category" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task AddingCategory()
+        {
+            var thingsToCreate = new List<Thing>();
+
+            if (this.SelectedSuperCategories.Any())
+            {
+                this.Category.SuperCategory = this.SelectedSuperCategories.ToList();
+            }
+
+            if (this.SelectedPermissibleClasses.Any())
+            {
+                this.Category.PermissibleClass = this.SelectedPermissibleClasses.Select(x => x.ClassKind).ToList();
+            }
+
+            this.Category.Container = this.SelectedReferenceDataLibrary;
+            thingsToCreate.Add(this.Category);
+            var clonedRDL = this.SelectedReferenceDataLibrary.Clone(false);
+            clonedRDL.DefinedCategory.Add(this.Category);
+
+            try
+            {
+                await this.sessionService.CreateThings(clonedRDL, thingsToCreate);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        public void OnInitialized()
+        {
+            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
+            {
+                this.DataSource.AddRange(referenceDataLibrary.DefinedCategory);
+            }
+
+            this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
+            this.UpdateProperties(this.DataSource.Items);
+            this.RefreshAccessRight();
+        }
 
         /// <summary>
         /// Adds a new <see cref="Category" />
@@ -199,6 +295,54 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
+        /// Tries to undeprecate a <see cref="Category" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task UnDeprecatingCategory()
+        {
+            var cateoryToUnDeprecate = new List<Category>();
+            var clonedCateory = this.Category.Clone(false);
+            clonedCateory.IsDeprecated = false;
+            cateoryToUnDeprecate.Add(clonedCateory);
+
+            try
+            {
+                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), cateoryToUnDeprecate);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                throw;
+            }
+
+            this.IsOnDeprecationMode = false;
+        }
+
+        /// <summary>
+        /// Tries to deprecate a <see cref="Category" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task DeprecatingCategory()
+        {
+            var categoryToDeprecate = new List<Category>();
+            var clonedCategory = this.Category.Clone(false);
+            clonedCategory.IsDeprecated = true;
+            categoryToDeprecate.Add(clonedCategory);
+
+            try
+            {
+                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), categoryToDeprecate);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                throw;
+            }
+
+            this.IsOnDeprecationMode = false;
+        }
+
+        /// <summary>
         /// Refresh the displayed container name for the category rows
         /// </summary>
         /// <param name="rdl">
@@ -213,14 +357,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     category.ContainerName = rdl.ShortName;
                 }
             }
-        }   
+        }
 
         /// <summary>
         /// Updates the active user access rights
         /// </summary>
         private void RefreshAccessRight()
         {
-            foreach (var row in Rows.Items)
+            foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.Category.Container);
             }
@@ -246,138 +390,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.Rows.Items.First(x => x.Category.Iid == existingRow.Category.Iid).UpdateProperties(existingRow);
             }
-        }
-
-        /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category"/>
-        /// </summary>
-        public void OnCancelButtonClick()
-        {
-            this.IsOnDeprecationMode = false;
-        }
-
-        /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category"/>
-        /// </summary>
-        public async void OnConfirmButtonClick()
-        {
-            if (this.Category.IsDeprecated)
-            {
-                await this.UnDeprecatingCategory();
-            }
-            else
-            {
-                await this.DeprecatingCategory();
-            }
-            IsOnDeprecationMode = false;
-        }
-
-        /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        /// <param name="categoryRow"> The <see cref="CategoryRowViewModel" /> to deprecate or undeprecate </param>
-        public void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel categoryRow)
-        {
-            this.Category = new Category();
-            this.Category = categoryRow.Category;
-            this.ConfirmationMessageDialog = this.Category.IsDeprecated ? "You are about to un-deprecate the category: " + categoryRow.Name : "You are about to deprecate the category: " + categoryRow.Name;
-            this.IsOnDeprecationMode = true;
-        }
-
-        /// <summary>
-        ///     Tries to undeprecate a <see cref="Category" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task UnDeprecatingCategory()
-        {
-            var cateoryToUnDeprecate = new List<Category>();
-            var clonedCateory = this.Category.Clone(false);
-            clonedCateory.IsDeprecated = false;
-            cateoryToUnDeprecate.Add(clonedCateory);
-            try
-            {
-                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), cateoryToUnDeprecate);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                throw;
-            }
-            this.IsOnDeprecationMode = false;
-        }
-        
-        /// <summary>
-        ///     Tries to deprecate a <see cref="Category" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task DeprecatingCategory()
-        {
-            var categoryToDeprecate = new List<Category>();
-            var clonedCategory = this.Category.Clone(false);
-            clonedCategory.IsDeprecated = true;
-            categoryToDeprecate.Add(clonedCategory);
-            try
-            {
-                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), categoryToDeprecate);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                throw;
-            }
-            this.IsOnDeprecationMode = false;
-        }
-
-        /// <summary>
-        ///     Tries to create a new <see cref="Category" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingCategory()
-        {
-            var thingsToCreate = new List<Thing>();
-
-            if (this.SelectedSuperCategories.Any())
-            {
-                this.Category.SuperCategory = this.SelectedSuperCategories.ToList();
-            }
-
-            if (this.SelectedPermissibleClasses.Any())
-            {
-                this.Category.PermissibleClass = this.SelectedPermissibleClasses.Select(x => x.ClassKind).ToList();
-            }
-
-            this.Category.Container = this.SelectedReferenceDataLibrary;
-            thingsToCreate.Add(this.Category);
-            var clonedRDL = this.SelectedReferenceDataLibrary.Clone(false);
-            clonedRDL.DefinedCategory.Add(this.Category);
-
-            try
-            {
-                await this.sessionService.CreateThings(clonedRDL, thingsToCreate);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                throw;
-            }
-        }
-
-        /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
-        /// </summary>
-        public void OnInitialized()
-        {
-            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
-            {
-                this.DataSource.AddRange(referenceDataLibrary.DefinedCategory);
-            }
-
-            this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
-            this.UpdateProperties(this.DataSource.Items);
-            this.RefreshAccessRight();
         }
     }
 }

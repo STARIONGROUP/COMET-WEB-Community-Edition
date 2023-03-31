@@ -2,7 +2,7 @@
 //  <copyright file="ViewerBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,12 +28,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
@@ -45,7 +46,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     public class ViewerBodyViewModel : SingleIterationApplicationBaseViewModel, IViewerBodyViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator" />
+        /// Creates a new instance of type <see cref="ViewerBodyViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="selectionMediator"> the <see cref="ISelectionMediator" /></param>
@@ -131,6 +132,28 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             {
                 this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
             }
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnSessionRefreshed()
+        {
+            return this.OnIterationChanged();
+        }
+
+        /// <summary>
+        /// Update this view model properties
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
+        {
+            await base.OnIterationChanged();
+            this.OptionSelector.CurrentIteration = this.CurrentIteration;
+            this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
+
+            await this.InitializeViewModel();
         }
 
         /// <summary>

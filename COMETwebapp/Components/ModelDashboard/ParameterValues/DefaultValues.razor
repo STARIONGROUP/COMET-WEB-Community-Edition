@@ -40,12 +40,12 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 	@if (this.ValueSets.Any())
 	{
 		<DxChart Data="@(this.ValueSets)" CustomizeSeriesPoint="@PreparePointLabel">
-			<DxChartFullStackedBarSeries Color="Color.LightSlateGray" Name="@ConstantValues.ParametersWithValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+			<DxChartFullStackedBarSeries Color="Color.LightSlateGray" Name="@WebAppConstantValues.ParametersWithValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
 			                             ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
 			                             AggregationMethod="Enumerable.Sum">
 				<DxChartSeriesLabel Position="RelativePosition.Inside"/>
 			</DxChartFullStackedBarSeries>
-			<DxChartFullStackedBarSeries Color="Color.DarkSeaGreen" Name="@ConstantValues.ParametersWithMissingValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+			<DxChartFullStackedBarSeries Color="Color.DarkSeaGreen" Name="@WebAppConstantValues.ParametersWithMissingValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
 			                             ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
 			                             AggregationMethod="Enumerable.Sum">
 				<DxChartSeriesLabel Position="RelativePosition.Inside"/>

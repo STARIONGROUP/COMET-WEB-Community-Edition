@@ -1,0 +1,118 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="ParameterTypeEditorSelectorViewModel.cs" company="RHEA System S.A.">
+//    Copyright (c) 2023 RHEA System S.A.
+// 
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+// 
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//    Annex A and Annex C.
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+// 
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
+
+namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
+{
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using Microsoft.AspNetCore.Components;
+
+    /// <summary>
+    /// ViewModel used to handle creation of <see cref="IParameterEditorBaseViewModel{T}" />
+    /// </summary>
+    public class ParameterTypeEditorSelectorViewModel : IParameterTypeEditorSelectorViewModel
+    {
+        /// <summary>
+        /// Gets if the Editor is readonly.
+        /// </summary>
+        private readonly bool isReadOnly;
+
+        /// <summary>
+        /// The <see cref="IHaveValueSetViewModel" />
+        /// </summary>
+        private IHaveValueSetViewModel haveValueSetViewModel;
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel" />
+        /// </summary>
+        /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
+        /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
+        /// <param name="isReadOnly">Value asserting that the <see cref="IParameterEditorBaseViewModel{T}" /> should be readonly</param>
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
+        {
+            this.ParameterType = parameterType;
+            this.ValueSet = valueSet;
+            this.isReadOnly = isReadOnly;
+            this.ValueArrayIndex = valueArrayIndex;
+        }
+
+        /// <summary>
+        /// Gets the index of the value changed in the value sets
+        /// </summary>
+        private int ValueArrayIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value set of this <see cref="ParameterType" />
+        /// </summary>
+        public IValueSet ValueSet { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterType" />
+        /// </summary>
+        public ParameterType ParameterType { get; set; }
+
+        /// <summary>
+        /// Event Callback for when a value has changed on the parameter
+        /// </summary>
+        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Creates a view model for the corresponding editor
+        /// </summary>
+        /// <typeparam name="T">the parameter type</typeparam>
+        /// <returns>the view model</returns>
+        public IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType
+        {
+            this.haveValueSetViewModel = this.ParameterType switch
+            {
+                BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                DateParameterType dateParameterType => new DateParameterTypeEditorViewModel(dateParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                DateTimeParameterType dateTimeParameterType => new DateTimeParameterTypeEditorViewModel(dateTimeParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                EnumerationParameterType enumerationParameterType => new EnumerationParameterTypeEditorViewModel(enumerationParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                _ => throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented")
+            };
+
+            var parameterViewModel = (this.haveValueSetViewModel as IParameterEditorBaseViewModel<T>)!;
+            parameterViewModel.ParameterValueChanged = this.ParameterValueChanged;
+
+            return parameterViewModel;
+        }
+
+        /// <summary>
+        /// Updates the <see cref="ParameterSwitchKind" /> value
+        /// </summary>
+        /// <param name="switchValue">The <see cref="ParameterSwitchKind" /></param>
+        public void UpdateSwitchKind(ParameterSwitchKind switchValue)
+        {
+            this.haveValueSetViewModel?.UpdateParameterSwitchKind(switchValue);
+        }
+    }
+}

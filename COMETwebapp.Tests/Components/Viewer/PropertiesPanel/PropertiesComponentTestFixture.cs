@@ -2,7 +2,7 @@
 // <copyright file="PropertiesComponentTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -26,9 +26,10 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
     using Bunit;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
@@ -65,8 +66,10 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             var iterationService = new Mock<ISubscriptionService>();
             this.context.Services.AddSingleton(iterationService);
             
-            var viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object);
-            viewModel.IsVisible = true;
+            var viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object)
+            {
+                IsVisible = true
+            };
 
             this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters =>
             {

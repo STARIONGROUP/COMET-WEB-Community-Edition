@@ -2,7 +2,7 @@
 //  <copyright file="IParameterEditorBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,12 +24,13 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.ParameterEditor.ParameterEditorBody" />
+    /// View Model that handle the logic for the Parameter Editor application
     /// </summary>
     public interface IParameterEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
     {

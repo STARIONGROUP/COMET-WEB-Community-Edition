@@ -2,7 +2,7 @@
 //  <copyright file="ParameterDashboard.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -84,10 +84,10 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 
 			this.parameterDetailsValues = valueSet.serieName switch
 			{
-				ConstantValues.PublishedParameters => valueSetsToDisplay.Where(p => p.Published.SequenceEqual(p.ActualValue)),
-				ConstantValues.PublishableParameters => valueSetsToDisplay.Where(p => !p.Published.SequenceEqual(p.ActualValue)),
-				ConstantValues.ParametersWithMissingValues => valueSetsToDisplay.Where(p => p.Published.All(v => v == "-")),
-                ConstantValues.ParametersWithValues => valueSetsToDisplay.Where(p => p.Published.Any(v => v != "-")),
+				WebAppConstantValues.PublishedParameters => valueSetsToDisplay.Where(p => p.Published.SequenceEqual(p.ActualValue)),
+				WebAppConstantValues.PublishableParameters => valueSetsToDisplay.Where(p => !p.Published.SequenceEqual(p.ActualValue)),
+				WebAppConstantValues.ParametersWithMissingValues => valueSetsToDisplay.Where(p => p.Published.All(v => v == "-")),
+                WebAppConstantValues.ParametersWithValues => valueSetsToDisplay.Where(p => p.Published.Any(v => v != "-")),
 				_ => this.parameterDetailsValues
 			};
 

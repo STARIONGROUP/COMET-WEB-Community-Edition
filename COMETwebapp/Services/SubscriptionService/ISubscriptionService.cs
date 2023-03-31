@@ -2,7 +2,7 @@
 //  <copyright file="ISubscriptionService.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -26,13 +26,14 @@ namespace COMETwebapp.Services.SubscriptionService
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using COMETwebapp.Model;
-    using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
     /// This service tracks change one <see cref="ISubscriptionService" /> for all opened <see cref="Iteration" />
     /// </summary>
-    public interface ISubscriptionService: IDisposableObject
+    public interface ISubscriptionService : IDisposableObject
     {
         /// <summary>
         /// The current number of new <see cref="ParameterSubscription" /> updates
@@ -45,7 +46,8 @@ namespace COMETwebapp.Services.SubscriptionService
         IReadOnlyDictionary<Guid, List<TrackedParameterSubscription>> TrackedSubscriptions { get; }
 
         /// <summary>
-        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to <see cref="ParameterSubscriptionValueSet" /> that has changed
+        /// A <see cref="IReadOnlyDictionary{TKey,TValue}" /> to provide access to <see cref="ParameterSubscriptionValueSet" />
+        /// that has changed
         /// </summary>
         IReadOnlyDictionary<Guid, List<Guid>> SubscriptionsWithUpdate { get; }
 

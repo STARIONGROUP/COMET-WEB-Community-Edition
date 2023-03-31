@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ICategoriesTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -39,12 +39,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     public interface ICategoriesTableViewModel : IDisposable
     {
         /// <summary>
-        ///     The <see cref="Category" /> to create or edit
+        /// The <see cref="Category" /> to create or edit
         /// </summary>
-        Category Category { get; set; } 
-        
+        Category Category { get; set; }
+
         /// <summary>
-        ///     Gets or sets the data source for the grid control.
+        /// Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<Category> DataSource { get; }
 
@@ -64,52 +64,53 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
-        ///    Available <see cref="ClassKind"/>s
+        /// Available <see cref="ClassKind" />s
         /// </summary>
         IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; }
 
         /// <summary>
-        ///    Selected <see cref="ClassKind"/>s
+        /// Selected <see cref="ClassKind" />s
         /// </summary>
         IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; }
 
         /// <summary>
-        ///    Selected super <see cref="Category"/>
+        /// Selected super <see cref="Category" />
         /// </summary>
         IEnumerable<Category> SelectedSuperCategories { get; set; }
 
         /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel context);
-
-        /// <summary>
-        ///  Indicates if confirmation popup is visible
+        /// Indicates if confirmation popup is visible
         /// </summary>
         bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
-        ///     popum message dialog
+        /// popum message dialog
         /// </summary>
         string ConfirmationMessageDialog { get; set; }
 
         /// <summary>
-        ///     selected container
+        /// selected container
         /// </summary>
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category"/>
+        /// Action invoked when the deprecate or undeprecate button is clicked
+        /// </summary>
+        /// <param name="categoryRow"> The <see cref="CategoryRowViewModel" /> to deprecate or undeprecate </param>
+        void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel categoryRow);
+
+        /// <summary>
+        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category" />
         /// </summary>
         void OnConfirmButtonClick();
 
         /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category"/>
+        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category" />
         /// </summary>
         void OnCancelButtonClick();
 
         /// <summary>
-        ///     Tries to create a new <see cref="Category" />
+        /// Tries to create a new <see cref="Category" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task AddingCategory();

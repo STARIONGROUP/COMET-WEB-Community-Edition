@@ -2,7 +2,7 @@
 // <copyright file="PropertiesViewModelTestFixture.cs" company="RHEA System S.A."> 
 //    Copyright (c) 2023 RHEA System S.A. 
 // 
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar 
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar 
 // 
 //    This file is part of COMET WEB Community Edition 
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C. 
@@ -24,8 +24,9 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 

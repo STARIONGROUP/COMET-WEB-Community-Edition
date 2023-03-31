@@ -38,12 +38,12 @@ Copyright (c) 2023 RHEA System S.A.
     @if(this.ValueSets != null)
     {
         <DxChart Data="@this.ValueSets" CustomizeSeriesPoint="@PreparePointLabel">
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="@ConstantValues.PublishableParameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.LightCoral" Name="@WebAppConstantValues.PublishableParameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside"/>
             </DxChartFullStackedBarSeries>
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="@ConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartFullStackedBarSeries Color="System.Drawing.Color.SteelBlue" Name="@WebAppConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside" />

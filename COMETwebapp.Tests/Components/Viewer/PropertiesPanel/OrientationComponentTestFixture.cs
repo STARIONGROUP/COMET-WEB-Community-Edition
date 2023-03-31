@@ -2,7 +2,7 @@
 // <copyright file="OrientationComponentTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -30,11 +30,11 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
     using CDP4Common.Types;
 
-    using COMETwebapp.Components.Viewer.PropertiesPanel;
-    using COMETwebapp.Enumerations;
-    using COMETwebapp.Model;
-    using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+    using COMET.Web.Common.Components.ParameterTypeEditors;
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Model;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using Moq;
 
@@ -54,8 +54,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         {
             this.context = new TestContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
-            this.context.JSInterop.SetupVoid("DxBlazor.ScrollViewer.loadModule");
             this.context.ConfigureDevExpressBlazor();
 
             var orientationViewModel = new Mock<IOrientationViewModel>();

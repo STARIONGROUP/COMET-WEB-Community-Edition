@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ParameterTypeTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -33,9 +33,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Utilities.DisposableObject;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DynamicData;
@@ -64,11 +65,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// A collection of all <see cref="ParameterTypeRowViewModel" />
         /// </summary>
         private IEnumerable<ParameterTypeRowViewModel> allRows = new List<ParameterTypeRowViewModel>();
-
-        /// <summary>
-        ///    Available <see cref="ReferenceDataLibrary"/>s
-        /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
@@ -110,6 +106,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
+        /// Available <see cref="ReferenceDataLibrary" />s
+        /// </summary>
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+
+        /// <summary>
         /// A reactive collection of <see cref="ParameterTypeRowViewModel" />
         /// </summary>
         public SourceList<ParameterTypeRowViewModel> Rows { get; } = new();
@@ -132,6 +133,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.DataSource.AddRange(referenceDataLibrary.ParameterType);
             }
+
             this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
             this.UpdateProperties(this.DataSource.Items);
             this.RefreshAccessRight();
@@ -195,7 +197,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         private void RefreshAccessRight()
         {
-            foreach (var row in Rows.Items)
+            foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.ParameterType.Container);
             }

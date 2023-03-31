@@ -2,7 +2,7 @@
 // <copyright file="SceneObjectTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -37,10 +37,12 @@ namespace COMETwebapp.Tests.Model
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
-    using COMETwebapp.Services.SessionManagement;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -113,7 +115,7 @@ namespace COMETwebapp.Tests.Model
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName };
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Color", ShortName = ConstantValues.ColorShortName };
             var colorParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
@@ -123,7 +125,7 @@ namespace COMETwebapp.Tests.Model
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            var positionParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName };
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Position", ShortName = ConstantValues.PositionShortName };
             var positionParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = positionParameterType };
             positionParameter.ValueSet.Add(positionParameterValueSet);
 
@@ -133,7 +135,7 @@ namespace COMETwebapp.Tests.Model
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            var orientationParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName };
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Orientation", ShortName = ConstantValues.OrientationShortName };
             var orientationParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 
@@ -193,7 +195,7 @@ namespace COMETwebapp.Tests.Model
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            var colorParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Color", ShortName = SceneSettings.ColorShortName };
+            var colorParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Color", ShortName = ConstantValues.ColorShortName };
             var colorParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = colorParameterType };
             colorParameter.ValueSet.Add(colorParameterValueSet);
 
@@ -219,7 +221,7 @@ namespace COMETwebapp.Tests.Model
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            var orientationParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Orientation", ShortName = SceneSettings.OrientationShortName };
+            var orientationParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Orientation", ShortName = ConstantValues.OrientationShortName };
             var orientationParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = orientationParameterType };
             orientationParameter.ValueSet.Add(orientationParameterValueSet);
 
@@ -249,7 +251,7 @@ namespace COMETwebapp.Tests.Model
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            var positionParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Position", ShortName = SceneSettings.PositionShortName };
+            var positionParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Position", ShortName = ConstantValues.PositionShortName };
             var positionParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = positionParameterType };
             positionParameter.ValueSet.Add(positionParameterValueSet);
 

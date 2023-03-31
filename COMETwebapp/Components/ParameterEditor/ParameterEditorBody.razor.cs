@@ -2,7 +2,7 @@
 //  <copyright file="ParameterEditorBody.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,6 +24,9 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
 
@@ -95,7 +98,7 @@ namespace COMETwebapp.Components.ParameterEditor
                 additionalParameters["owned"] = this.ViewModel.IsOwnedParameters.ToString();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.ParameterEditorPage);
+            this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.ParameterEditorPage);
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CategoriesTableTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -41,10 +41,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.ReferenceData;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.Wrappers;
 
@@ -387,13 +388,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 IsAbstract = true,
                 IsDeprecated = false,
             };
+
             this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
-            this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new ClassKindWrapper(ClassKind.ElementDefinition) };
+            this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new (ClassKind.ElementDefinition) };
 
             await this.viewModel.AddingCategory();
             CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(this.viewModel.Category, EventKind.Added));
-
-            Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
+            Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
         }
     }
 }

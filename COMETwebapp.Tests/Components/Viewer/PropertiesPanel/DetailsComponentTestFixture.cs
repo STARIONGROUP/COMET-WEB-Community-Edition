@@ -2,7 +2,7 @@
 // <copyright file="DetailsComponentTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,19 +24,15 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
-    using System.Collections.Generic;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
-    using COMETwebapp.Components.Shared.ParameterTypeEditors;
-    using COMETwebapp.Components.Viewer.Canvas;
+    using COMET.Web.Common.Components.ParameterTypeEditors;
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.Viewer.PropertiesPanel;
-    using COMETwebapp.Enumerations;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using Moq;
@@ -113,7 +109,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             var result = this.renderedComponent.FindComponent<ParameterTypeEditorSelector>();
 
             Assert.That(result, Is.Not.Null);
-            var markUp = this.renderedComponent.Find("#details-header p");
         }
     }
 }

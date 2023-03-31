@@ -2,7 +2,7 @@
 //  <copyright file="SystemRepresentationBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -29,10 +29,11 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
     using CDP4Dal;
 
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components;
+
     using COMETwebapp.Model;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.ViewModels.Components.Shared;
 
     using Microsoft.AspNetCore.Components;
 
@@ -116,7 +117,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             associatedElements = associatedElements.Distinct().ToList();
 
             var elementsToRemove = new List<ElementBase>();
-            
+
             this.Elements.ForEach(e =>
             {
                 if (e.GetType() == typeof(ElementUsage) && !associatedElements.Contains(e))
@@ -153,7 +154,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnIterationChanged()
         {
             await base.OnIterationChanged();
@@ -180,7 +181,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
             return this.OnIterationChanged();
@@ -218,7 +219,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="parent"></param>
         private void CreateTreeRecursively(ElementBase elementBase, SystemNode current, SystemNode parent)
         {
-            List<ElementUsage> childsOfElementBase = elementBase switch
+            var childsOfElementBase = elementBase switch
             {
                 ElementDefinition elementDefinition => this.DomainSelected != null ? elementDefinition.ContainedElement.Where(e => e.Owner == this.DomainSelected).ToList() : elementDefinition.ContainedElement,
                 ElementUsage elementUsage => this.DomainSelected != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == this.DomainSelected).ToList() : elementUsage.ElementDefinition.ContainedElement,

@@ -2,7 +2,7 @@
 // <copyright file="Program.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Geren�, Alex Vorobiev, Alexander van Delft
+//    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -25,35 +25,26 @@
 namespace COMETwebapp
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Reflection;
 
-    using CDP4Dal;
+    using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.Services.VersionService;
-    using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ReferenceData;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    using COMETwebapp.ViewModels.Pages;
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
-    using DevExpress.Blazor;
-
-    using Microsoft.AspNetCore.Components.Authorization;
-    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
     /// <summary>
@@ -68,8 +59,12 @@ namespace COMETwebapp
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
-            builder.RootComponents.Add<HeadOutlet>("head::after");
+
+            builder.AddCometWebCommon(options =>
+            {
+                options.Applications = Applications.ExistingApplications;
+                options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
+            });
 
             RegisterServices(builder);
             RegisterViewModels(builder);
@@ -83,22 +78,11 @@ namespace COMETwebapp
         /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
         public static void RegisterServices(WebAssemblyHostBuilder builder)
         {
-            builder.Services.AddScoped(_ => new HttpClient());
-
-            builder.Services.AddSingleton<ISessionService, SessionService>();
-            builder.Services.AddSingleton<ISession, Session>();
-
-            builder.Services.AddAuthorizationCore();
-            builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
-            builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             builder.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
-            builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();
-            builder.Services.AddSingleton<IVersionService, VersionService>();
-            builder.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
+
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
-            builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             builder.Services.AddAntDesign();
         }
 
@@ -108,17 +92,9 @@ namespace COMETwebapp
         /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
         public static void RegisterViewModels(WebAssemblyHostBuilder builder)
         {
-            builder.Services.AddTransient<ILoginViewModel, LoginViewModel>();
-            builder.Services.AddTransient<IOpenModelViewModel, OpenModelViewModel>();
-            builder.Services.AddTransient<IIndexViewModel, IndexViewModel>();
-            builder.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
-            builder.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             builder.Services.AddSingleton<IShowHideDeprecatedThingsViewModel, ShowHideDeprecatedThingsViewModel>();
-            builder.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
             builder.Services.AddTransient<IParameterTableViewModel, ParameterTableViewModel>();
-            builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
-            builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
             builder.Services.AddTransient<IParameterDashboardViewModel, ParameterDashboardViewModel>();
             builder.Services.AddTransient<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             builder.Services.AddTransient<ISubscriptionDashboardBodyViewModel, SubscriptionDashboardBodyViewModel>();

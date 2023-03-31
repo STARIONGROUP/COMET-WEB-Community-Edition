@@ -2,7 +2,7 @@
 // <copyright file="IntegrationTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Antoine Théate
+//    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Antoine Théate
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -215,10 +215,10 @@ namespace COMETwebapp.Tests.IntegrationTests
             Assert.That(() => this.driver.FindElement(By.Id("switch-domain")), Throws.Exception);
         }
 
-        [TestCase(ConstantValues.ModelDashboardPage)]
-        [TestCase(ConstantValues.ParameterEditorPage)]
-        [TestCase(ConstantValues.SubscriptionDashboardPage)]
-        [TestCase(ConstantValues.ViewerPage)]
+        [TestCase(WebAppConstantValues.ModelDashboardPage)]
+        [TestCase(WebAppConstantValues.ParameterEditorPage)]
+        [TestCase(WebAppConstantValues.SubscriptionDashboardPage)]
+        [TestCase(WebAppConstantValues.ViewerPage)]
         public void VerifyNavigateToApplication(string pageName)
         {
             this.VerifyCanOpenModel();

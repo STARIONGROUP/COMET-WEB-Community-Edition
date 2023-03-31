@@ -1,0 +1,66 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//   This file is part of COMET WEB Community Edition
+//   The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+@using COMET.Web.Common.ViewModels.Components.ParameterEditors
+@using COMET.Web.Common.Extensions
+@using COMET.Web.Common.Utilities
+@inherits DisposableComponent
+
+@if (string.Equals(this.ViewModel.ParameterType.ShortName, ConstantValues.OrientationShortName, StringComparison.InvariantCultureIgnoreCase))
+{
+    var compoundParameterViewModel = this.ViewModel as CompoundParameterTypeEditorViewModel;
+    <OrientationComponent ViewModel="@compoundParameterViewModel?.CreateOrientationViewModel()"/>
+}
+else if (this.ViewModel.ValueSet is not null)
+{
+    if (this.ViewModel is ICompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+    {
+        if (compoundParameterTypeEditorViewModel.IsOnEditMode)
+        {
+            <div class="compound-editor-item">
+                <DxFormLayout ItemCaptionAlignment="ItemCaptionAlignment.All">
+                @{
+                    @for (var i = 0; i < this.ViewModel.ParameterType.Component.Count; i++)
+                    {
+                        var index = i;
+                        var component = this.ViewModel.ParameterType.Component[i];
+                            <DxFormLayoutItem ColSpanMd="12" Caption=@component.ShortName>
+                                <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" />
+                            </DxFormLayoutItem>
+                    }
+                }
+                </DxFormLayout>
+            </div>
+        }
+        else
+        {
+            <div class="input-group">
+                <div class="compound-editor">
+                    @{
+                        var componentLabels = this.ViewModel.ParameterType.Component.Select(x => x.ShortName).AsCommaSeparated();
+                        <div>[@componentLabels]</div>
+                    }
+                </div>
+                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="icon icon-edit" SizeMode="SizeMode.Small" Click="@(()=> compoundParameterTypeEditorViewModel.OnComponentSelected())" />
+            </div>
+        }
+    }
+}

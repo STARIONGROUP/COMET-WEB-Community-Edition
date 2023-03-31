@@ -22,8 +22,8 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 
 @using COMETwebapp.Components.Viewer;
 @using COMETwebapp.Utilities
-@inherits SingleIterationPageTemplate
-@attribute [Route(ConstantValues.ViewerPage)]
+@inherits COMET.Web.Common.Pages.SingleIterationPageTemplate
+@attribute [Route(WebAppConstantValues.ViewerPage)]
 
 <SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
     <Body>

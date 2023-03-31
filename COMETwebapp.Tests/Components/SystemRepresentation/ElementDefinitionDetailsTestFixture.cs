@@ -2,7 +2,7 @@
 // <copyright file="ElementDefinitionTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,9 +24,6 @@
 
 namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
-    using System;
-    using System.Linq;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -34,8 +31,9 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.SystemRepresentation;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     using NUnit.Framework;
@@ -56,7 +54,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         public void SetUp()
         {
             this.context = new TestContext();
-
             this.context.ConfigureDevExpressBlazor();
 
             this.assembler = new Assembler(this.uri);

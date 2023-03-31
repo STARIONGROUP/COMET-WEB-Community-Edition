@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Version>1.0.0</Version>
+        <Title>COMET WEB Common</Title>
+        <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
+        <Company>RHEA System S.A.</Company>
+        <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <Authors>Sam, Alex, Alexander, Antoine</Authors>
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CDP4ServicesDal-CE" Version="9.0.0" />
+        <PackageReference Include="DevExpress.Blazor" Version="22.2.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+        <PackageReference Include="ReactiveUI" Version="18.4.26" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="COMET.Web.Common.Tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
+
+</Project>

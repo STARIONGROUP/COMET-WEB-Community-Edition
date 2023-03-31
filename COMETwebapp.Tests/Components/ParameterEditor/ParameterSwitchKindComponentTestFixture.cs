@@ -2,7 +2,7 @@
 //  <copyright file="ParameterSwitchKindComponentTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,9 +28,9 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Shared.Selectors;
-    using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
+    using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using DevExpress.Blazor;
 

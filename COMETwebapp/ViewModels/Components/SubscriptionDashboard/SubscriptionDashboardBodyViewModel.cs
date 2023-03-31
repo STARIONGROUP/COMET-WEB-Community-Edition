@@ -2,7 +2,7 @@
 //  <copyright file="SubscriptionDashboardBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -29,10 +29,12 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Extensions;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using ReactiveUI;
 
@@ -100,12 +102,14 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 
             this.SubscribedTable.UpdateProperties(ownedSubscriptions, availableOptions, this.CurrentIteration);
             this.DomainOfExpertiseSubscriptionTable.UpdateProperties(subscribedParameters);
+            await Task.Delay(1);
+            this.IsLoading = false;
         }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
             await this.OnIterationChanged();
@@ -115,7 +119,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// <summary>
         /// Handles the change of <see cref="DomainOfExpertise" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         protected override Task OnDomainChanged()
         {
             base.OnDomainChanged();
@@ -125,7 +129,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// <summary>
         /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         private async Task UpdateTables()
         {
             this.IsLoading = true;

@@ -2,7 +2,7 @@
 // <copyright file="SystemTreeTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,10 +24,7 @@
 
 namespace COMETwebapp.Tests.Components.SystemRepresentation
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
 
     using Bunit;
 
@@ -37,9 +34,10 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using CDP4Dal;
     using CDP4Dal.DAL;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.SystemRepresentation;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 

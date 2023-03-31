@@ -2,7 +2,7 @@
 //  <copyright file="IPropertiesComponentViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -26,16 +26,17 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// View Model for the <see cref="PropertiesComponent"/>
+    /// View Model for the <see cref="PropertiesComponent" />
     /// </summary>
     public interface IPropertiesComponentViewModel
     {
@@ -90,15 +91,17 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         void OnSubmit();
 
         /// <summary>
-        /// Gets the current used <see cref="IValueSet"/>
+        /// Gets the current used <see cref="IValueSet" />
         /// </summary>
-        /// <returns>the <see cref="IValueSet"/></returns>
+        /// <returns>the <see cref="IValueSet" /></returns>
         IValueSet GetUsedValueSet();
 
         /// <summary>
-        /// Creates a new <see cref="IDetailsComponentViewModel"/>
+        /// Creates a new <see cref="IDetailsComponentViewModel" />
         /// </summary>
-        /// <returns>a <see cref="IDetailsComponentViewModel"/> based on this <see cref="IPropertiesComponentViewModel"/></returns>
+        /// <returns>
+        /// a <see cref="IDetailsComponentViewModel" /> based on this <see cref="IPropertiesComponentViewModel" />
+        /// </returns>
         IDetailsComponentViewModel CreateDetailsComponentViewModel();
     }
 }

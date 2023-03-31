@@ -2,7 +2,7 @@
 //  <copyright file="SubscriptionDashboardBodyViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -32,7 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMETwebapp.Services.SessionManagement;
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
 
     using Moq;

@@ -2,7 +2,7 @@
 // <copyright file="CanvasTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -26,9 +26,10 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 {
     using Bunit;
 
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     

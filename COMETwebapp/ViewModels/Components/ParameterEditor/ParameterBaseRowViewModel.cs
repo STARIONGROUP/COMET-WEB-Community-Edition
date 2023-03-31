@@ -2,7 +2,7 @@
 //  <copyright file="ParameterBaseRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,10 +28,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Utilities.DisposableObject;
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
 
@@ -66,7 +66,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
             this.ParameterType = this.Parameter.ParameterType;
             this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
-            
+
             if (valueSet is ParameterValueSetBase valueSetBase)
             {
                 this.PublishedValue = valueSetBase.Published.First();
@@ -101,14 +101,14 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
-        /// Gets the published value
-        /// </summary>
-        public string PublishedValue { get; }
-
-        /// <summary>
         /// The <see cref="Guid" /> of the represented <see cref="IValueSet" />
         /// </summary>
         public Guid ValueSetId { get; }
+
+        /// <summary>
+        /// Gets the published value
+        /// </summary>
+        public string PublishedValue { get; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />

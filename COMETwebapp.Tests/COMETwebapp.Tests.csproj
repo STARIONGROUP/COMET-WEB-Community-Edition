@@ -34,11 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\COMET.Web.Common.Tests\COMET.Web.Common.Tests.csproj" />
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ViewModels\Components\ParameterEditor\" />
   </ItemGroup>
 
 </Project>
