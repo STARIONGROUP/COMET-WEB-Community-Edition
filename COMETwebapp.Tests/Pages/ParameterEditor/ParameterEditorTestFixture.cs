@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Tests.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -118,6 +119,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
+            this.context.Services.AddSingleton<INotificationService, NotificationService>();
         }
 
         [TearDown]

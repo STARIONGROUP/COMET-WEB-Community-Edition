@@ -25,7 +25,6 @@
 namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 {
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
     /// Interface definition for <see cref="ShowHideDeprecatedThingsViewModel" />

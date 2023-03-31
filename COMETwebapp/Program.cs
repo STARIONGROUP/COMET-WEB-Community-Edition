@@ -34,6 +34,7 @@ namespace COMETwebapp
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
+    using COMETwebapp.Shared.TopMenuEntry;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
@@ -44,6 +45,7 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -64,6 +66,7 @@ namespace COMETwebapp
             {
                 options.Applications = Applications.ExistingApplications;
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
+                options.AdditionalMenuEntries.Add(typeof(ShowHideDeprecatedThings));
             });
 
             RegisterServices(builder);
@@ -79,7 +82,7 @@ namespace COMETwebapp
         public static void RegisterServices(WebAssemblyHostBuilder builder)
         {
             builder.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
-
+            builder.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();

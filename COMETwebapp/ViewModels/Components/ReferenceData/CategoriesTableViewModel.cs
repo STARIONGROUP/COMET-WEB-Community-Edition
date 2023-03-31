@@ -60,15 +60,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
-        ///     The <see cref="Category" /> to create or edit
-        /// </summary>
-        public Category Category { get; set; } = new();
-        
-        /// <summary>
         /// A collection of all <see cref="CategoryRowViewModel" />
         /// </summary>
         private IEnumerable<CategoryRowViewModel> allRows = new List<CategoryRowViewModel>();
@@ -114,9 +105,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 .Subscribe(_ => this.RefreshAccessRight()));
         }
 
-        /// <summary>The
-        /// <see cref="Category" />
-        /// to create or edit
+        /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
+        /// The <see cref="Category" /> to create or edit
         /// </summary>
         public Category Category { get; set; } = new();
 
