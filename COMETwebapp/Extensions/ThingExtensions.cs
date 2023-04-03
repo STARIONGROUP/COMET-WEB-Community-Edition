@@ -482,12 +482,12 @@ namespace COMETwebapp.Extensions
             var changes = new Dictionary<int, ValueArray<string>>();
             var subscribedParameterValueSet = valueSet.SubscribedValueSet;
 
-            if (!subscribedParameterValueSet.Revisions.Any())
+            if (!subscribedParameterValueSet.Revisions.Any() || !subscribedParameterValueSet.Revisions.Keys.Any(x => x >= valueSet.RevisionNumber))
             {
                 changes.Add(subscribedParameterValueSet.RevisionNumber, subscribedParameterValueSet.Published);
                 return changes;
             }
-
+            
             var currentRevisionNumber = subscribedParameterValueSet.Revisions.Keys.Where(x => x >= valueSet.RevisionNumber).Min();
             var currentValueSet = ((ParameterValueSetBase)subscribedParameterValueSet.Revisions[currentRevisionNumber]).Published;
 
