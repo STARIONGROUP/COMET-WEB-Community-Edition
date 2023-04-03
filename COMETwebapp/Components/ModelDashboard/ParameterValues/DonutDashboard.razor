@@ -1,40 +1,42 @@
 ﻿<!------------------------------------------------------------------------------
-Copyright (c) 2023 RHEA System S.A.
-
-Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
-
-This file is part of COMET WEB Community Edition
-The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-
-The COMET WEB Community Edition is free software; you can redistribute it and/or
-modify it under the terms of the GNU Affero General Public
-License as published by the Free Software Foundation; either
-version 3 of the License, or (at your option) any later version.
-
-The COMET WEB Community Edition is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program. If not, see http://www.gnu.org/licenses/.
+// Copyright (c) 2023 RHEA System S.A.
+// 
+// Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+// 
+// This file is part of COMET WEB Community Edition
+// The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+// The COMET WEB Community Edition is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Affero General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+// 
+// The COMET WEB Community Edition is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Model
+@using Orientation = DevExpress.Blazor.Orientation
 
 <div class="col col-xxl-8">
-    <DxChart Data="@this.dataCharts" CustomizeSeriesPoint="@CustomizeSeriesPoint">
-        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
-                            ValueField="@(d => d.Value)"
-                            ArgumentField="@(d => d.Argument)"
-                            AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Visible="true" />
-        </DxChartDonutSeries>
-        <DxChartLegend AllowToggleSeries="false" Orientation="DevExpress.Blazor.Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside" />
-        <DxChartDonutSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
-                            ValueField="@(d => d.Value)"
-                            ArgumentField="@(d => d.Argument)"
-                            AggregationMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Visible="true" />
-        </DxChartDonutSeries>
-    </DxChart>
+    <DxPieChart Data="@(this.dataCharts)" CustomizeSeriesPoint="@CustomizeSeriesPoint"
+                InnerDiameter="0.5">
+        <DxPieChartSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
+                          ValueField="@(d => d.Value)"
+                          ArgumentField="@(d => d.Argument)"
+                          SummaryMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Visible="true"/>
+        </DxPieChartSeries>
+        <DxPieChartSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
+                          ValueField="@(d => d.Value)"
+                          ArgumentField="@(d => d.Argument)"
+                          SummaryMethod="Enumerable.Sum">
+            <DxChartSeriesLabel Visible="true"/>
+        </DxPieChartSeries>
+        <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside"/>
+    </DxPieChart>
 </div>
