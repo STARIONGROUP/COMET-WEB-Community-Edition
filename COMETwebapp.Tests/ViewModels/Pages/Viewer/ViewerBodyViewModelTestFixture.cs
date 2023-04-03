@@ -167,7 +167,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             actualFiniteStateList.ActualState.Add(actualState2);
 
             iteration.ActualFiniteStateList.Add(actualFiniteStateList);
-            iteration.ActualFiniteStateList.Add(new ActualFiniteStateList());
 
             var selectionMediatorMock = new Mock<ISelectionMediator>();
 
@@ -196,7 +195,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
                 Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
                 Assert.That(this.viewModel.OptionSelector.AvailableOptions.ToList(), Has.Count.EqualTo(2));
                 Assert.That(this.viewModel.MultipleFiniteStateSelector, Is.Not.Null);
-                Assert.That(this.viewModel.MultipleFiniteStateSelector.ActualFiniteStateListsCollection, Has.Count.EqualTo(2));
+                Assert.That(this.viewModel.MultipleFiniteStateSelector.ActualFiniteStateListsCollection, Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.MultipleFiniteStateSelector.SelectedFiniteStates, Is.Not.Null);
                 Assert.That(this.viewModel.MultipleFiniteStateSelector.SelectedFiniteStates.ToList(), Has.Count.EqualTo(1));
             });

@@ -78,17 +78,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         private Dictionary<ActualFiniteState, bool> SelectionStates { get; set; } = new();
         
         /// <summary>
-        /// Creates a new instance of type <see cref="MultipleActualFiniteStateSelectorViewModel"/>
-        /// </summary>
-        public MultipleActualFiniteStateSelectorViewModel()
-        {
-            this.Disposables.Add(this.ActualFiniteStateListsCollection.CountChanged.Subscribe(_ =>
-            {
-                this.InitializeViewModel();
-            }));
-        }
-
-        /// <summary>
         /// Update this view model properties
         /// </summary>
         protected override void UpdateProperties()
@@ -96,6 +85,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.ActualFiniteStateListsCollection.Clear();
             var items = this.CurrentIteration?.ActualFiniteStateList.ToList() ?? new List<ActualFiniteStateList>();
             this.ActualFiniteStateListsCollection.AddRange(items);
+            this.InitializeViewModel();
         }
 
         /// <summary>
@@ -114,10 +104,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             foreach (var finiteStateList in this.ActualFiniteStateListsCollection.Items)
             {
                 viewModels.Add(new ActualFiniteStateSelectorViewModel(finiteStateList, eventCallback));
+                var defaultState = finiteStateList.ActualState.FirstOrDefault(x => x.IsDefault) ?? finiteStateList.ActualState.First();
 
-                foreach (var finiteState in finiteStateList.ActualState)
+                this.SelectionStates.TryAdd(defaultState, true);
+
+                foreach (var finiteState in finiteStateList.ActualState.Where(x => x.Iid != defaultState.Iid))
                 {
-                    this.SelectionStates.TryAdd(finiteState, finiteState.IsDefault);
+                    this.SelectionStates.TryAdd(finiteState, false);
                 }
             }
 
