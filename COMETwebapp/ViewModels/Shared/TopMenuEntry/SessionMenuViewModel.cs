@@ -52,14 +52,11 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionMenuViewModel" /></param>
         /// <param name="autoRefreshService">The <see cref="IAutoRefreshService" /></param>
-        /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
         /// <param name="subscriptionService">The <see cref="ISubscriptionService" /></param>
-        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, IAuthenticationService authenticationService
-            , ISubscriptionService subscriptionService)
+        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, ISubscriptionService subscriptionService)
         {
             this.SessionService = sessionService;
             this.AutoRefreshService = autoRefreshService;
-            this.AuthenticationService = authenticationService;
             this.SubscriptionService = subscriptionService;
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing)
@@ -91,11 +88,6 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         {
             return this.SessionService.RefreshSession();
         }
-
-        /// <summary>
-        /// Gets the <see cref="AuthenticationService" />
-        /// </summary>
-        public IAuthenticationService AuthenticationService { get; }
 
         /// <summary>
         /// Gets the <see cref="IAutoRefreshService" />

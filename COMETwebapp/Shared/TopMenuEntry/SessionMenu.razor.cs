@@ -62,12 +62,10 @@ namespace COMETwebapp.Shared.TopMenuEntry
         /// <summary>
         /// Logs out to the current <see cref="ISession" />
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task Logout()
+        public void Logout()
         {
             this.Expanded = false;
-            await this.ViewModel.AuthenticationService.Logout();
-            this.NavigationManager.NavigateTo("/");
+            this.NavigationManager.NavigateTo("/Logout");
         }
 
         /// <summary>
