@@ -48,6 +48,7 @@ namespace COMETwebapp.Tests.Shared
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -64,7 +65,6 @@ namespace COMETwebapp.Tests.Shared
         private CometWebAuthStateProvider stateProvider;
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
-        private Mock<IAuthenticationService> authenticationService;
         private Mock<IShowHideDeprecatedThingsService> showHideDeprecatedThingsService;
         private SourceList<Iteration> sourceList;
 
@@ -74,7 +74,6 @@ namespace COMETwebapp.Tests.Shared
             this.context = new TestContext();
             this.sessionService = new Mock<ISessionService>();
             this.stateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
-            this.authenticationService = new Mock<IAuthenticationService>();
             this.autoRefreshService = new Mock<IAutoRefreshService>();
             this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
             this.sourceList = new SourceList<Iteration>();
@@ -82,7 +81,6 @@ namespace COMETwebapp.Tests.Shared
 
             this.context.Services.AddSingleton<AuthenticationStateProvider>(this.stateProvider);
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.autoRefreshService.Object);
             this.context.Services.AddSingleton(this.showHideDeprecatedThingsService.Object);
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
@@ -120,10 +118,11 @@ namespace COMETwebapp.Tests.Shared
             var sessionMenuInstance = (SessionMenu)sessionMenuEntry.Instance;
             sessionMenuInstance.Expanded = true;
             await renderer.InvokeAsync(sessionMenuInstance.Logout);
-            
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
             Assert.Multiple(() =>
             {
-                this.authenticationService.Verify(x => x.Logout(), Times.Once);
+                Assert.That(navigation.Uri.EndsWith("Logout"));
                 Assert.That(sessionMenuInstance.Expanded, Is.False);
             });
 

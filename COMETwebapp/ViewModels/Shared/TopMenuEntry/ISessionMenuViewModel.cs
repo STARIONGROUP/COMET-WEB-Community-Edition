@@ -28,7 +28,6 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 
     using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.SessionManagement;
     using COMETwebapp.Utilities.DisposableObject;
 
     /// <summary>
@@ -45,11 +44,6 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
         /// Gets the <see cref="IAutoRefreshService" />
         /// </summary>
         IAutoRefreshService AutoRefreshService { get; }
-
-        /// <summary>
-        /// Gets the <see cref="AuthenticationService" />
-        /// </summary>
-        IAuthenticationService AuthenticationService { get; }
 
         /// <summary>
         /// Value indiciating that the <see cref="ISession" /> is currently refreshing
