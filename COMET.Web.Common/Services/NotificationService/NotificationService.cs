@@ -64,7 +64,7 @@ namespace COMET.Web.Common.Services.NotificationService
         /// <param name="amount">The decrease amount</param>
         public void RemoveNotifications(int amount)
         {
-            if (amount < 0)
+            if (amount > 0)
             {
                 this.NotificationCount -= amount;
             }
