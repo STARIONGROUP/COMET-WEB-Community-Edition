@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -24,7 +24,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.Viewer.IViewerBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
+    <div id="@ConstantValues.ViewerPage.QueryPageBodyName()" class="row">
         <div class="col">
             <div class="width-fit-content">
                 <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>

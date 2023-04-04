@@ -49,12 +49,10 @@ namespace COMETwebapp.Components.Viewer.Canvas
         {
             base.OnParametersSet();
 
-            this.ViewModel.InitializeViewModel();
-            
-            this.WhenAnyValue(x => x.ViewModel.ActualFiniteStateSelectorViewModels).Subscribe(_ =>
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActualFiniteStateSelectorViewModels).Subscribe(_ =>
             {
                 this.InvokeAsync(this.StateHasChanged);
-            });
+            }));
         }
     }
 }

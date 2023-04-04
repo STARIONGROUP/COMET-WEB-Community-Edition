@@ -184,7 +184,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             if (sceneObject.Primitive is not null)
             {
                 sceneObject.Primitive.HasHalo = true;
-          this.temporarySceneObjects.Add(sceneObject);
+                this.temporarySceneObjects.Add(sceneObject);
                 await this.BabylonInterop.AddSceneObject(sceneObject);
             }
         }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -25,7 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Viewer
 {
     using CDP4Common.EngineeringModelData;
-    
+
     using CDP4Dal;
 
     using COMETwebapp.Extensions;
@@ -40,68 +40,103 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.ViewerBody"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.ViewerBody" />
     /// </summary>
     public class ViewerBodyViewModel : SingleIterationApplicationBaseViewModel, IViewerBodyViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// Gets or sets the <see cref="ISelectionMediator" />
         /// </summary>
-        public ISelectionMediator SelectionMediator { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IOptionSelectorViewModel"/>
-        /// </summary>
-        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel();
-
-        /// <summary>
-        /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel"/>
-        /// </summary>
-        public IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IProductTreeViewModel"/>
-        /// </summary>
-        public IProductTreeViewModel ProductTreeViewModel { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ICanvasViewModel"/>
-        /// </summary>
-        public ICanvasViewModel CanvasViewModel { get; private set; } 
-
-        /// <summary>
-        /// Gets or sets the <see cref="IPropertiesComponentViewModel"/>
-        /// </summary>
-        public IPropertiesComponentViewModel PropertiesViewModel { get; private set; }
-        
-        /// <summary>
-        /// All <see cref="ElementBase"/> of the iteration
-        /// </summary>
-        public List<ElementBase> Elements { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="ViewerBodyViewModel"/>
-        /// </summary>
-        /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="selectionMediator"> the <see cref="ISelectionMediator"/></param>
-        /// <param name="babylonInterop">the <see cref="IBabylonInterop"/></param>
+        /// <param name="sessionService">the <see cref="ISessionService" /></param>
+        /// <param name="selectionMediator"> the <see cref="ISelectionMediator" /></param>
+        /// <param name="babylonInterop">the <see cref="IBabylonInterop" /></param>
         public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop) : base(sessionService)
         {
             this.SelectionMediator = selectionMediator;
             this.ProductTreeViewModel = new ProductTreeViewModel(selectionMediator);
-            this.CanvasViewModel = new CanvasViewModel(babylonInterop,selectionMediator);
+            this.CanvasViewModel = new CanvasViewModel(babylonInterop, selectionMediator);
             this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator);
             this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
 
-            this.Disposables.Add(this.WhenAnyValue(/*Need fix of issue #308 x => x.MultipleFiniteStateSelector.SelectedFiniteStates,*/
-                x => x.OptionSelector.SelectedOption)
+            this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates,
+                    x => x.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.InitializeElementsAndCreateTree()));
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISelectionMediator" />
+        /// </summary>
+        public ISelectionMediator SelectionMediator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IOptionSelectorViewModel" />
+        /// </summary>
+        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel(false);
+
+        /// <summary>
+        /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel" />
+        /// </summary>
+        public IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IProductTreeViewModel" />
+        /// </summary>
+        public IProductTreeViewModel ProductTreeViewModel { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ICanvasViewModel" />
+        /// </summary>
+        public ICanvasViewModel CanvasViewModel { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IPropertiesComponentViewModel" />
+        /// </summary>
+        public IPropertiesComponentViewModel PropertiesViewModel { get; private set; }
+
+        /// <summary>
+        /// All <see cref="ElementBase" /> of the iteration
+        /// </summary>
+        public List<ElementBase> Elements { get; set; }
+
+        /// <summary>
+        /// Initializes this <see cref="IViewerBodyViewModel" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task InitializeViewModel()
+        {
+            this.IsLoading = true;
+            await Task.Delay(1);
+
+            this.InitializeElementsAndCreateTree();
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Create the <see cref="ElementBase" /> based on the current <see cref="Iteration" />
+        /// </summary>
+        public IEnumerable<ElementBase> InitializeElements()
+        {
+            return this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
+        }
+
+        /// <summary>
+        /// Initializes the elements and creates the tree based on that elements
+        /// </summary>
+        public void InitializeElementsAndCreateTree()
+        {
+            this.Elements = this.InitializeElements().ToList();
+
+            if (this.OptionSelector.SelectedOption != null && this.MultipleFiniteStateSelector.SelectedFiniteStates.Count()
+                == this.MultipleFiniteStateSelector.ActualFiniteStateSelectorViewModels.Count())
+            {
+                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
+            }
         }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
             return this.OnIterationChanged();
@@ -118,38 +153,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
 
             await this.InitializeViewModel();
-        }
-
-        /// <summary>
-        /// Initializes this <see cref="IViewerBodyViewModel"/>
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        public async Task InitializeViewModel()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-
-            this.OptionSelector.SelectedOption = this.CurrentIteration?.DefaultOption;
-            
-            this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// Create the <see cref="ElementBase"/> based on the current <see cref="Iteration"/>
-        /// </summary>
-        public IEnumerable<ElementBase> InitializeElements()
-        {
-            return this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
-        }
-
-        /// <summary>
-        /// Initializes the elements and creates the tree based on that elements
-        /// </summary>
-        public void InitializeElementsAndCreateTree()
-        {
-            this.Elements = this.InitializeElements().ToList();
-
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
         }
     }
 }

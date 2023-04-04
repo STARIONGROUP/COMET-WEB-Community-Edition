@@ -24,7 +24,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SubscriptionDashboard.ISubscriptionDashboardBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@ConstantValues.ModelDashboardPage.QueryPageBodyName()" class="row">
+    <div id="@ConstantValues.SubscriptionDashboardPage.QueryPageBodyName()" class="row">
         <div class="col-2 width-fit-content">
             <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
         </div>

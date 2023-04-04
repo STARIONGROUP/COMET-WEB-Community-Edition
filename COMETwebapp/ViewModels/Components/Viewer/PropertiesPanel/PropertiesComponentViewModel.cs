@@ -175,6 +175,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     {
                         this.SelectedParameter = this.ParametersInUse.First();
                     }
+                    else
+                    {
+                        this.SelectedParameter = null;
+                    }
                 }
             }
         }

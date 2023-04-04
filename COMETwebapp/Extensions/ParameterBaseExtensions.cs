@@ -41,18 +41,12 @@ namespace COMETwebapp.Extensions
         public static IValueSet GetValueSetFromOptionAndStates(this ParameterBase parameterBase, Option option, IEnumerable<ActualFiniteState> states)
         {
             IValueSet valueSet = null;
-            
-            if (states is not null && states.Any())
-            {
-                foreach (var actualFiniteState in states)
-                {
-                    valueSet = parameterBase.QueryParameterBaseValueSet(option, actualFiniteState);
+            states = states?.ToList();
 
-                    if (valueSet is not null)
-                    {
-                        break;
-                    }
-                }
+            if (states is not null && states.Any() && parameterBase.StateDependence != null)
+            {
+                var actualFiniteState = states.FirstOrDefault(x => parameterBase.StateDependence.ActualState.Any(a => x.Iid == a.Iid));
+                valueSet = parameterBase.QueryParameterBaseValueSet(option, actualFiniteState);
             }
             else
             {
