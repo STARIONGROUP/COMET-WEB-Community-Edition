@@ -246,8 +246,8 @@ namespace COMET.Web.Common.Tests.Shared
             Assert.Multiple(() =>
             {
                 Assert.That(dxMenus, Has.Count.EqualTo(2));
-                Assert.That(dxMenus.Last().Instance.Text, Is.EqualTo(modelDashboardApplication.Name));
-                Assert.That(dxMenus.Last().Instance.NavigateUrl, Is.EqualTo(modelDashboardApplication.Url));
+                Assert.That(dxMenus[1].Instance.Text, Is.EqualTo(modelDashboardApplication.Name));
+                Assert.That(dxMenus[1].Instance.NavigateUrl, Is.EqualTo(modelDashboardApplication.Url));
             });
         }
 
