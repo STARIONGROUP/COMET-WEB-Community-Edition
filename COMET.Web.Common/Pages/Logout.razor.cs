@@ -23,9 +23,9 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages
+namespace COMET.Web.Common.Pages
 {
-    using COMETwebapp.SessionManagement;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
 

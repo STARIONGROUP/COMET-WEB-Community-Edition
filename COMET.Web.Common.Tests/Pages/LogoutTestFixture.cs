@@ -23,10 +23,10 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Pages
+namespace COMET.Web.Common.Tests.Pages
 {
-    using COMETwebapp.Pages;
-    using COMETwebapp.SessionManagement;
+    using COMET.Web.Common.Pages;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;

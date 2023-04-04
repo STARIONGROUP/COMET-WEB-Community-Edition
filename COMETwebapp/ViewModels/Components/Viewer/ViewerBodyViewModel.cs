@@ -155,27 +155,5 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
             await this.InitializeViewModel();
         }
-
-        /// <summary>
-        /// Handles the refresh of the current <see cref="ISession" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed()
-        {
-            return this.OnIterationChanged();
-        }
-
-        /// <summary>
-        /// Update this view model properties
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
-        {
-            await base.OnIterationChanged();
-            this.OptionSelector.CurrentIteration = this.CurrentIteration;
-            this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
-
-            await this.InitializeViewModel();
-        }
     }
 }
