@@ -61,7 +61,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
             this.SelectedActualFiniteState = null;
 
             this.AvailableFiniteStates = this.CurrentIteration?.ActualFiniteStateList.OrderBy(x => x.Name).SelectMany(x => x.ActualState)
-                .OrderBy(x => x.Name) ?? Enumerable.Empty<ActualFiniteState>();
+                                         ?? Enumerable.Empty<ActualFiniteState>();
         }
     }
 }

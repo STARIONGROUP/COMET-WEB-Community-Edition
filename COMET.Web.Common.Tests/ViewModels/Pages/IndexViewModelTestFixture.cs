@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="AutoRefreshServiceTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="IndexViewModelTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,49 +23,51 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Services.SessionManagement
+namespace COMET.Web.Common.Tests.ViewModels.Pages
 {
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.VersionService;
+    using COMET.Web.Common.ViewModels.Pages;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    internal class AutoRefreshServiceTestFixture
+    public class IndexViewModelTestFixture
     {
-		private Mock<ISessionService> sessionService;
-        private AutoRefreshService autoRefreshService;
-        
+        private IndexViewModel viewModel;
+        private Mock<IVersionService> versionService;
+        private Mock<ISessionService> sessionService;
+        private Mock<IAuthenticationService> authenticationService;
+        const string Version = "1.1.2";
+
         [SetUp]
         public void Setup()
         {
+            this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
+            this.authenticationService = new Mock<IAuthenticationService>();
+            this.versionService.Setup(x => x.GetVersion()).Returns(Version);
 
-            this.autoRefreshService = new AutoRefreshService(this.sessionService.Object);
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            this.autoRefreshService.Dispose();
+            this.viewModel = new IndexViewModel(this.versionService.Object, this.sessionService.Object, this.authenticationService.Object);
         }
 
         [Test]
-        public void VerifySetTimer()
+        public void VerifyProperties()
         {
-            this.autoRefreshService.IsAutoRefreshEnabled = true;
-            this.autoRefreshService.AutoRefreshInterval = 1;
-            this.autoRefreshService.SetTimer();
-            Thread.Sleep(5000);
-            this.sessionService.Verify(x => x.RefreshSession(), Times.AtLeastOnce);
-            this.autoRefreshService.IsAutoRefreshEnabled = false;
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Version, Is.EqualTo(Version));
+                Assert.That(this.viewModel.SessionService, Is.Not.Null);
+            });
+        }
 
-            this.sessionService.Invocations.Clear();
-
-            this.autoRefreshService.SetTimer();
-            Thread.Sleep(5000);
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Never);
+        [Test]
+        public async Task VerifyLogout()
+        {
+            await this.viewModel.Logout();
+            this.authenticationService.Verify(x => x.Logout(), Times.Once);
         }
     }
 }

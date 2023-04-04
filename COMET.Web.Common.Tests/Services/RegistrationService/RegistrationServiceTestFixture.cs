@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="AutoRefreshServiceTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="RegistrationServiceTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,49 +23,41 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Services.SessionManagement
+namespace COMET.Web.Common.Tests.Services.RegistrationService
 {
-    using COMET.Web.Common.Services.SessionManagement;
+    using System.Reflection;
+
+    using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.RegistrationService;
+
+    using Microsoft.Extensions.Options;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    internal class AutoRefreshServiceTestFixture
+    public class RegistrationServiceTestFixture
     {
-		private Mock<ISessionService> sessionService;
-        private AutoRefreshService autoRefreshService;
-        
-        [SetUp]
-        public void Setup()
-        {
-            this.sessionService = new Mock<ISessionService>();
-
-            this.autoRefreshService = new AutoRefreshService(this.sessionService.Object);
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            this.autoRefreshService.Dispose();
-        }
-
         [Test]
-        public void VerifySetTimer()
+        public void VerifyRegistrationService()
         {
-            this.autoRefreshService.IsAutoRefreshEnabled = true;
-            this.autoRefreshService.AutoRefreshInterval = 1;
-            this.autoRefreshService.SetTimer();
-            Thread.Sleep(5000);
-            this.sessionService.Verify(x => x.RefreshSession(), Times.AtLeastOnce);
-            this.autoRefreshService.IsAutoRefreshEnabled = false;
+            var globalOptions = new GlobalOptions();
+            globalOptions.AdditionalAssemblies.Add(Assembly.GetCallingAssembly());
+            globalOptions.AdditionalMenuEntries.Add(typeof(RegistrationServiceTestFixture));
+            globalOptions.Applications.Add(new Application());
 
-            this.sessionService.Invocations.Clear();
+            var option = new Mock<IOptions<GlobalOptions>>();
+            option.Setup(x => x.Value).Returns(globalOptions);
 
-            this.autoRefreshService.SetTimer();
-            Thread.Sleep(5000);
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Never);
+            var registrationService = new RegistrationService(option.Object);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(registrationService.RegisteredApplications, Has.Count.EqualTo(1));
+                Assert.That(registrationService.RegisteredAssemblies, Has.Count.EqualTo(1));
+                Assert.That(registrationService.RegisteredAuthorizedMenuEntries, Has.Count.EqualTo(1));
+            });
         }
     }
 }

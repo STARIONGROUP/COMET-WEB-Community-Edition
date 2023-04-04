@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="TopMenuTitle.razor.cs" company="RHEA System S.A.">
+//  <copyright file="ParameterSwitchKindSelectorViewModelTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,27 +23,35 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Shared.TopMenuEntry
+namespace COMET.Web.Common.Tests.ViewModels.Components.Selectors
 {
+    using CDP4Common.EngineeringModelData;
+
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using Microsoft.AspNetCore.Components;
 
-    /// <summary>
-    /// Component that display the title of the <see cref="TopMenu" />
-    /// </summary>
-    public partial class TopMenuTitle
-    {
-        /// <summary>
-        /// The <see cref="NavigationManager" />
-        /// </summary>
-        [Inject]
-        public NavigationManager NavigationManager { get; set; }
+    using NUnit.Framework;
 
-        /// <summary>
-        /// Go to the home page
-        /// </summary>
-        public void GoToHome()
+    [TestFixture]
+    public class ParameterSwitchKindSelectorViewModelTestFixture
+    {
+        [Test]
+        public void VerifyProperties()
         {
-            this.NavigationManager.NavigateTo("/");
+            var viewModel = new ParameterSwitchKindSelectorViewModel(ParameterSwitchKind.MANUAL, false)
+            {
+                OnUpdate = new EventCallbackFactory().Create(this, () => { })
+            };
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(viewModel.InitialSwitchValue, Is.EqualTo(ParameterSwitchKind.MANUAL));
+                Assert.That(viewModel.SwitchValue, Is.EqualTo(ParameterSwitchKind.MANUAL));
+                Assert.That(viewModel.OnUpdate.HasDelegate, Is.True);
+                Assert.That(viewModel.IsReadOnly, Is.False);
+                Assert.That(async () => await viewModel.OnUpdate.InvokeAsync(),Throws.Nothing);
+            });
         }
     }
 }

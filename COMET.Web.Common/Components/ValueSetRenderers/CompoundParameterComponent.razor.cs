@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CompoundParameter.razor.cs" company="RHEA System S.A.">
+//  <copyright file="CompoundParameterComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -34,7 +34,7 @@ namespace COMET.Web.Common.Components.ValueSetRenderers
     /// <summary>
     /// Component that show <see cref="ParameterValueSet" /> values for an <see cref="CompoundParameterType" />
     /// </summary>
-    public partial class CompoundParameter
+    public partial class CompoundParameterComponent
     {
         /// <summary>
         /// Index of the <see cref="ParameterTypeComponent" /> in the associated <see cref="ParameterValueSet" />
@@ -53,22 +53,6 @@ namespace COMET.Web.Common.Components.ValueSetRenderers
         /// </summary>
         [Parameter]
         public ParameterTypeComponent Component { get; set; }
-
-        /// <summary>
-        /// The ParameterValueSet to show in the table
-        /// </summary>
-        [Parameter]
-        public ParameterValueSetBase ParameterValueSet { get; set; }
-
-        /// <summary>
-        /// Gets all values to show when <see cref="ParameterTypeComponent" /> is in type of Array or Compound
-        /// </summary>
-        public ValueArray<string> GetCompoundOrArrayValues()
-        {
-            var nbValues = this.Component.ParameterType.NumberOfValues;
-            var valuesToRetrieve = this.Values.ToList().GetRange(this.IndexStartInParameterTypeComponent, nbValues);
-            return new ValueArray<string>(valuesToRetrieve);
-        }
 
         /// <summary>
         /// Gets value to show when <see cref="ParameterTypeComponent" /> is a Scalar

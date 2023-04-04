@@ -35,8 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\ValueSetRenderers\" />
-      <Folder Include="Services\RegistrationService\" />
       <Folder Include="Services\NotificationService\" />
     </ItemGroup>
 </Project>

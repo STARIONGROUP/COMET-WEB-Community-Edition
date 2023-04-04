@@ -25,6 +25,7 @@
 namespace COMET.Web.Common.Components
 {
     using System;
+    using System.Reactive.Linq;
 
     using CDP4Common.EngineeringModelData;
 
@@ -77,16 +78,14 @@ namespace COMET.Web.Common.Components
 		{
 			base.OnInitialized();
 
-			this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnIterationSelectionMode)
-				.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-			this.Disposables.Add(this.ViewModel.SessionService.OpenIterations.CountChanged
-				.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnIterationSelectionMode)
+                .Merge(this.ViewModel.SessionService.OpenIterations.CountChanged.Select(_ => true))
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
 			this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedIteration)
-				.Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
-
-			this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
+                .Select(_ => true)
+                .Merge(CDPMessageBus.Current.Listen<DomainChangedEvent>().Select(_ => true))
+                .Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
 		}
 
 		/// <summary>
@@ -127,7 +126,7 @@ namespace COMET.Web.Common.Components
 		/// <summary>
 		/// Sets the correct url based on the selected <see cref="Iteration" />
 		/// </summary>
-		private void SetCorrectUrl()
+		internal void SetCorrectUrl()
 		{
             var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty).Split('?')[0];
 

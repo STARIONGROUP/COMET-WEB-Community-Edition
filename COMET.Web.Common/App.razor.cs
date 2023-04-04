@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common
 {
+    using System.Diagnostics.CodeAnalysis;
+
     using COMET.Web.Common.Services.RegistrationService;
 
     using Microsoft.AspNetCore.Components;
@@ -34,6 +36,7 @@ namespace COMET.Web.Common
     /// <summary>
     /// Main application component
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public partial class App
     {
         /// <summary>
