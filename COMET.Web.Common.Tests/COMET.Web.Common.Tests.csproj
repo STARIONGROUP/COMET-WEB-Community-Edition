@@ -34,9 +34,4 @@
         <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Components\ValueSetRenderers\" />
-      <Folder Include="Services\RegistrationService\" />
-      <Folder Include="Services\NotificationService\" />
-    </ItemGroup>
 </Project>
