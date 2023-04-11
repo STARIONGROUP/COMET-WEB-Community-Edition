@@ -88,7 +88,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 new RevisionHistory(valueSetRevision.Key,valueSetRevision.Value));
 
             this.ParameterName = this.ParameterSubscriptionRow.ParameterName;
-            this.ScaleShortName = this.ParameterSubscriptionRow.Parameter.Scale.ShortName;
+            this.ScaleShortName = this.ParameterSubscriptionRow.Parameter.Scale?.ShortName;
             this.ElementName = this.ParameterSubscriptionRow.ElementName;
         }
 

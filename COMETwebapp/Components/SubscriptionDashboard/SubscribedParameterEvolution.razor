@@ -32,9 +32,8 @@
             <DxChartValueAxis>
                 <DxChartAxisTitle Text="@this.ScaleShortName" />
             </DxChartValueAxis>
-            <DxChartLineSeries ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
-                               ValueField="@(p => p.ActualValue)"
-                               AggregationMethod="Enumerable.Sum">
+                <DxChartLineSeries ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                               ValueField="@(p => p.ActualValue)">
                 <DxChartSeriesLabel Position="RelativePosition.Outside">
                     <DxChartSeriesLabelConnector Visible="true" Width="3" />
                 </DxChartSeriesLabel>

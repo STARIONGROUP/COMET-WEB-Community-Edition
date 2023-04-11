@@ -46,7 +46,7 @@ namespace COMETwebapp.Model
             }
             else
             {
-                this.ActualValue = null;
+                this.ActualValue = valueArray[0];
             }
         }
 
@@ -58,6 +58,6 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet
         /// </summary>
-        public double? ActualValue { get; set; }
+        public Object? ActualValue { get; set; }
     }
 }
