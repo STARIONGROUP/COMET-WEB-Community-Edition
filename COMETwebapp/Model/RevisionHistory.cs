@@ -40,11 +40,7 @@ namespace COMETwebapp.Model
         {
             this.RevisionNumber = revisionNumber.ToString();
 
-            if (valueArray.Count > 1)
-            {
-                this.ActualValue = valueArray.ToString();
-            }
-            else if (double.TryParse(valueArray[0], out var value))
+            if (double.TryParse(valueArray[0], out var value))
             {
                 this.ActualValue = value;
             }
