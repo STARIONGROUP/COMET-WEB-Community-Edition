@@ -40,7 +40,11 @@ namespace COMETwebapp.Model
         {
             this.RevisionNumber = revisionNumber.ToString();
 
-            if (double.TryParse(valueArray[0], out var value))
+            if (valueArray.Count > 1)
+            {
+                this.ActualValue = valueArray.ToString();
+            }
+            else if (double.TryParse(valueArray[0], out var value))
             {
                 this.ActualValue = value;
             }
@@ -51,6 +55,13 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
+        /// Initializes a new <see cref="RevisionHistory" />
+        /// </summary>
+        public RevisionHistory()
+        {
+        }
+
+        /// <summary>
         /// Revision Number in string of the ParameterSubcriptionValueSet
         /// </summary>
         public string RevisionNumber { get; set; }
@@ -58,6 +69,6 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet
         /// </summary>
-        public Object? ActualValue { get; set; }
+        public Object ActualValue { get; set; }
     }
 }
