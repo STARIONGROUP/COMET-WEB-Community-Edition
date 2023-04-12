@@ -218,7 +218,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                     this.updatedThings.Add(objectChangedEvent.ChangedThing);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent.EventKind), "Unrecognised value EventKind value");
+                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent), "Unrecognised value EventKind value");
             }
         }
 
