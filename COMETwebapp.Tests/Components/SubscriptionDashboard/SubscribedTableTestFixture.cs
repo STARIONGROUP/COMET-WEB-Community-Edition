@@ -196,10 +196,38 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             var element = new ElementDefinition();
 
+            var enumerationValues = new List<string> { "cube", "sphere", "cylinder" };
+
+            var enumerationData = new OrderedItemList<EnumerationValueDefinition>(null)
+            {
+                new EnumerationValueDefinition
+                {
+                    Iid = Guid.NewGuid(),
+                    Name = enumerationValues[0]
+                },
+                new EnumerationValueDefinition
+                {
+                    Iid = Guid.NewGuid(),
+                    Name = enumerationValues[1]
+                },
+                new EnumerationValueDefinition
+                {
+                    Iid = Guid.NewGuid(),
+                    Name = enumerationValues[2]
+                }
+            };
+
+            var enumerationParameterType = new EnumerationParameterType
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            enumerationParameterType.ValueDefinition.AddRange(enumerationData);
+
             var parameter = new Parameter()
             {
                 Iid = Guid.NewGuid(),
-                ParameterType = new EnumerationParameterType(),
+                ParameterType = enumerationParameterType,
                 ValueSet =
                 {
                     new ParameterValueSet()
