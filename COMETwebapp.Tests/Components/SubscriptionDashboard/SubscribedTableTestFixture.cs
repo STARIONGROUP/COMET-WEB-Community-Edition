@@ -203,12 +203,14 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 new EnumerationValueDefinition
                 {
                     Iid = Guid.NewGuid(),
-                    Name = enumerationValues[0]
+                    Name = enumerationValues[0],
+                    ShortName = "cube"
                 },
                 new EnumerationValueDefinition
                 {
                     Iid = Guid.NewGuid(),
-                    Name = enumerationValues[1]
+                    Name = enumerationValues[1],
+                    ShortName = "sphere"
                 },
                 new EnumerationValueDefinition
                 {
@@ -257,7 +259,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             var row = this.rows.Items.First();
             row.Changes[0] = new ValueArray<string>(new[] { "-" });
-            row.Changes[1] = new ValueArray<string>(new[] { "-7" });
+            row.Changes[1] = new ValueArray<string>(new[] { "cube | sphere" });
 
             renderer.Render();
             var expandButton = renderer.FindComponent<DxButton>();
