@@ -60,6 +60,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// The currently selected <see cref="ElementBase" />
+        /// </summary>
+        private ElementBase currentElementBase;
+
+        /// <summary>
+        /// The currently selected <see cref="Option" />
+        /// </summary>
+        private Option currentOption;
+
+        /// <summary>
+        /// The currently selected <see cref="ParameterType" />
+        /// </summary>
+        private ParameterType currentParameterType;
+
+        /// <summary>
         /// Gets or sets the <see cref="ParameterBaseRowViewModel" /> for this <see cref="ParameterTableViewModel" />
         /// </summary>
         private DomainOfExpertise domainOfExpertise;
@@ -73,6 +88,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Creates a new instance of <see cref="ParameterTableViewModel" />
         /// </summary>
         private Iteration iteration;
+
+        /// <summary>
+        /// Value asserting if only owned <see cref="ParameterOrOverrideBase" /> should be visible
+        /// </summary>
+        private bool ownedParameters;
 
         /// <summary>
         /// Creates a new instance of <see cref="ParameterTableViewModel" />
@@ -103,18 +123,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
-        /// Set the <see cref="CompoundParameterTypeEditorViewModel" /> to show in the popup
-        /// </summary>
-        /// <param name="compoundParameterTypeEditorViewModel">
-        /// A collection of <see cref="CompoundParameterTypeEditorViewModel" />
-        /// </param>
-        public void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
-        {
-            this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
-            this.IsOnEditMode = true;
-        }
-
-        /// <summary>
         /// Gets the collection of the <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         public SourceList<ParameterBaseRowViewModel> Rows { get; } = new();
@@ -129,13 +137,15 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             this.iteration = currentIteration;
             this.domainOfExpertise = currentDomain;
-
+            this.currentOption = selectedOption;
+            this.currentElementBase = null;
+            this.currentParameterType = null;
             this.Rows.Clear();
 
             if (this.iteration != null)
             {
-                var ownedNestedParameters = this.iteration.QueryParameterAndOverrideBases(selectedOption, currentDomain);
-                this.Rows.AddRange(this.CreateParameterBaseRowViewModels(ownedNestedParameters, selectedOption.Iid));
+                var ownedNestedParameters = this.iteration.QueryParameterAndOverrideBases(this.currentOption, this.domainOfExpertise);
+                this.Rows.AddRange(this.CreateParameterBaseRowViewModels(ownedNestedParameters, this.currentOption.Iid));
             }
         }
 
@@ -166,31 +176,151 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 return;
             }
 
-            var parameters = (isOwnedParameters
-                    ? this.iteration.QueryParameterAndOverrideBases(selectedOption, this.domainOfExpertise)
-                    : this.iteration.QueryParameterAndOverrideBases(selectedOption))
-                .ToList();
+            this.currentOption = selectedOption;
+            this.currentElementBase = selectedElementBase;
+            this.currentParameterType = selectedParameterType;
+            this.ownedParameters = isOwnedParameters;
 
-            if (selectedElementBase != null)
+            var rows = this.CreateRowsBasedOnFilters(this.iteration.QueryParameterAndOverrideBases(selectedOption).ToList());
+            this.UpdateVisibleRows(rows);
+        }
+
+        /// <summary>
+        /// Remove rows related to a <see cref="Thing" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
+        public void RemoveRows(IEnumerable<Thing> deletedThings)
+        {
+            var rowsToRemove = new List<ParameterBaseRowViewModel>();
+
+            foreach (var deletedThing in deletedThings)
             {
-                ApplyElementBaseFilter(parameters, selectedElementBase.Iid);
+                switch (deletedThing)
+                {
+                    case ElementBase elementBase:
+                        rowsToRemove.AddRange(this.Rows.Items.Where(x => x.Parameter.Container.Iid == elementBase.Iid));
+                        break;
+                    case ParameterOrOverrideBase parameter:
+                        rowsToRemove.AddRange(this.Rows.Items.Where(x => x.Parameter.Iid == parameter.Iid));
+                        break;
+                    case ParameterValueSetBase parameterValueSetBase:
+                        rowsToRemove.AddRange(this.Rows.Items.Where(x => x.ValueSetId == parameterValueSetBase.Iid));
+                        break;
+                }
             }
 
-            if (selectedParameterType != null)
+            this.Rows.RemoveMany(rowsToRemove);
+        }
+
+        /// <summary>
+        /// Add rows related to <see cref="Thing" /> that has been added
+        /// </summary>
+        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
+        public void AddRows(IEnumerable<Thing> addedThings)
+        {
+            var rows = this.CreateRowsBasedOnFilters(QueryParameterOrOverrides(addedThings).ToList());
+
+            this.Rows.AddRange(rows.Where(x => this.Rows.Items.All(r => r.ValueSetId != x.ValueSetId)));
+        }
+
+        /// <summary>
+        /// Updates rows related to <see cref="Thing" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
+        public void UpdateRows(IEnumerable<Thing> updatedThings)
+        {
+            var parameterOrOverrideBases = QueryParameterOrOverrides(updatedThings);
+
+            foreach (var parameterValueSetBase in parameterOrOverrideBases.SelectMany(x => x.ValueSets).OfType<ParameterValueSetBase>())
             {
-                ApplyParameterTypeFilter(parameters, selectedParameterType.Iid);
+                var existingRow = this.Rows.Items.FirstOrDefault(x => x.ValueSetId == parameterValueSetBase.Iid);
+
+                if (existingRow == null)
+                {
+                    continue;
+                }
+
+                var isReadOnly = !this.permissionService.CanWrite(parameterValueSetBase.Container);
+                existingRow.UpdateProperties(isReadOnly);
+            }
+        }
+
+        /// <summary>
+        /// Set the <see cref="CompoundParameterTypeEditorViewModel" /> to show in the popup
+        /// </summary>
+        /// <param name="compoundParameterTypeEditorViewModel">
+        /// A collection of <see cref="CompoundParameterTypeEditorViewModel" />
+        /// </param>
+        public void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+        {
+            this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Query all <see cref="ParameterOrOverrideBase" /> from the collection of <see cref="Thing" />s
+        /// </summary>
+        /// <param name="things">A collection of <see cref="Thing" /></param>
+        /// <returns>All retrieved <see cref="ParameterOrOverrideBase" /></returns>
+        private static IEnumerable<ParameterOrOverrideBase> QueryParameterOrOverrides(IEnumerable<Thing> things)
+        {
+            var parameters = new List<ParameterOrOverrideBase>();
+
+            foreach (var addedThing in things)
+            {
+                switch (addedThing)
+                {
+                    case ElementBase elementBase:
+                        parameters.AddRange(elementBase.QueryParameterAndOverrideBases());
+                        break;
+                    case ParameterOrOverrideBase parameter:
+                        parameters.Add(parameter);
+                        break;
+                    case ParameterValueSetBase parameterValueSetBase:
+                        parameters.Add(parameterValueSetBase.Container as ParameterOrOverrideBase);
+                        break;
+                }
             }
 
-            var rows = this.CreateParameterBaseRowViewModels(parameters, selectedOption.Iid);
-            this.UpdateRows(rows);
+            return parameters.DistinctBy(x => x.Iid);
+        }
+
+        /// <summary>
+        /// Create a collection of <see cref="ParameterBaseRowViewModel" /> based on selected filters
+        /// </summary>
+        /// <param name="parameters">
+        /// The collection of <see cref="ParameterOrOverrideBase" /> for creating
+        /// <see cref="ParameterBaseRowViewModel" />
+        /// </param>
+        /// <returns>A collection of <see cref="ParameterBaseRowViewModel" /></returns>
+        private IEnumerable<ParameterBaseRowViewModel> CreateRowsBasedOnFilters(List<ParameterOrOverrideBase> parameters)
+        {
+            if (this.ownedParameters)
+            {
+                parameters.RemoveAll(x => x.Owner.Iid != this.domainOfExpertise.Iid);
+            }
+
+            if (this.currentElementBase != null)
+            {
+                ApplyElementBaseFilter(parameters, this.currentElementBase.Iid);
+            }
+
+            if (this.currentParameterType != null)
+            {
+                ApplyParameterTypeFilter(parameters, this.currentParameterType.Iid);
+            }
+
+            return this.CreateParameterBaseRowViewModels(parameters, this.currentOption.Iid).DistinctBy(x => x.ValueSetId);
         }
 
         /// <summary>
         /// Update the <see cref="Rows" /> collection based on the provided collection of <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         /// <param name="rows">The collection of <see cref="ParameterBaseRowViewModel" /> that should be displayed</param>
-        private void UpdateRows(IEnumerable<ParameterBaseRowViewModel> rows)
+        private void UpdateVisibleRows(IEnumerable<ParameterBaseRowViewModel> rows)
         {
+            rows = rows.ToList();
+
             var rowsToRemove = this.Rows.Items
                 .Where(x => rows.All(p => p.ValueSetId != x.ValueSetId));
 

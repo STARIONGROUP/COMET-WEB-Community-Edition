@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterTypeEditorBaseViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -45,7 +45,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Reference to the initial <see cref="IsReadOnly" /> value
         /// </summary>
-        private readonly bool initialReadOnlyValue;
+        private bool initialReadOnlyValue;
 
         /// <summary>
         /// Backing field for the <see cref="IsReadOnly" /> property
@@ -66,23 +66,22 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
         {
-            this.ParameterType = parameterType;
             this.ValueSet = valueSet;
-            this.initialReadOnlyValue = isReadOnly;
             this.ValueArrayIndex = valueArrayIndex;
+            this.ParameterType = parameterType;
 
             if (this.ValueSet is ParameterValueSetBase valueSetBase)
             {
                 this.Parameter = valueSetBase.Container as ParameterOrOverrideBase;
             }
 
-            this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
+            this.InitializesProperties(isReadOnly);
         }
 
         /// <summary>
         /// The validation messages to display
         /// </summary>
-        public string ValidationMessage { get; set; }
+        public string ValidationMessage { get; private set; }
 
         /// <summary>
         /// Gets the associated <see cref="ParameterOrOverrideBase" />
@@ -101,7 +100,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType" />
         /// </summary>
-        public T ParameterType { get; set; }
+        public T ParameterType { get; private set; }
 
         /// <summary>
         /// Event Callback for when a value has changed on the parameter
@@ -120,7 +119,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets or sets the value set of this <see cref="T" />
         /// </summary>
-        public IValueSet ValueSet { get; set; }
+        public IValueSet ValueSet { get; private set; }
 
         /// <summary>
         /// Gets the index of the value changed in the value sets
@@ -148,6 +147,15 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
                 ParameterSwitchKind.REFERENCE => this.ValueSet.Reference,
                 _ => throw new ArgumentOutOfRangeException(nameof(parameterSwitchKind), parameterSwitchKind, "Unknowned ParameterSwitchKind")
             };
+        }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        public void UpdateProperties( bool readOnly)
+        {
+            this.InitializesProperties(readOnly);
         }
 
         /// <summary>
@@ -188,7 +196,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         protected async Task UpdateValueSet(ParameterValueSetBase valueSet, ValueArray<string> newValueArray)
         {
             var clone = valueSet.Clone(false);
-            clone.ValueSwitch = this.CurrentParameterSwitchKind;
 
             switch (this.CurrentParameterSwitchKind)
             {
@@ -203,6 +210,17 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             }
 
             await this.ParameterValueChanged.InvokeAsync(clone);
+        }
+
+        /// <summary>
+        /// Initializes this viewmodel properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        private void InitializesProperties(bool readOnly)
+        {
+            this.initialReadOnlyValue = readOnly;
+
+            this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
         }
     }
 }

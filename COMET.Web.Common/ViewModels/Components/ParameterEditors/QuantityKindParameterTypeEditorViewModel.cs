@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="QuantityKindParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -43,8 +43,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         public QuantityKindParameterTypeEditorViewModel(QuantityKind parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
-            this.ParameterType = parameterType;
-            this.ValueSet = valueSet;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IParameterTypeEditorSelectorViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -39,7 +39,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> for this
         /// <see cref="IParameterEditorBaseViewModel{T}" />
         /// </summary>
-        public ParameterType ParameterType { get; set; }
+        public ParameterType ParameterType { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="EventCallback{T}" /> for when the parameter value has changed
@@ -58,5 +58,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// </summary>
         /// <param name="switchValue">The <see cref="ParameterSwitchKind" /></param>
         void UpdateSwitchKind(ParameterSwitchKind switchValue);
+
+        /// <summary>
+        /// Updates the associated <see cref="IParameterEditorBaseViewModel{T}"/> properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        void UpdateProperties(bool readOnly);
     }
 }

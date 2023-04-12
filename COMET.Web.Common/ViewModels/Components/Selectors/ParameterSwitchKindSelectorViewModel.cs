@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterSwitchKindSelectorViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -53,15 +53,23 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// <param name="isReadOnly">The readonly state</param>
         public ParameterSwitchKindSelectorViewModel(ParameterSwitchKind switchKind, bool isReadOnly)
         {
-            this.InitialSwitchValue = switchKind;
-            this.SwitchValue = switchKind;
-            this.IsReadOnly = isReadOnly;
+            this.InitializesProperties(switchKind, isReadOnly);
+        }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        /// <param name="parameterSwitchKind">The <see cref="ParameterSwitchKind" /></param>
+        /// <param name="readOnly">The readonly state</param>
+        public void UpdateProperties(ParameterSwitchKind parameterSwitchKind, bool readOnly)
+        {
+            this.InitializesProperties(parameterSwitchKind, readOnly);
         }
 
         /// <summary>
         /// The initial <see cref="ParameterSwitchKind" />
         /// </summary>
-        public ParameterSwitchKind InitialSwitchValue { get; }
+        public ParameterSwitchKind InitialSwitchValue { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="EventCallback{TValue}" /> to be called to perfom an update
@@ -84,6 +92,18 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         {
             get => this.isReadOnly;
             set => this.RaiseAndSetIfChanged(ref this.isReadOnly, value);
+        }
+
+        /// <summary>
+        /// Initializes this view model properties
+        /// </summary>
+        /// <param name="switchKind">The <see cref="ParameterSwitchKind" /></param>
+        /// <param name="readOnly">The readonly state</param>
+        private void InitializesProperties(ParameterSwitchKind switchKind, bool readOnly)
+        {
+            this.InitialSwitchValue = switchKind;
+            this.SwitchValue = switchKind;
+            this.IsReadOnly = readOnly;
         }
     }
 }

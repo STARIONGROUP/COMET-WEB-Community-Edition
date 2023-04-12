@@ -24,9 +24,14 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
+    using System.Reactive.Linq;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
@@ -43,9 +48,24 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     public class ParameterEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IParameterEditorBodyViewModel
     {
         /// <summary>
+        /// A collection of added <see cref="Thing" />s
+        /// </summary>
+        private readonly List<Thing> addedThings = new();
+
+        /// <summary>
+        /// A collection of deleted <see cref="Thing" />s
+        /// </summary>
+        private readonly List<Thing> deletedThings = new();
+
+        /// <summary>
         /// Backing field for the <see cref="IsOwnedParameters" />
         /// </summary>
         private bool isOwnedParameters;
+
+        /// <summary>
+        /// A collection of updated <see cref="Thing" />s
+        /// </summary>
+        private readonly List<Thing> updatedThings = new();
 
         /// <summary>
         /// Creates a new instance of <see cref="ParameterEditorBodyViewModel" />
@@ -63,6 +83,15 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 x => x.OptionSelector.SelectedOption,
                 x => x.ParameterTypeSelector.SelectedParameterType,
                 x => x.IsOwnedParameters).SubscribeAsync(_ => this.ApplyFilters()));
+
+            var observables = new List<IObservable<ObjectChangedEvent>>
+            {
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterValueSetBase)),
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase)),
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterOrOverrideBase))
+            };
+
+            this.Disposables.Add(observables.Merge().Subscribe(this.RecordChange));
         }
 
         /// <summary>
@@ -103,9 +132,20 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed()
+        protected override async Task OnSessionRefreshed()
         {
-            return this.ApplyFilters();
+            if (!this.addedThings.Any() && !this.deletedThings.Any() && !this.updatedThings.Any())
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+            await Task.Delay(1);
+            this.ParameterTableViewModel.RemoveRows(this.deletedThings.ToList());
+            this.ParameterTableViewModel.UpdateRows(this.updatedThings.ToList());
+            this.ParameterTableViewModel.AddRows(this.addedThings.ToList());
+            this.ClearRecordedChange();
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -143,6 +183,43 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
             await this.InitializeTable();
+        }
+
+        /// <summary>
+        /// Clears all recorded changed
+        /// </summary>
+        private void ClearRecordedChange()
+        {
+            this.deletedThings.Clear();
+            this.updatedThings.Clear();
+            this.addedThings.Clear();
+        }
+
+        /// <summary>
+        /// Records an <see cref="ObjectChangedEvent" />
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
+        private void RecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
+            {
+                return;
+            }
+
+            switch (objectChangedEvent.EventKind)
+            {
+                case EventKind.Added:
+                    this.addedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                case EventKind.Removed:
+                    this.deletedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                case EventKind.Updated:
+                    this.updatedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent.EventKind), "Unrecognised value EventKind value");
+            }
         }
 
         /// <summary>
