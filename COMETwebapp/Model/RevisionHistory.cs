@@ -65,6 +65,6 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet
         /// </summary>
-        public Object ActualValue { get; set; }
+        public object ActualValue { get; set; }
     }
 }
