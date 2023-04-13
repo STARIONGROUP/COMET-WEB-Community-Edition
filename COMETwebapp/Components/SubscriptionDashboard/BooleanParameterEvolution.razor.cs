@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SubscribedParameterEvolution.razor.cs" company="RHEA System S.A.">
+//  <copyright file="BooleanParameterEvolution.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -31,13 +31,13 @@ namespace COMETwebapp.Components.SubscriptionDashboard
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
 
     using DevExpress.Blazor;
-
+    
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component that display the evolution of a <see cref="ParameterSubscriptionRowViewModel" />
+    /// Component that display the evolution of a <see cref="ParameterSubscriptionRowViewModel" /> of type <see cref="BooleanParameterType" />
     /// </summary>
-    public partial class SubscribedParameterEvolution
+    public partial class BooleanParameterEvolution
     {
         /// <summary>
         /// The <see cref="ParameterSubscriptionRowViewModel" /> to display the evolution
@@ -46,19 +46,19 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         public ParameterSubscriptionRowViewModel ParameterSubscriptionRow { get; set; }
 
         /// <summary>
+        /// The collection of possible Y-axis boolean values
+        /// </summary>
+        public IEnumerable<string> BooleanValues { get; private set; } = new List<string> { "-", "false", "true" };
+
+        /// <summary>
         /// A collection of <see cref="RevisionHistory" />
         /// </summary>
-        public IEnumerable<RevisionHistory> RevisionHistories { get; private set; }
+        public IEnumerable<RevisionHistory> RevisionHistories { get; private set; } 
 
         /// <summary>
         /// The name of the associated <see cref="ElementBase" />
         /// </summary>
         public string ElementName { get; private set; }
-
-        /// <summary>
-        /// The short name of the associated <see cref="MeasurementScale" />
-        /// </summary>
-        public string ScaleShortName { get; private set; }
 
         /// <summary>
         /// The name of the associated <see cref="ParameterSubscription" />
@@ -85,10 +85,14 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         private void ComputeEvolutionGraphData()
         {
             this.RevisionHistories = this.ParameterSubscriptionRow.Changes.Select(valueSetRevision =>
-                new RevisionHistory(valueSetRevision.Key,valueSetRevision.Value));
+                new RevisionHistory(valueSetRevision.Key, valueSetRevision.Value));
+
+            var list = this.RevisionHistories.ToList();
+            list.AddRange(this.BooleanValues.Select(x => new RevisionHistory() { ActualValue = x, RevisionNumber = "" }).ToList());
+
+            this.RevisionHistories = list;
 
             this.ParameterName = this.ParameterSubscriptionRow.ParameterName;
-            this.ScaleShortName = this.ParameterSubscriptionRow.Parameter.Scale?.ShortName;
             this.ElementName = this.ParameterSubscriptionRow.ElementName;
         }
 
@@ -104,9 +108,15 @@ namespace COMETwebapp.Components.SubscriptionDashboard
             {
                 pointSettings.PointLabel.Visible = true;
 
+                if(argument == "")
+                {
+                    pointSettings.PointAppearance.Visible = false;
+                    pointSettings.PointLabel.Visible = false;
+                }
+
                 if (revisionHistory.ActualValue == null)
                 {
-                    pointSettings.PointLabel.FormatPattern ="-";
+                    pointSettings.PointLabel.FormatPattern = "-";
                 }
             }
         }

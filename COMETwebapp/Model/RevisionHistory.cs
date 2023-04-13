@@ -46,8 +46,15 @@ namespace COMETwebapp.Model
             }
             else
             {
-                this.ActualValue = null;
+                this.ActualValue = valueArray[0];
             }
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="RevisionHistory" />
+        /// </summary>
+        public RevisionHistory()
+        {
         }
 
         /// <summary>
@@ -58,6 +65,6 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Actual value of the ParameterSubcriptionValueSet
         /// </summary>
-        public double? ActualValue { get; set; }
+        public object ActualValue { get; set; }
     }
 }

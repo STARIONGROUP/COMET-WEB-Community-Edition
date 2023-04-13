@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SubscribedParameterEvolution.razor.cs" company="RHEA System S.A.">
+//  <copyright file="EnumerationParameterEvolution.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -31,19 +31,24 @@ namespace COMETwebapp.Components.SubscriptionDashboard
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
 
     using DevExpress.Blazor;
-
+    
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component that display the evolution of a <see cref="ParameterSubscriptionRowViewModel" />
+    /// Component that display the evolution of a <see cref="ParameterSubscriptionRowViewModel" /> of type <see cref="EnumerationParameterType" />
     /// </summary>
-    public partial class SubscribedParameterEvolution
+    public partial class EnumerationParameterEvolution
     {
         /// <summary>
         /// The <see cref="ParameterSubscriptionRowViewModel" /> to display the evolution
         /// </summary>
         [Parameter]
         public ParameterSubscriptionRowViewModel ParameterSubscriptionRow { get; set; }
+
+        /// <summary>
+        /// The available <see cref="EnumerationValueDefinition"/>s
+        /// </summary>
+        public IEnumerable<EnumerationValueDefinition> EnumerationValues { get; private set; }
 
         /// <summary>
         /// A collection of <see cref="RevisionHistory" />
@@ -54,11 +59,6 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         /// The name of the associated <see cref="ElementBase" />
         /// </summary>
         public string ElementName { get; private set; }
-
-        /// <summary>
-        /// The short name of the associated <see cref="MeasurementScale" />
-        /// </summary>
-        public string ScaleShortName { get; private set; }
 
         /// <summary>
         /// The name of the associated <see cref="ParameterSubscription" />
@@ -75,6 +75,9 @@ namespace COMETwebapp.Components.SubscriptionDashboard
 
             if (this.ParameterSubscriptionRow != null)
             {
+                var enumeratrionParameterType = (EnumerationParameterType)this.ParameterSubscriptionRow.Parameter.ParameterType;
+                this.EnumerationValues = enumeratrionParameterType.ValueDefinition;
+                
                 this.ComputeEvolutionGraphData();
             }
         }
@@ -85,10 +88,32 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         private void ComputeEvolutionGraphData()
         {
             this.RevisionHistories = this.ParameterSubscriptionRow.Changes.Select(valueSetRevision =>
-                new RevisionHistory(valueSetRevision.Key,valueSetRevision.Value));
+                new RevisionHistory(valueSetRevision.Key, valueSetRevision.Value));
+
+            var list = new List<RevisionHistory>();
+
+            foreach (var revision in this.RevisionHistories)
+            {
+                var value = (string)revision.ActualValue;
+                var enumerations = this.EnumerationValues.Where(x => value.Split(" | ").ToList().Contains(x.ShortName)).Select(y => y.Name);
+
+                foreach (var enumeration in enumerations)
+                {
+                    var revisionHistory = new RevisionHistory()
+                    {
+                        RevisionNumber = revision.RevisionNumber,
+                        ActualValue = enumeration
+                    };
+
+                    list.Add(revisionHistory);
+                }             
+            }
+
+            list.AddRange(this.EnumerationValues.OrderBy(x => x.Name).Select(x => x.Name).Select(x => new RevisionHistory() { ActualValue = x, RevisionNumber = "" }).ToList());
+
+            this.RevisionHistories = list;
 
             this.ParameterName = this.ParameterSubscriptionRow.ParameterName;
-            this.ScaleShortName = this.ParameterSubscriptionRow.Parameter.Scale?.ShortName;
             this.ElementName = this.ParameterSubscriptionRow.ElementName;
         }
 
@@ -102,11 +127,17 @@ namespace COMETwebapp.Components.SubscriptionDashboard
 
             if (this.RevisionHistories.FirstOrDefault(x => x.RevisionNumber == argument) is RevisionHistory revisionHistory)
             {
-                pointSettings.PointLabel.Visible = true;
+                pointSettings.PointLabel.Visible = false;
+
+                if (argument == "")
+                {
+                    pointSettings.PointAppearance.Visible = false;
+                    pointSettings.PointLabel.Visible = false;
+                }
 
                 if (revisionHistory.ActualValue == null)
                 {
-                    pointSettings.PointLabel.FormatPattern ="-";
+                    pointSettings.PointLabel.FormatPattern = "-";
                 }
             }
         }

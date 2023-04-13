@@ -25,19 +25,15 @@
 <div class="row p-1 m-top-10px">
     <div class="col-11 p-0">
         <DxChart Data="@this.RevisionHistories" CustomizeSeriesPoint="@this.PreparePointLabel">
-            <DxChartLegend Visible="false"/>
+            <DxChartLegend Visible="false" />
             <DxChartArgumentAxis>
                 <DxChartAxisTitle Text="Revision Number" />
             </DxChartArgumentAxis>
-            <DxChartValueAxis>
-                <DxChartAxisTitle Text="@this.ScaleShortName" />
+            <DxChartValueAxis Inverted=true >
+                <DxChartAxisTitle Text="Boolean values" />
             </DxChartValueAxis>
-                <DxChartLineSeries ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
-                               ValueField="@(p => p.ActualValue)">
-                <DxChartSeriesLabel Position="RelativePosition.Outside">
-                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
-                </DxChartSeriesLabel>
-            </DxChartLineSeries>
+            <DxChartScatterSeries ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                                  ValueField="@(p => p.ActualValue)" />
         </DxChart>
     </div>
 </div>
