@@ -272,5 +272,103 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             Assert.That(parameterEvolution.Instance.ParameterSubscriptionRow, Is.Not.Null);
         }
+
+        [Test]
+        public async Task VerifyCompoundParameterEvolutionComponent()
+        {
+            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+                parameters.Add(p => p.ViewModel, this.viewModel.Object));
+
+            Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
+
+            var element = new ElementDefinition();
+
+
+            var compoundData = new OrderedItemList<ParameterTypeComponent>(null)
+            {
+                new ParameterTypeComponent
+                {
+                    Iid = Guid.NewGuid(),
+                    ShortName = "firstValue",
+                    Scale = new OrdinalScale()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    }
+                },
+                new ParameterTypeComponent
+                {
+                    Iid = Guid.NewGuid(),
+                    ShortName = "secondValue",
+                    Scale = new OrdinalScale()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    }
+                }
+            };
+
+            var compoundParametertype = new CompoundParameterType()
+            {
+                Iid = Guid.NewGuid(),
+            };
+
+            compoundParametertype.Component.AddRange(compoundData);
+
+            var parameter = new Parameter()
+            {
+                Iid = Guid.NewGuid(),
+                ParameterType = compoundParametertype,
+                ValueSet =
+                {
+                    new ParameterValueSet()
+                    {
+                        Published = new ValueArray<string>(new[]{"-"}),
+                    }
+                }
+            };
+
+            var parameterSubscription = new ParameterSubscription()
+            {
+                Owner = new DomainOfExpertise(),
+                ValueSet =
+                {
+                    new ParameterSubscriptionValueSet()
+                    {
+                        SubscribedValueSet = parameter.ValueSet.First()
+                    }
+                }
+            };
+
+            parameter.ParameterSubscription.Add(parameterSubscription);
+            element.Parameter.Add(parameter);
+
+            this.rows.Add(new ParameterSubscriptionRowViewModel(parameterSubscription, null, null));
+            Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Nothing);
+
+            var row = this.rows.Items.First();
+            row.Changes[0] = new ValueArray<string>(new[] { "-" });
+            row.Changes[1] = new ValueArray<string>(new[] { "8" });
+
+            renderer.Render();
+            var expandButton = renderer.FindComponent<DxButton>();
+            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
+
+            await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            var parameterEvolution = renderer.FindComponent<CompoundParameterEvolution>();
+
+            Assert.That(parameterEvolution.Instance.ParameterSubscriptionRow, Is.Not.Null);
+        }
     }
 }

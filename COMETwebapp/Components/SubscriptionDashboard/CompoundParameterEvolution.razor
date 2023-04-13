@@ -19,25 +19,9 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.SiteDirectoryData;
+@using COMETwebapp.Model
 
-@{
-    switch (this.ParameterSubscriptionRow.Parameter.ParameterType)
-    {
-        case BooleanParameterType:
-            <BooleanParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        case EnumerationParameterType:
-            <EnumerationParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        case CompoundParameterType:
-            <CompoundParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        default:
-            <SubscribedParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-    }
+@foreach (var parameterSubscription in this.ParameterSubscriptions)
+{
+    <ParameterEvolutionSelector ParameterSubscriptionRow="parameterSubscription" />
 }
