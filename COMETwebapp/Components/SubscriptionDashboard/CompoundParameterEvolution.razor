@@ -19,9 +19,52 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData;
 @using COMETwebapp.Model
 
-@foreach (var parameterSubscription in this.ParameterSubscriptions)
+@if(this.ParameterSubscriptionRow.Parameter.ParameterType is ArrayParameterType arrayParameterType)
 {
-    <ParameterEvolutionSelector ParameterSubscriptionRow="parameterSubscription" />
+    <DxGridLayout CssClass="w-100 ch-480">
+        <Rows>
+            @for (int i = 0; i < arrayParameterType.Dimension[0]; i++)
+            {
+                <DxGridLayoutRow Height="auto" />
+            }
+        </Rows>
+        <Columns>
+            @for (int i = 0; i < arrayParameterType.Dimension[0]; i++)
+            {
+                <DxGridLayoutColumn />
+            }
+        </Columns>
+        <Items>
+            @for(int n = 0; n < arrayParameterType.Dimension[0]; n++)
+            {
+                @for(int m = 0; m < arrayParameterType.Dimension[1]; m++)
+                {
+                    var index = n * arrayParameterType.Dimension[1] + m;
+                    var x = n;
+                    var y = m;
+                    <DxGridLayoutItem Row="n" Column="m" CssClass="p-30">
+                        <Template>
+                            <div class="gridlayout-header gridlayout-item">
+                                @{
+                                    <div>{@x,@y}</div>
+                                    var parameterSubscription = this.ParameterSubscriptions.ToList()[index];
+                                    <ParameterEvolutionSelector ParameterSubscriptionRow=parameterSubscription />
+                                }
+                            </div>
+                        </Template>
+                    </DxGridLayoutItem>
+                }
+            }
+        </Items>
+    </DxGridLayout>
+}
+else
+{
+    @foreach (var parameterSubscription in this.ParameterSubscriptions)
+    {
+        <ParameterEvolutionSelector ParameterSubscriptionRow="parameterSubscription" />
+    }
 }

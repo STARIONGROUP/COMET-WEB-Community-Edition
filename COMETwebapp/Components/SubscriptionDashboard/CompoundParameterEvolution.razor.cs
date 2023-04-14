@@ -29,7 +29,9 @@ namespace COMETwebapp.Components.SubscriptionDashboard
     using CDP4Common.Types;
 
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
-
+    
+    using DevExpress.Blazor;
+    
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -42,6 +44,11 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         /// </summary>
         [Parameter]
         public ParameterSubscriptionRowViewModel ParameterSubscriptionRow { get; set; }
+
+        /// <summary>
+        /// The name of selected dimension
+        /// </summary>
+        private string selectedDimension;
 
         /// <summary>
         /// A collection of <see cref="ParameterSubscriptionRowViewModel" />
@@ -99,6 +106,15 @@ namespace COMETwebapp.Components.SubscriptionDashboard
             }
 
             this.ParameterSubscriptions = parameterSubscriptions;
+        }
+
+        /// <summary>
+        /// Method invoked to set the selected dimension from toolbar
+        /// </summary>
+        /// <param name="e"></param>
+        void OnItemClick(ToolbarItemClickEventArgs e)
+        {
+            this.selectedDimension = e.ItemName;
         }
     }
 }
