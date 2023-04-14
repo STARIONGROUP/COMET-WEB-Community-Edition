@@ -2,7 +2,7 @@
 //  <copyright file="ProductTreeViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,14 +24,13 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
-    using System.Linq;
-
     using CDP4Common.EngineeringModelData;
+
+    using COMET.Web.Common.Utilities.DisposableObject;
 
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
-    using COMETwebapp.Utilities.DisposableObject;
 
     using ReactiveUI;
 
@@ -41,59 +40,22 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     public class ProductTreeViewModel : DisposableObject, IProductTreeViewModel
     {
         /// <summary>
-        /// Gets o sets the <see cref="SelectionMediator"/>
-        /// </summary>
-        public ISelectionMediator SelectionMediator { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the filter options for the tree
-        /// </summary>
-        public IReadOnlyList<TreeFilter> TreeFilters { get; private set; }
-
-        /// <summary>
-        /// Backing field for the <see cref="SelectedFilter"/>
-        /// </summary>
-        private TreeFilter selectedFilter;
-
-        /// <summary>
-        /// Gets or sets the selected filter option
-        /// </summary>
-        public TreeFilter SelectedFilter
-        {
-            get => this.selectedFilter;
-            set => this.RaiseAndSetIfChanged(ref this.selectedFilter, value);
-        }
-
-        /// <summary>
-        /// Backing field for the <see cref="RootViewModel"/>
+        /// Backing field for the <see cref="RootViewModel" />
         /// </summary>
         private INodeComponentViewModel rootViewModel;
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
-        /// </summary>
-        public INodeComponentViewModel RootViewModel
-        {
-            get => this.rootViewModel;
-            set => this.RaiseAndSetIfChanged(ref this.rootViewModel, value);
-        }
-
-        /// <summary>
-        /// Backing field for the <see cref="SearchText"/>
+        /// Backing field for the <see cref="SearchText" />
         /// </summary>
         private string searchText = string.Empty;
 
         /// <summary>
-        /// Gets or sets the search text used for filtering the tree
+        /// Backing field for the <see cref="SelectedFilter" />
         /// </summary>
-        public string SearchText
-        {
-            get => this.searchText;
-            set => this.RaiseAndSetIfChanged(ref this.searchText, value);
-        }
+        private TreeFilter selectedFilter;
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ProductTreeViewModel"/>
+        /// Creates a new instance of type <see cref="ProductTreeViewModel" />
         /// </summary>
         public ProductTreeViewModel(ISelectionMediator selectionMediator)
         {
@@ -102,7 +64,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.TreeFilters = enumValues.ToList();
             this.SelectedFilter = TreeFilter.ShowFullTree;
 
-            this.SelectionMediator.OnModelSelectionChanged += (sceneObject) =>
+            this.SelectionMediator.OnModelSelectionChanged += sceneObject =>
             {
                 var treeNodes = this.RootViewModel.GetFlatListOfDescendants();
                 treeNodes.ForEach(x => x.IsSelected = false);
@@ -117,9 +79,46 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                     }
                 }
             };
-            
+
             this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
+        }
+
+        /// <summary>
+        /// Gets o sets the <see cref="SelectionMediator" />
+        /// </summary>
+        public ISelectionMediator SelectionMediator { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the filter options for the tree
+        /// </summary>
+        public IReadOnlyList<TreeFilter> TreeFilters { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the selected filter option
+        /// </summary>
+        public TreeFilter SelectedFilter
+        {
+            get => this.selectedFilter;
+            set => this.RaiseAndSetIfChanged(ref this.selectedFilter, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree" />
+        /// </summary>
+        public INodeComponentViewModel RootViewModel
+        {
+            get => this.rootViewModel;
+            set => this.RaiseAndSetIfChanged(ref this.rootViewModel, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the search text used for filtering the tree
+        /// </summary>
+        public string SearchText
+        {
+            get => this.searchText;
+            set => this.RaiseAndSetIfChanged(ref this.searchText, value);
         }
 
         /// <summary>
@@ -129,12 +128,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="selectedOption">the selected option</param>
         /// <param name="selectedActualFiniteStates">the selected states</param>
         /// <returns>the root node of the tree or null if the tree can not be created</returns>
-        public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption, 
+        public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption,
             IEnumerable<ActualFiniteState> selectedActualFiniteStates)
         {
             var treeElements = productTreeElements.ToList();
-            
-            if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null) 
+
+            if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null)
             {
                 var topElement = treeElements.First();
                 var topSceneObject = SceneObject.Create(topElement, selectedOption, selectedActualFiniteStates.ToList());
@@ -148,14 +147,51 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         }
 
         /// <summary>
+        /// Event for when the filter on the tree changes
+        /// </summary>
+        public void OnFilterChanged()
+        {
+            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
+
+            if (fullTree is not null)
+            {
+                if (this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
+                {
+                    fullTree.ForEach(x => x.IsDrawn = x.Node.SceneObject.Primitive != null);
+                }
+                else
+                {
+                    fullTree.ForEach(x => x.IsDrawn = true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event for when the text of the search filter is changing
+        /// </summary>
+        public void OnSearchFilterChange()
+        {
+            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
+
+            if (this.SearchText == string.Empty)
+            {
+                fullTree?.ForEach(x => x.IsDrawn = true);
+            }
+            else
+            {
+                fullTree?.ForEach(x => { x.IsDrawn = x.Node.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase); });
+            }
+        }
+
+        /// <summary>
         /// Creates the tree in a recursive way
         /// </summary>
         /// <param name="elementBase">the element base used in the node</param>
         /// <param name="current">the current node</param>
         /// <param name="parent">the parent of the current node. Null if the current node is the root node</param>
-        /// <param name="selectedOption">the selected <see cref="Option"/></param>
-        /// <param name="selectedActualFiniteStates">the selected <see cref="ActualFiniteState"/></param>
-        private void CreateTreeRecursively(ElementBase elementBase, INodeComponentViewModel current, INodeComponentViewModel parent, 
+        /// <param name="selectedOption">the selected <see cref="Option" /></param>
+        /// <param name="selectedActualFiniteStates">the selected <see cref="ActualFiniteState" /></param>
+        private void CreateTreeRecursively(ElementBase elementBase, INodeComponentViewModel current, INodeComponentViewModel parent,
             Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates)
         {
             List<ElementUsage> childsOfElementBase = null;
@@ -186,46 +222,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                         this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Event for when the filter on the tree changes
-        /// </summary>
-        public void OnFilterChanged()
-        {
-            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
-
-            if(fullTree is not null)
-            {
-                if(this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
-                {
-                    fullTree.ForEach(x => x.IsDrawn = x.Node.SceneObject.Primitive != null);
-                }
-                else
-                {
-                    fullTree.ForEach(x => x.IsDrawn = true);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Event for when the text of the search filter is changing
-        /// </summary>
-        public void OnSearchFilterChange()
-        {
-            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
-
-            if (this.SearchText == string.Empty)
-            {
-                fullTree?.ForEach(x => x.IsDrawn = true);
-            }
-            else
-            {
-                fullTree?.ForEach(x =>
-                {
-                    x.IsDrawn = x.Node.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase);
-                });
             }
         }
     }

@@ -25,9 +25,6 @@
 namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
 {
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Utilities.DisposableObject;
-
-    using ReactiveUI;
 
     /// <summary>
     /// View model that handles the display of deprecated items.
@@ -35,9 +32,9 @@ namespace COMETwebapp.ViewModels.Shared.TopMenuEntry
     public class ShowHideDeprecatedThingsViewModel : IShowHideDeprecatedThingsViewModel
     {
         /// <summary>
-        /// Initializes a <see cref="SessionMenuViewModel" />
+        /// Initializes a <see cref="ShowHideDeprecatedThingsViewModel" />
         /// </summary>
-        /// <param name="showHideDeprecatedThingsService">The <see cref="ISessionMenuViewModel" /></param>
+        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         public ShowHideDeprecatedThingsViewModel(IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
         {
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;

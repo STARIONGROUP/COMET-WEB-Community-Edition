@@ -2,7 +2,7 @@
 // <copyright file="MultiActualFiniteStateSelectorTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,10 +24,7 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.Canvas
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
 
     using Bunit;
 
@@ -35,8 +32,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
 
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using DynamicData;
@@ -71,9 +69,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             var actualFiniteStateList2 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
 
             var possibleFiniteState1 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var possibleFiniteState2 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
             var possibleFiniteState3 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
-            var possibleFiniteState4 = new PossibleFiniteState(Guid.NewGuid(), this.cache, this.uri);
 
             possibleFiniteStateList1.DefaultState = possibleFiniteState1;
             possibleFiniteStateList2.DefaultState = possibleFiniteState3;

@@ -2,7 +2,7 @@
 // <copyright file="ThingExtensionTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
+//    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -306,24 +306,6 @@ namespace COMETwebapp.Tests.Extensions
         }
 
         [Test]
-        public void VerifyGetNestedElements()
-        {
-            Assert.That(this.iteration.QueryNestedElements(), Is.Not.Empty);
-        }
-
-        [Test]
-        public void VerifyGetNestedElementsByOption()
-        {
-            var nestedElements = this.iteration.QueryNestedElements(this.iteration.Option[0]).ToList();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(nestedElements, Is.Not.Empty);
-                Assert.That(nestedElements, Has.Count.EqualTo(this.iteration.QueryNestedElements().Count()));
-            });
-        }
-
-        [Test]
         public void VerifyGetNestedParameters()
         {
             Assert.That(this.iteration.QueryNestedParameters(this.iteration.Option[0]), Is.Not.Empty);
@@ -346,22 +328,6 @@ namespace COMETwebapp.Tests.Extensions
         {
             var subscriptions = this.iteration.QuerySubscribedParameterByOthers(this.domainOfExpertise).ToList();
             Assert.That(subscriptions, Has.Count.EqualTo(1));
-        }
-
-        [Test]
-        public void VerifyGetParameterTypes()
-        {
-            var parameterTypes = this.iteration.QueryUsedParameterTypes().ToList();
-            Assert.That(parameterTypes, Has.Count.EqualTo(2));
-
-            var parameterTypeNames = new List<string>();
-            parameterTypes.ForEach(p => parameterTypeNames.Add(p.Name));
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(parameterTypeNames, Does.Contain("mass"));
-                Assert.That(parameterTypeNames, Does.Contain("volume"));
-            });
         }
 
         [Test]

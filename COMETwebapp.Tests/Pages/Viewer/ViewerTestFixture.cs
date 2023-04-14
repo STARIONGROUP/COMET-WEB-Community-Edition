@@ -2,7 +2,7 @@
 //  <copyright file="ViewerTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,29 +24,25 @@
 
 namespace COMETwebapp.Tests.Pages.Viewer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
     
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     
     using CDP4Dal;
-    
-    using COMETwebapp.Components.Shared;
-    using COMETwebapp.Components.Shared.Selectors;
-    using COMETwebapp.Extensions;
+
+    using COMET.Web.Common.Components;
+    using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     

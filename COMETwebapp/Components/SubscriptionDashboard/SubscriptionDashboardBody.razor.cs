@@ -2,7 +2,7 @@
 //  <copyright file="SubscriptionDashboardBody.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -25,6 +25,9 @@
 namespace COMETwebapp.Components.SubscriptionDashboard
 {
     using CDP4Common.EngineeringModelData;
+
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
@@ -96,7 +99,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 additionalParameters[QueryKeys.ParameterKey] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.SubscriptionDashboardPage);
+            this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.SubscriptionDashboardPage);
         }
 
         /// <summary>
@@ -110,7 +113,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 [QueryKeys.ParameterKey] = parameterOrOverrideBase.ParameterType.Iid.ToShortGuid()
             };
 
-            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.ParameterEditorPage);
+            this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.ParameterEditorPage);
         }
     }
 }

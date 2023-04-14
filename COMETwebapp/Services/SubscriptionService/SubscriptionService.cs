@@ -2,7 +2,7 @@
 //  <copyright file="SubscriptionService.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -32,12 +32,12 @@ namespace COMETwebapp.Services.SubscriptionService
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMETwebapp.Enumerations;
+    using COMET.Web.Common.Services.NotificationService;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.SessionManagement;
-    using COMETwebapp.Utilities.DisposableObject;
 
     using ReactiveUI;
 
@@ -46,6 +46,11 @@ namespace COMETwebapp.Services.SubscriptionService
     /// </summary>
     public class SubscriptionService : DisposableObject, ISubscriptionService
     {
+        /// <summary>
+        /// The <see cref="INotificationService" />
+        /// </summary>
+        private readonly INotificationService notificationService;
+
         /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
@@ -71,9 +76,11 @@ namespace COMETwebapp.Services.SubscriptionService
         /// Initializes a new <see cref="SubscriptionService" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public SubscriptionService(ISessionService sessionService)
+        /// <param name="notificationService">The <see cref="INotificationService" /></param>
+        public SubscriptionService(ISessionService sessionService, INotificationService notificationService)
         {
             this.sessionService = sessionService;
+            this.notificationService = notificationService;
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.ComputeUpdateSinceLastTracking()));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
@@ -147,7 +154,19 @@ namespace COMETwebapp.Services.SubscriptionService
                 updates[iteration.Iid] = this.ComputeUpdateSinceLastTracking(iteration, domain);
             }
 
-            this.SubscriptionUpdateCount = updates.Values.Sum();
+            var newSubscriptionCount = updates.Values.Sum();
+            var difference = newSubscriptionCount - this.SubscriptionUpdateCount;
+
+            if (difference > 0)
+            {
+                this.notificationService.AddNotifications(difference);
+            }
+            else
+            {
+                this.notificationService.RemoveNotifications(difference);
+            }
+
+            this.SubscriptionUpdateCount = newSubscriptionCount;
         }
 
         /// <summary>

@@ -1,0 +1,70 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//   This file is part of COMET WEB Community Edition
+//   The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+@inherits AuthorizedMenuEntry
+
+<DxMenuItem Name="session-entry" Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
+    <TextTemplate>
+        <span id="@context.Name" >
+            @if (this.ViewModel.NotificationService.NotificationCount > 0)
+            {
+                <div>
+                    @context.Text
+                    <span class="notification">@this.ViewModel.NotificationService.NotificationCount</span>
+                </div>
+            }
+            else
+            {
+                <div>
+                    @context.Text
+                </div>
+            }
+        </span>
+    </TextTemplate>
+    <SubMenuTemplate>
+        <div class="session__header">
+            <div class="row justify-content-center">
+                @(this.AuthorizedMenuEntryViewModel.UserName)
+            </div>
+
+            <div class="row justify-content-center font-size-smaller">
+                @(this.ViewModel.SessionService.Session.DataSourceUri)
+            </div>
+        </div>
+        <div class="session_content">
+            <div class="content__autorefresh">
+                <span id="autorefresh-check">
+                    <DxCheckBox  @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
+                </span>
+                Refresh every
+                <span></span>
+                <DxSpinEdit Id="autorefresh-value" CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
+                            BindValueMode="BindValueMode.OnInput" MinValue="1"/>
+                sec
+            </div>
+            <div class="session__buttons">
+                <DxButton Id="refresh-button" CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout"/>
+            </div>
+        </div>
+    </SubMenuTemplate>
+</DxMenuItem>
+

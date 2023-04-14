@@ -2,7 +2,7 @@
 //  <copyright file="CompoundComponentSelectedEvent.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,10 +21,11 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
-using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
 namespace COMETwebapp.Utilities
 {
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
+
     /// <summary>
     /// Class used to notify an observer that the <see cref="CompoundParameterTypeEditorViewModel"/> is selected.
     /// </summary>

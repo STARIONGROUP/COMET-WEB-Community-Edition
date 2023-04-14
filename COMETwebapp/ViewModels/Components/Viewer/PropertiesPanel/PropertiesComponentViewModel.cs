@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="PropertiesComponentViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,53 +28,89 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
     using CDP4Common.Types;
-    
+
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="PropertiesComponent"/>
+    /// View Model for the <see cref="PropertiesComponent" />
     /// </summary>
     public class PropertiesComponentViewModel : ReactiveObject, IPropertiesComponentViewModel
     {
         /// <summary>
-        /// Injected property to get access to <see cref="ISessionService"/>
+        /// Backing field for the <see cref="IsVisible" />
         /// </summary>
-        [Inject]
+        private bool isVisible;
+
+        /// <summary>
+        /// Backing field for the <see cref="ParameterHaveChanges" />
+        /// </summary>
+        private bool parameterHaveChanges;
+
+        /// <summary>
+        /// Backing field for the <see cref="ParametersInUse" />
+        /// </summary>
+        private List<ParameterBase> parametersInUse = new();
+
+        /// <summary>
+        /// Backing field for the <see cref="SelectedParameter" />
+        /// </summary>
+        private ParameterBase selectedParameter;
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="PropertiesComponentViewModel" />
+        /// </summary>
+        /// <param name="babylonInterop">the <see cref="IBabylonInterop" /></param>
+        /// <param name="sessionService">the <see cref="ISessionService" /></param>
+        /// <param name="selectionMediator">the <see cref="ISelectionMediator" /></param>
+        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, ISessionService sessionService, ISelectionMediator selectionMediator)
+        {
+            this.BabylonInterop = babylonInterop;
+            this.SessionService = sessionService;
+            this.SelectionMediator = selectionMediator;
+
+            this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async (IValueSet valueSet) => { await this.ParameterValueSetChanged(valueSet); });
+
+            this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
+            this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> that have changed;
+        /// </summary>
+        public Dictionary<ParameterBase, IValueSet> ChangedParameterValueSetRelations { get; set; } = new();
+
+        /// <summary>
+        /// Injected property to get access to <see cref="ISessionService" />
+        /// </summary>
         public ISessionService SessionService { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// Gets or sets the <see cref="ISelectionMediator" />
         /// </summary>
-        [Inject]
         public ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary>
         /// Gets or sets the property used for the Interoperability
         /// </summary>
-        [Inject]
         public IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
-        /// The collection of <see cref="ParameterBase"/> and <see cref="IValueSet"/> of the selected <see cref="SceneObject"/>
+        /// The collection of <see cref="ParameterBase" /> and <see cref="IValueSet" /> of the selected <see cref="SceneObject" />
         /// </summary>
         public Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
 
         /// <summary>
-        /// Backing field for the <see cref="SelectedParameter"/>
-        /// </summary>
-        private ParameterBase selectedParameter;
-
-        /// <summary>
-        /// Gets or sets the selected <see cref="ParameterBase"/> to fill the details
+        /// Gets or sets the selected <see cref="ParameterBase" /> to fill the details
         /// </summary>
         public ParameterBase SelectedParameter
         {
@@ -83,23 +119,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Backing field for the <see cref="ParametersInUse"/>
-        /// </summary>
-        private List<ParameterBase> parametersInUse = new();
-
-        /// <summary>
-        /// The list of parameters that the selected <see cref="SceneObject"/> uses
+        /// The list of parameters that the selected <see cref="SceneObject" /> uses
         /// </summary>
         public List<ParameterBase> ParametersInUse
         {
             get => this.parametersInUse;
             set => this.RaiseAndSetIfChanged(ref this.parametersInUse, value);
         }
-
-        /// <summary>
-        /// Backing field for the <see cref="ParameterHaveChanges"/>
-        /// </summary>
-        private bool parameterHaveChanges;
 
         /// <summary>
         /// Gets or sets if the parameters have changes
@@ -111,13 +137,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Backing field for the <see cref="IsVisible"/>
+        /// Gets or sets if this component is visible
         /// </summary>
-        private bool isVisible;
-
-        /// <summary> 
-        /// Gets or sets if this component is visible 
-        /// </summary> 
         public bool IsVisible
         {
             get => this.isVisible;
@@ -125,63 +146,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Event callback for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed
+        /// Event callback for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed
         /// </summary>
         public EventCallback<IValueSet> OnParameterValueSetChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> that have changed;
-        /// </summary>
-        public Dictionary<ParameterBase, IValueSet> ChangedParameterValueSetRelations { get; set; } = new();
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="PropertiesComponentViewModel"/>
-        /// </summary>
-        /// <param name="babylonInterop">the <see cref="IBabylonInterop"/></param>
-        /// <param name="sessionService">the <see cref="ISessionService"/></param>
-        /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
-        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, ISessionService sessionService, ISelectionMediator selectionMediator)
-        {
-            this.BabylonInterop = babylonInterop;
-            this.SessionService = sessionService;
-            this.SelectionMediator = selectionMediator;
-
-            this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async (IValueSet valueSet) => 
-            { 
-                await this.ParameterValueSetChanged(valueSet); 
-            });
-
-            this.SelectionMediator.OnTreeSelectionChanged += (nodeViewModel) => this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
-            this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
-        }              
-
-        /// <summary> 
-        /// Called when the selection of a <see cref="SceneObject"/> has changed 
-        /// </summary> 
-        /// <param name="sceneObject">the changed object</param> 
-        private void OnSelectionChanged(SceneObject sceneObject)
-        {
-            this.IsVisible = sceneObject is not null;
-            
-            if (this.SelectionMediator.SelectedSceneObjectClone is not null)
-            {
-                this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
-                
-                if(this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated is not null)
-                {
-                    this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
-                    
-                    if(this.ParametersInUse is not null && this.ParametersInUse.Any())
-                    {
-                        this.SelectedParameter = this.ParametersInUse.First();
-                    }
-                    else
-                    {
-                        this.SelectedParameter = null;
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// When the button for submit changes is clicked
@@ -191,16 +158,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
             this.SelectionMediator.SceneObjectHasChanges = false;
             this.ParameterHaveChanges = false;
 
-            foreach (var keyValue in this.ChangedParameterValueSetRelations)
+            foreach (var valueSet in this.ChangedParameterValueSetRelations.Select(keyValue => keyValue.Value))
             {
-                var valueSet = keyValue.Value;
-
                 if (valueSet is ParameterValueSetBase parameterValueSetBase)
                 {
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
                     clonedParameterValueSet.Manual = valueSetNewValue;
-                    this.SessionService.UpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>(), new List<Thing>() { clonedParameterValueSet });
+                    this.SessionService.UpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
                 }
             }
 
@@ -208,7 +173,32 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Event for when a <see cref="IValueSet"/> asociated to a <see cref="ParameterBase"/> has changed.
+        /// Gets the current used <see cref="IValueSet" />
+        /// </summary>
+        /// <returns>the <see cref="IValueSet" /></returns>
+        public IValueSet GetUsedValueSet()
+        {
+            if (this.SelectedParameter is not null && this.ParameterValueSetRelations.TryGetValue(this.SelectedParameter, out var valueSet))
+            {
+                return valueSet;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IDetailsComponentViewModel" />
+        /// </summary>
+        /// <returns>
+        /// a <see cref="IDetailsComponentViewModel" /> based on this <see cref="IPropertiesComponentViewModel" />
+        /// </returns>
+        public IDetailsComponentViewModel CreateDetailsComponentViewModel()
+        {
+            return new DetailsComponentViewModel(this.IsVisible, this.SelectedParameter?.ParameterType, this.GetUsedValueSet(), this.OnParameterValueSetChanged);
+        }
+
+        /// <summary>
+        /// Event for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed.
         /// </summary>
         /// <param name="valueSet"></param>
         public async Task ParameterValueSetChanged(IValueSet valueSet)
@@ -225,7 +215,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 }
                 else
                 {
-
                     this.SelectionMediator.SceneObjectHasChanges = true;
                     this.ParameterHaveChanges = true;
 
@@ -265,26 +254,27 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Gets the current used <see cref="IValueSet"/>
+        /// Called when the selection of a <see cref="SceneObject" /> has changed
         /// </summary>
-        /// <returns>the <see cref="IValueSet"/></returns>
-        public IValueSet GetUsedValueSet()
+        /// <param name="sceneObject">the changed object</param>
+        private void OnSelectionChanged(SceneObject sceneObject)
         {
-            if (this.SelectedParameter is not null && this.ParameterValueSetRelations.TryGetValue(this.SelectedParameter, out var valueSet))
+            this.IsVisible = sceneObject is not null;
+
+            if (this.SelectionMediator.SelectedSceneObjectClone is not null)
             {
-                return valueSet;
+                this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
+
+                if (this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated is not null)
+                {
+                    this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
+
+                    if (this.ParametersInUse is not null && this.ParametersInUse.Any())
+                    {
+                        this.SelectedParameter = this.ParametersInUse.First();
+                    }
+                }
             }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="IDetailsComponentViewModel"/>
-        /// </summary>
-        /// <returns>a <see cref="IDetailsComponentViewModel"/> based on this <see cref="IPropertiesComponentViewModel"/></returns>
-        public IDetailsComponentViewModel CreateDetailsComponentViewModel()
-        {
-            return new DetailsComponentViewModel(this.IsVisible, this.SelectedParameter?.ParameterType, this.GetUsedValueSet(), this.OnParameterValueSetChanged);
         }
     }
 }

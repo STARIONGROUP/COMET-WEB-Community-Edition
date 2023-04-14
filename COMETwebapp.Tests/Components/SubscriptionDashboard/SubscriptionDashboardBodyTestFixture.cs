@@ -2,7 +2,7 @@
 //  <copyright file="SubscriptionDashboardBodyTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,18 +24,16 @@
 
 namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 {
-    using System;
-    using System.Collections.Generic;
-
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Components.SubscriptionDashboard;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.Tests.Helpers;
-    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
 
     using Microsoft.AspNetCore.Components;

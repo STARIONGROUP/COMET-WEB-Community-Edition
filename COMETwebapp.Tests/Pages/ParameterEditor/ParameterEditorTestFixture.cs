@@ -2,7 +2,7 @@
 //  <copyright file="ParameterEditorTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,11 +24,6 @@
 
 namespace COMETwebapp.Tests.Pages.ParameterEditor
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -36,16 +31,18 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
     using CDP4Dal;
 
-    using COMETwebapp.Components.Shared.Selectors;
-    using COMETwebapp.Components.Shared;
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Components;
+    using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.NotificationService;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Pages.ParameterEditor;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Shared.Selectors;
 
     using DevExpress.Blazor;
 
@@ -122,6 +119,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
+            this.context.Services.AddSingleton<INotificationService, NotificationService>();
         }
 
         [TearDown]

@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -24,7 +24,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SubscriptionDashboard.ISubscriptionDashboardBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@ConstantValues.SubscriptionDashboardPage.QueryPageBodyName()" class="row">
+    <div id="@WebAppConstantValues.SubscriptionDashboardPage.QueryPageBodyName()" class="row">
         <div class="col-2 width-fit-content">
             <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
         </div>

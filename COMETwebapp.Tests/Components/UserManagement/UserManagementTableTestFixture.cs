@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UserManagementTableTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,13 +22,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+#pragma warning disable BL0005
 namespace COMETwebapp.Tests.Components.UserManagement
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     using Bunit;
 
@@ -41,10 +38,11 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.UserManagement;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.UserManagement;
 
     using DevExpress.Blazor;

@@ -2,7 +2,7 @@
 // <copyright file="ParameterParser.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,6 +28,10 @@ namespace COMETwebapp.Utilities
     using System.Numerics;
 
     using CDP4Common.EngineeringModelData;
+
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
@@ -119,7 +123,7 @@ namespace COMETwebapp.Utilities
         /// <returns>the Orientation if the value can be parsed, a Orientation.Identity otherwise</returns>
         public static Orientation OrientationParser(IValueSet valueSet)
         {
-            return valueSet is not null ? valueSet.ParseIValueToOrientation(Enumerations.AngleFormat.Radians) : Orientation.Identity(Enumerations.AngleFormat.Radians);
+            return valueSet is not null ? valueSet.ParseIValueToOrientation(AngleFormat.Radians) : Orientation.Identity(AngleFormat.Radians);
         }
 
         /// <summary>

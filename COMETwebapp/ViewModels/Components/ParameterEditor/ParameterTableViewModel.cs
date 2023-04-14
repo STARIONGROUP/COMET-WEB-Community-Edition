@@ -2,7 +2,7 @@
 //  <copyright file="ParameterTableViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -33,11 +33,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Dal;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
+
     using COMETwebapp.Extensions;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Utilities;
-    using COMETwebapp.Utilities.DisposableObject;
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
 
     using DynamicData;
 

@@ -1,0 +1,67 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//   This file is part of COMET WEB Community Edition
+//   The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+@using COMET.Web.Common.Enumerations
+@using System.Globalization
+@inherits DisposableComponent
+
+<DxTabs>
+    <DxTabPage Text="Euler" CssClass="euler-tab">
+        <div id="euler-orientation-tab">
+            @{
+                <div class="angle-selector">
+                    <DxComboBox Data="this.ViewModel.AngleFormats"
+                                NullText="-"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                                Value="@this.ViewModel.AngleFormat"
+                                ValueChanged="@((AngleFormat value)=>this.ViewModel.OnAngleFormatChanged(value))" />
+                </div>
+                <div class="euler-parameter-row">
+                    <p>Rx:</p>
+                    <DxTextBox Text="@this.ViewModel.Orientation.X.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rx",e))"></DxTextBox>
+                </div>
+                <div class="euler-parameter-row">
+                    <p>Ry:</p>
+                    <DxTextBox Text="@this.ViewModel.Orientation.Y.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Ry",e))"></DxTextBox>
+                </div>
+                <div class="euler-parameter-row">
+                    <p>Rz:</p>
+                    <DxTextBox Text="@this.ViewModel.Orientation.Z.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rz",e))"></DxTextBox>
+                </div>
+            }
+        </div>
+    </DxTabPage>
+    <DxTabPage Text="Matrix" CssClass="matrix-tab">
+        <div id="matrix-orientation-tab">
+            @{
+                var names = new string[] { "R0C0", "R0C1", "R0C2", "R1C0", "R1C1", "R1C2", "R2C0", "R2C1", "R2C2" };
+                @for (var i = 0; i < this.ViewModel.Orientation.Matrix.Length; i++)
+                {
+                    var index = i;
+                    <div class="matrix-parameter-row">
+                        <p>@names[index]</p>
+                        <DxTextBox Text="@this.ViewModel.Orientation.Matrix[index].ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e) => this.ViewModel.OnMatrixValuesChanged(index, e)"></DxTextBox>
+                    </div>
+                }
+            }
+        </div>
+    </DxTabPage>
+</DxTabs>

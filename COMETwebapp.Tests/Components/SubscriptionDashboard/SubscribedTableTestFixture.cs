@@ -2,7 +2,7 @@
 //  <copyright file="SubscribedTableTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -34,8 +34,9 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.SubscriptionDashboard;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
 

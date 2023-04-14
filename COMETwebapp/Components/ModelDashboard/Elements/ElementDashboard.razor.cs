@@ -2,7 +2,7 @@
 //  <copyright file="ElementDashboard.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -67,10 +67,10 @@ namespace COMETwebapp.Components.ModelDashboard.Elements
 
             this.elementsDetailsValues = valueSet.serieName switch
             {
-                ConstantValues.UnusedElements => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.Any(x => x.Iid == e.Iid)),
-                ConstantValues.UsedElements => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.All(x => x.Iid != e.Iid)),
-                ConstantValues.UnreferencedElements => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.Any(x => x.Iid == e.Iid)),
-                ConstantValues.ReferencedElements => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.All(x => x.Iid != e.Iid)),
+                WebAppConstantValues.UnusedElements => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.Any(x => x.Iid == e.Iid)),
+                WebAppConstantValues.UsedElements => elementDefinitions.FindAll(e => this.ViewModel.UnusedElements.All(x => x.Iid != e.Iid)),
+                WebAppConstantValues.UnreferencedElements => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.Any(x => x.Iid == e.Iid)),
+                WebAppConstantValues.ReferencedElements => elementDefinitions.FindAll(e => this.ViewModel.UnreferencedElements.All(x => x.Iid != e.Iid)),
                 _ => this.elementsDetailsValues
             };
 

@@ -24,7 +24,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.Viewer.IViewerBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@ConstantValues.ViewerPage.QueryPageBodyName()" class="row">
+    <div id="@WebAppConstantValues.ViewerPage.QueryPageBodyName()" class="row">
         <div class="col">
             <div class="width-fit-content">
                 <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>

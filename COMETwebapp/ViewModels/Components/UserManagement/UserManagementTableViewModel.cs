@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UserManagementTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -33,9 +33,10 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using COMETwebapp.Services.SessionManagement;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Utilities.DisposableObject;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
 
     using DevExpress.Blazor;
@@ -68,6 +69,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// A collection of all <see cref="PersonRowViewModel" />
         /// </summary>
         private IEnumerable<PersonRowViewModel> allRows = new List<PersonRowViewModel>();
+
+        /// <summary>
+        /// Backing field for <see cref="IsOnDeprecationMode" />
+        /// </summary>
+        private bool isOnDeprecationMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserManagementTableViewModel" /> class.
@@ -160,11 +166,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Indicates if the <see cref="TelephoneNumber" /> is the default telephone number
         /// </summary>
         public bool IsDefaultTelephoneNumber { get; set; }
-
-        /// <summary>
-        ///     Backing field for <see cref="IsOnDeprecationMode" />
-        /// </summary>
-        private bool isOnDeprecationMode;
 
         /// <summary>
         /// Indicates if confirmation popup is visible
@@ -340,16 +341,10 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         private void RefreshAccessRight()
         {
-            foreach (var row in Rows.Items)
+            foreach (var row in this.Rows.Items)
             {
-                if(row.Person == this.sessionService.Session.ActivePerson)
-                {
-                    row.IsAllowedToWrite = false;
-                }
-                else
-                {
-                    row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
-                }
+                row.IsAllowedToWrite = row.Person.Iid != this.sessionService.Session.ActivePerson.Iid
+                                       && this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
             }
         }
 

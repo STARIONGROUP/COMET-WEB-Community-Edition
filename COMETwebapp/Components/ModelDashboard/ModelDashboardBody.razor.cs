@@ -2,7 +2,7 @@
 //  <copyright file="ModelDashboardBody.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,7 +24,9 @@
 
 namespace COMETwebapp.Components.ModelDashboard
 {
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
@@ -76,7 +78,7 @@ namespace COMETwebapp.Components.ModelDashboard
         /// Sets the url of the <see cref="NavigationManager" /> based on the current values
         /// </summary>
         /// <param name="pageName">The name of the page to redirect to</param>
-        private void UpdateUrl(string pageName = ConstantValues.ModelDashboardPage)
+        private void UpdateUrl(string pageName = WebAppConstantValues.ModelDashboardPage)
         {
             var additionalParameters = new Dictionary<string, string>();
 
@@ -103,7 +105,7 @@ namespace COMETwebapp.Components.ModelDashboard
         /// </summary>
         private void RedirectToParameterEditor()
         {
-            this.UpdateUrl(ConstantValues.ParameterEditorPage);
+            this.UpdateUrl(WebAppConstantValues.ParameterEditorPage);
         }
     }
 }

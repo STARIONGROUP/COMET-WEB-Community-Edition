@@ -2,7 +2,7 @@
 //  <copyright file="AboutMenu.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -27,7 +27,7 @@ namespace COMETwebapp.Shared.TopMenuEntry
     using COMETwebapp.Components.Shared;
 
     /// <summary>
-    /// Menu entry to access to the <see cref="About"/> content
+    /// Menu entry to access to the <see cref="About" /> content
     /// </summary>
     public partial class AboutMenu
     {

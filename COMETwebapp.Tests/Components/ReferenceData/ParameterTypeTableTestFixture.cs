@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ParameterTypeTableTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,10 +24,7 @@
 
 namespace COMETwebapp.Tests.Components.ReferenceData
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -37,10 +34,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Dal.DAL;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+
     using COMETwebapp.Components.ReferenceData;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.ViewModels.Components.ReferenceData;
 
     using Microsoft.Extensions.DependencyInjection;

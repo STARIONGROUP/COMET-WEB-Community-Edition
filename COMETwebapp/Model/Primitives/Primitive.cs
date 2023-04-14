@@ -2,7 +2,7 @@
 // <copyright file="Primitive.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,23 +28,25 @@ namespace COMETwebapp.Model.Primitives
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer.Canvas;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Represents an <see cref="ElementUsage"/> on the Scene from the selected <see cref="Option"/> and <see cref="ActualFiniteState"/>
+    /// Represents an <see cref="ElementUsage" /> on the Scene from the selected <see cref="Option" /> and
+    /// <see cref="ActualFiniteState" />
     /// </summary>
     public abstract class Primitive
     {
         /// <summary>
-        /// Rendering group of this <see cref="Primitive"/>. Default is 0. Valid Range[0,4].
+        /// Rendering group of this <see cref="Primitive" />. Default is 0. Valid Range[0,4].
         /// </summary>
         public int RenderingGroup { get; set; }
 
         /// <summary>
-        /// The default color if the <see cref="Color"/> has not been defined.
+        /// The default color if the <see cref="Color" /> has not been defined.
         /// </summary>
-        public static Vector3 DefaultColor { get; } = new Vector3(210, 210, 210);
+        public static Vector3 DefaultColor { get; } = new(210, 210, 210);
 
         /// <summary>
         /// Property that defined the exact type of pritimive. Used in JS.
@@ -96,8 +98,8 @@ namespace COMETwebapp.Model.Primitives
         /// </summary>
         public void ResetTransformations()
         {
-            ResetRotation();
-            ResetTranslation();
+            this.ResetRotation();
+            this.ResetTranslation();
         }
 
         /// <summary>
@@ -105,7 +107,7 @@ namespace COMETwebapp.Model.Primitives
         /// </summary>
         public void ResetTranslation()
         {
-            X = Y = Z = 0;
+            this.X = this.Y = this.Z = 0;
         }
 
         /// <summary>
@@ -113,11 +115,11 @@ namespace COMETwebapp.Model.Primitives
         /// </summary>
         public void ResetRotation()
         {
-            RX = RY = RZ = 0;
+            this.RX = this.RY = this.RZ = 0;
         }
 
         /// <summary>
-        /// Sets the color of this <see cref="Primitive"/>.
+        /// Sets the color of this <see cref="Primitive" />.
         /// </summary>
         /// <param name="r">red component of the color in range [0,255]</param>
         /// <param name="g">green component of the color in range [0,255]</param>
@@ -125,11 +127,12 @@ namespace COMETwebapp.Model.Primitives
         /// <returns></returns>
         public void SetColor(float r, float g, float b)
         {
-            Color = new Vector3(r, g, b);
+            this.Color = new Vector3(r, g, b);
         }
 
         /// <summary>
-        /// Parses the <paramref name="valueSet"/> into the corresponding property depending on the <paramref name="parameterBase"/>
+        /// Parses the <paramref name="valueSet" /> into the corresponding property depending on the
+        /// <paramref name="parameterBase" />
         /// </summary>
         /// <param name="parameterBase">the parameter base related to the property</param>
         /// <param name="valueSet">the value set to be parsed</param>
@@ -139,21 +142,21 @@ namespace COMETwebapp.Model.Primitives
 
             switch (parameterTypeShortName)
             {
-                case SceneSettings.OrientationShortName:
+                case ConstantValues.OrientationShortName:
                     var orientation = ParameterParser.OrientationParser(valueSet);
-                    RX = orientation.X;
-                    RY = orientation.Y;
-                    RZ = orientation.Z;
+                    this.RX = orientation.X;
+                    this.RY = orientation.Y;
+                    this.RZ = orientation.Z;
                     break;
-                case SceneSettings.PositionShortName:
+                case ConstantValues.PositionShortName:
                     var position = ParameterParser.PositionParser(valueSet);
-                    X = position.X;
-                    Y = position.Y;
-                    Z = position.Z;
+                    this.X = position.X;
+                    this.Y = position.Y;
+                    this.Z = position.Z;
                     break;
 
-                case SceneSettings.ColorShortName:
-                    Color = ParameterParser.ColorParser(valueSet);
+                case ConstantValues.ColorShortName:
+                    this.Color = ParameterParser.ColorParser(valueSet);
                     break;
             }
         }

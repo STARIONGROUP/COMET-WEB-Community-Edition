@@ -2,7 +2,7 @@
 //  <copyright file="ViewerBody.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,6 +24,9 @@
 
 namespace COMETwebapp.Components.Viewer
 {
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
@@ -46,16 +49,16 @@ namespace COMETwebapp.Components.Viewer
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task" />, because
+        /// not automatically re-render after the completion of any returned <see cref="T:System.Threading.Tasks.Task" />, because
         /// that would cause an infinite render loop.
         /// </summary>
         /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)" /> has been invoked
+        /// Set to <c>true</c> if this is the first time <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRender(System.Boolean)" /> has been invoked
         /// on this component instance; otherwise <c>false</c>.
         /// </param>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        /// <returns>A <see cref="T:System.Threading.Tasks.Task" /> representing any asynchronous operation.</returns>
         /// <remarks>
-        /// The <see cref="OnAfterRender(bool)" /> and <see cref="OnAfterRenderAsync(bool)" /> lifecycle methods
+        /// The <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRender(System.Boolean)" /> and <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRenderAsync(System.Boolean)" /> lifecycle methods
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
         /// Use the <paramref name="firstRender" /> parameter to ensure that initialization work is only performed
         /// once.
@@ -134,7 +137,7 @@ namespace COMETwebapp.Components.Viewer
                 additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
             }
 
-            this.UpdateUrlWithParameters(additionalParameters, ConstantValues.ViewerPage);
+            this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.ViewerPage);
         }
     }
 }

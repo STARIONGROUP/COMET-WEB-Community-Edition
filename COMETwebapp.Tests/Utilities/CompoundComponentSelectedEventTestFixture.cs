@@ -2,7 +2,7 @@
 // <copyright file="CompoundComponentSelectedEventTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -30,7 +30,7 @@ namespace COMETwebapp.Tests.Utilities
     using CDP4Common.Types;
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Shared.ParameterEditors;
+
     using Microsoft.AspNetCore.Components;
     using Moq;
     using NUnit.Framework;
@@ -38,6 +38,8 @@ namespace COMETwebapp.Tests.Utilities
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Numerics;
+
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     [TestFixture]
     public class CompoundComponentSelectedEventTestFixture

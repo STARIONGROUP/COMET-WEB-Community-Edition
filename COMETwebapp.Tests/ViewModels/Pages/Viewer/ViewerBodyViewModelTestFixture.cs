@@ -2,7 +2,7 @@
 //  <copyright file="ViewerBodyViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,17 +24,14 @@
 
 namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Utilities;
+
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.SessionManagement;
-    using COMETwebapp.Tests.Helpers;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
 

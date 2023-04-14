@@ -2,7 +2,7 @@
 //  <copyright file="About.razor.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.Components.Shared
 {
-    using COMETwebapp.Services.VersionService;
+    using COMET.Web.Common.Services.VersionService;
 
     using Microsoft.AspNetCore.Components;
 
@@ -33,18 +33,6 @@ namespace COMETwebapp.Components.Shared
     /// </summary>
     public partial class About
     {
-        /// <summary>
-        /// The <see cref="HttpClient"/>
-        /// </summary>
-        [Inject]
-        public HttpClient HttpClient { get; set; }
-
-        /// <summary>
-        /// The <see cref="IVersionService"/>
-        /// </summary>
-        [Inject]
-        public IVersionService VersionService { get; set; }
-
         /// <summary>
         /// The Git url
         /// </summary>
@@ -59,6 +47,18 @@ namespace COMETwebapp.Components.Shared
         /// The license text as retrieved from the GitHub repository
         /// </summary>
         private string license = string.Empty;
+
+        /// <summary>
+        /// The <see cref="HttpClient" />
+        /// </summary>
+        [Inject]
+        public HttpClient HttpClient { get; set; }
+
+        /// <summary>
+        /// The <see cref="IVersionService" />
+        /// </summary>
+        [Inject]
+        public IVersionService VersionService { get; set; }
 
         /// <summary>
         /// Initializes the component

@@ -1,0 +1,65 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//   This file is part of COMET WEB Community Edition
+//   The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+@inherits DisposableComponent
+
+<EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
+	<DataAnnotationsValidator/>
+	<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+		<DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
+			<Template>
+				<DxTextBox Id="sourceaddress" @bind-Text="@(this.ViewModel.AuthenticationDto.SourceAddress)"
+				           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+				           NullText="Enter the url for the server"
+				           Enabled="@string.IsNullOrEmpty(this.RequestedServer)"/>
+			</Template>
+		</DxFormLayoutItem>
+		<DxFormLayoutItem Caption="UserName:" BeginRow="true" ColSpanLg="12">
+			<Template>
+				<DxTextBox Id="username" @bind-Text="@(this.ViewModel.AuthenticationDto.UserName)"
+				           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+				           NullText="Enter your username"/>
+			</Template>
+		</DxFormLayoutItem>
+		<DxFormLayoutItem Caption="Password:" BeginRow="true" ColSpanLg="12">
+			<Template>
+				<DxTextBox Id="password" @bind-Text="@(this.ViewModel.AuthenticationDto.Password)"
+				           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+				           NullText="Enter your password"
+				           Password="true"/>
+			</Template>
+		</DxFormLayoutItem>
+	</DxFormLayout>
+	<ValidationSummary/>
+
+	@if (!string.IsNullOrEmpty(this.ErrorMessage))
+	{
+		<div class="form-group row m-top-10px">
+			<label class="text-danger">@this.ErrorMessage</label>
+		</div>
+	}
+
+	<div class="modal-footer">
+			<DxButton Id="connectbtn" Text="@(this.LoginButtonDisplayText)" CssClass="btn btn-connect"
+			          Enabled="@this.LoginEnabled"
+			          SubmitFormOnClick="true"/>
+	</div>
+</EditForm>

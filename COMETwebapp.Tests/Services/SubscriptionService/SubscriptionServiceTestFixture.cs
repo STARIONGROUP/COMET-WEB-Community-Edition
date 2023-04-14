@@ -2,7 +2,7 @@
 //  <copyright file="SubscriptionServiceTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
-//     Author: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -33,10 +33,12 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
 
     using CDP4Dal;
     using CDP4Dal.Events;
+   
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Services.NotificationService;
+    using COMET.Web.Common.Services.SessionManagement;
 
-    using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
-    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.SubscriptionService;
 
     using DynamicData;
@@ -58,7 +60,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
             this.sessionService = new Mock<ISessionService>();
             this.openIterations = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
-            this.subscriptionService = new SubscriptionService(this.sessionService.Object);
+            this.subscriptionService = new SubscriptionService(this.sessionService.Object, new Mock<INotificationService>().Object);
         }
 
         [Test]
