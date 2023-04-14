@@ -19,10 +19,4 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-<DxMenuItem Text="About" IconCssClass="icon icon-info" Click="() => this.SetVisibility(true)" Position="ItemPosition.End"/>
-<DxPopup @bind-Visible="this.isVisible" HeaderText="COMET-WEB CE">
-	<About/>
-	<div class="text-center">
-		<DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.SetVisibility(false))" />
-	</div>
-</DxPopup>
+@inherits DisposableComponent

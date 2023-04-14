@@ -132,7 +132,7 @@ namespace COMET.Web.Common.Tests.Shared
             var sessionMenuInstance = (SessionMenu)sessionMenuEntry.Instance;
             sessionMenuInstance.Expanded = true;
             await renderer.InvokeAsync(sessionMenuInstance.Logout);
-            var navigationManager = this.context.Services.GetService<NavigationManager>();
+            var navigationManager = this.context.Services.GetService<NavigationManager>()!;
 
             Assert.Multiple(() =>
             {
@@ -267,7 +267,7 @@ namespace COMET.Web.Common.Tests.Shared
         [Test]
         public void VerifyReturnToHomeWithTitle()
         {
-            var navigationManager = this.context.Services.GetService<NavigationManager>();
+            var navigationManager = this.context.Services.GetService<NavigationManager>()!;
             navigationManager.NavigateTo("/AnUrl");
             var renderer = this.context.RenderComponent<TopMenu>();
             var topMenuTitle = renderer.FindComponent<TopMenuTitle>();
@@ -276,26 +276,6 @@ namespace COMET.Web.Common.Tests.Shared
             Assert.That(navigationManager.Uri, Does.EndWith("AnUrl"));
             navigationManager.NavigateTo(htmlAnchor.Href);
             Assert.That(navigationManager.Uri, Does.Not.EndWith("AnUrl"));
-        }
-
-        [Test]
-        public async Task VerifyAboutEntry()
-        {
-            var renderer = this.context.RenderComponent<TopMenu>();
-            var aboutEntry = renderer.FindComponent<AboutMenu>();
-            var popup = aboutEntry.FindComponent<DxPopup>();
-            Assert.That(popup.Instance.Visible, Is.False);
-            var aboutMenuEntry = aboutEntry.FindComponent<DxMenuItem>();
-            await renderer.InvokeAsync(aboutMenuEntry.Instance.Click.InvokeAsync);
-            Assert.That(popup.Instance.Visible, Is.True);
-
-            var aboutComponent = popup.FindComponent<About>();
-            var boldedText = aboutComponent.Find("b");
-            Assert.That(boldedText.TextContent, Is.EqualTo(this.versionService.Object.GetVersion()));
-
-            var closeButton = popup.FindComponent<DxButton>();
-            await renderer.InvokeAsync(closeButton.Instance.Click.InvokeAsync);
-            Assert.That(popup.Instance.Visible, Is.False);
         }
 
         private class TestAuthorizedMenuEntry : AuthorizedMenuEntry

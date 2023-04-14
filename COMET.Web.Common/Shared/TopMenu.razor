@@ -35,11 +35,10 @@
             <ModelMenu />
             <SessionMenu />
             
-            @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(AuthorizedMenuEntry))))
+            @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
             {
                 <DynamicComponent Type="@menuEntry"/>
             }
-            <AboutMenu/>
         </Items>
     </DxMenu>
 </nav>
