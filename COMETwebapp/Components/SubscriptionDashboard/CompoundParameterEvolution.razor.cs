@@ -78,10 +78,10 @@ namespace COMETwebapp.Components.SubscriptionDashboard
 
             var compoundParameterType = (CompoundParameterType)this.ParameterSubscriptionRow.Parameter.ParameterType;
 
-            for (var i = 0; i < compoundParameterType.Component.Count; i++)
+            for (var parameterTypeComponent = 0; parameterTypeComponent < compoundParameterType.Component.Count; parameterTypeComponent++)
             {
-                var parameterType = compoundParameterType.Component[i].ParameterType;
-                
+                var parameterType = compoundParameterType.Component[parameterTypeComponent].ParameterType;
+
                 var containerParameter = new Parameter()
                 {
                     Iid = Guid.NewGuid(),
@@ -93,7 +93,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 foreach (var kvp in this.ParameterSubscriptionRow.Changes)
                 {
                     int key = kvp.Key;
-                    var valueArray = new ValueArray<string>(new[] { kvp.Value[i] });
+                    var valueArray = new ValueArray<string>(new[] { kvp.Value[parameterTypeComponent] });
                     changes.Add(key, valueArray);
                 }
 
