@@ -9,6 +9,8 @@
         <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
         <Company>RHEA System S.A.</Company>
         <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
+        <PackageId>COMET.WEB.Common</PackageId>
+        <AssemblyTitle>COMET.WEB.Common</AssemblyTitle>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <Authors>Sam, Alex, Alexander, Antoine</Authors>
         <RepositoryType>Git</RepositoryType>
