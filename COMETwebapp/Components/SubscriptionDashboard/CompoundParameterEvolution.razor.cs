@@ -92,9 +92,8 @@ namespace COMETwebapp.Components.SubscriptionDashboard
 
                 foreach (var kvp in this.ParameterSubscriptionRow.Changes)
                 {
-                    int key = kvp.Key;
                     var valueArray = new ValueArray<string>(new[] { kvp.Value[parameterTypeComponent] });
-                    changes.Add(key, valueArray);
+                    changes.Add(kvp.Key, valueArray);
                 }
 
                 var parameterSubscriptionViewModel = new ParameterSubscriptionRowViewModel()

@@ -28,7 +28,7 @@
     {
         <DxToolbar ItemClick="@this.OnItemClick">
             <Items>
-                @for (int dimension = 1; dimension < arrayParameterType.Dimension[0] + 1; dimension++)
+                @for (var dimension = 1; dimension < arrayParameterType.Dimension[0] + 1; dimension++)
                 {
                     <DxToolbarItem Name="@(dimension.ToString())" Text="@(dimension.ToString())" Tooltip="@(dimension.ToString())" />
                 }
@@ -37,21 +37,21 @@
 
         <DxGridLayout CssClass="w-100 ch-480">
             <Rows>
-                @for (int row = 0; row < arrayParameterType.Dimension[1]; row++)
+                @for (var row = 0; row < arrayParameterType.Dimension[1]; row++)
                 {
                     <DxGridLayoutRow Height="auto" />
                 }
             </Rows>
             <Columns>
-                @for (int column = 0; column < arrayParameterType.Dimension[2]; column++)
+                @for (var column = 0; column < arrayParameterType.Dimension[2]; column++)
                 {
                     <DxGridLayoutColumn />
                 }
             </Columns>
             <Items>
-                @for (int n = 0; n < arrayParameterType.Dimension[1]; n++)
+                @for (var n = 0; n < arrayParameterType.Dimension[1]; n++)
                 {
-                    @for (int m = 0; m < arrayParameterType.Dimension[2]; m++)
+                    @for (var m = 0; m < arrayParameterType.Dimension[2]; m++)
                     {
                         var index = ((int.Parse(selectedDimension) - 1) * (arrayParameterType.Dimension[1] * arrayParameterType.Dimension[2])) + (n * arrayParameterType.Dimension[2]) + m;
                         var x = n + 1;
@@ -77,21 +77,21 @@
     {
         <DxGridLayout CssClass="w-100 ch-480">
             <Rows>
-                @for (int row = 0; row < arrayParameterType.Dimension[0]; row++)
+                @for (var row = 0; row < arrayParameterType.Dimension[0]; row++)
                 {
                     <DxGridLayoutRow Height="auto" />
                 }
             </Rows>
             <Columns>
-                @for (int column = 0; column < arrayParameterType.Dimension[1]; column++)
+                @for (var column = 0; column < arrayParameterType.Dimension[1]; column++)
                 {
                     <DxGridLayoutColumn />
                 }
             </Columns>
             <Items>
-                @for (int n = 0; n < arrayParameterType.Dimension[0]; n++)
+                @for (var n = 0; n < arrayParameterType.Dimension[0]; n++)
                 {
-                    @for (int m = 0; m < arrayParameterType.Dimension[1]; m++)
+                    @for (var m = 0; m < arrayParameterType.Dimension[1]; m++)
                     {
                         var index = n * arrayParameterType.Dimension[1] + m;
                         var x = n;
