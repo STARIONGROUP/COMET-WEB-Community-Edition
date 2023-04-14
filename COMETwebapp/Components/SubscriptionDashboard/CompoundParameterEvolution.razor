@@ -24,42 +24,94 @@
 
 @if(this.ParameterSubscriptionRow.Parameter.ParameterType is ArrayParameterType arrayParameterType)
 {
-    <DxGridLayout CssClass="w-100 ch-480">
-        <Rows>
-            @for (int i = 0; i < arrayParameterType.Dimension[0]; i++)
-            {
-                <DxGridLayoutRow Height="auto" />
-            }
-        </Rows>
-        <Columns>
-            @for (int i = 0; i < arrayParameterType.Dimension[0]; i++)
-            {
-                <DxGridLayoutColumn />
-            }
-        </Columns>
-        <Items>
-            @for(int n = 0; n < arrayParameterType.Dimension[0]; n++)
-            {
-                @for(int m = 0; m < arrayParameterType.Dimension[1]; m++)
+    if (arrayParameterType.Dimension.Count > 2)
+    {
+        <DxToolbar ItemClick="@this.OnItemClick">
+            <Items>
+                @for (int i = 1; i < arrayParameterType.Dimension[0] + 1; i++)
                 {
-                    var index = n * arrayParameterType.Dimension[1] + m;
-                    var x = n;
-                    var y = m;
-                    <DxGridLayoutItem Row="n" Column="m" CssClass="p-30">
-                        <Template>
-                            <div class="gridlayout-header gridlayout-item">
-                                @{
-                                    <div>{@x,@y}</div>
-                                    var parameterSubscription = this.ParameterSubscriptions.ToList()[index];
-                                    <ParameterEvolutionSelector ParameterSubscriptionRow=parameterSubscription />
-                                }
-                            </div>
-                        </Template>
-                    </DxGridLayoutItem>
+                    <DxToolbarItem Name="@(i.ToString())" Text="@(i.ToString())" Tooltip="@(i.ToString())" />
                 }
-            }
-        </Items>
-    </DxGridLayout>
+            </Items>
+        </DxToolbar>
+
+        <DxGridLayout CssClass="w-100 ch-480">
+            <Rows>
+                @for (int i = 0; i < arrayParameterType.Dimension[1]; i++)
+                {
+                    <DxGridLayoutRow Height="auto" />
+                }
+            </Rows>
+            <Columns>
+                @for (int i = 0; i < arrayParameterType.Dimension[2]; i++)
+                {
+                    <DxGridLayoutColumn />
+                }
+            </Columns>
+            <Items>
+                @for (int n = 0; n < arrayParameterType.Dimension[1]; n++)
+                {
+                    @for (int m = 0; m < arrayParameterType.Dimension[2]; m++)
+                    {
+                        var index = ((int.Parse(selectedDimension) - 1) * (arrayParameterType.Dimension[1] * arrayParameterType.Dimension[2])) + (n * arrayParameterType.Dimension[2]) + m;
+                        var x = n + 1;
+                        var y = m + 1;
+                        var z = selectedDimension;
+                        <DxGridLayoutItem Row="n" Column="m" CssClass="p-30">
+                            <Template>
+                                <div class="gridlayout-header gridlayout-item">
+                                    @{
+                                        <div>{@z,@x,@y}</div>
+                                        var parameterSubscription = this.ParameterSubscriptions.ToList()[index];
+                                        <ParameterEvolutionSelector ParameterSubscriptionRow=parameterSubscription />
+                                    }
+                                </div>
+                            </Template>
+                        </DxGridLayoutItem>
+                    }
+                }
+            </Items>
+        </DxGridLayout>
+    }
+    else
+    {
+        <DxGridLayout CssClass="w-100 ch-480">
+            <Rows>
+                @for (int i = 0; i < arrayParameterType.Dimension[0]; i++)
+                {
+                    <DxGridLayoutRow Height="auto" />
+                }
+            </Rows>
+            <Columns>
+                @for (int i = 0; i < arrayParameterType.Dimension[1]; i++)
+                {
+                    <DxGridLayoutColumn />
+                }
+            </Columns>
+            <Items>
+                @for (int n = 0; n < arrayParameterType.Dimension[0]; n++)
+                {
+                    @for (int m = 0; m < arrayParameterType.Dimension[1]; m++)
+                    {
+                        var index = n * arrayParameterType.Dimension[1] + m;
+                        var x = n;
+                        var y = m;
+                        <DxGridLayoutItem Row="n" Column="m" CssClass="p-30">
+                            <Template>
+                                <div class="gridlayout-header gridlayout-item">
+                                    @{
+                                        <div>{@x,@y}</div>
+                                        var parameterSubscription = this.ParameterSubscriptions.ToList()[index];
+                                        <ParameterEvolutionSelector ParameterSubscriptionRow=parameterSubscription />
+                                    }
+                                </div>
+                            </Template>
+                        </DxGridLayoutItem>
+                    }
+                }
+            </Items>
+        </DxGridLayout>
+    }
 }
 else
 {

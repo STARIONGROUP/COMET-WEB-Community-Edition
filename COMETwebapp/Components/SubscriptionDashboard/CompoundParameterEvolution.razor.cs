@@ -48,7 +48,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         /// <summary>
         /// The name of selected dimension
         /// </summary>
-        private string selectedDimension;
+        private string selectedDimension = "1";
 
         /// <summary>
         /// A collection of <see cref="ParameterSubscriptionRowViewModel" />
