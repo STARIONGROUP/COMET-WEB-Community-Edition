@@ -74,20 +74,21 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         /// </summary>
         private void CreateParameterSubscriptions()
         {
-            List<ParameterSubscriptionRowViewModel> parameterSubscriptions = new List<ParameterSubscriptionRowViewModel>();
+            var parameterSubscriptions = new List<ParameterSubscriptionRowViewModel>();
 
             var compoundParameterType = (CompoundParameterType)this.ParameterSubscriptionRow.Parameter.ParameterType;
 
             for (var i = 0; i < compoundParameterType.Component.Count; i++)
             {
                 var parameterType = compoundParameterType.Component[i].ParameterType;
+                
                 var containerParameter = new Parameter()
                 {
                     Iid = Guid.NewGuid(),
                     ParameterType = parameterType
                 };
 
-                Dictionary<int, ValueArray<string>> changes = new Dictionary<int, ValueArray<string>>();
+                var changes = new Dictionary<int, ValueArray<string>>();
 
                 foreach (var kvp in this.ParameterSubscriptionRow.Changes)
                 {

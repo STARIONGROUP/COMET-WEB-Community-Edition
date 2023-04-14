@@ -28,22 +28,22 @@
     {
         <DxToolbar ItemClick="@this.OnItemClick">
             <Items>
-                @for (int i = 1; i < arrayParameterType.Dimension[0] + 1; i++)
+                @for (int dimension = 1; dimension < arrayParameterType.Dimension[0] + 1; dimension++)
                 {
-                    <DxToolbarItem Name="@(i.ToString())" Text="@(i.ToString())" Tooltip="@(i.ToString())" />
+                    <DxToolbarItem Name="@(dimension.ToString())" Text="@(dimension.ToString())" Tooltip="@(dimension.ToString())" />
                 }
             </Items>
         </DxToolbar>
 
         <DxGridLayout CssClass="w-100 ch-480">
             <Rows>
-                @for (int i = 0; i < arrayParameterType.Dimension[1]; i++)
+                @for (int row = 0; row < arrayParameterType.Dimension[1]; row++)
                 {
                     <DxGridLayoutRow Height="auto" />
                 }
             </Rows>
             <Columns>
-                @for (int i = 0; i < arrayParameterType.Dimension[2]; i++)
+                @for (int column = 0; column < arrayParameterType.Dimension[2]; column++)
                 {
                     <DxGridLayoutColumn />
                 }
@@ -77,13 +77,13 @@
     {
         <DxGridLayout CssClass="w-100 ch-480">
             <Rows>
-                @for (int i = 0; i < arrayParameterType.Dimension[0]; i++)
+                @for (int row = 0; row < arrayParameterType.Dimension[0]; row++)
                 {
                     <DxGridLayoutRow Height="auto" />
                 }
             </Rows>
             <Columns>
-                @for (int i = 0; i < arrayParameterType.Dimension[1]; i++)
+                @for (int column = 0; column < arrayParameterType.Dimension[1]; column++)
                 {
                     <DxGridLayoutColumn />
                 }
