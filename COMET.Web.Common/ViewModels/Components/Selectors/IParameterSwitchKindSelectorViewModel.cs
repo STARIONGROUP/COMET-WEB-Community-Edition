@@ -48,5 +48,12 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// The initial <see cref="ParameterSwitchKind" />
         /// </summary>
         ParameterSwitchKind InitialSwitchValue { get; }
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        /// <param name="parameterSwitchKind">The <see cref="ParameterSwitchKind" /></param>
+        /// <param name="readOnly">The readonly state</param>
+        void UpdateProperties(ParameterSwitchKind parameterSwitchKind, bool readOnly);
     }
 }
