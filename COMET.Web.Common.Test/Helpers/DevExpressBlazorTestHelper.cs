@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Helpers
+namespace COMET.Web.Common.Test.Helpers
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
