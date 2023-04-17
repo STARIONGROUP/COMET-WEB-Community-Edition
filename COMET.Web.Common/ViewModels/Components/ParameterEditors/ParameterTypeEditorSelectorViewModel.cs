@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterTypeEditorSelectorViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -38,7 +38,12 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets if the Editor is readonly.
         /// </summary>
-        private readonly bool isReadOnly;
+        private bool isReadOnly;
+
+        /// <summary>
+        /// Gets the index of the value changed in the value sets
+        /// </summary>
+        private int ValueArrayIndex { get; }
 
         /// <summary>
         /// The <see cref="IHaveValueSetViewModel" />
@@ -54,26 +59,30 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
         {
-            this.ParameterType = parameterType;
+            this.InitializesProperties(isReadOnly);
             this.ValueSet = valueSet;
-            this.isReadOnly = isReadOnly;
+            this.ParameterType = parameterType;
             this.ValueArrayIndex = valueArrayIndex;
         }
 
         /// <summary>
-        /// Gets the index of the value changed in the value sets
+        /// Initializes this view model properties
         /// </summary>
-        private int ValueArrayIndex { get; set; }
+        /// <param name="readOnly">The readonly state</param>
+        private void InitializesProperties(bool readOnly)
+        {
+            this.isReadOnly = readOnly;
+        }
 
         /// <summary>
         /// Gets or sets the value set of this <see cref="ParameterType" />
         /// </summary>
-        public IValueSet ValueSet { get; set; }
+        public IValueSet ValueSet { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ParameterType" />
         /// </summary>
-        public ParameterType ParameterType { get; set; }
+        public ParameterType ParameterType { get; private set; }
 
         /// <summary>
         /// Event Callback for when a value has changed on the parameter
@@ -113,6 +122,16 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         public void UpdateSwitchKind(ParameterSwitchKind switchValue)
         {
             this.haveValueSetViewModel?.UpdateParameterSwitchKind(switchValue);
+        }
+
+        /// <summary>
+        /// Updates the associated <see cref="IParameterEditorBaseViewModel{T}"/> properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        public void UpdateProperties(bool readOnly)
+        {
+            this.InitializesProperties(readOnly);
+            this.haveValueSetViewModel?.UpdateProperties(this.isReadOnly);
         }
     }
 }

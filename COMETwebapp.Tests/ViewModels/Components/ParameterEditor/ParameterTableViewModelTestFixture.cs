@@ -280,5 +280,94 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
         }
+
+        [Test]
+        public void VerifyUpdateOnCollection()
+        {
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+
+            var elementDefinition = new ElementDefinition()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var booleanParameterType = new BooleanParameterType()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "BooleanParameter"
+            };
+
+            var parameter = new Parameter()
+            {
+                Iid = Guid.NewGuid(),
+                ParameterType = booleanParameterType,
+                ValueSet = 
+                {
+                    new ParameterValueSet()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Published = new ValueArray<string>(new []{"-"}),
+                        Computed =  new ValueArray<string>(new []{"-"})
+                    }
+                }
+            };
+
+            elementDefinition.Parameter.Add(parameter);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
+
+            this.viewModel.AddRows(new List<Thing>{elementDefinition});
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(5));
+
+            var textParameterType = new TextParameterType()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "text"
+            };
+
+            var newParameter = new Parameter()
+            {
+                Iid = Guid.NewGuid(),
+                ParameterType = textParameterType,
+                ValueSet =
+                {
+                    new ParameterValueSet()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Published = new ValueArray<string>(new []{"-"}),
+                        Computed =  new ValueArray<string>(new []{"-"})
+                    }
+                }
+            };
+
+            elementDefinition.Parameter.Add(newParameter);
+            this.viewModel.AddRows(new List<Thing> { newParameter });
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(6));
+
+            var parameterValueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                Published = new ValueArray<string>(new[] { "-" }),
+                Computed = new ValueArray<string>(new[] { "-" })
+            };
+
+            newParameter.ValueSet.Add(parameterValueSet);
+            this.viewModel.AddRows(new List<Thing> { parameterValueSet });
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(7));
+
+            parameterValueSet.Published[0] = "a text";
+            this.viewModel.UpdateRows(new List<Thing> { parameterValueSet });
+            Assert.That(this.viewModel.Rows.Items.Last().PublishedValue, Is.EqualTo("a text"));
+
+            this.viewModel.RemoveRows(new List<Thing> { parameterValueSet });
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(6));
+
+            this.viewModel.RemoveRows(new List<Thing> { newParameter });
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(5));
+
+            this.viewModel.RemoveRows(new List<Thing> { elementDefinition });
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
+
+            Assert.That(() => this.viewModel.UpdateRows(new List<Thing>{elementDefinition}), Throws.Nothing);
+        }
     }
 }

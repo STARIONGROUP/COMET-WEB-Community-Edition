@@ -48,12 +48,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
-        /// Set the <see cref="CompoundParameterTypeEditorViewModel"/> to show in the popup
-        /// </summary>
-        /// <param name="compoundParameterTypeEditorViewModel">A collection of <see cref="CompoundParameterTypeEditorViewModel" /></param>
-        void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel);
-
-        /// <summary>
         /// Indicates if confirmation popup is visible
         /// </summary>
         bool IsOnEditMode { get; set; }
@@ -80,5 +74,23 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="selectedParameterType">The selected <see cref="ParameterType"/></param>
         /// <param name="isOwnedParameters">Value asserting that the only <see cref="Thing"/> owned by the current <see cref="DomainOfExpertise"/> should be visible</param>
         void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, ParameterType selectedParameterType, bool isOwnedParameters);
+
+        /// <summary>
+        /// Remove rows related to a <see cref="Thing"/> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="Thing"/></param>
+        void RemoveRows(IEnumerable<Thing> deletedThings);
+
+        /// <summary>
+        /// Add rows related to <see cref="Thing"/> that has been added
+        /// </summary>
+        /// <param name="addedThings">A collection of added <see cref="Thing"/></param>
+        void AddRows(IEnumerable<Thing> addedThings);
+
+        /// <summary>
+        /// Updates rows related to <see cref="Thing"/> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="Thing"/></param>
+        void UpdateRows(IEnumerable<Thing> updatedThings);
     }
 }

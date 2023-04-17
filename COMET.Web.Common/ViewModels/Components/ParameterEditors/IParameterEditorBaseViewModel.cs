@@ -34,13 +34,13 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     /// <summary>
     /// Base interface for all the interfaces of type <i>ParameterTypeEditorViewModel</i>
     /// </summary>
-    public interface IParameterEditorBaseViewModel<T> : IHaveValueSetViewModel, IHaveReadOnlyStateViewModel where T : ParameterType
+    public interface IParameterEditorBaseViewModel<out T> : IHaveValueSetViewModel, IHaveReadOnlyStateViewModel where T : ParameterType
     {
         /// <summary>
         /// Gets or sets the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> for this
         /// <see cref="IParameterEditorBaseViewModel{T}" />
         /// </summary>
-        T ParameterType { get; set; }
+        T ParameterType { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="EventCallback{T}" /> for when the parameter value has changed
@@ -55,7 +55,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets the index of the value changed in the value sets
         /// </summary>
-        int ValueArrayIndex { get; set; }
+        int ValueArrayIndex { get; }
 
         /// <summary>
         /// Gets the associated <see cref="ParameterOrOverrideBase" />
@@ -65,13 +65,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// The validation messages to display
         /// </summary>
-        string ValidationMessage { get; set; }
-
-        /// <summary>
-        /// Verifies if the changing value is valid
-        /// </summary>
-        /// <param name="value">The value to validate </param>
-        bool AreChangesValid(object value);
+        string ValidationMessage { get; }
 
         /// <summary>
         /// Event for when a parameter's value has changed

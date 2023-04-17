@@ -47,5 +47,11 @@ namespace COMET.Web.Common.ViewModels.Components
         /// </summary>
         /// <param name="parameterSwitchKind">The <see cref="ParameterSwitchKind" /></param>
         void UpdateParameterSwitchKind(ParameterSwitchKind parameterSwitchKind);
+
+        /// <summary>
+        /// Updates this view model properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        void UpdateProperties( bool readOnly);
     }
 }

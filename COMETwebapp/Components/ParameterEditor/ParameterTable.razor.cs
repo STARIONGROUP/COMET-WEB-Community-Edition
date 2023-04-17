@@ -24,12 +24,15 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
-    using CDP4Common.EngineeringModelData;
+    using System.Collections.ObjectModel;
 
+    using COMETwebapp.Comparer;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -37,6 +40,16 @@ namespace COMETwebapp.Components.ParameterEditor
     /// </summary>
     public partial class ParameterTable
     {
+        /// <summary>
+        /// The <see cref="ParameterBaseRowViewModelComparer" />
+        /// </summary>
+        private ParameterBaseRowViewModelComparer comparer = new();
+
+        /// <summary>
+        /// The sorted collection of <see cref="ParameterBaseRowViewModel" />
+        /// </summary>
+        private ReadOnlyObservableCollection<ParameterBaseRowViewModel> sortedCollection;
+
         /// <summary>
         /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
@@ -52,9 +65,12 @@ namespace COMETwebapp.Components.ParameterEditor
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
-                            .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            
-            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe( _ => this.InvokeAsync(this.StateHasChanged)));
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.ViewModel.Rows.Connect()
+                .Sort(this.comparer)
+                .Bind(out this.sortedCollection)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

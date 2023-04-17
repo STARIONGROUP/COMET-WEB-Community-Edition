@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterBaseRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -40,13 +40,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     /// <summary>
     /// ViewModel for the rows asociated to a <see cref="ParameterBase" />
     /// </summary>
-    public class ParameterBaseRowViewModel : DisposableObject, IParameterBaseRowViewModel
+    public class ParameterBaseRowViewModel : DisposableObject
     {
-        /// <summary>
-        /// Value asserting that the <see cref="ParameterBaseRowViewModel" /> is readonly
-        /// </summary>
-        private readonly bool isReadOnly;
-
         /// <summary>
         /// Gets or sets the <see cref="ISessionService" />
         /// </summary>
@@ -61,13 +56,37 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="valueSet">the valueSet of the parameter</param>
         public ParameterBaseRowViewModel(ISessionService sessionService, bool isReadOnly, ParameterBase parameterBase, IValueSet valueSet)
         {
-            this.isReadOnly = isReadOnly;
             this.sessionService = sessionService;
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
             this.ParameterType = this.Parameter.ParameterType;
+            this.ValueSet = valueSet;
+
+            this.InitializesProperties(isReadOnly);
+
+            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(this.Switch, this.IsReadOnly)
+            {
+                OnUpdate = new EventCallbackFactory().Create(this, this.UpdateParameterValueSwitch)
+            };
+
+            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, this.IsReadOnly)
+            {
+                ParameterValueChanged = new EventCallbackFactory().Create<IValueSet>(this, this.OnParameterValueChanged)
+            };
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ParameterSwitchKindSelectorViewModel.SwitchValue)
+                .Subscribe(_ => this.OnParameterValueSwitchChanged()));
+        }
+
+        /// <summary>
+        /// Initializes this row view model properties
+        /// </summary>
+        /// <param name="isReadOnly">Value asserting if this row view model should be readonly or not</param>
+        private void InitializesProperties(bool isReadOnly)
+        {
+            this.IsReadOnly = isReadOnly;
             this.ParameterName = this.Parameter.ParameterType is not null ? this.Parameter.ParameterType.Name : string.Empty;
 
-            if (valueSet is ParameterValueSetBase valueSetBase)
+            if (this.ValueSet is ParameterValueSetBase valueSetBase)
             {
                 this.PublishedValue = valueSetBase.Published.First();
 
@@ -79,36 +98,27 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
             this.OwnerName = this.Parameter.Owner is not null ? this.Parameter.Owner.ShortName : string.Empty;
             this.ModelCode = this.Parameter.ModelCode();
-            this.ElementBaseName = (parameterBase.Container as ElementBase)?.Name;
-            this.ValueSet = valueSet;
+            this.ElementBaseName = (this.Parameter.Container as ElementBase)?.Name;
             this.ValueSetId = (this.ValueSet as ParameterValueSetBase)?.Iid ?? Guid.Empty;
-            this.Option = valueSet.ActualOption is not null ? valueSet.ActualOption?.Name : string.Empty;
-            this.State = valueSet.ActualState is not null ? valueSet.ActualState.Name : string.Empty;
-            this.Switch = valueSet.ValueSwitch;
-
-            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(this.Switch, isReadOnly)
-            {
-                OnUpdate = new EventCallbackFactory().Create(this, this.UpdateParameterValueSwitch)
-            };
-
-            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, isReadOnly)
-            {
-                ParameterValueChanged = new EventCallbackFactory().Create<IValueSet>(this, this.OnParameterValueChanged)
-            };
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ParameterSwitchKindSelectorViewModel.SwitchValue)
-                .Subscribe(_ => this.OnParameterValueSwitchChanged()));
+            this.Option = this.ValueSet.ActualOption is not null ? this.ValueSet.ActualOption?.Name : string.Empty;
+            this.State = this.ValueSet.ActualState is not null ? this.ValueSet.ActualState.Name : string.Empty;
+            this.Switch = this.ValueSet.ValueSwitch;
         }
 
         /// <summary>
-        /// The <see cref="Guid" /> of the represented <see cref="IValueSet" />
+        /// Value asserting that the <see cref="ParameterBaseRowViewModel" /> is readonly
         /// </summary>
-        public Guid ValueSetId { get; }
+        public bool IsReadOnly { get; private set; }
 
         /// <summary>
         /// Gets the published value
         /// </summary>
-        public string PublishedValue { get; }
+        public Guid ValueSetId { get; private set; }
+
+        /// <summary>
+        /// Gets the published value
+        /// </summary>
+        public string PublishedValue { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
@@ -118,27 +128,27 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets or sets the <see cref="ParameterBase" /> for this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
-        public ParameterBase Parameter { get; }
+        public ParameterBase Parameter { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ParameterType" /> for this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
-        public ParameterType ParameterType { get; set; }
+        public ParameterType ParameterType { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ElementBase" /> used for grouping this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
-        public string ElementBaseName { get; }
+        public string ElementBaseName { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="Parameter" /> type name
         /// </summary>
-        public string ParameterName { get; }
+        public string ParameterName { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="Parameter" /> owner name
         /// </summary>
-        public string OwnerName { get; }
+        public string OwnerName { get; private set; }
 
         /// <summary>
         /// Gets the switch for the published value
@@ -148,22 +158,22 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="Parameter" /> model code
         /// </summary>
-        public string ModelCode { get; }
+        public string ModelCode { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="Option" /> name this <see cref="Parameter" /> is dependant on
         /// </summary>
-        public string Option { get; }
+        public string Option { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ActualFiniteState" /> name this <see cref="Parameter" /> is dependant on
         /// </summary>
-        public string State { get; }
+        public string State { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IValueSet" /> of this <see cref="ParameterBaseRowViewModel" />
         /// </summary>
-        public IValueSet ValueSet { get; }
+        public IValueSet ValueSet { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
@@ -171,12 +181,23 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IParameterSwitchKindSelectorViewModel ParameterSwitchKindSelectorViewModel { get; }
 
         /// <summary>
+        /// Update this row view model properties 
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        public void UpdateProperties(bool readOnly)
+        {
+            this.InitializesProperties(readOnly);
+            this.ParameterTypeEditorSelectorViewModel.UpdateProperties(this.IsReadOnly);
+            this.ParameterSwitchKindSelectorViewModel.UpdateProperties(this.Switch, this.IsReadOnly);
+        }
+
+        /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
         /// <returns>an asynchronous operation</returns>
         private async Task OnParameterValueChanged(IValueSet value)
         {
-            if (!this.isReadOnly && value is ParameterValueSetBase parameterValueSetBase)
+            if (!this.IsReadOnly && value is ParameterValueSetBase parameterValueSetBase)
             {
                 await this.sessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { parameterValueSetBase });
             }
@@ -188,7 +209,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <returns>A <see cref="Task" /></returns>
         private void OnParameterValueSwitchChanged()
         {
-            if (!this.isReadOnly)
+            if (!this.IsReadOnly)
             {
                 this.ParameterTypeEditorSelectorViewModel.UpdateSwitchKind(this.ParameterSwitchKindSelectorViewModel.SwitchValue);
             }
@@ -200,7 +221,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <returns></returns>
         private async Task UpdateParameterValueSwitch()
         {
-            if (!this.isReadOnly && this.ParameterSwitchKindSelectorViewModel.SwitchValue != this.ValueSet.ValueSwitch && this.ValueSet is ParameterValueSetBase parameterValueSetBase)
+            if (!this.IsReadOnly && this.ParameterSwitchKindSelectorViewModel.SwitchValue != this.ValueSet.ValueSwitch && this.ValueSet is ParameterValueSetBase parameterValueSetBase)
             {
                 var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                 clonedParameterValueSet.ValueSwitch = this.ParameterSwitchKindSelectorViewModel.SwitchValue;

@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -61,7 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             var uri = new Uri("http://localhost");
-            var domain = new DomainOfExpertise() { Iid = Guid.NewGuid()};
+            var domain = new DomainOfExpertise() { Iid = Guid.NewGuid() };
             var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
             var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
             var elementUsage3 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element3" };
@@ -80,8 +81,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                         ParameterType = new TextParameterType
                         {
                             Name = "textParamType"
-                        }, 
-                        ValueSet = 
+                        },
+                        ValueSet =
                         {
                             new ParameterValueSet()
                             {
@@ -200,6 +201,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             };
 
             this.iteration = new Iteration();
+            this.iteration.Iid = Guid.NewGuid();
             this.iteration.TopElement = topElement;
             this.iteration.Element.AddRange(new List<ElementDefinition> { topElement, elementDefinition1, elementDefinition2, elementDefinition3, elementDefinition4 });
             this.iteration.Option.Add(new Option(Guid.NewGuid(), cache, uri));
@@ -249,8 +251,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ElementSelector.SelectedElementBase = this.viewModel.ElementSelector.AvailableElements.First();
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption, 
-                    this.viewModel.ElementSelector.SelectedElementBase, null, true), Times.Once);
+            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption, this.viewModel.ElementSelector.SelectedElementBase, null, true), Times.Once);
 
             this.viewModel.ElementSelector.SelectedElementBase = null;
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
@@ -275,6 +276,53 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.Option.Last(),
                 null, null, false), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyRefresh()
+        {
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            
+            Assert.Multiple(() =>
+            {
+                this.tableViewModel.Verify(x => x.AddRows(It.IsAny<IEnumerable<Thing>>()), Times.Never);
+                this.tableViewModel.Verify(x => x.RemoveRows(It.IsAny<IEnumerable<Thing>>()), Times.Never);
+                this.tableViewModel.Verify(x => x.UpdateRows(It.IsAny<IEnumerable<Thing>>()), Times.Never);
+            });
+
+            var elementDefinition = new ElementDefinition()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            this.iteration.Element.Add(elementDefinition);
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            this.tableViewModel.Verify(x => x.AddRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Updated);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            this.tableViewModel.Verify(x => x.UpdateRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Removed);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
+
+            CDPMessageBus.Current.SendObjectChangeEvent(new ElementDefinition()
+            {
+                Container = new Iteration()
+            }, EventKind.Removed);
+
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
         }
     }
 }
