@@ -20,6 +20,7 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Model
+@using CDP4Common.SiteDirectoryData
 
 <div class="row font-weight-bold">@this.ElementName - @this.ParameterName</div>
 <div class="row p-1 m-top-10px">
@@ -31,13 +32,22 @@
             </DxChartArgumentAxis>
             <DxChartValueAxis ValueType="ChartAxisDataType.DateTime">
                 <DxChartAxisTitle Text="Date" />
-                <DxChartAxisLabel Format="ChartElementFormat.ShortDate"/>
+                <DxChartAxisLabel Format="@(this.ParameterSubscriptionRow.Parameter.ParameterType is DateParameterType ? ChartElementFormat.ShortDate : ChartElementFormat.ShortDateShortTime)" />
             </DxChartValueAxis>
             <DxChartLineSeries ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
                                ValueField="@(p => p.ActualValue)">
-                <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:dd/MM/yyyy}">
-                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
-                </DxChartSeriesLabel>
+                @if (this.ParameterSubscriptionRow.Parameter.ParameterType is DateParameterType)
+                {
+                    <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:dd/MM/yyyy}">
+                        <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                    </DxChartSeriesLabel>
+                }
+                else
+                {
+                    <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:dd/MM/yyyy,hh:mm:ss}">
+                        <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                    </DxChartSeriesLabel>
+                }
             </DxChartLineSeries>
         </DxChart>
     </div>
