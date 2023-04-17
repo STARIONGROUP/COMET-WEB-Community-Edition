@@ -14,7 +14,7 @@
       <PackageId>COMET.WEB.Common.Test</PackageId>
       <AssemblyTitle>COMET.WEB.Common.Test</AssemblyTitle>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-      <Authors>Sam, Alex, Alexander, Antoine</Authors>
+      <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
       <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
 
