@@ -28,7 +28,14 @@
             HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
             CssClass="topmenu">
         <TitleTemplate>
-            <TopMenuTitle/>
+            @if (this.RegistrationService.CustomHeader != null)
+            {
+                <DynamicComponent Type="@this.RegistrationService.CustomHeader"/>
+            }
+            else
+            {
+                <TopMenuTitle/>
+            }
         </TitleTemplate>
         <Items>
             <ApplicationMenu />

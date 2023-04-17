@@ -278,7 +278,24 @@ namespace COMET.Web.Common.Tests.Shared
             Assert.That(navigationManager.Uri, Does.Not.EndWith("AnUrl"));
         }
 
+        [Test]
+        public void VerifyCustomTitleHeader()
+        {
+            this.registrationService.Setup(x => x.CustomHeader).Returns(typeof(CustomHeader));
+            var renderer = this.context.RenderComponent<TopMenu>();
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => renderer.FindComponent<TopMenuTitle>(), Throws.Exception);
+                Assert.That(() => renderer.FindComponent<CustomHeader>(), Throws.Nothing);
+            });
+        }
+
         private class TestAuthorizedMenuEntry : AuthorizedMenuEntry
+        {
+        }
+
+        private class CustomHeader: MenuEntryBase
         {
         }
     }

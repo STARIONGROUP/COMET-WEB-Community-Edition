@@ -47,8 +47,13 @@ namespace COMET.Web.Common.Model
         /// <summary>
         /// A collection of <see cref="Type" /> that should be added inside the Top Menu.
         /// </summary>
-        /// <remarks>Only subtypes of <see cref="AuthorizedMenuEntry" /> are compatible</remarks>
+        /// <remarks>Only subtypes of <see cref="MenuEntryBase" /> are compatible</remarks>
         public List<Type> AdditionalMenuEntries { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the <see cref="Type"/> to have a custom header title
+        /// </summary>
+        public Type CustomHeaderTitle { get; set; }
     }
 }
  
