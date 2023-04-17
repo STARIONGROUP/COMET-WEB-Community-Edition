@@ -40,7 +40,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Services.SubscriptionService;

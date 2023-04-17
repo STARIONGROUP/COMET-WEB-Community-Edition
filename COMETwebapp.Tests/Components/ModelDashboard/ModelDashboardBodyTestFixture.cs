@@ -40,7 +40,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Components.ModelDashboard;

@@ -44,7 +44,7 @@ namespace COMET.Web.Common.Tests.Shared
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Shared;
     using COMET.Web.Common.Shared.TopMenuEntry;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
     using DevExpress.Blazor;

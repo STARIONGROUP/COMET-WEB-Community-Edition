@@ -26,7 +26,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PopUps
 {
     using Bunit;
 
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Viewer.PopUps;
 

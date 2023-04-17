@@ -30,7 +30,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components.ParameterTypeEditors;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;

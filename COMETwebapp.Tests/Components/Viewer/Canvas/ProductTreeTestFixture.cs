@@ -28,7 +28,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using Bunit;
 
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Enumerations;

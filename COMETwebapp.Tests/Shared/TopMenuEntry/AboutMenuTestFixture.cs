@@ -27,7 +27,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
     using Bunit;
 
     using COMET.Web.Common.Services.VersionService;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Shared;
     using COMETwebapp.Shared.TopMenuEntry;

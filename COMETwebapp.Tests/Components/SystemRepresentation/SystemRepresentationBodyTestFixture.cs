@@ -35,7 +35,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using CDP4Dal.DAL;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Utilities;
