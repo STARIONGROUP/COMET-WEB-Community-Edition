@@ -38,13 +38,13 @@
                                ValueField="@(p => p.ActualValue)">
                 @if (this.ParameterSubscriptionRow.Parameter.ParameterType is DateParameterType)
                 {
-                    <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:dd/MM/yyyy}">
+                    <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:MM/dd/yyyy}">
                         <DxChartSeriesLabelConnector Visible="true" Width="3" />
                     </DxChartSeriesLabel>
                 }
                 else
                 {
-                    <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:dd/MM/yyyy,hh:mm:ss}">
+                    <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:MM/dd/yyyy,hh:mm:ss}">
                         <DxChartSeriesLabelConnector Visible="true" Width="3" />
                     </DxChartSeriesLabel>
                 }
