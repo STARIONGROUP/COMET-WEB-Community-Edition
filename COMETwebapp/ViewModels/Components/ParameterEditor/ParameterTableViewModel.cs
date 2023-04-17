@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor
 {
-    using System.Reactive.Linq;
-
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -34,11 +32,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using COMETwebapp.Extensions;
-    using COMETwebapp.Utilities;
 
     using DynamicData;
 
@@ -101,8 +99,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ParameterTableViewModel(ISessionService sessionService)
         {
             this.Disposables.Add(CDPMessageBus.Current.Listen<CompoundComponentSelectedEvent>()
-                .Select(x => x.CompoundParameterTypeEditorViewModel)
-                .Subscribe(this.HandleComponentSelected));
+                .Subscribe(x => this.HandleComponentSelected(x.CompoundParameterTypeEditorViewModel)));
 
             this.sessionService = sessionService;
             this.permissionService = this.sessionService.Session.PermissionService;
