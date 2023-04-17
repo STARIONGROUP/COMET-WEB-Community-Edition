@@ -274,6 +274,68 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         }
 
         [Test]
+        public async Task VerifyDateParameterEvolutionComponent()
+        {
+            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+                parameters.Add(p => p.ViewModel, this.viewModel.Object));
+
+            Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
+
+            var element = new ElementDefinition();
+
+
+            var dateParameterType = new DateParameterType
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var parameter = new Parameter()
+            {
+                Iid = Guid.NewGuid(),
+                ParameterType = dateParameterType,
+                ValueSet =
+                {
+                    new ParameterValueSet()
+                    {
+                        Published = new ValueArray<string>(new[]{"-"}),
+                    }
+                }
+            };
+
+            var parameterSubscription = new ParameterSubscription()
+            {
+                Owner = new DomainOfExpertise(),
+                ValueSet =
+                {
+                    new ParameterSubscriptionValueSet()
+                    {
+                        SubscribedValueSet = parameter.ValueSet.First()
+                    }
+                }
+            };
+
+            parameter.ParameterSubscription.Add(parameterSubscription);
+            element.Parameter.Add(parameter);
+
+            this.rows.Add(new ParameterSubscriptionRowViewModel(parameterSubscription, null, null));
+            Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Nothing);
+
+            var row = this.rows.Items.First();
+            row.Changes[0] = new ValueArray<string>(new[] { "-" });
+            row.Changes[1] = new ValueArray<string>(new[] { "17/04/2023" });
+
+            renderer.Render();
+            var expandButton = renderer.FindComponent<DxButton>();
+            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
+
+            await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            var parameterEvolution = renderer.FindComponent<DateParameterEvolution>();
+
+            Assert.That(parameterEvolution.Instance.ParameterSubscriptionRow, Is.Not.Null);
+        }
+
+        [Test]
         public async Task VerifyCompoundParameterEvolutionComponent()
         {
             var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>

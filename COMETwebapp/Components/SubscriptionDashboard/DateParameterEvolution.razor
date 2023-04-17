@@ -19,29 +19,26 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.SiteDirectoryData;
+@using COMETwebapp.Model
 
-@{
-    switch (this.ParameterSubscriptionRow.Parameter.ParameterType)
-    {
-        case BooleanParameterType:
-            <BooleanParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        case EnumerationParameterType:
-            <EnumerationParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        case DateParameterType:
-            <DateParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        case CompoundParameterType:
-            <CompoundParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-
-        default:
-            <SubscribedParameterEvolution ParameterSubscriptionRow="@this.ParameterSubscriptionRow" />
-            break;
-    }
-}
+<div class="row font-weight-bold">@this.ElementName - @this.ParameterName</div>
+<div class="row p-1 m-top-10px">
+    <div class="col-11 p-0">
+        <DxChart Data="@this.RevisionHistories" CustomizeSeriesPoint="@this.PreparePointLabel">
+            <DxChartLegend Visible="false" />
+            <DxChartArgumentAxis>
+                <DxChartAxisTitle Text="Revision Number" />
+            </DxChartArgumentAxis>
+            <DxChartValueAxis ValueType="ChartAxisDataType.DateTime">
+                <DxChartAxisTitle Text="Date" />
+                <DxChartAxisLabel Format="ChartElementFormat.ShortDate"/>
+            </DxChartValueAxis>
+            <DxChartLineSeries ArgumentField="@((RevisionHistory p) => p.RevisionNumber)"
+                               ValueField="@(p => p.ActualValue)">
+                <DxChartSeriesLabel Position="RelativePosition.Outside" FormatPattern="{value:dd/MM/yyyy}">
+                    <DxChartSeriesLabelConnector Visible="true" Width="3" />
+                </DxChartSeriesLabel>
+            </DxChartLineSeries>
+        </DxChart>
+    </div>
+</div>
