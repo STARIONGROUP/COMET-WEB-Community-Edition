@@ -381,7 +381,6 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             var element = new ElementDefinition();
 
-
             var dateParameterType = new DateParameterType
             {
                 Iid = Guid.NewGuid()
