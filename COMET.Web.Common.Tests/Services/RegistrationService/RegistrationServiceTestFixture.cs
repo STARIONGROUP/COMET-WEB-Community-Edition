@@ -27,6 +27,7 @@ namespace COMET.Web.Common.Tests.Services.RegistrationService
 {
     using System.Reflection;
 
+    using COMET.Web.Common.Components;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.RegistrationService;
 
@@ -46,6 +47,7 @@ namespace COMET.Web.Common.Tests.Services.RegistrationService
             globalOptions.AdditionalAssemblies.Add(Assembly.GetCallingAssembly());
             globalOptions.AdditionalMenuEntries.Add(typeof(RegistrationServiceTestFixture));
             globalOptions.Applications.Add(new Application());
+            globalOptions.CustomHeaderTitle = typeof(ApplicationCard);
 
             var option = new Mock<IOptions<GlobalOptions>>();
             option.Setup(x => x.Value).Returns(globalOptions);
@@ -57,6 +59,7 @@ namespace COMET.Web.Common.Tests.Services.RegistrationService
                 Assert.That(registrationService.RegisteredApplications, Has.Count.EqualTo(1));
                 Assert.That(registrationService.RegisteredAssemblies, Has.Count.EqualTo(1));
                 Assert.That(registrationService.RegisteredAuthorizedMenuEntries, Has.Count.EqualTo(1));
+                Assert.That(registrationService.CustomHeader, Is.Not.Null);
             });
         }
     }

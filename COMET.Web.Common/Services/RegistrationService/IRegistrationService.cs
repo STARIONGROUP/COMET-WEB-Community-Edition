@@ -49,5 +49,10 @@ namespace COMET.Web.Common.Services.RegistrationService
         /// Gets the <see cref="IReadOnlyList{T}" /> of registered <see cref="Type" />
         /// </summary>
         IReadOnlyList<Type> RegisteredAuthorizedMenuEntries { get; }
+
+        /// <summary>
+        /// Gets the custom header <see cref="Type"/>, if applicable
+        /// </summary>
+        Type CustomHeader { get; }
     }
 }
