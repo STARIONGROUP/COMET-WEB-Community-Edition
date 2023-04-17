@@ -34,7 +34,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
     using COMET.Web.Common.Components.ParameterTypeEditors;
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using Moq;

@@ -31,7 +31,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components.Forms;

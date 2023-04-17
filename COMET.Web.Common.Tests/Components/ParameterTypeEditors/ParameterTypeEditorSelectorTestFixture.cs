@@ -31,7 +31,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components.ParameterTypeEditors;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;

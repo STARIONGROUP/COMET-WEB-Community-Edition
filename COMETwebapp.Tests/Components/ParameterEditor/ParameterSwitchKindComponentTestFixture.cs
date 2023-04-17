@@ -29,7 +29,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Components.Selectors;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using DevExpress.Blazor;

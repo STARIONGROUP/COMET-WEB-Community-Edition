@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\COMET.Web.Common.Tests\COMET.Web.Common.Tests.csproj" />
+    <ProjectReference Include="..\COMET.Web.Common.Test\COMET.Web.Common.Test.csproj" />
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />
   </ItemGroup>
 

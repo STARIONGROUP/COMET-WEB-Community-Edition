@@ -36,7 +36,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 

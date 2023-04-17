@@ -12,11 +12,12 @@
         <PackageId>COMET.WEB.Common</PackageId>
         <AssemblyTitle>COMET.WEB.Common</AssemblyTitle>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <Authors>Sam, Alex, Alexander, Antoine</Authors>
+        <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>

@@ -42,7 +42,7 @@ namespace COMET.Web.Common.Tests.Pages
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
-    using COMET.Web.Common.Tests.Helpers;
+    using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Pages;
