@@ -26,7 +26,7 @@
 @using CDP4Common.Types
 @inherits DisposableComponent
 
-<DxPopup MaxWidth="1400" MaxHeight="800" HeaderText="Parameter Subscription Evolution" ShowFooter="false" @ref="@this.parameterEvolutionPopup">
+<DxPopup MaxWidth="1000" MaxHeight="800" HeaderText="Parameter Subscription Evolution" Scrollable=true ShowFooter="false" @ref="@this.parameterEvolutionPopup">
     <ParameterEvolutionSelector ParameterSubscriptionRow="this.parameterSubscriptionRow" />
 </DxPopup>
 

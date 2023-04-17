@@ -1,0 +1,122 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData;
+@using COMETwebapp.Model
+
+@if(this.ParameterSubscriptionRow.Parameter.ParameterType is ArrayParameterType arrayParameterType)
+{
+    if (arrayParameterType.Dimension.Count > 2)
+    {
+        <DxToolbar ItemClick="@this.OnItemClick">
+            <Items>
+                @for (var dimension = 1; dimension < arrayParameterType.Dimension[0] + 1; dimension++)
+                {
+                    <DxToolbarItem Name="@(dimension.ToString())" Text="@(dimension.ToString())" Tooltip="@(dimension.ToString())" />
+                }
+            </Items>
+        </DxToolbar>
+
+        <DxGridLayout CssClass="w-100 ch-480">
+            <Rows>
+                @for (var row = 0; row < arrayParameterType.Dimension[1]; row++)
+                {
+                    <DxGridLayoutRow Height="auto" />
+                }
+            </Rows>
+            <Columns>
+                @for (var column = 0; column < arrayParameterType.Dimension[2]; column++)
+                {
+                    <DxGridLayoutColumn />
+                }
+            </Columns>
+            <Items>
+                @for (var n = 0; n < arrayParameterType.Dimension[1]; n++)
+                {
+                    @for (var m = 0; m < arrayParameterType.Dimension[2]; m++)
+                    {
+                        var index = ((int.Parse(selectedDimension) - 1) * (arrayParameterType.Dimension[1] * arrayParameterType.Dimension[2])) + (n * arrayParameterType.Dimension[2]) + m;
+                        var x = n + 1;
+                        var y = m + 1;
+                        var z = selectedDimension;
+                        <DxGridLayoutItem Row="n" Column="m" CssClass="p-30">
+                            <Template>
+                                <div class="gridlayout-header gridlayout-item">
+                                    @{
+                                        <div>{@z,@x,@y}</div>
+                                        var parameterSubscription = this.ParameterSubscriptions.ToList()[index];
+                                        <ParameterEvolutionSelector ParameterSubscriptionRow=parameterSubscription />
+                                    }
+                                </div>
+                            </Template>
+                        </DxGridLayoutItem>
+                    }
+                }
+            </Items>
+        </DxGridLayout>
+    }
+    else
+    {
+        <DxGridLayout CssClass="w-100 ch-480">
+            <Rows>
+                @for (var row = 0; row < arrayParameterType.Dimension[0]; row++)
+                {
+                    <DxGridLayoutRow Height="auto" />
+                }
+            </Rows>
+            <Columns>
+                @for (var column = 0; column < arrayParameterType.Dimension[1]; column++)
+                {
+                    <DxGridLayoutColumn />
+                }
+            </Columns>
+            <Items>
+                @for (var n = 0; n < arrayParameterType.Dimension[0]; n++)
+                {
+                    @for (var m = 0; m < arrayParameterType.Dimension[1]; m++)
+                    {
+                        var index = n * arrayParameterType.Dimension[1] + m;
+                        var x = n;
+                        var y = m;
+                        <DxGridLayoutItem Row="n" Column="m" CssClass="p-30">
+                            <Template>
+                                <div class="gridlayout-header gridlayout-item">
+                                    @{
+                                        <div>{@x,@y}</div>
+                                        var parameterSubscription = this.ParameterSubscriptions.ToList()[index];
+                                        <ParameterEvolutionSelector ParameterSubscriptionRow=parameterSubscription />
+                                    }
+                                </div>
+                            </Template>
+                        </DxGridLayoutItem>
+                    }
+                }
+            </Items>
+        </DxGridLayout>
+    }
+}
+else
+{
+    @foreach (var parameterSubscription in this.ParameterSubscriptions)
+    {
+        <ParameterEvolutionSelector ParameterSubscriptionRow="parameterSubscription" />
+    }
+}

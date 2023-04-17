@@ -70,12 +70,19 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ParameterSubscriptionRowViewModel" /> class.
+        /// </summary>
+        public ParameterSubscriptionRowViewModel()
+        {
+        }
+
+        /// <summary>
         /// <see cref="Dictionary{TKey,TValue}" /> that reflect changes of the referenced <see cref="ParameterValueSet" />
         /// </summary>
         public Dictionary<int, ValueArray<string>> Changes
         {
             get => this.changes;
-            private set => this.RaiseAndSetIfChanged(ref this.changes, value);
+            set => this.RaiseAndSetIfChanged(ref this.changes, value);
         }
 
         /// <summary>
@@ -124,12 +131,12 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// <summary>
         /// The name of the <see cref="ElementBase" />
         /// </summary>
-        public string ElementName => this.Element.Name;
+        public string ElementName => this.Element?.Name;
 
         /// <summary>
         /// The associated <see cref="ParameterOrOverrideBase" />
         /// </summary>
-        public ParameterOrOverrideBase Parameter { get; }
+        public ParameterOrOverrideBase Parameter { get; set; }
 
         /// <summary>
         /// The name of the <see cref="ParameterType" />
