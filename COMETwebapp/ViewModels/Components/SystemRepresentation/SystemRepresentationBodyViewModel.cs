@@ -188,11 +188,10 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="parent"></param>
         private void CreateTreeRecursively(ElementBase elementBase, SystemNode current, SystemNode parent)
         {
-            var currentDomain = this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
             var childsOfElementBase = elementBase switch
             {
-                ElementDefinition elementDefinition => currentDomain != null ? elementDefinition.ContainedElement.Where(e => e.Owner == currentDomain).ToList() : elementDefinition.ContainedElement,
-                ElementUsage elementUsage => currentDomain != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == currentDomain).ToList() : elementUsage.ElementDefinition.ContainedElement,
+                ElementDefinition elementDefinition => this.CurrentDomain != null ? elementDefinition.ContainedElement.Where(e => e.Owner == this.CurrentDomain).ToList() : elementDefinition.ContainedElement,
+                ElementUsage elementUsage => this.CurrentDomain != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == this.CurrentDomain).ToList() : elementUsage.ElementDefinition.ContainedElement,
                 _ => null
             };
 

@@ -66,10 +66,9 @@ namespace COMETwebapp.Components.SystemRepresentation
         {
             var additionalParameters = new Dictionary<string, string>();
 
-
             if (this.ViewModel.OptionSelector.SelectedOption != null)
             {
-                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
+                additionalParameters[QueryKeys.OptionKey] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
             }
 
             this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.SystemRepresentationPage);
