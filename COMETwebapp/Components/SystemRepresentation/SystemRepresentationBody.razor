@@ -24,27 +24,11 @@
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <div class="row">
         <div class="col">
-            <h6>Filter on Option:</h6>
             <div class="width-fit-content">
-                <DxComboBox Data="this.ViewModel.Options"
-                            AllowUserInput="true"
-                            NullText="--Select--"
-                            Value="this.OptionSelected"
-                            ValueChanged="@((string option) => this.OnOptionFilterChange(option))"
-                            FilteringMode="DataGridFilteringMode.Contains"/>
-            </div>
-            <h6>Filter on Domain:</h6>
-            <div class="width-fit-content">
-                <DxComboBox Data="this.ViewModel.Domains"
-                            AllowUserInput="true"
-                            NullText="--Select--"
-                            Value="this.DomainSelected"
-                            ValueChanged="@((string domain) => this.OnDomainFilterChange(domain))"
-                            FilteringMode="DataGridFilteringMode.Contains"/>
+                <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
             </div>
         </div>
     </div>
-
 
     <div id="gridParent">
         <div id="leftColumn">

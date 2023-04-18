@@ -33,7 +33,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using CDP4Dal;
     using CDP4Dal.DAL;
-
+    using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -136,6 +136,26 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                         }
                     }
                 },
+                TopElement = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                {
+                    Name = "TestElement",
+                    Owner = this.domain,
+                    ShortName = "TE",
+                    ContainedElement =
+                        {
+                            new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                            {
+                                Owner = this.domain,
+                                ShortName = "TEU",
+                                ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                                {
+                                    Name = "TestElementUsage",
+                                    Owner = this.domain,
+                                    ShortName = "TEU"
+                                }
+                            }
+                        }
+                },
                 Container = new EngineeringModel(Guid.NewGuid(), this.assembler.Cache, this.uri)
                 {
                     EngineeringModelSetup = new EngineeringModelSetup(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -213,23 +233,17 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 parameters.Add(p => p.CurrentIteration, this.iteration);
             });
 
-            var filterAndDomainComboBox = renderer.FindComponents<DxComboBox<string, string>>();
-
-            Assert.Multiple(() =>
+            var option1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
-                Assert.That(filterAndDomainComboBox, Is.Not.Null);
-                Assert.That(filterAndDomainComboBox.Count, Is.EqualTo(2));
-            });
+                ShortName = "OPT_1",
+                Name = "Option1"
+            };
 
-            this.viewModel.OnOptionFilterChange("Option1");
+            var optionFilterCombo = renderer.FindComponent<OptionSelector>();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
-            });
+            Assert.That(optionFilterCombo, Is.Not.Null);
 
-            this.viewModel.OnDomainFilterChange(this.domain.Name);
+            this.viewModel.OptionSelector.SelectedOption = option1;
 
             Assert.Multiple(() =>
             {

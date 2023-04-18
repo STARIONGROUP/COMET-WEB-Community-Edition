@@ -25,10 +25,10 @@
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components;
-
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+    
     using COMETwebapp.Model;
 
     /// <summary>
@@ -37,29 +37,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     public interface ISystemRepresentationBodyViewModel: ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
-        /// The selected option
+        /// Gets the <see cref="IOptionSelectorViewModel" />
         /// </summary>
-        Option OptionSelected { get; set; }
-
-        /// <summary>
-        /// Name of the selected domain
-        /// </summary>
-        DomainOfExpertise DomainSelected { get; set; }
-
-        /// <summary>
-        /// List of the names of available <see cref="Option" />
-        /// </summary>
-        List<string> Options { get; set; }
-
-        /// <summary>
-        /// List of the names of available <see cref="DomainOfExpertise" />
-        /// </summary>
-        List<string> Domains { get; set; }
-
-        /// <summary>
-        /// Gets or sets the total of domains in this <see cref="Iteration" />
-        /// </summary>
-        List<DomainOfExpertise> TotalDomains { get; }
+        public IOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
         /// Represents the RootNode of the tree
@@ -82,15 +62,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         List<ElementBase> Elements { get; set; }
 
         /// <summary>
-        /// Updates Elements list when a filter for option is selected
+        /// Apply all the filters on the <see cref="ISystemTreeViewModel" />
         /// </summary>
-        /// <param name="option">Name of the selected Option</param>
-        void OnOptionFilterChange(string option);
-
-        /// <summary>
-        /// Updates Elements list when a filter for domain is selected
-        /// </summary>
-        /// <param name="domain">Name of the selected Domain</param>
-        void OnDomainFilterChange(string domain);
+        /// <returns>A <see cref="Task" /></returns>
+        Task ApplyFilters();
     }
 }

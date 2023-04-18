@@ -25,17 +25,19 @@
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Model;
 
     using Microsoft.AspNetCore.Components;
+    
+    using ReactiveUI;
 
     /// <summary>
     /// View Model that handle the logic for the System Representation application
@@ -52,32 +54,14 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             {
                 OnClick = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
             };
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).SubscribeAsync(_ => this.ApplyFilters()));
         }
 
         /// <summary>
-        /// The selected option
+        /// Gets the <see cref="IOptionSelectorViewModel" />
         /// </summary>
-        public Option OptionSelected { get; set; }
-
-        /// <summary>
-        /// Name of the selected domain
-        /// </summary>
-        public DomainOfExpertise DomainSelected { get; set; }
-
-        /// <summary>
-        /// List of the names of available <see cref="Option" />
-        /// </summary>
-        public List<string> Options { get; set; }
-
-        /// <summary>
-        /// List of the names of available <see cref="DomainOfExpertise" />
-        /// </summary>
-        public List<string> Domains { get; set; }
-
-        /// <summary>
-        /// Gets or sets the total of domains in this <see cref="Iteration" />
-        /// </summary>
-        public List<DomainOfExpertise> TotalDomains { get; private set; }
+        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel(false);
 
         /// <summary>
         /// Represents the RootNode of the tree
@@ -102,15 +86,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="option">Name of the selected Option</param>
-        public void OnOptionFilterChange(string option)
+        /// <param name="selectedOption">the selected <see cref="Option"/></param>
+        public void OnOptionFilterChange(Option selectedOption)
         {
             this.Elements.Clear();
-
-            var totalOptions = this.CurrentIteration.Option.OrderBy(o => o.Name).ToList();
-            this.OptionSelected = totalOptions.FirstOrDefault(o => o.Name == option);
-
-            var nestedElements = this.CurrentIteration.QueryNestedElements(this.OptionSelected).ToList();
+        
+            var nestedElements = this.CurrentIteration.QueryNestedElements(selectedOption).ToList();
 
             var associatedElements = new List<ElementUsage>();
             associatedElements.AddRange(nestedElements.SelectMany(x => x.ElementUsage));
@@ -134,48 +115,36 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// Updates Elements list when a filter for domain is selected
-        /// </summary>
-        /// <param name="domain">Name of the selected Domain</param>
-        public void OnDomainFilterChange(string domain)
-        {
-            if (domain != "All")
-            {
-                this.DomainSelected = this.TotalDomains.FirstOrDefault(d => d.Name == domain);
-            }
-
-            this.Elements.Clear();
-            this.InitializeElements();
-            this.CreateElementUsages(this.Elements);
-            this.SystemTreeViewModel.SystemNodes = new List<SystemNode> { this.RootNode };
-            this.DomainSelected = null;
-        }
-
-        /// <summary>
-        /// Update this view model properties when the <see cref="Iteration" /> has changed
+        /// Update this view model properties
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnIterationChanged()
         {
-            await base.OnIterationChanged();
-
             this.Elements.Clear();
-
-            this.Options = new List<string>();
-            this.Domains = new List<string> { "All" };
-
-            if (this.CurrentIteration == null)
-            {
-                return;
-            }
-
+            await base.OnIterationChanged();
+            this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.InitializeElements();
-
-            this.TotalDomains = this.SessionService.GetModelDomains(this.CurrentIteration.IterationSetup.Container as EngineeringModelSetup).ToList();
-            this.Domains.AddRange(this.TotalDomains.Select(d => d.Name));
-
-            this.Options = this.CurrentIteration.Option.OrderBy(x => x.Name).Select(x => x.Name).ToList();
+            await this.ApplyFilters();
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Handles the change of <see cref="DomainOfExpertise" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnDomainChanged()
+        {
+            await base.OnDomainChanged();
+
+            if (this.CurrentDomain != null)
+            {
+                this.IsLoading = true;
+                await Task.Delay(1);
+               
+                await this.ApplyFilters();
+                
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
@@ -219,10 +188,11 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="parent"></param>
         private void CreateTreeRecursively(ElementBase elementBase, SystemNode current, SystemNode parent)
         {
+            var currentDomain = this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
             var childsOfElementBase = elementBase switch
             {
-                ElementDefinition elementDefinition => this.DomainSelected != null ? elementDefinition.ContainedElement.Where(e => e.Owner == this.DomainSelected).ToList() : elementDefinition.ContainedElement,
-                ElementUsage elementUsage => this.DomainSelected != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == this.DomainSelected).ToList() : elementUsage.ElementDefinition.ContainedElement,
+                ElementDefinition elementDefinition => currentDomain != null ? elementDefinition.ContainedElement.Where(e => e.Owner == currentDomain).ToList() : elementDefinition.ContainedElement,
+                ElementUsage elementUsage => currentDomain != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == currentDomain).ToList() : elementUsage.ElementDefinition.ContainedElement,
                 _ => null
             };
 
@@ -248,6 +218,23 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         {
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
+        }
+
+        /// <summary>
+        /// Apply all the filters on the <see cref="ISystemTreeViewModel" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ApplyFilters()
+        {
+            if (this.CurrentIteration != null)
+            {
+                this.IsLoading = true;
+                await Task.Delay(1);
+
+                this.OnOptionFilterChange(this.OptionSelector.SelectedOption);
+
+                this.IsLoading = false;
+            }
         }
     }
 }
