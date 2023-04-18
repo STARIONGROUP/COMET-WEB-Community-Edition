@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using CDP4Dal;
     using CDP4Dal.DAL;
+    
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -40,8 +41,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-
-    using DevExpress.Blazor;
 
     using Microsoft.Extensions.DependencyInjection;
 
