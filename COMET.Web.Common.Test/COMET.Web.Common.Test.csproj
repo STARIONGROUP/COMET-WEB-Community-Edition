@@ -4,7 +4,7 @@
       <TargetFramework>net7.0</TargetFramework>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Version>1.0.0</Version>
+      <Version>1.0.1</Version>
       <AssemblyVersion>1.0.0</AssemblyVersion>
       <FileVersion>1.0.0</FileVersion>
       <Title>CDP4 WEB Common Test</Title>
@@ -17,8 +17,9 @@
       <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
       <RepositoryType>Git</RepositoryType>
       <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageIcon>cdp4-icon.png</PackageIcon>
       <PackageReleaseNotes>
-          [Intialitial] Reelease
+          [Initial] Release
       </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -29,6 +30,7 @@
 
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\" />
+        <None Include="..\cdp4-icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
