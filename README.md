@@ -1,8 +1,11 @@
 <img src="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/raw/development/COMET-Community-Edition.png" width="250">
 
-The COMET WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C.
+The COMET WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C. The solution provides the following items:
+  - COMET.Web.Common: A Common Library for any Blazor based application related to ECSS-E-TM-10-25. This can be used to develop various ECSS-E-TM-10-25 web applications and is distributed with the APACHE 2.0 license.
+  - COMET.Web.Common.Test: A Common Library that includes DevExpress Blazor and Tasks test helpers and is distributed with the APACHE 2.0 license.
+  - COMETwebapp: The COMET web application which depends on `COMET.Web.Common` and is distributed with the AGPL version 3.0 license.
 
-A demo version of the application is available at https://comet-web.cdp4.org
+A demo version of the web application is available at https://comet-web.cdp4.org
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
@@ -37,7 +40,17 @@ The Concurrent Design method is an approach to design activities in which all de
 
 The Concurrent Design method brings many advantages to the early design phase by providing a structure for this otherwise chaotic phase. Many design concepts have been implemented in the Concurrent Design method to help a team of stakeholders perform their task. The design work is done in collocated sessions with all stakeholders involved and present, creating an integrated design and enabling good communication and exchange of information between team members.
 
-## Build and Deploy using Docker
+## Package Installation
+
+The packages are available on Nuget at:
+
+project                                                                         | Nuget
+------------------------------------------------------------------------------- | ------------
+[COMET.WEB.Common](https://www.nuget.org/packages/COMET.WEB.Common)             | [![NuGet Badge](https://buildstats.info/nuget/COMET.WEB.Common)](https://buildstats.info/nuget/COMET.WEB.Common)
+[COMET.WEB.Common.Test](https://www.nuget.org/packages/COMET.WEB.Common.Test)   | [![NuGet Badge](https://buildstats.info/nuget/COMET.WEB.Common.Test)](https://buildstats.info/nuget/COMET.WEB.Common.Test)
+
+
+## Web Application Build and Deploy using Docker
 
 The COMET-WEB SPA is built using docker and the result is a Docker container ready to be deployed (or pushed to Docker Hub). The Docker file is located in the COMETwebapp project folder.
 
@@ -64,6 +77,8 @@ The COMET-WEB Community Edition make use of the [COMET-SDK](https://github.com/R
 # License
 
 The COMET-WEB Community Edition is provided to the community under the GNU Affero General Public License. The COMET Community Edition relies on open source and proprietary licensed components. Some of these components have a license that is not compatible with the GPL or AGPL. For these components Additional permission under GNU GPL version 3 section 7 are granted. See the license files for the details. The license can be found [here](LICENSE).
+
+The COMET.WEB.Common and COMET.WEB.Common.Test libraries (nuget packages) are provided to the community under the APACHE 2.0 License.
 
 The [RHEA Group](https://www.rheagroup.com) also provides the [COMET Web Services Enterprise Edition](https://github.com/RHEAGROUP/CDP4-WebServices-Community-Edition/wiki/CDP4-Web-Services-Enterprise-Edition) which comes with commercial support and more features. [Contact](https://www.rheagroup.com/contact) us for more details.
 
