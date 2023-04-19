@@ -46,8 +46,8 @@ The packages are available on Nuget at:
 
 project                                                                         | Nuget
 ------------------------------------------------------------------------------- | ------------
-[COMET.WEB.Common](https://www.nuget.org/packages/COMET.WEB.Common)             | [![NuGet Badge](https://buildstats.info/nuget/COMET.WEB.Common)](https://buildstats.info/nuget/COMET.WEB.Common)
-[COMET.WEB.Common.Test](https://www.nuget.org/packages/COMET.WEB.Common.Test)   | [![NuGet Badge](https://buildstats.info/nuget/COMET.WEB.Common.Test)](https://buildstats.info/nuget/COMET.WEB.Common.Test)
+[CDP4.WEB.Common](https://www.nuget.org/packages/CDP4.WEB.Common)             | [![NuGet Badge](https://buildstats.info/nuget/CDP4.WEB.Common)](https://buildstats.info/nuget/CDP4.WEB.Common)
+[CDP4.WEB.Common.Test](https://www.nuget.org/packages/CDP4.WEB.Common.Test)   | [![NuGet Badge](https://buildstats.info/nuget/CDP4.WEB.Common.Test)](https://buildstats.info/nuget/CDP4.WEB.Common.Test)
 
 
 ## Web Application Build and Deploy using Docker
