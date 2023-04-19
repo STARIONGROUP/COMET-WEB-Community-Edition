@@ -2,7 +2,6 @@
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 
-COPY COMET.Web.Common COMET.Web.Common
 COPY COMETwebapp COMETwebapp
 
 RUN --mount=type=secret,id=DEVEXPRESS_NUGET_KEY export DEVEXPRESS_NUGET_KEY=$(cat /run/secrets/DEVEXPRESS_NUGET_KEY) \ 

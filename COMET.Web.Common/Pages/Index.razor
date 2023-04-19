@@ -20,6 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @page "/"
+@using COMET.Web.Common.Utilities
 @inherits DisposableComponent
 
 <AuthorizeView>
@@ -50,7 +51,7 @@
 	<NotAuthorized>
 		<div class="container height-90">
 		<div class="row justify-content-center">
-			<img id="comet-logo" src="_content/COMET.WEB.Common/images/COMET-Logo-large.png" class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition"/>
+				<img id="comet-logo" src=@ContentPathBuilder.BuildPath("images/COMET-Logo-large.png") class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition" />
 		</div>
 		<div class="comet-info row text-align-center justify-content-center">
 			<div class="card width-70">
