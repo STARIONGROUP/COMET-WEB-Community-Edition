@@ -19,9 +19,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
+@using COMET.Web.Common.Utilities
+
 <div class="display-flex align-items-center">
 	<a class="homelink" href="/">
-		<img src="_content/COMET.WEB.Common/images/COMET-Symbol.png" class="logo-size p-1" title="COMET Community Edition" alt="COMET Community Edition"/>
+		<img src=@ContentPathBuilder.BuildPath("images/COMET-Symbol.png") class="logo-size p-1" title="COMET Community Edition" alt="COMET Community Edition" />
 		<div class="font-weight-bold title title-item">COMET Community Edition</div>
 	</a>
 </div>
