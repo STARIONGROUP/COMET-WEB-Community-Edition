@@ -53,6 +53,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         bool IsOnEditMode { get; set; }
 
         /// <summary>
+        /// Value indicating if the <see cref="ElementDefinition"/> is top element
+        /// </summary>
+        bool IsTopElement { get; set; }
+
+        /// <summary>
+        /// The <see cref="ElementDefinition" /> to create or edit
+        /// </summary>
+        ElementDefinition ElementDefinition { get; set; } 
+
+        /// <summary>
         /// Initializes this <see cref="IParameterTableViewModel"/>
         /// </summary>
         /// <param name="currentIteration">The current <see cref="Iteration"/></param>
@@ -65,6 +75,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="currentDomain">The new <see cref="DomainOfExpertise"/></param>
         void UpdateDomain(DomainOfExpertise currentDomain);
+
+        /// <summary>
+        /// A collection of available <see cref="Category" />s
+        /// </summary>
+        IEnumerable<Category> AvailableCategories { get; set; }
+
+        /// <summary>
+        /// A collection of available <see cref="DomainOfExpertise" />s
+        /// </summary>
+        IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
+
+        /// <summary>
+        /// Selected super <see cref="Category" />
+        /// </summary>
+        IEnumerable<Category> SelectedCategories { get; set; }
 
         /// <summary>
         /// Apply filters based on <see cref="Option"/>, <see cref="ElementBase"/>, <see cref="ParameterType"/> and <see cref="DomainOfExpertise"/>
@@ -92,5 +117,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="updatedThings">A collection of updated <see cref="Thing"/></param>
         void UpdateRows(IEnumerable<Thing> updatedThings);
+
+        /// <summary>
+        /// Tries to create a new <see cref="ElementDefinition" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task AddingElementDefinition();
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        void OnInitialized();
     }
 }

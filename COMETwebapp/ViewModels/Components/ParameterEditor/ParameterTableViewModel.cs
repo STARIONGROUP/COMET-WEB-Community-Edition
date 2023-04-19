@@ -63,6 +63,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private ElementBase currentElementBase;
 
         /// <summary>
+        /// The <see cref="ElementDefinition" /> to create or edit
+        /// </summary>
+        public ElementDefinition ElementDefinition { get; set; } = new();
+
+        /// <summary>
+        /// A collection of available <see cref="Category" />s
+        /// </summary>
+        public IEnumerable<Category> AvailableCategories { get; set; } = new List<Category>();
+
+        /// <summary>
+        /// A collection of available <see cref="DomainOfExpertise" />s
+        /// </summary>
+        public IEnumerable<DomainOfExpertise> AvailableDomains { get; set; } = new List<DomainOfExpertise>();
+
+        /// <summary>
         /// The currently selected <see cref="Option" />
         /// </summary>
         private Option currentOption;
@@ -78,6 +93,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private DomainOfExpertise domainOfExpertise;
 
         /// <summary>
+        /// Selected <see cref="Category" />
+        /// </summary>
+        public IEnumerable<Category> SelectedCategories { get; set; } = new List<Category>();
+
+        /// <summary>
         /// Backing field for <see cref="IsOnEditMode" />
         /// </summary>
         private bool isOnEditMode;
@@ -91,6 +111,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Value asserting if only owned <see cref="ParameterOrOverrideBase" /> should be visible
         /// </summary>
         private bool ownedParameters;
+
+        /// <summary>
+        /// Value indicating if the <see cref="ElementDefinition"/> is top element
+        /// </summary>
+        public bool IsTopElement { get; set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="ParameterTableViewModel" />
@@ -380,6 +405,56 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             }
 
             return rows;
+        }
+
+        /// <summary>
+        /// Tries to create a new <see cref="ElementDefinition" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task AddingElementDefinition()
+        {
+            var thingsToCreate = new List<Thing>();
+
+            if (this.SelectedCategories.Any())
+            {
+                this.ElementDefinition.Category = this.SelectedCategories.ToList();
+            }
+
+            this.ElementDefinition.Container = this.iteration;
+            thingsToCreate.Add(this.ElementDefinition);
+            var clonedIteration = this.iteration.Clone(false);
+            
+            if (this.IsTopElement)
+            {
+                clonedIteration.TopElement = this.ElementDefinition;
+            }
+            
+            clonedIteration.Element.Add(this.ElementDefinition);
+            try
+            {
+                await this.sessionService.CreateThings(clonedIteration, thingsToCreate);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        public void OnInitialized()
+        {
+            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
+            {
+                this.AvailableCategories = this.AvailableCategories.Concat(referenceDataLibrary.DefinedCategory);
+            }
+
+            this.AvailableDomains = this.sessionService.Session.RetrieveSiteDirectory().Domain;
         }
     }
 }

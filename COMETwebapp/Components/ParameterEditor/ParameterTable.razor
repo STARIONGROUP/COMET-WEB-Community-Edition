@@ -29,13 +29,19 @@
 </DxPopup>
 
 <div class="container-fluid table-container">
-    <DxGrid CssClass="default-grid"
+    <DxGrid @ref="Grid"
+            CssClass="default-grid"
             ShowAllRows="true"
             Data="@this.sortedCollection"
             SelectionMode="GridSelectionMode.Single"
             AllowSelectRowByClick="false"
             ShowFilterRow="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+            CustomizeEditModel="CustomizeEditElementDefinition"
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Create Element Definition"
+            EditMode="GridEditMode.PopupEditForm"
+            EditModelSaving="this.ViewModel.AddingElementDefinition"
             VerticalScrollBarMode="ScrollBarMode.Visible"
             HorizontalScrollBarMode="ScrollBarMode.Visible">
         <Columns>
@@ -63,6 +69,40 @@
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true"/>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false" >
+                <HeaderTemplate>
+                    <DxButton Id="addElementButton" Text="Add an Element Definition" IconCssClass="oi oi-plus" Click="() => Grid.StartEditNewRowAsync()" />
+                </HeaderTemplate>
+            </DxGridCommandColumn>
         </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutTabPages>
+                    <DxFormLayoutTabPage Caption="Basic">
+                        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.ShortName" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.Name" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+                            <DxComboBox Data="@this.ViewModel.AvailableDomains"
+                                        TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                        @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Is Top Element:" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@this.ViewModel.IsTopElement" />
+                        </DxFormLayoutItem>
+                    </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="Category">
+                        <DxListBox Data="@this.ViewModel.AvailableCategories"
+                                   @bind-Values="@this.ViewModel.SelectedCategories"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   TextFieldName="@nameof(Category.Name)"
+                                   ShowCheckboxes="true" />
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+        </EditFormTemplate>
     </DxGrid>
 </div>
