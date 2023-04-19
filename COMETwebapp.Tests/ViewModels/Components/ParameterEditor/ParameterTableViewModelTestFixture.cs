@@ -35,7 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ParameterEditor;
-
+    
     using Moq;
 
     using NUnit.Framework;

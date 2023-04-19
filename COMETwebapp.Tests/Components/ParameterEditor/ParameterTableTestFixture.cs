@@ -34,10 +34,12 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
+    using DevExpress.Blazor;
+    
     using DynamicData;
 
     using Microsoft.Extensions.DependencyInjection;
-
+    
     using Moq;
 
     using NUnit.Framework;
@@ -95,6 +97,16 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(this.table, Is.Not.Null);
                 Assert.That(this.table.ViewModel, Is.Not.Null);
             });
+        }
+
+        [Test]
+        public async Task VerifyAddingElementDefinition()
+        {
+            var addButton = this.renderedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "addElementButton");
+
+            Assert.That(addButton.Instance, Is.Not.Null);
+            
+            await this.renderedComponent.InvokeAsync(addButton.Instance.Click.InvokeAsync);
         }
     }
 }
