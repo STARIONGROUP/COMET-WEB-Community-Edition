@@ -7,11 +7,11 @@
       <Version>1.0.0</Version>
       <AssemblyVersion>1.0.0</AssemblyVersion>
       <FileVersion>1.0.0</FileVersion>
-      <Title>COMET WEB Common Test</Title>
+      <Title>CDP4 WEB Common Test</Title>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
       <Company>RHEA System S.A.</Company>
       <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
-      <PackageId>CDP4-COMET.WEB.Common.Test</PackageId>
+      <PackageId>CDP4.WEB.Common.Test</PackageId>
       <AssemblyTitle>COMET.WEB.Common.Test</AssemblyTitle>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
       <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>

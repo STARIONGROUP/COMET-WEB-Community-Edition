@@ -5,7 +5,7 @@
         <Version>1.0.0</Version>
         <AssemblyVersion>1.0.0</AssemblyVersion>
         <FileVersion>1.0.0</FileVersion>
-        <Title>COMET WEB Common</Title>
+        <Title>CDP4 WEB Common</Title>
         <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
         <Company>RHEA System S.A.</Company>
         <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
@@ -17,7 +17,6 @@
         <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageReleaseNotes>
             [Intialitial] Reelease
         </PackageReleaseNotes>
