@@ -17,6 +17,9 @@
       <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
       <RepositoryType>Git</RepositoryType>
       <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageReleaseNotes>
+          [Intialitial] Reelease
+      </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
