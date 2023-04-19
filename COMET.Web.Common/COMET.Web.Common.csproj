@@ -18,6 +18,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageReleaseNotes>
+            * Added the Blazor 3D Viewer; fixes #159Refactor []
+            [Add] Retrieve information from a EngineeringModel #fixes 160
+            [Add] Parameters defined in order to create basic shapes. fixes #161
+            [Add] Convert Element Usage in Basic Shape; fixes #163
+            [Add] Added tree to select, hide and show items on scene; fixes #179[Intialitial] Reelease
+        </PackageReleaseNotes>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
@@ -31,7 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
