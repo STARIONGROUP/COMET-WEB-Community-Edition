@@ -11,7 +11,7 @@
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
       <Company>RHEA System S.A.</Company>
       <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
-      <PackageId>COMET.WEB.Common.Test</PackageId>
+      <PackageId>CDP4-COMET.WEB.Common.Test</PackageId>
       <AssemblyTitle>COMET.WEB.Common.Test</AssemblyTitle>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
       <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
