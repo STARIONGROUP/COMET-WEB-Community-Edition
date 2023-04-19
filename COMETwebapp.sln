@@ -11,7 +11,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "COMET.Web.Common", "COMET.W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "COMET.Web.Common.Tests", "COMET.Web.Common.Tests\COMET.Web.Common.Tests.csproj", "{F67F7FD1-8BBE-4BFA-A5CA-D66980971C31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMET.Web.Common.Test", "COMET.Web.Common.Test\COMET.Web.Common.Test.csproj", "{C1BEF589-7A99-4B95-A036-471259115495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "COMET.Web.Common.Test", "COMET.Web.Common.Test\COMET.Web.Common.Test.csproj", "{C1BEF589-7A99-4B95-A036-471259115495}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E28E73C6-940D-4BFB-8554-A278CB70A5D9}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		LICENSE = LICENSE
+		LICENSE-APACHE 2.0 = LICENSE-APACHE 2.0
+		NOTICE = NOTICE
+		Nuget.Config = Nuget.Config
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{12C5B776-C2F8-4B8F-9645-251AE166EDC6}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\codeql.yml = .github\workflows\codeql.yml
+		.github\workflows\CodeQuality.yml = .github\workflows\CodeQuality.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +57,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{12C5B776-C2F8-4B8F-9645-251AE166EDC6} = {E28E73C6-940D-4BFB-8554-A278CB70A5D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9D52BC7D-6DCB-4F8B-BEB4-EB12C03E96EA}
