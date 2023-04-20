@@ -274,9 +274,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public void VerifyOnInitialized()
-        {
+        public async Task VerifyOnInitialized()
+        {            
             var renderer = this.context.RenderComponent<ParameterTypeTable>();
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>
             {

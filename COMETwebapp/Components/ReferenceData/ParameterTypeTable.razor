@@ -17,40 +17,42 @@ Copyright (c) 2023 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @inherits DisposableComponent
 
-<DxGrid @ref="Grid"
-        Data="this.ViewModel.Rows.Items"
-        ShowSearchBox="true"
-        ShowAllRows="true"
-        SearchBoxNullText="Search for a parameter type..."
-        PopupEditFormCssClass="pw-800"
-        PopupEditFormHeaderText="Create Parameter Type"
-        EditMode="GridEditMode.PopupEditForm"
-        CustomizeElement="DisableDeprecatedParameterType">
-    <Columns>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Symbol)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.DefaultScale)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-            <HeaderTemplate>
-                <DxButton Id="addParameterButton" Text="Add Parameter Type" IconCssClass="oi oi-plus" />
-            </HeaderTemplate>
-            <CellDisplayTemplate>
-                @{
-                    var row = (ParameterTypeRowViewModel)context.DataItem;
-                    if (row.IsDeprecated)
-                    {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Enabled=row.IsAllowedToWrite />
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <DxGrid @ref="Grid"
+            Data="this.ViewModel.Rows.Items"
+            ShowSearchBox="true"
+            ShowAllRows="true"
+            SearchBoxNullText="Search for a parameter type..."
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Create Parameter Type"
+            EditMode="GridEditMode.PopupEditForm"
+            CustomizeElement="DisableDeprecatedParameterType">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Symbol)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.DefaultScale)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addParameterButton" Text="Add Parameter Type" IconCssClass="oi oi-plus" />
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (ParameterTypeRowViewModel)context.DataItem;
+                        if (row.IsDeprecated)
+                        {
+                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Enabled=row.IsAllowedToWrite />
+                        }
+                        else
+                        {
+                            <DxButton Id="deprecateButton" Text="Deprecate" Enabled=row.IsAllowedToWrite />
+                        }
                     }
-                    else
-                    {
-                        <DxButton Id="deprecateButton" Text="Deprecate" Enabled=row.IsAllowedToWrite />
-                    }
-                }
-            </CellDisplayTemplate>
-        </DxGridCommandColumn>
-    </Columns>
-</DxGrid>
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+    </DxGrid>
+</LoadingComponent>

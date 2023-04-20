@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     
+    using COMET.Web.Common.ViewModels.Components;
+    
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
@@ -36,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public interface ICategoriesTableViewModel : IDisposable
+    public interface ICategoriesTableViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
         /// The <see cref="Category" /> to create or edit
@@ -116,11 +118,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         Task AddingCategory();
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
+        ///     Method invoked when the component is ready to start, having received its
+        ///     initial parameters from its parent in the render tree.
+        ///     Override this method if you will perform an asynchronous operation and
+        ///     want the component to refresh when that operation is completed.
         /// </summary>
-        void OnInitialized();
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        Task OnInitializedAsync();
     }
 }
