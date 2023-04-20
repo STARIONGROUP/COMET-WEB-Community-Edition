@@ -1,15 +1,3 @@
-﻿#details-header {
-    display: flex;
-    align-items: start;
-    justify-content: start;
-    padding: 2% 3%;
-}
-
-#details-header > p {
-    margin: 0;
-    font-weight: bold;
-}
-
-#details-body {
+﻿#details-body {
     padding: 3%;
 }

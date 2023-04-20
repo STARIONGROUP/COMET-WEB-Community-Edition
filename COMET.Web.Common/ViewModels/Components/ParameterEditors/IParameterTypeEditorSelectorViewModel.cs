@@ -47,6 +47,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
+        /// The <see cref="IHaveValueSetViewModel" />
+        /// </summary>
+        IHaveValueSetViewModel HaveValueSetViewModel { get; }
+
+        /// <summary>
         /// Creates a view model for the corresponding editor
         /// </summary>
         /// <typeparam name="T">the parameter type</typeparam>

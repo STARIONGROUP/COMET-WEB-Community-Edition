@@ -45,6 +45,8 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         [Parameter]
         public IParameterEditorBaseViewModel<BooleanParameterType> ViewModel { get; set; }
 
+
+
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.

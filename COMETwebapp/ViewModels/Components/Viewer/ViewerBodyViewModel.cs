@@ -108,6 +108,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.IsLoading = true;
             await Task.Delay(1);
 
+            this.Disposables.Add(this.WhenAnyValue(x=>x.OptionSelector.SelectedOption)
+                .Subscribe(_ => this.InitializeElementsAndCreateTree()));
+
             this.InitializeElementsAndCreateTree();
             this.IsLoading = false;
         }

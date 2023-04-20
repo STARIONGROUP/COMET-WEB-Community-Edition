@@ -54,7 +54,8 @@
                 <CellDisplayTemplate>
                     @if (context.DataItem is ParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel" />
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel" 
+                                                     BindValueMode="BindValueMode.OnLostFocus"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>

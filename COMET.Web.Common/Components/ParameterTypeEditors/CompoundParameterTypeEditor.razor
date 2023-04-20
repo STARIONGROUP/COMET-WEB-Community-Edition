@@ -43,7 +43,8 @@ else if (this.ViewModel.ValueSet is not null)
                         var index = i;
                         var component = this.ViewModel.ParameterType.Component[i];
                             <DxFormLayoutItem ColSpanMd="12" Caption=@component.ShortName>
-                                <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" />
+                                <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" 
+                                                             BindValueMode="@this.BindValueMode"/>
                             </DxFormLayoutItem>
                     }
                 }
