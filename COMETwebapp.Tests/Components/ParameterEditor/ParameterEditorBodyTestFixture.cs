@@ -72,6 +72,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             var sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory());
             var permissionService = new Mock<IPermissionService>();
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);

@@ -79,6 +79,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.viewModel = new SingleIterationApplicationTemplateViewModel(this.sessionService.Object, new IterationSelectorViewModel());
             this.session = new Mock<ISession>();
             this.session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Iid = Guid.NewGuid() });
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
 

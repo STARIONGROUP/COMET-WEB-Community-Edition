@@ -190,19 +190,20 @@ html, body, #app {
     align-items: center;
     border: 1px solid #ccc;
     display: flex;
-    flex: 1;
     justify-content: center;
+    width:30px;
     top: 4px;
+    border-radius: 3px
 }
 
 .textBoxEllipsis {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 86%;
+    flex-grow: 2
 }
 
-#dropdown-customization-target-container { display: flex; }
+div[id^="dropdown-customization-target-container-"] { display: flex; }
 
 .default-grid {
     height: 100%;

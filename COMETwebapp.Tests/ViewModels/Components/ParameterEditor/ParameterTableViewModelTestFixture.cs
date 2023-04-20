@@ -35,7 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ParameterEditor;
-
+    
     using Moq;
 
     using NUnit.Framework;
@@ -69,6 +69,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 ShortName = "SYS"
             };
 
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Domain = { this.domain } });
+
             var parameterType = new SimpleQuantityKind()
             {
                 Iid = Guid.NewGuid(),
@@ -88,8 +90,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Owner = this.domain,
                 ParameterType = parameterType,
                 Scale = scale,
-                ValueSet = 
-                { 
+                ValueSet =
+                {
                     new ParameterValueSet()
                     {
                         Iid = Guid.NewGuid(),
@@ -177,7 +179,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Iid = Guid.NewGuid(),
                 ElementDefinition = elementDefinition,
                 ParameterOverride = { parameterOverride },
-                ExcludeOption = new List<Option>{option2}
+                ExcludeOption = new List<Option> { option2 }
             };
 
             topElement.ContainedElement.Add(usage1);
@@ -198,7 +200,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         public void VerifyInitializeViewModel()
         {
             this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
-            Assert.That(this.viewModel.Rows.Count, Is.EqualTo(4));
+            this.viewModel.OnInitialized();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(4));
+                Assert.That(this.viewModel.AvailableDomains, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.AvailableCategories, Has.Count.EqualTo(0));
+            });
         }
 
         [Test]
@@ -206,7 +215,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
             var parameterRow = this.viewModel.Rows.Items.First();
-            
+
             Assert.Multiple(() =>
             {
                 Assert.That(parameterRow.OwnerName, Is.EqualTo(this.domain.ShortName));
@@ -271,7 +280,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, this.iteration.Element.Last(), null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption,null, new ArrayParameterType(){Iid = Guid.NewGuid()}, true);
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new ArrayParameterType() { Iid = Guid.NewGuid() }, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(0));
 
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, this.iteration.TopElement.Parameter.First().ParameterType, true);
@@ -301,7 +310,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 ParameterType = booleanParameterType,
-                ValueSet = 
+                ValueSet =
                 {
                     new ParameterValueSet()
                     {
@@ -315,7 +324,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             elementDefinition.Parameter.Add(parameter);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
-            this.viewModel.AddRows(new List<Thing>{elementDefinition});
+            this.viewModel.AddRows(new List<Thing> { elementDefinition });
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(5));
 
             var textParameterType = new TextParameterType()
@@ -367,7 +376,27 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.RemoveRows(new List<Thing> { elementDefinition });
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
-            Assert.That(() => this.viewModel.UpdateRows(new List<Thing>{elementDefinition}), Throws.Nothing);
+            Assert.That(() => this.viewModel.UpdateRows(new List<Thing> { elementDefinition }), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyAddingElementDefinition()
+        {
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+
+            this.viewModel.ElementDefinition = new ElementDefinition
+            {
+                ShortName = "A",
+                Name = "B",
+                Owner = this.domain
+            };
+
+            this.viewModel.SelectedCategories = new List<Category> { new Category { Name = "C" } };
+            this.viewModel.IsTopElement = true;
+
+            this.viewModel.ElementDefinition.Category = this.viewModel.SelectedCategories.ToList();
+
+            Assert.That(() => this.viewModel.AddingElementDefinition(), Throws.Nothing);
         }
     }
 }

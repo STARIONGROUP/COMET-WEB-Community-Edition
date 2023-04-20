@@ -26,8 +26,13 @@ namespace COMETwebapp.Components.ParameterEditor
 {
     using System.Collections.ObjectModel;
 
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.Comparer;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
+
+    using DevExpress.Blazor;
 
     using DynamicData;
 
@@ -57,12 +62,19 @@ namespace COMETwebapp.Components.ParameterEditor
         public IParameterTableViewModel ViewModel { get; set; }
 
         /// <summary>
+        ///     Gets or sets the grid control that is being customized.
+        /// </summary>
+        IGrid Grid { get; set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
+
+            this.ViewModel.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
@@ -71,6 +83,23 @@ namespace COMETwebapp.Components.ParameterEditor
                 .Sort(this.comparer)
                 .Bind(out this.sortedCollection)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        ///     Method invoked when creating a new <see cref="ElementDefinition"/>
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
+        private void CustomizeEditElementDefinition(GridCustomizeEditModelEventArgs e)
+        {
+            var dataItem = (ElementDefinition)e.DataItem;
+
+            if (dataItem == null)
+            {
+                e.EditModel = new ElementDefinition { };
+            }
+
+            this.ViewModel.ElementDefinition = new ElementDefinition();
+            this.ViewModel.SelectedCategories = new List<Category>();
         }
     }
 }
