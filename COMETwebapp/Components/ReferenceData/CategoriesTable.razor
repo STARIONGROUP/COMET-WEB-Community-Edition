@@ -24,6 +24,7 @@ Copyright (c) 2023 RHEA System S.A.
 @using CDP4Common.SiteDirectoryData
 @inherits DisposableComponent
 
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
 <DxGrid @ref="Grid"
         Data="this.ViewModel.Rows.Items"
         ShowSearchBox="true"
@@ -107,3 +108,4 @@ Copyright (c) 2023 RHEA System S.A.
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmButtonClick" />
     </div>
 </DxPopup>
+</LoadingComponent>

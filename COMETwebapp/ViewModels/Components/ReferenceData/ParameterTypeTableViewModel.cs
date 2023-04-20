@@ -34,17 +34,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities.DisposableObject;
-
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components;
 
     using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public class ParameterTypeTableViewModel : DisposableObject, IParameterTypeTableViewModel
+    public class ParameterTypeTableViewModel : SingleIterationApplicationBaseViewModel, IParameterTypeTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
@@ -71,7 +71,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
+        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
@@ -82,27 +82,27 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     .Where(objectChange => objectChange.EventKind == EventKind.Added &&
                                            objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                     .Select(x => x.ChangedThing as ParameterType)
-                    .Subscribe(this.AddNewParameterType));
+                    .Subscribe(async x => await this.AddNewParameterType(x)));
 
             this.Disposables.Add(
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))
                     .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                            objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                     .Select(x => x.ChangedThing as ParameterType)
-                    .Subscribe(this.UpdateParameterType));
+                    .Subscribe(async x => await this.UpdateParameterType(x)));
 
             this.Disposables.Add(
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
                     .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                            objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                     .Select(x => x.ChangedThing as ReferenceDataLibrary)
-                    .Subscribe(this.RefreshContainerName));
+                    .Subscribe(async x => await this.RefreshContainerName(x)));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as PersonRole)
-                .Subscribe(_ => this.RefreshAccessRight()));
+                .Subscribe(async _ => await this.RefreshAccessRight()));
         }
 
         /// <summary>
@@ -121,13 +121,24 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public SourceList<ParameterType> DataSource { get; } = new();
 
         /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            this.IsLoading = true;
+            await Task.Delay(1);
+            this.IsLoading = false;
+        }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public void OnInitializedAsync()
+        public async Task OnInitializedAsync()
         {
             foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
@@ -135,14 +146,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
 
             this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
-            this.UpdateProperties(this.DataSource.Items);
-            this.RefreshAccessRight();
+            await this.UpdateProperties(this.DataSource.Items);
+            await this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Adds a new <see cref="ParameterType" />
         /// </summary>
-        public void AddNewParameterType(ParameterType parameterType)
+        public async Task AddNewParameterType(ParameterType parameterType)
         {
             var newRows = new List<ParameterTypeRowViewModel>(this.allRows)
             {
@@ -150,29 +161,32 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             };
 
             this.UpdateRows(newRows);
-            this.RefreshAccessRight();
+            await this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Updates the <see cref="ParameterType" />
         /// </summary>
-        public void UpdateParameterType(ParameterType parameterType)
+        public async Task UpdateParameterType(ParameterType parameterType)
         {
             var updatedRows = new List<ParameterTypeRowViewModel>(this.allRows);
             var index = updatedRows.FindIndex(x => x.ParameterType.Iid == parameterType.Iid);
             updatedRows[index] = new ParameterTypeRowViewModel(parameterType);
             this.UpdateRows(updatedRows);
-            this.RefreshAccessRight();
+            await this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Updates this view model properties
         /// </summary>
         /// <param name="parameterTypes">A collection of <see cref="ParameterType" /></param>
-        public void UpdateProperties(IEnumerable<ParameterType> parameterTypes)
+        public async Task UpdateProperties(IEnumerable<ParameterType> parameterTypes)
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
             this.allRows = parameterTypes.Select(x => new ParameterTypeRowViewModel(x));
             this.UpdateRows(this.allRows);
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -181,8 +195,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <param name="rdl">
         /// The updated <see cref="ReferenceDataLibrary" />.
         /// </param>
-        private void RefreshContainerName(ReferenceDataLibrary rdl)
+        private async Task RefreshContainerName(ReferenceDataLibrary rdl)
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
             foreach (var parameter in this.Rows.Items)
             {
                 if (parameter.ContainerName != rdl.ShortName)
@@ -190,17 +206,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     parameter.ContainerName = rdl.ShortName;
                 }
             }
+            this.IsLoading = false;
         }
 
         /// <summary>
         /// Updates the active user access rights
         /// </summary>
-        private void RefreshAccessRight()
+        private async Task RefreshAccessRight()
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
             foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.ParameterType.Container);
             }
+            this.IsLoading = false;
         }
 
         /// <summary>

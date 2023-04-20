@@ -25,6 +25,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
     
+    using COMET.Web.Common.ViewModels.Components;
+    
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     
@@ -33,7 +35,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public interface IParameterTypeTableViewModel: IDisposable
+    public interface IParameterTypeTableViewModel: ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
         ///     Gets or sets the data source for the grid control.
@@ -57,6 +59,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         ///     want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        void OnInitializedAsync();
+        Task OnInitializedAsync();
     }
 }

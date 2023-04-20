@@ -87,14 +87,14 @@ namespace COMETwebapp.Components.ReferenceData
         ///     want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override Task OnInitializedAsync()
+        protected override async Task OnInitializedAsync()
         {
-            this.ViewModel.OnInitializedAsync();
+            await this.ViewModel.OnInitializedAsync();
 
             this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            return base.OnInitializedAsync();
+            await base.OnInitializedAsync();
         }
 
         /// <summary>

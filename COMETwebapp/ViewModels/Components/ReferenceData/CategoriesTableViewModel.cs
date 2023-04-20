@@ -34,8 +34,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities.DisposableObject;
-
+    using COMET.Web.Common.ViewModels.Components;
+    
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
@@ -47,7 +47,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public class CategoriesTableViewModel : DisposableObject, ICategoriesTableViewModel
+    public class CategoriesTableViewModel : SingleIterationApplicationBaseViewModel, ICategoriesTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
@@ -74,7 +74,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public CategoriesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
+        public CategoriesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
@@ -84,25 +84,25 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 .Where(objectChange => objectChange.EventKind == EventKind.Added &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as Category)
-                .Subscribe(this.AddNewCategory));
+                .Subscribe(async x => await this.AddNewCategory(x)));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as Category)
-                .Subscribe(this.UpdateCategory));
+                .Subscribe(async x => await this.UpdateCategory(x)));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as ReferenceDataLibrary)
-                .Subscribe(this.RefreshContainerName));
+                .Subscribe(async x => await this.RefreshContainerName(x)));
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as PersonRole)
-                .Subscribe(_ => this.RefreshAccessRight()));
+                .Subscribe(async _ => await this.RefreshAccessRight()));
         }
 
         /// <summary>
@@ -163,6 +163,18 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// selected container
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            this.IsLoading = true;
+            await Task.Delay(1);
+            this.IsLoading = false;
+        }
+
 
         /// <summary>
         /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category" />
@@ -241,7 +253,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
-        public void OnInitialized()
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        public async Task OnInitializedAsync()
         {
             foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
@@ -249,14 +262,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
 
             this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
-            this.UpdateProperties(this.DataSource.Items);
-            this.RefreshAccessRight();
+            await this.UpdateProperties(this.DataSource.Items);
+            await this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Adds a new <see cref="Category" />
         /// </summary>
-        public void AddNewCategory(Category category)
+        public async Task AddNewCategory(Category category)
         {
             var newRows = new List<CategoryRowViewModel>(this.allRows)
             {
@@ -264,29 +277,32 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             };
 
             this.UpdateRows(newRows);
-            this.RefreshAccessRight();
+            await this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Updates the <see cref="Category" />
         /// </summary>
-        public void UpdateCategory(Category category)
+        public async Task UpdateCategory(Category category)
         {
             var updatedRows = new List<CategoryRowViewModel>(this.allRows);
             var index = updatedRows.FindIndex(x => x.Category.Iid == category.Iid);
             updatedRows[index] = new CategoryRowViewModel(category);
             this.UpdateRows(updatedRows);
-            this.RefreshAccessRight();
+            await this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Updates this view model properties
         /// </summary>
         /// <param name="categories">A collection of <see cref="Category" /></param>
-        public void UpdateProperties(IEnumerable<Category> categories)
+        public async Task UpdateProperties(IEnumerable<Category> categories)
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
             this.allRows = categories.Select(x => new CategoryRowViewModel(x));
             this.UpdateRows(this.allRows);
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -343,8 +359,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <param name="rdl">
         /// The updated <see cref="ReferenceDataLibrary" />.
         /// </param>
-        private void RefreshContainerName(ReferenceDataLibrary rdl)
+        private async Task RefreshContainerName(ReferenceDataLibrary rdl)
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
             foreach (var category in this.Rows.Items)
             {
                 if (category.ContainerName != rdl.ShortName)
@@ -352,17 +370,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     category.ContainerName = rdl.ShortName;
                 }
             }
+            this.IsLoading = false;
         }
 
         /// <summary>
         /// Updates the active user access rights
         /// </summary>
-        private void RefreshAccessRight()
+        private async Task RefreshAccessRight()
         {
+            this.IsLoading = true;
+            await Task.Delay(1);
             foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.Category.Container);
             }
+            this.IsLoading = false;
         }
 
         /// <summary>

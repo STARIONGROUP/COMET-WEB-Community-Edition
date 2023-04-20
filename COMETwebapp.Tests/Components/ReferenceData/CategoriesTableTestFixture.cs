@@ -293,9 +293,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public void VerifyOnInitialized()
+        public async Task VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>
             {
@@ -309,6 +311,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public async Task VerifyDeprecatingCategory()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>
             {
@@ -342,6 +346,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
 
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
@@ -373,6 +379,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public async Task VerifyAddingCategory()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>
             {
