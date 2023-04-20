@@ -28,7 +28,7 @@
     {
         var colorValue = this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex].ParseToHexColor();
         <div class="parameter-row" id="color-section">
-            <input type="color" 
+            <input class="margin-2" type="color" 
                    id="color-picker" 
                    name="color" 
                    value="@colorValue" 
@@ -40,7 +40,7 @@
     else
     {
         <div class="parameter-row">
-            <p>@this.ViewModel.ParameterType.Name</p>
+            <p class="orientation_p">@this.ViewModel.ParameterType.Name</p>
             <DxTextBox InputCssClass="text-parameter-type"
                        Text="@this.ViewModel.ValueArray.First()"
                        CssClass="parameter-input"

@@ -35,15 +35,15 @@
                                 ValueChanged="@((AngleFormat value)=>this.ViewModel.OnAngleFormatChanged(value))" />
                 </div>
                 <div class="euler-parameter-row">
-                    <p>Rx:</p>
+                    <p class="orientation_p">Rx:</p>
                     <DxTextBox Text="@this.ViewModel.Orientation.X.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rx",e))"></DxTextBox>
                 </div>
                 <div class="euler-parameter-row">
-                    <p>Ry:</p>
+                    <p class ="orientation_p">Ry:</p>
                     <DxTextBox Text="@this.ViewModel.Orientation.Y.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Ry",e))"></DxTextBox>
                 </div>
                 <div class="euler-parameter-row">
-                    <p>Rz:</p>
+                    <p class="orientation_p">Rz:</p>
                     <DxTextBox Text="@this.ViewModel.Orientation.Z.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rz",e))"></DxTextBox>
                 </div>
             }
@@ -57,7 +57,7 @@
                 {
                     var index = i;
                     <div class="matrix-parameter-row">
-                        <p>@names[index]</p>
+                        <p class="orientation_p">@names[index]</p>
                         <DxTextBox Text="@this.ViewModel.Orientation.Matrix[index].ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e) => this.ViewModel.OnMatrixValuesChanged(index, e)"></DxTextBox>
                     </div>
                 }

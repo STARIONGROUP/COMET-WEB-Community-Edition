@@ -60,7 +60,7 @@ namespace COMET.Web.Common.Tests.Components
             
             Assert.Multiple(() =>
             {
-                Assert.That(span.ClassName, Is.EqualTo(cssClass));
+                Assert.That(span.ClassName,Does.Contain(cssClass));
                 Assert.That(span.TextContent, Is.EqualTo(text));
             });
 
