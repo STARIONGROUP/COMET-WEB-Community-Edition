@@ -127,3 +127,303 @@
 .m-top-10px {
     margin-top: 10px;
 }
+
+
+.compound-editor {
+    float: right;
+    margin-right: 20%
+}
+
+.compound-editor-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    flex-basis: 30.33333%;
+    margin: 1%;
+}
+
+.euler-parameter-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.matrix-parameter-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    flex-basis: 30.33333%;
+    margin: 1%;
+}
+
+.angle-selector {
+    margin: 4%;
+}
+
+#euler-orientation-tab {
+    margin-top: 3%;
+}
+
+#matrix-orientation-tab {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.orientation_p {
+    text-align: center;
+    margin: 4%;
+}
+
+.editor-row {
+    display: flex;
+}
+
+.content-scale {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 5px;
+}
+
+.margin-2 {
+    margin: 2%;
+}
+
+.parameter-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.highlighted {
+    color: blue;
+}
+
+.compound {
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+.application__card {
+    width: 280px;
+    height: 280px;
+    margin: 5px;
+    display: grid;
+    align-content: center;
+}
+
+.card__icon {
+    transform: scale(3);
+}
+
+.card__link {
+    display: flex;
+    color: black;
+    position: relative;
+    flex-direction: column;
+    text-decoration: none;
+    text-align: center;
+}
+
+.card__content {
+    margin-top: 30px;
+}
+
+.card__content__name {
+    font-weight: bold;
+}
+
+.card__content__description {
+    margin-top: 20px;
+    font-style: italic;
+}
+
+.dashboard {
+    overflow: hidden;
+}
+
+.dashboard__cards {
+    margin-top: 30px;
+}
+
+.splash-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column nowrap;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    font-family: "Segoe UI",Roboto,"Helvetica Neue","-apple-system",BlinkMacSystemFont,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: .88rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    z-index: 4000;
+    background: rgba(0,0,0,0.5);
+}
+
+    .splash-screen .spinner-border {
+        border: .2em solid;
+        border-color: #5f368d #bfbfbf #bfbfbf;
+        width: 120px;
+        height: 120px;
+    }
+
+.splash-screen-caption {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
+
+.splash-screen-text {
+    color: white;
+    margin-top: .5rem;
+}
+
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.bottom-60 {
+    bottom: -60%;
+}
+
+.bottom-10 {
+    bottom: 10%;
+}
+
+.bottom-15 {
+    bottom: 15%;
+}
+
+.bottom-25 {
+    bottom: -25%;
+}
+
+.tooltip-content {
+    visibility: hidden;
+    position: absolute;
+    width: 150px;
+    left: 100%;
+    margin-left: 5px;
+    background-color: white;
+    color: black;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    z-index: 1;
+    font-size: 14px;
+}
+
+    .tooltip-content::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0%;
+        margin-left: -10px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent black transparent transparent;
+    }
+
+.tooltip-wrapper:hover .tooltip-content {
+    visibility: visible;
+}
+
+.open__model__header {
+    margin-left: 15px;
+}
+
+.header-navbar {
+    outline: none;
+    border-radius: 0;
+    padding-left: .75rem;
+    padding-right: .75rem;
+    align-self: stretch;
+}
+
+.page {
+    height: 100%;
+    overflow: hidden;
+}
+
+.content {
+    padding: 1.1rem 2rem 0 2rem;
+    overflow: auto;
+}
+
+@media (max-width: 1199.98px) {
+    ::deep .page-layout > .dx-gridlayout-root {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+.session__header {
+    background: lightgray;
+    padding: 5px;
+}
+
+.session_content {
+    font-size: 12px;
+    display: table;
+    margin: 0 auto !important;
+}
+
+.content__autorefresh {
+    display: flex;
+    line-height: 30px;
+    margin: 20px;
+    text-indent: 5px;
+    width: max-content;
+}
+
+.content__spin {
+    max-width: 85px;
+    max-height: 30px;
+    margin-left: 5px;
+}
+
+.session__buttons {
+    margin: 0 auto !important;
+    display: table;
+    padding-bottom: 10px;
+}
+
+.right-margin {
+    margin-right: 2px !important;
+}
+
+.left-margin {
+    margin-left: 2px !important;
+}
+
+.notification {
+    border-radius: 50%;
+    background: red;
+    color: white;
+    text-align: center;
+    width: 18px;
+    display: block;
+    position: relative;
+    margin-top: -15px;
+    margin-left: 50px;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.homelink {
+    text-decoration: none;
+    display: contents;
+    color: black;
+}
