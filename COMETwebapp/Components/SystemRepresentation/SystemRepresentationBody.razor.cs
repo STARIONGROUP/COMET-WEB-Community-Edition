@@ -22,6 +22,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
+using COMET.Web.Common.Extensions;
+using COMET.Web.Common.Utilities;
+using COMETwebapp.Utilities;
+
+using ReactiveUI;
+
 namespace COMETwebapp.Components.SystemRepresentation
 {
     /// <summary>
@@ -30,39 +36,42 @@ namespace COMETwebapp.Components.SystemRepresentation
     public partial class SystemRepresentationBody
     {
         /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
+                .Subscribe(_ => this.UpdateUrl()));
+        }
+
+        /// <summary>
         /// Initializes values of the component and of the ViewModel based on parameters provided from the url
         /// </summary>
         /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
+            if (parameters.TryGetValue(QueryKeys.OptionKey, out var option))
+            {
+                this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
+            }
         }
 
         /// <summary>
-        /// Name of the option selected
+        /// Sets the url of the <see cref="NavigationManager" /> based on the current values
         /// </summary>
-        public string OptionSelected { get; set; }
-
-        /// <summary>
-        /// Name of the domain selected
-        /// </summary>
-        public string DomainSelected { get; set; }
-
-        /// <summary>
-        ///     Updates Elements list when a filter for option is selected
-        /// </summary>
-        /// <param name="option">Name of the selected option</param>
-        public void OnOptionFilterChange(string option)
+        private void UpdateUrl()
         {
-            this.ViewModel.OnOptionFilterChange(option);
-        }
+            var additionalParameters = new Dictionary<string, string>();
 
-        /// <summary>
-        ///     Updates Elements list when a filter for domain is selected
-        /// </summary>
-        /// <param name="domain">Name of the selected domain</param>
-        public void OnDomainFilterChange(string domain)
-        {
-            this.ViewModel.OnDomainFilterChange(domain);
+            if (this.ViewModel.OptionSelector.SelectedOption != null)
+            {
+                additionalParameters[QueryKeys.OptionKey] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
+            }
+
+            this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.SystemRepresentationPage);
         }
     }
 }
