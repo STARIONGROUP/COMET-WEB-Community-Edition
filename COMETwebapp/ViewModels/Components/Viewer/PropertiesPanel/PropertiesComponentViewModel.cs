@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.Helpers;
     using CDP4Common.Types;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -205,51 +204,44 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                var newValueArray = new ValueArray<string>(valueSet.ActualValue);
+                var newValueArray = new ValueArray<string>(valueSet.Manual);
 
-                var validationMessage = ParameterValueValidator.Validate(valueSet.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale);
+                this.SelectionMediator.SceneObjectHasChanges = true;
+                this.ParameterHaveChanges = true;
 
-                if (validationMessage != null)
+                var clonedValueSetBase = parameterValueSetBase.Clone(false);
+                clonedValueSetBase.Manual = newValueArray;
+                clonedValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
+                parameterValueSetBase.Manual = newValueArray;
+                this.ParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
+
+                if (this.ChangedParameterValueSetRelations.ContainsKey(this.SelectedParameter))
                 {
-                    this.ParameterHaveChanges = false;
+                    this.ChangedParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
                 }
                 else
                 {
-                    this.SelectionMediator.SceneObjectHasChanges = true;
-                    this.ParameterHaveChanges = true;
-
-                    var clonedValueSetBase = parameterValueSetBase.Clone(false);
-                    clonedValueSetBase.Manual = newValueArray;
-                    this.ParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
-
-                    if (this.ChangedParameterValueSetRelations.ContainsKey(this.SelectedParameter))
-                    {
-                        this.ChangedParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
-                    }
-                    else
-                    {
-                        this.ChangedParameterValueSetRelations.Add(this.SelectedParameter, clonedValueSetBase);
-                    }
-
-                    this.SelectionMediator.SelectedSceneObjectClone.UpdateParameter(this.SelectedParameter, clonedValueSetBase);
-
-                    if (this.SelectedParameter.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
-                    {
-                        if (this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
-                        {
-                            this.SelectionMediator.SelectedSceneObjectClone.Primitive.HasHalo = true;
-                        }
-
-                        var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
-                        foreach (var parameter in parameters)
-                        {
-                            this.SelectionMediator.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
-                        }
-                    }
-
-                    await this.BabylonInterop.RegenerateMesh(this.SelectionMediator?.SelectedSceneObjectClone);
+                    this.ChangedParameterValueSetRelations.Add(this.SelectedParameter, clonedValueSetBase);
                 }
+
+                this.SelectionMediator.SelectedSceneObjectClone.UpdateParameter(this.SelectedParameter, clonedValueSetBase);
+
+                if (this.SelectedParameter.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
+                {
+                    if (this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
+                    {
+                        this.SelectionMediator.SelectedSceneObjectClone.Primitive.HasHalo = true;
+                    }
+
+                    var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+                    foreach (var parameter in parameters)
+                    {
+                        this.SelectionMediator.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
+                    }
+                }
+
+                await this.BabylonInterop.RegenerateMesh(this.SelectionMediator?.SelectedSceneObjectClone);
             }
         }
 

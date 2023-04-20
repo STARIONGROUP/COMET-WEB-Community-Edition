@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.Viewer.PropertiesPanel
 {
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
+
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     
     using Microsoft.AspNetCore.Components;
@@ -38,5 +40,28 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// </summary>
         [Parameter]
         public IDetailsComponentViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRender(System.Boolean)" /> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <remarks>
+        /// The <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRender(System.Boolean)" /> and <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRenderAsync(System.Boolean)" /> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender" /> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override void OnAfterRender(bool firstRender)
+        {
+            base.OnAfterRender(firstRender);
+
+            if (this.ViewModel.ParameterEditorSelector.HaveValueSetViewModel is CompoundParameterTypeEditorViewModel { IsOnEditMode: false } compoundParameterTypeEditorViewModel)
+            {
+                compoundParameterTypeEditorViewModel.IsOnEditMode = true;
+            }
+        }
     }
 }

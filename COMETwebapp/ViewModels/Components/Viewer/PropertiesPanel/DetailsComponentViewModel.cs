@@ -52,7 +52,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.IsVisible = isVisible;
             this.ParameterType = parameterType;
+
             this.ParameterEditorSelector = new ParameterTypeEditorSelectorViewModel(this.ParameterType, valueSet, false);
+            this.ParameterEditorSelector.UpdateSwitchKind(ParameterSwitchKind.MANUAL);
             this.ParameterEditorSelector.ParameterValueChanged = parameterValueSetChanged;
         }
 

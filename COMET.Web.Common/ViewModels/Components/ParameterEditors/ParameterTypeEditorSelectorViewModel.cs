@@ -41,16 +41,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         private bool isReadOnly;
 
         /// <summary>
-        /// Gets the index of the value changed in the value sets
-        /// </summary>
-        private int ValueArrayIndex { get; }
-
-        /// <summary>
-        /// The <see cref="IHaveValueSetViewModel" />
-        /// </summary>
-        private IHaveValueSetViewModel haveValueSetViewModel;
-
-        /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel" />
         /// </summary>
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
@@ -66,18 +56,19 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Initializes this view model properties
+        /// Gets the index of the value changed in the value sets
         /// </summary>
-        /// <param name="readOnly">The readonly state</param>
-        private void InitializesProperties(bool readOnly)
-        {
-            this.isReadOnly = readOnly;
-        }
+        private int ValueArrayIndex { get; }
 
         /// <summary>
         /// Gets or sets the value set of this <see cref="ParameterType" />
         /// </summary>
         public IValueSet ValueSet { get; private set; }
+
+        /// <summary>
+        /// The <see cref="IHaveValueSetViewModel" />
+        /// </summary>
+        public IHaveValueSetViewModel HaveValueSetViewModel { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ParameterType" />
@@ -96,7 +87,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <returns>the view model</returns>
         public IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType
         {
-            this.haveValueSetViewModel = this.ParameterType switch
+            this.HaveValueSetViewModel = this.ParameterType switch
             {
                 BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
@@ -109,7 +100,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
                 _ => throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented")
             };
 
-            var parameterViewModel = (this.haveValueSetViewModel as IParameterEditorBaseViewModel<T>)!;
+            var parameterViewModel = (this.HaveValueSetViewModel as IParameterEditorBaseViewModel<T>)!;
             parameterViewModel.ParameterValueChanged = this.ParameterValueChanged;
 
             return parameterViewModel;
@@ -121,17 +112,26 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="switchValue">The <see cref="ParameterSwitchKind" /></param>
         public void UpdateSwitchKind(ParameterSwitchKind switchValue)
         {
-            this.haveValueSetViewModel?.UpdateParameterSwitchKind(switchValue);
+            this.HaveValueSetViewModel?.UpdateParameterSwitchKind(switchValue);
         }
 
         /// <summary>
-        /// Updates the associated <see cref="IParameterEditorBaseViewModel{T}"/> properties
+        /// Updates the associated <see cref="IParameterEditorBaseViewModel{T}" /> properties
         /// </summary>
         /// <param name="readOnly">The readonly state</param>
         public void UpdateProperties(bool readOnly)
         {
             this.InitializesProperties(readOnly);
-            this.haveValueSetViewModel?.UpdateProperties(this.isReadOnly);
+            this.HaveValueSetViewModel?.UpdateProperties(this.isReadOnly);
+        }
+
+        /// <summary>
+        /// Initializes this view model properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        private void InitializesProperties(bool readOnly)
+        {
+            this.isReadOnly = readOnly;
         }
     }
 }
