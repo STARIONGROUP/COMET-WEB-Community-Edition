@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using System.Text;
+
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
@@ -41,7 +43,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
-    using System.Text;
 
     /// <summary>
     /// View Model for the <see cref="PropertiesComponent" />
