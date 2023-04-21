@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -111,11 +112,47 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         [Test]
         public void VerifyElementValueChanges()
         {
-            var parameter = new Parameter() { Iid = Guid.NewGuid(), ParameterType = new CompoundParameterType { Iid = Guid.NewGuid() } };
+            var compoundData = new OrderedItemList<ParameterTypeComponent>(null)
+            {
+                new ParameterTypeComponent
+                {
+                    Iid = Guid.NewGuid(),
+                    ShortName = "firstValue",
+                    Scale = new OrdinalScale
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    }
+                }
+            };
+
+            var parametertype = new CompoundParameterType
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            parametertype.Component.AddRange(compoundData);
+
+            var parameter = new Parameter() { Iid = Guid.NewGuid(), ParameterType = parametertype };
 
             this.viewModel.SelectedParameter = parameter;
 
-            Assert.DoesNotThrowAsync(() => this.viewModel.ParameterValueSetChanged(new ParameterValueSet()));
+            var compoundValues = new List<string> { "1" };
+
+            var parameterValueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(compoundValues),
+            };
+
+            Assert.DoesNotThrowAsync(() => this.viewModel.ParameterValueSetChanged(parameterValueSet));
+            Assert.DoesNotThrow(() => this.viewModel.OnSubmit());
         }
     }
 }
