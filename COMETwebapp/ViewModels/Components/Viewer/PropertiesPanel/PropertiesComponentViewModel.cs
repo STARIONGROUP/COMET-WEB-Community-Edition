@@ -41,6 +41,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
+    using System.Text;
 
     /// <summary>
     /// View Model for the <see cref="PropertiesComponent" />
@@ -206,7 +207,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                var validationMessage = string.Empty;
+                var validationMessageBuilder = new StringBuilder();
                 var newValueArray = new ValueArray<string>(valueSet.ActualValue);
 
                 if(this.SelectedParameter.ParameterType is CompoundParameterType compoundParameterType)
@@ -215,15 +216,17 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     for(var componentIndex = 0; componentIndex < components.Count; componentIndex++)
                     {
                         var value = valueSet.ActualValue[componentIndex];
-                        validationMessage = validationMessage + ParameterValueValidator.Validate(value, components[componentIndex].ParameterType, components[componentIndex]?.Scale);
+                        validationMessageBuilder .Append(ParameterValueValidator.Validate(value, components[componentIndex].ParameterType, components[componentIndex]?.Scale));
                     }
                 }
                 else
                 {
-                    validationMessage = validationMessage + ParameterValueValidator.Validate(valueSet.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale);
+                    validationMessageBuilder.Append(ParameterValueValidator.Validate(valueSet.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale));
                 }
 
-                if (validationMessage != string.Empty)
+                var validationMessage = validationMessageBuilder.ToString();
+
+                if (!string.IsNullOrEmpty(validationMessage))
                 {
                     this.ParameterHaveChanges = false;
                 }
