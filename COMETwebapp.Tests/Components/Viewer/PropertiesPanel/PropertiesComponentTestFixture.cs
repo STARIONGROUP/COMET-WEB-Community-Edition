@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
@@ -36,10 +37,8 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
     
-    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
