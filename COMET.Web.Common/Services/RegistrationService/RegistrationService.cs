@@ -62,6 +62,7 @@ namespace COMET.Web.Common.Services.RegistrationService
             this.registeredAssemblies.AddRange(options.Value.AdditionalAssemblies);
             this.registeredAuthorizedTopMenuEntries.AddRange(options.Value.AdditionalMenuEntries);
             this.CustomHeader = options.Value.CustomHeaderTitle;
+            this.CustomIndexHeader = options.Value.CustomIndexHeader;
         }
 
         /// <summary>
@@ -83,5 +84,10 @@ namespace COMET.Web.Common.Services.RegistrationService
         /// Gets the custom header <see cref="Type"/>, if applicable
         /// </summary>
         public Type CustomHeader { get; }
+
+        /// <summary>
+        /// Gets the custom header <see cref="Type"/> for the index page, if applicable
+        /// </summary>
+        public Type CustomIndexHeader { get; }
     }
 }

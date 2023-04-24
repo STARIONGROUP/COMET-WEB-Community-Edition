@@ -54,5 +54,10 @@ namespace COMET.Web.Common.Services.RegistrationService
         /// Gets the custom header <see cref="Type"/>, if applicable
         /// </summary>
         Type CustomHeader { get; }
+
+        /// <summary>
+        /// Gets the custom header <see cref="Type"/> for the index page, if applicable
+        /// </summary>
+        Type CustomIndexHeader { get; }
     }
 }

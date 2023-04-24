@@ -20,7 +20,6 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @page "/"
-@using COMET.Web.Common.Utilities
 @inherits DisposableComponent
 
 <AuthorizeView>
@@ -50,21 +49,15 @@
 	</Authorized>
 	<NotAuthorized>
 		<div class="container height-90">
-		<div class="row justify-content-center">
-				<img id="comet-logo" src=@ContentPathBuilder.BuildPath("images/COMET-Logo-large.png") class="p-1 large-logo" title="COMET Community Edition" alt="COMET Community Edition" />
-		</div>
-		<div class="comet-info row text-align-center justify-content-center">
-			<div class="card width-70">
-				<div class="card-body font-weight-bold comet-info-text">
-					<p class="no-margin"></p>
-				</div>
-				<div class="font-size-smaller">
-					<div>Version: <b>@this.ViewModel.Version</b></div>
-					<p>Copyright &copy; <text class="mx-3">2023.</text> <a href="https://www.rheagroup.com/" title="RHEA" target="_blank">RHEA System S.A.</a></p>
-				</div>
-			</div>
-		</div>
-		<div class="row text-align-start m-top-20px align-items-center justify-content-md-center">
+		    @if (this.RegistrationService.CustomIndexHeader != null)
+		    {
+		        <DynamicComponent Type="this.RegistrationService.CustomIndexHeader" />
+		    }
+		    else
+		    {
+			    <IndexHeader />
+		    }
+			<div class="row text-align-start m-top-20px align-items-center justify-content-md-center">
 			<div class="width-70">
 					<div id="unauthorized-notice" class="text-align-center font-weight-bold">Connect and Open a Model.</div>
 				<DxTreeView CssClass="m-top-10px">
