@@ -88,6 +88,7 @@ namespace COMET.Web.Common.Tests.Pages
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton<ILoginViewModel, LoginViewModel>();
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(this.registrationService.Object);

@@ -29,6 +29,7 @@ namespace COMET.Web.Common.Pages
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Pages;
 
@@ -77,6 +78,12 @@ namespace COMET.Web.Common.Pages
         /// </summary>
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IRegistrationService"/>
+        /// </summary>
+        [Inject]
+        internal IRegistrationService RegistrationService { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
