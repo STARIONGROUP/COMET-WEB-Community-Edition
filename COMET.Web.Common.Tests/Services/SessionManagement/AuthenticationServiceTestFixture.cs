@@ -47,7 +47,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private AuthenticationDto authenticationDto;
         private Person person;
 
-		[SetUp]
+        [SetUp]
         public void SetUp()
         {
             this.session = new Mock<ISession>();
@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.sessionService.SetupProperty(x => x.IsSessionOpen);
 
             this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
-
+            
             this.authenticationDto = new AuthenticationDto
             {
                 SourceAddress = "https://www.rheagroup.com",
@@ -80,9 +80,9 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             await authenticationService.Logout();
 
             this.sessionService.Verify(x => x.Close(), Times.Once);
-		}
+        }
 
-		[Test]
+        [Test]
         public async Task Verify_that_a_nonauthorized_user_cannot_login()
         {
             this.session.Setup(x => x.ActivePerson).Returns(this.person);

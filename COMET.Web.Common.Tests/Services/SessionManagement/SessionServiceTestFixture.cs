@@ -43,7 +43,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     [TestFixture]
     public class SessionServiceTestFixture
-	{
+    {
         private Mock<ISession> session;
         private ISessionService sessionService;
         private Participant participant;
@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private EngineeringModelSetup engineeringSetup;
         private SiteDirectory siteDirectory;
 
-		[SetUp]
+        [SetUp]
         public void Setup()
         {
             this.session = new Mock<ISession>();
@@ -153,16 +153,16 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             {
                 Assert.That(this.sessionService.IsSessionOpen, Is.False);
                 Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
-			});
+            });
 
-			this.session.Setup(x => x.Close()).ThrowsAsync(new Exception());
+            this.session.Setup(x => x.Close()).ThrowsAsync(new Exception());
             Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
 
             this.sessionService.IsSessionOpen = true;
             Assert.That(async () => await this.sessionService.Close(), Throws.Exception);
-		}
+        }
 
-		[Test]
+        [Test]
         public void VerifyCloseIteration()
         {
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
