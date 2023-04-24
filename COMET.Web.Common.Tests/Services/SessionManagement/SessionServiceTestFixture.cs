@@ -143,18 +143,26 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public void VerifyClose()
+        public async Task VerifyClose()
         {
             this.sessionService.IsSessionOpen = true;
             this.session.Setup(x => x.Close()).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-            this.session.Setup(x => x.Close()).Throws<Exception>();
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-            this.sessionService.IsSessionOpen = true;
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-        }
+            await this.sessionService.Close();
 
-        [Test]
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.sessionService.IsSessionOpen, Is.False);
+                Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
+			});
+
+			this.session.Setup(x => x.Close()).ThrowsAsync(new Exception());
+            Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
+
+            this.sessionService.IsSessionOpen = true;
+            Assert.That(async () => await this.sessionService.Close(), Throws.Exception);
+		}
+
+		[Test]
         public void VerifyCloseIteration()
         {
             this.session.Setup(x => x.OpenIterations).Returns(new Dictionary<Iteration, Tuple<DomainOfExpertise, Participant>>
