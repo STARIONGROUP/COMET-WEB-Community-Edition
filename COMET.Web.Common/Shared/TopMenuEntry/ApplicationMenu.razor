@@ -25,7 +25,7 @@
 	<Items>
 		@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications)
 		{
-			<DxMenuItem Text="@applicationEntry.Name" NavigateUrl="@applicationEntry.Url"/>
+			<DxMenuItem Text="@applicationEntry.Name" NavigateUrl="@applicationEntry.Url" Enabled="@(!applicationEntry.IsDisabled)"/>
 		}
 	</Items>
 </DxMenuItem>

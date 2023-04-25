@@ -27,6 +27,7 @@ namespace COMET.Web.Common
 {
     using System.Diagnostics.CodeAnalysis;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.RegistrationService;
 
     using Microsoft.AspNetCore.Components;
@@ -56,6 +57,11 @@ namespace COMET.Web.Common
         /// </summary>
         private void RedirectToHomePage()
         {
+            if (this.NavigationManager.Uri.GetParametersFromUrl().ContainsKey("redirect"))
+            {
+                return;
+            }
+
             var requestedUrl = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty);
             var targetUrl = QueryHelpers.AddQueryString("/", "redirect", requestedUrl);
             this.NavigationManager.NavigateTo(targetUrl);
@@ -74,6 +80,11 @@ namespace COMET.Web.Common
                 case "/Logout":
                     break;
                 default:
+                    if (navigationContext.Path.GetParametersFromUrl().ContainsKey("redirect"))
+                    {
+                        break;
+                    }
+
                     if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url)))
                     {
                         this.NavigationManager.NavigateTo("/");

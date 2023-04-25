@@ -32,7 +32,6 @@ namespace COMET.Web.Common.Extensions
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-    using COMET.Web.Common.ViewModels.Pages;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
     using DevExpress.Blazor;

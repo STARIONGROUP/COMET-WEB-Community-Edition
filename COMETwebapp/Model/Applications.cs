@@ -75,7 +75,8 @@ namespace COMETwebapp.Model
                 Name = "Requirement Management",
                 Color = "#fda966",
                 Icon = "link-intact",
-                Description = "Edit requirements in the model.",
+                Description = $"Edit requirements in the model.{Environment.NewLine}Under Development",
+                IsDisabled = true,
                 Url = WebAppConstantValues.RequirementManagementPage
             },
             new Application
@@ -83,8 +84,9 @@ namespace COMETwebapp.Model
                 Name = "Budget Editor",
                 Color = "#fc3a1aad",
                 Icon = "brush",
-                Description = "Create budget tables.",
-                Url = WebAppConstantValues.BudgetEditorPage
+                Description = $"Create budget tables.{Environment.NewLine}Under Development",
+                IsDisabled = true,
+				Url = WebAppConstantValues.BudgetEditorPage
             },
             new Application
             {

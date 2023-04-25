@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="Index.razor.cs" company="RHEA System S.A.">
+//  <copyright file="IndexComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Pages
+namespace COMET.Web.Common.Components
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -31,14 +31,11 @@ namespace COMET.Web.Common.Pages
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Utilities;
-    using COMET.Web.Common.ViewModels.Pages;
+    using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
 
-    /// <summary>
-    /// Home page of the website
-    /// </summary>
-    public partial class Index
+    public partial class IndexComponent
     {
         /// <summary>
         /// The <see cref="Guid" /> of the requested <see cref="DomainOfExpertise" />
@@ -70,7 +67,6 @@ namespace COMET.Web.Common.Pages
         /// The redirection url
         /// </summary>
         [Parameter]
-        [SupplyParameterFromQuery(Name = "redirect")]
         public string Redirect { get; set; }
 
         /// <summary>
@@ -80,7 +76,7 @@ namespace COMET.Web.Common.Pages
         public NavigationManager NavigationManager { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IRegistrationService"/>
+        /// Gets or sets the <see cref="IRegistrationService" />
         /// </summary>
         [Inject]
         internal IRegistrationService RegistrationService { get; set; }

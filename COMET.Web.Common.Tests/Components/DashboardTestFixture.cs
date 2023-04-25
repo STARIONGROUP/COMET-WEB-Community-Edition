@@ -63,8 +63,17 @@ namespace COMET.Web.Common.Tests.Components
                     Icon = "eye",
                     Name = "Application 1",
                     Url = "/Application1"
+                },
+                new()
+                {
+                    Color = "#123456",
+                    Description = "A disabled description",
+                    Icon = "file",
+                    Name = "Application 2",
+                    Url = "/Application2", 
+                    IsDisabled = true
                 }
-            };
+			};
 
             this.registrationService = new Mock<IRegistrationService>();
 
@@ -86,16 +95,19 @@ namespace COMET.Web.Common.Tests.Components
         {
             var renderer = this.context.RenderComponent<Dashboard>();
             var applicationCards = renderer.FindComponents<ApplicationCard>();
-            Assert.That(applicationCards, Has.Count.EqualTo(1));
+            Assert.That(applicationCards, Has.Count.EqualTo(2));
 
             var applicationCard = applicationCards[0];
             Assert.That(applicationCard.Instance.CurrentApplication, Is.EqualTo(this.applications[0]));
-            var navigationManager = this.context.Services.GetService<NavigationManager>();
+            var navigationManager = this.context.Services.GetService<NavigationManager>()!;
             var elementWrapper = (ElementWrapper)applicationCard.Find("a");
             var anchor = (IHtmlAnchorElement)elementWrapper.WrappedElement;
             navigationManager.NavigateTo(anchor.Href);
            
             Assert.That(navigationManager.Uri, Does.EndWith(this.applications[0].Url));
-        }
-    }
+
+            applicationCard = applicationCards[1];
+            Assert.That(() => applicationCard.Find(".disabled"), Throws.Nothing);
+		}
+	}
 }

@@ -23,11 +23,11 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.ViewModels.Pages
+namespace COMET.Web.Common.Tests.ViewModels.Components
 {
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
-    using COMET.Web.Common.ViewModels.Pages;
+    using COMET.Web.Common.ViewModels.Components;
 
     using Moq;
 
@@ -40,9 +40,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Pages
         private Mock<IVersionService> versionService;
         private Mock<ISessionService> sessionService;
         private Mock<IAuthenticationService> authenticationService;
-        const string Version = "1.1.2";
+        private const string Version = "1.1.2";
 
-        [SetUp]
+		[SetUp]
         public void Setup()
         {
             this.versionService = new Mock<IVersionService>();
@@ -54,6 +54,13 @@ namespace COMET.Web.Common.Tests.ViewModels.Pages
         }
 
         [Test]
+        public async Task VerifyLogout()
+        {
+            await this.viewModel.Logout();
+            this.authenticationService.Verify(x => x.Logout(), Times.Once);
+        }
+
+        [Test]
         public void VerifyProperties()
         {
             Assert.Multiple(() =>
@@ -61,13 +68,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Pages
                 Assert.That(this.viewModel.Version, Is.EqualTo(Version));
                 Assert.That(this.viewModel.SessionService, Is.Not.Null);
             });
-        }
-
-        [Test]
-        public async Task VerifyLogout()
-        {
-            await this.viewModel.Logout();
-            this.authenticationService.Verify(x => x.Logout(), Times.Once);
         }
     }
 }
