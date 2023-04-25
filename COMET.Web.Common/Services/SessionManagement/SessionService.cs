@@ -84,6 +84,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <returns>a <see cref="Task" /></returns>
         public async Task Close()
         {
+            if (!this.IsSessionOpen)
+            {
+                return;
+            }
+
             await this.Session.Close();
             this.IsSessionOpen = false;
             this.CloseIterations();

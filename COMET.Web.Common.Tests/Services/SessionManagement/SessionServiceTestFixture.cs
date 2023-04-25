@@ -43,7 +43,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     [TestFixture]
     public class SessionServiceTestFixture
-	{
+    {
         private Mock<ISession> session;
         private ISessionService sessionService;
         private Participant participant;
@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private EngineeringModelSetup engineeringSetup;
         private SiteDirectory siteDirectory;
 
-		[SetUp]
+        [SetUp]
         public void Setup()
         {
             this.session = new Mock<ISession>();
@@ -143,15 +143,23 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public void VerifyClose()
+        public async Task VerifyClose()
         {
             this.sessionService.IsSessionOpen = true;
             this.session.Setup(x => x.Close()).Returns(Task.CompletedTask);
-            Assert.DoesNotThrow(() => this.sessionService.Close());
-            this.session.Setup(x => x.Close()).Throws<Exception>();
-            Assert.DoesNotThrow(() => this.sessionService.Close());
+            await this.sessionService.Close();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.sessionService.IsSessionOpen, Is.False);
+                Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
+            });
+
+            this.session.Setup(x => x.Close()).ThrowsAsync(new Exception());
+            Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
+
             this.sessionService.IsSessionOpen = true;
-            Assert.DoesNotThrow(() => this.sessionService.Close());
+            Assert.That(async () => await this.sessionService.Close(), Throws.Exception);
         }
 
         [Test]

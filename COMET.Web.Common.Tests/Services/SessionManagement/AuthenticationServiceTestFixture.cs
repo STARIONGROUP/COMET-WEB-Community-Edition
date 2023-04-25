@@ -47,7 +47,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private AuthenticationDto authenticationDto;
         private Person person;
 
-		[SetUp]
+        [SetUp]
         public void SetUp()
         {
             this.session = new Mock<ISession>();
@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.sessionService.SetupProperty(x => x.IsSessionOpen);
 
             this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
-
+            
             this.authenticationDto = new AuthenticationDto
             {
                 SourceAddress = "https://www.rheagroup.com",
