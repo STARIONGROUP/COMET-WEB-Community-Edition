@@ -33,7 +33,7 @@ namespace COMET.Web.Common.Services.RegistrationService
     /// The <see cref="IRegistrationService" /> provides capabilities to register <see cref="Application" /> and
     /// <see cref="Assembly" /> that should be registered inside a COMET Web Application
     /// </summary>
-    internal interface IRegistrationService
+    public interface IRegistrationService
     {
         /// <summary>
         /// Gets the <see cref="IReadOnlyList{T}"/> of registered <see cref="Application"/>
