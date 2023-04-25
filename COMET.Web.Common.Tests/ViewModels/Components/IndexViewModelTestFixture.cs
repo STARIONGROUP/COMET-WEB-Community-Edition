@@ -42,7 +42,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         private Mock<IAuthenticationService> authenticationService;
         private const string Version = "1.1.2";
 
-		[SetUp]
+        [SetUp]
         public void Setup()
         {
             this.versionService = new Mock<IVersionService>();
