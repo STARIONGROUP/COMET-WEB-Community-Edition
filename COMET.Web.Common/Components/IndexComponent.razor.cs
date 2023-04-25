@@ -76,12 +76,6 @@ namespace COMET.Web.Common.Components
         public NavigationManager NavigationManager { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IRegistrationService" />
-        /// </summary>
-        [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
