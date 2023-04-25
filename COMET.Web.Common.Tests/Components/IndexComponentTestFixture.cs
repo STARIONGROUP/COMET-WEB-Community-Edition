@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IndexTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="IndexComponentTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Pages
+namespace COMET.Web.Common.Tests.Components
 {
     using System.Reflection;
 
@@ -38,14 +38,12 @@ namespace COMET.Web.Common.Tests.Pages
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Pages;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
-    using COMET.Web.Common.ViewModels.Pages;
 
     using DynamicData;
 
@@ -59,17 +57,8 @@ namespace COMET.Web.Common.Tests.Pages
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class IndexTestFixture
+    public class IndexComponentTestFixture
     {
-        private IIndexViewModel viewModel;
-        private TestContext context;
-        private Mock<IVersionService> versionService;
-        private Mock<ISessionService> sessionService;
-        private Mock<IAuthenticationService> authenticationService;
-        private TestAuthorizationContext authorization;
-        private SourceList<Iteration> sourceList;
-        private Mock<IRegistrationService> registrationService;
-
         [SetUp]
         public void Setup()
         {
@@ -102,6 +91,15 @@ namespace COMET.Web.Common.Tests.Pages
             this.context.CleanContext();
         }
 
+        private IIndexViewModel viewModel;
+        private TestContext context;
+        private Mock<IVersionService> versionService;
+        private Mock<ISessionService> sessionService;
+        private Mock<IAuthenticationService> authenticationService;
+        private TestAuthorizationContext authorization;
+        private SourceList<Iteration> sourceList;
+        private Mock<IRegistrationService> registrationService;
+
         [Test]
         public void VerifyIndexPageAuthorized()
         {
@@ -110,7 +108,7 @@ namespace COMET.Web.Common.Tests.Pages
             var session = new Mock<ISession>();
             session.Setup(x => x.DataSourceUri).Returns("http://localhost");
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            var renderer = this.context.RenderComponent<Index>();
+            var renderer = this.context.RenderComponent<IndexComponent>();
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
             this.sourceList.Add(new Iteration());
             Assert.That(() => renderer.FindComponent<Dashboard>(), Throws.Nothing);
@@ -119,7 +117,7 @@ namespace COMET.Web.Common.Tests.Pages
         [Test]
         public void VerifyIndexPageNotAuthorized()
         {
-            var renderer = this.context.RenderComponent<Index>();
+            var renderer = this.context.RenderComponent<IndexComponent>();
             Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
         }
 
@@ -167,7 +165,7 @@ namespace COMET.Web.Common.Tests.Pages
 
             var url = QueryHelpers.AddQueryString("ModelDashboard", queries);
 
-            var renderer = this.context.RenderComponent<Index>(parameters =>
+            var renderer = this.context.RenderComponent<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             var openModel = renderer.FindComponent<OpenModel>();
@@ -175,7 +173,7 @@ namespace COMET.Web.Common.Tests.Pages
 
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(new List<EngineeringModelSetup> { engineeringModelSetup });
 
-            renderer = this.context.RenderComponent<Index>(parameters =>
+            renderer = this.context.RenderComponent<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             openModel = renderer.FindComponent<OpenModel>();
@@ -186,7 +184,7 @@ namespace COMET.Web.Common.Tests.Pages
                 IterationIid = iteration.Iid
             });
 
-            renderer = this.context.RenderComponent<Index>(parameters =>
+            renderer = this.context.RenderComponent<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             openModel = renderer.FindComponent<OpenModel>();
@@ -197,7 +195,7 @@ namespace COMET.Web.Common.Tests.Pages
                 domain
             });
 
-            renderer = this.context.RenderComponent<Index>(parameters =>
+            renderer = this.context.RenderComponent<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             openModel = renderer.FindComponent<OpenModel>();
@@ -210,7 +208,7 @@ namespace COMET.Web.Common.Tests.Pages
             const string targetServer = "http://localhost:5000";
             var url = QueryHelpers.AddQueryString("ModelDashboard", QueryKeys.ServerKey, targetServer);
 
-            var renderer = this.context.RenderComponent<Index>(parameters =>
+            var renderer = this.context.RenderComponent<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             var login = renderer.FindComponent<Login>();

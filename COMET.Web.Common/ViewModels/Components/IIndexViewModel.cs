@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IndexHeader.razor.cs" company="RHEA System S.A.">
+//  <copyright file="IIndexViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,21 +23,31 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Shared
+namespace COMET.Web.Common.ViewModels.Components
 {
-    using COMET.Web.Common.Services.VersionService;
+    using CDP4Dal;
 
-    using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     /// <summary>
-    /// Component that represents the header of the index page
+    /// View Model that handles the home page
     /// </summary>
-    public partial class IndexHeader
+    public interface IIndexViewModel
     {
         /// <summary>
-        /// Gets or sets the Version to display
+        /// The version of the running application
         /// </summary>
-        [Inject]
-        public IVersionService VersionService { get; set; }
+        string Version { get; }
+
+        /// <summary>
+        /// The <see cref="ISessionService" />
+        /// </summary>
+        ISessionService SessionService { get; }
+
+        /// <summary>
+        /// Close the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task Logout();
     }
 }

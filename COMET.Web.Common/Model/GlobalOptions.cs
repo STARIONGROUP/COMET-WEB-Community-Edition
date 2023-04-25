@@ -54,11 +54,6 @@ namespace COMET.Web.Common.Model
         /// Gets or sets the <see cref="Type"/> to have a custom header title
         /// </summary>
         public Type CustomHeaderTitle { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Type"/> to have a custom header for the Index Page
-        /// </summary>
-        public Type CustomIndexHeader { get; set; }
     }
 }
  

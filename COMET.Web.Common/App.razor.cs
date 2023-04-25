@@ -27,6 +27,7 @@ namespace COMET.Web.Common
 {
     using System.Diagnostics.CodeAnalysis;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.RegistrationService;
 
     using Microsoft.AspNetCore.Components;
@@ -56,6 +57,11 @@ namespace COMET.Web.Common
         /// </summary>
         private void RedirectToHomePage()
         {
+            if (this.NavigationManager.Uri.GetParametersFromUrl().ContainsKey("redirect"))
+            {
+                return;
+            }
+
             var requestedUrl = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty);
             var targetUrl = QueryHelpers.AddQueryString("/", "redirect", requestedUrl);
             this.NavigationManager.NavigateTo(targetUrl);
@@ -65,21 +71,33 @@ namespace COMET.Web.Common
         /// Handles the OnNavigate event. Will revoke the authorization based on registered applications
         /// </summary>
         /// <param name="navigationContext">The <see cref="NavigationContext" /></param>
-        private void OnNavigate(NavigationContext navigationContext)
+        private async Task OnNavigate(NavigationContext navigationContext)
         {
             switch (navigationContext.Path)
             {
                 case "":
                 case "/":
                 case "/Logout":
+                case "Logout":
                     break;
                 default:
-                    if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url)))
+                    if (navigationContext.Path.GetParametersFromUrl().ContainsKey("redirect"))
                     {
-                        this.NavigationManager.NavigateTo("/");
+                        break;
                     }
 
-                    break;
+                    if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url))
+                        || this.RegistrationService.RegisteredApplications.Any(x => x.IsDisabled && navigationContext.Path.StartsWith(x.Url)))
+                    {
+                        var cancellationTokenSource =CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
+                        cancellationTokenSource.Cancel();
+
+                        await Task.Delay(1);
+
+                        this.NavigationManager.NavigateTo("/", replace: true);
+                    }
+
+					break;
             }
         }
     }

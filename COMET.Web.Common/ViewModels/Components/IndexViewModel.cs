@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.ViewModels.Pages
+namespace COMET.Web.Common.ViewModels.Components
 {
     using CDP4Dal;
 

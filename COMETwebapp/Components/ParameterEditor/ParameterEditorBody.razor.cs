@@ -80,17 +80,17 @@ namespace COMETwebapp.Components.ParameterEditor
 
             if (this.ViewModel.ElementSelector.SelectedElementBase != null)
             {
-                additionalParameters["element"] = this.ViewModel.ElementSelector.SelectedElementBase.Iid.ToString();
+                additionalParameters["element"] = this.ViewModel.ElementSelector.SelectedElementBase.Iid.ToShortGuid();
             }
 
             if (this.ViewModel.OptionSelector.SelectedOption != null)
             {
-                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
+                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToShortGuid();
             }
 
             if (this.ViewModel.ParameterTypeSelector.SelectedParameterType != null)
             {
-                additionalParameters["parameter"] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToString();
+                additionalParameters["parameter"] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
             }
 
             if (this.ViewModel.IsOwnedParameters)

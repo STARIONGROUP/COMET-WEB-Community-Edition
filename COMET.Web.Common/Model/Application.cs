@@ -54,5 +54,10 @@ namespace COMET.Web.Common.Model
         /// The navigation url for the current application
         /// </summary>
         public string Url { get; set; }
+
+        /// <summary>
+        /// Value asserting that the current <see cref="Application"/> is currently disabled
+        /// </summary>
+        public bool IsDisabled { get; set; }
     }
 }

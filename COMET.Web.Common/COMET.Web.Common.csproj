@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <Version>1.0.4</Version>
+        <Version>1.0.5</Version>
         <AssemblyVersion>1.0.0</AssemblyVersion>
         <FileVersion>1.0.0</FileVersion>
         <Title>CDP4 WEB Common</Title>
@@ -41,14 +41,6 @@
     <ItemGroup>
         <InternalsVisibleTo Include="COMET.Web.Common.Tests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Shared\IndexHeader.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Shared\IndexHeader.razor" />
     </ItemGroup>
 
 </Project>
