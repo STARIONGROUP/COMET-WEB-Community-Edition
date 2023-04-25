@@ -78,6 +78,7 @@ namespace COMET.Web.Common
                 case "":
                 case "/":
                 case "/Logout":
+                case "Logout":
                     break;
                 default:
                     if (navigationContext.Path.GetParametersFromUrl().ContainsKey("redirect"))
