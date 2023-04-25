@@ -71,7 +71,7 @@ namespace COMET.Web.Common
         /// Handles the OnNavigate event. Will revoke the authorization based on registered applications
         /// </summary>
         /// <param name="navigationContext">The <see cref="NavigationContext" /></param>
-        private void OnNavigate(NavigationContext navigationContext)
+        private async Task OnNavigate(NavigationContext navigationContext)
         {
             switch (navigationContext.Path)
             {
@@ -85,12 +85,18 @@ namespace COMET.Web.Common
                         break;
                     }
 
-                    if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url)))
+                    if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url))
+                        || this.RegistrationService.RegisteredApplications.Any(x => x.IsDisabled && navigationContext.Path.StartsWith(x.Url)))
                     {
-                        this.NavigationManager.NavigateTo("/");
+                        var cancellationTokenSource =CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
+                        cancellationTokenSource.Cancel();
+
+                        await Task.Delay(1);
+
+                        this.NavigationManager.NavigateTo("/", replace: true);
                     }
 
-                    break;
+					break;
             }
         }
     }
