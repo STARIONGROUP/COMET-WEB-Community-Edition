@@ -35,6 +35,9 @@ namespace COMET.Web.Common.Components
 
     using Microsoft.AspNetCore.Components;
 
+    /// <summary>
+    /// Common component that can handle the home page of the application
+    /// </summary>
     public partial class IndexComponent
     {
         /// <summary>
