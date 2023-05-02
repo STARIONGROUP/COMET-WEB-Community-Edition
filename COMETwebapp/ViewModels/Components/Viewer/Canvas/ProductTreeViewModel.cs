@@ -55,36 +55,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         private TreeFilter selectedFilter;
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ProductTreeViewModel" />
-        /// </summary>
-        public ProductTreeViewModel(ISelectionMediator selectionMediator)
-        {
-            this.SelectionMediator = selectionMediator;
-            var enumValues = Enum.GetValues(typeof(TreeFilter)).Cast<TreeFilter>();
-            this.TreeFilters = enumValues.ToList();
-            this.SelectedFilter = TreeFilter.ShowFullTree;
-
-            this.SelectionMediator.OnModelSelectionChanged += sceneObject =>
-            {
-                var treeNodes = this.RootViewModel.GetFlatListOfDescendants();
-                treeNodes.ForEach(x => x.IsSelected = false);
-
-                if (sceneObject != null)
-                {
-                    var node = treeNodes.FirstOrDefault(x => x.Node.SceneObject == sceneObject);
-
-                    if (node is not null)
-                    {
-                        node.IsSelected = true;
-                    }
-                }
-            };
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
-        }
-
-        /// <summary>
         /// Gets o sets the <see cref="SelectionMediator" />
         /// </summary>
         public ISelectionMediator SelectionMediator { get; private set; }
@@ -122,6 +92,40 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         }
 
         /// <summary>
+        /// Gets all the nodes from the tree
+        /// </summary>
+        private List<INodeComponentViewModel> TreeNodes { get; set; } = new();
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ProductTreeViewModel" />
+        /// </summary>
+        public ProductTreeViewModel(ISelectionMediator selectionMediator)
+        {
+            this.SelectionMediator = selectionMediator;
+            var enumValues = Enum.GetValues(typeof(TreeFilter)).Cast<TreeFilter>();
+            this.TreeFilters = enumValues.ToList();
+            this.SelectedFilter = TreeFilter.ShowFullTree;
+
+            this.SelectionMediator.OnModelSelectionChanged += sceneObject =>
+            {
+                this.TreeNodes.ForEach(x => x.IsSelected = false);
+
+                if (sceneObject != null)
+                {
+                    var node = this.TreeNodes.FirstOrDefault(x => x.Node.SceneObject == sceneObject);
+
+                    if (node is not null)
+                    {
+                        node.IsSelected = true;
+                    }
+                }
+            };
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
+        }
+        
+        /// <summary>
         /// Creates the product tree
         /// </summary>
         /// <param name="productTreeElements">the product tree elements</param>
@@ -135,52 +139,20 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 
             if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null)
             {
+                var actualStates = selectedActualFiniteStates.ToList();
+
                 var topElement = treeElements.First();
-                var topSceneObject = SceneObject.Create(topElement, selectedOption, selectedActualFiniteStates.ToList());
+                var topSceneObject = SceneObject.Create(topElement, selectedOption, actualStates);
                 this.RootViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
-                this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, selectedActualFiniteStates);
+                this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, actualStates);
                 this.RootViewModel.OrderAllDescendantsByShortName();
+
+                this.TreeNodes = this.RootViewModel?.GetFlatListOfDescendants(true);
+
                 return this.RootViewModel;
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Event for when the filter on the tree changes
-        /// </summary>
-        public void OnFilterChanged()
-        {
-            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
-
-            if (fullTree is not null)
-            {
-                if (this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
-                {
-                    fullTree.ForEach(x => x.IsDrawn = x.Node.SceneObject.Primitive != null);
-                }
-                else
-                {
-                    fullTree.ForEach(x => x.IsDrawn = true);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Event for when the text of the search filter is changing
-        /// </summary>
-        public void OnSearchFilterChange()
-        {
-            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
-
-            if (this.SearchText == string.Empty)
-            {
-                fullTree?.ForEach(x => x.IsDrawn = true);
-            }
-            else
-            {
-                fullTree?.ForEach(x => { x.IsDrawn = x.Node.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase); });
-            }
         }
 
         /// <summary>
@@ -204,23 +176,60 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             {
                 childsOfElementBase = elementUsage.ElementDefinition.ContainedElement;
             }
-
-            if (childsOfElementBase is not null)
+            
+            if (childsOfElementBase is null)
             {
-                if (parent is not null)
+                return;
+            }
+
+            var actualStates = selectedActualFiniteStates.ToList();
+
+            parent?.AddChild(current);
+
+            foreach (var child in childsOfElementBase)
+            {
+                var sceneObject = SceneObject.Create(child, selectedOption, actualStates);
+
+                if (sceneObject is not null)
                 {
-                    parent.AddChild(current);
+                    var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
+                    this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, actualStates);
                 }
+            }
+        }
 
-                foreach (var child in childsOfElementBase)
+        /// <summary>
+        /// Event for when the filter on the tree changes
+        /// </summary>
+        public void OnFilterChanged()
+        {
+            if (this.TreeNodes is not null)
+            {
+                if (this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
                 {
-                    var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
+                    this.TreeNodes.ForEach(x => x.IsDrawn = x.Node.SceneObject.Primitive != null);
+                }
+                else
+                {
+                    this.TreeNodes.ForEach(x => x.IsDrawn = true);
+                }
+            }
+        }
 
-                    if (sceneObject is not null)
-                    {
-                        var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
-                        this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
-                    }
+        /// <summary>
+        /// Event for when the text of the search filter is changing
+        /// </summary>
+        public void OnSearchFilterChange()
+        {
+            if (this.TreeNodes is not null)
+            {
+                if (this.SearchText == string.Empty)
+                {
+                    this.TreeNodes.ForEach(x => x.IsDrawn = true);
+                }
+                else
+                {
+                    this.TreeNodes.ForEach(x => { x.IsDrawn = x.Node.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase); });
                 }
             }
         }
