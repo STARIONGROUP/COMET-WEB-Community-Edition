@@ -143,6 +143,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 
                 var topElement = treeElements.First();
                 var topSceneObject = SceneObject.Create(topElement, selectedOption, actualStates);
+                
                 this.RootViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
                 this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, actualStates);
                 this.RootViewModel.OrderAllDescendantsByShortName();

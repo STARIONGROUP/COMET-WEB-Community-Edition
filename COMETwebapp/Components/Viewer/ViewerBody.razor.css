@@ -14,7 +14,8 @@
     margin-right: 2%;
     overflow-y: auto;
     max-height: 67vh;
-    top: 0
+    top: 0;
+    border: 1px solid #EEE;
 }
 
 #center-container {

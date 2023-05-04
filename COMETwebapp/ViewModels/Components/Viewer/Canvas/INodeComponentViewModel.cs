@@ -39,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Gets or sets the parent of this <see cref="NodeComponentViewModel"/>
         /// </summary>
-        INodeComponentViewModel Parent { get; set; }
+        INodeComponentViewModel Parent { get; }
 
         /// <summary>
         /// Field for containing the children of this <see cref="INodeComponentViewModel"/>
@@ -125,5 +125,37 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         /// <param name="node">the selected <see cref="INodeComponentViewModel"/></param>
         void TreeNodeVisibilityChanged(INodeComponentViewModel node);
+
+        /// <summary>
+        /// Gets if this method is the first child.
+        /// </summary>
+        /// <returns>true if it's the first child, or last and the parent only contains this node, false otherwise.</returns>
+        bool IsFirstChild();
+
+        /// <summary>
+        /// Gets if this method is the last child.
+        /// </summary>
+        /// <returns>true if it's the last child, or first and the parent only contains this node, false otherwise.</returns>
+        bool IsLastChild();
+
+        /// <summary>
+        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy by the <see cref="numberOfLevels"/> specified
+        /// </summary>
+        /// <returns>the <see cref="TreeNode"/> or null if the ascendant can't be computed</returns>
+        INodeComponentViewModel GetAscendant(int numberOfLevels);
+
+        /// <summary>
+        /// Gets if the <see cref="nodeViewModel"/> is direct child of this node
+        /// </summary>
+        /// <param name="nodeViewModel">the node to check</param>
+        /// <returns>true if it's direct child, false otherwise</returns>
+        bool IsDirectChild(INodeComponentViewModel nodeViewModel);
+
+        /// <summary>
+        /// Gets if the <see cref="nodeViewModel"/> is descendant of this node
+        /// </summary>
+        /// <param name="nodeViewModel">the node to check</param>
+        /// <returns>true if it's descendant, false otherwise</returns>
+        bool IsDescendant(INodeComponentViewModel nodeViewModel);
     }
 }

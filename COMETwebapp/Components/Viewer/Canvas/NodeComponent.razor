@@ -34,9 +34,38 @@
 
     @if (this.ViewModel.IsDrawn)
     {
-        <div class="@nodeClasses" onclick="@(()=>this.ViewModel.TreeSelectionChanged(this.ViewModel))" style="margin-left: calc(20px * @this.ViewModel.Level)">
-            <div class="node-inner-content">
+        var dxMargin = 20;
 
+        <div class="@nodeClasses" onclick="@(()=>this.ViewModel.TreeSelectionChanged(this.ViewModel))">
+
+            @for(var i=0; i <= this.ViewModel.Level; i++)
+            {
+                var margin = dxMargin * i;
+                var percentaje = 100;
+                
+                if (this.ViewModel.IsLastChild() && i == this.ViewModel.Level)
+                {
+                    percentaje = this.ViewModel.GetParentNode() == null ? 0 : 45;
+                }
+
+                var ascendant = this.ViewModel.GetAscendant(i);
+                var style = $"height: {percentaje}%; top: 0px; margin-left: {margin}px;";
+                
+                if (ascendant is not null && ascendant.IsDescendant(this.ViewModel) && !ascendant.IsLastChild())
+                {
+                    margin = dxMargin * ascendant.Level;
+                    style = $"height: {percentaje}%; top: 0px; margin-left: {margin}px;";
+                    <div class="vertical-line" style="@style"></div>
+                }
+
+                if (i == this.ViewModel.Level)
+                {
+                    <div class="vertical-line" style="@style"></div>
+                }
+            }
+            
+            <div class="node-inner-content" style = "margin-left: calc(20px * @this.ViewModel.Level)">
+                <hr>
                 @if (this.ViewModel.Node.GetChildren().Count > 0)
                 {
                     @if (this.ViewModel.IsExpanded)

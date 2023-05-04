@@ -1,18 +1,20 @@
 ﻿.node-inner-content {
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: center;
     align-items: center;
+    padding: 1%;
+    padding-left: 0;
+    border-radius: 5px;
+    margin-bottom: 2px;
 }
 
 .treeNode {
+    position: relative;
     cursor: pointer;
-    padding: 2%;
-    border-radius: 5px;
-    margin-bottom: 5px;
     display: flex;
-    flex-direction: column;
-    justify-content: start;
+    flex-direction: row;
+    justify-content: stretch;
     align-items: start;
     overflow: hidden;
 }
@@ -22,7 +24,7 @@
     }
 
     .treeNode:hover {
-        background: #EEE;
+        background: #f5f5f5;
     }
 
 .active {
@@ -41,8 +43,11 @@
 }
 
 .expandIcon {
-    width: 1rem;
-    height: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: #EEE;
+    padding: 5px;
+    border-radius: 50%;
 }
 
 .treeIcon {
@@ -51,4 +56,19 @@
     height: auto;
     max-height: 1.5rem;
     max-width: 1.5rem;
+}
+
+.vertical-line {
+    width: 2px;
+    background-color: #EEE;
+    border-left: 1px solid #EEE;
+    position: absolute;
+}
+
+hr {
+    min-width: 10px;
+    max-width: 10px;
+    width: 10px;
+    height: 1px;
+    border-color: #EEE;
 }
