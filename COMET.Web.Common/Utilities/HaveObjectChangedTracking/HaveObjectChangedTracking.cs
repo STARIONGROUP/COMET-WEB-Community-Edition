@@ -63,6 +63,7 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         /// </param>
         protected void InitializeSubscriptions(IEnumerable<Type> typesOfInterest)
         {
+            this.Dispose();
             var observables = typesOfInterest.Select(objectChangedTypeTarget => CDPMessageBus.Current.Listen<ObjectChangedEvent>(objectChangedTypeTarget)).ToList();
             this.Disposables.Add(observables.Merge().Subscribe(this.RecordChange));
         }
