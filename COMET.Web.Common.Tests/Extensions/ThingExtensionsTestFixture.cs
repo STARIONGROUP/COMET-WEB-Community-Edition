@@ -403,6 +403,12 @@ namespace COMET.Web.Common.Tests.Extensions
         {
             var parameters = this.iteration.QueryParameterAndOverrideBases(this.iteration.DefaultOption, this.domainOfExpertise).ToList();
             Assert.That(parameters, Is.Not.Empty);
+
+            parameters = this.iteration.QueryParameterAndOverrideBases(this.iteration.DefaultOption, this.currentDomainOfExpertise).ToList();
+            Assert.That(parameters, Is.Empty);
+
+            parameters = this.iteration.QueryParameterAndOverrideBases(this.iteration.DefaultOption).ToList();
+            Assert.That(parameters, Is.Not.Empty);
         }
 
         [Test]
@@ -410,6 +416,9 @@ namespace COMET.Web.Common.Tests.Extensions
         {
             var ownedParameterSubscriptions = this.iteration.QueryOwnedParameterSubscriptions(this.currentDomainOfExpertise).ToList();
             Assert.That(ownedParameterSubscriptions, Is.EquivalentTo(this.parameterSubscriptions));
+
+            var evolution = ownedParameterSubscriptions.Select(x => x.QueryParameterSubscriptionValueSetEvolution());
+            Assert.That(evolution.First(), Is.Not.Empty);
         }
     }
 }
