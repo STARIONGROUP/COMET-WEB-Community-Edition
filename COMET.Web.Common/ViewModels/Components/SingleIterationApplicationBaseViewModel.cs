@@ -35,7 +35,7 @@ namespace COMET.Web.Common.ViewModels.Components
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.Utilities.HaveObjectChangedTracking;
 
     using DynamicData.Binding;
 
@@ -44,7 +44,7 @@ namespace COMET.Web.Common.ViewModels.Components
     /// <summary>
     /// Base view model for any application that will need only one <see cref="Iteration" />
     /// </summary>
-    public abstract class SingleIterationApplicationBaseViewModel : DisposableObject, ISingleIterationApplicationBaseViewModel
+    public abstract class SingleIterationApplicationBaseViewModel : HaveObjectChangedTracking, ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
         /// Backing field for <see cref="CurrentIteration" />
@@ -106,6 +106,20 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Value asserting that the view model has set initial values at least once
         /// </summary>
         public bool HasSetInitialValuesOnce { get; set; }
+
+        /// <summary>
+        /// Records an <see cref="ObjectChangedEvent" />
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
+        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
+            {
+                return;
+            }
+
+            base.RecordChange(objectChangedEvent);
+        }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
