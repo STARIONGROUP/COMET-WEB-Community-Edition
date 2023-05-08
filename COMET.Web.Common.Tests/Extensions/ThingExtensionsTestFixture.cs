@@ -397,5 +397,19 @@ namespace COMET.Web.Common.Tests.Extensions
                 Assert.That(unusedElements, Is.EqualTo(this.unUsedElements));
             });
         }
+
+        [Test]
+        public void VerifyQueryParameterAndOverrideBases()
+        {
+            var parameters = this.iteration.QueryParameterAndOverrideBases(this.iteration.DefaultOption, this.domainOfExpertise).ToList();
+            Assert.That(parameters, Is.Not.Empty);
+        }
+
+        [Test]
+        public void VerifyQueryParameterSubscriptions()
+        {
+            var ownedParameterSubscriptions = this.iteration.QueryOwnedParameterSubscriptions(this.currentDomainOfExpertise).ToList();
+            Assert.That(ownedParameterSubscriptions, Is.EquivalentTo(this.parameterSubscriptions));
+        }
     }
 }
