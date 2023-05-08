@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
 
     using DynamicData;
 
