@@ -32,11 +32,11 @@ namespace COMETwebapp.Services.SubscriptionService
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
-    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
 
     using ReactiveUI;

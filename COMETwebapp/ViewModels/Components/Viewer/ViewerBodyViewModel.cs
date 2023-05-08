@@ -28,11 +28,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
-    using COMETwebapp.Extensions;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;

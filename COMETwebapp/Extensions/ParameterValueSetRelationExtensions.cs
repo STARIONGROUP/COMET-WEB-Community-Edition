@@ -26,6 +26,8 @@ namespace COMETwebapp.Extensions
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Extensions;
+
     /// <summary> 
     /// Class used for extension of the relation between <see cref="ParameterBase"/> and <see cref="IValueSet"/> 
     /// </summary> 

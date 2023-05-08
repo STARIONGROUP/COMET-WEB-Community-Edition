@@ -43,6 +43,10 @@ namespace COMET.Web.Common.Tests.Extensions
         private DomainOfExpertise currentDomainOfExpertise;
         private DomainOfExpertise domainOfExpertise;
         private SiteDirectory siteDirectory;
+        private List<ParameterSubscription> parameterSubscriptions;
+        private List<ParameterValueSetBase> parameterValueSetBase;
+        private List<ElementDefinition> unReferencedElements;
+        private List<ElementDefinition> unUsedElements;
 
         [SetUp]
         public void SetUp()
@@ -264,6 +268,22 @@ namespace COMET.Web.Common.Tests.Extensions
 
             parameter.ParameterSubscription.Add(parameterSubscription);
 
+            this.parameterValueSetBase = new List<ParameterValueSetBase>
+            {
+                parameterValueset1,
+                parameterValueset2
+            };
+
+            this.unReferencedElements = new List<ElementDefinition>
+            {
+                elementDefinition3
+            };
+
+            this.unUsedElements = new List<ElementDefinition>
+            {
+                elementDefinition3
+            };
+
             var nameProperty = typeof(ParameterValueSet).GetProperty(nameof(ParameterValueSet.RevisionNumber))!;
             nameProperty.SetValue(parameterValueset1, 2);
             nameProperty.SetValue(oldParameterValueset1, 1);
@@ -279,6 +299,8 @@ namespace COMET.Web.Common.Tests.Extensions
             parameterSubscriptionValueSet.Revisions.Add(1, oldParameterSubscriptionValueSet);
 
             parameterSubscriptionValueSet.SubscribedValueSet = parameterValueset1;
+
+            this.parameterSubscriptions = new List<ParameterSubscription> { parameterSubscription };
         }
 
         [Test]
@@ -312,6 +334,67 @@ namespace COMET.Web.Common.Tests.Extensions
             {
                 Assert.That(parameterTypeNames, Does.Contain("mass"));
                 Assert.That(parameterTypeNames, Does.Contain("volume"));
+            });
+        }
+
+        [Test]
+        public void VerifyGetNestedParameters()
+        {
+            Assert.That(this.iteration.QueryNestedParameters(this.iteration.Option[0]), Is.Not.Empty);
+        }
+
+        [Test]
+        public void VerifyGetParameterSubscriptionsByElement()
+        {
+            var subscriptions = this.iteration.TopElement.QueryOwnedParameterSubscriptions(this.currentDomainOfExpertise).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(subscriptions, Has.Count.EqualTo(1));
+                Assert.That(subscriptions, Does.Contain(this.parameterSubscriptions[0]));
+            });
+        }
+
+        [Test]
+        public void VerifyGetSubscribedParameters()
+        {
+            var subscriptions = this.iteration.QuerySubscribedParameterByOthers(this.domainOfExpertise).ToList();
+            Assert.That(subscriptions, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyGetParameterValueSetBase()
+        {
+            var valueSets = this.iteration.QueryParameterValueSetBase().ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(valueSets, Is.Not.Empty);
+                Assert.That(valueSets, Is.EqualTo(this.parameterValueSetBase));
+            });
+        }
+
+        [Test]
+        public void VerifyGetUnreferencedElements()
+        {
+            var unreferencedElements = this.iteration.QueryUnreferencedElements().ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(unreferencedElements, Is.Not.Empty);
+                Assert.That(unreferencedElements, Is.EqualTo(this.unReferencedElements));
+            });
+        }
+
+        [Test]
+        public void VerifyGetUnusedElementDefinitions()
+        {
+            var unusedElements = this.iteration.QueryUnusedElementDefinitions().ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(unusedElements, Is.Not.Empty);
+                Assert.That(unusedElements, Is.EqualTo(this.unUsedElements));
             });
         }
     }

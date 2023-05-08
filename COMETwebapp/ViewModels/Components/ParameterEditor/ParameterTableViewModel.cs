@@ -31,12 +31,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Dal;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
-
-    using COMETwebapp.Extensions;
 
     using DynamicData;
 

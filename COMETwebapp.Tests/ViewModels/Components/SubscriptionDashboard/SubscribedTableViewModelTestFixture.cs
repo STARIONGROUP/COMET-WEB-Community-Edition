@@ -32,7 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
 

@@ -27,9 +27,9 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.Elements
 	using CDP4Common.EngineeringModelData;
 	using CDP4Common.SiteDirectoryData;
 
-	using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
 
-	using DynamicData;
+    using DynamicData;
 
 	/// <summary>
 	/// View model that provides information related to <see cref="ElementDefinition" />

@@ -27,8 +27,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-
-    using COMETwebapp.Extensions;
+        
+    using COMET.Web.Common.Extensions;
 
     using ReactiveUI;
 

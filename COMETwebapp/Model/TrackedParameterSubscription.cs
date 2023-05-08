@@ -26,7 +26,7 @@ namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
 
     /// <summary>
     /// Handles all required information to track any updates on a <see cref="ParameterSubscription" />
