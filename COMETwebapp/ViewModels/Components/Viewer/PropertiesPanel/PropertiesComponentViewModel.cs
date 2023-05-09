@@ -214,6 +214,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 if(this.SelectedParameter.ParameterType is CompoundParameterType compoundParameterType)
                 {
                     var components = compoundParameterType.Component.ToList();
+                    
                     for(var componentIndex = 0; componentIndex < components.Count; componentIndex++)
                     {
                         var value = valueSet.ActualValue[componentIndex];

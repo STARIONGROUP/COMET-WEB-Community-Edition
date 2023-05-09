@@ -151,8 +151,22 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Manual = new ValueArray<string>(compoundValues),
             };
 
-            Assert.DoesNotThrowAsync(() => this.viewModel.ParameterValueSetChanged(parameterValueSet));
-            Assert.DoesNotThrow(() => this.viewModel.OnSubmit());
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => this.viewModel.ParameterValueSetChanged(parameterValueSet), Throws.Nothing);
+                Assert.That(() => this.viewModel.OnSubmit(), Throws.Nothing);
+            });
+
+            var compoundValues1 = new List<string> { "false" };
+            
+            var parameterValueSet1 = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(compoundValues1),
+            };
+     
+            Assert.That(() => this.viewModel.ParameterValueSetChanged(parameterValueSet1), Throws.Nothing);                
         }
     }
 }
