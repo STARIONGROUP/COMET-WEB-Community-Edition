@@ -25,6 +25,7 @@
 
 namespace COMET.Web.Common.Tests.ViewModels.Components
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -95,6 +96,26 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(1));
         }
 
+        [Test]
+        public void VerifyObjectChangeSubscriptions()
+        {
+            this.viewModel.Initialize(new List<Type>{typeof(ElementBase)});
+            var elementDefinition = new ElementDefinition(){Container = new Iteration()};
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
+
+            this.viewModel.CurrentIteration = new Iteration(){Iid = Guid.NewGuid()};
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
+
+            this.viewModel.CurrentIteration.Element.Add(elementDefinition);
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            Assert.That(this.viewModel.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
+        }
+
         private class SingleIterationApplicationViewModel : SingleIterationApplicationBaseViewModel
         {
             public int OnSessionRefreshCount;
@@ -116,6 +137,13 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                 this.OnSessionRefreshCount++;
                 return Task.CompletedTask;
             }
+
+            public void Initialize(IEnumerable<Type> types)
+            {
+                this.InitializeSubscriptions(types);
+            }
+
+            public IReadOnlyList<Thing> AddedThingsReadOnlyList => this.AddedThings.AsReadOnly();
         }
     }
 }

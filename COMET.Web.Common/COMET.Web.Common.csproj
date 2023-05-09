@@ -42,5 +42,4 @@
         <InternalsVisibleTo Include="COMET.Web.Common.Tests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
-
 </Project>
