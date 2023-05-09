@@ -24,9 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using System.Text;
+
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Helpers;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -205,11 +208,27 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             if (valueSet is ParameterValueSetBase parameterValueSetBase)
             {
+                var validationMessageBuilder = new StringBuilder();
                 var newValueArray = new ValueArray<string>(valueSet.ActualValue);
 
-                var validationMessage = ParameterValueValidator.Validate(valueSet.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale);
+                if(this.SelectedParameter.ParameterType is CompoundParameterType compoundParameterType)
+                {
+                    var components = compoundParameterType.Component.ToList();
+                    
+                    for(var componentIndex = 0; componentIndex < components.Count; componentIndex++)
+                    {
+                        var value = valueSet.ActualValue[componentIndex];
+                        validationMessageBuilder .Append(ParameterValueValidator.Validate(value, components[componentIndex].ParameterType, components[componentIndex]?.Scale));
+                    }
+                }
+                else
+                {
+                    validationMessageBuilder.Append(ParameterValueValidator.Validate(valueSet.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale));
+                }
 
-                if (validationMessage != null)
+                var validationMessage = validationMessageBuilder.ToString();
+
+                if (!string.IsNullOrEmpty(validationMessage))
                 {
                     this.ParameterHaveChanges = false;
                 }
@@ -219,6 +238,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     this.ParameterHaveChanges = true;
 
                     var clonedValueSetBase = parameterValueSetBase.Clone(false);
+                    
                     clonedValueSetBase.Manual = newValueArray;
                     this.ParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
 

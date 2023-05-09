@@ -25,15 +25,21 @@
 namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
     using Bunit;
+    
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
+    using COMETwebapp.Model;
+    using COMETwebapp.Model.Primitives;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-
+    
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -48,6 +54,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         private TestContext context;
         private PropertiesComponent properties;
         private IRenderedComponent<PropertiesComponent> renderedComponent;
+        private PropertiesComponentViewModel viewModel;
 
         [SetUp]
         public void SetUp()
@@ -59,17 +66,20 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
             var selectionMediator = new Mock<ISelectionMediator>();
             this.context.Services.AddSingleton(selectionMediator);
+            selectionMediator.Setup(x => x.SelectedSceneObjectClone).Returns(new SceneObject(It.IsAny<Primitive>()));
 
             var sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(sessionService);
 
             var iterationService = new Mock<ISubscriptionService>();
             this.context.Services.AddSingleton(iterationService);
-            
-            var viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object)
+
+            this.viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object)
             {
-                IsVisible = true
+                IsVisible = true,
             };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>();
 
             this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters =>
             {
@@ -97,6 +107,66 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             Assert.That(component, Is.Not.Null);
             this.properties.ViewModel.IsVisible = false;
             Assert.Throws<ElementNotFoundException>(() => this.renderedComponent.Find("#properties-header"));
+        }
+        
+        [Test]
+        public void VerifyElementValueChanges()
+        {
+            var compoundData = new OrderedItemList<ParameterTypeComponent>(null)
+            {
+                new ParameterTypeComponent
+                {
+                    Iid = Guid.NewGuid(),
+                    ShortName = "firstValue",
+                    Scale = new OrdinalScale
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    },
+                    ParameterType = new SimpleQuantityKind
+                    {
+                        Iid = Guid.NewGuid(),
+                        ShortName = "m"
+                    }
+                }
+            };
+
+            var parametertype = new CompoundParameterType
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            parametertype.Component.AddRange(compoundData);
+
+            var parameter = new Parameter() { Iid = Guid.NewGuid(), ParameterType = parametertype };
+
+            this.viewModel.SelectedParameter = parameter;
+
+            var compoundValues = new List<string> { "1" };
+
+            var parameterValueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(compoundValues),
+            };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => this.viewModel.ParameterValueSetChanged(parameterValueSet), Throws.Nothing);
+                Assert.That(() => this.viewModel.OnSubmit(), Throws.Nothing);
+            });
+
+            var compoundValues1 = new List<string> { "false" };
+            
+            var parameterValueSet1 = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(compoundValues1),
+            };
+     
+            Assert.That(() => this.viewModel.ParameterValueSetChanged(parameterValueSet1), Throws.Nothing);                
         }
     }
 }
