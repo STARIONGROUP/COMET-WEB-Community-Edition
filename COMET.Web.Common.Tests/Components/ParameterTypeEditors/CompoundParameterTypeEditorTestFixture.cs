@@ -36,6 +36,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
+    using DevExpress.Blazor;
+
+    using Microsoft.AspNetCore.Components.Web;
+
     using Moq;
 
     using NUnit.Framework;
@@ -150,6 +154,9 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
                 Assert.That(this.editor, Is.Not.Null);
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
             });
+
+            var editButton = this.renderedComponent.FindComponent<DxButton>();
+            this.renderedComponent.InvokeAsync(() => editButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
         }
 
         [Test]

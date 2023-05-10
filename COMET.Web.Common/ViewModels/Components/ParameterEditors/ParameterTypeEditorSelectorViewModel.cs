@@ -51,11 +51,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         private IHaveValueSetViewModel haveValueSetViewModel;
 
         /// <summary>
-        /// Gets the current <see cref="ParameterSwitchKind" />
-        /// </summary>
-        public ParameterSwitchKind CompoundCurrentParameterSwitchKind { get; set; }
-
-        /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel" />
         /// </summary>
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>

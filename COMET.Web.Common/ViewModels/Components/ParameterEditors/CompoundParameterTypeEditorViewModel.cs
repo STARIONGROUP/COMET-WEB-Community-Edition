@@ -84,7 +84,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             var parameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, valueArrayIndex)
             {
                 ParameterValueChanged = this.ParameterValueChanged,
-                CompoundCurrentParameterSwitchKind = this.CurrentParameterSwitchKind
             };
 
             return parameterTypeEditorSelectorViewModel;
