@@ -121,7 +121,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             sessionService.Setup(x => x.Session).Returns(session.Object);
 
-            this.viewModel = new CompoundParameterTypeEditorViewModel(this.parameterType, parameterValueSet, false);
+            this.viewModel = new CompoundParameterTypeEditorViewModel(this.parameterType, parameterValueSet, false, ParameterSwitchKind.MANUAL);
         }
 
         [Test]
