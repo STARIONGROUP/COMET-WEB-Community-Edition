@@ -81,8 +81,4 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
-    </ItemGroup>
-
 </Project>
