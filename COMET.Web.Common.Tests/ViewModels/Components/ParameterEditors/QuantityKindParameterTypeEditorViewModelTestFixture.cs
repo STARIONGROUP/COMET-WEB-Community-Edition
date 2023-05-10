@@ -53,7 +53,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 Iid = Guid.NewGuid()
             };
 
-            this.viewModel = new QuantityKindParameterTypeEditorViewModel(textParameterType, parameterValueSet, false);
+            this.viewModel = new QuantityKindParameterTypeEditorViewModel(textParameterType, parameterValueSet, false, ParameterSwitchKind.MANUAL);
         }
 
         [Test]

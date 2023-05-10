@@ -59,7 +59,7 @@ namespace COMET.Web.Common.Tests.Utilities
                 Manual = new ValueArray<string>(compoundValues),
             };
 
-            this.viewModel = new CompoundParameterTypeEditorViewModel(parameterType, parameterValueSet, false);
+            this.viewModel = new CompoundParameterTypeEditorViewModel(parameterType, parameterValueSet, false, ParameterSwitchKind.MANUAL);
         }
 
         [Test]

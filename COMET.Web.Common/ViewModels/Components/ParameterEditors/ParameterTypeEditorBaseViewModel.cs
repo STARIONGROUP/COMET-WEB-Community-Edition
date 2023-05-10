@@ -58,13 +58,18 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         private ValueArray<string> valueArray;
 
         /// <summary>
+        /// Gets the current <see cref="ParameterSwitchKind" />
+        /// </summary>
+        public ParameterSwitchKind CompoundCurrentParameterSwitchKind { get; set; } 
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, ParameterSwitchKind compoundParameterSwitchKind, int valueArrayIndex = 0)
         {
             this.ValueSet = valueSet;
             this.ValueArrayIndex = valueArrayIndex;
@@ -74,6 +79,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             {
                 this.Parameter = valueSetBase.Container as ParameterOrOverrideBase;
             }
+
+            this.CompoundCurrentParameterSwitchKind = compoundParameterSwitchKind;
 
             this.InitializesProperties(isReadOnly);
         }
@@ -220,7 +227,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         {
             this.initialReadOnlyValue = readOnly;
 
-            this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
+            this.UpdateParameterSwitchKind(this.CompoundCurrentParameterSwitchKind);
         }
     }
 }

@@ -51,6 +51,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         private IHaveValueSetViewModel haveValueSetViewModel;
 
         /// <summary>
+        /// Gets the current <see cref="ParameterSwitchKind" />
+        /// </summary>
+        public ParameterSwitchKind CompoundCurrentParameterSwitchKind { get; set; }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel" />
         /// </summary>
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
@@ -98,14 +103,14 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         {
             this.haveValueSetViewModel = this.ParameterType switch
             {
-                BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                DateParameterType dateParameterType => new DateParameterTypeEditorViewModel(dateParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                DateTimeParameterType dateTimeParameterType => new DateTimeParameterTypeEditorViewModel(dateTimeParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                EnumerationParameterType enumerationParameterType => new EnumerationParameterTypeEditorViewModel(enumerationParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                DateParameterType dateParameterType => new DateParameterTypeEditorViewModel(dateParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                DateTimeParameterType dateTimeParameterType => new DateTimeParameterTypeEditorViewModel(dateTimeParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                EnumerationParameterType enumerationParameterType => new EnumerationParameterTypeEditorViewModel(enumerationParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
+                TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly, CompoundCurrentParameterSwitchKind, this.ValueArrayIndex),
                 _ => throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented")
             };
 

@@ -54,7 +54,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, ParameterSwitchKind compoundParameterSwitchKind, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, compoundParameterSwitchKind, valueArrayIndex)
         {
         }
 
@@ -98,7 +98,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         {
             var parameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, valueArrayIndex)
             {
-                ParameterValueChanged = this.ParameterValueChanged
+                ParameterValueChanged = this.ParameterValueChanged,
+                CompoundCurrentParameterSwitchKind = this.CurrentParameterSwitchKind
             };
 
             return parameterTypeEditorSelectorViewModel;
