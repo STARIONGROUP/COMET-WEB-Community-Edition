@@ -35,11 +35,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     public interface ICompoundParameterTypeEditorViewModel
     {
         /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        bool IsOnEditMode { get; set; }
-
-        /// <summary>
         /// Event for when the edit button is clicked
         /// </summary>
         void OnComponentSelected();

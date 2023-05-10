@@ -25,7 +25,7 @@
 @inherits DisposableComponent
 
 <DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" HeaderText="Edit Compound ParameterType" Width="auto" CloseOnOutsideClick="false">
-        <CompoundParameterTypeEditor ViewModel="this.ViewModel.CompoundParameterTypeEditorViewModel" />
+    <CompoundParameterTypeEditor ViewModel="this.ViewModel.CompoundParameterTypeEditorViewModel" IsOnEditMode="@this.ViewModel.IsOnEditMode" />
 </DxPopup>
 
 <div class="container-fluid table-container">

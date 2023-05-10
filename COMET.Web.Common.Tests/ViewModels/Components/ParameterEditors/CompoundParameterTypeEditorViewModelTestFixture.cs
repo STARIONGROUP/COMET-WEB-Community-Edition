@@ -121,7 +121,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             sessionService.Setup(x => x.Session).Returns(session.Object);
 
-            this.viewModel = new CompoundParameterTypeEditorViewModel(this.parameterType, parameterValueSet, false, ParameterSwitchKind.MANUAL);
+            this.viewModel = new CompoundParameterTypeEditorViewModel(this.parameterType, parameterValueSet, false);
         }
 
         [Test]
@@ -147,14 +147,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 Assert.That(parameterTypeEditorSelectorViewModel.ParameterType, Is.Not.Null);
                 Assert.That(parameterTypeEditorSelectorViewModel.ParameterType, Is.EqualTo(this.parameterType));
             });
-        }
-
-        [Test]
-        public void VerifyOnComponentSelected()
-        {
-            this.viewModel.OnComponentSelected();
-
-            Assert.That(this.viewModel.IsOnEditMode, Is.True);
         }
     }
 }

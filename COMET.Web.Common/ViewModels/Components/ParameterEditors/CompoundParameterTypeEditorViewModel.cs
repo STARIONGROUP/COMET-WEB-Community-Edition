@@ -43,28 +43,14 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     public class CompoundParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<CompoundParameterType>, ICompoundParameterTypeEditorViewModel
     {
         /// <summary>
-        /// Backing field for <see cref="IsOnEditMode" />
-        /// </summary>
-        private bool isOnEditMode;
-
-        /// <summary>
         /// Creates a new instance of type <see cref="CompoundParameterTypeEditorViewModel" />
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, ParameterSwitchKind compoundParameterSwitchKind, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, compoundParameterSwitchKind, valueArrayIndex)
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
-        }
-
-        /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        public bool IsOnEditMode
-        {
-            get => this.isOnEditMode;
-            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
         }
 
         /// <summary>
@@ -73,7 +59,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         public void OnComponentSelected()
         {
             CDPMessageBus.Current.SendMessage(new CompoundComponentSelectedEvent(this));
-            this.IsOnEditMode = true;
         }
 
         /// <summary>
