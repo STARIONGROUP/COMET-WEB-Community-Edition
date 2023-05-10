@@ -156,6 +156,9 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
                 Assert.That(this.editor, Is.Not.Null);
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
             });
+
+            var editButton = this.renderedComponent.FindComponent<DxButton>();
+            this.renderedComponent.InvokeAsync(() => editButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
         }
 
         [Test]
