@@ -33,7 +33,7 @@ else if (this.ViewModel.ValueSet is not null)
 {
     if (this.ViewModel is ICompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
     {
-        if (compoundParameterTypeEditorViewModel.IsOnEditMode)
+        if (this.IsOnEditMode)
         {
             <div class="compound-editor-item">
                 <DxFormLayout ItemCaptionAlignment="ItemCaptionAlignment.All">
@@ -43,7 +43,7 @@ else if (this.ViewModel.ValueSet is not null)
                         var index = i;
                         var component = this.ViewModel.ParameterType.Component[i];
                             <DxFormLayoutItem ColSpanMd="12" Caption=@component.ShortName>
-                                <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" />
+                                <ParameterTypeEditorSelector ViewModel="@compoundParameterTypeEditorViewModel.CreateParameterTypeEditorSelectorViewModel(@component.ParameterType, index)" BindValueMode="this.BindValueMode" />
                             </DxFormLayoutItem>
                     }
                 }
@@ -59,7 +59,7 @@ else if (this.ViewModel.ValueSet is not null)
                         <div>[@componentLabels]</div>
                     }
                 </div>
-                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="icon icon-edit" SizeMode="SizeMode.Small" Click="@(()=> compoundParameterTypeEditorViewModel.OnComponentSelected())" />
+                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="icon icon-edit" SizeMode="SizeMode.Small" Click="@(()=> this.OnComponentSelected())" />
             </div>
         }
     }

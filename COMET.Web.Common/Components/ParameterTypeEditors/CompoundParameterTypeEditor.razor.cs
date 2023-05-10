@@ -54,18 +54,29 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         public BindValueMode BindValueMode { get; set; }
 
         /// <summary>
+        /// Indicates if confirmation popup is visible
+        /// </summary>
+        [Parameter]
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// Event for when the edit button is clicked
+        /// </summary>
+        public void OnComponentSelected()
+        {
+            if (this.ViewModel is ICompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+            {
+                compoundParameterTypeEditorViewModel.OnComponentSelected();
+            }
+        }
+
+        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-
-            if (this.ViewModel is ICompoundParameterTypeEditorViewModel vm)
-            {
-                this.Disposables.Add(vm.WhenAnyValue(x => x.IsOnEditMode)
-                    .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            }
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
                 x => x.ViewModel.ValueArray).Subscribe(_ => this.StateHasChanged()));

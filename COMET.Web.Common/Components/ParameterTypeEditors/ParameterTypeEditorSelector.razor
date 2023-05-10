@@ -30,7 +30,7 @@
 
         case CompoundParameterType:
             <CompoundParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<CompoundParameterType>()"
-                             BindValueMode="@this.BindValueMode" />
+                             BindValueMode="@this.BindValueMode" IsOnEditMode=@this.IsOnEditMode />
             break;
 
         case DateParameterType:
