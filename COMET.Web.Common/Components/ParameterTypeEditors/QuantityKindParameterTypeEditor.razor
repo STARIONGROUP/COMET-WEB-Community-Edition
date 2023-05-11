@@ -30,9 +30,9 @@
                BindValueMode="@this.BindValueMode">
     </DxTextBox>
     
-    @if (this.ViewModel.ParameterType.DefaultScale != null)
+    @if (this.ViewModel.ComponentScale != null)
     {
-        <span class="content-scale">[@this.ViewModel.ParameterType.DefaultScale.ShortName]</span>
+        <span class="content-scale">[@this.ViewModel.ComponentScale.ShortName]</span>
     }
 
     <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
