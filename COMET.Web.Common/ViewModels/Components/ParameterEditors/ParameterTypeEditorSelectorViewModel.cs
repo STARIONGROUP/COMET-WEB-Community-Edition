@@ -138,9 +138,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
 			}
 
             var parameterViewModel = (this.haveValueSetViewModel as IParameterEditorBaseViewModel<T>)!;
-            parameterViewModel.ParameterValueChanged = this.ParameterValueChanged;
-
-           
+            parameterViewModel.ParameterValueChanged = this.ParameterValueChanged;   
 
             return parameterViewModel;
         }

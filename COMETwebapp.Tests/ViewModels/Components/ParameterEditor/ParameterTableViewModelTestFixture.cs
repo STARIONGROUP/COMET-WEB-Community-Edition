@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     
@@ -397,6 +398,32 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ElementDefinition.Category = this.viewModel.SelectedCategories.ToList();
 
             Assert.That(() => this.viewModel.AddingElementDefinition(), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyHandleComponentSelected()
+        {
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+
+            var parameterType = new CompoundParameterType()
+            {
+                Iid = Guid.NewGuid(),
+            };
+
+            var compoundValues = new List<string> { "1", "0", "3" };
+
+            var parameterValueSet = new ParameterValueSet()
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(compoundValues),
+            };
+
+            var compoundParameterTypeViewModel = new CompoundParameterTypeEditorViewModel(parameterType, parameterValueSet, false);
+
+            this.viewModel.HandleComponentSelected(compoundParameterTypeViewModel);
+
+            Assert.That(() => this.viewModel.CompoundParameterTypeEditorViewModel, Is.EqualTo(compoundParameterTypeViewModel));
         }
     }
 }

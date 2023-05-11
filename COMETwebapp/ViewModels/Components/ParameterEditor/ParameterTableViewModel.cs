@@ -275,7 +275,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
         {
             this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
-            this.CompoundParameterTypeEditorViewModel.CompoundCurrentParameterSwitchKind = this.Rows.Items.FirstOrDefault(x => x.Parameter.Iid == CompoundParameterTypeEditorViewModel.Parameter.Iid).ParameterSwitchKindSelectorViewModel.SwitchValue;
+            var row = this.Rows.Items.FirstOrDefault(x => x.Parameter.Iid == CompoundParameterTypeEditorViewModel.Parameter?.Iid);
+            
+            if(row != null)
+            {
+                this.CompoundParameterTypeEditorViewModel.CompoundCurrentParameterSwitchKind = row.ParameterSwitchKindSelectorViewModel.SwitchValue;
+            }
+
             this.CompoundParameterTypeEditorViewModel.IsFromCompoundParameterType = true;
             this.IsOnEditMode = true;
         }

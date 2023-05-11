@@ -38,6 +38,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     public class ParameterTypeEditorSelectorViewModelTestFixture
     {
         private IParameterTypeEditorSelectorViewModel viewModel;
+        private bool isFromCompoundParameterType;
 
         private IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType, new()
         {
@@ -48,8 +49,14 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             };
 
             var parameter = new T();
-            this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false);
+            this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false) { IsFromCompoundParameterType = this.isFromCompoundParameterType };
             return this.viewModel.CreateParameterEditorViewModel<T>();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.isFromCompoundParameterType = false;
         }
 
         [Test]
@@ -96,6 +103,16 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(compoundParameterEditor.IsReadOnly, Is.True);
                 Assert.That(async () => await compoundParameterEditor.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(0, "-")), Throws.InvalidOperationException);
+            });
+
+            this.isFromCompoundParameterType = true;
+
+            var booleanParameterEditor = this.CreateParameterEditorViewModel<BooleanParameterType>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(booleanParameterEditor, Is.TypeOf<BooleanParameterTypeEditorViewModel>());
+                Assert.That(booleanParameterEditor.IsReadOnly, Is.True);
             });
         }
 
