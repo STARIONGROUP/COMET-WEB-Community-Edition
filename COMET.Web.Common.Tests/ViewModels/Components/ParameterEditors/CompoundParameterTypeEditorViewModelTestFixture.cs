@@ -139,13 +139,13 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
         [Test]
         public void VerifyCreateParameterTypeEditorSelectorViewModel()
         {
-            var parameterTypeEditorSelectorViewModel = this.viewModel.CreateParameterTypeEditorSelectorViewModel(this.parameterType, 0);
+            var parameterTypeEditorSelectorViewModel = this.viewModel.CreateParameterTypeEditorSelectorViewModel(this.parameterType.Component[0], 0);
 
             Assert.Multiple(() =>
             {
                 Assert.That(parameterTypeEditorSelectorViewModel, Is.Not.Null);
                 Assert.That(parameterTypeEditorSelectorViewModel.ParameterType, Is.Not.Null);
-                Assert.That(parameterTypeEditorSelectorViewModel.ParameterType, Is.EqualTo(this.parameterType));
+                Assert.That(parameterTypeEditorSelectorViewModel.ParameterType, Is.EqualTo(this.parameterType.Component[0].ParameterType));
             });
         }
     }
