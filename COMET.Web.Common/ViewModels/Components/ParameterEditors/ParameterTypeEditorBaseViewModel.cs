@@ -91,7 +91,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             {
                 this.Parameter = valueSetBase.Container as ParameterOrOverrideBase;
 
-                if(this.Parameter.Scale != null)
+                if(this.Parameter?.Scale != null)
                 {
                     this.ComponentScale = this.Parameter.Scale;
                 }
