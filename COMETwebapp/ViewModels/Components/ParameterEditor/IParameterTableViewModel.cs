@@ -48,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
+        /// Indicates if edit popup is visible
         /// </summary>
         bool IsOnEditMode { get; set; }
 
