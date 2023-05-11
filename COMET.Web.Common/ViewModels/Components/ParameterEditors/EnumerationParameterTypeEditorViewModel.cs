@@ -85,7 +85,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
+        /// Indicates if edit popup is visible
         /// </summary>
         public bool IsOnEditMode
         {

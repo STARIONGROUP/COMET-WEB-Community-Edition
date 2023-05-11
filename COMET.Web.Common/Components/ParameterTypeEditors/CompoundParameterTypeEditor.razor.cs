@@ -54,7 +54,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         public BindValueMode BindValueMode { get; set; }
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
+        /// Indicates if edit popup is visible
         /// </summary>
         [Parameter]
         public bool IsOnEditMode { get; set; }
