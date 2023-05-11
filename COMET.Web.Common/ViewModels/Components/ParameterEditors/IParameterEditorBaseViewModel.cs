@@ -48,6 +48,16 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         EventCallback<IValueSet> ParameterValueChanged { get; set; }
 
         /// <summary>
+        /// value indicating if the <see cref="ParameterSwitchKind"/> is from <see cref="CompoundParameterType"/>
+        /// </summary>
+        bool IsFromCompoundParameterType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="MeasurementScale"/> for the <see cref="QuantityKind"/>
+        /// </summary>
+        MeasurementScale ComponentScale { get; set; }
+
+        /// <summary>
         /// The <see cref="ValueArray{T}" /> to work with
         /// </summary>
         ValueArray<string> ValueArray { get; set; }

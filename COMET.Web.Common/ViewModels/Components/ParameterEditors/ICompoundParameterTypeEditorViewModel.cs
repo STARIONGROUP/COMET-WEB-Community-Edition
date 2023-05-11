@@ -48,12 +48,12 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Creates a view model for the corresponding editor
         /// </summary>
-        /// <param name="parameterType">the parameter type</param>
+        /// <param name="parameterTypeComponent">the parameter type component</param>
         /// <param name="valueArrayIndex">
         /// the index of the <see cref="CompoundParameterType" /> in the
         /// <see cref="ParameterTypeComponent" />
         /// </param>
         /// <returns>the view model</returns>
-        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int valueArrayIndex);
+        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterTypeComponent parameterTypeComponent, int valueArrayIndex);
     }
 }

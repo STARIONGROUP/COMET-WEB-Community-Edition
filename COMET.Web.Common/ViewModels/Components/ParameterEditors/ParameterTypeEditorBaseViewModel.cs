@@ -62,21 +62,26 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// </summary>
         public ParameterSwitchKind CompoundCurrentParameterSwitchKind { get; set; }
 
-		/// <summary>
-		/// value indicating if the <see cref="ParameterSwitchKind"/> is from <see cref="CompoundParameterType"/>
-		/// </summary>
-		public bool IsFromCompoundParameterType { get; set; }
+        /// <summary>
+        /// value indicating if the <see cref="ParameterSwitchKind"/> is from <see cref="CompoundParameterType"/>
+        /// </summary>
+        public bool IsFromCompoundParameterType { get; set; }
 
-		/// <summary>
-		/// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
-		/// </summary>
-		/// <param name="parameterType">the parameter type of this view model</param>
-		/// <param name="valueSet">the value set asociated to this editor</param>
-		/// <param name="isReadOnly">The readonly state</param>
-		/// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        /// <summary>
+        /// Gets or sets the <see cref="MeasurementScale"/> for the <see cref="QuantityKind"/>
+        /// </summary>
+        public MeasurementScale ComponentScale { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
+        /// </summary>
+        /// <param name="parameterType">the parameter type of this view model</param>
+        /// <param name="valueSet">the value set asociated to this editor</param>
+        /// <param name="isReadOnly">The readonly state</param>
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         /// <param name="compoundParameterSwitchKind">The <see cref="ParameterSwitchKind"/> of the <see cref="CompoundParameterType"/></param>
         /// <param name="isFromCompoundParameterType">value indicating if the <see cref="ParameterSwitchKind"/> is from <see cref="CompoundParameterType"/></param>
-		protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0, ParameterSwitchKind compoundParameterSwitchKind = ParameterSwitchKind.MANUAL, bool isFromCompoundParameterType = false)
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0, ParameterSwitchKind compoundParameterSwitchKind = ParameterSwitchKind.MANUAL, bool isFromCompoundParameterType = false)
         {
             this.ValueSet = valueSet;
             this.ValueArrayIndex = valueArrayIndex;
@@ -85,11 +90,16 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             if (this.ValueSet is ParameterValueSetBase valueSetBase)
             {
                 this.Parameter = valueSetBase.Container as ParameterOrOverrideBase;
+
+                if(this.Parameter.Scale != null)
+                {
+                    this.ComponentScale = this.Parameter.Scale;
+                }
             }
 
             if (isFromCompoundParameterType)
             {
-                IsFromCompoundParameterType = true;
+                this.IsFromCompoundParameterType = true;
                 this.CompoundCurrentParameterSwitchKind = compoundParameterSwitchKind;
             }
 
@@ -244,8 +254,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             }
             else
             {
-				this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
-			}
-		}
+                this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
+            }
+        }
     }
 }

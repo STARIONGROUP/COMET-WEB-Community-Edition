@@ -35,8 +35,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities;
 
-    using ReactiveUI;
-
     /// <summary>
     /// ViewModel used to edit <see cref="CompoundParameterType" />
     /// </summary>
@@ -73,19 +71,20 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Creates a view model for the corresponding editor
         /// </summary>
-        /// <param name="parameterType">the parameter type</param>
+        /// <param name="parameterTypeComponent">the parameter type component</param>
         /// <param name="valueArrayIndex">
         /// the index of the
         /// <see cref="CompoundParameterType" /> in the <see cref="ParameterTypeComponent" />
         /// </param>
         /// <returns>the view model</returns>
-        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int valueArrayIndex)
+        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterTypeComponent parameterTypeComponent, int valueArrayIndex)
         {
-            var parameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, valueArrayIndex)
+            var parameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(parameterTypeComponent.ParameterType, this.ValueSet, this.IsReadOnly, valueArrayIndex)
             {
                 ParameterValueChanged = this.ParameterValueChanged,
                 CompoundCurrentParameterSwitchKind = this.CompoundCurrentParameterSwitchKind,
                 IsFromCompoundParameterType = this.IsFromCompoundParameterType,
+                ComponentScale = parameterTypeComponent.Scale
             };
 
             return parameterTypeEditorSelectorViewModel;
