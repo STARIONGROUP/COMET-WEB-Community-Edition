@@ -41,6 +41,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        /// <param name="compoundParameterSwitchKind">The <see cref="ParameterSwitchKind"/> of the compound parameter</param>
+        /// <param name="isFromCompoundParameterType">A value indicating whether the current <see cref="DateParameterTypeEditorViewModel"/> is from <see cref="CompoundParameterType"/></param>
         public DateParameterTypeEditorViewModel(DateParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0, ParameterSwitchKind compoundParameterSwitchKind = ParameterSwitchKind.MANUAL, bool isFromCompoundParameterType = false) : base(parameterType, valueSet, isReadOnly, valueArrayIndex, compoundParameterSwitchKind, isFromCompoundParameterType)
         {
         }
