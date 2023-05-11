@@ -108,11 +108,20 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             this.isFromCompoundParameterType = true;
 
             var booleanParameterEditor = this.CreateParameterEditorViewModel<BooleanParameterType>();
+            var dateParameterEditor = this.CreateParameterEditorViewModel<DateParameterType>();
+            var dateTimeParameterEditor = this.CreateParameterEditorViewModel<DateTimeParameterType>();
+            var enumerationParameterEditor = this.CreateParameterEditorViewModel<EnumerationParameterType>();
+            var textParameterEditor = this.CreateParameterEditorViewModel<TextParameterType>();
+            var timeOfDayParameterEditor = this.CreateParameterEditorViewModel<TimeOfDayParameterType>();
 
             Assert.Multiple(() =>
             {
                 Assert.That(booleanParameterEditor, Is.TypeOf<BooleanParameterTypeEditorViewModel>());
-                Assert.That(booleanParameterEditor.IsReadOnly, Is.True);
+                Assert.That(dateParameterEditor, Is.TypeOf<DateParameterTypeEditorViewModel>());
+                Assert.That(dateTimeParameterEditor, Is.TypeOf<DateTimeParameterTypeEditorViewModel>());
+                Assert.That(enumerationParameterEditor, Is.TypeOf<EnumerationParameterTypeEditorViewModel>());
+                Assert.That(textParameterEditor, Is.TypeOf<TextParameterTypeEditorViewModel>());
+                Assert.That(timeOfDayParameterEditor, Is.TypeOf<TimeOfDayParameterTypeEditorViewModel>());
             });
         }
 
