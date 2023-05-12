@@ -22,27 +22,23 @@ Copyright (c) 2023 RHEA System S.A.
 ------------------------------------------------------------------------------->
 
 <div id="propertiesPanel">
-
-    @if (this.ViewModel.IsVisible)
+    
+    @if (this.ViewModel.SelectedSceneObject != null)
     {
-        var selectedSceneObject = this.ViewModel.SelectionMediator.SelectedSceneObject;
-        var title = selectedSceneObject is not null ? selectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
+        var title = this.ViewModel.SelectedSceneObject.ElementBase.Name + " - Properties:";
         var buttonClass = this.ViewModel.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
-
+        
         <div id="properties-header">
             <h4 id="properties-title">@title</h4>
             <button @onclick="()=>this.ViewModel.OnSubmit()" class="@buttonClass" disabled="@(!this.ViewModel.ParameterHaveChanges)">Submit</button>
         </div>
 
         <div id="parameters-section">
-            @{
-                var parameters = this.ViewModel.ParametersInUse is not null ? this.ViewModel.ParametersInUse : new List<CDP4Common.EngineeringModelData.ParameterBase>();
-                @foreach (var parameter in parameters)
-                {
-                    var classNames = parameter == this.ViewModel.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
-                    var nameCapitalized = parameter.ParameterType?.Name.CapitalizeFirstLetter();
-                    <p class="@classNames" @onclick="()=> this.ViewModel.SelectedParameter = parameter">@nameCapitalized</p>
-                }
+            @foreach (var parameter in this.ViewModel.ParametersList.Items)
+            {
+                var classNames = parameter == this.ViewModel.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
+                var nameCapitalized = parameter.ParameterType?.Name.CapitalizeFirstLetter();
+                <p class="@classNames" @onclick="()=> this.ViewModel.SelectedParameter = parameter">@nameCapitalized</p>
             }
         </div>
     }

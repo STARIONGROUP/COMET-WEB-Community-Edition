@@ -33,6 +33,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -40,6 +42,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     /// </summary>
     public interface IPropertiesComponentViewModel
     {
+        public SceneObject SelectedSceneObject { get; set; }
+
+        public SourceList<ParameterBase> ParametersList { get; set; }
+
         /// <summary>
         /// Injected property to get access to <see cref="ISessionService" />
         /// </summary>
@@ -56,24 +62,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
-        /// The collection of <see cref="ParameterBase" /> and <see cref="IValueSet" /> of the selected <see cref="SceneObject" />
-        /// </summary>
-        Dictionary<ParameterBase, IValueSet> ParameterValueSetRelations { get; set; }
-
-        /// <summary>
-        /// The list of parameters that the selected <see cref="SceneObject" /> uses
-        /// </summary>
-        List<ParameterBase> ParametersInUse { get; set; }
-
-        /// <summary>
         /// Gets or sets if the parameters have changes
         /// </summary>
         bool ParameterHaveChanges { get; set; }
-
-        /// <summary>
-        /// Gets or sets if this component is visible
-        /// </summary>
-        bool IsVisible { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ParameterBase" /> to fill the details

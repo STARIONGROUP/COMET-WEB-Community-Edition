@@ -24,12 +24,9 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
-    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
@@ -38,11 +35,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     /// </summary>
     public interface IViewerBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
-        /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
-        /// </summary>
-        ISelectionMediator SelectionMediator { get; set; }
-
         /// <summary>
         /// Gets or sets the <see cref="IOptionSelectorViewModel"/>
         /// </summary>
@@ -67,26 +59,5 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// Gets or sets the <see cref="IPropertiesComponentViewModel"/>
         /// </summary>
         IPropertiesComponentViewModel PropertiesViewModel { get; }
-        
-        /// <summary>
-        /// All <see cref="ElementBase"/> of the iteration
-        /// </summary>
-        List<ElementBase> Elements { get; set; }
-
-        /// <summary>
-        /// Initializes this <see cref="IViewerBodyViewModel"/>
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        Task InitializeViewModel();
-
-        /// <summary>
-        /// Create the <see cref="ElementBase"/> based on the current <see cref="Iteration"/>
-        /// </summary>
-        IEnumerable<ElementBase> InitializeElements();
-
-        /// <summary>
-        /// Initializes the elements and creates the tree based on that elements
-        /// </summary>
-        void InitializeElementsAndCreateTree();
     }
 }

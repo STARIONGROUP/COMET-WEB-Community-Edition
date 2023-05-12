@@ -53,21 +53,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <param name="babylonInterop">the <see cref="IBabylonInterop" /></param>
         public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop) : base(sessionService)
         {
-            this.SelectionMediator = selectionMediator;
             this.ProductTreeViewModel = new ProductTreeViewModel(selectionMediator);
             this.CanvasViewModel = new CanvasViewModel(babylonInterop, selectionMediator);
             this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator);
-            this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates,
                     x => x.OptionSelector.SelectedOption)
-                .Subscribe(_ => this.InitializeElementsAndCreateTree()));
+                .Subscribe(async _ => await this.RegenerateData()));
         }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator" />
-        /// </summary>
-        public ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IOptionSelectorViewModel" />
@@ -77,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <summary>
         /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel" />
         /// </summary>
-        public IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; private set; }
+        public IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; private set; } = new MultipleActualFiniteStateSelectorViewModel();
 
         /// <summary>
         /// Gets or sets the <see cref="IProductTreeViewModel" />
@@ -95,30 +88,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public IPropertiesComponentViewModel PropertiesViewModel { get; private set; }
 
         /// <summary>
-        /// All <see cref="ElementBase" /> of the iteration
-        /// </summary>
-        public List<ElementBase> Elements { get; set; }
-
-        /// <summary>
-        /// Initializes this <see cref="IViewerBodyViewModel" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task InitializeViewModel()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-
-            this.Disposables.Add(this.WhenAnyValue(x=>x.OptionSelector.SelectedOption)
-                .Subscribe(_ => this.InitializeElementsAndCreateTree()));
-
-            this.InitializeElementsAndCreateTree();
-            this.IsLoading = false;
-        }
-
-        /// <summary>
         /// Create the <see cref="ElementBase" /> based on the current <see cref="Iteration" />
         /// </summary>
-        public IEnumerable<ElementBase> InitializeElements()
+        public IEnumerable<ElementBase> ReQueryElements()
         {
             return this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
         }
@@ -126,15 +98,18 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <summary>
         /// Initializes the elements and creates the tree based on that elements
         /// </summary>
-        public void InitializeElementsAndCreateTree()
+        public async Task RegenerateData()
         {
-            this.Elements = this.InitializeElements().ToList();
+            this.IsLoading = true;
+            await Task.Delay(1);
+            var elements = this.ReQueryElements().ToList();
 
-            if (this.OptionSelector.SelectedOption != null && this.MultipleFiniteStateSelector.SelectedFiniteStates.Count()
-                == this.MultipleFiniteStateSelector.ActualFiniteStateSelectorViewModels.Count())
+            if (this.OptionSelector.SelectedOption != null)
             {
-                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
+                this.ProductTreeViewModel.CreateTree(elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
             }
+
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -156,7 +131,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.OptionSelector.CurrentIteration = this.CurrentIteration;
             this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
 
-            await this.InitializeViewModel();
+            await this.RegenerateData();
         }
     }
 }

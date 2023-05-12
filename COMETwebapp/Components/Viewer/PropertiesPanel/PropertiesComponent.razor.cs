@@ -49,7 +49,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         {
             base.OnInitialized();
 
-            this.WhenAnyValue(x => x.ViewModel.IsVisible,
+            this.WhenAnyValue(x => x.ViewModel.SelectedSceneObject,
             x => x.ViewModel.SelectedParameter,
             x => x.ViewModel.ParameterHaveChanges).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
         }
