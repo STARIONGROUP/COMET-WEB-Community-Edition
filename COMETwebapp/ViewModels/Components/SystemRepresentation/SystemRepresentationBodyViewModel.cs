@@ -191,8 +191,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         {
             var childsOfElementBase = elementBase switch
             {
-                ElementDefinition elementDefinition => this.CurrentDomain != null ? elementDefinition.ContainedElement.Where(e => e.Owner == this.CurrentDomain).ToList() : elementDefinition.ContainedElement,
-                ElementUsage elementUsage => this.CurrentDomain != null ? elementUsage.ElementDefinition.ContainedElement.Where(e => e.Owner == this.CurrentDomain).ToList() : elementUsage.ElementDefinition.ContainedElement,
+                ElementDefinition elementDefinition =>  elementDefinition.ContainedElement,
+                ElementUsage elementUsage => elementUsage.ElementDefinition.ContainedElement,
                 _ => null
             };
 
