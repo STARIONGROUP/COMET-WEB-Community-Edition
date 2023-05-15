@@ -20,6 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @using CDP4Common.SiteDirectoryData
+@using COMET.Web.Common.Enumerations
 @using COMET.Web.Common.Model
 
 @inherits DisposableComponent
@@ -30,7 +31,7 @@
 			<DxComboBox Id="model-selection" Data="@this.ViewModel.AvailableEngineeringModelSetups"
 			            TextFieldName="@nameof(EngineeringModelSetup.Name)"
 			            @bind-Value="@this.ViewModel.SelectedEngineeringModel"
-			            NullText="Select an Engineering Model"
+			            NullText="@this.ConfigurationService.GetText(TextConfigurationKind.OpenEngineeringModelPlaceholder)"
 			            Enabled="@this.selectorEnabled"/>
 		</Template>
 	</DxFormLayoutItem>
@@ -41,7 +42,7 @@
 				<DxComboBox Id="iteration-selection" Data="@this.ViewModel.AvailableIterationSetups"
 				            TextFieldName="@nameof(IterationData.IterationName)"
 				            @bind-Value="@this.ViewModel.SelectedIterationSetup"
-				            NullText="Select an Iteration"
+						    NullText="@this.ConfigurationService.GetText(TextConfigurationKind.OpenIterationPlaceholder)"
 							Enabled="@this.selectorEnabled" />
 			</Template>
 		</DxFormLayoutItem>
@@ -50,7 +51,7 @@
 				<DxComboBox Id="domain-selection" Data="@this.ViewModel.AvailablesDomainOfExpertises"
 				            TextFieldName="@nameof(DomainOfExpertise.Name)"
 				            @bind-Value="@this.ViewModel.SelectedDomainOfExpertise"
-				            NullText="Select a Domain of Expertise"/>
+						    NullText="@this.ConfigurationService.GetText(TextConfigurationKind.OpenDomainOfExpertisePlaceholder)" />
 			</Template>
 		</DxFormLayoutItem>
 	}

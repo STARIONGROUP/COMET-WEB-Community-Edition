@@ -26,8 +26,10 @@ namespace COMETwebapp
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
+    using System.Security.Policy;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.ConfigurationService;
 
     using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model;
@@ -72,7 +74,9 @@ namespace COMETwebapp
             RegisterServices(builder);
             RegisterViewModels(builder);
 
-            await builder.Build().RunAsync();
+            var host = builder.Build();
+            await host.InitializeServices();
+            await host.RunAsync();
         }
 
         /// <summary>

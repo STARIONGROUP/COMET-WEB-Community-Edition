@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -123,7 +124,10 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
-        }
+
+            var configurationService = new Mock<IConfigurationService>();
+            this.context.Services.AddSingleton(configurationService.Object);
+		}
 
         [TearDown]
         public void Teardown()

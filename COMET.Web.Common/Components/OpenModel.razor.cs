@@ -28,6 +28,7 @@ namespace COMET.Web.Common.Components
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
@@ -39,6 +40,12 @@ namespace COMET.Web.Common.Components
     /// </summary>
     public partial class OpenModel
     {
+        /// <summary>
+        /// Gets or sets the <see cref="IConfigurationService"/>
+        /// </summary>
+        [Inject]
+        public IConfigurationService ConfigurationService { get; set; }
+
         /// <summary>
         /// Value asserting that selectors for <see cref="EngineeringModel" /> and <see cref="Iteration" /> are enabled
         /// </summary>

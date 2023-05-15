@@ -26,6 +26,7 @@
 namespace COMET.Web.Common.Extensions
 {
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -39,6 +40,7 @@ namespace COMET.Web.Common.Extensions
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -62,8 +64,11 @@ namespace COMET.Web.Common.Extensions
             }
 
             builder.Services.AddAuthorizationCore();
-            builder.Services.AddScoped(_ => new HttpClient());
-
+            builder.Services.AddScoped(_ => new HttpClient()
+            {
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+            });
+            
             builder.RegisterServices();
             builder.RegisterViewModels();
             builder.Services.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
@@ -75,6 +80,7 @@ namespace COMET.Web.Common.Extensions
         /// <param name="builder">The <see cref="WebAssemblyHostBuilder"/></param>
         private static void RegisterServices(this WebAssemblyHostBuilder builder)
         {
+            builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
             builder.Services.AddSingleton<ISessionService, SessionService>();
             builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();

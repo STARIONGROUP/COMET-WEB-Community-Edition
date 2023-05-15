@@ -31,6 +31,7 @@ namespace COMET.Web.Common.Tests.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -63,6 +64,9 @@ namespace COMET.Web.Common.Tests.Components
             this.viewModel = new OpenModelViewModel(this.sessionService.Object);
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
+
+            var configurationService = new Mock<IConfigurationService>();
+            this.context.Services.AddSingleton(configurationService.Object);
         }
 
         [TearDown]

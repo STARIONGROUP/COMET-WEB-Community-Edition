@@ -28,6 +28,7 @@ namespace COMET.Web.Common
     using System.Diagnostics.CodeAnalysis;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
 
     using Microsoft.AspNetCore.Components;
@@ -52,10 +53,16 @@ namespace COMET.Web.Common
         [Inject]
         internal IRegistrationService RegistrationService { get; set; }
 
+		/// <summary>
+		/// The <see cref="IConfigurationService" />
+		/// </summary>
+		[Inject]
+        internal IConfigurationService ConfigurationService { get; set; }
+
         /// <summary>
-        /// Redirect to the home page with the redirect parameter set
-        /// </summary>
-        private void RedirectToHomePage()
+		/// Redirect to the home page with the redirect parameter set
+		/// </summary>
+		private void RedirectToHomePage()
         {
             if (this.NavigationManager.Uri.GetParametersFromUrl().ContainsKey("redirect"))
             {
@@ -89,7 +96,7 @@ namespace COMET.Web.Common
                     if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url))
                         || this.RegistrationService.RegisteredApplications.Any(x => x.IsDisabled && navigationContext.Path.StartsWith(x.Url)))
                     {
-                        var cancellationTokenSource =CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
+                        var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
                         cancellationTokenSource.Cancel();
 
                         await Task.Delay(1);
@@ -99,6 +106,12 @@ namespace COMET.Web.Common
 
 					break;
             }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+            //await this.ConfigurationService.InitializeService();
         }
     }
 }

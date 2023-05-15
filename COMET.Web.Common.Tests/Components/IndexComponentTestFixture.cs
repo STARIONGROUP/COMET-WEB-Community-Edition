@@ -38,6 +38,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
@@ -83,7 +84,10 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.ConfigureDevExpressBlazor();
             this.authorization = this.context.AddTestAuthorization();
-        }
+            
+            var configurationService = new Mock<IConfigurationService>();
+            this.context.Services.AddSingleton(configurationService.Object);
+}
 
         [TearDown]
         public void Teardown()

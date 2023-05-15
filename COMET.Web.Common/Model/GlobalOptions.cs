@@ -54,6 +54,11 @@ namespace COMET.Web.Common.Model
         /// Gets or sets the <see cref="Type"/> to have a custom header title
         /// </summary>
         public Type CustomHeaderTitle { get; set; }
+
+        /// <summary>
+        /// Gets or sets the configuration file used for the names in the app.
+        /// </summary>
+        public string JsonConfigurationFile { get; set; }
     }
 }
  
