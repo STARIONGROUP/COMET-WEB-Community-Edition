@@ -27,13 +27,14 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Model;
-    
-    using ReactiveUI;
+	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+
+	using ReactiveUI;
 
 
-    /// <summary>
-    ///     View model for the <see cref="ElementDefinitionDetails" /> component
-    /// </summary>
+	/// <summary>
+	///     View model for the <see cref="ElementDefinitionDetails" /> component
+	/// </summary>
     public class ElementDefinitionDetailsViewModel : ReactiveObject, IElementDefinitionDetailsViewModel
     {
         /// <summary>
@@ -49,5 +50,10 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             get => this.selectedSystemNode;
             set => this.RaiseAndSetIfChanged(ref this.selectedSystemNode, value);
         }
-    }
+
+		/// <summary>
+		/// A reactive collection of <see cref="ElementDefinitionDetailsRowViewModel" />
+		/// </summary>
+		public IEnumerable<ElementDefinitionDetailsRowViewModel> Rows { get; set; }
+	}
 }
