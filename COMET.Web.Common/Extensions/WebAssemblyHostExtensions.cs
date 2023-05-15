@@ -41,8 +41,12 @@ namespace COMET.Web.Common.Extensions
         /// <returns>an asynchronous operation</returns>
         public static async Task InitializeServices(this WebAssemblyHost host)
         {
-            var service = host.Services.GetService(typeof(IConfigurationService)) as ConfigurationService;
-            await service?.InitializeService();
+            var service = host.Services.GetService(typeof(IConfigurationService));
+
+            if (service is ConfigurationService configurationService)
+            {
+                await configurationService.InitializeService();
+            }
 		}
 	}
 }
