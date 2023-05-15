@@ -38,12 +38,12 @@ namespace COMET.Web.Common.Services.ConfigurationService
         /// <returns>an asynchronous operation</returns>
         Task InitializeService();
 
-		/// <summary>
-		/// Gets the text asociated to a key
-		/// </summary>
-		/// <param name="key">the key</param>
-		/// <returns>the text asociated to the key</returns>
-		string GetText(string key);
+        /// <summary>
+        /// Gets the text asociated to a key
+        /// </summary>
+        /// <param name="key">the key</param>
+        /// <returns>the text asociated to the key</returns>
+        string GetText(string key);
 
         /// <summary>
         /// Gets the text asociated to a key

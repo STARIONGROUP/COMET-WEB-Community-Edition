@@ -127,7 +127,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             var configurationService = new Mock<IConfigurationService>();
             this.context.Services.AddSingleton(configurationService.Object);
-		}
+        }
 
         [TearDown]
         public void Teardown()
