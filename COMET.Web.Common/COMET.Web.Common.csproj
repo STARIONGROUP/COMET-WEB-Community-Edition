@@ -42,4 +42,10 @@
         <InternalsVisibleTo Include="COMET.Web.Common.Tests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="wwwroot\DefaultTextConfiguration.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 </Project>

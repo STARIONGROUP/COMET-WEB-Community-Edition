@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -117,7 +118,10 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
-        }
+            
+            var configurationService = new Mock<IConfigurationService>();
+            this.context.Services.AddSingleton(configurationService.Object);
+}
 
         [TearDown]
         public void Teardown()

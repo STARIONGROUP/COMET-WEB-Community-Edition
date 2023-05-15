@@ -29,6 +29,7 @@ namespace COMET.Web.Common.ViewModels.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
@@ -185,16 +186,22 @@ namespace COMET.Web.Common.ViewModels.Components
         /// </summary>
         private void ComputeAvailableCollections()
         {
-            this.SelectedDomainOfExpertise = null;
-            this.SelectedIterationSetup = null;
-
             if (this.SelectedEngineeringModel == null)
             {
                 this.AvailablesDomainOfExpertises = new List<DomainOfExpertise>();
                 this.AvailableIterationSetups = new List<IterationData>();
+                this.SelectedDomainOfExpertise = null;
+                this.SelectedIterationSetup = null;
             }
             else
             {
+                this.SelectedIterationSetup = this.selectedEngineeringModel.IterationSetup
+                    .Where(x => x.FrozenOn == null)
+                    .Select(x => new IterationData(x))
+                    .LastOrDefault();
+
+                this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.FirstOrDefault(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
+                
                 this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
                 this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup

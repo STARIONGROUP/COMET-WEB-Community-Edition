@@ -89,7 +89,7 @@ namespace COMET.Web.Common
                     if (this.RegistrationService.RegisteredApplications.All(x => !navigationContext.Path.StartsWith(x.Url))
                         || this.RegistrationService.RegisteredApplications.Any(x => x.IsDisabled && navigationContext.Path.StartsWith(x.Url)))
                     {
-                        var cancellationTokenSource =CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
+                        var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
                         cancellationTokenSource.Cancel();
 
                         await Task.Delay(1);
