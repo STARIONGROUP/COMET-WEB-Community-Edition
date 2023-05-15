@@ -62,9 +62,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         List<ElementBase> Elements { get; set; }
 
         /// <summary>
-        /// Apply all the filters on the <see cref="ISystemTreeViewModel" />
+        /// set the selected <see cref="SystemNode" />
         /// </summary>
+        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        Task ApplyFilters();
+        void SelectElement(SystemNode selectedNode);
+
+		/// <summary>
+		/// Apply all the filters on the <see cref="ISystemTreeViewModel" />
+		/// </summary>
+		/// <returns>A <see cref="Task" /></returns>
+		Task ApplyFilters();
     }
 }
