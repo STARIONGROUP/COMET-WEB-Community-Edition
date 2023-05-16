@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -110,6 +111,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 Participant = { this.participant }
             };
 
+            var enumerationValues = new List<string> { "cube", "sphere", "cylinder" };
+
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 Element =
@@ -143,8 +146,20 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                                     Name = "paramType1",
                                     ShortName = "BPT"
                                 },
-                                ValueSet = { new ParameterValueSet(){ Iid = Guid.NewGuid() } }
-							}
+                                ValueSet = 
+                                { 
+                                    new ParameterValueSet()
+                                    {
+                                        Published = new ValueArray<string>(enumerationValues),
+                                        Manual = new ValueArray<string>(enumerationValues)
+                                    }
+                                },
+                                Scale = new OrdinalScale
+                                {
+                                    Iid = Guid.NewGuid(),
+                                    ShortName = "m"
+                                }
+                            }
 						}
                     }
                 },
