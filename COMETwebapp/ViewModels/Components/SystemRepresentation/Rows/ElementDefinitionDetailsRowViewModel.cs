@@ -27,7 +27,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 	using CDP4Common.EngineeringModelData;
 	using CDP4Common.SiteDirectoryData;
 
-	using ReactiveUI;
+    using COMET.Web.Common.Extensions;
+
+    using ReactiveUI;
 
 	/// <summary>
 	/// Row View Model for  <see cref="ElementDefinition" />
@@ -81,9 +83,25 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 		{
 			this.ParameterTypeName = parameter.ParameterType.Name;
 			this.ShortName = parameter.ParameterType.ShortName;
-			this.ActualValue = parameter.ValueSet.FirstOrDefault()?.ActualValue.ToString() + @parameter.Scale?.ShortName;
-			this.PublishedValue = parameter.ValueSet.FirstOrDefault()?.Published.ToString() + @parameter.Scale?.ShortName;
-			this.Owner = parameter.Owner.ShortName;
+
+            this.ActualValue = parameter.ValueSet.FirstOrDefault()?.ActualValue.AsCommaSeparated();
+			this.PublishedValue = parameter.ValueSet.FirstOrDefault()?.Published.AsCommaSeparated();
+
+            if (parameter.ValueSet.FirstOrDefault()?.ActualValue.Count > 1)
+            {
+                this.ActualValue = "{" + this.ActualValue + "}";
+            }
+            if (parameter.ValueSet.FirstOrDefault()?.Published.Count > 1)
+            {
+                this.PublishedValue = "{" + this.PublishedValue + "}";
+            }
+            if (parameter.Scale != null)
+            {
+                this.ActualValue += " [" + parameter.Scale.ShortName + "]";
+				this.PublishedValue += " [" + parameter.Scale.ShortName + "]";
+            }
+
+            this.Owner = parameter.Owner.ShortName;
 			this.SwitchValue = parameter.ValueSet.FirstOrDefault()?.ValueSwitch.ToString();
 			this.ModelCode = parameter.ModelCode();
             this.Parameter = parameter;
