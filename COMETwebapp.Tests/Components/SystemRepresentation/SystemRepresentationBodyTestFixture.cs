@@ -286,12 +286,14 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         }
 
         [Test]
-        public void VerifySelectNode()
+        public async Task VerifySelectNode()
         {
             var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
             {
                 parameters.Add(p => p.CurrentIteration, this.iteration);
             });
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.viewModel.Elements.Clear();
             this.viewModel.Elements.Add(this.iteration.Element.First());
