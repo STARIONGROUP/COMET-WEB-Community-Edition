@@ -86,6 +86,7 @@ namespace COMET.Web.Common.Tests.Components
             this.authorization = this.context.AddTestAuthorization();
             
             var configurationService = new Mock<IConfigurationService>();
+            configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
 }
 

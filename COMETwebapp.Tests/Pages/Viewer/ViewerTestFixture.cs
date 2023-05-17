@@ -126,6 +126,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
 
             var configurationService = new Mock<IConfigurationService>();
+            configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
         }
 

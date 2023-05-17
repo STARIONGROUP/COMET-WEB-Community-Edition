@@ -124,6 +124,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
 
             var configurationService = new Mock<IConfigurationService>();
+            configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
         }
 
