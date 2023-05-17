@@ -40,7 +40,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SystemRepresentation;
-	using COMETwebapp.Utilities;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -138,10 +138,10 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                         },
                         Parameter =
                         {
-							new Parameter(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                            new Parameter(Guid.NewGuid(), this.assembler.Cache, this.uri)
                             {
-								Owner = this.domain,
-								ParameterType = new BooleanParameterType(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                                Owner = this.domain,
+                                ParameterType = new BooleanParameterType(Guid.NewGuid(), this.assembler.Cache, this.uri)
                                 {
                                     Name = "paramType1",
                                     ShortName = "BPT"
@@ -160,7 +160,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                                     ShortName = "m"
                                 }
                             }
-						}
+                        }
                     }
                 },
                 TopElement = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -252,13 +252,13 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
-		[TearDown]
-		public void TearDown()
-		{
-			this.context.CleanContext();
-		}
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
 
-		[Test]
+        [Test]
         public void VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
@@ -285,13 +285,13 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             });
         }
 
-		[Test]
-		public void VerifySelectNode()
-		{
-			var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
-			{
-				parameters.Add(p => p.CurrentIteration, this.iteration);
-			});
+        [Test]
+        public void VerifySelectNode()
+        {
+            var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
+            {
+                parameters.Add(p => p.CurrentIteration, this.iteration);
+            });
 
             this.viewModel.Elements.Clear();
             this.viewModel.Elements.Add(this.iteration.Element.First());
@@ -306,9 +306,9 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ShortName, Is.EqualTo(this.iteration.Element.First().Parameter.First().ParameterType.ShortName));
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().Owner, Is.EqualTo(this.iteration.Element.First().Parameter.First().Owner.ShortName));
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().PublishedValue, Is.Not.Null);
-			    Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
-		        Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);
-			});
-		}
-	}
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);
+            });
+        }
+    }
 }

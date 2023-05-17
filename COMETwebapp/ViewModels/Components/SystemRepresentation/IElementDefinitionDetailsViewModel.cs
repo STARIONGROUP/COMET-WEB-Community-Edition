@@ -26,11 +26,11 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using CDP4Common.EngineeringModelData;
     
     using COMETwebapp.Model;
-	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
-	/// <summary>
-	///     Interface definition for <see cref="ElementDefinitionDetailsViewModel" />
-	/// </summary>
+    /// <summary>
+    ///     Interface definition for <see cref="ElementDefinitionDetailsViewModel" />
+    /// </summary>
     public interface IElementDefinitionDetailsViewModel
     {
         /// <summary>
@@ -38,9 +38,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// </summary>
         ElementBase SelectedSystemNode { get; set; }
 
-		/// <summary>
-		/// A reactive collection of <see cref="ElementDefinitionDetailsRowViewModel" />
-		/// </summary>
-		IEnumerable<ElementDefinitionDetailsRowViewModel> Rows { get; set; }
-	}
+        /// <summary>
+        /// A collection of <see cref="ElementDefinitionDetailsRowViewModel" />
+        /// </summary>
+        IEnumerable<ElementDefinitionDetailsRowViewModel> Rows { get; set; }
+    }
 }

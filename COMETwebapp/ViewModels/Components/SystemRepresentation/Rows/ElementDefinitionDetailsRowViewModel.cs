@@ -24,42 +24,42 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 {
-	using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Extensions;
 
     using ReactiveUI;
 
-	/// <summary>
-	/// Row View Model for  <see cref="ElementDefinition" />
-	/// </summary>
-	public class ElementDefinitionDetailsRowViewModel : ReactiveObject
-	{
-		/// <summary>
-		/// Backing field for <see cref="ParameterTypeName" />
-		/// </summary>
-		private string parameterTypeName;
+    /// <summary>
+    /// Row View Model for  <see cref="ElementDefinition" />
+    /// </summary>
+    public class ElementDefinitionDetailsRowViewModel : ReactiveObject
+    {
+        /// <summary>
+        /// Backing field for <see cref="ParameterTypeName" />
+        /// </summary>
+        private string parameterTypeName;
 
-		/// <summary>
-		/// Backing field for <see cref="ShortName" />
-		/// </summary>
-		private string shortName;
+        /// <summary>
+        /// Backing field for <see cref="ShortName" />
+        /// </summary>
+        private string shortName;
 
-		/// <summary>
-		/// Backing field for <see cref="ActualValue" />
-		/// </summary>
-		private string actualValue;
+        /// <summary>
+        /// Backing field for <see cref="ActualValue" />
+        /// </summary>
+        private string actualValue;
 
-		/// <summary>
-		/// Backing field for <see cref="PublishedValue" />
-		/// </summary>
-		private string publishedValue;
+        /// <summary>
+        /// Backing field for <see cref="PublishedValue" />
+        /// </summary>
+        private string publishedValue;
 
-		/// <summary>
-		/// Backing field for <see cref="Owner" />
-		/// </summary>
-		private string owner;
+        /// <summary>
+        /// Backing field for <see cref="Owner" />
+        /// </summary>
+        private string owner;
 
         /// <summary>
         /// Backing field for <see cref="Switch" />
@@ -76,16 +76,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// </summary>
         private Parameter parameter;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class.
-		/// </summary>
-		public ElementDefinitionDetailsRowViewModel(Parameter parameter)
-		{
-			this.ParameterTypeName = parameter.ParameterType.Name;
-			this.ShortName = parameter.ParameterType.ShortName;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class.
+        /// </summary>
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter)
+        {
+            this.ParameterTypeName = parameter.ParameterType.Name;
+            this.ShortName = parameter.ParameterType.ShortName;
 
             this.ActualValue = parameter.ValueSet.FirstOrDefault()?.ActualValue.AsCommaSeparated();
-			this.PublishedValue = parameter.ValueSet.FirstOrDefault()?.Published.AsCommaSeparated();
+            this.PublishedValue = parameter.ValueSet.FirstOrDefault()?.Published.AsCommaSeparated();
 
             if (parameter.ValueSet.FirstOrDefault()?.ActualValue.Count > 1)
             {
@@ -98,65 +98,65 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
             if (parameter.Scale != null)
             {
                 this.ActualValue += " [" + parameter.Scale.ShortName + "]";
-				this.PublishedValue += " [" + parameter.Scale.ShortName + "]";
+                this.PublishedValue += " [" + parameter.Scale.ShortName + "]";
             }
 
             this.Owner = parameter.Owner.ShortName;
-			this.SwitchValue = parameter.ValueSet.FirstOrDefault()?.ValueSwitch.ToString();
-			this.ModelCode = parameter.ModelCode();
+            this.SwitchValue = parameter.ValueSet.FirstOrDefault()?.ValueSwitch.ToString();
+            this.ModelCode = parameter.ModelCode();
             this.Parameter = parameter;
-		}
+        }
 
-		/// <summary>
-		/// The Name of the <see cref="ParameterType" />
-		/// </summary>
-		public string ParameterTypeName
-		{
-			get => this.parameterTypeName;
-			set => this.RaiseAndSetIfChanged(ref this.parameterTypeName, value);
-		}
+        /// <summary>
+        /// The Name of the <see cref="ParameterType" />
+        /// </summary>
+        public string ParameterTypeName
+        {
+            get => this.parameterTypeName;
+            set => this.RaiseAndSetIfChanged(ref this.parameterTypeName, value);
+        }
 
-		/// <summary>
-		/// The short name of the <see cref="ParameterType" />
-		/// </summary>
-		public string ShortName
-		{
-			get => this.shortName;
-			set => this.RaiseAndSetIfChanged(ref this.shortName, value);
-		}
+        /// <summary>
+        /// The short name of the <see cref="ParameterType" />
+        /// </summary>
+        public string ShortName
+        {
+            get => this.shortName;
+            set => this.RaiseAndSetIfChanged(ref this.shortName, value);
+        }
 
-		/// <summary>
-		/// The actual value of the <see cref="Parameter" />
-		/// </summary>
-		public string ActualValue
-		{
-			get => this.actualValue;
-			set => this.RaiseAndSetIfChanged(ref this.actualValue, value);
-		}
+        /// <summary>
+        /// The actual value of the <see cref="Parameter" />
+        /// </summary>
+        public string ActualValue
+        {
+            get => this.actualValue;
+            set => this.RaiseAndSetIfChanged(ref this.actualValue, value);
+        }
 
-		/// <summary>
-		/// The published value of the <see cref="Parameter" />
-		/// </summary>
-		public string PublishedValue
-		{
-			get => this.publishedValue;
-			set => this.RaiseAndSetIfChanged(ref this.publishedValue, value);
-		}
+        /// <summary>
+        /// The published value of the <see cref="Parameter" />
+        /// </summary>
+        public string PublishedValue
+        {
+            get => this.publishedValue;
+            set => this.RaiseAndSetIfChanged(ref this.publishedValue, value);
+        }
 
-		/// <summary>
-		/// The short name of the Owner of the <see cref="Parameter" />
-		/// </summary>
-		public string Owner
-		{
-			get => this.owner;
-			set => this.RaiseAndSetIfChanged(ref this.owner, value);
-		}
+        /// <summary>
+        /// The short name of the Owner of the <see cref="Parameter" />
+        /// </summary>
+        public string Owner
+        {
+            get => this.owner;
+            set => this.RaiseAndSetIfChanged(ref this.owner, value);
+        }
 
         /// <summary>
         /// The Switch Value of the <see cref="Parameter" />
         /// </summary>
         public string SwitchValue
-		{
+        {
             get => this.switchValue;
             set => this.RaiseAndSetIfChanged(ref this.switchValue, value);
         }
@@ -174,9 +174,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// The <see cref="Parameter" /> of selected <see cref="ElementDefinition" />
         /// </summary>
         public Parameter Parameter
-		{
-			get => this.parameter;
-			set => this.RaiseAndSetIfChanged(ref this.parameter, value);
-		}
-	}
+        {
+            get => this.parameter;
+            set => this.RaiseAndSetIfChanged(ref this.parameter, value);
+        }
+    }
 }

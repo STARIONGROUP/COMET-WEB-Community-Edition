@@ -24,8 +24,9 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
-	using CDP4Common.EngineeringModelData;
-	using CDP4Dal;
+    using CDP4Common.EngineeringModelData;
+
+    using CDP4Dal;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
@@ -33,9 +34,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Model;
-	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
-	using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components;
     
     using ReactiveUI;
 
@@ -47,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
         /// </summary>
-        /// <param parameterTypeName="sessionService">The <see cref="ISessionService" /></param>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
         public SystemRepresentationBodyViewModel(ISessionService sessionService) : base(sessionService)
         {
             this.SystemTreeViewModel = new SystemTreeViewModel
@@ -86,7 +87,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param parameterTypeName="selectedOption">the selected <see cref="Option"/></param>
+        /// <param name="selectedOption">the selected <see cref="Option"/></param>
         public void OnOptionFilterChange(Option selectedOption)
         {
             this.Elements.Clear();
@@ -172,7 +173,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Creates the <see cref="ElementUsage" /> used for the system tree nodes
         /// </summary>
-        /// <param parameterTypeName="elements">the elements of the current <see cref="Iteration" /></param>
+        /// <param name="elements">the elements of the current <see cref="Iteration" /></param>
         private void CreateElementUsages(IEnumerable<ElementBase> elements)
         {
             var topElement = elements.First();
@@ -183,9 +184,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Creates the tree in a recursive way
         /// </summary>
-        /// <param parameterTypeName="elementBase"></param>
-        /// <param parameterTypeName="current"></param>
-        /// <param parameterTypeName="parent"></param>
+        /// <param name="elementBase"></param>
+        /// <param name="current"></param>
+        /// <param name="parent"></param>
         private void CreateTreeRecursively(ElementBase elementBase, SystemNode current, SystemNode parent)
         {
             var childsOfElementBase = elementBase switch
@@ -219,10 +220,10 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
             this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
             {
-				ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-				ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-				_ => null
-			};
+                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                _ => null
+            };
         }
 
         /// <summary>
