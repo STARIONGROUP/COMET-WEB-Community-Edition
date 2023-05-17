@@ -296,7 +296,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.viewModel.Elements.Clear();
             this.viewModel.Elements.Add(this.iteration.Element.First());
 
-            this.viewModel.SelectElement(this.viewModel.SystemTreeViewModel.SystemNodes.First());
+            this.viewModel.SelectElement(this.viewModel.RootNode);
 
             Assert.Multiple(() =>
             {
