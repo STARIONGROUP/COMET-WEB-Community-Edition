@@ -33,7 +33,7 @@ namespace COMETwebapp.Components.ModelDashboard.Elements
 	/// Base component for component that provide information related to <see cref="ElementDefinition" /> for the
 	/// <see cref="ElementDashboard" />
 	/// </summary>
-	public abstract partial class HaveElementDefinitionData
+	public abstract partial class HaveElementDefinitionData: HaveChartData
 	{
 		/// <summary>
 		/// A collection of <see cref="ElementDefinition" />

@@ -25,11 +25,13 @@
 
 namespace COMET.Web.Common.Components
 {
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
     /// Base component for component that needs to implement the <see cref="IDisposable" /> interface
     /// </summary>
-    public abstract partial class DisposableComponent : IDisposable
-    {
+    public partial class DisposableComponent : ComponentBase, IDisposable
+	{
         /// <summary>
         /// A collection of <see cref="IDisposable" />
         /// </summary>

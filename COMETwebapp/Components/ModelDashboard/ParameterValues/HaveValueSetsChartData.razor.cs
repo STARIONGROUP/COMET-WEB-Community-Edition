@@ -33,7 +33,7 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 	/// <summary>
 	/// Base class for component that have <see cref="DxChart"/> related to <see cref="ParameterValueSetBase"/>
 	/// </summary>
-	public abstract partial class HaveValueSetsChartData
+	public abstract partial class HaveValueSetsChartData: HaveChartData
 	{
 		/// <summary>
 		/// A collection of <see cref="ParameterValueSetBase"/>

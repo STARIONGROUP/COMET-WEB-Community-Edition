@@ -31,7 +31,7 @@ namespace COMETwebapp.Components.ModelDashboard
 	/// <summary>
 	/// Base class for component that have <see cref="DxChart" />
 	/// </summary>
-	public abstract partial class HaveChartData
+	public abstract partial class HaveChartData: ComponentBase
 	{
 		/// <summary>
 		/// <see cref="EventCallback" /> to call to access data on a clicked <see cref="DxChart" />
