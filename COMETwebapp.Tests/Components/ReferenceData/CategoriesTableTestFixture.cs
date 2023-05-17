@@ -348,6 +348,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
+            renderer.Render();
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
