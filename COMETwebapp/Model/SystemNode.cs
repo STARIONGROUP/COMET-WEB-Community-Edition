@@ -87,7 +87,7 @@ namespace COMETwebapp.Model
         /// <returns>the childrens of the node</returns>
         public IReadOnlyList<SystemNode> GetChildren()
         {
-            return this.Children.AsReadOnly();
+            return this.Children.OrderBy(node => node.Title).ToList().AsReadOnly();
         }
     }
 }
