@@ -38,6 +38,8 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using DevExpress.Blazor;
 
+    using Microsoft.AspNetCore.Components.Web;
+
     using Moq;
 
     using NUnit.Framework;
