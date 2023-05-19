@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="AuthorizedMenuEntry.razor.cs" company="RHEA System S.A.">
+//  <copyright file="MenuEntryBase.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -25,33 +25,12 @@
 
 namespace COMET.Web.Common.Shared.TopMenuEntry
 {
-    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
-
-    using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
+    using COMET.Web.Common.Components;
 
     /// <summary>
-    /// Represents a base component for the Menu that needs to be visible only when the user is logged
+    /// Represents a base component for the Menu
     /// </summary>
-    public abstract partial class AuthorizedMenuEntry: MenuEntryBase
+	public partial class MenuEntryBase: DisposableComponent
     {
-        /// <summary>
-        /// The <see cref="IAuthorizedMenuEntryViewModel" />
-        /// </summary>
-        [Inject]
-        public IAuthorizedMenuEntryViewModel AuthorizedMenuEntryViewModel { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.AuthorizedMenuEntryViewModel.CurrentState)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
     }
 }

@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -110,6 +111,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 Participant = { this.participant }
             };
 
+            var enumerationValues = new List<string> { "cube", "sphere", "cylinder" };
+
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 Element =
@@ -130,6 +133,31 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                                     Name = "TestElementUsage",
                                     Owner = this.domain,
                                     ShortName = "TEU"
+                                }
+                            }
+                        },
+                        Parameter =
+                        {
+                            new Parameter(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                            {
+                                Owner = this.domain,
+                                ParameterType = new BooleanParameterType(Guid.NewGuid(), this.assembler.Cache, this.uri)
+                                {
+                                    Name = "paramType1",
+                                    ShortName = "BPT"
+                                },
+                                ValueSet = 
+                                { 
+                                    new ParameterValueSet()
+                                    {
+                                        Published = new ValueArray<string>(enumerationValues),
+                                        Manual = new ValueArray<string>(enumerationValues)
+                                    }
+                                },
+                                Scale = new OrdinalScale
+                                {
+                                    Iid = Guid.NewGuid(),
+                                    ShortName = "m"
                                 }
                             }
                         }
@@ -224,6 +252,12 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyOnInitialized()
         {
@@ -248,6 +282,34 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             {
                 Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
                 Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public async Task VerifySelectNode()
+        {
+            var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
+            {
+                parameters.Add(p => p.CurrentIteration, this.iteration);
+            });
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.Elements.Clear();
+            this.viewModel.Elements.Add(this.iteration.Element.First());
+
+            this.viewModel.SelectElement(this.viewModel.RootNode);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.SelectedSystemNode, Is.Not.Null);
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ParameterTypeName, Is.EqualTo(this.iteration.Element.First().Parameter.First().ParameterType.Name));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ShortName, Is.EqualTo(this.iteration.Element.First().Parameter.First().ParameterType.ShortName));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().Owner, Is.EqualTo(this.iteration.Element.First().Parameter.First().Owner.ShortName));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().PublishedValue, Is.Not.Null);
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);
             });
         }
     }

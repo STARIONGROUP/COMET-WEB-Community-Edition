@@ -36,6 +36,8 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
+    using DevExpress.Blazor;
+
     using Moq;
 
     using NUnit.Framework;
@@ -131,7 +133,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
 
-            this.renderedComponent = this.context.RenderComponent<CompoundParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent = this.context.RenderComponent<CompoundParameterTypeEditor>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
+                parameters.Add(p => p.BindValueMode, BindValueMode.OnInput);
+            });
 
             this.editor = this.renderedComponent.Instance;
         }

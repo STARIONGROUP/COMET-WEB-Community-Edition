@@ -19,13 +19,16 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData;
+@using COMET.Web.Common.Extensions;
 @using COMETwebapp.Model
 @using CDP4Common.EngineeringModelData
+@using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 @inherits DisposableComponent
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
-	<h4>Element Definition</h4>
+	<h4>Building Block</h4>
 	<div>
 		<table class="table">
 			<thead>
@@ -50,10 +53,10 @@
 					@this.ViewModel.SelectedSystemNode.Owner.ShortName
 					</td>
 					<td class="align-middle">
-						@this.ViewModel.SelectedSystemNode.Category.FirstOrDefault()?.Name
+						@this.ViewModel.SelectedSystemNode.Category.Select(x => x.Name).AsCommaSeparated()
 					</td>
 					<td class="align-middle">
-						@this.ViewModel.SelectedSystemNode.Definition.FirstOrDefault()?.UserFriendlyName
+						@this.ViewModel.SelectedSystemNode.Definition.Select(x => x.Content).AsCommaSeparated()
 					</td>
 					<td class="align-middle">
 						@this.ViewModel.SelectedSystemNode.GetType().Name
@@ -62,80 +65,16 @@
 			</tbody>
 		</table>
 <h4>Parameters</h4>
-<table class="table">
-				<thead>
-					<tr>
-						<th scope="col">Name</th>
-						<th scope="col">Short Name</th>
-						<th scope="col">Actual Value</th>
-						<th scope="col">Published Value</th>
-						<th scope="col">Owner</th>
-					</tr>
-				</thead>
-				<tbody>
-				@if (this.ViewModel.SelectedSystemNode is ElementDefinition elementDefinition)
-				{
-					@if (elementDefinition.Parameter.Count != 0)
-					{
-						foreach (var parameter in elementDefinition.Parameter)
-						{
-							var valueSet = new List<ParameterValueSetBase>();
-							valueSet.AddRange(parameter.ValueSet);
-							foreach (var parameterValueSet in valueSet)
-							{
-								<tr>
-									<td class="align-middle">
-										@parameter.ParameterType.Name
-									</td>
-									<td class="align-middle">
-										@parameter.ParameterType.Symbol
-									</td>
-									<td class="align-middle">
-										@parameterValueSet.ActualValue.First()  @parameter.Scale.ShortName
-									</td>
-									<td class="align-middle">
-										@parameterValueSet.Published.First()  @parameter.Scale.ShortName
-									</td>
-									<td class="align-middle">
-										@parameterValueSet.Owner.ShortName
-									</td>
-								</tr>
-							}
-						}
-					}
-				}
-				else if (this.ViewModel.SelectedSystemNode is ElementUsage elementUsage)
-					{
-					@if (elementUsage.ParameterOverride.Count == 0 && elementUsage.ElementDefinition.Parameter.Count != 0)
-						{
-							foreach (var parameter in elementUsage.ElementDefinition.Parameter)
-							{
-								var valueSet = new List<ParameterValueSetBase>();
-								valueSet.AddRange(parameter.ValueSet);
-								foreach (var parameterValueSet in valueSet)
-								{
-									<tr>
-										<td class="align-middle">
-											@parameter.ParameterType.Name
-										</td>
-										<td class="align-middle">
-											@parameter.ParameterType.Symbol
-										</td>
-										<td class="align-middle">
-											@parameterValueSet.ActualValue.First() @parameter.Scale?.ShortName
-										</td>
-										<td class="align-middle">
-											@parameterValueSet.Published?.First() @parameter.Scale?.ShortName
-										</td>
-										<td class="align-middle">
-											@parameterValueSet.Owner.ShortName
-										</td>
-									</tr>
-								}
-							}
-						}
-					}
-				</tbody>
-			</table>
+				<DxGrid Data="this.ViewModel.Rows" ColumnResizeMode="GridColumnResizeMode.ColumnsContainer" PageSize="20">
+					<Columns>
+						<DxGridDataColumn Caption="Name" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ParameterTypeName)" />
+						<DxGridDataColumn Caption="Short Name" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ShortName)" />
+						<DxGridDataColumn Caption="Actual Value" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ActualValue)" MinWidth="100" />
+						<DxGridDataColumn Caption="Published Value" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.PublishedValue)" MinWidth="100" />
+						<DxGridDataColumn Caption="Owner" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.Owner)" />
+						<DxGridDataColumn Caption="Switch" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.SwitchValue)" />
+						<DxGridDataColumn Caption="Model Code" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ModelCode)" />
+					</Columns>
+				</DxGrid>
 	</div>
 }

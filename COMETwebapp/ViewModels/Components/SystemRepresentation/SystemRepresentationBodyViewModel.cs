@@ -34,6 +34,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using Microsoft.AspNetCore.Components;
     
@@ -213,10 +214,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// </summary>
         /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        private void SelectElement(SystemNode selectedNode)
+        public void SelectElement(SystemNode selectedNode)
         {
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
+            this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
+            {
+                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                _ => null
+            };
         }
 
         /// <summary>

@@ -118,10 +118,11 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
-            
+
             var configurationService = new Mock<IConfigurationService>();
+            configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
-}
+        }
 
         [TearDown]
         public void Teardown()
