@@ -43,6 +43,7 @@ namespace COMET.Web.Common.Components
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
