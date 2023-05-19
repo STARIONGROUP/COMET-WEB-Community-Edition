@@ -111,16 +111,6 @@ namespace COMETwebapp.Components.ModelEditor
         }
 
         /// <summary>
-        ///     Method invoked to add index to the data row element
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
-        void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-        {
-            if (e.ElementType == GridElementType.DataRow)
-                e.Attributes["data-visible-index"] = e.VisibleIndex;
-        }
-
-        /// <summary>
         ///  Method invoked when dropping a row in the grid
         /// </summary>
         [JSInvokable]

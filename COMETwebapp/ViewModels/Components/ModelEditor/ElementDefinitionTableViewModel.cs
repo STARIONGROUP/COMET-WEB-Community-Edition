@@ -39,11 +39,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     public class ElementDefinitionTableViewModel : DisposableObject, IElementDefinitionTableViewModel
     {
         /// <summary>
-        /// The <see cref="ISessionService" />
-        /// </summary>
-        private readonly ISessionService sessionService;
-
-        /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
         public List<ElementBase> Elements { get; set; } = new();
@@ -51,7 +46,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// The current <see cref="Iteration" />
         /// </summary>
-        private Iteration iteration;
+        private readonly Iteration iteration;
 
         /// <summary>
         /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
@@ -59,8 +54,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         public ElementDefinitionTableViewModel(ISessionService sessionService)
         {
-            this.sessionService = sessionService;
-            this.iteration = this.sessionService.OpenIterations.Items.FirstOrDefault();
+            this.iteration = sessionService.OpenIterations.Items.FirstOrDefault();
             this.InitializeElements();
             this.PopulateRows();
         }
