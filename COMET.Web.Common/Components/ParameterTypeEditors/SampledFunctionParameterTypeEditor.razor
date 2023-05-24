@@ -35,25 +35,29 @@
                           Click="@(()=> sfptViewModel.RemoveRow())" Text="Delete row" Enabled="@sfptViewModel.CanRemoveRow"/>
             </div>
         }
-    <table id="sfpt-table">
+        <table id="sfpt-table">
+            <thead>
             <tr>
                 @foreach (var parameterTypeAssignement in sfptViewModel.ParameterTypeAssignments)
                 {
-                    <th>@parameterTypeAssignement.QueryName()</th>
+                    <th class="sticky">@parameterTypeAssignement.QueryName()</th>
                 }
             </tr>
-            @for (var rowIndex = 0; rowIndex < this.ViewModel.ParameterType.QueryRowsCount(this.ViewModel.ValueArray); rowIndex++)
-            {
-                <tr>
-                    @for (var columnIndex = 0; columnIndex < sfptViewModel.ParameterTypeAssignments.Count; columnIndex++)
-                    {
-                        <td>
-                            <ParameterTypeEditorSelector BindValueMode="this.BindValueMode"
-                                                         ViewModel="sfptViewModel.CreateParameterTypeEditorSelectorViewModel((rowIndex * sfptViewModel.ParameterTypeAssignments.Count) + columnIndex)" />
-                        </td>
-                    }
-                </tr>
-            }
+            </thead>
+            <tbody >
+                @for (var rowIndex = 0; rowIndex < this.ViewModel.ParameterType.QueryRowsCount(this.ViewModel.ValueArray); rowIndex++)
+                {
+                    <tr>
+                        @for (var columnIndex = 0; columnIndex < sfptViewModel.ParameterTypeAssignments.Count; columnIndex++)
+                        {
+                            <td>
+                                <ParameterTypeEditorSelector BindValueMode="this.BindValueMode"
+                                                             ViewModel="sfptViewModel.CreateParameterTypeEditorSelectorViewModel((rowIndex * sfptViewModel.ParameterTypeAssignments.Count) + columnIndex)"/>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
         </table>
         <div class="modal-footer">
             <DxButton Click="@this.UpdateValues" Text="Confirm" Enabled="@(!this.ViewModel.IsReadOnly)" />
