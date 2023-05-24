@@ -42,7 +42,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     public class OrientationViewModelTestFixture
     {
         private IOrientationViewModel viewModel;
-        private EventCallback<IValueSet> onParameterValueSetChanged;
+        private EventCallback<(IValueSet,int)> onParameterValueSetChanged;
 
         [SetUp]
         public void SetUp()
@@ -53,7 +53,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 Manual = new ValueArray<string>(new List<string>() { "1", "0", "0", "0", "1", "0", "0", "0", "1" })
             };
 
-            this.onParameterValueSetChanged = new EventCallback<IValueSet>();
+            this.onParameterValueSetChanged = new EventCallback<(IValueSet, int)>();
             this.viewModel = new OrientationViewModel(valueSet,this.onParameterValueSetChanged);
         }
 

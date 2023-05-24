@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IEnumerationParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ISampledFunctionParameterTypeEditorViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -29,50 +29,42 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     using CDP4Common.Types;
 
     /// <summary>
-    /// Interface definition for <see cref="EnumerationParameterTypeEditorViewModel" />
+    /// View model used to edit <see cref="SampledFunctionParameterType"/> 
     /// </summary>
-    public interface IEnumerationParameterTypeEditorViewModel
+    public interface ISampledFunctionParameterTypeEditorViewModel: IHaveComponentParameterTypeEditor
     {
         /// <summary>
-        /// The available <see cref="EnumerationValueDefinition" />s
+        /// Add a new row of default values
         /// </summary>
-        IEnumerable<EnumerationValueDefinition> EnumerationValueDefinitions { get; set; }
+        void AddRow();
 
         /// <summary>
-        /// Names of selected <see cref="EnumerationValueDefinition" />s
+        /// Remove a row of values
         /// </summary>
-        IEnumerable<string> SelectedEnumerationValueDefinitions { get; set; }
+        void RemoveRow();
 
         /// <summary>
-        /// Indicates if all elements are checked
+        /// Value asserting that it is allowed to remove a row
         /// </summary>
-        bool SelectAllChecked { get; set; }
+        bool CanRemoveRow { get; }
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
+        /// A collection of all <see cref="IParameterTypeAssignment" />
         /// </summary>
-        bool IsOnEditMode { get; set; }
+        IReadOnlyList<IParameterTypeAssignment> ParameterTypeAssignments { get; }
 
         /// <summary>
-        /// Method invoked when select all is checked
+        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel"/> 
         /// </summary>
-        void OnSelectAllChanged(bool value);
+        /// <param name="valueArrayIndex">
+        /// the index of the inside the value array
+        /// </param>
+        /// <returns>the <see cref="IParameterTypeEditorSelectorViewModel"/></returns>
+        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(int valueArrayIndex);
 
         /// <summary>
-        /// Method invoked when confirming selection of  <see cref="EnumerationValueDefinition" />
+        /// Reset changes that could have been set to the <see cref="ValueArray{T}" />
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task OnConfirmButtonClick();
-
-        /// <summary>
-        /// Method invoked when canceling the selection of <see cref="EnumerationValueDefinition" />
-        /// </summary>
-        void OnCancelButtonClick();
-
-        /// <summary>
-        /// Gets the enumeration value for the current <see cref="ValueArray{T}"/>
-        /// </summary>
-        /// <returns>The enumeration value</returns>
-        string GetEnumerationValue();
+        void ResetChanges();
     }
 }

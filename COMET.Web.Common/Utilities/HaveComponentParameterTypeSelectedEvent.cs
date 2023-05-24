@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CompoundComponentSelectedEvent.cs" company="RHEA System S.A.">
+//  <copyright file="HaveComponentParameterTypeSelectedEvent.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -27,23 +27,23 @@ namespace COMET.Web.Common.Utilities
 {
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
-    /// <summary>
-    /// Class used to notify an observer that the <see cref="CompoundParameterTypeEditorViewModel" /> is selected.
-    /// </summary>
-    public class CompoundComponentSelectedEvent
+	/// <summary>
+	/// Class used to notify an observer that the <see cref="HaveComponentParameterTypeSelectedEvent" /> is selected.
+	/// </summary>
+	public class HaveComponentParameterTypeSelectedEvent
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompoundComponentSelectedEvent" /> class.
-        /// </summary>
-        /// <param name="compoundParameterTypeEditorViewModel">The <see cref="CompoundParameterTypeEditorViewModel" /></param>
-        public CompoundComponentSelectedEvent(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="HaveComponentParameterTypeSelectedEvent" /> class.
+		/// </summary>
+		/// <param name="haveComponentParameter">The <see cref="IHaveComponentParameterTypeEditor" /></param>
+		public HaveComponentParameterTypeSelectedEvent(IHaveComponentParameterTypeEditor haveComponentParameter)
         {
-            this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
+            this.HaveComponentParameter = haveComponentParameter;
         }
 
-        /// <summary>
-        /// Gets or sets the <see cref="CompoundParameterTypeEditorViewModel" />
-        /// </summary>
-        public CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
+		/// <summary>
+		/// Gets the <see cref="IHaveComponentParameterTypeEditor" />
+		/// </summary>
+		public IHaveComponentParameterTypeEditor HaveComponentParameter { get; }
     }
 }

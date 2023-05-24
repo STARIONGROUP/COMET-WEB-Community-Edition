@@ -45,7 +45,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets or sets the <see cref="EventCallback{T}" /> for when the parameter value has changed
         /// </summary>
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        EventCallback<(IValueSet, int)> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// The <see cref="ValueArray{T}" /> to work with

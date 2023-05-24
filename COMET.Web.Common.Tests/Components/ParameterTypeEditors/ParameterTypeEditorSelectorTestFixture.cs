@@ -207,7 +207,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
                 Iid = Guid.NewGuid()
             };
 
-            this.viewModelMock.Setup(x => x.ParameterValueChanged).Returns(new EventCallback<IValueSet>());
+            this.viewModelMock.Setup(x => x.ParameterValueChanged).Returns(new EventCallback<(IValueSet, int)>());
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
             this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });

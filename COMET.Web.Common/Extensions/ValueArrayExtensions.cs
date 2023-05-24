@@ -27,10 +27,10 @@ namespace COMET.Web.Common.Extensions
 {
     using CDP4Common.Types;
 
-    /// <summary>
-    /// Static class for the <see cref="ValueArray{T}" extensions/>
-    /// </summary>
-    public static class ValueArrayExtensions
+	/// <summary>
+	/// Static class for the <see cref="ValueArray{T}" /> extensions
+	/// </summary>
+	public static class ValueArrayExtensions
     {
         /// <summary>
         /// Checks if two <see cref="ValueArray{T}"/> contains the same exact values 
@@ -52,6 +52,43 @@ namespace COMET.Web.Common.Extensions
             }
 
             return !valueArray.Where((t, i) => !t.Equals(comparison[i])).Any();
+        }
+
+        /// <summary>
+        /// Adds new default values inside a <see cref="ValueArray{T}"/>
+        /// </summary>
+        /// <param name="valueArray">The current <see cref="ValueArray{T}"/></param>
+        /// <param name="numberOfValues">The number of values to add</param>
+        /// <returns>The newly updated <see cref="ValueArray{T}"/></returns>
+        public static ValueArray<string> AddNewValues(this ValueArray<string> valueArray, int numberOfValues)
+        {
+            var currentValues = valueArray.ToList();
+
+            for (var componentIndex = 0; componentIndex < numberOfValues; componentIndex++)
+            {
+                currentValues.Add("-");
+            }
+
+            return new ValueArray<string>(currentValues);
+		}
+
+        /// <summary>
+        /// Removes new values inside a <see cref="ValueArray{T}"/>
+        /// </summary>
+        /// <param name="valueArray">The current <see cref="ValueArray{T}"/></param>
+        /// <param name="numberOfValues">The number of values to remove</param>
+        /// <returns>The newly updated <see cref="ValueArray{T}"/></returns>
+        public static ValueArray<string> RemovesValues(this ValueArray<string> valueArray, int numberOfValues)
+        {
+            var currentValues = valueArray.ToList();
+
+            if ( currentValues.Count < numberOfValues )
+            {
+                throw new ArgumentOutOfRangeException($"The requested number of values to delete ({numberOfValues}) can not be greater than the lenght of the ValueArray");
+            }
+
+            currentValues.RemoveRange(currentValues.Count -1 -numberOfValues, numberOfValues);
+            return new ValueArray<string>(currentValues);
         }
     }
 }

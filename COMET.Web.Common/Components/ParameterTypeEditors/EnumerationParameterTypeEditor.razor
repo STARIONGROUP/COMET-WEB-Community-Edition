@@ -67,7 +67,7 @@
                     Data="this.ViewModel.ParameterType.ValueDefinition.OrderBy(x => x.Name).Select(x => x.Name)"
                     NullText="-"
                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
-                    Value="@(this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex])"
+                    Value="@(enumerationParameterTypeEditorViewModel.GetEnumerationValue())"
                     ReadOnly="this.ViewModel.IsReadOnly"
                     ValueChanged="(string value) => this.ViewModel.OnParameterValueChanged(value)"/>
     }

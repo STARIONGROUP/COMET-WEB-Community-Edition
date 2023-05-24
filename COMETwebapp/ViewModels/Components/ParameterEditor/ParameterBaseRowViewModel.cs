@@ -70,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
             this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, this.IsReadOnly)
             {
-                ParameterValueChanged = new EventCallbackFactory().Create<IValueSet>(this, this.OnParameterValueChanged)
+                ParameterValueChanged = new EventCallbackFactory().Create<(IValueSet,int)>(this, this.OnParameterValueChanged)
             };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterSwitchKindSelectorViewModel.SwitchValue)
@@ -194,12 +194,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
+        /// <param name="value">The updated <see cref="IValueSet"/> with the index</param>
         /// <returns>an asynchronous operation</returns>
-        private async Task OnParameterValueChanged(IValueSet value)
+        private async Task OnParameterValueChanged((IValueSet valueSet, int _) value)
         {
-            if (!this.IsReadOnly && value is ParameterValueSetBase parameterValueSetBase)
+            if (!this.IsReadOnly && value.valueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                await this.sessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { parameterValueSetBase });
+                await this.sessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing>{parameterValueSetBase});
             }
         }
 

@@ -81,7 +81,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
             this.SessionService = sessionService;
             this.SelectionMediator = selectionMediator;
 
-            this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async (IValueSet valueSet) => { await this.ParameterValueSetChanged(valueSet); });
+            this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async ((IValueSet,int) valueSet) => { await this.ParameterValueSetChanged(valueSet); });
 
             this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
             this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
@@ -151,7 +151,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Event callback for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed
         /// </summary>
-        public EventCallback<IValueSet> OnParameterValueSetChanged { get; set; }
+        public EventCallback<(IValueSet,int)> OnParameterValueSetChanged { get; set; }
 
         /// <summary>
         /// When the button for submit changes is clicked
@@ -203,13 +203,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Event for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed.
         /// </summary>
-        /// <param name="valueSet"></param>
-        public async Task ParameterValueSetChanged(IValueSet valueSet)
+        /// <param name="valueTuple">The updated <see cref="IValueSet"/> with the index</param>
+        public async Task ParameterValueSetChanged((IValueSet valueSet,int _) valueTuple)
         {
-            if (valueSet is ParameterValueSetBase parameterValueSetBase)
+            if (valueTuple.valueSet is ParameterValueSetBase parameterValueSetBase)
             {
                 var validationMessageBuilder = new StringBuilder();
-                var newValueArray = new ValueArray<string>(valueSet.ActualValue);
+                var newValueArray = new ValueArray<string>(parameterValueSetBase.ActualValue);
 
                 if(this.SelectedParameter.ParameterType is CompoundParameterType compoundParameterType)
                 {
@@ -217,13 +217,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     
                     for(var componentIndex = 0; componentIndex < components.Count; componentIndex++)
                     {
-                        var value = valueSet.ActualValue[componentIndex];
+                        var value = parameterValueSetBase.ActualValue[componentIndex];
                         validationMessageBuilder .Append(ParameterValueValidator.Validate(value, components[componentIndex].ParameterType, components[componentIndex]?.Scale));
                     }
                 }
                 else
                 {
-                    validationMessageBuilder.Append(ParameterValueValidator.Validate(valueSet.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale));
+                    validationMessageBuilder.Append(ParameterValueValidator.Validate(parameterValueSetBase.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale));
                 }
 
                 var validationMessage = validationMessageBuilder.ToString();

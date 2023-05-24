@@ -46,14 +46,14 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// </summary>
         private bool selectAllChecked;
 
-        /// <summary>
-        /// Creates a new instance of type <see cref="EnumerationParameterType" />
-        /// </summary>
-        /// <param name="parameterType">the parameter used for this editor view model</param>
-        /// <param name="valueSet">the value set asociated to this editor</param>
-        /// <param name="isReadOnly">The readonly state</param>
-        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
+		/// <summary>
+		/// Creates a new instance of type <see cref="EnumerationParameterType" />
+		/// </summary>
+		/// <param name="parameterType">the parameter used for this editor view model</param>
+		/// <param name="valueSet">the value set asociated to this editor</param>
+		/// <param name="isReadOnly">The readonly state</param>
+		/// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+		public EnumerationParameterTypeEditorViewModel(EnumerationParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
             this.EnumerationValueDefinitions = parameterType.ValueDefinition;
 
@@ -146,18 +146,28 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
+        /// Gets the enumeration value for the current <see cref="ValueArray{T}"/>
+        /// </summary>
+        /// <returns>The enumeration value</returns>
+        public string GetEnumerationValue()
+        {
+            return this.ValueArray[this.ValueArrayIndex] == "-" ? "-" : this.EnumerationValueDefinitions.FirstOrDefault(x => x.ShortName == this.ValueArray[this.ValueArrayIndex])?.Name;
+        }
+
+        /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
+        /// <param name="value">The new value</param>
         /// <returns>A <see cref="Task" /></returns>
         public override async Task OnParameterValueChanged(object value)
         {
             var element = value.ToString() != "-" ? this.EnumerationValueDefinitions.Where(x => x.Name == value.ToString()).Select(x => x.ShortName).FirstOrDefault() : value.ToString();
 
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element is { } valueString && this.AreChangesValid(value))
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && element != null && this.AreChangesValid(element))
             {
                 var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
-                    [this.ValueArrayIndex] = valueString
+                    [this.ValueArrayIndex] = element
                 };
 
                 await this.UpdateValueSet(parameterValueSetBase, modifiedValueArray);

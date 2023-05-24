@@ -65,13 +65,12 @@ namespace COMET.Web.Common.Tests.Utilities
         [Test]
         public void VerifyCompoundComponentSelectedEventCreation()
         {
-            var compoundComponentSelectedEvent = new CompoundComponentSelectedEvent((CompoundParameterTypeEditorViewModel)this.viewModel);
+            var compoundComponentSelectedEvent = new HaveComponentParameterTypeSelectedEvent((CompoundParameterTypeEditorViewModel)this.viewModel);
 
             Assert.Multiple(() =>
             {
-                Assert.That(compoundComponentSelectedEvent.CompoundParameterTypeEditorViewModel, Is.Not.Null);
-                Assert.That(compoundComponentSelectedEvent.CompoundParameterTypeEditorViewModel, Is.EqualTo(this.viewModel));
-                Assert.That(compoundComponentSelectedEvent.CompoundParameterTypeEditorViewModel.ParameterType, Is.Not.Null);
+                Assert.That(compoundComponentSelectedEvent.HaveComponentParameter, Is.Not.Null);
+                Assert.That(compoundComponentSelectedEvent.HaveComponentParameter, Is.EqualTo(this.viewModel));
             });
         }
     }

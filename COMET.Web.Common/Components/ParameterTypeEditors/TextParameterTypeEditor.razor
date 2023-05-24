@@ -41,7 +41,7 @@
     {
         <div class="parameter-row">
             <DxTextBox InputCssClass="text-parameter-type"
-                       Text="@this.ViewModel.ValueArray.First()"
+                       Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                        CssClass="parameter-input"
                        TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
                        ReadOnly="this.ViewModel.IsReadOnly"

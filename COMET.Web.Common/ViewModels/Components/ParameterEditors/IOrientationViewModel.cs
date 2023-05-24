@@ -55,7 +55,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event callback for when a value of the <see cref="IValueSet" /> has changed
         /// </summary>
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        EventCallback<(IValueSet, int)> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Gets all the possible <see cref="AngleFormat" />

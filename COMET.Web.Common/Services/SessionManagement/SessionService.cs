@@ -257,7 +257,12 @@ namespace COMET.Web.Common.Services.SessionManagement
             var sw = Stopwatch.StartNew();
 
             // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
-            var thingClone = thing.Clone(false);
+            var thingClone = thing;
+
+            if (thing.Original == null)
+            {
+                thingClone = thing.Clone(false);
+            }
 
             // set the context of the transaction to the thing changes need to be added to.
             var context = TransactionContextResolver.ResolveContext(thingClone);

@@ -47,7 +47,7 @@
 
         case QuantityKind:
             <QuantityKindParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<QuantityKind>()"
-                                             BindValueMode="@this.BindValueMode" />
+                                             BindValueMode="@this.BindValueMode" Scale="this.ViewModel.Scale" />
             break;
 
         case TextParameterType:
@@ -57,6 +57,10 @@
 
         case TimeOfDayParameterType:
             <TimeOfDayParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<TimeOfDayParameterType>()"/>
+            break;
+
+        case SampledFunctionParameterType:
+            <SampledFunctionParameterTypeEditor ViewModel="this.ViewModel.CreateParameterEditorViewModel<SampledFunctionParameterType>()"/>
             break;
 
         default:

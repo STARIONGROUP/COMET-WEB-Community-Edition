@@ -433,3 +433,7 @@
     opacity: 0.2;
     pointer-events: none;
 }
+
+.align-right {
+    margin: 0 0 0 auto !important;
+}

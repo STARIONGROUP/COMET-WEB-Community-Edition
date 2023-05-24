@@ -32,33 +32,12 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     /// <summary>
     /// ViewModel used to edit <see cref="CompoundParameterType" />
     /// </summary>
-    public interface ICompoundParameterTypeEditorViewModel
-    {
-        /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        bool IsOnEditMode { get; set; }
-
-        /// <summary>
-        /// Event for when the edit button is clicked
-        /// </summary>
-        void OnComponentSelected();
-
+    public interface ICompoundParameterTypeEditorViewModel: IHaveComponentParameterTypeEditor
+	{
         /// <summary>
         /// Creates a view model for the <see cref="OrientationComponent" />
         /// </summary>
         /// <returns>The <see cref="IOrientationViewModel" /></returns>
         IOrientationViewModel CreateOrientationViewModel();
-
-        /// <summary>
-        /// Creates a view model for the corresponding editor
-        /// </summary>
-        /// <param name="parameterType">the parameter type</param>
-        /// <param name="valueArrayIndex">
-        /// the index of the <see cref="CompoundParameterType" /> in the
-        /// <see cref="ParameterTypeComponent" />
-        /// </param>
-        /// <returns>the view model</returns>
-        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int valueArrayIndex);
     }
 }
