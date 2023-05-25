@@ -43,9 +43,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         SourceList<ParameterBaseRowViewModel> Rows { get; }
 
         /// <summary>
-        /// The <see cref="CompoundParameterTypeEditorViewModel"/> to show in the popup
+        /// The <see cref="IHaveComponentParameterTypeEditor"/> to show in the popup
         /// </summary>
-        CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
+        IHaveComponentParameterTypeEditor HaveComponentParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
         /// Indicates if confirmation popup is visible

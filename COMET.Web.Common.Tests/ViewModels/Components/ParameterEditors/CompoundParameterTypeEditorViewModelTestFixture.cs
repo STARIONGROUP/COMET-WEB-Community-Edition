@@ -139,7 +139,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
         [Test]
         public void VerifyCreateParameterTypeEditorSelectorViewModel()
         {
-            var parameterTypeEditorSelectorViewModel = this.viewModel.CreateParameterTypeEditorSelectorViewModel(this.parameterType, 0);
+            var parameterTypeEditorSelectorViewModel = this.viewModel.CreateParameterTypeEditorSelectorViewModel(this.parameterType, 0, null, default);
 
             Assert.Multiple(() =>
             {
@@ -152,9 +152,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
         [Test]
         public void VerifyOnComponentSelected()
         {
-            this.viewModel.OnComponentSelected();
-
-            Assert.That(this.viewModel.IsOnEditMode, Is.True);
+            Assert.That(() => this.viewModel.OnComponentSelected(), Throws.Nothing);
         }
     }
 }

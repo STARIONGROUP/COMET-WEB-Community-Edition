@@ -513,5 +513,22 @@ namespace COMET.Web.Common.Extensions
 
             return changes;
         }
+
+        /// <summary>
+        /// Queries the name of a <see cref="IParameterTypeAssignment"/>
+        /// </summary>
+        /// <param name="parameterTypeAssignment">The <see cref="IParameterTypeAssignment"/></param>
+        /// <returns>The name</returns>
+        public static string QueryName(this IParameterTypeAssignment parameterTypeAssignment)
+        {
+            var name = parameterTypeAssignment.ParameterType.Name;
+
+            if (parameterTypeAssignment.MeasurementScale != null)
+            {
+                name += $" [{parameterTypeAssignment.MeasurementScale.ShortName}]";
+            }
+
+            return name;
+        }
     }
 }

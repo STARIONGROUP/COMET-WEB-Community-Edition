@@ -21,12 +21,46 @@
 ------------------------------------------------------------------------------->
 @using CDP4Common.EngineeringModelData
 @using CDP4Common.SiteDirectoryData
+@using COMET.Web.Common.ViewModels.Components.ParameterEditors
 @using COMETwebapp.ViewModels.Components.ParameterEditor
 @inherits DisposableComponent
 
-<DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" HeaderText="Edit Compound ParameterType" Width="auto" CloseOnOutsideClick="false">
-        <CompoundParameterTypeEditor ViewModel="this.ViewModel.CompoundParameterTypeEditorViewModel" />
-</DxPopup>
+@if (this.ViewModel.IsOnEditMode)
+{
+    var parameters = new Dictionary<string, object>()
+    {
+        {"ViewModel", this.ViewModel.HaveComponentParameterTypeEditorViewModel},
+        {"IsOnEditMode", true},
+    };
+
+    Type type = null;
+    var headerText = string.Empty;
+    var isCloseButtonAvailable = true;
+
+    switch (this.ViewModel.HaveComponentParameterTypeEditorViewModel)
+    {
+        case CompoundParameterTypeEditorViewModel:
+        {
+            type = typeof(CompoundParameterTypeEditor);
+            headerText = "Edit Compound ParameterType";
+            break;
+        }
+        case SampledFunctionParameterTypeEditorViewModel:
+        {
+            type = typeof(SampledFunctionParameterTypeEditor);
+            headerText = "Edit Sampled Function ParameterType";
+            parameters["OnAfterCancel"] = this.closeEditor;
+            parameters["OnAfterEdit"] = this.closeEditor;
+            isCloseButtonAvailable = false;
+            break;
+        }
+    }
+
+    <DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" HeaderText="@headerText" Width="auto" CloseOnOutsideClick="false" CloseOnEscape="@isCloseButtonAvailable" 
+             ShowCloseButton="@isCloseButtonAvailable">
+        <DynamicComponent Type="type" Parameters="parameters"/>
+    </DxPopup>
+}
 
 <div class="container-fluid table-container">
     <DxGrid @ref="Grid"
@@ -45,10 +79,10 @@
             VerticalScrollBarMode="ScrollBarMode.Visible"
             HorizontalScrollBarMode="ScrollBarMode.Visible">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Option)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Option)" Caption="@("Option")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false" AllowSort="false" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
                 <CellDisplayTemplate>
@@ -63,13 +97,13 @@
                 <CellDisplayTemplate>
                     @if (context.DataItem is ParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterSwitchKindSelector ViewModel="parameterBaseRowViewModel.ParameterSwitchKindSelectorViewModel"/>
+                        <ParameterSwitchKindSelector ViewModel="parameterBaseRowViewModel.ParameterSwitchKindSelectorViewModel" />
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false" >
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
                 <HeaderTemplate>
                     <DxButton Id="addElementButton" Text="Add an Element Definition" IconCssClass="oi oi-plus" Click="() => Grid.StartEditNewRowAsync()" />
                 </HeaderTemplate>
@@ -88,7 +122,7 @@
                         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
                             <DxComboBox Data="@this.ViewModel.AvailableDomains"
                                         TextFieldName="@nameof(DomainOfExpertise.Name)"
-                                        @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
+                            @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Is Top Element:" ColSpanMd="6">
                             <DxCheckBox @bind-Checked="@this.ViewModel.IsTopElement" />
@@ -96,7 +130,7 @@
                     </DxFormLayoutTabPage>
                     <DxFormLayoutTabPage Caption="Category">
                         <DxListBox Data="@this.ViewModel.AvailableCategories"
-                                   @bind-Values="@this.ViewModel.SelectedCategories"
+                        @bind-Values="@this.ViewModel.SelectedCategories"
                                    SelectionMode="ListBoxSelectionMode.Multiple"
                                    TextFieldName="@nameof(Category.Name)"
                                    ShowCheckboxes="true" />
@@ -106,3 +140,4 @@
         </EditFormTemplate>
     </DxGrid>
 </div>
+

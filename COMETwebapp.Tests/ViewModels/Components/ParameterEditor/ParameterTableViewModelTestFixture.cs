@@ -241,7 +241,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
             this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Never);
 
-            await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync(parameterRow.Parameter.ValueSets.First());
+            await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync((parameterRow.Parameter.ValueSets.First(),0));
             this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Never);
 
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
@@ -264,7 +264,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync();
             this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Once);
 
-            await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync(parameterRow.Parameter.ValueSets.First());
+            await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync((parameterRow.Parameter.ValueSets.First(),0));
             this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Exactly(2));
         }
 

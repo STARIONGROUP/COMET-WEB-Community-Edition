@@ -48,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// event callback for when a <see cref="IValueSet" /> asociated to a
         /// <see cref="ParameterBase" /> has changed
         /// </param>
-        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<IValueSet> parameterValueSetChanged)
+        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<(IValueSet, int)> parameterValueSetChanged)
         {
             this.IsVisible = isVisible;
             this.ParameterType = parameterType;

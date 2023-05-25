@@ -41,14 +41,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     public class DetailsComponentViewModelTestFixture
     {
         private IDetailsComponentViewModel viewModel;
-        private EventCallback<IValueSet> eventCallback;
+        private EventCallback<(IValueSet, int)> eventCallback;
         private ParameterType parameterType;
         private ParameterValueSet valueSet;
 
         [SetUp]
         public void SetUp()
         {
-            this.eventCallback = new EventCallback<IValueSet>();
+            this.eventCallback = new EventCallback<(IValueSet, int)>();
 
             this.parameterType = new TextParameterType()
             {

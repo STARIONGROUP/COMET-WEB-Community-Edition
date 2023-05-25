@@ -44,7 +44,12 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets or sets the <see cref="EventCallback{T}" /> for when the parameter value has changed
         /// </summary>
-        EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        EventCallback<(IValueSet, int)> ParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="MeasurementScale"/> to use
+        /// </summary>
+        MeasurementScale Scale { get; set; }
 
         /// <summary>
         /// Creates a view model for the corresponding editor

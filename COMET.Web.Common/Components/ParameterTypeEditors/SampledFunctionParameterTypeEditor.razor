@@ -1,0 +1,78 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMET.Web.Common.ViewModels.Components.ParameterEditors
+@using COMET.Web.Common.Extensions
+@inherits DisposableComponent
+
+@if (this.ViewModel is ISampledFunctionParameterTypeEditorViewModel sfptViewModel)
+{
+    if (this.IsOnEditMode)
+    {
+        @if (!this.ViewModel.IsReadOnly)
+        {
+            <div class="sfpt-header">
+                <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="oi oi-plus" SizeMode="SizeMode.Small" Click="@(()=> sfptViewModel.AddRow())" Text="Add row"/>
+                <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="oi oi-minus" SizeMode="SizeMode.Small" 
+                          Click="@(()=> sfptViewModel.RemoveRow())" Text="Delete row" Enabled="@sfptViewModel.CanRemoveRow"/>
+            </div>
+        }
+        <table id="sfpt-table">
+            <thead>
+            <tr>
+                @foreach (var parameterTypeAssignement in sfptViewModel.ParameterTypeAssignments)
+                {
+                    <th class="sticky">@parameterTypeAssignement.QueryName()</th>
+                }
+            </tr>
+            </thead>
+            <tbody >
+                @for (var rowIndex = 0; rowIndex < this.ViewModel.ParameterType.QueryRowsCount(this.ViewModel.ValueArray); rowIndex++)
+                {
+                    <tr>
+                        @for (var columnIndex = 0; columnIndex < sfptViewModel.ParameterTypeAssignments.Count; columnIndex++)
+                        {
+                            <td>
+                                <ParameterTypeEditorSelector BindValueMode="this.BindValueMode"
+                                                             ViewModel="sfptViewModel.CreateParameterTypeEditorSelectorViewModel((rowIndex * sfptViewModel.ParameterTypeAssignments.Count) + columnIndex)"/>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="modal-footer">
+            <DxButton Click="@this.UpdateValues" Text="Confirm" Enabled="@(!this.ViewModel.IsReadOnly)" />
+            <DxButton Click="@this.CancelUpdate" Text="Close" />
+        </div>
+        }
+    else
+    {
+        <div class="input-group">
+            <div class="sfpt-editor">
+                <div>@this.ViewModel.ParameterType.QueryValuesRepresentation(this.ViewModel.ValueArray)</div>
+            </div>
+            <span class="align-right">
+                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="icon icon-edit" SizeMode="SizeMode.Small" Click="@(()=> sfptViewModel.OnComponentSelected())" />
+            </span>
+        </div>
+    }
+}

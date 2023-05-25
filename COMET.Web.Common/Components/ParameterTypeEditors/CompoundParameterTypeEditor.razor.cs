@@ -48,6 +48,12 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         public IParameterEditorBaseViewModel<CompoundParameterType> ViewModel { get; set; }
 
         /// <summary>
+        /// Value asserting that the component is on edit mode
+        /// </summary>
+        [Parameter]
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="BindValueMode" /> used for the inputs
         /// </summary>
         [Parameter]
@@ -60,12 +66,6 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-
-            if (this.ViewModel is ICompoundParameterTypeEditorViewModel vm)
-            {
-                this.Disposables.Add(vm.WhenAnyValue(x => x.IsOnEditMode)
-                    .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            }
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
                 x => x.ViewModel.ValueArray).Subscribe(_ => this.StateHasChanged()));

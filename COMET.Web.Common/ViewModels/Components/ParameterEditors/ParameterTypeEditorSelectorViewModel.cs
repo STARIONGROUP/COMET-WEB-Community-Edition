@@ -36,19 +36,19 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     public class ParameterTypeEditorSelectorViewModel : IParameterTypeEditorSelectorViewModel
     {
         /// <summary>
+        /// The <see cref="IHaveValueSetViewModel" />
+        /// </summary>
+        private IHaveValueSetViewModel haveValueSetViewModel;
+
+        /// <summary>
         /// Gets if the Editor is readonly.
         /// </summary>
         private bool isReadOnly;
 
         /// <summary>
-        /// Gets the index of the value changed in the value sets
+        /// A preset <see cref="ParameterSwitchKind" />
         /// </summary>
-        private int ValueArrayIndex { get; }
-
-        /// <summary>
-        /// The <see cref="IHaveValueSetViewModel" />
-        /// </summary>
-        private IHaveValueSetViewModel haveValueSetViewModel;
+        private ParameterSwitchKind? preSetSwitchKind;
 
         /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel" />
@@ -66,13 +66,23 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Initializes this view model properties
+        /// Creates a new instance of type <see cref="ParameterTypeEditorSelectorViewModel" />
         /// </summary>
-        /// <param name="readOnly">The readonly state</param>
-        private void InitializesProperties(bool readOnly)
+        /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
+        /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
+        /// <param name="isReadOnly">Value asserting that the <see cref="IParameterEditorBaseViewModel{T}" /> should be readonly</param>
+        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+        /// <param name="switchKind">The <see cref="ParameterSwitchKind" /></param>
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex, ParameterSwitchKind switchKind)
+            : this(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
-            this.isReadOnly = readOnly;
+            this.preSetSwitchKind = switchKind;
         }
+
+        /// <summary>
+        /// Gets the index of the value changed in the value sets
+        /// </summary>
+        public int ValueArrayIndex { get; }
 
         /// <summary>
         /// Gets or sets the value set of this <see cref="ParameterType" />
@@ -87,7 +97,12 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event Callback for when a value has changed on the parameter
         /// </summary>
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public EventCallback<(IValueSet,int)> ParameterValueChanged { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="MeasurementScale" /> to use
+        /// </summary>
+        public MeasurementScale Scale { get; set; }
 
         /// <summary>
         /// Creates a view model for the corresponding editor
@@ -106,11 +121,17 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
                 QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                SampledFunctionParameterType sampledFunctionParameterType => new SampledFunctionParameterTypeEditorViewModel(sampledFunctionParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 _ => throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented")
             };
 
             var parameterViewModel = (this.haveValueSetViewModel as IParameterEditorBaseViewModel<T>)!;
             parameterViewModel.ParameterValueChanged = this.ParameterValueChanged;
+
+            if (this.preSetSwitchKind.HasValue)
+            {
+                this.UpdateSwitchKind(this.preSetSwitchKind.Value);
+            }
 
             return parameterViewModel;
         }
@@ -121,17 +142,28 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="switchValue">The <see cref="ParameterSwitchKind" /></param>
         public void UpdateSwitchKind(ParameterSwitchKind switchValue)
         {
+            this.preSetSwitchKind = switchValue;
             this.haveValueSetViewModel?.UpdateParameterSwitchKind(switchValue);
         }
 
         /// <summary>
-        /// Updates the associated <see cref="IParameterEditorBaseViewModel{T}"/> properties
+        /// Updates the associated <see cref="IParameterEditorBaseViewModel{T}" /> properties
         /// </summary>
         /// <param name="readOnly">The readonly state</param>
         public void UpdateProperties(bool readOnly)
         {
             this.InitializesProperties(readOnly);
+            this.preSetSwitchKind = null;
             this.haveValueSetViewModel?.UpdateProperties(this.isReadOnly);
+        }
+
+        /// <summary>
+        /// Initializes this view model properties
+        /// </summary>
+        /// <param name="readOnly">The readonly state</param>
+        private void InitializesProperties(bool readOnly)
+        {
+            this.isReadOnly = readOnly;
         }
     }
 }

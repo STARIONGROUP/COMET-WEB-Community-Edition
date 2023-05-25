@@ -153,7 +153,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => this.viewModel.ParameterValueSetChanged(parameterValueSet), Throws.Nothing);
+                Assert.That(() => this.viewModel.ParameterValueSetChanged((parameterValueSet, 0)), Throws.Nothing);
                 Assert.That(() => this.viewModel.OnSubmit(), Throws.Nothing);
             });
 
@@ -166,7 +166,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Manual = new ValueArray<string>(compoundValues1),
             };
      
-            Assert.That(() => this.viewModel.ParameterValueSetChanged(parameterValueSet1), Throws.Nothing);                
+            Assert.That(() => this.viewModel.ParameterValueSetChanged((parameterValueSet1,0)), Throws.Nothing);                
         }
     }
 }

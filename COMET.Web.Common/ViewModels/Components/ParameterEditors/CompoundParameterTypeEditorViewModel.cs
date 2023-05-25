@@ -29,24 +29,14 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using CDP4Dal;
-
     using COMET.Web.Common.Components.ParameterTypeEditors;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Utilities;
-
-    using ReactiveUI;
 
     /// <summary>
     /// ViewModel used to edit <see cref="CompoundParameterType" />
     /// </summary>
-    public class CompoundParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<CompoundParameterType>, ICompoundParameterTypeEditorViewModel
+    public class CompoundParameterTypeEditorViewModel : HaveComponentParameterTypeEditor<CompoundParameterType>, ICompoundParameterTypeEditorViewModel
     {
-        /// <summary>
-        /// Backing field for <see cref="IsOnEditMode" />
-        /// </summary>
-        private bool isOnEditMode;
-
         /// <summary>
         /// Creates a new instance of type <see cref="CompoundParameterTypeEditorViewModel" />
         /// </summary>
@@ -59,24 +49,6 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        public bool IsOnEditMode
-        {
-            get => this.isOnEditMode;
-            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
-        }
-
-        /// <summary>
-        /// Event for when the edit button is clicked
-        /// </summary>
-        public void OnComponentSelected()
-        {
-            CDPMessageBus.Current.SendMessage(new CompoundComponentSelectedEvent(this));
-            this.IsOnEditMode = true;
-        }
-
-        /// <summary>
         /// Creates a view model for the <see cref="OrientationComponent" />
         /// </summary>
         /// <returns>The <see cref="IOrientationViewModel" /></returns>
@@ -86,28 +58,10 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Creates a view model for the corresponding editor
-        /// </summary>
-        /// <param name="parameterType">the parameter type</param>
-        /// <param name="valueArrayIndex">
-        /// the index of the
-        /// <see cref="CompoundParameterType" /> in the <see cref="ParameterTypeComponent" />
-        /// </param>
-        /// <returns>the view model</returns>
-        public IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int valueArrayIndex)
-        {
-            var parameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(parameterType, this.ValueSet, this.IsReadOnly, valueArrayIndex)
-            {
-                ParameterValueChanged = this.ParameterValueChanged
-            };
-
-            return parameterTypeEditorSelectorViewModel;
-        }
-
-        /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="value">The new value</param>
+        /// <returns>A <see cref="Task" /></returns>
         public override async Task OnParameterValueChanged(object value)
         {
             if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is CompoundParameterTypeValueChangedEventArgs args)

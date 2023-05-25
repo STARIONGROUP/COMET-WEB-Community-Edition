@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindParameterTypeEditor.razor.cs" company="RHEA System S.A.">
+//  <copyright file="IHaveComponentParameterTypeEditor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,53 +23,38 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components.ParameterTypeEditors
+namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
-
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
-    using ReactiveUI;
-
     /// <summary>
-    /// Component used to edit a <see cref="Parameter" /> defined with a <see cref="QuantityKind" />
+    /// Base class for <see cref="ParameterTypeEditorBaseViewModel{TParameterType}"/> that contains component <see cref="ParameterType"/>
     /// </summary>
-    public partial class QuantityKindParameterTypeEditor
+    public interface IHaveComponentParameterTypeEditor
     {
         /// <summary>
-        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}" />
+        /// Gets the <see cref="ParameterOrOverrideBase"/>
         /// </summary>
-        [Parameter]
-        public IParameterEditorBaseViewModel<QuantityKind> ViewModel { get; set; }
+        public ParameterOrOverrideBase Parameter { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="BindValueMode" /> used for the inputs
+        /// Creates a <see cref="IParameterTypeEditorSelectorViewModel"/> 
         /// </summary>
-        [Parameter]
-        public BindValueMode BindValueMode { get; set; }
+        /// <param name="parameterType">the parameter type</param>
+        /// <param name="valueArrayIndex">
+        /// the index of the inside the value array
+        /// </param>
+        /// <param name="scale">The <see cref="MeasurementScale"/></param>
+        /// <param name="onParameterUpdate">The <see cref="EventCallback{TValue}"/> to call on <see cref="IValueSet"/> update</param>
+        /// <returns>the <see cref="IParameterTypeEditorSelectorViewModel"/></returns>
+        IParameterTypeEditorSelectorViewModel CreateParameterTypeEditorSelectorViewModel(ParameterType parameterType, int valueArrayIndex, MeasurementScale scale, EventCallback<(IValueSet, int)> onParameterUpdate);
 
         /// <summary>
-        /// Gets or sets the <see cref="MeasurementScale"/> 
+        /// Event for when the edit button is clicked
         /// </summary>
-        [Parameter]
-        public MeasurementScale Scale { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
-                    x => x.ViewModel.ValueArray)
-                .Subscribe(_ => this.StateHasChanged()));
-        }
-    }
+        void OnComponentSelected();
+	}
 }

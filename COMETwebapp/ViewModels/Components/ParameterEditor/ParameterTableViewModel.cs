@@ -122,8 +122,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         public ParameterTableViewModel(ISessionService sessionService)
         {
-            this.Disposables.Add(CDPMessageBus.Current.Listen<CompoundComponentSelectedEvent>()
-                .Subscribe(x => this.HandleComponentSelected(x.CompoundParameterTypeEditorViewModel)));
+            this.Disposables.Add(CDPMessageBus.Current.Listen<HaveComponentParameterTypeSelectedEvent>()
+                .Subscribe(x => this.HandleComponentSelected(x.HaveComponentParameter)));
 
             this.sessionService = sessionService;
             this.permissionService = this.sessionService.Session.PermissionService;
@@ -139,9 +139,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
-        /// The <see cref="CompoundParameterTypeEditorViewModel" /> to show in the popup
+        /// The <see cref="IHaveComponentParameterTypeEditor" /> to show in the popup
         /// </summary>
-        public CompoundParameterTypeEditorViewModel CompoundParameterTypeEditorViewModel { get; set; }
+        public IHaveComponentParameterTypeEditor HaveComponentParameterTypeEditorViewModel { get; set; }
 
         /// <summary>
         /// Gets the collection of the <see cref="ParameterBaseRowViewModel" />
@@ -267,14 +267,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
-        /// Set the <see cref="CompoundParameterTypeEditorViewModel" /> to show in the popup
+        /// Set the <see cref="HaveComponentParameterTypeEditorViewModel" /> to show in the popup
         /// </summary>
-        /// <param name="compoundParameterTypeEditorViewModel">
-        /// A collection of <see cref="CompoundParameterTypeEditorViewModel" />
-        /// </param>
-        public void HandleComponentSelected(CompoundParameterTypeEditorViewModel compoundParameterTypeEditorViewModel)
+        /// <param name="haveComponentParameterTypeEditorViewModel"></param>
+        public void HandleComponentSelected(IHaveComponentParameterTypeEditor haveComponentParameterTypeEditorViewModel)
         {
-            this.CompoundParameterTypeEditorViewModel = compoundParameterTypeEditorViewModel;
+            this.HaveComponentParameterTypeEditorViewModel = haveComponentParameterTypeEditorViewModel;
             this.IsOnEditMode = true;
         }
 

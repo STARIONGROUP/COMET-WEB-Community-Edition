@@ -53,7 +53,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// </summary>
         /// <param name="valueSet">the current value set that's being changed</param>
         /// <param name="onParameterValueSetChanged">event callback for when a value has changed</param>
-        public OrientationViewModel(IValueSet valueSet, EventCallback<IValueSet> onParameterValueSetChanged)
+        public OrientationViewModel(IValueSet valueSet, EventCallback<(IValueSet, int)> onParameterValueSetChanged)
         {
             this.CurrentValueSet = valueSet ?? throw new ArgumentNullException(nameof(valueSet));
             this.Orientation = valueSet.ParseIValueToOrientation(AngleFormat.Degrees);
@@ -82,7 +82,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event callback for when a value of the <see cref="IValueSet" /> has changed
         /// </summary>
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public EventCallback<(IValueSet,int)> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Gets all the possible <see cref="AngleFormat" />
@@ -199,7 +199,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
                 sendingParameterValueSetBase.Manual = modifiedValueArray;
                 sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
 
-                await this.ParameterValueChanged.InvokeAsync(sendingParameterValueSetBase);
+                await this.ParameterValueChanged.InvokeAsync((sendingParameterValueSetBase,0));
             }
         }
     }

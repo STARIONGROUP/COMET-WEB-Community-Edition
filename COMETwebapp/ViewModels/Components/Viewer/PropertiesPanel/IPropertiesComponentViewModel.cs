@@ -83,7 +83,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Event callback for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed
         /// </summary>
-        EventCallback<IValueSet> OnParameterValueSetChanged { get; set; }
+        EventCallback<(IValueSet,int)> OnParameterValueSetChanged { get; set; }
 
         /// <summary>
         /// When the button for submit changes is clicked

@@ -34,13 +34,13 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     /// </summary>
     public class TimeOfDayParameterTypeEditorViewModel : ParameterTypeEditorBaseViewModel<TimeOfDayParameterType>
     {
-        /// <summary>
-        /// Creates a new instance of type <see cref="TimeOfDayParameterTypeEditorViewModel" />
-        /// </summary>
-        /// <param name="parameterType">the parameter type of this view model</param>
-        /// <param name="valueSet">the value set asociated to this editor</param>
-        /// <param name="isReadOnly">The readonly state</param>
-        /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
+		/// <summary>
+		/// Creates a new instance of type <see cref="TimeOfDayParameterTypeEditorViewModel" />
+		/// </summary>
+		/// <param name="parameterType">the parameter type of this view model</param>
+		/// <param name="valueSet">the value set asociated to this editor</param>
+		/// <param name="isReadOnly">The readonly state</param>
+		/// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         public TimeOfDayParameterTypeEditorViewModel(TimeOfDayParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
         {
         }
@@ -48,6 +48,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
+        /// <param name="value">The new value</param>
         /// <returns>A <see cref="Task" /></returns>
         public override async Task OnParameterValueChanged(object value)
         {

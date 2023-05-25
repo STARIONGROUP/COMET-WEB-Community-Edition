@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindParameterTypeEditor.razor.cs" company="RHEA System S.A.">
+//  <copyright file="SampledFunctionParameterTypeEditor.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -37,27 +37,39 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     using ReactiveUI;
 
     /// <summary>
-    /// Component used to edit a <see cref="Parameter" /> defined with a <see cref="QuantityKind" />
+    /// Component used to edit a <see cref="Parameter" /> defined with a <see cref="SampledFunctionParameterType" />
     /// </summary>
-    public partial class QuantityKindParameterTypeEditor
+    public partial class SampledFunctionParameterTypeEditor
     {
         /// <summary>
         /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}" />
         /// </summary>
         [Parameter]
-        public IParameterEditorBaseViewModel<QuantityKind> ViewModel { get; set; }
+        public IParameterEditorBaseViewModel<SampledFunctionParameterType> ViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="BindValueMode" /> used for the inputs
         /// </summary>
         [Parameter]
-        public BindValueMode BindValueMode { get; set; }
+        public BindValueMode BindValueMode { get; set; } = BindValueMode.OnLostFocus;
 
         /// <summary>
-        /// Gets or sets the <see cref="MeasurementScale"/> 
+        /// Value asserting that the component is on edit mode
         /// </summary>
         [Parameter]
-        public MeasurementScale Scale { get; set; }
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// <see cref="EventCallback" /> after cancelling edition
+        /// </summary>
+        [Parameter]
+        public EventCallback OnAfterCancel { get; set; }
+
+        /// <summary>
+        /// <see cref="EventCallback"/> after edtiting
+        /// </summary>
+        [Parameter]
+        public EventCallback OnAfterEdit { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -68,8 +80,27 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
             base.OnParametersSet();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
-                    x => x.ViewModel.ValueArray)
-                .Subscribe(_ => this.StateHasChanged()));
+                x => x.ViewModel.ValueArray).Subscribe(_ => this.StateHasChanged()));
+        }
+
+        /// <summary>
+        /// Updates values for the <see cref="SampledFunctionParameterType"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task UpdateValues()
+        {
+            await this.ViewModel.OnParameterValueChanged(null);
+            await this.OnAfterEdit.InvokeAsync();
+        }
+
+        /// <summary>
+        /// Cancel updates for the <see cref="SampledFunctionParameterType"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private Task CancelUpdate()
+        {
+            (this.ViewModel as ISampledFunctionParameterTypeEditorViewModel)?.ResetChanges();
+            return this.OnAfterCancel.InvokeAsync();
         }
     }
 }

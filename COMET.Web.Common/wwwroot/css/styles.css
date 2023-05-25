@@ -433,3 +433,18 @@
     opacity: 0.2;
     pointer-events: none;
 }
+
+.align-right {
+    margin: 0 0 0 auto !important;
+}
+
+#sfpt-table{
+    max-height: 750px;
+    max-width: 1000px;
+    overflow: auto;
+    display: block;
+}
+
+#sfpt-table th {
+    position: sticky;
+}

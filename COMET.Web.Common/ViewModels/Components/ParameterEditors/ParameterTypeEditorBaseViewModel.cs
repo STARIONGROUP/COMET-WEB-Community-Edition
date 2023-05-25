@@ -64,7 +64,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
+        protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex)
         {
             this.ValueSet = valueSet;
             this.ValueArrayIndex = valueArrayIndex;
@@ -105,7 +105,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event Callback for when a value has changed on the parameter
         /// </summary>
-        public EventCallback<IValueSet> ParameterValueChanged { get; set; }
+        public EventCallback<(IValueSet, int)> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Gets or sets if the Editor is readonly.
@@ -119,7 +119,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets or sets the value set of this <see cref="T" />
         /// </summary>
-        public IValueSet ValueSet { get; private set; }
+        public IValueSet ValueSet { get; protected set; }
 
         /// <summary>
         /// Gets the index of the value changed in the value sets
@@ -135,7 +135,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// Sets the <see cref="ParameterSwitchKind" />
         /// </summary>
         /// <param name="parameterSwitchKind">The <see cref="ParameterSwitchKind" /></param>
-        public void UpdateParameterSwitchKind(ParameterSwitchKind parameterSwitchKind)
+        public virtual void UpdateParameterSwitchKind(ParameterSwitchKind parameterSwitchKind)
         {
             this.CurrentParameterSwitchKind = parameterSwitchKind;
             this.IsReadOnly = this.initialReadOnlyValue || this.CurrentParameterSwitchKind == ParameterSwitchKind.COMPUTED;
@@ -179,6 +179,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event for when a parameter's value has changed
         /// </summary>
+        /// <param name="value">The new value</param>
         /// <returns>A <see cref="Task" /></returns>
         public abstract Task OnParameterValueChanged(object value);
 
@@ -195,7 +196,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// </exception>
         protected async Task UpdateValueSet(ParameterValueSetBase valueSet, ValueArray<string> newValueArray)
         {
-            var clone = valueSet.Clone(false);
+            this.ValueArray = newValueArray;
+            var clone = valueSet.Clone(true);
 
             switch (this.CurrentParameterSwitchKind)
             {
@@ -209,7 +211,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
                     throw new InvalidOperationException($"The value of the {nameof(this.ValueSet)} can't be manually changed with the switch on {ParameterSwitchKind.COMPUTED}");
             }
 
-            await this.ParameterValueChanged.InvokeAsync(clone);
+            await this.ParameterValueChanged.InvokeAsync((clone, this.ValueArrayIndex));
         }
 
         /// <summary>
