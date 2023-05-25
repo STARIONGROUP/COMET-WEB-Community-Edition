@@ -221,7 +221,7 @@ function AddPrimitive(primitive) {
         case "Cylinder": mesh = CreateCylinder(primitive); break;
         case "Cone": mesh = CreateCone(primitive); break;
         case "Torus": mesh = CreateTorus(primitive); break;
-        case "CustomPrimitive": LoadPrimitive(primitive); break;
+        case "CustomPrimitive": await LoadPrimitive(primitive); break;
         case "TriangularPrism": mesh = CreateTriangularPrism(primitive); break;
         case "Disc": mesh = CreateDisc(primitive); break;
         case "HexagonalPrism": mesh = CreateHexagonalPrism(primitive); break;
