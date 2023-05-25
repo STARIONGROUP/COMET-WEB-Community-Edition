@@ -20,11 +20,15 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 <div id="@this.cardId" class="application__card card @(this.CurrentApplication.IsDisabled ? "disabled" : "")">
-    <a class="card-btn card__link" href="@this.CurrentApplication.Url">
-        <span class="oi oi-@this.CurrentApplication.Icon display-flex justify-content-center card__icon" title="@this.CurrentApplication.Icon" aria-hidden="true"></span>
-        <div class="card-body display-flex flex-column align-items-center card__content">
-            <h5 class="card-title color-title card__content__name">@this.CurrentApplication.Name</h5>
-            <p class="card-text text-align-center card__content__description">@this.CurrentApplication.Description</p>
-        </div>
-    </a>
+    <div>
+        <a class="card-btn card__link" href="@this.CurrentApplication.Url">
+            <div class="card-body display-flex flex-column align-items-center card__content">
+                <span class="oi oi-@this.CurrentApplication.Icon display-flex justify-content-center card__icon" title="@this.CurrentApplication.Icon" aria-hidden="true"></span>
+                <div class="application__card__info">
+                    <h5 class="card-title color-title card__content__name">@this.CurrentApplication.Name</h5>
+                    <p class="card-text text-align-center card__content__description">@this.CurrentApplication.Description</p>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
