@@ -1,4 +1,4 @@
-﻿@import "open-iconic/font/css/open-iconic-bootstrap.min.css";
+@import "open-iconic/font/css/open-iconic-bootstrap.min.css";
 @import "flatly/bootstrap.min.css";
 
 .icon {
@@ -214,19 +214,20 @@
     width: 280px;
     height: 280px;
     margin: 5px;
-    display: grid;
     align-content: center;
 }
 
 .card__icon {
     transform: scale(3);
+    width: fit-content;
+}
+
+.application__card__info {
+    margin-top: 20%;
 }
 
 .card__link {
-    display: flex;
     color: black;
-    position: relative;
-    flex-direction: column;
     text-decoration: none;
     text-align: center;
 }
