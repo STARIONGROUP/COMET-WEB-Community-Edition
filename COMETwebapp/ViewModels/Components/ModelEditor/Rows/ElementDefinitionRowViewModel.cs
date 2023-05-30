@@ -50,6 +50,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.
+        /// <param name="elementBase">the <see cref="ElementBase" /></param>
         /// </summary>
         public ElementDefinitionRowViewModel(ElementBase elementBase)
         {
@@ -65,6 +66,13 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
                 this.ElementDefinitionName = elementDefinitionContainer.Name;
                 this.ElementUsageName = elementUsage.Name;
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.
+        /// </summary>
+        public ElementDefinitionRowViewModel()
+        {
         }
 
         /// <summary>

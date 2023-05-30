@@ -123,9 +123,14 @@ namespace COMETwebapp.Components.ModelEditor
 
             var sourceItem = (ElementDefinitionRowViewModel)sourceGrid.GetDataItem(draggableRowVisibleIndex - 1);
             var targetItem = (ElementDefinitionRowViewModel)targetGrid.GetDataItem(droppableIndex - 1);
-            sourceItem.ElementUsageName = sourceItem.ElementDefinitionName;
-            sourceItem.ElementDefinitionName = targetItem.ElementDefinitionName;
-            targetItems.Add(sourceItem);
+
+            var copiedItem = new ElementDefinitionRowViewModel
+            {
+                ElementDefinitionName = targetItem.ElementDefinitionName,
+                ElementUsageName = sourceItem.ElementDefinitionName,
+            };
+
+            targetItems.Add(copiedItem);
 
             ReInitializeDragging = true;
             StateHasChanged();
