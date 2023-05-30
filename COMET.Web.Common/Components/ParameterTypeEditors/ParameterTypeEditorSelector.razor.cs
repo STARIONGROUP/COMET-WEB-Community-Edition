@@ -47,5 +47,11 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         /// </summary>
         [Parameter]
         public BindValueMode BindValueMode { get; set; } = BindValueMode.OnLostFocus;
+
+        /// <summary>
+        /// Indicates if confirmation popup is visible
+        /// </summary>
+        [Parameter]
+        public bool IsOnEditMode { get; set; }
     }
 }
