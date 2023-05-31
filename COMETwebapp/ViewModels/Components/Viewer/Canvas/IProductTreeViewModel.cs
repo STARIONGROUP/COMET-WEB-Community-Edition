@@ -27,7 +27,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Enumerations;
+
     using COMETwebapp.Model;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
