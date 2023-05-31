@@ -262,7 +262,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 
                 foreach (var child in childsOfElementBase)
                 {
-                    if(current.Node is TreeNode treeNode) 
+                    if(current.Node is TreeNode) 
                     {
                         var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
                         if (sceneObject is not null)
