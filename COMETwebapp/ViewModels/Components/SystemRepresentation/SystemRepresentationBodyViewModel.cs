@@ -112,7 +112,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
 
             this.InitializeElements();
-            this.CreateElementUsages(this.Elements);
             this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, new List<ActualFiniteState>(), false);
         }
 
@@ -169,45 +168,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             }
 
             this.CurrentIteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
-        }
-
-        /// <summary>
-        /// Creates the <see cref="ElementUsage" /> used for the system tree nodes
-        /// </summary>
-        /// <param name="elements">the elements of the current <see cref="Iteration" /></param>
-        private void CreateElementUsages(IEnumerable<ElementBase> elements)
-        {
-            var topElement = elements.First();
-            this.RootNode = new SystemNode(topElement.Name);
-            this.CreateTreeRecursively(topElement, this.RootNode, null);
-        }
-
-        /// <summary>
-        /// Creates the tree in a recursive way
-        /// </summary>
-        /// <param name="elementBase"></param>
-        /// <param name="current"></param>
-        /// <param name="parent"></param>
-        private void CreateTreeRecursively(ElementBase elementBase, SystemNode current, SystemNode parent)
-        {
-            var childsOfElementBase = elementBase switch
-            {
-                ElementDefinition elementDefinition =>  elementDefinition.ContainedElement,
-                ElementUsage elementUsage => elementUsage.ElementDefinition.ContainedElement,
-                _ => null
-            };
-
-            if (childsOfElementBase is null)
-            {
-                return;
-            }
-
-            parent?.AddChild(current);
-
-            foreach (var child in childsOfElementBase)
-            {
-                this.CreateTreeRecursively(child, new SystemNode(child.Name), current);
-            }
         }
 
         /// <summary>
