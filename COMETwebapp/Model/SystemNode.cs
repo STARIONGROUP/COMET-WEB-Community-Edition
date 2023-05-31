@@ -29,31 +29,14 @@ namespace COMETwebapp.Model
     /// <summary>
     /// Represents the node of the tree in the <see cref="SystemTree"/>
     /// </summary>
-    public class SystemNode
+    public class SystemNode : BaseNode
     {
-        /// <summary>
-        ///     The children of this <see cref="SystemNode"/>
-        /// </summary>
-        private List<SystemNode> Children { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the title of this <see cref="SystemNode"/>
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        ///     The parent of this <see cref="SystemNode"/>
-        /// </summary>
-        private SystemNode Parent { get; set; }
-
         /// <summary>
         ///     Creates a new instance of the <see cref="SystemNode"/>
         /// </summary>
         /// <param name="title">the <see cref="string"/> title of this node</param>
-        public SystemNode(string title)
+        public SystemNode(string title) : base(title) 
         {
-            this.Children = new List<SystemNode>();
-            this.Title = title;
         }
 
         /// <summary>
@@ -70,24 +53,6 @@ namespace COMETwebapp.Model
             }
 
             return this;
-        }
-
-        /// <summary>
-        /// Gets the parent node of this <see cref="SystemNode"/>
-        /// </summary>
-        /// <returns>the parent node</returns>
-        public SystemNode GetParentNode()
-        {
-            return this.Parent;
-        }
-
-        /// <summary>
-        /// Gets the childrens of this <see cref="SystemNode"/>
-        /// </summary>
-        /// <returns>the childrens of the node</returns>
-        public IReadOnlyList<SystemNode> GetChildren()
-        {
-            return this.Children.OrderBy(node => node.Title).ToList().AsReadOnly();
         }
     }
 }

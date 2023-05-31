@@ -35,6 +35,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.AspNetCore.Components;
     
@@ -51,7 +52,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         public SystemRepresentationBodyViewModel(ISessionService sessionService) : base(sessionService)
         {
-            this.SystemTreeViewModel = new SystemTreeViewModel
+            this.ProductTreeViewModel = new ProductTreeViewModel
             {
                 OnClick = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
             };
@@ -70,9 +71,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         public SystemNode RootNode { get; set; }
 
         /// <summary>
-        /// The <see cref="ISystemTreeViewModel" />
+        /// The <see cref="IProductTreeViewModel" />
         /// </summary>
-        public ISystemTreeViewModel SystemTreeViewModel { get; }
+        public IProductTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -112,7 +113,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
             this.InitializeElements();
             this.CreateElementUsages(this.Elements);
-            this.SystemTreeViewModel.SystemNodes = new List<SystemNode> { this.RootNode };
+            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, new List<ActualFiniteState>(), false);
         }
 
         /// <summary>

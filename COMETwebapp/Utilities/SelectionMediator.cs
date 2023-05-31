@@ -68,8 +68,8 @@ namespace COMETwebapp.Utilities
         /// <param name="nodeViewModel">the node that raised the event</param>
         public void RaiseOnTreeSelectionChanged(INodeComponentViewModel nodeViewModel)
         {
-            this.SelectedSceneObject = nodeViewModel.Node.SceneObject;
-            this.SelectedSceneObjectClone = nodeViewModel.Node.SceneObject?.Clone();
+            this.SelectedSceneObject = ((TreeNode)nodeViewModel.Node).SceneObject;
+            this.SelectedSceneObjectClone = ((TreeNode)nodeViewModel.Node).SceneObject?.Clone();
             this.OnTreeSelectionChanged?.Invoke(nodeViewModel);
         }
 

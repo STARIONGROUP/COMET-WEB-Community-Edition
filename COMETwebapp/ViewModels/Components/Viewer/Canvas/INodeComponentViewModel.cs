@@ -23,6 +23,7 @@
 //  --------------------------------------------------------------------------------------------------------------------
 
 using COMETwebapp.Model;
+using Microsoft.AspNetCore.Components;
 
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
@@ -49,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Current node that this <see cref="INodeComponentViewModel" /> represents
         /// </summary>
-        TreeNode Node { get; set; }
+        BaseNode Node { get; set; }
 
         /// <summary>
         /// Gets or sets if the <see cref="Node"/> is expanded
@@ -70,6 +71,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Gets or sets if the <see cref="SceneObject"/> asociated to the <see cref="Node"/> is visible
         /// </summary>
         bool IsSceneObjectVisible { get; set; }
+
+        /// <summary>
+        ///     The <see cref="EventCallback" /> to call on node selection
+        /// </summary>
+        EventCallback<SystemNode> OnSelect { get; set; }
 
         /// <summary>
         /// Adds a <see cref="INodeComponentViewModel"/> as a child of this 

@@ -277,12 +277,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             Assert.That(optionFilterCombo, Is.Not.Null);
 
             this.viewModel.OptionSelector.SelectedOption = option1;
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
-            });
         }
 
         [Test]

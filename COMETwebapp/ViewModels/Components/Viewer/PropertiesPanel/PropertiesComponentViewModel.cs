@@ -83,7 +83,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
             this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async ((IValueSet,int) valueSet) => { await this.ParameterValueSetChanged(valueSet); });
 
-            this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
+            this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(((TreeNode)nodeViewModel.Node).SceneObject);
             this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
         }
 

@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.Enumerations;
+    using COMETwebapp.Model;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// View Model for building the product tree
@@ -54,6 +56,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         INodeComponentViewModel RootViewModel { get; set; }
 
         /// <summary>
+        ///     The <see cref="EventCallback" /> to call on node selection
+        /// </summary>
+        EventCallback<SystemNode> OnClick { get; set; }
+
+        /// <summary>
         /// Event for when the filter on the tree changes
         /// </summary>
         void OnFilterChanged();
@@ -71,6 +78,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="selectedActualFiniteStates">the selected states</param>
         /// <returns>the root node of the tree or null if the tree can not be created</returns>
         public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption,
-               IEnumerable<ActualFiniteState> selectedActualFiniteStates);
+               IEnumerable<ActualFiniteState> selectedActualFiniteStates, bool isTreeNode);
     }
 }

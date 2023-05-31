@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components.Selectors;
     
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     /// <summary>
     /// View Model that handle the logic for the System Representation application
@@ -47,9 +48,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         SystemNode RootNode { get; set; }
 
         /// <summary>
-        /// The <see cref="ISystemTreeViewModel" />
+        /// The <see cref="IProductTreeViewModel" />
         /// </summary>
-        ISystemTreeViewModel SystemTreeViewModel { get; }
+        IProductTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />

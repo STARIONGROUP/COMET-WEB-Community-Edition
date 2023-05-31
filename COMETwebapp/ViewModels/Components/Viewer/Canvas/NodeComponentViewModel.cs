@@ -50,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary>
         /// Current node that this <see cref="NodeComponentViewModel" /> represents
         /// </summary>
-        public TreeNode Node { get; set; }
+        public BaseNode Node { get; set; }
 
         /// <summary>
         /// Backing field for the <see cref="IsExpanded"/>
@@ -124,11 +124,16 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         public List<INodeComponentViewModel> Children { get; set; } = new();
 
         /// <summary>
+        ///     The <see cref="EventCallback" /> to call on node selection
+        /// </summary>
+        public EventCallback<SystemNode> OnSelect { get; set; }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="NodeComponentViewModel"/>
         /// </summary>
         /// <param name="node">the <see cref="TreeNode"/></param>
         /// <param name="selectionMediator">the <see cref="ISelectionMediator"/></param>
-        public NodeComponentViewModel(TreeNode node, ISelectionMediator selectionMediator)
+        public NodeComponentViewModel(BaseNode node, ISelectionMediator selectionMediator)
         {
             this.Node = node;
             this.SelectionMediator = selectionMediator;
@@ -270,14 +275,18 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// Method for when a node is selected
         /// </summary>
         /// <param name="nodeViewModel">the selected <see cref="INodeComponentViewModel"/></param>
-        public void TreeSelectionChanged(INodeComponentViewModel nodeViewModel)
+        public async void TreeSelectionChanged(INodeComponentViewModel nodeViewModel)
         {
             this.GetRootNode().GetFlatListOfDescendants(true).ForEach(x => x.IsSelected = false);
 
-            if (!this.StopClickPropagation)
+            if (!this.StopClickPropagation && nodeViewModel.Node is TreeNode)
             {
                 this.SelectionMediator.RaiseOnTreeSelectionChanged(nodeViewModel);
                 this.IsSelected = true;
+            }
+            else if(nodeViewModel.Node is SystemNode systemNode)
+            {
+               await this.OnSelect.InvokeAsync(systemNode);
             }
 
             this.StopClickPropagation = false;

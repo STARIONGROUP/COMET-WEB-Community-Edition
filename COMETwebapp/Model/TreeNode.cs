@@ -27,7 +27,7 @@ namespace COMETwebapp.Model
     /// <summary>
     /// Represents data of the tree in the <see cref="Pages.Viewer.ViewerPage"/>
     /// </summary>
-    public class TreeNode
+    public class TreeNode : BaseNode
     {
         /// <summary>
         /// The <see cref="SceneObject"/> that this <see cref="TreeNode"/> represents
@@ -35,29 +35,12 @@ namespace COMETwebapp.Model
         public SceneObject SceneObject { get; private set; }
 
         /// <summary>
-        /// The parent of this <see cref="TreeNode"/>
-        /// </summary>
-        private TreeNode Parent { get; set; }
-
-        /// <summary>
-        /// The children of this <see cref="TreeNode"/>
-        /// </summary>
-        private List<TreeNode> Children { get; set; }
-
-        /// <summary>
-        /// Gets or sets the title of this <see cref="TreeNode"/>
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
         /// Creates a new instance of the <see cref="TreeNode"/>
         /// </summary>
         /// <param name="sceneObject">the <see cref="SceneObject"/> asociated to this node</param>
-        public TreeNode(SceneObject sceneObject)
+        public TreeNode(SceneObject sceneObject) : base(sceneObject?.ElementBase?.Name)
         {
             this.SceneObject = sceneObject;
-            this.Children = new List<TreeNode>();
-            this.Title = this.SceneObject?.ElementBase?.Name;
         }
 
         /// <summary>
@@ -77,49 +60,12 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
-        /// Removes a child from this node
-        /// </summary>
-        /// <param name="node">the node to remove</param>
-        /// <returns>this node</returns>
-        public TreeNode RemoveChild(TreeNode node)
-        {
-            if(node is not null)
-            {
-                node.Parent = null;
-                this.Children.Remove(node);
-            }
-            
-            return this;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy
-        /// </summary>
-        /// <returns>the <see cref="TreeNode"/> or this node if the RootViewModel can't be computed</returns>
-        public TreeNode GetRootNode()
-        {
-            var currentParent = this.Parent;
-
-            while (currentParent != null)
-            {
-                if (currentParent.Parent is null)
-                {
-                    return currentParent;
-                }
-
-                currentParent = currentParent.Parent;
-            }
-
-            return this;
-        }
-
-        /// <summary>
         /// Gets a flat list of the descendants of this node
         /// </summary>
         /// <returns>the flat list</returns>
-        public List<TreeNode> GetFlatListOfDescendants(bool includeSelf = false)
+        public List<BaseNode> GetFlatListOfDescendants(bool includeSelf = false)
         {
-            var descendants = new List<TreeNode>();
+            var descendants = new List<BaseNode>();
             this.GetListOfDescendantsRecursively(this, ref descendants);
             
             if (includeSelf && !descendants.Contains(this))
@@ -135,7 +81,7 @@ namespace COMETwebapp.Model
         /// </summary>
         /// <param name="current">the current evaluated <see cref="TreeNode"/></param>
         /// <param name="descendants">the list of descendants till this moment</param>
-        private void GetListOfDescendantsRecursively(TreeNode current, ref List<TreeNode> descendants)
+        private void GetListOfDescendantsRecursively(TreeNode current, ref List<BaseNode> descendants)
         {
             foreach(var child in current.GetChildren())
             {
@@ -144,7 +90,7 @@ namespace COMETwebapp.Model
                     descendants.Add(child);
                 }
 
-                this.GetListOfDescendantsRecursively(child, ref descendants);
+                this.GetListOfDescendantsRecursively((TreeNode)child, ref descendants);
             }
         }
 
@@ -166,26 +112,8 @@ namespace COMETwebapp.Model
 
             foreach (var child in current.GetChildren())
             {
-                this.OrderChildrenByShortNameHelper(child);
+                this.OrderChildrenByShortNameHelper((TreeNode)child);
             }
-        }
-
-        /// <summary>
-        /// Gets the parent node of this <see cref="TreeNode"/>
-        /// </summary>
-        /// <returns>the parent node</returns>
-        public TreeNode GetParentNode()
-        {
-            return this.Parent;
-        }
-
-        /// <summary>
-        /// Gets the children of this <see cref="TreeNode"/>
-        /// </summary>
-        /// <returns>the children of the node</returns>
-        public IReadOnlyList<TreeNode> GetChildren()
-        {
-            return this.Children.AsReadOnly();
         }
 
         /// <summary>

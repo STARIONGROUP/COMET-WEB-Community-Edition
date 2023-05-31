@@ -115,7 +115,7 @@ namespace COMETwebapp.Components.Viewer
             this.ViewModel.IsLoading = true;
             await this.CanvasComponent.ViewModel.ClearScene();
 
-            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.Node.SceneObject.Primitive is not null).Select(x => x.Node.SceneObject).ToList();
+            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.Node is TreeNode treeNode && treeNode.SceneObject.Primitive is not null).Select(x => ((TreeNode)x.Node).SceneObject).ToList();
 
             foreach (var sceneObject in sceneObjects)
             {

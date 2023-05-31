@@ -32,6 +32,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
 
+    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
@@ -71,7 +73,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 
                 if (sceneObject != null)
                 {
-                    var node = treeNodes.FirstOrDefault(x => x.Node.SceneObject == sceneObject);
+                    var node = treeNodes.FirstOrDefault(x => x.Node is TreeNode treeNode && treeNode.SceneObject == sceneObject);
 
                     if (node is not null)
                     {
@@ -83,6 +85,24 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
         }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="ProductTreeViewModel" />
+        /// </summary>
+        public ProductTreeViewModel()
+        {
+            var enumValues = Enum.GetValues(typeof(TreeFilter)).Cast<TreeFilter>();
+            this.TreeFilters = enumValues.ToList();
+            this.SelectedFilter = TreeFilter.ShowFullTree;
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
+        }
+
+        /// <summary>
+        ///     The <see cref="EventCallback" /> to call on node selection
+        /// </summary>
+        public EventCallback<SystemNode> OnClick { get; set; }
 
         /// <summary>
         /// Gets o sets the <see cref="SelectionMediator" />
@@ -129,21 +149,43 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <param name="selectedActualFiniteStates">the selected states</param>
         /// <returns>the root node of the tree or null if the tree can not be created</returns>
         public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption,
-            IEnumerable<ActualFiniteState> selectedActualFiniteStates)
+            IEnumerable<ActualFiniteState> selectedActualFiniteStates, bool isTreeNode)
         {
             var treeElements = productTreeElements.ToList();
 
             if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null)
             {
                 var topElement = treeElements.First();
-                var topSceneObject = SceneObject.Create(topElement, selectedOption, selectedActualFiniteStates.ToList());
-                this.RootViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
+
+                if (isTreeNode)
+                {
+                    var topSceneObject = SceneObject.Create(topElement, selectedOption, selectedActualFiniteStates.ToList());
+                    this.RootViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
+                }
+                else
+                {
+                    this.RootViewModel = new NodeComponentViewModel(new SystemNode(topElement.Name), this.SelectionMediator)
+                    {
+                        OnSelect = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
+                    };
+                }
+
                 this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, selectedActualFiniteStates);
                 this.RootViewModel.OrderAllDescendantsByShortName();
                 return this.RootViewModel;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// set the selected <see cref="SystemNode" />
+        /// </summary>
+        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        public void SelectElement(SystemNode selectedNode)
+        {
+           this.OnClick.InvokeAsync(selectedNode);
         }
 
         /// <summary>
@@ -157,7 +199,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             {
                 if (this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
                 {
-                    fullTree.ForEach(x => x.IsDrawn = x.Node.SceneObject.Primitive != null);
+                    fullTree.ForEach(x =>
+                    {
+                        if (x.Node is TreeNode treeNode)
+                        {
+                            x.IsDrawn = treeNode.SceneObject.Primitive != null;
+                        }
+                    });
                 }
                 else
                 {
@@ -214,13 +262,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 
                 foreach (var child in childsOfElementBase)
                 {
-                    var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
-
-                    if (sceneObject is not null)
+                    if(current.Node is TreeNode treeNode) 
                     {
-                        var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
-                        this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
+                        var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
+                        if (sceneObject is not null)
+                        {
+                            var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
+                            this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
+                        }
                     }
+                    else
+                    {
+                        var nodeViewModel = new NodeComponentViewModel(new SystemNode(child.Name), this.SelectionMediator)
+                        {
+                            OnSelect = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
+                        };
+                        this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
+                    }                
                 }
             }
         }

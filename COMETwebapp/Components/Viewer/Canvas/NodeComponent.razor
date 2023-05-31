@@ -1,4 +1,5 @@
-﻿<!------------------------------------------------------------------------------
+﻿@using COMETwebapp.Model;
+<!------------------------------------------------------------------------------
     Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -34,7 +35,7 @@
 
     @if (this.ViewModel.IsDrawn)
     {
-        <div class="@nodeClasses" onclick="@(()=>this.ViewModel.TreeSelectionChanged(this.ViewModel))" style="margin-left: calc(20px * @this.ViewModel.Level)">
+        <div class="@nodeClasses" onclick="@(() => this.ViewModel.TreeSelectionChanged(this.ViewModel))" style="margin-left: calc(20px * @this.ViewModel.Level)">
             <div class="node-inner-content">
 
                 @if (this.ViewModel.Node.GetChildren().Count > 0)
@@ -51,15 +52,18 @@
 
                 <p class="node-text">@this.ViewModel.Node.Title</p>
                 
-                @if (this.ViewModel.Node.SceneObject.Primitive is not null)
+                @if (this.ViewModel.Node is TreeNode treeNode)
                 {
-                    @if (this.ViewModel.IsSceneObjectVisible)
+                    @if (treeNode.SceneObject.Primitive is not null)
                     {
-                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
-                    }
-                    else
-                    {
-                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel); })" />
+                        @if (this.ViewModel.IsSceneObjectVisible)
+                        {
+                            <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
+                        }
+                        else
+                        {
+                            <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel); })" />
+                        }
                     }
                 }
             </div>

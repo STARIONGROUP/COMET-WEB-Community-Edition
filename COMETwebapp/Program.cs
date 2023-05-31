@@ -108,7 +108,6 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
             builder.Services.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             builder.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
-            builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
             builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
