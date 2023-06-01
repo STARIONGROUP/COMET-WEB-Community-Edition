@@ -344,12 +344,12 @@ function SetMeshVisibility(ID, isVisible) {
  * Regenerates the mesh asociated to the scene object
  * @param {object} SceneObject - the scene object to regenerate in JSON string format
  */
-function RegenMesh(JsonSceneObject) {
+async function RegenMesh(JsonSceneObject) {
     let sceneFullObject = JSON.parse(JsonSceneObject);
 
     if (sceneFullObject != null)
     {
         Dispose(sceneFullObject.ID);
-        AddSceneObject(JsonSceneObject);
+        await AddSceneObject(JsonSceneObject);
     }
 }
