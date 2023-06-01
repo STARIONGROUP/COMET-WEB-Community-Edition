@@ -42,7 +42,6 @@ namespace COMETwebapp.Tests.Services.Interoperability
         [SetUp]
         public void SetUp()
         {
-            this.canvasReference = new ElementReference();
             this.draggableElementServiceMock = new Mock<IDraggableElementService>();
             this.draggableElementServiceMock.Setup(x => x.LoadDotNetHelper(It.IsAny<DotNetObjectReference<ElementDefinitionTable>>()));
             this.draggableElementServiceMock.Setup(x => x.InitDraggableGrids(It.IsAny<string>(), It.IsAny<string>()));
