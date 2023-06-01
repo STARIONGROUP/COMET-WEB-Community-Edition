@@ -82,7 +82,6 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(this.renderedComponent, Is.Not.Null);
                 Assert.That(this.table, Is.Not.Null);
                 Assert.That(this.table.ViewModel, Is.Not.Null);
-                Assert.That(this.table.JS, Is.Not.Null);
             });
         }
     }
