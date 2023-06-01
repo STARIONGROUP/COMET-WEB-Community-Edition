@@ -28,7 +28,6 @@ namespace COMETwebapp.Components.Viewer
     using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.AspNetCore.Components;

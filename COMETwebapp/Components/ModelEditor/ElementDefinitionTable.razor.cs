@@ -44,12 +44,6 @@ namespace COMETwebapp.Components.ModelEditor
         public IElementDefinitionTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Property used to invoke the JavaScript module
-        /// </summary>
-        [Inject]
-        public IJSRuntime JS { get; set; }
-
-        /// <summary>
         /// Value indicating whether the dragging should be reinitialized.
         /// </summary>
         bool ReInitializeDragging { get; set; }
@@ -68,11 +62,6 @@ namespace COMETwebapp.Components.ModelEditor
         /// Helper reference to the DotNet object
         /// </summary>
         DotNetObjectReference<ElementDefinitionTable> DotNetHelper { get; set; }
-
-        /// <summary>
-        /// Property used to reference the JavaScript module
-        /// </summary>
-        IJSObjectReference JsModule { get; set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -94,18 +83,16 @@ namespace COMETwebapp.Components.ModelEditor
         {
             if (firstRender)
             {
-                JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/ModelEditor/ElementDefinitionTable.razor.js");
-
                 DotNetHelper = DotNetObjectReference.Create(this);
-                await JsModule.InvokeVoidAsync("setDotNetHelper", DotNetHelper);
-                await JsModule.InvokeVoidAsync("initialize", GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
+                await this.ViewModel.LoadDotNetHelper(this.DotNetHelper);
+                await this.ViewModel.InitDraggableGrids(GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
             }
             else
             {
                 if (ReInitializeDragging)
                 {
                     ReInitializeDragging = false;
-                    await JsModule.InvokeVoidAsync("initialize", GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
+                    await this.ViewModel.InitDraggableGrids(GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
                 }
             }
         }

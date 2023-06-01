@@ -24,7 +24,10 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
+    using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+
+    using Microsoft.JSInterop;
 
     using System.Collections.ObjectModel;
 
@@ -42,5 +45,18 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Gets the collection of the <see cref="ElementDefinitionRowViewModel"/>
         /// </summary>
         ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; }
+
+        /// <summary>
+        /// Set the dotnet helper
+        /// </summary>
+        /// <param name="dotNetHelper">the dotnet helper</param>
+        Task LoadDotNetHelper(DotNetObjectReference<ElementDefinitionTable> dotNetHelper);
+
+        /// <summary>
+        ///  Method used to initialize the draggable grids
+        /// </summary>
+        /// <param name="firstGrid">the first grid</param>
+        /// <param name="secondGrid">the second grid</param>
+        Task InitDraggableGrids(string firstGrid, string secondGrid);
     }
 }

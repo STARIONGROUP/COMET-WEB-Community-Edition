@@ -29,7 +29,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
+    using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+
+    using Microsoft.JSInterop;
 
     using System.Collections.ObjectModel;
 
@@ -49,14 +53,40 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private readonly Iteration iteration;
 
         /// <summary>
+        /// Gets or sets the <see cref="IDraggableElementService"/>
+        /// </summary>
+        public IDraggableElementService DraggableElementService { get; set; }
+
+        /// <summary>
         /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
-        public ElementDefinitionTableViewModel(ISessionService sessionService)
+        /// <param name="draggableElementService">the <see cref="IDraggableElementService" /></param>
+        public ElementDefinitionTableViewModel(ISessionService sessionService, IDraggableElementService draggableElementService)
         {
             this.iteration = sessionService.OpenIterations.Items.FirstOrDefault();
+            this.DraggableElementService = draggableElementService;
             this.InitializeElements();
             this.PopulateRows();
+        }
+
+        /// <summary>
+        /// Set the dotnet helper
+        /// </summary>
+        /// <param name="dotNetHelper">the dotnet helper</param>
+        public async Task LoadDotNetHelper(DotNetObjectReference<ElementDefinitionTable> dotNetHelper)
+        {
+            await this.DraggableElementService.LoadDotNetHelper(dotNetHelper);
+        }
+
+        /// <summary>
+        ///  Method used to initialize the draggable grids
+        /// </summary>
+        /// <param name="firstGrid">the first grid</param>
+        /// <param name="secondGrid">the second grid</param>
+        public async Task InitDraggableGrids(string firstGrid, string secondGrid)
+        {
+            await this.DraggableElementService.InitDraggableGrids(firstGrid, secondGrid);
         }
 
         /// <summary>
