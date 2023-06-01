@@ -190,14 +190,14 @@ function AddWorldAxes() {
  * Adds to scene an scene object containing the primitive
  * @param {any} sceneObject
  */
-function AddSceneObject(sceneObject) {
+async function AddSceneObject(sceneObject) {
     sceneObject = JSON.parse(sceneObject);
     let primitive = sceneObject.Primitive;
     let mesh = null;
 
     if (primitive != null && primitive != undefined)
     {
-        mesh = AddPrimitive(primitive);
+        mesh = await AddPrimitive(primitive);
     }
     
     if (mesh != null) {
@@ -211,7 +211,7 @@ function AddSceneObject(sceneObject) {
  * Adds to scene an already parsed primitive. 
  * @param {any} primitive - already parsed
  */
-function AddPrimitive(primitive) {
+async function AddPrimitive(primitive) {
     let mesh;
 
     switch (primitive.Type) {
