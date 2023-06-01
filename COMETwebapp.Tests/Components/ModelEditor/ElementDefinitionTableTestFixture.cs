@@ -58,8 +58,8 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             this.context.Services.AddSingleton<ISessionService, SessionService>();
 
             var elementDefinitionTableViewModel = new Mock<IElementDefinitionTableViewModel>();
-            elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns(new ObservableCollection<ElementDefinitionRowViewModel>());
-            elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns(new ObservableCollection<ElementDefinitionRowViewModel>());
+            elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns(new ObservableCollection<ElementDefinitionRowViewModel>() { new ElementDefinitionRowViewModel() { ElementDefinitionName = "Test" } });
+            elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns(new ObservableCollection<ElementDefinitionRowViewModel>() { new ElementDefinitionRowViewModel() { ElementDefinitionName = "Test1" } });
 
             this.context.Services.AddSingleton(elementDefinitionTableViewModel.Object);
 
@@ -83,6 +83,12 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(this.table, Is.Not.Null);
                 Assert.That(this.table.ViewModel, Is.Not.Null);
             });
+        }
+
+        [Test]
+        public void VerifyMoveGridRow()
+        {
+            Assert.DoesNotThrow(() => this.table.MoveGridRow(1, 1, It.IsAny<bool>()));
         }
     }
 }

@@ -120,7 +120,7 @@ namespace COMETwebapp.Components.ModelEditor
             targetItems.Add(copiedItem);
 
             ReInitializeDragging = true;
-            StateHasChanged();
+            InvokeAsync(() => StateHasChanged());
         }
 
         /// <summary>
