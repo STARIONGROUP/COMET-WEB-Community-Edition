@@ -26,13 +26,13 @@
  * The grid tbody selector
  * @type {string}
  */
-var gridTbodySelector = " .dxbl-grid-table > tbody";
+const gridTbodySelector = " .dxbl-grid-table > tbody";
 
 /**
  * The dotnet helper
  * @type {any}
  */
-var dotNetHelper;
+let dotNetHelper;
 
 /**
  * Sets the dotnet helper
@@ -48,7 +48,7 @@ function setDotNetHelper(helper) {
  * @param {string} secondGridSelector
  */
 function initialize(firstGridSelector, secondGridSelector) {
-    var draggableElementContainer = createDraggableElementContainer();
+    const draggableElementContainer = createDraggableElementContainer();
     initializeCore(draggableElementContainer, firstGridSelector, secondGridSelector, true);
     initializeCore(draggableElementContainer, secondGridSelector, firstGridSelector, false);
 }
@@ -61,11 +61,11 @@ function initialize(firstGridSelector, secondGridSelector) {
  * @param {boolean} isFirstGridDraggable
  */
 function initializeCore(draggableElementContainer, draggableGridSelector, droppableGridSelector, isFirstGridDraggable) {
-    var draggableSelector = draggableGridSelector + gridTbodySelector + " > tr.dxbl-grid-group-row";
-    var droppableSelector = droppableGridSelector + gridTbodySelector + " > tr.dxbl-grid-group-row";
+    let draggableSelector = draggableGridSelector + gridTbodySelector + " > tr.dxbl-grid-group-row";
+    let droppableSelector = droppableGridSelector + gridTbodySelector + " > tr.dxbl-grid-group-row";
 
-    var draggableElementTable = draggableElementContainer.querySelector("table");
-    var draggableElementTBody = draggableElementContainer.querySelector("tbody");
+    let draggableElementTable = draggableElementContainer.querySelector("table");
+    let draggableElementTBody = draggableElementContainer.querySelector("tbody");
 
     $(function () {
         $(draggableSelector).draggable({
@@ -74,15 +74,15 @@ function initializeCore(draggableElementContainer, draggableGridSelector, droppa
             appendTo: draggableElementTBody,
 
             start: function (e, ui) {
-                var originalRow = ui.helper.prevObject[0];
-                var originalTable = originalRow.parentNode.parentNode;
+                let originalRow = ui.helper.prevObject[0];
+                let originalTable = originalRow.parentNode.parentNode;
 
                 draggableElementTable.className = originalTable.className;
                 draggableElementTable.style.width = originalTable.offsetWidth + "px";
 
-                var cols = originalTable.querySelectorAll(":scope > colgroup > col");
-                var row = ui.helper[0];
-                for (var i = 0; i < cols.length; i++) {
+                let cols = originalTable.querySelectorAll(":scope > colgroup > col");
+                let row = ui.helper[0];
+                for (let i = 0; i < cols.length; i++) {
                     row.cells[i].style.width = cols[i].offsetWidth + "px";
                 }
 
@@ -99,7 +99,7 @@ function initializeCore(draggableElementContainer, draggableGridSelector, droppa
                 "ui-droppable-hover": "ui-state-hover"
             },
             drop: function (e, ui) {
-                var droppableIndex = getRowVisibleIndex(this);
+                let droppableIndex = getRowVisibleIndex(this);
                 dotNetHelper.invokeMethodAsync("MoveGridRow", droppableIndex, getRowVisibleIndex(ui.helper.prevObject[0]), isFirstGridDraggable);
             }
         });
@@ -112,7 +112,7 @@ function initializeCore(draggableElementContainer, draggableGridSelector, droppa
  * @returns {number}
  */
 function getRowVisibleIndex(row) {
-    var visibleIndex = -1;
+    let visibleIndex = -1;
     if (row)
         visibleIndex = parseInt(row.rowIndex);
     return visibleIndex;
@@ -123,7 +123,7 @@ function getRowVisibleIndex(row) {
  * @returns {any}
  */
 function createDraggableElementContainer() {
-    var container = document.createElement("DIV");
+    let container = document.createElement("DIV");
     container.innerHTML = "<table style='position: absolute; left: -10000px; top: -10000px;'><tbody></tbody></table>";
     document.body.appendChild(container);
     return container;

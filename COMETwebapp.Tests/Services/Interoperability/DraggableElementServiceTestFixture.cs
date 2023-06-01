@@ -37,7 +37,6 @@ namespace COMETwebapp.Tests.Services.Interoperability
     [TestFixture]
     public class DraggableElementServiceTestFixture
     {
-        private ElementReference canvasReference;
         private Mock<IDraggableElementService> draggableElementServiceMock;
 
         [SetUp]
