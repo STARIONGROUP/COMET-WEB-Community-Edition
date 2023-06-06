@@ -26,6 +26,10 @@
 namespace COMET.Web.Common.ViewModels.Components.Publications
 {
     using CDP4Common.EngineeringModelData;
+    
+    using COMET.Web.Common.ViewModels.Components.Publications.Rows;
+    
+    using DynamicData;
 
     /// <summary>
     /// ViewModel for the Publications component
@@ -38,9 +42,9 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         Iteration CurrentIteration { get; }
 
         /// <summary>
-        /// Gets or sets the list of <see cref="ParameterOrOverrideBase"/> that can be published
+        /// Gets or sets the rows used in the Publications component
         /// </summary>
-        List<ParameterOrOverrideBase> ParametersToBePublished { get; set; }
+        public SourceList<PublicationRowViewModel> Rows { get; set; }
 
         /// <summary>
         /// Gets or sets if the publication is possible

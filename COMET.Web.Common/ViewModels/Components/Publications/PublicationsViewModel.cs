@@ -31,6 +31,9 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components.Publications.Rows;
+
+    using DynamicData;
 
     using ReactiveUI;
 
@@ -47,7 +50,12 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// <summary>
         /// Gets or sets the list of <see cref="ParameterOrOverrideBase"/> that can be published
         /// </summary>
-        public List<ParameterOrOverrideBase> ParametersToBePublished { get; set; } = new();
+        private List<ParameterOrOverrideBase> ParametersToBePublished { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the rows used in the Publications component
+        /// </summary>
+        public SourceList<PublicationRowViewModel> Rows { get; set; } = new();
 
         /// <summary>
         /// Gets the <see cref="ISessionService"/>
@@ -86,6 +94,20 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
             this.CurrentIteration = iteration;
             this.ParametersToBePublished = iteration.QueryParameterAndOverrideBases().Where(x => x.ToBePublished).ToList();
             this.CanPublish = this.ParametersToBePublished.Any();
+
+            this.Rows.Clear();
+            this.Rows.AddRange(this.CreateRows(this.ParametersToBePublished));
+        }
+
+        /// <summary>
+        /// Creates the rows used for the Publications component
+        /// </summary>
+        /// <param name="parameters">the parameters used to create the rows</param>
+        /// <returns>A collection of <see cref="PublicationRowViewModel"/></returns>
+        private IEnumerable<PublicationRowViewModel> CreateRows(IEnumerable<ParameterOrOverrideBase> parameters)
+        {
+            return parameters.SelectMany(param =>
+                param.ValueSets.Select(valueSet => new PublicationRowViewModel(param, valueSet))).ToList();
         }
 
         /// <summary>
@@ -107,7 +129,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
 
             publication.PublishedParameter = this.ParametersToBePublished;
 
-            await this.SessionService.UpdateThings(iteration, new List<Thing>() { publication });
+            await this.SessionService.UpdateThings(iteration, new List<Thing> { publication });
 
             //var transactionContext = TransactionContextResolver.ResolveContext(this.CurrentIteration);
             //var containerTransaction = new ThingTransaction(transactionContext, iteration);

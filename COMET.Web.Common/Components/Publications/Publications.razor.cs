@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="PublishRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="Publications.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,14 +22,38 @@
 // 
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
-
-namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
+namespace COMET.Web.Common.Components.Publications
 {
-    /// <summary>
-    /// ViewModel for the rows in the Publish component
-    /// </summary>
-    public class PublishRowViewModel
-    {
+    using COMET.Web.Common.ViewModels.Components.Publications;
 
+    using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
+
+    /// <summary>
+    /// Support class for the Publications component
+    /// </summary>
+    public partial class Publications
+    {
+        /// <summary>
+        /// Gets or sets the <see cref="IPublicationsViewModel"/>
+        /// </summary>
+        [Inject]
+        public IPublicationsViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.ViewModel.Rows.Connect()
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.CanPublish)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
     }
 }
