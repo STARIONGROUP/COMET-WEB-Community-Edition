@@ -1,0 +1,34 @@
+﻿<div>
+    <div>
+        <DxButton CssClass="icon icon-upload-cloud"/>
+    </div>
+    <div>
+        <span>Model:</span>
+        <span>Data Source:</span>
+        <span>Iteration:</span>
+        <span>Person:</span>
+        <span>Domain Of Expertise:</span>
+    </div>
+
+    <DxGrid @ref="@this.DxGrid"
+            ShowAllRows="true"
+            Data="@this.sortedCollection"
+            SelectionMode="GridSelectionMode.Single"
+            AllowSelectRowByClick="false"
+            ShowFilterRow="true"
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+            VerticalScrollBarMode="ScrollBarMode.Visible"
+            HorizontalScrollBarMode="ScrollBarMode.Visible">
+        <DataColumnFilterRowCellTemplate>
+            <SearchTextbox OnTextChanged="(s) => this.SearchTextboxChanged((context.DataColumn.FieldName,s))" />
+        </DataColumnFilterRowCellTemplate>
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(ModificationChangeLogRowViewModel.Item)" Caption="@("Item")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ModificationChangeLogRowViewModel.Value)" Caption="@("Value")" AllowGroup="false" AllowSort="false" />
+            <DxGridDataColumn FieldName="@nameof(ModificationChangeLogRowViewModel.DomainOfExpertise)" Caption="@("DoE")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ModificationChangeLogRowViewModel.User)" Caption="@("User")" AllowGroup="false" AllowSort="false" />
+            <DxGridDataColumn FieldName="@nameof(ModificationChangeLogRowViewModel.LastUpdate)" DisplayFormat="g" Caption="@("Last Update")" AllowGroup="false" AllowSort="true" />
+        </Columns>
+    </DxGrid>
+
+</div>

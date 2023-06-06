@@ -32,6 +32,10 @@
     background-image: url(SVG/icons/edit.svg)
 }
 
+.icon-upload-cloud {
+    background-image: url(SVG/icons/upload-cloud.svg)
+}
+
 .logo-size {
     max-width: 95px;
     height: auto;

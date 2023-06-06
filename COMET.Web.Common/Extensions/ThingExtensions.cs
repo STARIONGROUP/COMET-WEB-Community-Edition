@@ -170,6 +170,25 @@ namespace COMET.Web.Common.Extensions
         }
 
         /// <summary>
+        /// Queries all the <see cref="ParameterOrOverrideBase"/> contained in an iteration
+        /// </summary>
+        /// <param name="iteration">the iteration</param>
+        /// <returns>A collection of <see cref="ParameterOrOverrideBase"/></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QueryParameterAndOverrideBases(this Iteration iteration)
+        {
+            var parameters = new List<ParameterOrOverrideBase>();
+
+            var elements = iteration.QueryElementsBase();
+
+            foreach (var element in elements)
+            {
+                parameters.AddRange(element.QueryParameterAndOverrideBases());
+            }
+
+            return parameters;
+        }
+
+        /// <summary>
         /// Queries all <see cref="ParameterOrOverrideBase" /> that belongs to a given <see cref="Option" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /> to get the <see cref="ParameterOrOverrideBase" />s</param>
