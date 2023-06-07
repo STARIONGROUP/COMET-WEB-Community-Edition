@@ -34,9 +34,9 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
     public class PublicationRowViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="DomainOfExpertise"/> of this publication
+        /// Gets or sets the name of the <see cref="DomainOfExpertise"/> of this publication
         /// </summary>
-        public DomainOfExpertise Domain { get; private set; }
+        public string Domain { get; private set; }
 
         /// <summary>
         /// Gets or sets the new value of the publication
@@ -70,7 +70,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
                 throw new ArgumentException($"The {valueSet} must be of type ParameterValueSet", nameof(valueSet));
             }
 
-            this.Domain = parameter.Owner;
+            this.Domain = parameter.Owner.Name;
             this.ElementShortName = ((ElementBase)parameter.Container).ShortName;
             this.ModelCode = parameterValueSet.ModelCode();
             this.NewValue = parameterValueSet.Published.ToString();

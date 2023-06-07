@@ -22,7 +22,7 @@
 // 
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
-namespace COMET.Web.Common.Components.Publications
+namespace COMET.Web.Common.Components
 {
     using COMET.Web.Common.ViewModels.Components.Publications;
 

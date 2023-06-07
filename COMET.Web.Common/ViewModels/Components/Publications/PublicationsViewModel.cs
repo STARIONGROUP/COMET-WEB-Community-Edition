@@ -92,7 +92,6 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         public void UpdateProperties(Iteration iteration)
         {
             this.CurrentIteration = iteration;
-            var parameters = iteration.QueryParameterAndOverrideBases();
             this.ParametersToBePublished = iteration.QueryParameterAndOverrideBases().Where(x => x.CanBePublished).ToList();
             this.CanPublish = this.ParametersToBePublished.Any();
 
