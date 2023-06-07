@@ -69,12 +69,12 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
             {
                 throw new ArgumentException($"The {valueSet} must be of type ParameterValueSet", nameof(valueSet));
             }
-
+            
             this.Domain = parameter.Owner.Name;
             this.ElementShortName = ((ElementBase)parameter.Container).ShortName;
             this.ModelCode = parameterValueSet.ModelCode();
-            this.NewValue = parameterValueSet.Published.ToString();
-            this.OldValue = parameterValueSet.ActualValue.ToString();
+            this.NewValue = parameterValueSet.ActualValue.ToString();
+            this.OldValue = parameterValueSet.Published.ToString();
         }
     }
 }

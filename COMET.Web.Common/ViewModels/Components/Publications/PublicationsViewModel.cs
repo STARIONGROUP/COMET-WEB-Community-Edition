@@ -113,9 +113,10 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// <summary>
         /// Execute the publication.
         /// </summary>
+        /// <returns>An asynchronous operation</returns>
         public async Task ExecutePublish()
         {
-            if (this.CanPublish)
+            if (!this.CanPublish)
             {
                 return;
             }
@@ -129,35 +130,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
 
             publication.PublishedParameter = this.ParametersToBePublished;
 
-            await this.SessionService.UpdateThings(iteration, new List<Thing> { publication });
-
-            //var transactionContext = TransactionContextResolver.ResolveContext(this.CurrentIteration);
-            //var containerTransaction = new ThingTransaction(transactionContext, iteration);
-            //containerTransaction.CreateOrUpdate(publication);
-
-            //try
-            //{
-            //    var operationContainer = containerTransaction.FinalizeTransaction();
-            //    await this.Session.Write(operationContainer);
-
-            //    // Unselecect the domain rows
-            //    foreach (var domain in this.Domains)
-            //    {
-            //        domain.ToBePublished = false;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(
-            //        string.Format("Publication failed: {0}", ex.Message),
-            //        "Publication Failed",
-            //        MessageBoxButton.OK,
-            //        MessageBoxImage.Error);
-            //}
-            //finally
-            //{
-            //    this.IsBusy = false;
-            //}
+            await this.SessionService.CreateThing(iteration, publication);
         }
     }
 }

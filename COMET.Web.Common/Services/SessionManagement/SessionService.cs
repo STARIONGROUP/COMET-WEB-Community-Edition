@@ -202,6 +202,28 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
+        /// Write a new Thing in an <see cref="Iteration"/>
+        /// </summary>
+        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingToCreate"></param> should be created</param>
+        /// <param name="thingToCreate">the thing to create in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task CreateThing(Thing container, Thing thingToCreate)
+        {
+            await this.CreateThings(container, new List<Thing> { thingToCreate });
+        }
+
+        /// <summary>
+        /// Write new Things in an <see cref="Iteration"/>
+        /// </summary>
+        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingsToCreate"></param> should be created</param>
+        /// <param name="thingsToCreate">the things to create in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task CreateThings(Thing container, params Thing[] thingsToCreate)
+        {
+            await this.CreateThings(container, thingsToCreate.ToList());
+        }
+
+        /// <summary>
         /// Write new Things in an <see cref="Iteration" />
         /// </summary>
         /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
@@ -240,6 +262,28 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 Console.WriteLine($"The create operation failed: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Write updated Thing in an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingToUpdate">the thing to update in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task UpdateThing(Thing container, Thing thingToUpdate)
+        {
+            await this.UpdateThings(container, new List<Thing> { thingToUpdate });
+        }
+
+        /// <summary>
+        /// Write updated Things in an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task UpdateThings(Thing container, params Thing[] thingsToUpdate)
+        {
+            await this.UpdateThings(container, thingsToUpdate.ToList());
         }
 
         /// <summary>
