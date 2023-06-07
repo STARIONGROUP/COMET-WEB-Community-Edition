@@ -106,6 +106,6 @@ namespace COMET.Web.Common.Extensions
             builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
             builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
             builder.Services.AddTransient<IPublicationsViewModel, PublicationsViewModel>();
-}
+        }
     }
 }

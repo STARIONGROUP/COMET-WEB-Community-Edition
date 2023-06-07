@@ -30,6 +30,12 @@ namespace COMET.Web.Common.Components.Publications
 
     using ReactiveUI;
 
+    using System.Collections.ObjectModel;
+
+    using COMET.Web.Common.ViewModels.Components.Publications.Rows;
+    
+    using DynamicData;
+
     /// <summary>
     /// Support class for the Publications component
     /// </summary>
@@ -38,8 +44,13 @@ namespace COMET.Web.Common.Components.Publications
         /// <summary>
         /// Gets or sets the <see cref="IPublicationsViewModel"/>
         /// </summary>
-        [Inject]
+        [Parameter]
         public IPublicationsViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// The sorted collection of <see cref="PublicationRowViewModel" />
+        /// </summary>
+        private ReadOnlyObservableCollection<PublicationRowViewModel> sortedCollection;
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -50,6 +61,7 @@ namespace COMET.Web.Common.Components.Publications
             base.OnInitialized();
 
             this.Disposables.Add(this.ViewModel.Rows.Connect()
+                .Bind(out this.sortedCollection)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.CanPublish)
