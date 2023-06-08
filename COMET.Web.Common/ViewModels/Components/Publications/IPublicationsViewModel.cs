@@ -25,6 +25,9 @@
 
 namespace COMET.Web.Common.ViewModels.Components.Publications
 {
+    using CDP4Dal;
+
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.EngineeringModelData;
     
     using COMET.Web.Common.ViewModels.Components.Publications.Rows;
@@ -42,14 +45,44 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         Iteration CurrentIteration { get; }
 
         /// <summary>
+        /// Gets or set the list of <see cref="ParameterOrOverrideBase"/> that can be published
+        /// </summary>
+        public List<ParameterOrOverrideBase> PublishableParameters { get; set; } 
+
+        /// <summary>
         /// Gets or sets the rows used in the Publications component
         /// </summary>
-        public SourceList<PublicationRowViewModel> Rows { get; set; }
+        SourceList<PublicationRowViewModel> Rows { get; set; }
 
         /// <summary>
         /// Gets or sets if the publication is possible
         /// </summary>
         bool CanPublish { get; set; }
+
+        /// <summary>
+        /// Gets or sets the DataSourceUri
+        /// </summary>
+        string DataSource { get; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="Person"/> in the <see cref="ISession"/>
+        /// </summary>
+        string PersonName { get; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="EngineeringModel"/>
+        /// </summary>
+        string ModelName { get; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="Iteration"/>
+        /// </summary>
+        string IterationName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="DomainOfExpertise"/>
+        /// </summary>
+        string DomainName { get; }
 
         /// <summary>
         /// Updates the properties of this ViewModel
@@ -60,6 +93,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// <summary>
         /// Execute the publication.
         /// </summary>
+        /// <returns>An asynchronous operation</returns>
         Task ExecutePublish();
     }
 }

@@ -29,28 +29,49 @@
                   Enabled="@this.ViewModel.CanPublish"
                   Click="() => { this.ViewModel.ExecutePublish(); }"/>
     </div>
-    <div>
-        <span>Model:</span>
-        <span>Data Source:</span>
-        <span>Iteration:</span>
-        <span>Person:</span>
-        <span>Domain Of Expertise:</span>
+    <div id="publication-data-container">
+        <span>Model: @this.ViewModel.ModelName</span>
+        <span>Data Source: @this.ViewModel.DataSource</span>
+        <span>Iteration: @this.ViewModel.IterationName</span>
+        <span>PersonName: @this.ViewModel.PersonName</span>
+        <span>Domain Of Expertise: @this.ViewModel.DomainName</span>
     </div>
-
-    <DxGrid ShowAllRows="true"
-            Data="@this.sortedCollection"
-            SelectionMode="GridSelectionMode.Single"
-            AllowSelectRowByClick="false"
-            ShowFilterRow="false"
-            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
-            VerticalScrollBarMode="ScrollBarMode.Visible"
-            HorizontalScrollBarMode="ScrollBarMode.Visible">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domain)" Caption="@("Domain")" GroupIndex="0" AllowGroup="true" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.NewValue)" Caption="@("New Value")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.OldValue)" Caption="@("Old Value")"  AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ModelCode)" Caption="@("Model Code")"  AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ElementShortName)" Caption="@("Element Short Name")"  AllowGroup="false" AllowSort="true" />
-        </Columns>
-    </DxGrid>
+    
+    @if (this.ViewModel.PublishableParameters.Any())
+    {
+        <DxGrid ShowAllRows="true"
+                Data="@this.ViewModel.Rows.Items"
+                SelectionMode="GridSelectionMode.Single"
+                AllowSelectRowByClick="false"
+                ShowFilterRow="false"
+                DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+                VerticalScrollBarMode="ScrollBarMode.Visible"
+                HorizontalScrollBarMode="ScrollBarMode.Visible">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domain)" Caption="@("Domain")" GroupIndex="0" AllowGroup="true" AllowSort="true">
+                    <GroupRowTemplate>
+                        <span>@context.GroupValueDisplayText</span>
+                    </GroupRowTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ParameterType)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true">
+                    <CellDisplayTemplate>
+                        @if (context.DataItem is PublicationRowViewModel publicationRowViewModel)
+                        {
+                            <DxCheckBox @bind-Checked="publicationRowViewModel.IsSelected">
+                                @publicationRowViewModel.ParameterType
+                            </DxCheckBox>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.NewValue)" Caption="@("New Value")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.OldValue)" Caption="@("Old Value")"  AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ModelCode)" Caption="@("Model Code")"  AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ElementShortName)" Caption="@("Element Short Name")"  AllowGroup="false" AllowSort="true" />
+            </Columns>
+        </DxGrid>
+    }
+    else
+    {
+        <div>No new values available to publish</div>
+    }
 </div>

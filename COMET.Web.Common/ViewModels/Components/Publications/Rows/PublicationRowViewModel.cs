@@ -28,11 +28,18 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using ReactiveUI;
+
     /// <summary>
     /// ViewModel for the rows in the Publications component
     /// </summary>
-    public class PublicationRowViewModel
+    public class PublicationRowViewModel : ReactiveObject
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterOrOverride"/> that this row represents
+        /// </summary>
+        public ParameterOrOverrideBase ParameterOrOverride { get; private set; }
+
         /// <summary>
         /// Gets or sets the name of the <see cref="DomainOfExpertise"/> of this publication
         /// </summary>
@@ -59,6 +66,25 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
         public string ElementShortName { get; private set; }
 
         /// <summary>
+        /// Gets or sets the name of the <see cref="ParameterType"/> that contains the publishable value
+        /// </summary>
+        public string ParameterType { get; private set; }
+
+        /// <summary>
+        /// Backing field for the <see cref="IsSelected"/> property
+        /// </summary>
+        private bool isSelected;
+
+        /// <summary>
+        /// Gets or sets if the row is selected. Only selected rows will be published.
+        /// </summary>
+        public bool IsSelected
+        {
+            get => this.isSelected;
+            set => this.RaiseAndSetIfChanged(ref this.isSelected, value);
+        }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="PublicationsViewModel"/>
         /// </summary>
         /// <param name="parameter">the <see cref="ParameterOrOverrideBase"/></param>
@@ -70,11 +96,13 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
                 throw new ArgumentException($"The {valueSet} must be of type ParameterValueSet", nameof(valueSet));
             }
             
+            this.ParameterOrOverride = parameter;
             this.Domain = parameter.Owner.Name;
             this.ElementShortName = ((ElementBase)parameter.Container).ShortName;
             this.ModelCode = parameterValueSet.ModelCode();
             this.NewValue = parameterValueSet.ActualValue.ToString();
             this.OldValue = parameterValueSet.Published.ToString();
+            this.ParameterType = parameter.ParameterType.Name;
         }
     }
 }

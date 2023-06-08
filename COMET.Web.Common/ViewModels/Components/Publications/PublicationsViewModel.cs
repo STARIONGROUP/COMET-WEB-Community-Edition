@@ -25,7 +25,9 @@
 
 namespace COMET.Web.Common.ViewModels.Components.Publications
 {
-    using CDP4Common.CommonData;
+    using CDP4Dal;
+
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
@@ -48,9 +50,9 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         public Iteration CurrentIteration { get; private set; }
 
         /// <summary>
-        /// Gets or sets the list of <see cref="ParameterOrOverrideBase"/> that can be published
+        /// Gets or set the list of <see cref="ParameterOrOverrideBase"/> that can be published
         /// </summary>
-        private List<ParameterOrOverrideBase> ParametersToBePublished { get; set; } = new();
+        public List<ParameterOrOverrideBase> PublishableParameters { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the rows used in the Publications component
@@ -77,6 +79,31 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         }
 
         /// <summary>
+        /// Gets or sets the DataSourceUri
+        /// </summary>
+        public string DataSource { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="Person"/> in the <see cref="ISession"/>
+        /// </summary>
+        public string PersonName { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="EngineeringModel"/>
+        /// </summary>
+        public string ModelName { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="Iteration"/>
+        /// </summary>
+        public string IterationName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the current <see cref="DomainOfExpertise"/>
+        /// </summary>
+        public string DomainName { get; private set; }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="PublicationsViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
@@ -92,11 +119,16 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         public void UpdateProperties(Iteration iteration)
         {
             this.CurrentIteration = iteration;
-            this.ParametersToBePublished = iteration.QueryParameterAndOverrideBases().Where(x => x.CanBePublished).ToList();
-            this.CanPublish = this.ParametersToBePublished.Any();
+            this.PublishableParameters = iteration.QueryParameterAndOverrideBases().Where(x => x.CanBePublished).ToList();
+
+            this.DataSource = this.SessionService.Session.DataSourceUri;
+            this.PersonName = this.SessionService.Session.ActivePerson.Name;
+            this.ModelName = iteration.QueryModelName();
+            this.IterationName = iteration.UserFriendlyName;
+            this.DomainName = this.SessionService.GetDomainOfExpertise(iteration)?.Name;
 
             this.Rows.Clear();
-            this.Rows.AddRange(this.CreateRows(this.ParametersToBePublished));
+            this.Rows.AddRange(this.CreateRows(this.PublishableParameters));
         }
 
         /// <summary>
@@ -121,6 +153,9 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
                 return;
             }
 
+            var rowsToPublish = this.Rows.Items.Where(x => x.IsSelected).ToList();
+            var parametersToPublish = rowsToPublish.Select(x => x.ParameterOrOverride).ToList();
+            
             var publication = new Publication(Guid.NewGuid(), null, null);
             var iteration = this.CurrentIteration.Clone(false);
 
@@ -128,9 +163,22 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
 
             publication.Container = iteration;
 
-            publication.PublishedParameter = this.ParametersToBePublished;
+            publication.PublishedParameter = parametersToPublish;
 
             await this.SessionService.CreateThing(iteration, publication);
+
+            this.RemovePublishedData(rowsToPublish, parametersToPublish);
+        }
+
+        /// <summary>
+        /// Removes the published data from the collections
+        /// </summary>
+        /// <param name="publishedRows">the rows to delete</param>
+        /// <param name="publishedParameters">the parameters to delete</param>
+        private void RemovePublishedData(IEnumerable<PublicationRowViewModel> publishedRows, IEnumerable<ParameterOrOverrideBase> publishedParameters)
+        {
+            this.PublishableParameters.RemoveMany(publishedParameters);
+            this.Rows.RemoveMany(publishedRows);
         }
     }
 }

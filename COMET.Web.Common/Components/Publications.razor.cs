@@ -48,11 +48,6 @@ namespace COMET.Web.Common.Components
         public IPublicationsViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The sorted collection of <see cref="PublicationRowViewModel" />
-        /// </summary>
-        private ReadOnlyObservableCollection<PublicationRowViewModel> sortedCollection;
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -60,12 +55,14 @@ namespace COMET.Web.Common.Components
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.ViewModel.Rows.Connect()
-                .Bind(out this.sortedCollection)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
             this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.CanPublish)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ =>
+            {
+                this.ViewModel.CanPublish = this.ViewModel.Rows.Items.Any(x=>x.IsSelected);
+                this.InvokeAsync(this.StateHasChanged);
+            }));
         }
     }
 }
