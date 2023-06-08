@@ -41,32 +41,32 @@
     {
         <DxGrid ShowAllRows="true"
                 Data="@this.ViewModel.Rows.Items"
-                SelectionMode="GridSelectionMode.Single"
+                SelectionMode="GridSelectionMode.Multiple"
                 AllowSelectRowByClick="false"
                 ShowFilterRow="false"
                 DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
                 VerticalScrollBarMode="ScrollBarMode.Visible"
-                HorizontalScrollBarMode="ScrollBarMode.Visible">
+                HorizontalScrollBarMode="ScrollBarMode.Visible"
+                SelectedDataItemsChanged="@this.OnRowSelectionChanged">
             <Columns>
-                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domain)" Caption="@("Domain")" GroupIndex="0" AllowGroup="true" AllowSort="true">
-                    <GroupRowTemplate>
-                        <span>@context.GroupValueDisplayText</span>
-                    </GroupRowTemplate>
-                </DxGridDataColumn>
-                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ParameterType)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true">
+                <DxGridSelectionColumn Caption="@("Domain")">
                     <CellDisplayTemplate>
                         @if (context.DataItem is PublicationRowViewModel publicationRowViewModel)
                         {
-                            <DxCheckBox @bind-Checked="publicationRowViewModel.IsSelected">
-                                @publicationRowViewModel.ParameterType
-                            </DxCheckBox>
+                            <DxCheckBox T="bool" @bind-Checked="publicationRowViewModel.IsSelected"></DxCheckBox>
                         }
                     </CellDisplayTemplate>
+                </DxGridSelectionColumn>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domain)" Caption="@("Domain")" GroupIndex="0" AllowGroup="true" AllowSort="true">
+                    <GroupRowTemplate>
+                        <DxCheckBox T="bool" CheckedChanged="(v) => { this.OnGroupSelectionChanged(context, v); }">@context.GroupValueDisplayText</DxCheckBox>
+                    </GroupRowTemplate>
                 </DxGridDataColumn>
+                <DxGridDataColumn MinWidth="110" FieldName="@nameof(PublicationRowViewModel.ParameterType)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
                 <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.NewValue)" Caption="@("New Value")" AllowGroup="false" AllowSort="true" />
-                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.OldValue)" Caption="@("Old Value")"  AllowGroup="false" AllowSort="true" />
-                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ModelCode)" Caption="@("Model Code")"  AllowGroup="false" AllowSort="true" />
-                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ElementShortName)" Caption="@("Element Short Name")"  AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.OldValue)" Caption="@("Old Value")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ElementShortName)" Caption="@("Element Short Name")" AllowGroup="false" AllowSort="true" />
             </Columns>
         </DxGrid>
     }

@@ -85,6 +85,14 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
             set => this.RaiseAndSetIfChanged(ref this.isSelected, value);
         }
 
+        private bool isGroupSelected;
+
+        public bool IsGroupSelected
+        {
+            get => this.isGroupSelected;
+            set => this.RaiseAndSetIfChanged(ref this.isGroupSelected, value);
+        }
+
         /// <summary>
         /// Creates a new instance of type <see cref="PublicationsViewModel"/>
         /// </summary>

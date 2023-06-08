@@ -25,7 +25,11 @@
 namespace COMET.Web.Common.Components
 {
     using COMET.Web.Common.ViewModels.Components.Publications;
-    
+    using COMET.Web.Common.ViewModels.Components.Publications.Rows;
+
+    using DevExpress.Blazor;
+    using DevExpress.Blazor.Internal;
+
     using DynamicData;
     
     using Microsoft.AspNetCore.Components;
@@ -58,6 +62,33 @@ namespace COMET.Web.Common.Components
             {
                 this.ViewModel.CanPublish = this.ViewModel.Rows.Items.Any(x=>x.IsSelected);
             }));
+        }
+        
+        /// <summary>
+        /// Handler for when a group checkbox state changed
+        /// </summary>
+        /// <param name="context">the <see cref="GridDataColumnGroupRowTemplateContext"/></param>
+        /// <param name="isChecked">true if the checkbox is checked, false otherwise</param>
+        private void OnGroupSelectionChanged(GridDataColumnGroupRowTemplateContext context, bool isChecked)
+        {
+            var rowsFilteredByDomain = this.ViewModel.Rows.Items.Where(x => x.Domain == context.GroupValueDisplayText).ToList();
+            rowsFilteredByDomain.ForEach(x=>x.IsSelected = isChecked);
+        }
+
+        /// <summary>
+        /// Handler for when a row checkbox state changed
+        /// </summary>
+        /// <param name="rows">the rows asociated to the change</param>
+        private void OnRowSelectionChanged(IReadOnlyList<object> rows)
+        {
+            if (rows is GridSelectedDataItemsCollection dataCollection)
+            {
+                var selectedRows = dataCollection.SelectedDataItems.Cast<PublicationRowViewModel>();
+                var deselectedRows = dataCollection.DeselectedDataItems.Cast<PublicationRowViewModel>();
+
+                selectedRows.ForEach(x=>x.IsSelected = true);
+                deselectedRows.ForEach(x=>x.IsSelected = false);
+            }
         }
     }
 }
