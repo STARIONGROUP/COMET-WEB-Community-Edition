@@ -128,7 +128,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
             this.DomainName = this.SessionService.GetDomainOfExpertise(iteration)?.Name;
 
             this.Rows.Clear();
-            this.Rows.AddRange(this.CreateRows(this.PublishableParameters));
+            this.Rows.AddRange(CreateRows(this.PublishableParameters));
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// </summary>
         /// <param name="parameters">the parameters used to create the rows</param>
         /// <returns>A collection of <see cref="PublicationRowViewModel"/></returns>
-        private IEnumerable<PublicationRowViewModel> CreateRows(IEnumerable<ParameterOrOverrideBase> parameters)
+        private static IEnumerable<PublicationRowViewModel> CreateRows(IEnumerable<ParameterOrOverrideBase> parameters)
         {
             return parameters.SelectMany(param =>
                 param.ValueSets.Select(valueSet => new PublicationRowViewModel(param, valueSet))).ToList();
