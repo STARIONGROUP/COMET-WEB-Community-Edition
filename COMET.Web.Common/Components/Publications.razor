@@ -1,0 +1,77 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//   This file is part of COMET WEB Community Edition
+//   The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+
+@using COMET.Web.Common.ViewModels.Components.Publications.Rows
+@inherits DisposableComponent
+
+<div>
+    <div>
+        <DxButton CssClass="icon icon-upload-cloud" 
+                  Enabled="@this.ViewModel.CanPublish"
+                  Click="() => { this.ViewModel.ExecutePublish(); }"/>
+    </div>
+    <div id="publication-data-container">
+        <span>Model: @this.ViewModel.ModelName</span>
+        <span>Data Source: @this.ViewModel.DataSource</span>
+        <span>Iteration: @this.ViewModel.IterationName</span>
+        <span>Person: @this.ViewModel.PersonName</span>
+        <span>Domain Of Expertise: @this.ViewModel.DomainName</span>
+    </div>
+    
+    @if (this.ViewModel.PublishableParameters.Any())
+    {
+        <DxGrid ShowAllRows="true"
+                Data="@this.ViewModel.Rows.Items"
+                SelectionMode="GridSelectionMode.Multiple"
+                AllowSelectRowByClick="false"
+                ShowFilterRow="false"
+                DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+                VerticalScrollBarMode="ScrollBarMode.Visible"
+                HorizontalScrollBarMode="ScrollBarMode.Visible"
+                SelectedDataItemsChanged="@this.OnRowSelectionChanged">
+            <Columns>
+                <DxGridSelectionColumn Caption="@("Domain")">
+                    <CellDisplayTemplate>
+                        @if (context.DataItem is PublicationRowViewModel publicationRowViewModel)
+                        {
+                            <DxCheckBox T="bool" @bind-Checked="publicationRowViewModel.IsSelected"></DxCheckBox>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridSelectionColumn>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domain)" Caption="@("Domain")" GroupIndex="0" AllowGroup="true" AllowSort="true">
+                    <GroupRowTemplate>
+                        <DxCheckBox T="bool" CheckedChanged="(v) => { this.OnGroupSelectionChanged(context, v); }">@context.GroupValueDisplayText</DxCheckBox>
+                    </GroupRowTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn MinWidth="110" FieldName="@nameof(PublicationRowViewModel.ParameterType)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.NewValue)" Caption="@("New Value")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.OldValue)" Caption="@("Old Value")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.ElementShortName)" Caption="@("Element Short Name")" AllowGroup="false" AllowSort="true" />
+            </Columns>
+        </DxGrid>
+    }
+    else
+    {
+        <div id="empty-content">No new values available to publish</div>
+    }
+</div>

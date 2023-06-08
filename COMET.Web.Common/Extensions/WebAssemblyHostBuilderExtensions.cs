@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Extensions
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Publications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
@@ -104,6 +105,7 @@ namespace COMET.Web.Common.Extensions
             builder.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             builder.Services.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
             builder.Services.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
-		}
+            builder.Services.AddTransient<IPublicationsViewModel, PublicationsViewModel>();
+        }
     }
 }

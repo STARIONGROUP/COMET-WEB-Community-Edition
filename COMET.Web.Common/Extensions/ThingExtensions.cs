@@ -48,6 +48,16 @@ namespace COMET.Web.Common.Extensions
         }
 
         /// <summary>
+        /// Queries the name of the <see cref="EngineeringModel" /> of an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The current <see cref="Iteration" /></param>
+        /// <returns>The name of the <see cref="EngineeringModel" /></returns>
+        public static string QueryModelName(this Iteration iteration)
+        {
+            return (iteration?.IterationSetup.Container as EngineeringModelSetup)?.Name;
+        }
+
+        /// <summary>
         /// Queries all <see cref="ElementDefinition" /> that are used inside an <see cref="Iteration" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
@@ -167,6 +177,25 @@ namespace COMET.Web.Common.Extensions
         {
             var generator = new NestedElementTreeGenerator();
             return iteration.TopElement == null ? Enumerable.Empty<NestedParameter>() : generator.GetNestedParameters(option);
+        }
+
+        /// <summary>
+        /// Queries all the <see cref="ParameterOrOverrideBase"/> contained in an iteration
+        /// </summary>
+        /// <param name="iteration">the iteration</param>
+        /// <returns>A collection of <see cref="ParameterOrOverrideBase"/></returns>
+        public static IEnumerable<ParameterOrOverrideBase> QueryParameterAndOverrideBases(this Iteration iteration)
+        {
+            var parameters = new List<ParameterOrOverrideBase>();
+
+            var elements = iteration.QueryElementsBase();
+
+            foreach (var element in elements)
+            {
+                parameters.AddRange(element.QueryParameterAndOverrideBases());
+            }
+
+            return parameters;
         }
 
         /// <summary>

@@ -70,6 +70,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
+        /// <returns>An asynchronous operation</returns>
         Task ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
 
         /// <summary>
@@ -104,6 +105,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Refresh the ISession object
         /// </summary>
+        /// <returns>An asynchronous operation</returns>
         Task RefreshSession();
 
         /// <summary>
@@ -114,22 +116,57 @@ namespace COMET.Web.Common.Services.SessionManagement
         void SwitchDomain(Iteration iteration, DomainOfExpertise domainOfExpertise);
 
         /// <summary>
+        /// Write a new Thing in an <see cref="Iteration"/>
+        /// </summary>
+        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingToCreate"></param> should be created</param>
+        /// <param name="thingToCreate">the thing to create in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task CreateThing(Thing container, Thing thingToCreate);
+
+        /// <summary>
+        /// Write new Things in an <see cref="Iteration"/>
+        /// </summary>
+        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingsToCreate"></param> should be created</param>
+        /// <param name="thingsToCreate">the things to create in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task CreateThings(Thing container, params Thing[] thingsToCreate);
+
+        /// <summary>
         /// Write new Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
-        Task CreateThings(Thing thing, IEnumerable<Thing> thingsToCreate);
+        /// <returns>An asynchronous operation</returns>
+        Task CreateThings(Thing container, IEnumerable<Thing> thingsToCreate);
+
+        /// <summary>
+        /// Write updated Thing in an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingToUpdate">the thing to update in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task UpdateThing(Thing container, Thing thingToUpdate);
 
         /// <summary>
         /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        Task UpdateThings(Thing thing, IEnumerable<Thing> thingsToUpdate);
+        /// <returns>An asynchronous operation</returns>
+        Task UpdateThings(Thing container, params Thing[] thingsToUpdate);
+
+        /// <summary>
+        /// Write updated Things in an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate);
 
         /// <summary>
         /// Gets the <see cref="ParticipantRole" /> inside an iteration
         /// </summary>
+        /// <returns>the <see cref="Participant"/></returns>
         Participant GetParticipant(Iteration iteration);
 
         /// <summary>
@@ -138,6 +175,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="iteration">The <see cref="Iteration" /></param>
         /// <returns>The <see cref="DomainOfExpertise" /></returns>
         /// <exception cref="ArgumentException">If the <see cref="Iteration" /> is not opened</exception>
+        /// <returns>The <see cref="DomainOfExpertise"/></returns>
         DomainOfExpertise GetDomainOfExpertise(Iteration iteration);
     }
 }
