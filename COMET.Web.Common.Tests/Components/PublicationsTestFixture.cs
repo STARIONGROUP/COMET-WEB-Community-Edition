@@ -25,36 +25,20 @@
 
 namespace COMET.Web.Common.Tests.Components
 {
-    using System.Reflection;
-
     using Bunit;
-    using Bunit.TestDoubles;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using CDP4Dal;
-
     using COMET.Web.Common.Components;
-    using COMET.Web.Common.Extensions;
-    using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Services.RegistrationService;
-    using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Test.Helpers;
-    using COMET.Web.Common.Utilities;
-    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Publications;
     using COMET.Web.Common.ViewModels.Components.Publications.Rows;
 
     using DevExpress.Blazor;
 
     using DynamicData;
-
-    using Microsoft.AspNetCore.WebUtilities;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -69,7 +53,6 @@ namespace COMET.Web.Common.Tests.Components
         private IRenderedComponent<Publications> renderer;
         private Mock<IPublicationsViewModel> viewModel;
         
-
         [SetUp]
         public void SetUp()
         {
@@ -90,6 +73,12 @@ namespace COMET.Web.Common.Tests.Components
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.context.CleanContext();
         }
 
         [Test]

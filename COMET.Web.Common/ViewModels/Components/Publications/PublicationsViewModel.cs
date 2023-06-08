@@ -124,7 +124,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
             this.DataSource = this.SessionService.Session.DataSourceUri;
             this.PersonName = this.SessionService.Session.ActivePerson.Name;
             this.ModelName = iteration.QueryModelName();
-            this.IterationName = iteration.UserFriendlyName;
+            this.IterationName = iteration.IterationSetup.IterationNumber.ToString();
             this.DomainName = this.SessionService.GetDomainOfExpertise(iteration)?.Name;
 
             this.Rows.Clear();
