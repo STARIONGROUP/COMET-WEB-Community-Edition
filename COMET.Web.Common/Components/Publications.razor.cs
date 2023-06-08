@@ -25,16 +25,12 @@
 namespace COMET.Web.Common.Components
 {
     using COMET.Web.Common.ViewModels.Components.Publications;
-
-    using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
-
-    using System.Collections.ObjectModel;
-
-    using COMET.Web.Common.ViewModels.Components.Publications.Rows;
     
     using DynamicData;
+    
+    using Microsoft.AspNetCore.Components;
+    
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the Publications component
@@ -61,7 +57,6 @@ namespace COMET.Web.Common.Components
             this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ =>
             {
                 this.ViewModel.CanPublish = this.ViewModel.Rows.Items.Any(x=>x.IsSelected);
-                this.InvokeAsync(this.StateHasChanged);
             }));
         }
     }

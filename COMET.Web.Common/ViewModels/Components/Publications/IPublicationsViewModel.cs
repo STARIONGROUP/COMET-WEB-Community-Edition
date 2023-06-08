@@ -47,7 +47,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// <summary>
         /// Gets or set the list of <see cref="ParameterOrOverrideBase"/> that can be published
         /// </summary>
-        public List<ParameterOrOverrideBase> PublishableParameters { get; set; } 
+        List<ParameterOrOverrideBase> PublishableParameters { get; set; } 
 
         /// <summary>
         /// Gets or sets the rows used in the Publications component
