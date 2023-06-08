@@ -31,7 +31,8 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the rows in the Publications component
+    /// ViewModel for the rows in the Publications component. Each row represents a single value change of a <see cref="ParameterOrOverrideBase"/>
+    /// that can be published.
     /// </summary>
     public class PublicationRowViewModel : ReactiveObject
     {

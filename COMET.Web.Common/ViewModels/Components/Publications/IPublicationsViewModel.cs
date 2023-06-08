@@ -35,12 +35,12 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
     using DynamicData;
 
     /// <summary>
-    /// ViewModel for the Publications component
+    /// ViewModel for the Publications component. Manages the creation of new publications.
     /// </summary>
     public interface IPublicationsViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="Iteration"/> that's being used
+        /// Gets the <see cref="Iteration"/> that's being used
         /// </summary>
         Iteration CurrentIteration { get; }
 
@@ -60,27 +60,27 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         bool CanPublish { get; set; }
 
         /// <summary>
-        /// Gets or sets the DataSourceUri
+        /// Gets the DataSourceUri
         /// </summary>
         string DataSource { get; }
 
         /// <summary>
-        /// Gets or sets the name of the current <see cref="Person"/> in the <see cref="ISession"/>
+        /// Gets the name of the current <see cref="Person"/> in the <see cref="ISession"/>
         /// </summary>
         string PersonName { get; }
 
         /// <summary>
-        /// Gets or sets the name of the current <see cref="EngineeringModel"/>
+        /// Gets the name of the current <see cref="EngineeringModel"/>
         /// </summary>
         string ModelName { get; }
 
         /// <summary>
-        /// Gets or sets the name of the current <see cref="Iteration"/>
+        /// Gets the name of the current <see cref="Iteration"/>
         /// </summary>
-        string IterationName { get; set; }
+        string IterationName { get; }
 
         /// <summary>
-        /// Gets or sets the name of the current <see cref="DomainOfExpertise"/>
+        /// Gets the name of the current <see cref="DomainOfExpertise"/>
         /// </summary>
         string DomainName { get; }
 

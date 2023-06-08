@@ -40,7 +40,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the Publications component
+    /// ViewModel for the Publications component. Manages the creation of new publications. 
     /// </summary>
     public class PublicationsViewModel : DisposableObject, IPublicationsViewModel
     {
