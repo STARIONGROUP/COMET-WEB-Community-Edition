@@ -32,20 +32,7 @@ namespace COMETwebapp.Components.SystemRepresentation
 {
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-========
-namespace COMETwebapp.Components.Shared
-{
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-   
-    using Microsoft.AspNetCore.Components;
->>>>>>>> 380fac8 (Change some files location):COMETwebapp/Components/Shared/NodeComponent.razor.cs
     
-========
-namespace COMETwebapp.Components.Viewer
-{
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Viewer;
->>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor.cs
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
