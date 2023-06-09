@@ -55,8 +55,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         public bool IsSceneObjectVisible
         {
-            get => isSceneObjectVisible;
-            set => this.RaiseAndSetIfChanged(ref isSceneObjectVisible, value);
+            get => this.isSceneObjectVisible;
+            set => this.RaiseAndSetIfChanged(ref this.isSceneObjectVisible, value);
         }
 
         /// <summary> 

@@ -1,4 +1,5 @@
-﻿<!------------------------------------------------------------------------------
+﻿@using COMETwebapp.ViewModels.Components.SystemRepresentation
+<!------------------------------------------------------------------------------
     Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -19,7 +20,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
+@inherits DisposableComponent
 @{
     @if (this.ViewModel is null)
     {
@@ -69,14 +70,8 @@
                 <hr>
                 @if (this.ViewModel.GetChildren().Count > 0)
                 {
-                    @if (this.ViewModel.IsExpanded)
-                    {
-                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.ViewModel.IsExpanded = false; })" />
-                    }
-                    else
-                    {
-                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.ViewModel.IsExpanded = true; })" />
-                    }
+                    var uri = this.ViewModel.IsExpanded ? "images/Expanded.svg" : "images/Collapsed.svg";
+                    <img class="expandIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsExpanded = !this.ViewModel.IsExpanded; })" />
                 }
 
                 <p class="node-text">@this.ViewModel.Title</p>
@@ -87,11 +82,12 @@
     @if (this.ViewModel.GetChildren().Count > 0 && this.ViewModel.IsExpanded)
     {
         <div class="children">
-            @foreach (var child in this.ViewModel.GetChildren())
-            {
-                var level = this.ViewModel.Level + 1;
-                <SystemNode ViewModel="@child" Level="@level"/>
-            }
+            <Virtualize TItem="SystemNodeViewModel" Items="@this.ViewModel.GetChildren()" Context="child">
+                @{
+                    var level = this.ViewModel.Level + 1;
+                    <SystemNode ViewModel="@child" Level="@level"/>
+                }
+            </Virtualize>
         </div>
     }
 }

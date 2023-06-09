@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared
 {
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using DynamicData;
 
     using ReactiveUI;
@@ -31,7 +33,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// ViewModel that handle information related to <see cref="BaseNodeViewModel{T}"/> inside a tree
     /// </summary>
-    public abstract class BaseNodeViewModel<T> : ReactiveObject, IBaseNodeViewModel where T : BaseNodeViewModel<T>
+    public abstract class BaseNodeViewModel<T> : DisposableObject, IBaseNodeViewModel where T : BaseNodeViewModel<T>
     {
         /// <summary>
         /// Level of the tree. Increases by one for each nested element
@@ -231,7 +233,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// Gets the children of this <see cref="BaseNodeViewModel{T}"/>
         /// </summary>
         /// <returns>the children of the baseNode</returns>
-        public IReadOnlyList<T> GetChildren()
+        public ICollection<T> GetChildren()
         {
             return this.Children.AsReadOnly();
         }

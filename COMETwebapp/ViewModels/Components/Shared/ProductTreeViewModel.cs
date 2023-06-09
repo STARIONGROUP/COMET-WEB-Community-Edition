@@ -28,7 +28,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
 
     using COMET.Web.Common.Utilities.DisposableObject;
 
-    using COMETwebapp.Components.Shared;
     using COMETwebapp.Enumerations;
 
     using ReactiveUI;
@@ -44,7 +43,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         private T rootViewModel;
         
         /// <summary>
-        /// Gets or sets the root of the <see cref="ProductTree" />
+        /// Gets or sets the root of the <see cref="ProductTreeViewModel{T}" />
         /// </summary>
         public T RootViewModel
         {

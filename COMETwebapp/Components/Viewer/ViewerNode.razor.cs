@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.Viewer
 {
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Viewer;
+    
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -56,11 +57,11 @@ namespace COMETwebapp.Components.Viewer
             base.OnParametersSet();
             this.ViewModel.Level = this.Level;
 
-            this.WhenAnyValue(x => x.ViewModel.IsDrawn,
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsDrawn,
                               x => x.ViewModel.IsExpanded,
                               x => x.ViewModel.IsSelected,
-                              x => x.ViewModel.IsSceneObjectVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
-
+                              x => x.ViewModel.IsSceneObjectVisible)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

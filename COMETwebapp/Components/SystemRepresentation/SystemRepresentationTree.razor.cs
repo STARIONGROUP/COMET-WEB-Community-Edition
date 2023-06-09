@@ -50,9 +50,10 @@ namespace COMETwebapp.Components.SystemRepresentation
         {
             base.OnInitialized();
 
-            this.WhenAnyValue(x => x.ViewModel.RootViewModel,
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.RootViewModel,
                 x => x.ViewModel.SelectedFilter,
-                x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                x => x.ViewModel.SearchText)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

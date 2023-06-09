@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer
 {
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Model;
@@ -39,7 +40,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     /// <summary>
     /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas3D"/>
     /// </summary>
-    public class CanvasViewModel : ReactiveObject, ICanvasViewModel
+    public class CanvasViewModel : DisposableObject, ICanvasViewModel
     {
         /// <summary>
         /// Reference to the HTML5 canvas
@@ -116,29 +117,41 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public void InitializeViewModel()
         {
             this.SelectionMediator.SceneObjectHasChanges = false;
-            
-            this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) =>
-            {
-                await this.ClearTemporarySceneObjects();
-                
-                if (nodeViewModel.SceneObject?.Primitive != null)
-                {
-                    await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
-                }
-            };
+            this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) => await this.OnTreeSelectionChanged(nodeViewModel);
+            this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) => await this.OnTreeVisibilityChanged(nodeViewModel);
+        }
 
-            this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) =>
-            {
-                await this.ClearTemporarySceneObjects();
-                
-                var nodesAffected = nodeViewModel.GetFlatListOfDescendants(true)
-                        .Where(x => x.SceneObject.Primitive is not null).ToList();
+        /// <summary>
+        /// Callback method for when the tree selection changed
+        /// </summary>
+        /// <param name="nodeViewModel">the <see cref="ViewerNodeViewModel"/> that raised the event</param>
+        /// <returns>an asynchronous operation</returns>
+        private async Task OnTreeSelectionChanged(ViewerNodeViewModel nodeViewModel)
+        {
+            await this.ClearTemporarySceneObjects();
 
-                foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
-                {
-                    await this.SetSceneObjectVisibility(sceneObject, nodeViewModel.IsSceneObjectVisible);
-                }
-            };
+            if (nodeViewModel.SceneObject?.Primitive != null)
+            {
+                await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
+            }
+        }
+
+        /// <summary>
+        /// Callback method for when the tree visibility changed
+        /// </summary>
+        /// <param name="nodeViewModel">the <see cref="ViewerNodeViewModel"/> that raised the event</param>
+        /// <returns>an asynchronous operation</returns>
+        private async Task OnTreeVisibilityChanged(ViewerNodeViewModel nodeViewModel)
+        {
+            await this.ClearTemporarySceneObjects();
+
+            var nodesAffected = nodeViewModel.GetFlatListOfDescendants(true)
+                .Where(x => x.SceneObject.Primitive is not null).ToList();
+
+            foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
+            {
+                await this.SetSceneObjectVisibility(sceneObject, nodeViewModel.IsSceneObjectVisible);
+            }
         }
 
         /// <summary> 

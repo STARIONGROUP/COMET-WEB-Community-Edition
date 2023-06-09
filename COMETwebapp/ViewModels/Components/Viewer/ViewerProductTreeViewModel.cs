@@ -83,10 +83,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
                 this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, states);
                 this.RootViewModel.OrderAllDescendantsByShortName();
-                return this.RootViewModel;
             }
 
-            return null;
+            return this.RootViewModel;
         }
 
         /// <summary>

@@ -79,6 +79,8 @@ namespace COMETwebapp.Components.Viewer
         {
             base.OnInitialized();
 
+            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.IsLoading).Subscribe(_=>this.InvokeAsync(this.StateHasChanged)));
+
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.UpdateUrl()));
 

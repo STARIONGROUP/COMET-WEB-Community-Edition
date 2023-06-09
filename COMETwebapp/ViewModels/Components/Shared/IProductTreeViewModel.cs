@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Shared;
     using COMETwebapp.Enumerations;
 
     /// <summary>
@@ -50,7 +49,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         string SearchText { get; set; }
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="ProductTree"/>
+        /// Gets or sets the root of the <see cref="IProductTreeViewModel{T}"/>
         /// </summary>
         T RootViewModel { get; set; }
 

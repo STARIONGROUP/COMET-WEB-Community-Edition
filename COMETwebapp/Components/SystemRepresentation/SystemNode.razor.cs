@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.SystemRepresentation
 {
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -56,10 +57,10 @@ namespace COMETwebapp.Components.SystemRepresentation
             base.OnParametersSet();
             this.ViewModel.Level = this.Level;
 
-            this.WhenAnyValue(x => x.ViewModel.IsDrawn,
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsDrawn,
                               x => x.ViewModel.IsExpanded,
                               x => x.ViewModel.IsSelected)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }
