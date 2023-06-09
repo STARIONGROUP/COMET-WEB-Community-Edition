@@ -22,12 +22,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.ViewModels.Components.Shared
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Components.Shared;
     using COMETwebapp.Enumerations;
-
     using COMETwebapp.Model;
 
     using Microsoft.AspNetCore.Components;
@@ -53,7 +53,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         string SearchText { get; set; }
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree"/>
+        /// Gets or sets the root of the <see cref="ProductTree"/>
         /// </summary>
         INodeComponentViewModel RootViewModel { get; set; }
 

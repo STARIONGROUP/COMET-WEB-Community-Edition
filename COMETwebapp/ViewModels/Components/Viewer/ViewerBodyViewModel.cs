@@ -35,6 +35,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 

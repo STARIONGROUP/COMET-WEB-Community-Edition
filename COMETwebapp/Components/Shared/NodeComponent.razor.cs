@@ -24,10 +24,10 @@
 
 namespace COMETwebapp.Components.Shared
 {
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-   
+    using COMETwebapp.ViewModels.Components.Shared;
+
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>

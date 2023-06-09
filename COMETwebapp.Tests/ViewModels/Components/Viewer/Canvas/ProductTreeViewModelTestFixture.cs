@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
     using Moq;
 
     using TestContext = Bunit.TestContext;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     [TestFixture]
     public class ProductTreeViewModelTestFixture

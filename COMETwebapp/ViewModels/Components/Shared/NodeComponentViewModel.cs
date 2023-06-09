@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.ViewModels.Components.Shared
 {
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
@@ -210,7 +210,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         {
             var descendants = new List<INodeComponentViewModel>();
             this.GetListOfDescendantsRecursively(this, ref descendants);
-            
+
             if (includeSelf && !descendants.Contains(this))
             {
                 descendants.Add(this);
@@ -252,7 +252,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         private void OrderChildrenByShortNameHelper(INodeComponentViewModel current)
         {
             current.Children = current.GetChildren().OrderBy(x => x.Node.Title).ToList();
-            
+
             foreach (var child in current.GetChildren())
             {
                 this.OrderChildrenByShortNameHelper(child);
@@ -290,9 +290,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                 this.SelectionMediator.RaiseOnTreeSelectionChanged(nodeViewModel);
                 this.IsSelected = true;
             }
-            else if(nodeViewModel.Node is SystemNode systemNode)
+            else if (nodeViewModel.Node is SystemNode systemNode)
             {
-               await this.OnSelect.InvokeAsync(systemNode);
+                await this.OnSelect.InvokeAsync(systemNode);
             }
 
             this.StopClickPropagation = false;

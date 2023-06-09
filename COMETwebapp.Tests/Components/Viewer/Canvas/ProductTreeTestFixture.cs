@@ -35,8 +35,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-   
+
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -44,7 +45,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
-    
+
     [TestFixture]
     public class ProductTreeTestFixture
     {

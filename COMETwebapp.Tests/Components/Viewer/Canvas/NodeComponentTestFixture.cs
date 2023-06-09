@@ -29,8 +29,8 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    
+    using COMETwebapp.ViewModels.Components.Shared;
+
     using Moq;
 
     using NUnit.Framework;

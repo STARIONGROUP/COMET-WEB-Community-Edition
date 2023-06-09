@@ -28,9 +28,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-    
+
     using COMETwebapp.Model;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     /// <summary>
     /// View Model that handle the logic for the System Representation application

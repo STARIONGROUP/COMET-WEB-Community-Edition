@@ -22,12 +22,13 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.ViewModels.Components.Shared
 {
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Utilities.DisposableObject;
 
+    using COMETwebapp.Components.Shared;
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
@@ -66,22 +67,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.TreeFilters = enumValues.ToList();
             this.SelectedFilter = TreeFilter.ShowFullTree;
 
-            this.SelectionMediator.OnModelSelectionChanged += sceneObject =>
-            {
-                var treeNodes = this.RootViewModel.GetFlatListOfDescendants();
-                treeNodes.ForEach(x => x.IsSelected = false);
-
-                if (sceneObject != null)
-                {
-                    var node = treeNodes.FirstOrDefault(x => x.Node is TreeNode treeNode && treeNode.SceneObject == sceneObject);
-
-                    if (node is not null)
-                    {
-                        node.IsSelected = true;
-                    }
-                }
-            };
-
+            this.SelectionMediator.OnModelSelectionChanged += this.OnModelSelectionChanged;
             this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
         }
@@ -97,6 +83,28 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 
             this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
+        }
+
+        /// <summary>
+        /// Callback for when a model has been selected
+        /// </summary>
+        /// <param name="sceneObject">the selected <see cref="SceneObject"/></param>
+        private void OnModelSelectionChanged(SceneObject sceneObject)
+        {
+            var treeNodes = this.RootViewModel.GetFlatListOfDescendants();
+            treeNodes.ForEach(x => x.IsSelected = false);
+
+            if (sceneObject == null)
+            {
+                return;
+            }
+
+            var node = treeNodes.FirstOrDefault(x => x.Node is TreeNode treeNode && treeNode.SceneObject == sceneObject);
+
+            if (node is not null)
+            {
+                node.IsSelected = true;
+            }
         }
 
         /// <summary>
@@ -124,7 +132,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         }
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="COMETwebapp.Components.Viewer.Canvas.ProductTree" />
+        /// Gets or sets the root of the <see cref="ProductTree" />
         /// </summary>
         public INodeComponentViewModel RootViewModel
         {
@@ -185,7 +193,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>A <see cref="Task" /></returns>
         public void SelectElement(SystemNode selectedNode)
         {
-           this.OnClick.InvokeAsync(selectedNode);
+            this.OnClick.InvokeAsync(selectedNode);
         }
 
         /// <summary>
@@ -253,32 +261,34 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                 childsOfElementBase = elementUsage.ElementDefinition.ContainedElement;
             }
 
-            if (childsOfElementBase is not null)
+            if (childsOfElementBase == null)
             {
-                if (parent is not null)
-                {
-                    parent.AddChild(current);
-                }
+                return;
+            }
 
-                foreach (var child in childsOfElementBase)
+            if (parent is not null)
+            {
+                parent.AddChild(current);
+            }
+
+            foreach (var child in childsOfElementBase)
+            {
+                if (current.Node is TreeNode)
                 {
-                    if(current.Node is TreeNode) 
+                    var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
+                    if (sceneObject is not null)
                     {
-                        var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
-                        if (sceneObject is not null)
-                        {
-                            var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
-                            this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
-                        }
-                    }
-                    else
-                    {
-                        var nodeViewModel = new NodeComponentViewModel(new SystemNode(child.Name), this.SelectionMediator)
-                        {
-                            OnSelect = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
-                        };
+                        var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
                         this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
-                    }                
+                    }
+                }
+                else
+                {
+                    var nodeViewModel = new NodeComponentViewModel(new SystemNode(child.Name), this.SelectionMediator)
+                    {
+                        OnSelect = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
+                    };
+                    this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
                 }
             }
         }

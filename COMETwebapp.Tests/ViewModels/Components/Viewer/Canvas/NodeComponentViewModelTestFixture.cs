@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
     using COMETwebapp.Model;
     using COMETwebapp.Model.Primitives;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using DevExpress.Data.Mask.Internal;

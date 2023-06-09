@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ActualFiniteStateSelector.cs" company="RHEA System S.A.">
+// <copyright file="MultipleActualFiniteStateSelector.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Viewer.Canvas
+namespace COMETwebapp.Components.Viewer
 {
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
@@ -31,15 +31,15 @@ namespace COMETwebapp.Components.Viewer.Canvas
     using ReactiveUI;
 
     /// <summary>
-    /// Support class for the <see cref="ActualFiniteStateSelector"/> component
+    /// Partial class for the <see cref="MultipleActualFiniteStateSelector"/> razor component
     /// </summary>
-    public partial class ActualFiniteStateSelector
+    public partial class MultipleActualFiniteStateSelector
     {
         /// <summary>
-        /// Gets or sets the <see cref="IActualFiniteStateSelectorViewModel"/>
+        /// Gets or sets the <see cref="IMultipleActualFiniteStateSelectorViewModel"/>
         /// </summary>
         [Parameter]
-        public IActualFiniteStateSelectorViewModel ViewModel { get; set; }
+        public IMultipleActualFiniteStateSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -48,9 +48,11 @@ namespace COMETwebapp.Components.Viewer.Canvas
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            
-            this.WhenAnyValue(x => x.ViewModel.SelectedFiniteState)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActualFiniteStateSelectorViewModels).Subscribe(_ =>
+            {
+                this.InvokeAsync(this.StateHasChanged);
+            }));
         }
     }
 }

@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.ViewModels.Components.Shared
 {
     using COMETwebapp.Model;
 
@@ -105,7 +105,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         List<INodeComponentViewModel> GetFlatListOfDescendants(bool includeSelf = false);
 
         /// <summary>
-        /// Sort all descendants of this node by the <see cref="Name"/>
+        /// Sort all descendants of this node by the <see cref="BaseNode.Title"/>
         /// </summary>
         void OrderAllDescendantsByShortName();
 

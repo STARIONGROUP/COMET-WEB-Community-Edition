@@ -25,7 +25,7 @@
 namespace COMETwebapp.Utilities
 {
     using COMETwebapp.Model;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     /// <summary>
     /// Interface for controlling the selecetion of <see cref="SceneObject"/> in the Scene

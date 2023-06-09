@@ -34,11 +34,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>

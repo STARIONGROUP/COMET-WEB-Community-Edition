@@ -22,21 +22,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Viewer.Canvas
+namespace COMETwebapp.Components.Viewer
 {
-    using System.Threading.Tasks;
- 
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
 
     using ReactiveUI;
 
     /// <summary>
-    /// Support class for the <see cref="CanvasComponent"/>
+    /// Support class for the <see cref="Canvas3D"/>
     /// </summary>
-    public partial class CanvasComponent
+    public partial class Canvas3D
     {
         /// <summary>
         /// Gets or sets the <see cref="ICanvasViewModel"/>

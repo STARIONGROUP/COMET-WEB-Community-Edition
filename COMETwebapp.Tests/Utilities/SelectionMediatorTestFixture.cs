@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Utilities
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using TestContext = Bunit.TestContext;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     [TestFixture]
     public class SelectionMediatorTestFixture

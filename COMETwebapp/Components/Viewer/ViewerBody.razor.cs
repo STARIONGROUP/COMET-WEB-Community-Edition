@@ -31,7 +31,7 @@ namespace COMETwebapp.Components.Viewer
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Shared;
 
     using Microsoft.AspNetCore.Components;
 
