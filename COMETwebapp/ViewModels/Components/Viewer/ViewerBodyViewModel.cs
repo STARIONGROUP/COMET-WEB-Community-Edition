@@ -129,7 +129,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             if (this.OptionSelector.SelectedOption != null && this.MultipleFiniteStateSelector.SelectedFiniteStates.Count()
                 == this.MultipleFiniteStateSelector.ActualFiniteStateSelectorViewModels.Count())
             {
-                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates, true);
+                this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, this.MultipleFiniteStateSelector.SelectedFiniteStates);
             }
         }
 

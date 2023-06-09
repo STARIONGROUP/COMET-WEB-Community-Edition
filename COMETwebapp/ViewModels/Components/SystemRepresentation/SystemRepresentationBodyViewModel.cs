@@ -35,7 +35,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components.Selectors;
     
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.AspNetCore.Components;
 

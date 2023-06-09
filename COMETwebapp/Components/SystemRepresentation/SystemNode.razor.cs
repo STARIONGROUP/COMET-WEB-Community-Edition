@@ -1,5 +1,9 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
 // <copyright file="SystemNode.razor.cs" company="RHEA System S.A.">
+========
+// <copyright file="ViewerNode.razor.cs" company="RHEA System S.A.">
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor.cs
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -23,6 +27,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 <<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
 namespace COMETwebapp.Components.SystemRepresentation
 {
     using COMETwebapp.ViewModels.Components.Shared;
@@ -35,6 +40,12 @@ namespace COMETwebapp.Components.Shared
     using Microsoft.AspNetCore.Components;
 >>>>>>>> 380fac8 (Change some files location):COMETwebapp/Components/Shared/NodeComponent.razor.cs
     
+========
+namespace COMETwebapp.Components.Viewer
+{
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Viewer;
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor.cs
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -42,13 +53,21 @@ namespace COMETwebapp.Components.Shared
     /// <summary>
     /// Class for the baseNode component
     /// </summary>
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
     public partial class SystemNode
+========
+    public partial class ViewerNode
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor.cs
     {
         /// <summary>
         /// Gets or sets the <see cref="IBaseNodeViewModel"/>
         /// </summary>
         [Parameter]
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
         public SystemNodeViewModel ViewModel { get; set; }
+========
+        public ViewerNodeViewModel ViewModel { get; set; }
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor.cs
 
         /// <summary>
         /// Level of the tree. Increases by one for each nested element

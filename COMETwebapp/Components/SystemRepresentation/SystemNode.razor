@@ -1,5 +1,9 @@
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor
 ﻿@using COMETwebapp.ViewModels.Components.SystemRepresentation
 <!------------------------------------------------------------------------------
+========
+﻿<!------------------------------------------------------------------------------
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor
     Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -69,12 +73,39 @@
             <div class="node-inner-content" style="margin-left: calc(20px * @this.ViewModel.Level)">
                 <hr>
                 @if (this.ViewModel.GetChildren().Count > 0)
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor
                 {
                     var uri = this.ViewModel.IsExpanded ? "images/Expanded.svg" : "images/Collapsed.svg";
                     <img class="expandIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsExpanded = !this.ViewModel.IsExpanded; })" />
                 }
 
                 <p class="node-text">@this.ViewModel.Title</p>
+========
+                {
+                    @if (this.ViewModel.IsExpanded)
+                    {
+                        <img class="expandIcon" src="images/Expanded.svg" onclick="@(()=>{ this.ViewModel.IsExpanded = false; })" />
+                    }
+                    else
+                    {
+                        <img class="expandIcon" src="images/Collapsed.svg" onclick="@(()=>{ this.ViewModel.IsExpanded = true; })" />
+                    }
+                }
+
+                <p class="node-text">@this.ViewModel.Title</p>
+                
+                @if (this.ViewModel.SceneObject.Primitive is not null)
+                {
+                    @if (this.ViewModel.IsSceneObjectVisible)
+                    {
+                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
+                    }
+                    else
+                    {
+                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel); })" />
+                    }
+                }
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor
             </div>
         </div>
     }    
@@ -82,12 +113,20 @@
     @if (this.ViewModel.GetChildren().Count > 0 && this.ViewModel.IsExpanded)
     {
         <div class="children">
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor
             <Virtualize TItem="SystemNodeViewModel" Items="@this.ViewModel.GetChildren()" Context="child">
                 @{
                     var level = this.ViewModel.Level + 1;
                     <SystemNode ViewModel="@child" Level="@level"/>
                 }
             </Virtualize>
+========
+            @foreach (var child in this.ViewModel.GetChildren())
+            {
+                var level = this.ViewModel.Level + 1;
+                <ViewerNode ViewModel="@child" Level="@level"/>
+            }
+>>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor
         </div>
     }
 }
