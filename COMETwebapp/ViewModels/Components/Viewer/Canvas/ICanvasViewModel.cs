@@ -24,7 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
-    using COMETwebapp.Components.Viewer.PopUps;
+    using COMET.Web.Common.ViewModels.Components;
+
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
@@ -54,7 +55,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary> 
         /// Gets or sets the PopUp that ask the user if he wants to change the selected primitive before submiting changes 
         /// </summary> 
-        ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
+        IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the user is about to change the selected primitive
+        /// </summary>
+        public bool IsOnChangePrimitiveMode { get; set; }
 
         /// <summary>
         /// Initiliazes this <see cref="CanvasViewModel"/>

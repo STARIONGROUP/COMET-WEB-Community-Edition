@@ -20,10 +20,14 @@
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-@using COMETwebapp.Components.Viewer.PopUps;
+@inherits DisposableComponent
 
 <div id="canvas-wrap">
-    <ConfirmChangeSelectionPopUp @ref="@this.ViewModel.ConfirmChangeSelectionPopUp"/>
+    @if (this.ViewModel.IsOnChangePrimitiveMode)
+    {
+        <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel"/>
+    }
+
     <canvas @ref="@this.ViewModel.CanvasReference"
             id="babylon-canvas"
             touch-action="none"

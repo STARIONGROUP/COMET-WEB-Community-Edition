@@ -30,7 +30,9 @@ namespace COMETwebapp.Components.Viewer.Canvas
     
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
-    
+
+    using ReactiveUI;
+
     /// <summary>
     /// Support class for the <see cref="CanvasComponent"/>
     /// </summary>
@@ -53,29 +55,17 @@ namespace COMETwebapp.Components.Viewer.Canvas
         public bool IsMovingScene { get; private set; }
 
         /// <summary>
-        /// Method invoked after each time the component has been rendered. Note that the component does
-        /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
-        /// that would cause an infinite render loop.
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
         /// </summary>
-        /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
-        /// on this component instance; otherwise <c>false</c>.
-        /// </param>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-        /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
-        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
-        /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
-        /// once.
-        /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override void OnInitialized()
         {
-            await base.OnAfterRenderAsync(firstRender);
+            base.OnInitialized();
 
-            if (firstRender)
-            {
-                this.ViewModel.InitializeViewModel();
-            }
+            this.ViewModel.InitializeViewModel();
+
+            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.IsOnChangePrimitiveMode)
+                .Subscribe(_=>this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -109,6 +99,5 @@ namespace COMETwebapp.Components.Viewer.Canvas
         {
             this.IsMovingScene = this.IsMouseDown;
         }
-
     }
 }

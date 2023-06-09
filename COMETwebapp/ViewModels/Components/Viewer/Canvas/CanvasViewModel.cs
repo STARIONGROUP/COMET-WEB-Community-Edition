@@ -24,10 +24,13 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
-    using COMETwebapp.Components.Viewer.PopUps;
+    using COMET.Web.Common.ViewModels.Components;
+
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
+
+    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -46,7 +49,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <summary> 
         /// Gets or sets the PopUp that ask the user if he wants to change the selected primitive before submiting changes 
         /// </summary> 
-        public ConfirmChangeSelectionPopUp ConfirmChangeSelectionPopUp { get; set; }
+        public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IBabylonInterop"/>
@@ -71,12 +74,40 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         private readonly List<SceneObject> temporarySceneObjects = new();
 
         /// <summary>
+        /// Backing field for the <see cref="IsOnChangePrimitiveMode"/> property
+        /// </summary>
+        private bool isOnChangePrimitiveMode;
+
+        /// <summary>
+        /// Gets or sets if the user is about to change the selected primitive
+        /// </summary>
+        public bool IsOnChangePrimitiveMode
+        {
+            get => this.isOnChangePrimitiveMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnChangePrimitiveMode, value);
+        }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="CanvasViewModel"/>
         /// </summary>
         public CanvasViewModel(IBabylonInterop babylonInterop, ISelectionMediator selectionMediator)
         {
             this.BabylonInterop = babylonInterop;
             this.SelectionMediator = selectionMediator;
+
+            this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Alert!",
+                ContentText = "You are about to select another primitive. The changes on the previous one haven't been saved. Do you want to continue?",
+                CancelRenderStyle = ButtonRenderStyle.Danger,
+                ConfirmRenderStyle = ButtonRenderStyle.Success,
+                OnConfirm = new EventCallback(null, async () =>
+                {
+                    await this.SelectSceneObjectUnderMouse();
+                    this.IsOnChangePrimitiveMode = false;
+                }),
+                OnCancel =  new EventCallback(null, () => { this.IsOnChangePrimitiveMode = false; })
+            };
         }
 
         /// <summary>
@@ -104,14 +135,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
                 foreach (var sceneObject in nodesAffected.Select(x => ((TreeNode)x.Node).SceneObject))
                 {
                     await this.SetSceneObjectVisibility(sceneObject, nodeViewModel.IsSceneObjectVisible);
-                }
-            };
-
-            this.ConfirmChangeSelectionPopUp.OnResponse += async (_, response) =>
-            {
-                if (response)
-                {
-                    await this.SelectSceneObjectUnderMouse();
                 }
             };
         }
@@ -142,7 +165,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         {
             if (this.SelectionMediator.SelectedSceneObject is not null && this.SelectionMediator.SceneObjectHasChanges)
             {
-                this.ConfirmChangeSelectionPopUp.Show();
+                this.IsOnChangePrimitiveMode = true;
             }
             else
             {
