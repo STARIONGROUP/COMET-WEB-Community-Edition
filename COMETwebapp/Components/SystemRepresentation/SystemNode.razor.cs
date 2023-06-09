@@ -22,10 +22,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
 namespace COMETwebapp.Components.SystemRepresentation
 {
     using COMETwebapp.ViewModels.Components.Shared;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
+========
+namespace COMETwebapp.Components.Shared
+{
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+   
+    using Microsoft.AspNetCore.Components;
+>>>>>>>> 380fac8 (Change some files location):COMETwebapp/Components/Shared/NodeComponent.razor.cs
     
     using Microsoft.AspNetCore.Components;
 
