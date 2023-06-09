@@ -22,11 +22,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
@@ -56,8 +56,8 @@ namespace COMETwebapp.Model.Primitives
         /// <param name="thickness">The thickness of the <see cref="Torus"/></param>
         public Torus(double diameter, double thickness)
         {
-            Diameter = diameter;
-            Thickness = thickness;
+            this.Diameter = diameter;
+            this.Thickness = thickness;
         }
 
         /// <summary>
@@ -70,11 +70,11 @@ namespace COMETwebapp.Model.Primitives
         /// <param name="thickness">The thickness of the <see cref="Torus"/></param>
         public Torus(double x, double y, double z, double diameter, double thickness)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            Diameter = diameter;
-            Thickness = thickness;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.Diameter = diameter;
+            this.Thickness = thickness;
         }
 
         /// <summary>
@@ -85,13 +85,14 @@ namespace COMETwebapp.Model.Primitives
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
+            
             switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    Diameter = ParameterParser.DoubleParser(valueSet);
+                    this.Diameter = ParameterParser.DoubleParser(valueSet);
                     break;
                 case SceneSettings.ThicknessShortName:
-                    Thickness = ParameterParser.DoubleParser(valueSet);
+                    this.Thickness = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

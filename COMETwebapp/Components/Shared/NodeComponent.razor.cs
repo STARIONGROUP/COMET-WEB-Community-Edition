@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISceneSettings.cs" company="RHEA System S.A.">
+// <copyright file="NodeComponent.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,51 +22,45 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Viewer.Canvas
+namespace COMETwebapp.Components.Shared
 {
+    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+   
+    using Microsoft.AspNetCore.Components;
+    
+    using ReactiveUI;
+
     /// <summary>
-    /// Scene provider
+    /// Class for the node component
     /// </summary>
-    public interface ISceneSettings
+    public partial class NodeComponent
     {
         /// <summary>
-        /// Shape Kind parameter short name
+        /// Gets or sets the <see cref="INodeComponentViewModel"/>
         /// </summary>
-        public const string ShapeKindShortName = "kind";
+        [Parameter]
+        public INodeComponentViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Orientation parameter short name
+        /// Level of the tree. Increases by one for each nested element
         /// </summary>
-        public const string OrientationShortName = "orientation";
-
+        [Parameter]
+        public int Level { get; set; }
+        
         /// <summary>
-        /// Position parameter short name
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        public const string PositionShortName = "coord";
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            this.ViewModel.Level = this.Level;
 
-        /// <summary>
-        /// Width parameter short name
-        /// </summary>
-        public const string WidthShortName = "wid_diameter";
+            this.WhenAnyValue(x => x.ViewModel.IsDrawn,
+                              x => x.ViewModel.IsExpanded,
+                              x => x.ViewModel.IsSelected,
+                              x => x.ViewModel.IsSceneObjectVisible).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
 
-        /// <summary>
-        /// Diameter parameter short name
-        /// </summary>
-        public const string DiameterShortName = WidthShortName;
-
-        /// <summary>
-        /// Height parameter short name
-        /// </summary>
-        public const string HeightShortName = "h";
-
-        /// <summary>
-        /// Length parameter short name
-        /// </summary>
-        public const string LengthShortName = "l";
-
-        /// <summary>
-        /// Thickness parameter short name
-        /// </summary>
-        public const string ThicknessShortName = "thickn";
+        }
     }
 }

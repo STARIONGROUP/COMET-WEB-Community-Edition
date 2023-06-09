@@ -32,10 +32,8 @@ namespace COMETwebapp.Tests.Model.Primitives
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-
-    using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model.Primitives;
-
+    using COMETwebapp.Model.Viewer;
     using NUnit.Framework;
 
     [TestFixture]

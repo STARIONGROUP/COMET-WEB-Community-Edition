@@ -33,8 +33,7 @@ namespace COMETwebapp.Tests.Utilities
     using CDP4Common.Types;
 
     using COMET.Web.Common.Utilities;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     using NUnit.Framework;

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Cube.cs" company="RHEA System S.A.">
+// <copyright file="Disc.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,68 +22,35 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Cube primitive type
+    /// Disc primitive type
     /// </summary>
-    public class Cube : Primitive
+    public class Disc : Primitive
     {
-        /// <summary>
-        /// The width of the cube
-        /// </summary>
-        public double Width { get; private set; }
-
-        /// <summary>
-        /// The height of the cube
-        /// </summary>
-        public double Height { get; private set; }
-
-        /// <summary>
-        /// The depth of the cube
-        /// </summary>
-        public double Depth { get; private set; }
-
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "Cube";
+        public override string Type { get; protected set; } = "Disc";
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cube"/> class
+        /// Radius of the disc
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="depth"></param>
-        public Cube(double width, double height, double depth)
-        {
-            Width = width;
-            Height = height;
-            Depth = depth;
-        }
+        public double Radius { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cube"/> class
+        /// Creates a new instance of type <see cref="Disc"/>
         /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="width">the width of the cube</param>
-        /// <param name="height">the height of the cube</param>
-        /// <param name="depth">the depth of the cube</param>
-        public Cube(double x, double y, double z, double width, double height, double depth)
+        /// <param name="radius">the radius of the disc</param>
+        public Disc(double radius)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            Width = width;
-            Height = height;
-            Depth = depth;
+            this.Radius = radius;
         }
 
         /// <summary>
@@ -91,21 +58,14 @@ namespace COMETwebapp.Model.Primitives
         /// </summary>
         /// <param name="parameterBase">the parameter base related to the property</param>
         /// <param name="valueSet">the value set to be parsed</param>
-
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
-
+            
             switch (parameterBase.ParameterType.ShortName)
             {
-                case SceneSettings.WidthShortName:
-                    Width = ParameterParser.DoubleParser(valueSet);
-                    break;
-                case SceneSettings.HeightShortName:
-                    Height = ParameterParser.DoubleParser(valueSet);
-                    break;
-                case SceneSettings.LengthShortName:
-                    Depth = ParameterParser.DoubleParser(valueSet);
+                case SceneSettings.DiameterShortName:
+                    this.Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
                     break;
             }
         }

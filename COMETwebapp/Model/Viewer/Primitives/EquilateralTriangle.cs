@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TriangularPrism.cs" company="RHEA System S.A.">
+// <copyright file="EquilateralTriangle.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,22 +22,22 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Triangular prism primitive type
+    /// Equilateral Triangle primitive type
     /// </summary>
-    public class TriangularPrism : Primitive
+    public class EquilateralTriangle : Primitive
     {
         /// <summary>
-        /// Basic primitive type
+        /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "TriangularPrism";
+        public override string Type { get; protected set; } = "EquilateralTriangle";
 
         /// <summary>
         /// The radius of the cicumscribed circle
@@ -45,19 +45,12 @@ namespace COMETwebapp.Model.Primitives
         public double Radius { get; set; }
 
         /// <summary>
-        /// The height of the triangular face of the <see cref="TriangularPrism"/>
-        /// </summary>
-        public double Height { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="TriangularPrism"/>
+        /// Creates a new instance of type <see cref="EquilateralTriangle"/>
         /// </summary>
         /// <param name="radius">the size of the circumradius</param>
-        /// <param name="height">the height of the prism</param>
-        public TriangularPrism(double radius, double height)
+        public EquilateralTriangle(double radius)
         {
-            Radius = radius;
-            Height = height;
+            this.Radius = radius;
         }
 
         /// <summary>
@@ -68,13 +61,11 @@ namespace COMETwebapp.Model.Primitives
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
+            
             switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
-                    break;
-                case SceneSettings.HeightShortName:
-                    Height = ParameterParser.DoubleParser(valueSet);
+                    this.Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
                     break;
             }
         }

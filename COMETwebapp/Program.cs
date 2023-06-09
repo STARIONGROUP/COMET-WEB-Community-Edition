@@ -30,9 +30,8 @@ namespace COMETwebapp
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
-
-    using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Model;
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;

@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using System.Numerics;
 

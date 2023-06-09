@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Rectangle.cs" company="RHEA System S.A.">
+// <copyright file="Cylinder.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,40 +22,59 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+   
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Rectangle primitive type
+    /// Cylinder primitive type
     /// </summary>
-    public class Rectangle : Primitive
+    public class Cylinder : Primitive
     {
         /// <summary>
-        /// Basic type name
+        /// Radius of the <see cref="Cylinder"/>
         /// </summary>
-        public override string Type { get; protected set; } = "Rectangle";
+        public double Radius { get; private set; }
 
         /// <summary>
-        /// The width of the rectangle
-        /// </summary>
-        public double Width { get; private set; }
-
-        /// <summary>
-        /// The height of the rectangle
+        /// Height of the <see cref="Cylinder"/>
         /// </summary>
         public double Height { get; private set; }
 
         /// <summary>
-        /// Creates a new instance of type <see cref="Rectangle"/>
+        /// Basic type name
         /// </summary>
-        public Rectangle(double width, double height)
+        public override string Type { get; protected set; } = "Cylinder";
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Cylinder"/> class
+        /// </summary>
+        /// <param name="radius">the radius of the <see cref="Cylinder"/></param>
+        /// <param name="height">the height of the <see cref="Cylinder"/></param>
+        public Cylinder(double radius, double height)
         {
-            Width = width;
-            Height = height;
+            this.Radius = radius;
+            this.Height = height;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Cylinder"/> class
+        /// </summary>
+        /// <param name="x">position along the x axis</param>
+        /// <param name="y">position along the y axis</param>
+        /// <param name="z">position along the z axis</param>
+        /// <param name="radius">the radius of the <see cref="Cylinder"/></param>
+        /// <param name="height">the height of the <see cref="Cylinder"/></param>
+        public Cylinder(double x, double y, double z, double radius, double height)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.Radius = radius;
+            this.Height = height;
         }
 
         /// <summary>
@@ -66,13 +85,14 @@ namespace COMETwebapp.Model.Primitives
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
+
             switch (parameterBase.ParameterType.ShortName)
             {
-                case SceneSettings.WidthShortName:
-                    Width = ParameterParser.DoubleParser(valueSet);
+                case SceneSettings.DiameterShortName:
+                    this.Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
                     break;
                 case SceneSettings.HeightShortName:
-                    Height = ParameterParser.DoubleParser(valueSet);
+                    this.Height = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

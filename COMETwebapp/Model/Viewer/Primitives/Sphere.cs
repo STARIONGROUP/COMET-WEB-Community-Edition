@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="EquilateralTriangle.cs" company="RHEA System S.A.">
+// <copyright file="Sphere.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,35 +22,50 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Equilateral Triangle primitive type
+    /// Sphere primitive type
     /// </summary>
-    public class EquilateralTriangle : Primitive
+    public class Sphere : Primitive
     {
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "EquilateralTriangle";
+        public override string Type { get; protected set; } = "Sphere";
 
         /// <summary>
-        /// The radius of the cicumscribed circle
+        /// The radius of the <see cref="Sphere"/>
         /// </summary>
-        public double Radius { get; set; }
+        public double Radius { get; private set; }
 
         /// <summary>
-        /// Creates a new instance of type <see cref="EquilateralTriangle"/>
+        /// Initializes a new instance of <see cref="Sphere"/> class
         /// </summary>
-        /// <param name="radius">the size of the circumradius</param>
-        public EquilateralTriangle(double radius)
+        /// <param name="radius"></param>
+        public Sphere(double radius)
         {
-            Radius = radius;
+            this.Radius = radius;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Sphere"/> class
+        /// </summary>
+        /// <param name="x">position along the x axis</param>
+        /// <param name="y">position along the y axis</param>
+        /// <param name="z">position along the z axis</param>
+        /// <param name="radius">the radius of the sphere</param>
+        public Sphere(double x, double y, double z, double radius)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.Radius = radius;
         }
 
         /// <summary>
@@ -58,14 +73,14 @@ namespace COMETwebapp.Model.Primitives
         /// </summary>
         /// <param name="parameterBase">the parameter base related to the property</param>
         /// <param name="valueSet">the value set to be parsed</param>
-
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
+            
             switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
+                    this.Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
                     break;
             }
         }

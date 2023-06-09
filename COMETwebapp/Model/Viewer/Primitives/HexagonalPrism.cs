@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Sphere.cs" company="RHEA System S.A.">
+// <copyright file="HexagonalPrism.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,50 +22,42 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Sphere primitive type
+    /// Hexagonal prism primitive type
     /// </summary>
-    public class Sphere : Primitive
+    public class HexagonalPrism : Primitive
     {
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "Sphere";
+        public override string Type { get; protected set; } = "HexagonalPrism";
 
         /// <summary>
-        /// The radius of the <see cref="Sphere"/>
+        /// The radius of the cicumscribed circle
         /// </summary>
-        public double Radius { get; private set; }
+        public double Radius { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Sphere"/> class
+        /// The height of the prism
         /// </summary>
-        /// <param name="radius"></param>
-        public Sphere(double radius)
+        public double Height { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="HexagonalPrism"/>
+        /// </summary>
+        /// <param name="radius">the size of the circumradius</param>
+        /// <param name="height">the height of the prism</param>
+        public HexagonalPrism(double radius, double height)
         {
-            Radius = radius;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="Sphere"/> class
-        /// </summary>
-        /// <param name="x">position along the x axis</param>
-        /// <param name="y">position along the y axis</param>
-        /// <param name="z">position along the z axis</param>
-        /// <param name="radius">the radius of the sphere</param>
-        public Sphere(double x, double y, double z, double radius)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-            Radius = radius;
+            this.Radius = radius;
+            this.Height = height;
         }
 
         /// <summary>
@@ -76,10 +68,14 @@ namespace COMETwebapp.Model.Primitives
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
+
             switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
+                    this.Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
+                    break;
+                case SceneSettings.HeightShortName:
+                    this.Height = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

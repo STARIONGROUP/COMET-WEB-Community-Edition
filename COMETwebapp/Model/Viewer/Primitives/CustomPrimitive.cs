@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Line.cs" company="RHEA System S.A.">
+// <copyright file="CustomPrimitive.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,54 +22,37 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
-    using System.Numerics;
-
     /// <summary>
-    /// Line primitive type
+    /// Custom Primitive type
     /// </summary>
-    public class Line : Primitive
+    public class CustomPrimitive : Primitive
     {
-        /// <summary>
-        /// The first point of the <see cref="Line"/>
-        /// </summary>
-        public Vector3 P0 { get; set; }
-
-        /// <summary>
-        /// The second point of the <see cref="Line"/>
-        /// </summary>
-        public Vector3 P1 { get; set; }
-
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "Line";
+        public override string Type { get; protected set; } = "CustomPrimitive";
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Line"/> class
+        /// The path to the folder of the specified file
         /// </summary>
-        /// <param name="p0">the first point of the line</param>
-        /// <param name="p1">the second point of the line</param>
-        public Line(Vector3 p0, Vector3 p1)
-        {
-            P0 = p0;
-            P1 = p1;
-        }
+        public string Path { get; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Line"/> class
+        /// The name of the specified file
         /// </summary>
-        /// <param name="x0">x coordinate of the first point</param>
-        /// <param name="y0">y coordinate of the first point</param>
-        /// <param name="z0">z coordinate of the first point</param>
-        /// <param name="x1">x coordinate of the second point</param>
-        /// <param name="y1">y coordinate of the second point</param>
-        /// <param name="z1">z coordinate of the second point</param>
-        public Line(float x0, float y0, float z0, float x1, float y1, float z1)
+        public string FileName { get; }
+
+        /// <summary>
+        /// Initializes an instance of <see cref="CustomPrimitive"/> class
+        /// </summary>
+        /// <param name="path">the path to the file</param>
+        /// <param name="fileName">the file name with extension included</param>
+        public CustomPrimitive(string path, string fileName)
         {
-            P0 = new Vector3(x0, y0, z0);
-            P1 = new Vector3(x1, y1, z1);
+            this.Path = path;
+            this.FileName = fileName;
         }
     }
 }

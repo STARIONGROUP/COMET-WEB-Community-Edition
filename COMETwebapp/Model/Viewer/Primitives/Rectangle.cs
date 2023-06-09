@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="HexagonalPrism.cs" company="RHEA System S.A.">
+// <copyright file="Rectangle.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,42 +22,40 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
 
     /// <summary>
-    /// Hexagonal prism primitive type
+    /// Rectangle primitive type
     /// </summary>
-    public class HexagonalPrism : Primitive
+    public class Rectangle : Primitive
     {
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "HexagonalPrism";
+        public override string Type { get; protected set; } = "Rectangle";
 
         /// <summary>
-        /// The radius of the cicumscribed circle
+        /// The width of the rectangle
         /// </summary>
-        public double Radius { get; set; }
+        public double Width { get; private set; }
 
         /// <summary>
-        /// The height of the prism
+        /// The height of the rectangle
         /// </summary>
-        public double Height { get; set; }
+        public double Height { get; private set; }
 
         /// <summary>
-        /// Creates a new instance of type <see cref="HexagonalPrism"/>
+        /// Creates a new instance of type <see cref="Rectangle"/>
         /// </summary>
-        /// <param name="radius">the size of the circumradius</param>
-        /// <param name="height">the height of the prism</param>
-        public HexagonalPrism(double radius, double height)
+        public Rectangle(double width, double height)
         {
-            Radius = radius;
-            Height = height;
+            this.Width = width;
+            this.Height = height;
         }
 
         /// <summary>
@@ -68,14 +66,14 @@ namespace COMETwebapp.Model.Primitives
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
-
+            
             switch (parameterBase.ParameterType.ShortName)
             {
-                case SceneSettings.DiameterShortName:
-                    Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
+                case SceneSettings.WidthShortName:
+                    this.Width = ParameterParser.DoubleParser(valueSet);
                     break;
                 case SceneSettings.HeightShortName:
-                    Height = ParameterParser.DoubleParser(valueSet);
+                    this.Height = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

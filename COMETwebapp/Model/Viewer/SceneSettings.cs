@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Viewer.Canvas
+namespace COMETwebapp.Model.Viewer
 {
     /// <summary>
     /// Class to access the resources of a Scene 

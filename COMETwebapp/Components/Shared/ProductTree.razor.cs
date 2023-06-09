@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Viewer.Canvas
+namespace COMETwebapp.Components.Shared
 {
     using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     

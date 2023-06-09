@@ -33,10 +33,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.Types;
 
     using COMET.Web.Common.Services.SessionManagement;
-
-    using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
 

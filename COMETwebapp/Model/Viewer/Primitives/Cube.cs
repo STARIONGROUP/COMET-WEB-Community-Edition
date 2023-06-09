@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Cone.cs" company="RHEA System S.A.">
+// <copyright file="Cube.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,61 +22,68 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
-
+    
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Utilities;
-    using System.Collections.Generic;
-
-    using COMETwebapp.Components.Viewer.Canvas;
 
     /// <summary>
-    /// Cone primitive type
+    /// Cube primitive type
     /// </summary>
-    public class Cone : Primitive
+    public class Cube : Primitive
     {
         /// <summary>
-        /// The radius of the base of the cone
+        /// The width of the cube
         /// </summary>
-        public double Radius { get; private set; }
+        public double Width { get; private set; }
 
         /// <summary>
-        /// The height of the cone
+        /// The height of the cube
         /// </summary>
         public double Height { get; private set; }
 
         /// <summary>
-        /// Basic type name
+        /// The depth of the cube
         /// </summary>
-        public override string Type { get; protected set; } = "Cone";
+        public double Depth { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cone" class/>
+        /// Basic type name
         /// </summary>
-        /// <param name="radius">the radius of the base</param>
-        /// <param name="height">the height of the cone</param>
-        public Cone(double radius, double height)
+        public override string Type { get; protected set; } = "Cube";
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Cube"/> class
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="depth"></param>
+        public Cube(double width, double height, double depth)
         {
-            Radius = radius;
-            Height = height;
+            this.Width = width;
+            this.Height = height;
+            this.Depth = depth;
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cone" class/>
+        /// Initializes a new instance of <see cref="Cube"/> class
         /// </summary>
         /// <param name="x">position along the x axis</param>
         /// <param name="y">position along the y axis</param>
         /// <param name="z">position along the z axis</param>
-        /// <param name="radius">the radius of the base</param>
-        /// <param name="height">the height of the cone</param>
-        public Cone(double x, double y, double z, double radius, double height)
+        /// <param name="width">the width of the cube</param>
+        /// <param name="height">the height of the cube</param>
+        /// <param name="depth">the depth of the cube</param>
+        public Cube(double x, double y, double z, double width, double height, double depth)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            Radius = radius;
-            Height = height;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.Width = width;
+            this.Height = height;
+            this.Depth = depth;
         }
 
         /// <summary>
@@ -90,11 +97,14 @@ namespace COMETwebapp.Model.Primitives
 
             switch (parameterBase.ParameterType.ShortName)
             {
-                case SceneSettings.DiameterShortName:
-                    Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
+                case SceneSettings.WidthShortName:
+                    this.Width = ParameterParser.DoubleParser(valueSet);
                     break;
                 case SceneSettings.HeightShortName:
-                    Height = ParameterParser.DoubleParser(valueSet);
+                    this.Height = ParameterParser.DoubleParser(valueSet);
+                    break;
+                case SceneSettings.LengthShortName:
+                    this.Depth = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

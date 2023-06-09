@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Cylinder.cs" company="RHEA System S.A.">
+// <copyright file="Cone.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,59 +22,59 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model.Primitives
+namespace COMETwebapp.Model.Viewer.Primitives
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Utilities;
+    using COMETwebapp.Model.Viewer;
 
     /// <summary>
-    /// Cylinder primitive type
+    /// Cone primitive type
     /// </summary>
-    public class Cylinder : Primitive
+    public class Cone : Primitive
     {
         /// <summary>
-        /// Radius of the <see cref="Cylinder"/>
+        /// The radius of the base of the cone
         /// </summary>
         public double Radius { get; private set; }
 
         /// <summary>
-        /// Height of the <see cref="Cylinder"/>
+        /// The height of the cone
         /// </summary>
         public double Height { get; private set; }
 
         /// <summary>
         /// Basic type name
         /// </summary>
-        public override string Type { get; protected set; } = "Cylinder";
+        public override string Type { get; protected set; } = "Cone";
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cylinder"/> class
+        /// Initializes a new instance of <see cref="Cone" class/>
         /// </summary>
-        /// <param name="radius">the radius of the <see cref="Cylinder"/></param>
-        /// <param name="height">the height of the <see cref="Cylinder"/></param>
-        public Cylinder(double radius, double height)
+        /// <param name="radius">the radius of the base</param>
+        /// <param name="height">the height of the cone</param>
+        public Cone(double radius, double height)
         {
-            Radius = radius;
-            Height = height;
+            this.Radius = radius;
+            this.Height = height;
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cylinder"/> class
+        /// Initializes a new instance of <see cref="Cone" class/>
         /// </summary>
         /// <param name="x">position along the x axis</param>
         /// <param name="y">position along the y axis</param>
         /// <param name="z">position along the z axis</param>
-        /// <param name="radius">the radius of the <see cref="Cylinder"/></param>
-        /// <param name="height">the height of the <see cref="Cylinder"/></param>
-        public Cylinder(double x, double y, double z, double radius, double height)
+        /// <param name="radius">the radius of the base</param>
+        /// <param name="height">the height of the cone</param>
+        public Cone(double x, double y, double z, double radius, double height)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            Radius = radius;
-            Height = height;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.Radius = radius;
+            this.Height = height;
         }
 
         /// <summary>
@@ -82,7 +82,6 @@ namespace COMETwebapp.Model.Primitives
         /// </summary>
         /// <param name="parameterBase">the parameter base related to the property</param>
         /// <param name="valueSet">the value set to be parsed</param>
-
         public override void ParseParameter(ParameterBase parameterBase, IValueSet valueSet)
         {
             base.ParseParameter(parameterBase, valueSet);
@@ -90,10 +89,10 @@ namespace COMETwebapp.Model.Primitives
             switch (parameterBase.ParameterType.ShortName)
             {
                 case SceneSettings.DiameterShortName:
-                    Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
+                    this.Radius = ParameterParser.DoubleParser(valueSet) / 2.0;
                     break;
                 case SceneSettings.HeightShortName:
-                    Height = ParameterParser.DoubleParser(valueSet);
+                    this.Height = ParameterParser.DoubleParser(valueSet);
                     break;
             }
         }

@@ -34,8 +34,7 @@ namespace COMETwebapp.Utilities
     using COMET.Web.Common.Model;
 
     using COMETwebapp.Extensions;
-    using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Model.Viewer.Primitives;
 
     /// <summary>
     /// Class that contains the common parsers used for the <see cref="ParameterBase"/>
