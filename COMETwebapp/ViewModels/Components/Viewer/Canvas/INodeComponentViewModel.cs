@@ -22,11 +22,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using COMETwebapp.Model;
-using Microsoft.AspNetCore.Components;
-
 namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
 {
+    using COMETwebapp.Model;
+
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
     /// ViewModel for that handle information related to <see cref="TreeNode"/> inside a tree
     /// </summary>
@@ -38,9 +39,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         int Level { get; set; }
 
         /// <summary>
-        /// Gets or sets the parent of this <see cref="NodeComponentViewModel"/>
+        /// Gets the parent of this <see cref="INodeComponentViewModel"/>
         /// </summary>
-        INodeComponentViewModel Parent { get; set; }
+        INodeComponentViewModel Parent { get; }
 
         /// <summary>
         /// Field for containing the children of this <see cref="INodeComponentViewModel"/>
@@ -73,7 +74,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         bool IsSceneObjectVisible { get; set; }
 
         /// <summary>
-        ///     The <see cref="EventCallback" /> to call on node selection
+        /// The <see cref="EventCallback" /> to call on node selection
         /// </summary>
         EventCallback<SystemNode> OnSelect { get; set; }
 
@@ -131,5 +132,37 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// </summary>
         /// <param name="node">the selected <see cref="INodeComponentViewModel"/></param>
         void TreeNodeVisibilityChanged(INodeComponentViewModel node);
+
+        /// <summary>
+        /// Gets if this method is the first child.
+        /// </summary>
+        /// <returns>true if it's the first child, or last and the parent only contains this node, false otherwise.</returns>
+        bool IsFirstChild();
+
+        /// <summary>
+        /// Gets if this method is the last child.
+        /// </summary>
+        /// <returns>true if it's the last child, or first and the parent only contains this node, false otherwise.</returns>
+        bool IsLastChild();
+
+        /// <summary>
+        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy by the <see cref="numberOfLevels"/> specified
+        /// </summary>
+        /// <returns>the <see cref="TreeNode"/> or null if the ascendant can't be computed</returns>
+        INodeComponentViewModel GetAscendant(int numberOfLevels);
+
+        /// <summary>
+        /// Gets if the <see cref="nodeViewModel"/> is direct child of this node
+        /// </summary>
+        /// <param name="nodeViewModel">the node to check</param>
+        /// <returns>true if it's direct child, false otherwise</returns>
+        bool IsDirectChild(INodeComponentViewModel nodeViewModel);
+
+        /// <summary>
+        /// Gets if the <see cref="nodeViewModel"/> is descendant of this node
+        /// </summary>
+        /// <param name="nodeViewModel">the node to check</param>
+        /// <returns>true if it's descendant, false otherwise</returns>
+        bool IsDescendant(INodeComponentViewModel nodeViewModel);
     }
 }

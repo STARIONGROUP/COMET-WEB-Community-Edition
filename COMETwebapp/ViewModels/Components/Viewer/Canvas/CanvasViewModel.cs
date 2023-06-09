@@ -140,16 +140,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns></returns>
         public async Task HandleMouseUp()
         {
-            if (this.SelectionMediator.SelectedSceneObject is not null)
+            if (this.SelectionMediator.SelectedSceneObject is not null && this.SelectionMediator.SceneObjectHasChanges)
             {
-                if (this.SelectionMediator.SceneObjectHasChanges)
-                {
-                    this.ConfirmChangeSelectionPopUp.Show();
-                }
-                else
-                {
-                    await this.SelectSceneObjectUnderMouse();
-                }
+                this.ConfirmChangeSelectionPopUp.Show();
             }
             else
             {

@@ -1,11 +1,9 @@
-﻿
-#product-tree-title {
+﻿#product-tree-title {
     background: #eaecee;
     padding: 2%;
 }
 
 #product-tree-container {
-    border: 1px solid #eaecee;
     margin: auto;
     margin: 0;
     padding: 0;
@@ -15,6 +13,7 @@
 #product-tree-nodes-section {
     overflow-x: auto;
     overflow-y: auto;
+    position: relative;
 }
 
 #product-tree-top-section {

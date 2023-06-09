@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
@@ -146,13 +148,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>this <see cref="INodeComponentViewModel"/></returns>
         public INodeComponentViewModel AddChild(INodeComponentViewModel nodeViewModel)
         {
-            if(nodeViewModel is not null)
+            if (nodeViewModel is not NodeComponentViewModel node)
             {
-                nodeViewModel.Parent = this;
-                this.Children.Add(nodeViewModel);
-
-                this.Node.AddChild(nodeViewModel.Node);
+                throw new ArgumentNullException(nameof(nodeViewModel));
             }
+
+            node.Parent = this;
+            this.Children.Add(node);
+
+            this.Node.AddChild(node.Node);
 
             return this;
         }
@@ -164,13 +168,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         /// <returns>this <see cref="INodeComponentViewModel"/></returns>
         public INodeComponentViewModel RemoveChild(INodeComponentViewModel nodeViewModel)
         {
-            if (nodeViewModel is not null)
+            if (nodeViewModel is not NodeComponentViewModel node)
             {
-                nodeViewModel.Parent = null;
-                this.Children.Remove(nodeViewModel);
-
-                this.Node.RemoveChild(nodeViewModel.Node);
+                throw new ArgumentNullException(nameof(nodeViewModel));
             }
+
+            node.Parent = null;
+            this.Children.Remove(node);
+
+            this.Node.RemoveChild(node.Node);
 
             return this;
         }
@@ -300,6 +306,92 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         {
             this.StopClickPropagation = true;
             this.SelectionMediator.RaiseOnTreeVisibilityChanged(nodeViewModel);
+        }
+
+        /// <summary>
+        /// Gets if this method is the first child.
+        /// </summary>
+        /// <returns>true if it's the first child, or last and the parent only contains this node, false otherwise.</returns>
+        public bool IsFirstChild()
+        {
+            if (this.Parent is null)
+            {
+                return true;
+            }
+
+            return this.Parent.GetChildren().IndexOf(this) == 0;
+        }
+
+        /// <summary>
+        /// Gets if this method is the last child.
+        /// </summary>
+        /// <returns>true if it's the last child, or first and the parent only contains this node, false otherwise.</returns>
+        public bool IsLastChild()
+        {
+            if (this.Parent is null)
+            {
+                return true;
+            }
+
+            return this.Parent.GetChildren().Last() == this;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TreeNode"/> that is on top of the hierarchy by the <see cref="numberOfLevels"/> specified
+        /// </summary>
+        /// <returns>the <see cref="TreeNode"/> or null if the ascendant can't be computed</returns>
+        public INodeComponentViewModel GetAscendant(int numberOfLevels)
+        {
+            if (numberOfLevels == 0)
+            {
+                return null;
+            }
+
+            var levelAscended = 1;
+            var currentParent = this.Parent;
+
+            while (currentParent is not null && levelAscended < numberOfLevels)
+            {
+                if (currentParent.Parent is null)
+                {
+                    return currentParent;
+                }
+
+                levelAscended++;
+                currentParent = currentParent.Parent;
+            }
+
+            return currentParent;
+        }
+
+        /// <summary>
+        /// Gets if the <see cref="nodeViewModel"/> is direct child of this node
+        /// </summary>
+        /// <param name="nodeViewModel">the node to check</param>
+        /// <returns>true if it's direct child, false otherwise</returns>
+        public bool IsDirectChild(INodeComponentViewModel nodeViewModel)
+        {
+            if (this == nodeViewModel)
+            {
+                throw new NotSupportedException("The node can't be child of itself.");
+            }
+
+            return this.GetChildren().Contains(nodeViewModel);
+        }
+
+        /// <summary>
+        /// Gets if the <see cref="nodeViewModel"/> is descendant of this node
+        /// </summary>
+        /// <param name="nodeViewModel">the node to check</param>
+        /// <returns>true if it's descendant, false otherwise</returns>
+        public bool IsDescendant(INodeComponentViewModel nodeViewModel)
+        {
+            if (this == nodeViewModel)
+            {
+                throw new NotSupportedException("The node can't be descendant of itself.");
+            }
+
+            return this.GetFlatListOfDescendants(false).Contains(nodeViewModel);
         }
     }
 }
