@@ -66,20 +66,20 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
             var selectionMediator = new SelectionMediator();
             
-            var rootNode = new TreeNode(new SceneObject(null)) { Title = "rootNode" };
-            var rootNodeVM = new NodeComponentViewModel(rootNode, selectionMediator);
+            var rootNode = new ViewerNode(new SceneObject(null)) { Title = "rootBaseNode" };
+            var rootNodeVM = new BaseNodeViewModel(rootNode, selectionMediator);
 
-            var node1 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
-            var node2 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "second" };
-            var node3 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "third" };
-            var node4 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fourth" };
-            var node5 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fifth" };
+            var node1 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
+            var node2 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "second" };
+            var node3 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "third" };
+            var node4 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fourth" };
+            var node5 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fifth" };
             
-            var nodeVM1 = new NodeComponentViewModel(node1, selectionMediator);
-            var nodeVM2 = new NodeComponentViewModel(node2, selectionMediator);
-            var nodeVM3 = new NodeComponentViewModel(node3, selectionMediator);
-            var nodeVM4 = new NodeComponentViewModel(node4, selectionMediator);
-            var nodeVM5 = new NodeComponentViewModel(node5, selectionMediator);
+            var nodeVM1 = new BaseNodeViewModel(node1, selectionMediator);
+            var nodeVM2 = new BaseNodeViewModel(node2, selectionMediator);
+            var nodeVM3 = new BaseNodeViewModel(node3, selectionMediator);
+            var nodeVM4 = new BaseNodeViewModel(node4, selectionMediator);
+            var nodeVM5 = new BaseNodeViewModel(node5, selectionMediator);
 
             nodeVM1.AddChild(nodeVM2);
             nodeVM1.AddChild(nodeVM3);

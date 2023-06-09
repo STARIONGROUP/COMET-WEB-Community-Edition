@@ -85,8 +85,4 @@
       <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="ViewModels\Components\Viewer\Canvas\" />
-    </ItemGroup>
-
 </Project>

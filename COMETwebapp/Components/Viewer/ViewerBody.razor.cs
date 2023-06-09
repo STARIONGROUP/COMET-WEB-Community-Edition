@@ -27,11 +27,9 @@ namespace COMETwebapp.Components.Viewer
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities;
 
-    using COMETwebapp.Components.Viewer.Canvas;
-    using COMETwebapp.Extensions;
-    using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.AspNetCore.Components;
 
@@ -45,7 +43,7 @@ namespace COMETwebapp.Components.Viewer
         /// <summary>
         /// The reference to the <see cref="CanvasComponent" /> component
         /// </summary>
-        public CanvasComponent CanvasComponent { get; private set; }
+        public Canvas3D CanvasComponent { get; private set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -101,11 +99,11 @@ namespace COMETwebapp.Components.Viewer
         }
 
         /// <summary>
-        /// Repopulates the scene starting from the passed <see cref="TreeNode" />
+        /// Repopulates the scene starting from the passed <see cref="ViewerNode" />
         /// </summary>
-        /// <param name="rootNode">the top node of the hierarchy that needs to be on scene</param>
+        /// <param name="rootBaseNode">the root node of the tree</param>
         /// <returns>an asynchronous operation</returns>
-        private async Task RepopulateScene(INodeComponentViewModel rootNode)
+        private async Task RepopulateScene(ViewerNodeViewModel rootBaseNode)
         {
             if (this.CanvasComponent == null)
             {
@@ -115,7 +113,9 @@ namespace COMETwebapp.Components.Viewer
             this.ViewModel.IsLoading = true;
             await this.CanvasComponent.ViewModel.ClearScene();
 
-            var sceneObjects = rootNode.GetFlatListOfDescendants().Where(x => x.Node is TreeNode treeNode && treeNode.SceneObject.Primitive is not null).Select(x => ((TreeNode)x.Node).SceneObject).ToList();
+            var sceneObjects = rootBaseNode.GetFlatListOfDescendants()
+                                .Where(x => x.SceneObject.Primitive is not null)
+                                .Select(x => x.SceneObject).ToList();
 
             foreach (var sceneObject in sceneObjects)
             {

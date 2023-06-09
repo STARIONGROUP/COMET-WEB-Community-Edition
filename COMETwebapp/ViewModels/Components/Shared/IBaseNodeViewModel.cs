@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IProductTreeViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="IBaseNodeViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -24,53 +24,34 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Shared;
-    using COMETwebapp.Enumerations;
-
     /// <summary>
-    /// View Model for building the product tree
+    /// ViewModel that handle information related to <see cref="IBaseNodeViewModel"/> inside a tree
     /// </summary>
-    public interface IProductTreeViewModel<T>
+    public interface IBaseNodeViewModel
     {
         /// <summary>
-        /// Gets or sets the filter options for the tree
+        /// Level of the tree. Increases by one for each nested element
         /// </summary>
-        IReadOnlyList<TreeFilter> TreeFilters { get; }
+        public int Level { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected filter option
+        /// Gets or sets the title of this <see cref="BaseNodeViewModel{T}"/>
         /// </summary>
-        TreeFilter SelectedFilter { get; set; }
+        public string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets the search text used for filtering the tree
+        /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is expanded
         /// </summary>
-        string SearchText { get; set; }
+        public bool IsExpanded { get; set; }
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="ProductTree"/>
+        /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is drawn
         /// </summary>
-        T RootViewModel { get; set; }
+        public bool IsDrawn { get; set; }
 
         /// <summary>
-        /// Event for when the filter on the tree changes
+        /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is selected
         /// </summary>
-        void OnFilterChanged();
-
-        /// <summary>
-        /// Event for when the text of the search filter is changing
-        /// </summary>
-        void OnSearchFilterChange();
-
-        /// <summary>
-        /// Creates the product tree
-        /// </summary>
-        /// <param name="productTreeElements">the product tree elements</param>
-        /// <param name="selectedOption">the selected option</param>
-        /// <param name="selectedActualFiniteStates">the selected states</param>
-        /// <returns>the root baseNode of the tree or null if the tree can not be created</returns>
-        T CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates);
+        public bool IsSelected { get; set; }
     }
 }

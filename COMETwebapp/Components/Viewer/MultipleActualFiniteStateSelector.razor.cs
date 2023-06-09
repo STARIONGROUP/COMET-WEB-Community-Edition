@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.Components.Viewer
 {
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.AspNetCore.Components;
 

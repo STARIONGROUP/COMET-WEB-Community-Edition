@@ -30,8 +30,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     /// <summary>
@@ -55,9 +53,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IProductTreeViewModel"/>
+        /// Gets or sets the <see cref="ViewerProductTreeViewModel"/>
         /// </summary>
-        IProductTreeViewModel ProductTreeViewModel { get; }
+        ViewerProductTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="ICanvasViewModel"/>

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NodeComponent.razor.cs" company="RHEA System S.A.">
+// <copyright file="ViewerNode.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -22,24 +22,24 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Shared
+namespace COMETwebapp.Components.Viewer
 {
     using COMETwebapp.ViewModels.Components.Shared;
-
+    using COMETwebapp.ViewModels.Components.Viewer;
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     /// <summary>
-    /// Class for the node component
+    /// Class for the baseNode component
     /// </summary>
-    public partial class NodeComponent
+    public partial class ViewerNode
     {
         /// <summary>
-        /// Gets or sets the <see cref="INodeComponentViewModel"/>
+        /// Gets or sets the <see cref="IBaseNodeViewModel"/>
         /// </summary>
         [Parameter]
-        public INodeComponentViewModel ViewModel { get; set; }
+        public ViewerNodeViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Level of the tree. Increases by one for each nested element

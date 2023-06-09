@@ -19,8 +19,8 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@    using COMETwebapp.Utilities
-@    using COMETwebapp.Extensions
+@using COMETwebapp.Utilities
+@using COMETwebapp.Extensions
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.Viewer.IViewerBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
@@ -32,10 +32,10 @@
         </div> 
         <div id="gridParent">
             <div id="leftColumn">
-                <ProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
+                <ViewerProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
             </div>
             <div id="center-container">
-                <CanvasComponent @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel" />
+                <Canvas3D @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel" />
             </div>
             <div id="rightColumn">
                 <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel" />

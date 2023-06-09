@@ -49,12 +49,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
     public class NodeComponentViewModelTestFixture
     {
         private TestContext context;
-        private INodeComponentViewModel rootNodeVM;
-        private INodeComponentViewModel node1VM;
-        private INodeComponentViewModel node2VM;
-        private INodeComponentViewModel node3VM;
-        private INodeComponentViewModel node4VM;
-        private INodeComponentViewModel node5VM;
+        private IBaseNodeViewModel rootBaseNodeVm;
+        private IBaseNodeViewModel node1VM;
+        private IBaseNodeViewModel node2VM;
+        private IBaseNodeViewModel node3VM;
+        private IBaseNodeViewModel node4VM;
+        private IBaseNodeViewModel node5VM;
         private Mock<ISelectionMediator> selectionMediator;
 
         [SetUp]
@@ -63,25 +63,25 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
             this.context = new TestContext();
             this.selectionMediator = new Mock<ISelectionMediator>();
 
-            var treeNode = new TreeNode(new SceneObject(new Sphere(1)));
+            var treeNode = new ViewerNode(new SceneObject(new Sphere(1)));
 
-            var rootNode = new TreeNode(new SceneObject(null)) { Title = "Loft" };
-            var node1 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "Bus" };
-            var node2 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "LargeAreaDetector1" };
-            var node3 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "OpticalBench" };
-            var node4 = new TreeNode(new SceneObject(new Cube(1, 1, 1))) { Title = "StructuralTower" };
-            var node5 = new TreeNode(new SceneObject(null)) { Title = "WideFieldMonitor" };
+            var rootNode = new ViewerNode(new SceneObject(null)) { Title = "Loft" };
+            var node1 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "Bus" };
+            var node2 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "LargeAreaDetector1" };
+            var node3 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "OpticalBench" };
+            var node4 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "StructuralTower" };
+            var node5 = new ViewerNode(new SceneObject(null)) { Title = "WideFieldMonitor" };
 
-            this.rootNodeVM = new NodeComponentViewModel(rootNode, this.selectionMediator.Object);
-            this.node1VM = new NodeComponentViewModel(node1, this.selectionMediator.Object);
-            this.node2VM = new NodeComponentViewModel(node2, this.selectionMediator.Object);
-            this.node3VM = new NodeComponentViewModel(node3, this.selectionMediator.Object);
-            this.node4VM = new NodeComponentViewModel(node4, this.selectionMediator.Object);
-            this.node5VM = new NodeComponentViewModel(node5, this.selectionMediator.Object);
+            this.rootBaseNodeVm = new BaseNodeViewModel(rootNode, this.selectionMediator.Object);
+            this.node1VM = new BaseNodeViewModel(node1, this.selectionMediator.Object);
+            this.node2VM = new BaseNodeViewModel(node2, this.selectionMediator.Object);
+            this.node3VM = new BaseNodeViewModel(node3, this.selectionMediator.Object);
+            this.node4VM = new BaseNodeViewModel(node4, this.selectionMediator.Object);
+            this.node5VM = new BaseNodeViewModel(node5, this.selectionMediator.Object);
 
-            this.rootNodeVM.AddChild(this.node1VM);
+            this.rootBaseNodeVm.AddChild(this.node1VM);
             this.node1VM.AddChild(this.node2VM);
-            this.rootNodeVM.AddChild(this.node3VM);
+            this.rootBaseNodeVm.AddChild(this.node3VM);
             this.node3VM.AddChild(this.node4VM);
             this.node4VM.AddChild(this.node5VM);
         }
@@ -91,15 +91,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.rootNodeVM.Parent, Is.Null);
+                Assert.That(this.rootBaseNodeVm.Parent, Is.Null);
                 Assert.That(this.node1VM.Parent, Is.Not.Null);
                 Assert.That(this.node2VM.Parent, Is.Not.Null);
                 Assert.That(this.node3VM.Parent, Is.Not.Null);
                 Assert.That(this.node4VM.Parent, Is.Not.Null);
                 Assert.That(this.node5VM.Parent, Is.Not.Null);
 
-                Assert.That(this.rootNodeVM.Children, Has.Count.EqualTo(2));
-                Assert.That(this.rootNodeVM.Node.GetChildren(), Has.Count.EqualTo(2));
+                Assert.That(this.rootBaseNodeVm.Children, Has.Count.EqualTo(2));
+                Assert.That(this.rootBaseNodeVm.Node.GetChildren(), Has.Count.EqualTo(2));
 
                 Assert.That(this.node1VM.Children, Has.Count.EqualTo(1));
                 Assert.That(this.node1VM.Node.GetChildren(), Has.Count.EqualTo(1));
@@ -121,36 +121,36 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         [Test]
         public void VerifyThatChildCanBeAdded()
         {
-            var treeNode = new TreeNode(new SceneObject(new Cone(1, 1)));
-            var childVM = new NodeComponentViewModel(treeNode, this.selectionMediator.Object);
+            var treeNode = new ViewerNode(new SceneObject(new Cone(1, 1)));
+            var childVM = new BaseNodeViewModel(treeNode, this.selectionMediator.Object);
 
-            this.rootNodeVM.AddChild(childVM);
+            this.rootBaseNodeVm.AddChild(childVM);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.rootNodeVM.Parent, Is.Null);
-                Assert.That(this.rootNodeVM.Children, Has.Count.EqualTo(3));
-                Assert.That(this.rootNodeVM.Node.GetChildren(), Has.Count.EqualTo(3));
-                Assert.That(this.rootNodeVM.Node.GetParentNode(), Is.Null);
+                Assert.That(this.rootBaseNodeVm.Parent, Is.Null);
+                Assert.That(this.rootBaseNodeVm.Children, Has.Count.EqualTo(3));
+                Assert.That(this.rootBaseNodeVm.Node.GetChildren(), Has.Count.EqualTo(3));
+                Assert.That(this.rootBaseNodeVm.Node.GetParentNode(), Is.Null);
                 Assert.That(childVM.Parent, Is.Not.Null);
                 Assert.That(childVM.Children, Is.Empty);
                 Assert.That(childVM.Node.GetChildren(), Is.Empty);
-                Assert.That(childVM.GetParentNode(), Is.EqualTo(this.rootNodeVM));
-                Assert.That(childVM.Node.GetParentNode(), Is.EqualTo(this.rootNodeVM.Node));
+                Assert.That(childVM.GetParentNode(), Is.EqualTo(this.rootBaseNodeVm));
+                Assert.That(childVM.Node.GetParentNode(), Is.EqualTo(this.rootBaseNodeVm.Node));
             });
         }
 
         [Test]
         public void VerifyThatChildCanBeRemoved()
         {
-            this.rootNodeVM.RemoveChild(this.node3VM);
+            this.rootBaseNodeVm.RemoveChild(this.node3VM);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.rootNodeVM.Parent, Is.Null);
-                Assert.That(this.rootNodeVM.Children, Has.Count.EqualTo(1));
-                Assert.That(this.rootNodeVM.Node.GetChildren(), Has.Count.EqualTo(1));
-                Assert.That(this.rootNodeVM.Node.GetParentNode(), Is.Null);
+                Assert.That(this.rootBaseNodeVm.Parent, Is.Null);
+                Assert.That(this.rootBaseNodeVm.Children, Has.Count.EqualTo(1));
+                Assert.That(this.rootBaseNodeVm.Node.GetChildren(), Has.Count.EqualTo(1));
+                Assert.That(this.rootBaseNodeVm.Node.GetParentNode(), Is.Null);
                 Assert.That(this.node3VM.Parent, Is.Null);
                 Assert.That(this.node3VM.Children, Is.Not.Empty);
                 Assert.That(this.node3VM.Node.GetChildren(), Is.Not.Empty);
@@ -171,16 +171,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
                 Assert.That(result1, Is.Not.Null);
                 Assert.That(result2, Is.Not.Null);
                 Assert.That(result3, Is.Not.Null);
-                Assert.That(result1, Is.EqualTo(this.rootNodeVM));
-                Assert.That(result2, Is.EqualTo(this.rootNodeVM));
-                Assert.That(result3, Is.EqualTo(this.rootNodeVM));
+                Assert.That(result1, Is.EqualTo(this.rootBaseNodeVm));
+                Assert.That(result2, Is.EqualTo(this.rootBaseNodeVm));
+                Assert.That(result3, Is.EqualTo(this.rootBaseNodeVm));
             });
         }
 
         [Test]
         public void VerifyThatGetFlatListOfDescendantsWorks()
         {
-            var descendants = this.rootNodeVM.GetFlatListOfDescendants(false);
+            var descendants = this.rootBaseNodeVm.GetFlatListOfDescendants(false);
 
             Assert.Multiple(() =>
             {

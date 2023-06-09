@@ -29,9 +29,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
-    using COMETwebapp.Model;
-    using COMETwebapp.ViewModels.Components.Shared;
-
     /// <summary>
     /// View Model that handle the logic for the System Representation application
     /// </summary>
@@ -45,12 +42,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Represents the RootNode of the tree
         /// </summary>
-        SystemNode RootNode { get; set; }
+        SystemNodeViewModel RootNode { get; set; }
 
         /// <summary>
-        /// The <see cref="IProductTreeViewModel" />
+        /// The <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
-        IProductTreeViewModel ProductTreeViewModel { get; }
+        SystemRepresentationTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -63,14 +60,14 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         List<ElementBase> Elements { get; set; }
 
         /// <summary>
-        /// set the selected <see cref="SystemNode" />
+        /// set the selected <see cref="SystemNodeViewModel" />
         /// </summary>
-        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
+        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        void SelectElement(SystemNode selectedNode);
+        void SelectElement(SystemNodeViewModel selectedNode);
 
         /// <summary>
-        /// Apply all the filters on the <see cref="ISystemTreeViewModel" />
+        /// Apply all the filters on the <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task ApplyFilters();

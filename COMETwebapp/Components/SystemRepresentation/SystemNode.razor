@@ -1,5 +1,4 @@
-﻿@    using COMETwebapp.Model;
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
     Copyright (c) 2023 RHEA System S.A.
 
     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -20,8 +19,9 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+
 @{
-    @if (this.ViewModel is null || this.ViewModel.Node is null)
+    @if (this.ViewModel is null)
     {
         return;
     }
@@ -67,7 +67,7 @@
 
             <div class="node-inner-content" style="margin-left: calc(20px * @this.ViewModel.Level)">
                 <hr>
-                @if (this.ViewModel.Node.GetChildren().Count > 0)
+                @if (this.ViewModel.GetChildren().Count > 0)
                 {
                     @if (this.ViewModel.IsExpanded)
                     {
@@ -79,22 +79,7 @@
                     }
                 }
 
-                <p class="node-text">@this.ViewModel.Node.Title</p>
-                
-                @if (this.ViewModel.Node is TreeNode treeNode)
-                {
-                    @if (treeNode.SceneObject.Primitive is not null)
-                    {
-                        @if (this.ViewModel.IsSceneObjectVisible)
-                        {
-                            <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
-                        }
-                        else
-                        {
-                            <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel); })" />
-                        }
-                    }
-                }
+                <p class="node-text">@this.ViewModel.Title</p>
             </div>
         </div>
     }    
@@ -105,7 +90,7 @@
             @foreach (var child in this.ViewModel.GetChildren())
             {
                 var level = this.ViewModel.Level + 1;
-                <NodeComponent ViewModel="@child" Level="@level"/>
+                <SystemNode ViewModel="@child" Level="@level"/>
             }
         </div>
     }

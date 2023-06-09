@@ -116,5 +116,20 @@ namespace COMETwebapp.Extensions
 
             return filteredElements;
         }
+
+        /// <summary>
+        /// Queries the element usages children for an <see cref="ElementBase"/>
+        /// </summary>
+        /// <param name="elementBase">the <see cref="ElementBase"/></param>
+        /// <returns>a collection of <see cref="ElementUsage"/></returns>
+        public static IEnumerable<ElementUsage> QueryElementUsageChildrenFromElementBase(this ElementBase elementBase)
+        {
+            return elementBase switch
+            {
+                ElementDefinition elementDefinition => elementDefinition.ContainedElement,
+                ElementUsage elementUsage => elementUsage.ElementDefinition?.ContainedElement,
+                _ => Enumerable.Empty<ElementUsage>()
+            };
+        }
     }
 }

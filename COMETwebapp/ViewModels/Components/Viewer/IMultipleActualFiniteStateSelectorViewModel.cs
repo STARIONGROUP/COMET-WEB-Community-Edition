@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.ViewModels.Components.Viewer
 {
     using CDP4Common.EngineeringModelData;
 
@@ -31,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using DynamicData;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.Canvas.ActualFiniteStateSelector"/>
+    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.ActualFiniteStateSelector"/>
     /// </summary>
     public interface IMultipleActualFiniteStateSelectorViewModel : IBelongsToIterationSelectorViewModel
     {

@@ -48,8 +48,8 @@ namespace COMETwebapp.Tests.Utilities
         [Test]
         public void VerifyRaiseTreeSelection()
         {
-            var treeNode = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), this.selectionMediator);
-            INodeComponentViewModel result = null;
+            var treeNode = new BaseNodeViewModel(new ViewerNode(new SceneObject(null)), this.selectionMediator);
+            IBaseNodeViewModel result = null;
             this.selectionMediator.OnTreeSelectionChanged += (node) => { result = node; };
 
             this.selectionMediator.RaiseOnTreeSelectionChanged(treeNode);
@@ -72,8 +72,8 @@ namespace COMETwebapp.Tests.Utilities
         [Test]
         public void VerifyRaiseTreeVisibility()
         {
-            var treeNode = new NodeComponentViewModel(new TreeNode(new SceneObject(null)), this.selectionMediator);
-            INodeComponentViewModel result = null;
+            var treeNode = new BaseNodeViewModel(new ViewerNode(new SceneObject(null)), this.selectionMediator);
+            IBaseNodeViewModel result = null;
             this.selectionMediator.OnTreeVisibilityChanged += (node) => { result = node; };
 
             this.selectionMediator.RaiseOnTreeVisibilityChanged(treeNode);

@@ -31,24 +31,24 @@ namespace COMETwebapp.Tests.Model
     [TestFixture]
     public class TreeNodeTestFixture
     {
-        private TreeNode rootNode;
-        private TreeNode node1;
-        private TreeNode node2;
-        private TreeNode node3;
-        private TreeNode node4;
-        private TreeNode node5;
-        private TreeNode node6;
+        private ViewerNode rootNode;
+        private ViewerNode node1;
+        private ViewerNode node2;
+        private ViewerNode node3;
+        private ViewerNode node4;
+        private ViewerNode node5;
+        private ViewerNode node6;
 
         [SetUp]
         public void SetUp()
         {
-            this.rootNode = new TreeNode(new SceneObject(null)) { Title = "Root" };
-            this.node1 = new TreeNode(new SceneObject(null)) { Title = "first" };
-            this.node2 = new TreeNode(new SceneObject(null)) { Title = "second" };
-            this.node3 = new TreeNode(new SceneObject(null)) { Title = "third" };
-            this.node4 = new TreeNode(new SceneObject(null)) { Title = "fourth" };
-            this.node5 = new TreeNode(new SceneObject(null)) { Title = "fifth" };
-            this.node6 = new TreeNode(new SceneObject(null)) { Title = "sixth" };
+            this.rootNode = new ViewerNode(new SceneObject(null)) { Title = "Root" };
+            this.node1 = new ViewerNode(new SceneObject(null)) { Title = "first" };
+            this.node2 = new ViewerNode(new SceneObject(null)) { Title = "second" };
+            this.node3 = new ViewerNode(new SceneObject(null)) { Title = "third" };
+            this.node4 = new ViewerNode(new SceneObject(null)) { Title = "fourth" };
+            this.node5 = new ViewerNode(new SceneObject(null)) { Title = "fifth" };
+            this.node6 = new ViewerNode(new SceneObject(null)) { Title = "sixth" };
 
             this.rootNode.AddChild(this.node1);
             this.rootNode.AddChild(this.node2);
@@ -129,7 +129,7 @@ namespace COMETwebapp.Tests.Model
         [Test]
         public void VerifyThatOverideEqualsWorks()
         {
-            var newNode = new TreeNode(this.rootNode.SceneObject);
+            var newNode = new ViewerNode(this.rootNode.SceneObject);
             
             Assert.Multiple(() =>
             {

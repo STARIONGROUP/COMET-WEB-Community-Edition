@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.ViewModels.Components.Viewer
 {
     using COMET.Web.Common.ViewModels.Components;
 
@@ -37,7 +37,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
     using ReactiveUI;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas.CanvasComponent"/>
+    /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas3D"/>
     /// </summary>
     public class CanvasViewModel : ReactiveObject, ICanvasViewModel
     {
@@ -121,7 +121,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             {
                 await this.ClearTemporarySceneObjects();
                 
-                if (nodeViewModel.Node is TreeNode treeNode &&  treeNode.SceneObject?.Primitive != null)
+                if (nodeViewModel.SceneObject?.Primitive != null)
                 {
                     await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
                 }
@@ -130,9 +130,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
             this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) =>
             {
                 await this.ClearTemporarySceneObjects();
-                var nodesAffected = nodeViewModel.GetFlatListOfDescendants(true).Where(x => ((TreeNode)x.Node).SceneObject.Primitive is not null).ToList();
+                
+                var nodesAffected = nodeViewModel.GetFlatListOfDescendants(true)
+                        .Where(x => x.SceneObject.Primitive is not null).ToList();
 
-                foreach (var sceneObject in nodesAffected.Select(x => ((TreeNode)x.Node).SceneObject))
+                foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
                 {
                     await this.SetSceneObjectVisibility(sceneObject, nodeViewModel.IsSceneObjectVisible);
                 }
@@ -158,7 +160,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.Canvas
         }
 
         /// <summary>
-        /// Handles the mouse up in the <see cref="COMETwebapp.Components.Viewer.Canvas.CanvasComponent"/>
+        /// Handles the mouse up in the <see cref="COMETwebapp.Components.Viewer.Canvas3D"/>
         /// </summary>
         /// <returns></returns>
         public async Task HandleMouseUp()

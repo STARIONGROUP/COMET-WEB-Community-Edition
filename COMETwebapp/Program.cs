@@ -24,12 +24,8 @@
 
 namespace COMETwebapp
 {
-    using System.Diagnostics.CodeAnalysis;
-    using System.Reflection;
-    using System.Security.Policy;
-
     using COMET.Web.Common.Extensions;
-    using COMET.Web.Common.Services.ConfigurationService;
+    
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
@@ -45,10 +41,13 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Components.Viewer;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-
+    
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+    
+    using System.Diagnostics.CodeAnalysis;
+    
+    using System.Reflection;
 
     /// <summary>
     /// Point of entry of the application

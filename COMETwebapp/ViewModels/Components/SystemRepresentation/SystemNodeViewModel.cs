@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IActualFiniteStateSelectorViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="SystemNodeViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -22,31 +22,37 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Viewer
+namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMET.Web.Common.ViewModels.Components.Selectors;
+    using COMETwebapp.ViewModels.Components.Shared;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// ViewModel for the <see cref="COMETwebapp.Components.Viewer.ActualFiniteStateSelector"/>
+    /// ViewModel for a node in the SystemRepresentation tree
     /// </summary>
-    public interface IActualFiniteStateSelectorViewModel : IBelongsToIterationSelectorViewModel
+    public class SystemNodeViewModel : BaseNodeViewModel<SystemNodeViewModel>
     {
         /// <summary>
-        /// Gets or sets the <see cref="ActualFiniteStates"/> of this selector
+        ///     The <see cref="EventCallback" /> to call on baseNode selection
         /// </summary>
-        IEnumerable<ActualFiniteState> ActualFiniteStates { get; set; }
+        public EventCallback<SystemNodeViewModel> OnSelect { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected <see cref="ActualFiniteState"/>
+        /// Creates a new instance of type <see cref="SystemNodeViewModel"/>
         /// </summary>
-        ActualFiniteState SelectedFiniteState { get; set; }
+        /// <param name="title">the title of the view model</param>
+        public SystemNodeViewModel(string title) : base(title)
+        {
+        }
 
         /// <summary>
-        /// Selects the current state and triggers the corresponding event
+        /// Callback method for when a node is selected
         /// </summary>
-        /// <param name="finiteState">the new selected finite state</param>
-        void SelectActualFiniteState(ActualFiniteState finiteState);
+        /// <param name="node">the selected node</param>
+        public override async void TreeSelectionChanged(SystemNodeViewModel node)
+        {
+            this.GetRootNode().GetFlatListOfDescendants(true).ForEach(x => x.IsSelected = false);
+            await this.OnSelect.InvokeAsync(node);
+        }
     }
 }

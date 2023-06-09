@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
@@ -32,11 +33,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-
-    using COMETwebapp.Model;
-    using COMETwebapp.ViewModels.Components.Shared;
+    
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
 
     using Microsoft.AspNetCore.Components;
 
@@ -53,9 +51,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         public SystemRepresentationBodyViewModel(ISessionService sessionService) : base(sessionService)
         {
-            this.ProductTreeViewModel = new ProductTreeViewModel
+            this.ProductTreeViewModel = new SystemRepresentationTreeViewModel()
             {
-                OnClick = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
+                OnClick = new EventCallbackFactory().Create<SystemNodeViewModel>(this, this.SelectElement)
             };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).SubscribeAsync(_ => this.ApplyFilters()));
@@ -69,12 +67,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Represents the RootNode of the tree
         /// </summary>
-        public SystemNode RootNode { get; set; }
+        public SystemNodeViewModel RootNode { get; set; }
 
         /// <summary>
-        /// The <see cref="IProductTreeViewModel" />
+        /// The <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
-        public IProductTreeViewModel ProductTreeViewModel { get; }
+        public SystemRepresentationTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -113,7 +111,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
 
             this.InitializeElements();
-            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, new List<ActualFiniteState>(), false);
+            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, new List<ActualFiniteState>());
         }
 
         /// <summary>
@@ -172,14 +170,15 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// set the selected <see cref="SystemNode" />
+        /// set the selected <see cref="SystemNodeViewModel" />
         /// </summary>
-        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
+        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        public void SelectElement(SystemNode selectedNode)
+        public void SelectElement(SystemNodeViewModel selectedNode)
         {
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
+            
             this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
             {
                 ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
@@ -189,7 +188,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// Apply all the filters on the <see cref="ISystemTreeViewModel" />
+        /// Apply all the filters on the <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         public async Task ApplyFilters()

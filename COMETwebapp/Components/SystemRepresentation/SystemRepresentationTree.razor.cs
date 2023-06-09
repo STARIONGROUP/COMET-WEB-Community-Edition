@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SystemNode.cs" company="RHEA System S.A.">
+// <copyright file="SystemRepresentationTree.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,37 +22,37 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Model
+namespace COMETwebapp.Components.SystemRepresentation
 {
-    using COMETwebapp.Components.SystemRepresentation;
+    using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
+
+    using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     /// <summary>
-    /// Represents the node of the tree in the <see cref="SystemTree"/>
+    /// Partial class that represents the <see cref="SystemRepresentationTree"/>
     /// </summary>
-    public class SystemNode : BaseNode
+    public partial class SystemRepresentationTree
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="SystemNode"/>
+        /// Gets or sets the <see cref="IProductTreeViewModel{T}"/>
         /// </summary>
-        /// <param name="title">the <see cref="string"/> title of this node</param>
-        public SystemNode(string title) : base(title) 
-        {
-        }
+        [Parameter]
+        public SystemRepresentationTreeViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Adds a child to this node
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
         /// </summary>
-        /// <param name="node">the node to add</param>
-        /// <returns>this node</returns>
-        public SystemNode AddChild(SystemNode node)
+        protected override void OnInitialized()
         {
-            if (node is not null)
-            {
-                node.Parent = this;
-                this.Children.Add(node);
-            }
+            base.OnInitialized();
 
-            return this;
+            this.WhenAnyValue(x => x.ViewModel.RootViewModel,
+                x => x.ViewModel.SelectedFilter,
+                x => x.ViewModel.SearchText).Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
         }
     }
 }

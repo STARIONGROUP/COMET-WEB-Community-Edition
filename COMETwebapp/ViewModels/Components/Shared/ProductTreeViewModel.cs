@@ -30,27 +30,27 @@ namespace COMETwebapp.ViewModels.Components.Shared
 
     using COMETwebapp.Components.Shared;
     using COMETwebapp.Enumerations;
-    using COMETwebapp.Model;
-    using COMETwebapp.Utilities;
-
-    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     /// <summary>
     /// View Model for building the product tree
     /// </summary>
-    public class ProductTreeViewModel : DisposableObject, IProductTreeViewModel
+    public abstract class ProductTreeViewModel<T> : DisposableObject, IProductTreeViewModel<T> where T : IBaseNodeViewModel
     {
         /// <summary>
-        /// Backing field for the <see cref="RootViewModel" />
+        /// Backing field for the <see cref="RootViewModel" />s
         /// </summary>
-        private INodeComponentViewModel rootViewModel;
-
+        private T rootViewModel;
+        
         /// <summary>
-        /// Backing field for the <see cref="SearchText" />
+        /// Gets or sets the root of the <see cref="ProductTree" />
         /// </summary>
-        private string searchText = string.Empty;
+        public T RootViewModel
+        {
+            get => this.rootViewModel;
+            set => this.RaiseAndSetIfChanged(ref this.rootViewModel, value);
+        }
 
         /// <summary>
         /// Backing field for the <see cref="SelectedFilter" />
@@ -58,69 +58,9 @@ namespace COMETwebapp.ViewModels.Components.Shared
         private TreeFilter selectedFilter;
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ProductTreeViewModel" />
-        /// </summary>
-        public ProductTreeViewModel(ISelectionMediator selectionMediator)
-        {
-            this.SelectionMediator = selectionMediator;
-            var enumValues = Enum.GetValues(typeof(TreeFilter)).Cast<TreeFilter>();
-            this.TreeFilters = enumValues.ToList();
-            this.SelectedFilter = TreeFilter.ShowFullTree;
-
-            this.SelectionMediator.OnModelSelectionChanged += this.OnModelSelectionChanged;
-            this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
-        }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="ProductTreeViewModel" />
-        /// </summary>
-        public ProductTreeViewModel()
-        {
-            var enumValues = Enum.GetValues(typeof(TreeFilter)).Cast<TreeFilter>();
-            this.TreeFilters = enumValues.ToList();
-            this.SelectedFilter = TreeFilter.ShowFullTree;
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
-        }
-
-        /// <summary>
-        /// Callback for when a model has been selected
-        /// </summary>
-        /// <param name="sceneObject">the selected <see cref="SceneObject"/></param>
-        private void OnModelSelectionChanged(SceneObject sceneObject)
-        {
-            var treeNodes = this.RootViewModel.GetFlatListOfDescendants();
-            treeNodes.ForEach(x => x.IsSelected = false);
-
-            if (sceneObject == null)
-            {
-                return;
-            }
-
-            var node = treeNodes.FirstOrDefault(x => x.Node is TreeNode treeNode && treeNode.SceneObject == sceneObject);
-
-            if (node is not null)
-            {
-                node.IsSelected = true;
-            }
-        }
-
-        /// <summary>
-        ///     The <see cref="EventCallback" /> to call on node selection
-        /// </summary>
-        public EventCallback<SystemNode> OnClick { get; set; }
-
-        /// <summary>
-        /// Gets o sets the <see cref="SelectionMediator" />
-        /// </summary>
-        public ISelectionMediator SelectionMediator { get; private set; }
-
-        /// <summary>
         /// Gets or sets the filter options for the tree
         /// </summary>
-        public IReadOnlyList<TreeFilter> TreeFilters { get; private set; }
+        public IReadOnlyList<TreeFilter> TreeFilters { get; protected set; }
 
         /// <summary>
         /// Gets or sets the selected filter option
@@ -132,13 +72,9 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets or sets the root of the <see cref="ProductTree" />
+        /// Backing field for the <see cref="SearchText" />
         /// </summary>
-        public INodeComponentViewModel RootViewModel
-        {
-            get => this.rootViewModel;
-            set => this.RaiseAndSetIfChanged(ref this.rootViewModel, value);
-        }
+        private string searchText = string.Empty;
 
         /// <summary>
         /// Gets or sets the search text used for filtering the tree
@@ -155,142 +91,31 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <param name="productTreeElements">the product tree elements</param>
         /// <param name="selectedOption">the selected option</param>
         /// <param name="selectedActualFiniteStates">the selected states</param>
-        /// <returns>the root node of the tree or null if the tree can not be created</returns>
-        public INodeComponentViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption,
-            IEnumerable<ActualFiniteState> selectedActualFiniteStates, bool isTreeNode)
-        {
-            var treeElements = productTreeElements.ToList();
-
-            if (treeElements.Any() && selectedOption != null && selectedActualFiniteStates != null)
-            {
-                var topElement = treeElements.First();
-
-                if (isTreeNode)
-                {
-                    var topSceneObject = SceneObject.Create(topElement, selectedOption, selectedActualFiniteStates.ToList());
-                    this.RootViewModel = new NodeComponentViewModel(new TreeNode(topSceneObject), this.SelectionMediator);
-                }
-                else
-                {
-                    this.RootViewModel = new NodeComponentViewModel(new SystemNode(topElement.Name), this.SelectionMediator)
-                    {
-                        OnSelect = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
-                    };
-                }
-
-                this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, selectedActualFiniteStates);
-                this.RootViewModel.OrderAllDescendantsByShortName();
-                return this.RootViewModel;
-            }
-
-            return null;
-        }
-
+        /// <returns>the root baseNode of the tree or null if the tree can not be created</returns>
+        public abstract T CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates);
+        
         /// <summary>
-        /// set the selected <see cref="SystemNode" />
+        /// Creates the tree in a recursive way
         /// </summary>
-        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
-        /// <returns>A <see cref="Task" /></returns>
-        public void SelectElement(SystemNode selectedNode)
-        {
-            this.OnClick.InvokeAsync(selectedNode);
-        }
-
+        /// <param name="elementBase">the element base used in the baseNode</param>
+        /// <param name="current">the current baseNode</param>
+        /// <param name="parent">the parent of the current baseNode. Null if the current baseNode is the root baseNode</param>
+        /// <param name="selectedOption">the selected <see cref="Option" /></param>
+        /// <param name="selectedActualFiniteStates">the selected <see cref="ActualFiniteState" /></param>
+        protected abstract void CreateTreeRecursively(ElementBase elementBase, T current, T parent, Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates);
+        
         /// <summary>
         /// Event for when the filter on the tree changes
         /// </summary>
-        public void OnFilterChanged()
+        public virtual void OnFilterChanged()
         {
-            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
-
-            if (fullTree is not null)
-            {
-                if (this.SelectedFilter == TreeFilter.ShowNodesWithGeometry)
-                {
-                    fullTree.ForEach(x =>
-                    {
-                        if (x.Node is TreeNode treeNode)
-                        {
-                            x.IsDrawn = treeNode.SceneObject.Primitive != null;
-                        }
-                    });
-                }
-                else
-                {
-                    fullTree.ForEach(x => x.IsDrawn = true);
-                }
-            }
         }
 
         /// <summary>
         /// Event for when the text of the search filter is changing
         /// </summary>
-        public void OnSearchFilterChange()
+        public virtual void OnSearchFilterChange()
         {
-            var fullTree = this.RootViewModel?.GetFlatListOfDescendants(true);
-
-            if (this.SearchText == string.Empty)
-            {
-                fullTree?.ForEach(x => x.IsDrawn = true);
-            }
-            else
-            {
-                fullTree?.ForEach(x => { x.IsDrawn = x.Node.Title.Contains(this.SearchText, StringComparison.InvariantCultureIgnoreCase); });
-            }
-        }
-
-        /// <summary>
-        /// Creates the tree in a recursive way
-        /// </summary>
-        /// <param name="elementBase">the element base used in the node</param>
-        /// <param name="current">the current node</param>
-        /// <param name="parent">the parent of the current node. Null if the current node is the root node</param>
-        /// <param name="selectedOption">the selected <see cref="Option" /></param>
-        /// <param name="selectedActualFiniteStates">the selected <see cref="ActualFiniteState" /></param>
-        private void CreateTreeRecursively(ElementBase elementBase, INodeComponentViewModel current, INodeComponentViewModel parent,
-            Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates)
-        {
-            List<ElementUsage> childsOfElementBase = null;
-
-            if (elementBase is ElementDefinition elementDefinition)
-            {
-                childsOfElementBase = elementDefinition.ContainedElement;
-            }
-            else if (elementBase is ElementUsage elementUsage)
-            {
-                childsOfElementBase = elementUsage.ElementDefinition.ContainedElement;
-            }
-
-            if (childsOfElementBase == null)
-            {
-                return;
-            }
-
-            if (parent is not null)
-            {
-                parent.AddChild(current);
-            }
-
-            foreach (var child in childsOfElementBase)
-            {
-                if (current.Node is TreeNode)
-                {
-                    var sceneObject = SceneObject.Create(child, selectedOption, selectedActualFiniteStates.ToList());
-                    if (sceneObject is not null)
-                    {
-                        var nodeViewModel = new NodeComponentViewModel(new TreeNode(sceneObject), this.SelectionMediator);
-                        this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
-                    }
-                }
-                else
-                {
-                    var nodeViewModel = new NodeComponentViewModel(new SystemNode(child.Name), this.SelectionMediator)
-                    {
-                        OnSelect = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
-                    };
-                    this.CreateTreeRecursively(child, nodeViewModel, current, selectedOption, selectedActualFiniteStates);
-                }
-            }
         }
     }
 }
