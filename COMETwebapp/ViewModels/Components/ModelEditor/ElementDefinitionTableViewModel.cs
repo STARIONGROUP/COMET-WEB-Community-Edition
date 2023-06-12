@@ -67,11 +67,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private readonly List<Thing> updatedThings = new();
 
         /// <summary>
+        /// The current <see cref="Iteration" />
+        /// </summary>
+        private readonly Iteration iteration;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         public ElementDefinitionTableViewModel(ISessionService sessionService) : base(sessionService)
         {
+            this.iteration = sessionService.OpenIterations.Items.FirstOrDefault();
+            this.InitializeElements();
+
             var observables = new List<IObservable<ObjectChangedEvent>>
             {
                 CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase)),
@@ -93,26 +101,13 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; } = new();
 
         /// <summary>
-        ///  Populates the rows in the target and source collections with <see cref="ElementDefinitionRowViewModel"/> objects based on the <see cref="Elements"/>
-        /// </summary>
-        public void PopulateRows()
-        {
-            this.RowsTarget.Clear();
-            this.RowsSource.Clear();
-            this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
-            this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
-        }
-
-        /// <summary>
         /// Initialize <see cref="ElementBase" /> list
         /// </summary>
-        private async Task InitializeElements()
+        private void InitializeElements()
         {
-            this.IsLoading = true;
-            await Task.Delay(1);
-            if (this.CurrentIteration != null)
+            if (this.iteration != null)
             {
-                this.CurrentIteration.Element.ForEach(e =>
+                this.iteration.Element.ForEach(e =>
                 {
                     this.Elements.Add(e);
                     this.Elements.AddRange(e.ContainedElement);
@@ -120,7 +115,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
                 this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
             }
-            this.IsLoading = false;
         }
 
         /// <summary>
@@ -232,7 +226,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         protected override async Task OnIterationChanged()
         {
             await base.OnIterationChanged();
-            await this.InitializeElements();
+            this.IsLoading = false;
         }
     }
 }
