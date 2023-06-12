@@ -44,7 +44,7 @@ namespace COMET.Web.Common.Components
     /// <summary>
 	/// Shared component that will englobe all applications where only one <see cref="Iteration" /> needs to be selected
 	/// </summary>
-	public partial class SingleIterationApplicationTemplate
+	public partial class SingleIterationApplicationTemplate: DisposableComponent
 	{
 		/// <summary>
 		/// Body of the application

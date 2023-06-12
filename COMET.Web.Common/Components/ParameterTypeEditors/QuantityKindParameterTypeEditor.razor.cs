@@ -40,36 +40,37 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     /// Component used to edit a <see cref="Parameter" /> defined with a <see cref="QuantityKind" />
     /// </summary>
     public partial class QuantityKindParameterTypeEditor
+
     {
-        /// <summary>
-        /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}" />
-        /// </summary>
-        [Parameter]
-        public IParameterEditorBaseViewModel<QuantityKind> ViewModel { get; set; }
+    /// <summary>
+    /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}" />
+    /// </summary>
+    [Parameter]
+    public IParameterEditorBaseViewModel<QuantityKind> ViewModel { get; set; }
 
-        /// <summary>
-        /// Gets or sets the <see cref="BindValueMode" /> used for the inputs
-        /// </summary>
-        [Parameter]
-        public BindValueMode BindValueMode { get; set; }
+    /// <summary>
+    /// Gets or sets the <see cref="BindValueMode" /> used for the inputs
+    /// </summary>
+    [Parameter]
+    public BindValueMode BindValueMode { get; set; }
 
-        /// <summary>
-        /// Gets or sets the <see cref="MeasurementScale"/> 
-        /// </summary>
-        [Parameter]
-        public MeasurementScale Scale { get; set; }
+    /// <summary>
+    /// Gets or sets the <see cref="MeasurementScale"/> 
+    /// </summary>
+    [Parameter]
+    public MeasurementScale Scale { get; set; }
 
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
+    /// <summary>
+    /// Method invoked when the component has received parameters from its parent in
+    /// the render tree, and the incoming values have been assigned to properties.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
-                    x => x.ViewModel.ValueArray)
-                .Subscribe(_ => this.StateHasChanged()));
-        }
+        this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
+                x => x.ViewModel.ValueArray)
+            .Subscribe(_ => this.StateHasChanged()));
+    }
     }
 }

@@ -19,6 +19,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
+@namespace COMET.Web.Common.Shared.TopMenuEntry
 @inherits AuthorizedMenuEntry
 
 <DxMenuItem Name="session-entry" Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">

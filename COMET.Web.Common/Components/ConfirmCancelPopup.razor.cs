@@ -34,7 +34,7 @@ namespace COMET.Web.Common.Components
     /// <summary>
     /// Popup that ask the user to confirm his last choice
     /// </summary>
-    public partial class ConfirmCancelPopup
+    public partial class ConfirmCancelPopup: DisposableComponent
     {
         /// <summary>
         /// Value that indicates if buttons are enabled or not

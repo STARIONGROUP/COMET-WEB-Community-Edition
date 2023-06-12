@@ -97,7 +97,7 @@ namespace COMET.Web.Common
                         this.NavigationManager.NavigateTo("/", replace: true);
                     }
 
-					break;
+                    break;
             }
         }
     }
