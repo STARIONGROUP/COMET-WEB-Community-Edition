@@ -51,6 +51,7 @@ namespace COMETwebapp.Services.Interoperability
         /// Set the dotnet helper
         /// </summary>
         /// <param name="dotNetHelper">the dotnet helper</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task LoadDotNetHelper(DotNetObjectReference<ElementDefinitionTable> dotNetHelper)
         {
             await JsRuntime.InvokeVoidAsync("setDotNetHelper", dotNetHelper);
@@ -61,6 +62,7 @@ namespace COMETwebapp.Services.Interoperability
         /// </summary>
         /// <param name="firstGrid">the first grid</param>
         /// <param name="secondGrid">the second grid</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task InitDraggableGrids(string firstGrid, string secondGrid)
         {
             await JsRuntime.InvokeVoidAsync("initialize", firstGrid, secondGrid);

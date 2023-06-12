@@ -24,41 +24,48 @@
 
 namespace COMETwebapp.Tests.Services.Interoperability
 {
+    using Bunit;
+
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Services.Interoperability;
 
-    using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
 
     using Moq;
 
     using NUnit.Framework;
 
+    using TestContext = Bunit.TestContext;
+
     [TestFixture]
     public class DraggableElementServiceTestFixture
     {
-        private Mock<IDraggableElementService> draggableElementServiceMock;
+        private TestContext context;
+        private Mock<IJSRuntime> jsRuntimeMock;
+        private IDraggableElementService draggableElementService;
 
         [SetUp]
         public void SetUp()
         {
-            this.draggableElementServiceMock = new Mock<IDraggableElementService>();
-            this.draggableElementServiceMock.Setup(x => x.LoadDotNetHelper(It.IsAny<DotNetObjectReference<ElementDefinitionTable>>()));
-            this.draggableElementServiceMock.Setup(x => x.InitDraggableGrids(It.IsAny<string>(), It.IsAny<string>()));
+            this.context = new TestContext();
+            this.jsRuntimeMock = new Mock<IJSRuntime>();
+
+            this.draggableElementService = new DraggableElementService(jsRuntimeMock.Object);
+
+            this.context.JSInterop.SetupVoid("setDotNetHelper");
+            this.context.JSInterop.SetupVoid("initialize");
         }
 
         [Test]
         public void LoadDotNetHelper()
         {
-            Assert.DoesNotThrow(() => this.draggableElementServiceMock.Object.LoadDotNetHelper(It.IsAny<DotNetObjectReference<ElementDefinitionTable>>()));
-            this.draggableElementServiceMock.Verify(x => x.LoadDotNetHelper(It.IsAny<DotNetObjectReference<ElementDefinitionTable>>()), Times.Once());
+            Assert.That(() => this.draggableElementService.LoadDotNetHelper(It.IsAny<DotNetObjectReference<ElementDefinitionTable>>()), Throws.Nothing);
         }
 
         [Test]
         public void InitDraggableGrids()
         {
-            Assert.DoesNotThrow(() => this.draggableElementServiceMock.Object.InitDraggableGrids(It.IsAny<string>(), It.IsAny<string>()));
-            this.draggableElementServiceMock.Verify(x => x.InitDraggableGrids(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+            Assert.That(() => this.draggableElementService.InitDraggableGrids(It.IsAny<string>(), It.IsAny<string>()), Throws.Nothing);
         }
     }
 }

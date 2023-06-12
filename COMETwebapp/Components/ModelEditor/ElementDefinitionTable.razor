@@ -23,33 +23,37 @@
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.ViewModels.Components.ParameterEditor
 @using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-@inherits DisposableComponent
+@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
 
-<div style="display: flex">
-    <div style="width: 500px">
-        <h4>Target Model</h4>
-        <DxGrid @ref="this.FirstGrid"
-                Data="this.ViewModel.RowsTarget"
-                CssClass="first-grid"
-                AllowSort="false"
-                PageSize="30">
-            <Columns>
-                <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
-                <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
-            </Columns>
-        </DxGrid>
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div style="display: flex">
+        <div style="width: 500px">
+            <h4>Target Model</h4>
+            <DxGrid @ref="this.FirstGrid"
+                    Data="this.ViewModel.RowsTarget"
+                    ShowAllRows="true"
+                    CssClass="first-grid"
+                    AllowSort="false"
+                    VerticalScrollBarMode="ScrollBarMode.Visible">
+                <Columns>
+                    <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
+                    <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
+                </Columns>
+            </DxGrid>
+        </div>
+        <div style="width: 500px; padding-left: 10px">
+            <h4>Source Model</h4>
+            <DxGrid @ref="this.SecondGrid"
+                    Data="this.ViewModel.RowsSource"
+                    ShowAllRows="true"
+                    CssClass="second-grid"
+                    AllowSort="false"
+                    VerticalScrollBarMode="ScrollBarMode.Visible">
+                <Columns>
+                    <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
+                    <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
+                </Columns>
+            </DxGrid>
+        </div>
     </div>
-    <div style="width: 500px; padding-left: 10px">
-        <h4>Source Model</h4>
-        <DxGrid @ref="this.SecondGrid"
-                Data="this.ViewModel.RowsSource"
-                CssClass="second-grid"
-                AllowSort="false"
-                PageSize="30">
-            <Columns>
-                <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
-                <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
-            </Columns>
-        </DxGrid>
-    </div>
-</div>
+</LoadingComponent>

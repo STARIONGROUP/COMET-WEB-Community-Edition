@@ -83,7 +83,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
             iterations.Add(this.iteration);
 
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
-            this.viewModel = new ElementDefinitionTableViewModel(this.sessionService.Object, null);
+            this.viewModel = new ElementDefinitionTableViewModel(this.sessionService.Object);
+            this.viewModel.CurrentIteration = this.iteration;
         }
 
         [Test]

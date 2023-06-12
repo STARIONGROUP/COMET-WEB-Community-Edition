@@ -24,12 +24,13 @@
 
 namespace COMETwebapp.Components.ModelEditor
 {
-    using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+
     using Microsoft.JSInterop;
 
     /// <summary>
@@ -38,30 +39,39 @@ namespace COMETwebapp.Components.ModelEditor
     public partial class ElementDefinitionTable
     {
         /// <summary>
-        /// Gets or sets the <see cref="IElementDefinitionTableViewModel" />
+        /// Gets or sets the <see cref="IDraggableElementService" />
         /// </summary>
         [Inject]
-        public IElementDefinitionTableViewModel ViewModel { get; set; }
+        public IDraggableElementService DraggableElementService { get; set; }
 
         /// <summary>
         /// Value indicating whether the dragging should be reinitialized.
         /// </summary>
-        bool ReInitializeDragging { get; set; }
+        private bool ReInitializeDragging { get; set; }
 
         /// <summary>
         ///     Gets or sets the grid control that is being customized.
         /// </summary>
-        IGrid FirstGrid { get; set; }
+        private IGrid FirstGrid { get; set; }
 
         /// <summary>
         ///     Gets or sets the grid control that is being customized.
         /// </summary>
-        IGrid SecondGrid { get; set; }
+        private IGrid SecondGrid { get; set; }
 
         /// <summary>
         /// Helper reference to the DotNet object
         /// </summary>
-        DotNetObjectReference<ElementDefinitionTable> DotNetHelper { get; set; }
+        private DotNetObjectReference<ElementDefinitionTable> DotNetHelper { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+        }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
@@ -83,16 +93,16 @@ namespace COMETwebapp.Components.ModelEditor
         {
             if (firstRender)
             {
-                DotNetHelper = DotNetObjectReference.Create(this);
-                await this.ViewModel.LoadDotNetHelper(this.DotNetHelper);
-                await this.ViewModel.InitDraggableGrids(GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
+                this.DotNetHelper = DotNetObjectReference.Create(this);
+                await this.DraggableElementService.LoadDotNetHelper(this.DotNetHelper);
+                await this.DraggableElementService.InitDraggableGrids(GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
             }
             else
             {
-                if (ReInitializeDragging)
+                if (this.ReInitializeDragging)
                 {
                     ReInitializeDragging = false;
-                    await this.ViewModel.InitDraggableGrids(GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
+                    await this.DraggableElementService.InitDraggableGrids(GetGridSelector(FirstGrid), GetGridSelector(SecondGrid));
                 }
             }
         }
@@ -119,8 +129,17 @@ namespace COMETwebapp.Components.ModelEditor
 
             targetItems.Add(copiedItem);
 
-            ReInitializeDragging = true;
+            this.ReInitializeDragging = true;
             InvokeAsync(() => StateHasChanged());
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
+
         }
 
         /// <summary>

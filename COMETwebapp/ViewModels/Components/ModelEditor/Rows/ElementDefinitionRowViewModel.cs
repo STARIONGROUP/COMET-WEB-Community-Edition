@@ -101,5 +101,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
             get => this.elementBase;
             set => this.RaiseAndSetIfChanged(ref this.elementBase, value);
         }
+
+        /// <summary>
+        /// Update this row view model properties
+        /// </summary>
+        /// <param name="elementDefinitionRow">The <see cref="ElementDefinitionRowViewModel" /> to use for updating</param>
+        public void UpdateProperties(ElementDefinitionRowViewModel elementDefinitionRow)
+        {
+            this.ElementBase = elementDefinitionRow.elementBase;
+            this.ElementDefinitionName = elementDefinitionRow.elementDefinitionName;
+            this.ElementUsageName = elementDefinitionRow.elementUsageName;
+        }
     }
 }

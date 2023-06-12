@@ -117,7 +117,7 @@ namespace COMETwebapp.Utilities
         public const string UserManagementPage = "UserManagement";
 
         /// <summary>
-        /// The page name of the User Management
+        /// The page name of the Model Editor
         /// </summary>
         public const string ModelEditorPage = "ModelEditor";
     }

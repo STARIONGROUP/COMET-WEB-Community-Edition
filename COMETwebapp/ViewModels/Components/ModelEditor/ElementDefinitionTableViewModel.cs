@@ -24,23 +24,27 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
+    using System.Collections.ObjectModel;
+    using System.Reactive.Linq;
+
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
+    using CDP4Dal;
+    using CDP4Dal.Events;
+
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Components.ModelEditor;
-    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
-    using Microsoft.JSInterop;
-
-    using System.Collections.ObjectModel;
+    using DynamicData;
 
     /// <summary>
     /// ViewModel for the <see cref="ElementDefinitionTable" />
     /// </summary>
-    public class ElementDefinitionTableViewModel : DisposableObject, IElementDefinitionTableViewModel
+    public class ElementDefinitionTableViewModel : SingleIterationApplicationBaseViewModel, IElementDefinitionTableViewModel
     {
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
@@ -48,45 +52,34 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
-        /// The current <see cref="Iteration" />
+        /// A collection of added <see cref="Thing" />s
         /// </summary>
-        private readonly Iteration iteration;
+        private readonly List<Thing> addedThings = new();
 
         /// <summary>
-        /// Gets or sets the <see cref="IDraggableElementService"/>
+        /// A collection of deleted <see cref="Thing" />s
         /// </summary>
-        public IDraggableElementService DraggableElementService { get; set; }
+        private readonly List<Thing> deletedThings = new();
+
+        /// <summary>
+        /// A collection of updated <see cref="Thing" />s
+        /// </summary>
+        private readonly List<Thing> updatedThings = new();
 
         /// <summary>
         /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
-        /// <param name="draggableElementService">the <see cref="IDraggableElementService" /></param>
-        public ElementDefinitionTableViewModel(ISessionService sessionService, IDraggableElementService draggableElementService)
+        public ElementDefinitionTableViewModel(ISessionService sessionService) : base(sessionService)
         {
-            this.iteration = sessionService.OpenIterations.Items.FirstOrDefault();
-            this.DraggableElementService = draggableElementService;
-            this.InitializeElements();
-            this.PopulateRows();
-        }
+            var observables = new List<IObservable<ObjectChangedEvent>>
+            {
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase)),
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase)),
+                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase))
+            };
 
-        /// <summary>
-        /// Set the dotnet helper
-        /// </summary>
-        /// <param name="dotNetHelper">the dotnet helper</param>
-        public async Task LoadDotNetHelper(DotNetObjectReference<ElementDefinitionTable> dotNetHelper)
-        {
-            await this.DraggableElementService.LoadDotNetHelper(dotNetHelper);
-        }
-
-        /// <summary>
-        ///  Method used to initialize the draggable grids
-        /// </summary>
-        /// <param name="firstGrid">the first grid</param>
-        /// <param name="secondGrid">the second grid</param>
-        public async Task InitDraggableGrids(string firstGrid, string secondGrid)
-        {
-            await this.DraggableElementService.InitDraggableGrids(firstGrid, secondGrid);
+            this.Disposables.Add(observables.Merge().Subscribe(this.RecordChange));
         }
 
         /// <summary>
@@ -99,6 +92,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         public ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; } = new();
 
+        /// <summary>
+        ///  Populates the rows in the target and source collections with <see cref="ElementDefinitionRowViewModel"/> objects based on the <see cref="Elements"/>
+        /// </summary>
         public void PopulateRows()
         {
             this.RowsTarget.Clear();
@@ -110,13 +106,133 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// Initialize <see cref="ElementBase" /> list
         /// </summary>
-        private void InitializeElements()
+        private async Task InitializeElements()
         {
-            this.iteration.Element.ForEach(e => 
+            this.IsLoading = true;
+            await Task.Delay(1);
+            if (this.CurrentIteration != null)
             {
-                this.Elements.Add(e);
-                this.Elements.AddRange(e.ContainedElement);
-            });
-        } 
+                this.CurrentIteration.Element.ForEach(e =>
+                {
+                    this.Elements.Add(e);
+                    this.Elements.AddRange(e.ContainedElement);
+                });
+                this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
+                this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
+            }
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Records an <see cref="ObjectChangedEvent" />
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
+        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
+            {
+                return;
+            }
+
+            switch (objectChangedEvent.EventKind)
+            {
+                case EventKind.Added:
+                    this.addedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                case EventKind.Removed:
+                    this.deletedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                case EventKind.Updated:
+                    this.updatedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent), "Unrecognised value EventKind value");
+            }
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            if (!this.addedThings.Any() && !this.deletedThings.Any() && !this.updatedThings.Any())
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+            await Task.Delay(1);
+
+            this.RemoveRows(this.deletedThings.OfType<ElementBase>());
+            this.RowsSource.AddRange(this.addedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
+            this.RowsTarget.AddRange(this.addedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
+            this.UpdateRows(this.updatedThings.OfType<ElementBase>());
+
+            this.ClearRecordedChange();
+            this.IsLoading = false;
+        }
+
+        /// <summary>   
+        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
+        public void UpdateRows(IEnumerable<ElementBase> updatedThings)
+        {
+            foreach (ElementBase element in updatedThings)
+            {
+                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+                if (row != null)
+                {
+                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
+                }
+                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+                if (row != null)
+                {
+                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
+        public void RemoveRows(IEnumerable<ElementBase> deletedThings)
+        {
+            foreach (ElementBase element in deletedThings)
+            {
+                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+                if (row != null)
+                {
+                    this.RowsSource.Remove(row);
+                }
+                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+                if (row != null)
+                {
+                    this.RowsTarget.Remove(row);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clears all recorded changed
+        /// </summary>
+        private void ClearRecordedChange()
+        {
+            this.deletedThings.Clear();
+            this.updatedThings.Clear();
+            this.addedThings.Clear();
+        }
+
+        /// <summary>
+        /// Update this view model properties
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
+        {
+            await base.OnIterationChanged();
+            await this.InitializeElements();
+        }
     }
 }

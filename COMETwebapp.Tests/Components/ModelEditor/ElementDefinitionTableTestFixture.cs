@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
@@ -56,6 +57,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton<ISessionService, SessionService>();
+            this.context.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
 
             var elementDefinitionTableViewModel = new Mock<IElementDefinitionTableViewModel>();
             elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns(new ObservableCollection<ElementDefinitionRowViewModel>() { new ElementDefinitionRowViewModel() { ElementDefinitionName = "Test" } });
@@ -88,7 +90,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         [Test]
         public void VerifyMoveGridRow()
         {
-            Assert.DoesNotThrow(() => this.table.MoveGridRow(1, 1, It.IsAny<bool>()));
+            Assert.That(() => this.table.MoveGridRow(1, 1, It.IsAny<bool>()), Throws.Nothing);
         }
     }
 }
