@@ -63,5 +63,40 @@ namespace COMETwebapp.Components.Viewer
                               x => x.ViewModel.IsSceneObjectVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
+
+        /// <summary>
+        /// Sets parameters supplied by the component's parent in the render tree.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>A <see cref="Task"/> that completes when the component has finished updating and rendering itself.</returns>
+        /// <remarks>
+        /// <para>
+        /// Parameters are passed when <see cref="SetParametersAsync(ParameterView)"/> is called. It is not required that
+        /// the caller supply a parameter value for all of the parameters that are logically understood by the component.
+        /// </para>
+        /// <para>
+        /// The default implementation of <see cref="SetParametersAsync(ParameterView)"/> will set the value of each property
+        /// decorated with <see cref="ParameterAttribute" /> or <see cref="CascadingParameterAttribute" /> that has
+        /// a corresponding value in the <see cref="ParameterView" />. Parameters that do not have a corresponding value
+        /// will be unchanged.
+        /// </para>
+        /// </remarks>
+        public override Task SetParametersAsync(ParameterView parameters)
+        {
+            foreach (var parameter in parameters)
+            {
+                switch (parameter.Name)
+                {
+                    case nameof(this.ViewModel):
+                        this.ViewModel = parameter.Value as ViewerNodeViewModel;
+                        break;
+                    case nameof(this.Level):
+                        this.Level = (int)parameter.Value;
+                        break;
+                }
+            }
+
+            return base.SetParametersAsync(ParameterView.Empty);
+        }
     }
 }

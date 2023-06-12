@@ -327,7 +327,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <summary>
         /// Callback method for when a node is selected
         /// </summary>
-        /// <param name="node">the selected node</param>
-        public abstract void TreeSelectionChanged(T node);
+        public abstract void RaiseTreeSelectionChanged();
     }
 }

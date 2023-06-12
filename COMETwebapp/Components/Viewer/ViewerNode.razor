@@ -38,7 +38,7 @@
     {
         var dxMargin = 20;
 
-        <div class="@nodeClasses" onclick="@(() => this.ViewModel.TreeSelectionChanged(this.ViewModel))">
+        <div class="@nodeClasses" @onclick="@(() => this.ViewModel.RaiseTreeSelectionChanged())">
             
             @for(var i=0; i <= this.ViewModel.Level; i++)
             {
@@ -80,7 +80,7 @@
                 {
                     var uri = this.ViewModel.IsSceneObjectVisible ? "images/Show.svg" : "images/Hide.svg";
                     var negatedValue = !this.ViewModel.IsSceneObjectVisible;
-                    <img class="treeIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = negatedValue; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
+                    <img class="treeIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = negatedValue; this.ViewModel.RaiseTreeNodeVisibilityChanged();})" />
                 }
             </div>
         </div>

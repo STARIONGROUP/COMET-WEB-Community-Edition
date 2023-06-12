@@ -74,16 +74,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         }
 
         /// <summary>
-        /// Callback method for when a node is selected
+        /// Raise that this ViewModel has changed the selection
         /// </summary>
-        /// <param name="node">the selected node</param>
-        public override void TreeSelectionChanged(ViewerNodeViewModel node)
+        public override void RaiseTreeSelectionChanged()
         {
             this.GetRootNode().GetFlatListOfDescendants(true).ForEach(x => x.IsSelected = false);
 
             if (!this.StopClickPropagation)
             {
-                this.SelectionMediator.RaiseOnTreeSelectionChanged(node);
+                this.SelectionMediator.RaiseOnTreeSelectionChanged(this);
                 this.IsSelected = true;
             }
 
@@ -91,13 +90,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         }
 
         /// <summary>
-        /// Callback method for when the node visibility changed
+        /// Raise that this ViewModel has changed the visibility
         /// </summary>
-        /// <param name="node"></param>
-        public void TreeNodeVisibilityChanged(ViewerNodeViewModel node)
+        public void RaiseTreeNodeVisibilityChanged()
         {
             this.StopClickPropagation = true;
-            this.SelectionMediator.RaiseOnTreeVisibilityChanged(node);
+            this.SelectionMediator.RaiseOnTreeVisibilityChanged(this);
         }
 
         /// <summary>

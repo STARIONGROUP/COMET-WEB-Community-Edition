@@ -48,11 +48,10 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Callback method for when a node is selected
         /// </summary>
-        /// <param name="node">the selected node</param>
-        public override async void TreeSelectionChanged(SystemNodeViewModel node)
+        public override async void RaiseTreeSelectionChanged()
         {
             this.GetRootNode().GetFlatListOfDescendants(true).ForEach(x => x.IsSelected = false);
-            await this.OnSelect.InvokeAsync(node);
+            await this.OnSelect.InvokeAsync(this);
         }
     }
 }
