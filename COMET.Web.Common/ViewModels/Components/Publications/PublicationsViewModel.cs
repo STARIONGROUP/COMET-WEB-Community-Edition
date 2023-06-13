@@ -178,7 +178,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// <returns>An asynchronous operation</returns>
         public async Task ExecutePublish()
         {
-            if (!this.CanPublish)
+            if (!this.CanPublish || this.SelectedDataItems is null)
             {
                 return;
             }

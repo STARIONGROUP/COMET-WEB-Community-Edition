@@ -94,7 +94,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications.Rows
                 Assert.That(this.viewModel.NewValue, Is.EqualTo(this.valueSet.ActualValue.ToString()));
                 Assert.That(this.viewModel.OldValue, Is.EqualTo(this.valueSet.Published.ToString()));
                 Assert.That(this.viewModel.ParameterType, Is.EqualTo(this.parameter.ParameterType.Name));
-                Assert.That(this.viewModel.IsSelected, Is.False);
             });
         }
     }
