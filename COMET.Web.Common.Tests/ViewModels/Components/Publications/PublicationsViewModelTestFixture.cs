@@ -30,13 +30,10 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
     using CDP4Common.Types;
 
     using CDP4Dal;
-
-    using COMET.Web.Common.Extensions;
+    
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Publications;
     using COMET.Web.Common.ViewModels.Components.Publications.Rows;
-
-    using DevExpress.Drawing.Internal.Fonts.Interop;
 
     using Moq;
 
