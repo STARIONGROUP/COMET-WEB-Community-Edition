@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -87,6 +88,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
             this.viewModel.CurrentIteration = this.iteration;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.viewModel.Dispose();
+        }
+
         [Test]
         public void VerifyInitializeViewModel()
         {
@@ -101,6 +108,27 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
                 Assert.That(this.viewModel.RowsSource[1].ElementUsageName, Is.EqualTo("Box1"));
                 Assert.That(this.viewModel.RowsSource[0].ElementBase, Is.EqualTo(this.iteration.Element.FirstOrDefault()));
             });
+        }
+
+        [Test]
+        public void VerifyRecordChange()
+        {
+            var elementDefinition = new ElementDefinition()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            this.iteration.Element.Add(elementDefinition);
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Removed);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Updated);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
         }
     }
 }

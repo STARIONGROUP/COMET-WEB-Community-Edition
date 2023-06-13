@@ -65,15 +65,6 @@ namespace COMETwebapp.Components.ModelEditor
         private DotNetObjectReference<ElementDefinitionTable> DotNetHelper { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-        }
-
-        /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does
         /// not automatically re-render after the completion of any returned <see cref="Task"/>, because
         /// that would cause an infinite render loop.
