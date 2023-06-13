@@ -37,6 +37,11 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
     public class PublicationRowViewModel : ReactiveObject
     {
         /// <summary>
+        /// Gets or sets the Id of the <see cref="ParameterOrOverride"/>
+        /// </summary>
+        public Guid ParameterId { get; private set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="ParameterOrOverride"/> that this row represents
         /// </summary>
         public ParameterOrOverrideBase ParameterOrOverride { get; private set; }
@@ -72,28 +77,6 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
         public string ParameterType { get; private set; }
 
         /// <summary>
-        /// Backing field for the <see cref="IsSelected"/> property
-        /// </summary>
-        private bool isSelected;
-
-        /// <summary>
-        /// Gets or sets if the row is selected. Only selected rows will be published.
-        /// </summary>
-        public bool IsSelected
-        {
-            get => this.isSelected;
-            set => this.RaiseAndSetIfChanged(ref this.isSelected, value);
-        }
-
-        private bool isGroupSelected;
-
-        public bool IsGroupSelected
-        {
-            get => this.isGroupSelected;
-            set => this.RaiseAndSetIfChanged(ref this.isGroupSelected, value);
-        }
-
-        /// <summary>
         /// Creates a new instance of type <see cref="PublicationsViewModel"/>
         /// </summary>
         /// <param name="parameter">the <see cref="ParameterOrOverrideBase"/></param>
@@ -106,6 +89,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications.Rows
             }
             
             this.ParameterOrOverride = parameter;
+            this.ParameterId = parameter.Iid;
             this.Domain = parameter.Owner.Name;
             this.ElementShortName = ((ElementBase)parameter.Container).ShortName;
             this.ModelCode = parameterValueSet.ModelCode();

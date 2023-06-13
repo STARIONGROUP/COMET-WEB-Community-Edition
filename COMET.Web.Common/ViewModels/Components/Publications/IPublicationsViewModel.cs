@@ -85,6 +85,11 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         string DomainName { get; }
 
         /// <summary>
+        /// Gets or sets the selected items in the grid
+        /// </summary>
+        IReadOnlyList<object> SelectedDataItems { get; set; }
+
+        /// <summary>
         /// Updates the properties of this ViewModel
         /// </summary>
         /// <param name="iteration">the iteration to use</param>

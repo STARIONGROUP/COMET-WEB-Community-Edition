@@ -104,12 +104,42 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         public string DomainName { get; private set; }
 
         /// <summary>
+        /// Backing field for the <see cref="SelectedDataItems"/>
+        /// </summary>
+        private IReadOnlyList<object> selectedDataItems;
+
+        /// <summary>
+        /// Gets or sets the selected items in the grid
+        /// </summary>
+        public IReadOnlyList<object> SelectedDataItems
+        {
+            get => this.selectedDataItems;
+            set => this.RaiseAndSetIfChanged(ref this.selectedDataItems, value);
+        }
+
+        /// <summary>
         /// Creates a new instance of type <see cref="PublicationsViewModel"/>
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService"/></param>
         public PublicationsViewModel(ISessionService sessionService)
         {
             this.SessionService = sessionService;
+            this.Disposables.Add(this.WhenAnyValue(x=>x.SelectedDataItems).Subscribe(_ => this.OnSelectedDataItemsChanged()));
+        }
+
+        /// <summary>
+        /// Callback method for handling when the selected data items changed
+        /// </summary>
+        private void OnSelectedDataItemsChanged()
+        {
+            if (this.SelectedDataItems != null)
+            {
+                this.CanPublish = this.SelectedDataItems.Any();
+            }
+            else
+            {
+                this.CanPublish = false;
+            }
         }
 
         /// <summary>
@@ -153,7 +183,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
                 return;
             }
 
-            var rowsToPublish = this.Rows.Items.Where(x => x.IsSelected).ToList();
+            var rowsToPublish = this.SelectedDataItems.OfType<PublicationRowViewModel>().ToList();
             var parametersToPublish = rowsToPublish.Select(x => x.ParameterOrOverride).ToList();
             
             var publication = new Publication(Guid.NewGuid(), null, null);
