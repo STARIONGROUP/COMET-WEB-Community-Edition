@@ -42,6 +42,11 @@ namespace COMET.Web.Common.Components
     public partial class Publications
     {
         /// <summary>
+        /// Gets or sets the <see cref="DxGrid"/> use in the component
+        /// </summary>
+        private DxGrid Grid { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="IPublicationsViewModel"/>
         /// </summary>
         [Parameter]
@@ -55,15 +60,10 @@ namespace COMET.Web.Common.Components
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.CanPublish)
+            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.CanPublish, x => x.ViewModel.SelectedDataItems)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ =>
-            {
-                this.ViewModel.CanPublish = this.ViewModel.Rows.Items.Any(x=>x.IsSelected);
-            }));
         }
-        
+
         /// <summary>
         /// Handler for when a group checkbox state changed
         /// </summary>
@@ -72,23 +72,20 @@ namespace COMET.Web.Common.Components
         private void OnGroupSelectionChanged(GridDataColumnGroupRowTemplateContext context, bool isChecked)
         {
             var rowsFilteredByDomain = this.ViewModel.Rows.Items.Where(x => x.Domain == context.GroupValueDisplayText).ToList();
-            rowsFilteredByDomain.ForEach(x=>x.IsSelected = isChecked);
+            this.Grid.SelectDataItems(rowsFilteredByDomain, isChecked);
         }
 
         /// <summary>
-        /// Handler for when a row checkbox state changed
+        /// Checks if all values for a specific domain are checked
         /// </summary>
-        /// <param name="rows">the rows asociated to the change</param>
-        private void OnRowSelectionChanged(IReadOnlyList<object> rows)
+        /// <param name="context">the <see cref="GridDataColumnGroupRowTemplateContext"/></param>
+        /// <returns>true if all the values are checked, false otherwise</returns>
+        private bool CheckIfAllValuesAreChecked(GridDataColumnGroupRowTemplateContext context)
         {
-            if (rows is GridSelectedDataItemsCollection dataCollection)
-            {
-                var selectedRows = dataCollection.SelectedDataItems.Cast<PublicationRowViewModel>();
-                var deselectedRows = dataCollection.DeselectedDataItems.Cast<PublicationRowViewModel>();
-
-                selectedRows.ForEach(x=>x.IsSelected = true);
-                deselectedRows.ForEach(x=>x.IsSelected = false);
-            }
+            var domainName = context.GroupValueDisplayText;
+            var viewModelRowsCount = this.ViewModel.Rows.Items.Count(x => x.Domain == domainName);
+            var selectedItemsCount = this.ViewModel.SelectedDataItems?.OfType<PublicationRowViewModel>().Count(x => x.Domain == domainName);
+            return viewModelRowsCount == selectedItemsCount;
         }
     }
 }

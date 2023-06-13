@@ -30,8 +30,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
     using CDP4Common.Types;
 
     using CDP4Dal;
-
-    using COMET.Web.Common.Extensions;
+    
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Publications;
     using COMET.Web.Common.ViewModels.Components.Publications.Rows;
@@ -45,6 +44,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
     {
         private PublicationsViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private Parameter parameter;
 
         [SetUp]
         public void Setup()
@@ -101,7 +101,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
                 Iid = Guid.NewGuid(),
             };
 
-            var parameter = new Parameter
+            this.parameter = new Parameter
             {
                 Iid = Guid.NewGuid(),
                 Owner = doe,
@@ -120,12 +120,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
                 }
             };
 
-            elementBase.Parameter.Add(parameter);
-
-            var publishableParameters = new List<ParameterOrOverrideBase>
-            {
-                parameter,
-            };
+            elementBase.Parameter.Add(this.parameter);
 
             iteration.Element.Add(elementBase);
             iteration.TopElement = elementBase;
@@ -175,6 +170,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
             this.sessionService.Verify(x=>x.CreateThing(It.IsAny<Iteration>(), It.IsAny<Publication>()), Times.Never);
 
             this.viewModel.CanPublish = true;
+            this.viewModel.SelectedDataItems = new List<object>() { new PublicationRowViewModel(this.parameter, this.parameter.ValueSets.First()) };
 
             await this.viewModel.ExecutePublish();
 
