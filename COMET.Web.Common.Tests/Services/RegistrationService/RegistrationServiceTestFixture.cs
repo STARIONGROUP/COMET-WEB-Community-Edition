@@ -30,6 +30,7 @@ namespace COMET.Web.Common.Tests.Services.RegistrationService
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Shared;
 
     using Microsoft.Extensions.Options;
 
@@ -60,6 +61,7 @@ namespace COMET.Web.Common.Tests.Services.RegistrationService
                 Assert.That(registrationService.RegisteredAssemblies, Has.Count.EqualTo(1));
                 Assert.That(registrationService.RegisteredAuthorizedMenuEntries, Has.Count.EqualTo(1));
                 Assert.That(registrationService.CustomHeader, Is.Not.Null);
+                Assert.That(registrationService.MainLayoutType, Is.EqualTo(typeof(MainLayout)));
             });
         }
     }
