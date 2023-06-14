@@ -62,7 +62,13 @@ namespace COMET.Web.Common.Services.RegistrationService
             this.registeredAssemblies.AddRange(options.Value.AdditionalAssemblies);
             this.registeredAuthorizedTopMenuEntries.AddRange(options.Value.AdditionalMenuEntries);
             this.CustomHeader = options.Value.CustomHeaderTitle;
+            this.MainLayoutType = options.Value.MainLayoutType;
         }
+
+        /// <summary>
+        /// Gets the <see cref="Type" /> to use as MainLayout for the application
+        /// </summary>
+        public Type MainLayoutType { get; }
 
         /// <summary>
         /// Gets the <see cref="IReadOnlyList{T}" /> of registered <see cref="Assembly" />
@@ -80,7 +86,7 @@ namespace COMET.Web.Common.Services.RegistrationService
         public IReadOnlyList<Type> RegisteredAuthorizedMenuEntries => this.registeredAuthorizedTopMenuEntries.AsReadOnly();
 
         /// <summary>
-        /// Gets the custom header <see cref="Type"/>, if applicable
+        /// Gets the custom header <see cref="Type" />, if applicable
         /// </summary>
         public Type CustomHeader { get; }
     }

@@ -27,6 +27,7 @@ namespace COMET.Web.Common.Model
 {
     using System.Reflection;
 
+    using COMET.Web.Common.Shared;
     using COMET.Web.Common.Shared.TopMenuEntry;
 
     /// <summary>
@@ -59,6 +60,11 @@ namespace COMET.Web.Common.Model
         /// Gets or sets the configuration file used for the names in the app.
         /// </summary>
         public string JsonConfigurationFile { get; set; }
+
+        /// <summary>
+        /// Defines the <see cref="Type" /> that should be used as MainLayout
+        /// </summary>
+        public Type MainLayoutType { get; set; } = typeof(MainLayout);
     }
 }
  
