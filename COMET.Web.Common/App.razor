@@ -20,12 +20,12 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common
-{
+
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="@this.RegistrationService.RegisteredAssemblies" PreferExactMatches="@true"
             OnNavigateAsync="@this.OnNavigate">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@this.RegistrationService.MainLayoutType">
                 <Authorizing>
                     <text>Please wait, we are authorizing the user.</text>
                 </Authorizing>
@@ -38,7 +38,7 @@
         </Found>
         <NotFound>
             <PageTitle>Not found</PageTitle>
-            <LayoutView Layout="@typeof(MainLayout)">
+            <LayoutView Layout="@this.RegistrationService.MainLayoutType">
                 <p role="alert">Sorry, there's nothing at this address.</p>
             </LayoutView>
         </NotFound>

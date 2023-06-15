@@ -54,5 +54,10 @@ namespace COMET.Web.Common.Services.RegistrationService
         /// Gets the custom header <see cref="Type"/>, if applicable
         /// </summary>
         Type CustomHeader { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Type" /> to use as MainLayout for the application
+        /// </summary>
+        Type MainLayoutType { get; }
     }
 }
