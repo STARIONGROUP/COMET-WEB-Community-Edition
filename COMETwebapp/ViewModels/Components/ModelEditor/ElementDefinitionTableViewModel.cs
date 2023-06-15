@@ -27,11 +27,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using System.Collections.ObjectModel;
     using System.Reactive.Linq;
 
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
@@ -52,21 +50,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
-        /// A collection of added <see cref="Thing" />s
-        /// </summary>
-        private readonly List<Thing> addedThings = new();
-
-        /// <summary>
-        /// A collection of deleted <see cref="Thing" />s
-        /// </summary>
-        private readonly List<Thing> deletedThings = new();
-
-        /// <summary>
-        /// A collection of updated <see cref="Thing" />s
-        /// </summary>
-        private readonly List<Thing> updatedThings = new();
-
-        /// <summary>
         /// The current <see cref="Iteration" />
         /// </summary>
         private readonly Iteration iteration;
@@ -80,14 +63,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.iteration = sessionService.OpenIterations.Items.FirstOrDefault();
             this.InitializeElements();
 
-            var observables = new List<IObservable<ObjectChangedEvent>>
-            {
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase)),
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase)),
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ElementBase))
-            };
-
-            this.Disposables.Add(observables.Merge().Subscribe(this.RecordChange));
+            this.InitializeSubscriptions(new List<Type> { typeof(ElementBase) });
         }
 
         /// <summary>
@@ -118,39 +94,12 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         }
 
         /// <summary>
-        /// Records an <see cref="ObjectChangedEvent" />
-        /// </summary>
-        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
-        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
-        {
-            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
-            {
-                return;
-            }
-
-            switch (objectChangedEvent.EventKind)
-            {
-                case EventKind.Added:
-                    this.addedThings.Add(objectChangedEvent.ChangedThing);
-                    break;
-                case EventKind.Removed:
-                    this.deletedThings.Add(objectChangedEvent.ChangedThing);
-                    break;
-                case EventKind.Updated:
-                    this.updatedThings.Add(objectChangedEvent.ChangedThing);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent), "Unrecognised value EventKind value");
-            }
-        }
-
-        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
-            if (!this.addedThings.Any() && !this.deletedThings.Any() && !this.updatedThings.Any())
+            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
             {
                 return;
             }
@@ -158,12 +107,12 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.IsLoading = true;
             await Task.Delay(1);
 
-            this.RemoveRows(this.deletedThings.OfType<ElementBase>());
-            this.RowsSource.AddRange(this.addedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
-            this.RowsTarget.AddRange(this.addedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
-            this.UpdateRows(this.updatedThings.OfType<ElementBase>());
+            this.RemoveRows(this.DeletedThings.OfType<ElementBase>());
+            this.RowsSource.AddRange(this.AddedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
+            this.RowsTarget.AddRange(this.AddedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
+            this.UpdateRows(this.UpdatedThings.OfType<ElementBase>());
 
-            this.ClearRecordedChange();
+            this.ClearRecordedChanges();
             this.IsLoading = false;
         }
 
@@ -207,16 +156,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                     this.RowsTarget.Remove(row);
                 }
             }
-        }
-
-        /// <summary>
-        /// Clears all recorded changed
-        /// </summary>
-        private void ClearRecordedChange()
-        {
-            this.deletedThings.Clear();
-            this.updatedThings.Clear();
-            this.addedThings.Clear();
         }
 
         /// <summary>
