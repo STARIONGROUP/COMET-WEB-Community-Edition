@@ -1,9 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor.cs
 // <copyright file="SystemNode.razor.cs" company="RHEA System S.A.">
-========
-// <copyright file="ViewerNode.razor.cs" company="RHEA System S.A.">
->>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor.cs
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar

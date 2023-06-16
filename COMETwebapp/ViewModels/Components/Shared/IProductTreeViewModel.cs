@@ -28,10 +28,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
 
     using COMETwebapp.Enumerations;
 
-    using COMETwebapp.Model;
-
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
     /// View Model for building the product tree
     /// </summary>
@@ -56,11 +52,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// Gets or sets the root of the <see cref="IProductTreeViewModel{T}"/>
         /// </summary>
         T RootViewModel { get; set; }
-
-        /// <summary>
-        ///     The <see cref="EventCallback" /> to call on node selection
-        /// </summary>
-        EventCallback<SystemNode> OnClick { get; set; }
 
         /// <summary>
         /// Event for when the filter on the tree changes

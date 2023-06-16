@@ -1,28 +1,25 @@
-@using COMETwebapp.ViewModels.Components.SystemRepresentation
-<!------------------------------------------------------------------------------
-========
-﻿<!------------------------------------------------------------------------------
->>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor
-    Copyright (c) 2023 RHEA System S.A.
+<!-----------------------------------------------------------------------------
+Copyright (c) 2023 RHEA System S.A.
 
-    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 
-    This file is part of COMET WEB Community Edition
-     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+This file is part of COMET WEB Community Edition
+The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 
-    The COMET WEB Community Edition is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
+The COMET WEB Community Edition is free software; you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
 
-    The COMET WEB Community Edition is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Affero General Public License for more details.
+The COMET WEB Community Edition is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see http://www.gnu.org/licenses/.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.SystemRepresentation
 @inherits DisposableComponent
 @{
     @if (this.ViewModel is null)
@@ -72,26 +69,12 @@
             <div class="node-inner-content" style="margin-left: calc(20px * @this.ViewModel.Level)">
                 <hr>
                 @if (this.ViewModel.GetChildren().Count > 0)
-<<<<<<<< HEAD:COMETwebapp/Components/SystemRepresentation/SystemNode.razor
                 {
                     var uri = this.ViewModel.IsExpanded ? "images/Expanded.svg" : "images/Collapsed.svg";
                     <img class="expandIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsExpanded = !this.ViewModel.IsExpanded; })" />
                 }
 
                 <p class="node-text">@this.ViewModel.Title</p>
-                
-                @if (this.ViewModel.SceneObject.Primitive is not null)
-                {
-                    @if (this.ViewModel.IsSceneObjectVisible)
-                    {
-                        <img class="treeIcon" src="images/Show.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = false; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel);})" />
-                    }
-                    else
-                    {
-                        <img class="treeIcon" src="images/Hide.svg" onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = true; this.ViewModel.TreeNodeVisibilityChanged(this.ViewModel); })" />
-                    }
-                }
->>>>>>>> 0558dc1 (Create generic abstractions for the trees, nodes... Remove the models for the nodes.):COMETwebapp/Components/Viewer/ViewerNode.razor
             </div>
         </div>
     }    
