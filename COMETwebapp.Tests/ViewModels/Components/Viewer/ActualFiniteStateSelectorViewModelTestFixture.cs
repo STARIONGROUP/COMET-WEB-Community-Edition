@@ -22,22 +22,21 @@
 // </copyright> 
 // -------------------------------------------------------------------------------------------------------------------- 
 
-namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Linq;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
-    
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.AspNetCore.Components;
 
     using NUnit.Framework;
-    
+
     [TestFixture]
     public class ActualFiniteStateSelectorViewModelTestFixture
     {

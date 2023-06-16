@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ProductTreeTestFixture.cs" company="RHEA System S.A.">
+// <copyright file="ViewerProductTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -30,13 +30,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Shared;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -47,11 +46,11 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class ProductTreeTestFixture
+    public class ViewerProductTreeTestFixture
     {
         private TestContext context;
-        private ProductTree productTree;
-        private IRenderedComponent<ProductTree> renderedComponent;
+        private ViewerProductTree productTree;
+        private IRenderedComponent<ViewerProductTree> renderedComponent;
 
         [SetUp]
         public void SetUp()
@@ -59,35 +58,28 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            var productTreeVM = new Mock<IProductTreeViewModel>();
+            var productTreeVM = new Mock<ViewerProductTreeViewModel>();
             productTreeVM.Setup(x => x.TreeFilters).Returns(new List<TreeFilter>() { TreeFilter.ShowFullTree, TreeFilter.ShowNodesWithGeometry });
             productTreeVM.Setup(x => x.SelectedFilter).Returns(TreeFilter.ShowFullTree);
             this.context.Services.AddSingleton(productTreeVM.Object);
 
             var selectionMediator = new SelectionMediator();
             
-            var rootNode = new ViewerNode(new SceneObject(null)) { Title = "rootBaseNode" };
-            var rootNodeVM = new BaseNodeViewModel(rootNode, selectionMediator);
+            var rootNode = new ViewerNodeViewModel(new SceneObject(null)) { Title = "rootBaseNode" };
 
-            var node1 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
-            var node2 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "second" };
-            var node3 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "third" };
-            var node4 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fourth" };
-            var node5 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "fifth" };
+            var node1 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
+            var node2 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "second" };
+            var node3 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "third" };
+            var node4 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "fourth" };
+            var node5 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "fifth" };
             
-            var nodeVM1 = new BaseNodeViewModel(node1, selectionMediator);
-            var nodeVM2 = new BaseNodeViewModel(node2, selectionMediator);
-            var nodeVM3 = new BaseNodeViewModel(node3, selectionMediator);
-            var nodeVM4 = new BaseNodeViewModel(node4, selectionMediator);
-            var nodeVM5 = new BaseNodeViewModel(node5, selectionMediator);
+            node1.AddChild(node2);
+            node1.AddChild(node3);
+            node1.AddChild(node4);
+            rootNode.AddChild(node1);
+            rootNode.AddChild(node5);
 
-            nodeVM1.AddChild(nodeVM2);
-            nodeVM1.AddChild(nodeVM3);
-            nodeVM1.AddChild(nodeVM4);
-            rootNodeVM.AddChild(nodeVM1);
-            rootNodeVM.AddChild(nodeVM5);
-
-            this.renderedComponent = this.context.RenderComponent<ProductTree>(parameters =>
+            this.renderedComponent = this.context.RenderComponent<ViewerProductTree>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, productTreeVM.Object);
             });

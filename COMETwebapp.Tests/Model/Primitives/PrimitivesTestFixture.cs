@@ -32,22 +32,22 @@ namespace COMETwebapp.Tests.Model.Primitives
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
-    using COMETwebapp.Model.Primitives;
+   
     using COMETwebapp.Model.Viewer;
+    using COMETwebapp.Model.Viewer.Primitives;
+
     using NUnit.Framework;
 
     [TestFixture]
     public class PrimitivesTestFixture
     {
-        private readonly Uri uri = new Uri("http://test.com");
-        private Option option;
+        private readonly Uri uri = new("http://test.com");
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
 
         [SetUp]
         public void SetUp()
         {
-            cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
-            option = new Option(Guid.NewGuid(), cache, uri);
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
         }
 
         [Test]
@@ -55,22 +55,24 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var cone = new Cone(0, 0, 0, 1, 1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
-            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var heightParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
-            var heightParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = heightParameterType };
+            
+            var heightParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
+            var heightParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = heightParameterType };
             heightParameter.ValueSet.Add(heightParameterValueSet);
 
             cone.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -88,31 +90,34 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var cube = new Cube(0, 0, 0, 1, 1, 1);
 
-            var widthParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var widthParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var widthParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Width", ShortName = SceneSettings.WidthShortName, };
-            var widthParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = widthParameterType };
+            
+            var widthParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Width", ShortName = SceneSettings.WidthShortName, };
+            var widthParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = widthParameterType };
             widthParameter.ValueSet.Add(widthParameterValueSet);
 
-            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var heightParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
-            var heightParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = heightParameterType };
+            
+            var heightParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
+            var heightParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = heightParameterType };
             heightParameter.ValueSet.Add(heightParameterValueSet);
 
-            var lengthParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var lengthParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var lengthParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Length", ShortName = SceneSettings.LengthShortName, };
-            var lengthParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = lengthParameterType };
+            
+            var lengthParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Length", ShortName = SceneSettings.LengthShortName, };
+            var lengthParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = lengthParameterType };
             lengthParameter.ValueSet.Add(lengthParameterValueSet);
 
             cube.ParseParameter(widthParameter, widthParameterValueSet);
@@ -132,22 +137,24 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var cylinder = new Cylinder(0, 0, 0, 1, 1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
-            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var heightParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
-            var heightParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = heightParameterType };
+            
+            var heightParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
+            var heightParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = heightParameterType };
             heightParameter.ValueSet.Add(heightParameterValueSet);
 
             cylinder.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -165,13 +172,14 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var disc = new Disc(1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
             disc.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -184,13 +192,14 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var triangle = new EquilateralTriangle(1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
             triangle.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -203,22 +212,24 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var hexagonalPrism = new HexagonalPrism(1, 1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
-            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var heightParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
-            var heightParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = heightParameterType };
+            
+            var heightParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
+            var heightParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = heightParameterType };
             heightParameter.ValueSet.Add(heightParameterValueSet);
 
             hexagonalPrism.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -236,22 +247,24 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var rectangle = new Rectangle(1, 1);
 
-            var widthParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var widthParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var widthParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Width", ShortName = SceneSettings.WidthShortName, };
-            var widthParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = widthParameterType };
+            
+            var widthParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Width", ShortName = SceneSettings.WidthShortName, };
+            var widthParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = widthParameterType };
             widthParameter.ValueSet.Add(widthParameterValueSet);
 
-            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var heightParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
-            var heightParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = heightParameterType };
+            
+            var heightParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
+            var heightParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = heightParameterType };
             heightParameter.ValueSet.Add(heightParameterValueSet);
 
             rectangle.ParseParameter(widthParameter, widthParameterValueSet);
@@ -269,13 +282,14 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var hexagonalPrism = new Sphere(1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
             hexagonalPrism.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -288,22 +302,24 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var torus = new Torus(1, 1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
-            var thicknessParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var thicknessParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var thicknessParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Thickness", ShortName = SceneSettings.ThicknessShortName, };
-            var thicknessParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = thicknessParameterType };
+            
+            var thicknessParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Thickness", ShortName = SceneSettings.ThicknessShortName, };
+            var thicknessParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = thicknessParameterType };
             thicknessParameter.ValueSet.Add(thicknessParameterValueSet);
 
             torus.ParseParameter(radiusParameter, radiusParameterValueSet);
@@ -321,22 +337,24 @@ namespace COMETwebapp.Tests.Model.Primitives
         {
             var triangularPrism = new TriangularPrism(1, 1);
 
-            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var radiusParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var radiusParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
-            var radiusParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = radiusParameterType };
+            
+            var radiusParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Radius", ShortName = SceneSettings.DiameterShortName, };
+            var radiusParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = radiusParameterType };
             radiusParameter.ValueSet.Add(radiusParameterValueSet);
 
-            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), cache, uri)
+            var heightParameterValueSet = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri)
             {
                 Manual = new ValueArray<string>(new List<string> { "3.15" }),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
             };
-            var heightParameterType = new TextParameterType(Guid.NewGuid(), cache, uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
-            var heightParameter = new Parameter(Guid.NewGuid(), cache, uri) { ParameterType = heightParameterType };
+            
+            var heightParameterType = new TextParameterType(Guid.NewGuid(), this.cache, this.uri) { Name = "Height", ShortName = SceneSettings.HeightShortName, };
+            var heightParameter = new Parameter(Guid.NewGuid(), this.cache, this.uri) { ParameterType = heightParameterType };
             heightParameter.ValueSet.Add(heightParameterValueSet);
 
             triangularPrism.ParseParameter(radiusParameter, radiusParameterValueSet);

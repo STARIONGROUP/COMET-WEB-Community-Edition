@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NodeComponentTestFixture.cs" company="RHEA System S.A.">
+// <copyright file="ViewerNodeTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
@@ -28,7 +28,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Shared;
 
     using Moq;
@@ -38,12 +38,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class NodeComponentTestFixture
+    public class ViewerNodeTestFixture
     {
         private TestContext context;
-        private NodeComponent nodeComponent;
+        private ViewerNode nodeComponent;
         private Mock<IBaseNodeViewModel> componentViewModel;
-        private IRenderedComponent<NodeComponent> renderedComponent;
+        private IRenderedComponent<ViewerNode> renderedComponent;
 
         [SetUp]
         public void SetUp()
@@ -53,7 +53,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
             this.componentViewModel = new Mock<IBaseNodeViewModel>();
             
-            this.renderedComponent = this.context.RenderComponent<NodeComponent>(parameters 
+            this.renderedComponent = this.context.RenderComponent<ViewerNode>(parameters 
                 => parameters.Add(p=> p.ViewModel, this.componentViewModel.Object)
                              .Add(p=>p.Level, 1)
             );

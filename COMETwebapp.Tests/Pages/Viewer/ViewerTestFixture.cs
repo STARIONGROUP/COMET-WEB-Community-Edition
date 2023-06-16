@@ -45,7 +45,6 @@ namespace COMETwebapp.Tests.Pages.Viewer
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     
     using DevExpress.Blazor;
     

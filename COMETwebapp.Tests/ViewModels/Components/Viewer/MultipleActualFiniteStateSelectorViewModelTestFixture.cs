@@ -22,7 +22,7 @@
 // </copyright> 
 // -------------------------------------------------------------------------------------------------------------------- 
 
-namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
     using System;
     using System.Collections.Concurrent;
@@ -32,7 +32,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Types;
 
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using NUnit.Framework;
 
@@ -49,10 +49,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         public void SetUp()
         {
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
-            
+
             var actualFiniteStateList1 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
             var actualFiniteStateList2 = new ActualFiniteStateList(Guid.NewGuid(), this.cache, this.uri);
-            
+
             var actualFiniteState1 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
             var actualFiniteState2 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
             var actualFiniteState3 = new ActualFiniteState(Guid.NewGuid(), this.cache, this.uri);
@@ -71,7 +71,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
                     ActualFiniteStateList = { actualFiniteStateList1, actualFiniteStateList2 }
                 }
             };
-         }
+        }
 
         [Test]
         public void VerifyViewModel()
@@ -90,7 +90,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         {
             var oldFiniteStates = this.viewModel.ActualFiniteStateListsCollection.Items;
             this.viewModel.CurrentIteration = new Iteration();
-            
+
             Assert.Multiple(() =>
             {
                 Assert.That(oldFiniteStates, Is.Not.EqualTo(this.viewModel.ActualFiniteStateListsCollection.Items));
@@ -103,7 +103,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         {
             this.viewModel.ActualFiniteStateSelectorViewModels = Enumerable.Empty<IActualFiniteStateSelectorViewModel>();
             this.viewModel.InitializeViewModel();
-            
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ActualFiniteStateSelectorViewModels, Is.Not.Empty);

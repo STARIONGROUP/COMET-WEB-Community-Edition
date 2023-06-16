@@ -95,7 +95,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <summary>
         /// Field for containing the children of this <see cref="BaseNodeViewModel{T}"/>
         /// </summary>
-        public List<T> Children { get; set; } = new();
+        protected List<T> Children { get; set; } = new();
         
         /// <summary>
         /// Creates a new instance of type <see cref="BaseNodeViewModel{T}"/>

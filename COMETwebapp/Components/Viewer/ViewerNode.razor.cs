@@ -32,7 +32,7 @@ namespace COMETwebapp.Components.Viewer
     using ReactiveUI;
 
     /// <summary>
-    /// Class for the baseNode component
+    /// Class for the ViewerNode component
     /// </summary>
     public partial class ViewerNode
     {

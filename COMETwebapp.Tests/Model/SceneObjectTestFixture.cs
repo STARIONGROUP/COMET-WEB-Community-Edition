@@ -39,10 +39,11 @@ namespace COMETwebapp.Tests.Model
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities;
+    
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
     using COMETwebapp.Model.Viewer;
     using COMETwebapp.Model.Viewer.Primitives;
+    
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;

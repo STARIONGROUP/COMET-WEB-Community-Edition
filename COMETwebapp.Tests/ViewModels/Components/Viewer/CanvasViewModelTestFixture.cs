@@ -22,26 +22,23 @@
 // </copyright> 
 // -------------------------------------------------------------------------------------------------------------------- 
 
-namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
     using System.Threading.Tasks;
 
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    
+    using COMETwebapp.ViewModels.Components.Viewer;
+
     using Moq;
-    
+
     using NUnit.Framework;
-    
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CanvasViewModelTestFixture
     {
-        private TestContext context;
         private ICanvasViewModel viewModel;
 
         private Mock<IBabylonInterop> babylonInterop;
@@ -50,8 +47,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
-
             this.babylonInterop = new Mock<IBabylonInterop>();
             this.selectionMediator = new Mock<ISelectionMediator>();
 

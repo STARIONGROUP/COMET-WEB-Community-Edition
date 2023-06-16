@@ -1,5 +1,5 @@
 ﻿// -------------------------------------------------------------------------------------------------------------------- 
-// <copyright file="ProductTreeViewModelTestFixture.cs" company="RHEA System S.A."> 
+// <copyright file="ViewerProductTreeViewModelTestFixture.cs" company="RHEA System S.A."> 
 //    Copyright (c) 2023 RHEA System S.A. 
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar 
@@ -22,63 +22,50 @@
 // </copyright> 
 // -------------------------------------------------------------------------------------------------------------------- 
 
-namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
+namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.Model.Viewer.Primitives;
+
     using NUnit.Framework;
-    using ReactiveUI;
-    using System.Linq;
 
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Moq;
 
-    using TestContext = Bunit.TestContext;
-    using COMETwebapp.ViewModels.Components.Shared;
-
     [TestFixture]
-    public class ProductTreeViewModelTestFixture
+    public class ViewerProductTreeViewModelTestFixture
     {
-        private TestContext context;
-        private IProductTreeViewModel viewModel;
+        private ViewerProductTreeViewModel viewModel;
         private Mock<ISelectionMediator> selectionMediator;
-        private BaseNodeViewModel rootBaseNodeVm;
-        private BaseNodeViewModel node1VM;
-        private BaseNodeViewModel node2VM;
-        private BaseNodeViewModel node3VM;
-        private BaseNodeViewModel node4VM;
-        private BaseNodeViewModel node5VM;
-        
+        private ViewerNodeViewModel rootNode;
+        private ViewerNodeViewModel node1;
+        private ViewerNodeViewModel node2;
+        private ViewerNodeViewModel node3;
+        private ViewerNodeViewModel node4;
+        private ViewerNodeViewModel node5;
+
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
             this.selectionMediator = new Mock<ISelectionMediator>();
-            this.viewModel = new ProductTreeViewModel(this.selectionMediator.Object);
+            this.viewModel = new ViewerProductTreeViewModel(this.selectionMediator.Object);
 
-            var rootNode = new ViewerNode(new SceneObject(null)) { Title = "Loft" };
-            var node1 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "Bus" };
-            var node2 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))){ Title = "LargeAreaDetector1" };
-            var node3 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))){ Title = "OpticalBench" };
-            var node4 = new ViewerNode(new SceneObject(new Cube(1, 1, 1))) { Title = "StructuralTower" };
-            var node5 = new ViewerNode(new SceneObject(null)) { Title = "WideFieldMonitor" };
+            this.rootNode = new ViewerNodeViewModel(new SceneObject(null)) { Title = "Loft" };
+            this.node1 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "Bus" };
+            this.node2 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "LargeAreaDetector1" };
+            this.node3 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "OpticalBench" };
+            this.node4 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "StructuralTower" };
+            this.node5 = new ViewerNodeViewModel(new SceneObject(null)) { Title = "WideFieldMonitor" };
 
-            this.rootBaseNodeVm = new BaseNodeViewModel(rootNode, this.selectionMediator.Object);
-            this.node1VM = new BaseNodeViewModel(node1, this.selectionMediator.Object);
-            this.node2VM = new BaseNodeViewModel(node2, this.selectionMediator.Object);
-            this.node3VM = new BaseNodeViewModel(node3, this.selectionMediator.Object);
-            this.node4VM = new BaseNodeViewModel(node4, this.selectionMediator.Object);
-            this.node5VM = new BaseNodeViewModel(node5, this.selectionMediator.Object);
-            
-            this.rootBaseNodeVm.AddChild(this.node1VM);
-            this.node1VM.AddChild(this.node2VM);
-            this.rootBaseNodeVm.AddChild(this.node3VM);
-            this.node3VM.AddChild(this.node4VM);
-            this.node4VM.AddChild(this.node5VM);
+            this.rootNode.AddChild(this.node1);
+            this.node1.AddChild(this.node2);
+            this.rootNode.AddChild(this.node3);
+            this.node3.AddChild(this.node4);
+            this.node4.AddChild(this.node1);
 
-            this.viewModel.RootViewModel = this.rootBaseNodeVm;
+            this.viewModel.RootViewModel = this.rootNode;
         }
 
         [Test]
@@ -95,7 +82,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
 
         [Test]
         public void VerifyOnFilterChanged()
-        {            
+        {
             this.viewModel.SelectedFilter = Enumerations.TreeFilter.ShowNodesWithGeometry;
             this.viewModel.OnFilterChanged();
             var fullTree = this.viewModel.RootViewModel.GetFlatListOfDescendants(true);
@@ -126,16 +113,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.Canvas
         public void VerifyOnSearchFilterChange()
         {
             this.viewModel.SearchText = "de";
-            this.viewModel.OnSearchFilterChange();  
+            this.viewModel.OnSearchFilterChange();
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.rootBaseNodeVm.IsDrawn, Is.False);
-                Assert.That(this.node1VM.IsDrawn, Is.False);
-                Assert.That(this.node2VM.IsDrawn, Is.True);
-                Assert.That(this.node3VM.IsDrawn, Is.False);
-                Assert.That(this.node4VM.IsDrawn, Is.False);
-                Assert.That(this.node5VM.IsDrawn, Is.True);
+                Assert.That(this.rootNode.IsDrawn, Is.False);
+                Assert.That(this.node1.IsDrawn, Is.False);
+                Assert.That(this.node2.IsDrawn, Is.True);
+                Assert.That(this.node3.IsDrawn, Is.False);
+                Assert.That(this.node4.IsDrawn, Is.False);
+                Assert.That(this.node5.IsDrawn, Is.True);
             });
         }
     }
