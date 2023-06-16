@@ -48,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <summary>
         /// Backing field for the <see cref="IsExpanded"/>
         /// </summary>
-        private bool isExpanded = true;
+        private bool isExpanded = false;
 
         /// <summary>
         /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is expanded
