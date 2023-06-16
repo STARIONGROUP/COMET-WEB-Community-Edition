@@ -24,20 +24,15 @@
 
 namespace COMETwebapp.Tests.Components.Viewer.Canvas
 {
-    using System.Collections.Generic;
-
     using Bunit;
 
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Viewer;
-    using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
-
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -58,13 +53,9 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            var productTreeVM = new Mock<ViewerProductTreeViewModel>();
-            productTreeVM.Setup(x => x.TreeFilters).Returns(new List<TreeFilter>() { TreeFilter.ShowFullTree, TreeFilter.ShowNodesWithGeometry });
-            productTreeVM.Setup(x => x.SelectedFilter).Returns(TreeFilter.ShowFullTree);
-            this.context.Services.AddSingleton(productTreeVM.Object);
+            var selectionMediator = new Mock<ISelectionMediator>();
+            var productTreeVM = new ViewerProductTreeViewModel(selectionMediator.Object);
 
-            var selectionMediator = new SelectionMediator();
-            
             var rootNode = new ViewerNodeViewModel(new SceneObject(null)) { Title = "rootBaseNode" };
 
             var node1 = new ViewerNodeViewModel(new SceneObject(new Cube(1, 1, 1))) { Title = "first" };
@@ -81,7 +72,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
             this.renderedComponent = this.context.RenderComponent<ViewerProductTree>(parameters =>
             {
-                parameters.Add(p => p.ViewModel, productTreeVM.Object);
+                parameters.Add(p => p.ViewModel, productTreeVM);
             });
             
             this.productTree = this.renderedComponent.Instance;

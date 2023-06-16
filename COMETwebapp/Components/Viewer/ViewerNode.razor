@@ -93,7 +93,7 @@
 
                 <p class="node-text">@this.ViewModel.Title</p>
                 
-                @if (this.ViewModel.SceneObject.Primitive is not null)
+                @if (this.ViewModel.SceneObject?.Primitive is not null)
                 {
                     var uri = this.ViewModel.IsSceneObjectVisible ? "images/Show.svg" : "images/Hide.svg";
                     var negatedValue = !this.ViewModel.IsSceneObjectVisible;

@@ -64,6 +64,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             this.rootNode.AddChild(this.node3);
             this.node3.AddChild(this.node4);
             this.node4.AddChild(this.node1);
+            this.rootNode.AddChild(this.node5);
 
             this.viewModel.RootViewModel = this.rootNode;
         }

@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Shared;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Moq;
 
@@ -42,7 +43,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     {
         private TestContext context;
         private ViewerNode nodeComponent;
-        private Mock<IBaseNodeViewModel> componentViewModel;
+        private ViewerNodeViewModel componentViewModel;
         private IRenderedComponent<ViewerNode> renderedComponent;
 
         [SetUp]
@@ -51,10 +52,10 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            this.componentViewModel = new Mock<IBaseNodeViewModel>();
+            this.componentViewModel = new ViewerNodeViewModel(null);
             
             this.renderedComponent = this.context.RenderComponent<ViewerNode>(parameters 
-                => parameters.Add(p=> p.ViewModel, this.componentViewModel.Object)
+                => parameters.Add(p=> p.ViewModel, this.componentViewModel)
                              .Add(p=>p.Level, 1)
             );
             

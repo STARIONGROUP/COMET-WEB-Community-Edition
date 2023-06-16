@@ -46,7 +46,7 @@ else
                    TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
                    ReadOnly="this.ViewModel.IsReadOnly"
                    BindValueMode="@this.BindValueMode"/>
-        @if (this.ViewModel.Parameter.Scale != null)
+        @if (this.ViewModel.Parameter?.Scale != null)
         {
             <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
         }
