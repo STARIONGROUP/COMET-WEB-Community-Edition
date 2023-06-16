@@ -24,15 +24,10 @@
 
 namespace COMETwebapp
 {
-    using System.Diagnostics.CodeAnalysis;
-    using System.Reflection;
-    using System.Security.Policy;
-
     using COMET.Web.Common.Extensions;
-    using COMET.Web.Common.Services.ConfigurationService;
-
-    using COMETwebapp.Components.Viewer.Canvas;
+    
     using COMETwebapp.Model;
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
@@ -46,10 +41,13 @@ namespace COMETwebapp
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Components.Viewer;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-
+    
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+    
+    using System.Diagnostics.CodeAnalysis;
+    
+    using System.Reflection;
 
     /// <summary>
     /// Point of entry of the application
@@ -107,8 +105,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ISubscriptionDashboardBodyViewModel, SubscriptionDashboardBodyViewModel>();
             builder.Services.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
             builder.Services.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
-            builder.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
-            builder.Services.AddTransient<ISystemTreeViewModel, SystemTreeViewModel>();
+            builder.Services.AddTransient<IViewerBodyViewModel, ViewerBodyViewModel>();
             builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
             builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();

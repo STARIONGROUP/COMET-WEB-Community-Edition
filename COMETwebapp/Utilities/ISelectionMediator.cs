@@ -25,7 +25,7 @@
 namespace COMETwebapp.Utilities
 {
     using COMETwebapp.Model;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     /// <summary>
     /// Interface for controlling the selecetion of <see cref="SceneObject"/> in the Scene
@@ -50,12 +50,12 @@ namespace COMETwebapp.Utilities
         /// <summary>
         /// Event for when the tree selection has changed
         /// </summary>
-        event Action<INodeComponentViewModel> OnTreeSelectionChanged;
+        event Action<ViewerNodeViewModel> OnTreeSelectionChanged;
 
         /// <summary>
-        /// Event for when a node in the tree has changed his visibility
+        /// Event for when a baseNode in the tree has changed his visibility
         /// </summary>
-        event Action<INodeComponentViewModel> OnTreeVisibilityChanged;
+        event Action<ViewerNodeViewModel> OnTreeVisibilityChanged;
 
         /// <summary>
         /// Event for when the model selection has changed
@@ -65,19 +65,19 @@ namespace COMETwebapp.Utilities
         /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
         /// </summary>
-        /// <param name="nodeViewModel">the node that raised the event</param>
-        void RaiseOnTreeSelectionChanged(INodeComponentViewModel nodeViewModel);
+        /// <param name="baseNodeViewModel">the node that raised the event</param>
+        void RaiseOnTreeSelectionChanged(ViewerNodeViewModel baseNodeViewModel);
 
         /// <summary>
         /// Raises the <see cref="OnTreeVisibilityChanged"/> event
         /// </summary>
-        /// <param name="nodeViewModel"></param>
-        void RaiseOnTreeVisibilityChanged(INodeComponentViewModel nodeViewModel);
+        /// <param name="baseNodeViewModel">the node that raised the event</param>
+        void RaiseOnTreeVisibilityChanged(ViewerNodeViewModel baseNodeViewModel);
 
         /// <summary>
         /// Raises the <see cref="OnModelSelectionChanged"/> event
         /// </summary>
-        /// <param name="sceneObject"></param>
+        /// <param name="sceneObject">the <see cref="SceneObject"/> that raised the event</param>
         void RaiseOnModelSelectionChanged(SceneObject sceneObject);
     }
 }

@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
@@ -32,12 +33,11 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-
-    using COMETwebapp.Model;
+    
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using Microsoft.AspNetCore.Components;
-    
+
     using ReactiveUI;
 
     /// <summary>
@@ -51,9 +51,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         public SystemRepresentationBodyViewModel(ISessionService sessionService) : base(sessionService)
         {
-            this.SystemTreeViewModel = new SystemTreeViewModel
+            this.ProductTreeViewModel = new SystemRepresentationTreeViewModel()
             {
-                OnClick = new EventCallbackFactory().Create<SystemNode>(this, this.SelectElement)
+                OnClick = new EventCallbackFactory().Create<SystemNodeViewModel>(this, this.SelectElement)
             };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).SubscribeAsync(_ => this.ApplyFilters()));
@@ -67,12 +67,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Represents the RootNode of the tree
         /// </summary>
-        public SystemNode RootNode { get; set; }
+        public SystemNodeViewModel RootNode { get; set; }
 
         /// <summary>
-        /// The <see cref="ISystemTreeViewModel" />
+        /// The <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
-        public ISystemTreeViewModel SystemTreeViewModel { get; }
+        public SystemRepresentationTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -111,8 +111,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
 
             this.InitializeElements();
-            this.CreateElementUsages(this.Elements);
-            this.SystemTreeViewModel.SystemNodes = new List<SystemNode> { this.RootNode };
+            this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, new List<ActualFiniteState>());
         }
 
         /// <summary>
@@ -171,53 +170,15 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// Creates the <see cref="ElementUsage" /> used for the system tree nodes
+        /// set the selected <see cref="SystemNodeViewModel" />
         /// </summary>
-        /// <param name="elements">the elements of the current <see cref="Iteration" /></param>
-        private void CreateElementUsages(IEnumerable<ElementBase> elements)
-        {
-            var topElement = elements.First();
-            this.RootNode = new SystemNode(topElement.Name);
-            this.CreateTreeRecursively(topElement, this.RootNode, null);
-        }
-
-        /// <summary>
-        /// Creates the tree in a recursive way
-        /// </summary>
-        /// <param name="elementBase"></param>
-        /// <param name="current"></param>
-        /// <param name="parent"></param>
-        private void CreateTreeRecursively(ElementBase elementBase, SystemNode current, SystemNode parent)
-        {
-            var childsOfElementBase = elementBase switch
-            {
-                ElementDefinition elementDefinition =>  elementDefinition.ContainedElement,
-                ElementUsage elementUsage => elementUsage.ElementDefinition.ContainedElement,
-                _ => null
-            };
-
-            if (childsOfElementBase is null)
-            {
-                return;
-            }
-
-            parent?.AddChild(current);
-
-            foreach (var child in childsOfElementBase)
-            {
-                this.CreateTreeRecursively(child, new SystemNode(child.Name), current);
-            }
-        }
-
-        /// <summary>
-        /// set the selected <see cref="SystemNode" />
-        /// </summary>
-        /// <param name="selectedNode">The selected <see cref="SystemNode" /></param>
+        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        public void SelectElement(SystemNode selectedNode)
+        public void SelectElement(SystemNodeViewModel selectedNode)
         {
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
+            
             this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
             {
                 ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
@@ -227,7 +188,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// Apply all the filters on the <see cref="ISystemTreeViewModel" />
+        /// Apply all the filters on the <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         public async Task ApplyFilters()

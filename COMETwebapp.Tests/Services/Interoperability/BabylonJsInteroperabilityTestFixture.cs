@@ -27,7 +27,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
     using System;
 
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Services.Interoperability;
 
     using Microsoft.AspNetCore.Components;

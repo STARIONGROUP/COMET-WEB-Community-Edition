@@ -155,6 +155,15 @@ namespace COMET.Web.Common.Test.Helpers
         }
 
         /// <summary>
+        /// Gets the <see cref="DateTime" />
+        /// </summary>
+        /// <returns>The now <see cref="DateTime" /></returns>
+        public DateTime GetDateTimeUtcNow()
+        {
+            return DateTimeNow.ToUniversalTime();
+        }
+
+        /// <summary>
         /// Gets the <see cref="ApiScheme" />
         /// </summary>
         Task<ApiScheme> IEnvironmentInfo.ApiScheme => Task.FromResult(new ApiScheme(true));

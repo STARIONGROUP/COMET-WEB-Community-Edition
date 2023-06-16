@@ -25,7 +25,7 @@
 namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
     using Bunit;
-    
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
@@ -34,12 +34,12 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
-    using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
-    
+
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;

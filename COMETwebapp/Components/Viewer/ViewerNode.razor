@@ -1,0 +1,100 @@
+﻿<!-----------------------------------------------------------------------------
+Copyright (c) 2023 RHEA System S.A.
+
+Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+
+This file is part of COMET WEB Community Edition
+The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+The COMET WEB Community Edition is free software; you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+
+The COMET WEB Community Edition is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.Viewer
+@inherits DisposableComponent
+@{
+    @if (this.ViewModel is null)
+    {
+        return;
+    }
+
+    var nodeClasses = "treeNode";
+
+    @if (this.ViewModel.IsSelected)
+    {
+        nodeClasses += " active";
+    }
+
+    @if (this.ViewModel.IsDrawn)
+    {
+        var dxMargin = 20;
+
+        <div class="@nodeClasses" onclick="@(() => this.ViewModel.RaiseTreeSelectionChanged())">
+            
+            @for(var i=0; i <= this.ViewModel.Level; i++)
+            {
+                var margin = dxMargin * i;
+                var percentaje = 100;
+                
+                if (this.ViewModel.IsLastChild() && i == this.ViewModel.Level)
+                {
+                    percentaje = this.ViewModel.GetParentNode() == null ? 0 : 45;
+                }
+
+                var ascendant = this.ViewModel.GetAscendant(i);
+                var style = $"height: {percentaje}%; top: 0px; margin-left: {margin}px;";
+                
+                if (ascendant is not null && ascendant.IsDescendant(this.ViewModel) && !ascendant.IsLastChild())
+                {
+                    margin = dxMargin * ascendant.Level;
+                    style = $"height: {percentaje}%; top: 0px; margin-left: {margin}px;";
+                    <div class="vertical-line" style="@style"></div>
+                }
+
+                if (i == this.ViewModel.Level)
+                {
+                    <div class="vertical-line" style="@style"></div>
+                }
+            }
+
+            <div class="node-inner-content" style="margin-left: calc(20px * @this.ViewModel.Level)">
+                <hr>
+                @if (this.ViewModel.GetChildren().Count > 0)
+                {
+                    var uri = this.ViewModel.IsExpanded ? "images/Expanded.svg" : "images/Collapsed.svg";
+                    <img class="expandIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsExpanded = !this.ViewModel.IsExpanded; })" />
+                }
+
+                <p class="node-text">@this.ViewModel.Title</p>
+                
+                @if (this.ViewModel.SceneObject?.Primitive is not null)
+                {
+                    var uri = this.ViewModel.IsSceneObjectVisible ? "images/Show.svg" : "images/Hide.svg";
+                    var negatedValue = !this.ViewModel.IsSceneObjectVisible;
+                    <img class="treeIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsSceneObjectVisible = negatedValue; this.ViewModel.RaiseTreeNodeVisibilityChanged();})" />
+                }
+            </div>
+        </div>
+    }    
+
+    @if (this.ViewModel.GetChildren().Count > 0 && this.ViewModel.IsExpanded)
+    {
+        <div class="children">
+            <Virtualize TItem="ViewerNodeViewModel" Items="@this.ViewModel.GetChildren()" Context="child">
+                @{
+                    var level = this.ViewModel.Level + 1;
+                    <ViewerNode ViewModel="@child" Level="@level"/>
+                }
+            </Virtualize>
+        </div>
+    }
+}

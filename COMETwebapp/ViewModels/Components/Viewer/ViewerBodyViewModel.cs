@@ -35,7 +35,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using ReactiveUI;
@@ -54,7 +53,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop) : base(sessionService)
         {
             this.SelectionMediator = selectionMediator;
-            this.ProductTreeViewModel = new ProductTreeViewModel(selectionMediator);
+            this.ProductTreeViewModel = new ViewerProductTreeViewModel(selectionMediator);
             this.CanvasViewModel = new CanvasViewModel(babylonInterop, selectionMediator);
             this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator);
             this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
@@ -80,9 +79,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public IMultipleActualFiniteStateSelectorViewModel MultipleFiniteStateSelector { get; private set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IProductTreeViewModel" />
+        /// Gets or sets the <see cref="ViewerProductTreeViewModel" />
         /// </summary>
-        public IProductTreeViewModel ProductTreeViewModel { get; private set; }
+        public ViewerProductTreeViewModel ProductTreeViewModel { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ICanvasViewModel" />

@@ -20,6 +20,8 @@ Copyright (c) 2023 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@using CDP4Dal
+
 <div id="propertiesPanel">
 
     @if (this.ViewModel.IsVisible)
@@ -29,7 +31,7 @@ Copyright (c) 2023 RHEA System S.A.
         var buttonClass = this.ViewModel.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
 
         <div id="properties-header">
-            <h6>@title</h6>
+            <h4 id="properties-title">@title</h4>
             <button @onclick="()=>this.ViewModel.OnSubmit()" class="@buttonClass" disabled="@(!this.ViewModel.ParameterHaveChanges)">Submit</button>
         </div>
 

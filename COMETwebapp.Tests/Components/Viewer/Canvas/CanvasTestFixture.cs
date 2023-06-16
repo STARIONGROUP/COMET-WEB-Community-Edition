@@ -28,11 +28,11 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.Viewer.Canvas;
+    using COMETwebapp.Components.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Viewer.Canvas;
-    
+    using COMETwebapp.ViewModels.Components.Viewer;
+
     using Microsoft.Extensions.DependencyInjection;
     
     using Moq;
@@ -45,7 +45,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     public class CanvasTestFixture
     {
         private TestContext context;
-        private CanvasComponent canvas;
+        private Canvas3D canvas;
         private ICanvasViewModel viewModel;
 
         private Mock<IBabylonInterop> babylonInterop;
@@ -64,7 +64,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.viewModel = new CanvasViewModel(this.babylonInterop.Object, this.selectionMediator.Object);
             this.context.Services.AddSingleton(this.viewModel);
 
-            var rendererComponent = this.context.RenderComponent<CanvasComponent>(parameters =>
+            var rendererComponent = this.context.RenderComponent<Canvas3D>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel);
             });

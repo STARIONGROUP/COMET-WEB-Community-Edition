@@ -2,7 +2,7 @@
     position: relative;
     margin: 1% 0;
     display: grid;
-    grid-template-columns: 0.15fr 1fr 0.23fr;
+    grid-template-columns: 0.2fr 1fr 0.2fr;
     grid-template-rows: 1fr;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
@@ -10,12 +10,12 @@
 
 #leftColumn {
     grid-area: 1 / 1 / 2 / 2;
-    margin-left: 2%;
+    margin: 0;
     margin-right: 2%;
-    width : 240px;
     overflow-y: auto;
-    height:80vh;
-    bottom: 0
+    max-height: 67vh;
+    top: 0;
+    border: 1px solid #EEE;
 }
 
 #center-container {
@@ -27,4 +27,5 @@
     grid-area: 1 / 3 / 2 / 4;
     margin: 0;
     margin-left: 2%;
+    top: 0;
 }

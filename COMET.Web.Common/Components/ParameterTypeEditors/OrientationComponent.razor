@@ -37,15 +37,24 @@
                 </div>
                 <div class="euler-parameter-row">
                     <p class="orientation_p">Rx:</p>
-                    <DxTextBox Text="@this.ViewModel.Orientation.X.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rx",e))"></DxTextBox>
+                    @{
+                        var orientationX = Math.Round(this.ViewModel.Orientation.X, 4).ToString(CultureInfo.InvariantCulture);
+                        <DxTextBox Text="@orientationX" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rx",e))"></DxTextBox>
+                    }
                 </div>
                 <div class="euler-parameter-row">
                     <p class ="orientation_p">Ry:</p>
-                    <DxTextBox Text="@this.ViewModel.Orientation.Y.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Ry",e))"></DxTextBox>
+                    @{
+                        var orientationY = Math.Round(this.ViewModel.Orientation.Y, 4).ToString(CultureInfo.InvariantCulture);
+                        <DxTextBox Text="@orientationY" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Ry",e))"></DxTextBox>
+                    }
                 </div>
                 <div class="euler-parameter-row">
                     <p class="orientation_p">Rz:</p>
-                    <DxTextBox Text="@this.ViewModel.Orientation.Z.ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rz",e))"></DxTextBox>
+                    @{
+                        var orientationZ = Math.Round(this.ViewModel.Orientation.Z, 4).ToString(CultureInfo.InvariantCulture);
+                        <DxTextBox Text="@orientationZ" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="@((e) => this.ViewModel.OnEulerAnglesChanged("Rz",e))"></DxTextBox>
+                    }
                 </div>
             }
         </div>
@@ -59,7 +68,10 @@
                     var index = i;
                     <div class="matrix-parameter-row">
                         <p class="orientation_p">@names[index]</p>
-                        <DxTextBox Text="@this.ViewModel.Orientation.Matrix[index].ToString(CultureInfo.InvariantCulture)" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e) => this.ViewModel.OnMatrixValuesChanged(index, e)"></DxTextBox>
+                        @{
+                            var value = Math.Round(this.ViewModel.Orientation.Matrix[index], 4).ToString(CultureInfo.InvariantCulture);
+                            <DxTextBox Text="@value" BindValueMode="BindValueMode.OnInput" CssClass="parameter-input" @oninput="(e) => this.ViewModel.OnMatrixValuesChanged(index, e)"></DxTextBox>
+                        }
                     </div>
                 }
             }

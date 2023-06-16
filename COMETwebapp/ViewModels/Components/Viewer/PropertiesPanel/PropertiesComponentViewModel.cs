@@ -33,10 +33,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.Types;
 
     using COMET.Web.Common.Services.SessionManagement;
-
-    using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
 
@@ -83,7 +82,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
             this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async ((IValueSet,int) valueSet) => { await this.ParameterValueSetChanged(valueSet); });
 
-            this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(nodeViewModel.Node.SceneObject);
+            this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(nodeViewModel.SceneObject);
             this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
         }
 

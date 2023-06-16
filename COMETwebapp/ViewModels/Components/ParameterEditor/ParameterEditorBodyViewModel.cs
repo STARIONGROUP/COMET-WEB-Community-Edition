@@ -194,12 +194,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.updatedThings.Clear();
             this.addedThings.Clear();
         }
-
+        
         /// <summary>
         /// Records an <see cref="ObjectChangedEvent" />
         /// </summary>
         /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
-        private void RecordChange(ObjectChangedEvent objectChangedEvent)
+        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
         {
             if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
             {

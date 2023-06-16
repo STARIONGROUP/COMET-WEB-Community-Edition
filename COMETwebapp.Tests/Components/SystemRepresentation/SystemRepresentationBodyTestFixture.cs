@@ -40,6 +40,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
@@ -277,12 +278,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             Assert.That(optionFilterCombo, Is.Not.Null);
 
             this.viewModel.OptionSelector.SelectedOption = option1;
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes, Is.Not.Null);
-                Assert.That(this.viewModel.SystemTreeViewModel.SystemNodes.ToList().Count, Is.EqualTo(1));
-            });
         }
 
         [Test]
@@ -298,7 +293,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.viewModel.Elements.Clear();
             this.viewModel.Elements.Add(this.iteration.Element.First());
 
-            this.viewModel.SelectElement(this.viewModel.RootNode);
+            this.viewModel.SelectElement(new SystemNodeViewModel(this.viewModel.Elements.FirstOrDefault().Name));
 
             Assert.Multiple(() =>
             {

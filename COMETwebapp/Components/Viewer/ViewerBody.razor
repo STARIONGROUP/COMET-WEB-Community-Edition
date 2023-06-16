@@ -32,10 +32,10 @@
         </div> 
         <div id="gridParent">
             <div id="leftColumn">
-                <ProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
+                <ViewerProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
             </div>
             <div id="center-container">
-                <CanvasComponent @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel" />
+                <Canvas3D @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel" />
             </div>
             <div id="rightColumn">
                 <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel" />

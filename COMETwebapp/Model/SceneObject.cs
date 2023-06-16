@@ -25,10 +25,9 @@
 namespace COMETwebapp.Model
 {
     using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.Components.Viewer.Canvas;
     using COMETwebapp.Extensions;
-    using COMETwebapp.Model.Primitives;
+    using COMETwebapp.Model.Viewer;
+    using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Utilities;
 
     using Newtonsoft.Json;
@@ -77,7 +76,7 @@ namespace COMETwebapp.Model
         public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
-        /// Gets or sets the <see cref="Primitives.Primitive" /> related to this <see cref="SceneObject" />.
+        /// Gets or sets the <see cref="Viewer.Primitives.Primitive" /> related to this <see cref="SceneObject" />.
         /// Can be NULL is a <see cref="SceneObject" /> don't have a <see cref="Primitive" /> asociated
         /// </summary>
         public Primitive Primitive { get; private set; }

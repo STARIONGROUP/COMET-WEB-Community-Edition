@@ -24,31 +24,33 @@
 @using COMET.Web.Common.Extensions
 @inherits DisposableComponent
 
-@{
-    @if (string.Equals(this.ViewModel.ParameterType.ShortName, ConstantValues.ColorShortName, StringComparison.InvariantCultureIgnoreCase))
-    {
-        var colorValue = this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex].ParseToHexColor();
-        <div class="parameter-row" id="color-section">
-            <input class="margin-2" type="color" 
-                   id="color-picker" 
-                   name="color" 
-                   value="@colorValue" 
-                   readonly="@this.ViewModel.IsReadOnly"
-                   onchange="@((ChangeEventArgs value) => this.ViewModel.OnParameterValueChanged(value))">
-            <label for="color-picker" id="color-text">Color</label>
-        </div>
-    }
-    else
-    {
-        <div class="parameter-row">
-            <DxTextBox InputCssClass="text-parameter-type"
-                       Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
-                       CssClass="parameter-input"
-                       TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
-                       ReadOnly="this.ViewModel.IsReadOnly"
-                       BindValueMode="@this.BindValueMode"/>
-        </div>
-    }
-
-    <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
+@if (string.Equals(this.ViewModel.ParameterType.ShortName, ConstantValues.ColorShortName, StringComparison.InvariantCultureIgnoreCase))
+{
+    var colorValue = this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex].ParseToHexColor();
+    <div class="parameter-row" id="color-section">
+        <input class="margin-2" type="color" 
+               id="color-picker" 
+               name="color" 
+               value="@colorValue" 
+               readonly="@this.ViewModel.IsReadOnly"
+               onchange="@((ChangeEventArgs value) => this.ViewModel.OnParameterValueChanged(value))">
+        <label for="color-picker" id="color-text">Color</label>
+    </div>
 }
+else
+{
+    <div class="parameter-row">
+        <DxTextBox InputCssClass="text-parameter-type"
+                   Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
+                   CssClass="parameter-input"
+                   TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+                   ReadOnly="this.ViewModel.IsReadOnly"
+                   BindValueMode="@this.BindValueMode"/>
+        @if (this.ViewModel.Parameter?.Scale != null)
+        {
+            <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
+        }
+    </div>
+}
+
+<ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
