@@ -2,6 +2,10 @@ name: Build & Test & SonarQube
 
 on:
   push:
+    branches:
+      - '**'
+    tags-ignore:
+      - 'web-*'
   pull_request:
     types: [opened, synchronize, reopened]
     
