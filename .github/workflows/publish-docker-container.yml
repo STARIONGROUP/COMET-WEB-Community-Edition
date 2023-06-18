@@ -36,3 +36,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
             "DEVEXPRESS_NUGET_KEY=${{ secrets.DEVEXPRESS_NUGET_KEY }}"
+            
+    - name: Invoke deployment hook
+      uses: distributhor/workflow-webhook@v3
+      env:
+        webhook_url: ${{ secrets.WEBHOOK_URL }}
+        webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
