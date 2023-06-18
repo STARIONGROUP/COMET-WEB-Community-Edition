@@ -28,6 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\codeql.yml = .github\workflows\codeql.yml
 		.github\workflows\CodeQuality.yml = .github\workflows\CodeQuality.yml
+		.github\workflows\publish-docker-container.yml = .github\workflows\publish-docker-container.yml
 	EndProjectSection
 EndProject
 Global
