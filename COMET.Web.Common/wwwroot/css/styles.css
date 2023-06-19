@@ -47,13 +47,13 @@
 
 @media (max-width: 500px) {
     .comet-info-text p:after {
-        content: 'COMET WEB Community Editition (CE)';
+        content: 'CDP4-COMET WEB Community Editition (CE)';
     }
 }
 
 @media (min-width: 501px) {
     .comet-info-text p:after {
-        content: 'COMET WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C.';
+        content: 'CDP4-COMET WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C.';
     }
 }
 
