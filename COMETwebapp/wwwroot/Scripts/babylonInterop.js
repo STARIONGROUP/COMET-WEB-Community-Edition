@@ -112,9 +112,9 @@ let HighLightLayer;
  * Inits the babylon.js scene on the canvas, the asociated resources and starts the render loop.
  * @param {HTMLCanvasElement} canvas - the canvas the scene it's attached to.
  */
-function InitCanvas(canvas,addAxes) {
+function InitCanvas(canvas, addAxes) {
 
-    if (canvas == null || canvas == undefined) {
+    if (canvas == null) {
         throw "The canvas can't be null or undefined";
     }
 
@@ -136,7 +136,6 @@ function InitCanvas(canvas,addAxes) {
     CreateSkybox(Scene, SkyboxSize);
 
     PickingMaterial = SetUpPickingMaterial();
-    DetailsPanel = document.getElementById("detailsPanel");
 
     SceneSpecularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
     SceneEmissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);
