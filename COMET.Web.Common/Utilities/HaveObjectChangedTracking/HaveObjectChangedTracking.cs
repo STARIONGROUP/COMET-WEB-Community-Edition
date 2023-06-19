@@ -78,11 +78,26 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         }
 
         /// <summary>
+        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent"/>
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent"/></param>
+        /// <returns>true if the change should be recorded, false otherwise</returns>
+        protected virtual bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Records an <see cref="ObjectChangedEvent" />
         /// </summary>
         /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
-        protected virtual void RecordChange(ObjectChangedEvent objectChangedEvent)
+        private void RecordChange(ObjectChangedEvent objectChangedEvent)
         {
+            if (!this.ShouldRecordChange(objectChangedEvent))
+            {
+                return;
+            }
+
             switch (objectChangedEvent.EventKind)
             {
                 case EventKind.Added:
