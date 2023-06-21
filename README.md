@@ -7,6 +7,8 @@ The CDP4-COMET-WEB Community Editition (CE) is the RHEA Group open source Concur
 
 A demo version of the web application is available at https://comet-web.cdp4.org
 
+![GitHub issues](https://img.shields.io/github/issues/RHEAGROUP/COMET-WEB-Community-Edition.svg)
+
 [![Publish Docker Container](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml/badge.svg)](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
