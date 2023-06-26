@@ -2,73 +2,18 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <Version>1.1.0</Version>
+        <Version>1.2.0</Version>
         <Title>CDP4-COMET WEB Community Edition</Title>
         <Description>A Blazor web application that implements ECSS-E-TM-10-25</Description>
         <Company>RHEA System S.A.</Company>
         <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
         <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
-        <Authors>Justine, Sam, Alex, Alexander</Authors>
+        <Authors>Justine, Sam, Alex, Alexander, Antoine, Jaime</Authors>
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
         <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
-        <PackageReleaseNotes>
-            [Add] the Blazor 3D Viewer; fixes #159
-            [Add] Retrieve information from a EngineeringModel #fixes 160
-            [Add] Parameters defined in order to create basic shapes. fixes #161
-            [Add] Convert Element Usage in Basic Shape; fixes #163
-            [Add] Added tree to select, hide and show items on scene; fixes #179
-            [Add] Scene as Injectable Service; fixes #181
-            [Add] more basic primitives; fixes #182
-            [Add] the tree selection from both ways; fixes #188
-            [Add] Tree showing the product tree hierarchy; fixes #197
-            [Add] Show a Properties panel for the selected primitive; fixes #170
-            [Add] Refreshing the session updates the viewer; fixes #198
-            [Add] Change Positions Real Time; fixes #195
-            [Add] Changes can be pushed to source; fixes #193
-            [Add] State Selector UI Update; fixes #205 and #208
-            [Add] Use color parameter on meshes; fixes #185
-            [Add] Changes can be applied at runtime; fixes #190
-            [Add] Properties now can persist on the details panel; Fixes #196
-            [Add] Rotations can be performed by Euler Angles; Fixes #214
-            [Add] Scene Object
-            [Add] Add Warning Window, Add Filters on Tree, Refactor ViewerPage. Fixes #202 #203 #204 #220 #225 #226
-            [Refactor] Folder structure; Fixes #232
-            [Refactor] of home page and open multiple models; Fixes #233 #238 (#246)
-            [Change] order the Scene is computed; Fixes  #227
-            [Refactor] Viewer; Fixes #237
-            [Refactor] ModelDashboard; Fixes #234 #247 (#250)
-            [Refactor] IterationService removed and created SubscriptionService: Fix #252
-            [Refactor] Parameter Editor
-            [Refactor] Subscription Dashboard; Fixes #236 #261 (#274)
-            [Refactor] Parameter Type Editors; Fixes #253 #254 #255 #256 #257 #258 #259
-            [Add] Integration Test improvement; Fixes  #260
-            [Update] PermissionService and ParameterBaseRowViewModel; Fixes #239 #265
-            [Refactor] contains all development feature and build fix; Fixes  #287
-            [Improvement] Nullable and code smells have been cleaned; Fixes  #295
-            [Add] Create or deprecate a category; Fixes  #289 #301
-            [Add] User management improvements; Fixes  #297
-            [Add] ModelDashboard: number rounded and MeasurementScale; Fixes #300
-            [Add] LoadingComponent created; Fixes #299
-            [Add] Multiple value selection for enumeration; Fixes #282
-            [Add] Behaviour of ParameterTable changed; Fixes #312
-            [Add] Compound parameter improvement; Fixes #283
-            [Add] Validation of parameters in element usage; Fixes #199
-            [Add] Filtering improvement and add missing Measurementscale; Fixes #310 #296
-            [Add] Global show hide deprecate; Fixes #292
-            [Add] MultipleFiniteStateSelector bug fixed; Fixes #308
-            [Add] Logout page implemented; Fixes #318
-            [Add] Replace DxChartDonutSeries by DxPieChartSeries; Fixes #321
-            [Add] Revisions evolution boolean and enumeration ParameterTypes; Fixes #272 #271
-            [Add] Common library created; Fixes #317
-            [Add] Improvement on Refresh; Fixes #284
-            [Add] Revisions evolution Compound and Array ParameterTypes; Fixes #270 #273
-            [Add] CompoundComponentSelectedEvent removed from webapp project; Fixes #331
-            [Add] Common Test Library created; Fixes #334
-            [Add] Revisions evolution date and datetime ParameterTypes; Fixes #329
-        </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
