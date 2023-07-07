@@ -43,12 +43,6 @@ namespace COMETwebapp.Components.UserManagement
     public partial class UserManagementTable
     {
         /// <summary>
-        /// The <see cref="IUserManagementTableViewModel" /> for this component
-        /// </summary>
-        [Inject]
-        public IUserManagementTableViewModel ViewModel { get; set; }
-
-        /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
@@ -173,6 +167,15 @@ namespace COMETwebapp.Components.UserManagement
                 this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
                 .Subscribe(_ => this.HideOrShowDeprecatedItems()));
             }
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
+           //in this case, we don't have selectors that needs parameters from the url
         }
     }
 }

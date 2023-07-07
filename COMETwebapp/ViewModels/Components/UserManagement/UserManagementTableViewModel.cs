@@ -26,7 +26,10 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using System.Reactive.Linq;
 
+    using AntDesign;
+
     using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -34,7 +37,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
@@ -48,7 +51,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     /// <summary>
     /// View model used to manage <see cref="Person" />
     /// </summary>
-    public class UserManagementTableViewModel : DisposableObject, IUserManagementTableViewModel
+    public class UserManagementTableViewModel : SingleIterationApplicationBaseViewModel, IUserManagementTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
@@ -66,11 +69,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
-        /// A collection of all <see cref="PersonRowViewModel" />
-        /// </summary>
-        private IEnumerable<PersonRowViewModel> allRows = new List<PersonRowViewModel>();
-
-        /// <summary>
         /// Backing field for <see cref="IsOnDeprecationMode" />
         /// </summary>
         private bool isOnDeprecationMode;
@@ -80,31 +78,90 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public UserManagementTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService)
+        public UserManagementTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
-            this.Disposables.Add(
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Added &&
-                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as Person)
-                    .Subscribe(this.AddNewPerson));
+            this.InitializeSubscriptions(new List<Type> { typeof(Person) });
+        }
 
-            this.Disposables.Add(
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Person))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as Person)
-                    .Subscribe(this.UpdatePerson));
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
+            {
+                return;
+            }
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
-                .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                .Select(x => x.ChangedThing as PersonRole)
-                .Subscribe(_ => this.RefreshAccessRight()));
+            this.IsLoading = true;
+            await Task.Delay(1);
+
+            this.RemoveRows(this.DeletedThings.OfType<Person>());
+            this.UpdateRows(this.UpdatedThings.OfType<Person>());
+            this.Rows.AddRange(this.AddedThings.OfType<Person>().Select(x => new PersonRowViewModel(x)));
+
+            this.ClearRecordedChanges();
+            this.RefreshAccessRight();
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Records an <see cref="ObjectChangedEvent" />
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
+        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            switch (objectChangedEvent.EventKind)
+            {
+                case EventKind.Added:
+                    this.AddedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                case EventKind.Removed:
+                    this.DeletedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                case EventKind.Updated:
+                    this.UpdatedThings.Add(objectChangedEvent.ChangedThing);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent), "Unrecognised value EventKind value");
+            }
+        }
+
+        /// <summary>
+        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
+        public void RemoveRows(IEnumerable<Person> deletedThings)
+        {
+            foreach (Person person in deletedThings)
+            {
+                var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
+                if (row != null)
+                {
+                    this.Rows.Remove(row);
+                }
+            }
+        }
+
+        /// <summary>   
+        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
+        public void UpdateRows(IEnumerable<Person> updatedThings)
+        {
+            foreach (Person person in updatedThings)
+            {
+                var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
+                if (row != null)
+                {
+                    row.UpdateProperties(new PersonRowViewModel(person));
+                }
+            }
         }
 
         /// <summary>
@@ -267,45 +324,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public void OnInitialized()
         {
             this.DataSource.AddRange(this.sessionService.Session.RetrieveSiteDirectory().Person);
-            this.UpdateProperties(this.DataSource.Items);
+            this.DataSource.Items.ForEach(x => this.Rows.Add(new PersonRowViewModel(x)));
             this.AvailableOrganizations = this.sessionService.Session.RetrieveSiteDirectory().Organization;
             this.AvailablePersonRoles = this.sessionService.Session.RetrieveSiteDirectory().PersonRole;
             this.AvailableDomains = this.sessionService.Session.RetrieveSiteDirectory().Domain;
             this.RefreshAccessRight();
-        }
-
-        /// <summary>
-        /// Adds a new <see cref="Person" /> to the <see cref="DataSource" />
-        /// </summary>
-        public void AddNewPerson(Person person)
-        {
-            var newRows = new List<PersonRowViewModel>(this.allRows)
-            {
-                new(person)
-            };
-
-            this.UpdateRows(newRows);
-        }
-
-        /// <summary>
-        /// Updates the <see cref="Person" /> in the <see cref="DataSource" />
-        /// </summary>
-        public void UpdatePerson(Person person)
-        {
-            var updatedRows = new List<PersonRowViewModel>(this.allRows);
-            var index = updatedRows.FindIndex(x => x.Person.Iid == person.Iid);
-            updatedRows[index] = new PersonRowViewModel(person);
-            this.UpdateRows(updatedRows);
-        }
-
-        /// <summary>
-        /// Updates this view model properties
-        /// </summary>
-        /// <param name="persons">A collection of <see cref="Person" /></param>
-        public void UpdateProperties(IEnumerable<Person> persons)
-        {
-            this.allRows = persons.Select(x => new PersonRowViewModel(x));
-            this.UpdateRows(this.allRows);
         }
 
         /// <summary>
@@ -349,25 +372,13 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Update the <see cref="Rows" /> collection based on a collection of
-        /// <see cref="PersonRowViewModel" /> to display.
+        /// Update this view model properties
         /// </summary>
-        /// <param name="rowsToDisplay">A collection of <see cref="PersonRowViewModel" /></param>
-        private void UpdateRows(IEnumerable<PersonRowViewModel> rowsToDisplay)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnIterationChanged()
         {
-            rowsToDisplay = rowsToDisplay.ToList();
-
-            var deletedRows = this.Rows.Items.Where(x => rowsToDisplay.All(r => r.Person.Iid != x.Person.Iid)).ToList();
-            var addedRows = rowsToDisplay.Where(x => this.Rows.Items.All(r => r.Person.Iid != x.Person.Iid)).ToList();
-            var existingRows = rowsToDisplay.Where(x => this.Rows.Items.Any(r => r.Person.Iid == x.Person.Iid)).ToList();
-
-            this.Rows.RemoveMany(deletedRows);
-            this.Rows.AddRange(addedRows);
-
-            foreach (var existingRow in existingRows)
-            {
-                this.Rows.Items.First(x => x.Person.Iid == existingRow.Person.Iid).UpdateProperties(existingRow);
-            }
+            await base.OnIterationChanged();
+            this.IsLoading = false;
         }
     }
 }
