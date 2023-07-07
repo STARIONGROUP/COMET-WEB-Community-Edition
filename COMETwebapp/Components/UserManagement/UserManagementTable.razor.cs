@@ -169,9 +169,13 @@ namespace COMETwebapp.Components.UserManagement
             }
         }
 
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
-         
+           //in this case, we don't have selectors that needs parameters from the url
         }
     }
 }
