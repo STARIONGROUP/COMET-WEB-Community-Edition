@@ -372,5 +372,27 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
+
+        [Test]
+        public void VerifyRecordChange()
+        {
+            this.context.RenderComponent<UserManagementTable>();
+
+            var personTest = new Person()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            CDPMessageBus.Current.SendObjectChangeEvent(personTest, EventKind.Added);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Removed);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Updated);
+            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
+        }
     }
 }
