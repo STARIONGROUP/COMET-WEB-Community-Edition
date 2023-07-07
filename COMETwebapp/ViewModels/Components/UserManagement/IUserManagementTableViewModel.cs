@@ -26,6 +26,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.ViewModels.Components;
+
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
 
@@ -36,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     /// <summary>
     /// View model used to manage <see cref="Person" />
     /// </summary>
-    public interface IUserManagementTableViewModel : IDisposable
+    public interface IUserManagementTableViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
         /// The <see cref="Person" /> to create
