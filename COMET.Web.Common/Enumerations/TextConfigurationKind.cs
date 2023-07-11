@@ -44,5 +44,25 @@ namespace COMET.Web.Common.Enumerations
         /// Placeholder for the combobox to select a DomainOfExpertise
         /// </summary>
         OpenDomainOfExpertisePlaceholder = 2,
+
+        /// <summary>
+        /// The caption to use as title for the model section
+        /// </summary>
+        ModelTitleCaption = 3,
+
+        /// <summary>
+        /// The caption to use as title for the iteration section
+        /// </summary>
+        IterationTitleCaption = 4,
+
+        /// <summary>
+        /// The caption to use as title for the domain section
+        /// </summary>
+        DomainTitleCaption = 5,
+
+        /// <summary>
+        /// The title to use in the landing page
+        /// </summary>
+        LandingPageTitle = 6
     }
 }
