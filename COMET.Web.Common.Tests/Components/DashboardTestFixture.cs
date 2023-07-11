@@ -32,7 +32,9 @@ namespace COMET.Web.Common.Tests.Components
     using Bunit;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
 
     using Microsoft.AspNetCore.Components;
@@ -49,6 +51,7 @@ namespace COMET.Web.Common.Tests.Components
     {
         private List<Application> applications;
         private Mock<IRegistrationService> registrationService;
+        private Mock<IConfigurationService> configurationService;
         private TestContext context;
 
         [SetUp]
@@ -80,8 +83,12 @@ namespace COMET.Web.Common.Tests.Components
             this.registrationService.Setup(x => x.RegisteredApplications)
                 .Returns(this.applications);
 
+            this.configurationService = new Mock<IConfigurationService>();
+            this.configurationService.Setup(x => x.GetText(TextConfigurationKind.LandingPageTitle)).Returns(string.Empty);
+
             this.context = new TestContext();
             this.context.Services.AddSingleton(this.registrationService.Object);
+            this.context.Services.AddSingleton(this.configurationService.Object);
         }
 
         [TearDown]
