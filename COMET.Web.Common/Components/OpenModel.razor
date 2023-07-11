@@ -27,7 +27,7 @@
 @inherits DisposableComponent
 
 <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-	<DxFormLayoutItem Caption="Model:" ColSpanLg="12">
+	<DxFormLayoutItem Caption="@(this.ConfigurationService.GetText(TextConfigurationKind.ModelTitleCaption))" ColSpanLg="12">
 		<Template>
 			<DxComboBox Id="model-selection" Data="@this.ViewModel.AvailableEngineeringModelSetups"
 			            TextFieldName="@nameof(EngineeringModelSetup.Name)"
@@ -38,7 +38,7 @@
 	</DxFormLayoutItem>
 	@if (this.ViewModel.SelectedEngineeringModel != null)
 	{
-		<DxFormLayoutItem Caption="Iteration:" ColSpanLg="12">
+		<DxFormLayoutItem Caption="@(this.ConfigurationService.GetText(TextConfigurationKind.IterationTitleCaption))" ColSpanLg="12">
 			<Template>
 				<DxComboBox Id="iteration-selection" Data="@this.ViewModel.AvailableIterationSetups"
 				            TextFieldName="@nameof(IterationData.IterationName)"
@@ -47,7 +47,7 @@
 							Enabled="@this.selectorEnabled" />
 			</Template>
 		</DxFormLayoutItem>
-		<DxFormLayoutItem Caption="Domain:" ColSpanLg="12">
+		<DxFormLayoutItem Caption="@(this.ConfigurationService.GetText(TextConfigurationKind.DomainTitleCaption))" ColSpanLg="12">
 			<Template>
 				<DxComboBox Id="domain-selection" Data="@this.ViewModel.AvailablesDomainOfExpertises"
 				            TextFieldName="@nameof(DomainOfExpertise.Name)"

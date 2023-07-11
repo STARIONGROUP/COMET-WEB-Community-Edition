@@ -1,5 +1,9 @@
 {
   "OpenEngineeringModelPlaceholder": "Select an Engineering Model",
   "OpenIterationPlaceholder": "Select an Iteration",
-  "OpenDomainOfExpertisePlaceholder": "Select a Domain of Expertise"
+  "OpenDomainOfExpertisePlaceholder": "Select a Domain of Expertise",
+  "ModelTitleCaption": "Model",
+  "IterationTitleCaption": "Iteration",
+  "DomainTitleCaption": "Domain",
+  "LandingPageTitle" : "" 
 }

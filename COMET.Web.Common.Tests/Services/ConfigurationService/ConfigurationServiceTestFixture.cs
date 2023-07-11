@@ -26,9 +26,11 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
 {
     using System.Net;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.ConfigurationService;
 
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
     using Moq;
@@ -41,14 +43,14 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
     {
         private IConfigurationService configurationService;
 
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public async Task VerifyService()
         {
             var globalOptions = new GlobalOptions
             {
                 JsonConfigurationFile = null,
             };
-            
+
             var options = new Mock<IOptions<GlobalOptions>>();
             options.Setup(x => x.Value).Returns(globalOptions);
 
@@ -58,11 +60,15 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
                         {
                             "OpenEngineeringModelPlaceholder": "Select an Engineering Model",
                             "OpenIterationPlaceholder": "Select an Iteration",
-                            "OpenDomainOfExpertisePlaceholder": "Select a Domain of Expertise"
+                            "OpenDomainOfExpertisePlaceholder": "Select a Domain of Expertise",
+                            "ModelTitleCaption" : "Model",
+                            "IterationTitleCaption" : "Iteration",
+                            "DomainTitleCaption" : "Domain",
+                            "LandingPageTitle" : ""
                         }
                         """;
-            
-			handlerMock
+
+            handlerMock
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
@@ -81,24 +87,85 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
                 BaseAddress = new Uri("http://localhost")
             };
 
-            this.configurationService = new ConfigurationService(options.Object, httpClient);
-        }
+            var loggerMock = new Mock<ILogger<ConfigurationService>>();
+            this.configurationService = new ConfigurationService(options.Object, httpClient, loggerMock.Object);
 
-        [Test]
-        public void VerifyService()
-        {
             Assert.Multiple(() =>
             {
                 Assert.That(this.configurationService, Is.Not.Null);
                 Assert.Throws<InvalidOperationException>(()=>this.configurationService.GetText(""));
             });
 
-            this.configurationService.InitializeService();
+            await this.configurationService.InitializeService();
 
             Assert.Multiple(() =>
             {
                 Assert.DoesNotThrow(() => this.configurationService.GetText(""));
-                Assert.That(this.configurationService.GetText("OpenEngineeringModelPlaceholder"), Is.EqualTo("Select an Engineering Model"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.OpenEngineeringModelPlaceholder), Is.EqualTo("Select an Engineering Model"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.OpenIterationPlaceholder), Is.EqualTo("Select an Iteration"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.OpenDomainOfExpertisePlaceholder), Is.EqualTo("Select a Domain of Expertise"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.ModelTitleCaption), Is.EqualTo("Model"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.IterationTitleCaption), Is.EqualTo("Iteration"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.DomainTitleCaption), Is.EqualTo("Domain"));
+                Assert.That(this.configurationService.GetText(TextConfigurationKind.LandingPageTitle), Is.EqualTo(""));
+                Assert.That(this.configurationService.GetConfigurations(), Is.Not.Null);
+                Assert.That(this.configurationService.GetConfigurations(), Is.Not.Empty);
+            });
+        }
+
+        [Test]
+        public async Task VerifyExceptionIsNotThrown()
+        {
+            var globalOptions = new GlobalOptions
+            {
+                JsonConfigurationFile = null,
+            };
+
+            var options = new Mock<IOptions<GlobalOptions>>();
+            options.Setup(x => x.Value).Returns(globalOptions);
+
+            var handlerMock = new Mock<HttpMessageHandler>();
+
+            var Invalidjson = """ 
+                        {
+                            "OpenEngineeringModelPlaceholder": "Select an Engineering Model",
+                            "OpenIterationPlaceholder": "Select an Iteration",
+                            "OpenDomainOfExpertisePlaceholder": "Select a Domain of Expertise",
+                            "ModelTitleCaption" : "Model",
+                            "IterationTitleCaption" : "Iteration",
+                            "DomainTitleCaption" : "Domain",
+                            "LandingPageTitle" : 1
+                        }
+                        """;
+
+            handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(Invalidjson)
+                })
+                .Verifiable();
+
+            var httpClient = new HttpClient(handlerMock.Object)
+            {
+                BaseAddress = new Uri("http://localhost")
+            };
+
+            var loggerMock = new Mock<ILogger<ConfigurationService>>();
+            this.configurationService = new ConfigurationService(options.Object, httpClient, loggerMock.Object);
+
+            await this.configurationService.InitializeService();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.configurationService.GetConfigurations(), Is.Not.Null);
+                Assert.That(this.configurationService.GetConfigurations(), Is.Empty);
             });
         }
 	}
