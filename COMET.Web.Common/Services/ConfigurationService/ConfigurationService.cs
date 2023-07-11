@@ -51,7 +51,7 @@ namespace COMET.Web.Common.Services.ConfigurationService
         /// <summary>
         /// The <see cref="ILogger{T}"/>
         /// </summary>
-        private ILogger<ConfigurationService> logger;
+        private readonly ILogger<ConfigurationService> logger;
 
         /// <summary>
         /// The dictionary that contains the map between the configuration and the value
@@ -126,6 +126,15 @@ namespace COMET.Web.Common.Services.ConfigurationService
         public string GetText(TextConfigurationKind configurationKind)
         {
             return this.GetText(configurationKind.ToString());
+        }
+
+        /// <summary>
+        /// Gets the configurations of the <see cref="ConfigurationService"/>
+        /// </summary>
+        /// <returns>a dictionary with the configurations</returns>
+        public Dictionary<string, string> GetConfigurations()
+        {
+            return this.configurations;
         }
     }
 }

@@ -51,5 +51,11 @@ namespace COMET.Web.Common.Services.ConfigurationService
         /// <param name="configurationKind">the <see cref="TextConfigurationKind"/> key</param>
         /// <returns>the text asociated to the key</returns>
         string GetText(TextConfigurationKind configurationKind);
+
+        /// <summary>
+        /// Gets the configurations of the <see cref="ConfigurationService"/>
+        /// </summary>
+        /// <returns>a dictionary with the configurations</returns>
+        Dictionary<string, string> GetConfigurations();
     }
 }
