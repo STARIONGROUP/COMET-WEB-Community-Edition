@@ -29,6 +29,7 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.ConfigurationService;
 
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
     using Moq;
@@ -81,7 +82,8 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
                 BaseAddress = new Uri("http://localhost")
             };
 
-            this.configurationService = new ConfigurationService(options.Object, httpClient);
+            var loggerMock = new Mock<ILogger<ConfigurationService>>();
+            this.configurationService = new ConfigurationService(options.Object, httpClient, loggerMock.Object);
         }
 
         [Test]
