@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <Version>1.0.15</Version>
+        <Version>1.0.16</Version>
         <AssemblyVersion>1.0.0</AssemblyVersion>
         <FileVersion>1.0.0</FileVersion>
         <Title>CDP4 WEB Common</Title>
@@ -20,9 +20,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>cdp4-icon.png</PackageIcon>
         <PackageReleaseNotes>
-            [FIX] Fixed ApplicationCard CSS
-            [ADD] SampledFunctionParameterTypeEditor
-            [FIX] Remove ParameterType name from TextParameterTypeEditor
+            [ADD] Make open model captions and title of the landing page configurable
         </PackageReleaseNotes>
     </PropertyGroup>
 
