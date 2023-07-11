@@ -30,6 +30,7 @@ namespace COMET.Web.Common.Services.ConfigurationService
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities;
 
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     
     /// <summary>
@@ -48,6 +49,11 @@ namespace COMET.Web.Common.Services.ConfigurationService
         private readonly HttpClient http;
 
         /// <summary>
+        /// The <see cref="ILogger{T}"/>
+        /// </summary>
+        private ILogger<ConfigurationService> logger;
+
+        /// <summary>
         /// The dictionary that contains the map between the configuration and the value
         /// </summary>
         private Dictionary<string, string> configurations = new();
@@ -62,10 +68,12 @@ namespace COMET.Web.Common.Services.ConfigurationService
         /// </summary>
         /// <param name="options">the <see cref="IOptions{GlobalOptions}"/></param>
         /// <param name="httpClient">the <see cref="HttpClient"/></param>
-        public ConfigurationService(IOptions<GlobalOptions> options, HttpClient httpClient)
+        /// <param name="logger">the <see cref="ILogger{T}"/></param>
+        public ConfigurationService(IOptions<GlobalOptions> options, HttpClient httpClient, ILogger<ConfigurationService> logger)
         {
             this.jsonFile = options.Value.JsonConfigurationFile ?? "DefaultTextConfiguration.json";
             this.http = httpClient;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -78,10 +86,19 @@ namespace COMET.Web.Common.Services.ConfigurationService
             {
                 return;
             }
+            
+            try
+            {
+                var path = ContentPathBuilder.BuildPath(this.jsonFile);
+                var jsonContent = await this.http.GetStreamAsync(path);
+                this.configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while getting the configuration file.");
+                return;
+            }
 
-            var path = ContentPathBuilder.BuildPath(this.jsonFile);
-            var jsonContent = await this.http.GetStringAsync(path);
-            this.configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
             this.isInitialized = true;
         }
 
