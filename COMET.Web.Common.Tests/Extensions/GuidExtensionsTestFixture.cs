@@ -55,8 +55,11 @@ namespace COMET.Web.Common.Tests.Extensions
         public void Verify_that_FromShortGuid_from_string_returns_expected_result()
         {
             var guid = Guid.Parse(GuidString);
-
-            Assert.That(ShortGuid.FromShortGuid(), Is.EqualTo(guid));
+            Assert.Multiple(() =>
+            {
+                Assert.That(ShortGuid.FromShortGuid(), Is.EqualTo(guid));
+                Assert.That(GuidString.FromShortGuid(), Is.EqualTo(guid));
+            });
         }
 
         [Test]
