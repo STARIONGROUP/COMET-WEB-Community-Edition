@@ -119,11 +119,6 @@ namespace COMET.Web.Common.Extensions
         /// </remarks>
         public static Guid FromShortGuid(this string shortGuid)
         {
-            if(Guid.TryParse(shortGuid, out var guid))
-            {
-                return guid;
-            }
-
             var buffer = Convert.FromBase64String(shortGuid.Replace("_", "/").Replace("-", "+") + "==");
             return new Guid(buffer);
         }
