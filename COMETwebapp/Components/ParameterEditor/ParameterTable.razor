@@ -130,7 +130,7 @@
                         </DxFormLayoutItem>
                     </DxFormLayoutTabPage>
                     <DxFormLayoutTabPage Caption="Category">
-                        <DxListBox Data="@this.ViewModel.AvailableCategories"
+                        <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
                         @bind-Values="@this.ViewModel.SelectedCategories"
                                    SelectionMode="ListBoxSelectionMode.Multiple"
                                    TextFieldName="@nameof(Category.Name)"
