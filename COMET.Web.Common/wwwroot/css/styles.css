@@ -132,6 +132,10 @@
     margin-top: 10px;
 }
 
+.m-bottom-20px-left-20px {
+    margin-bottom: 20px;
+    margin-left: 20px
+}
 
 .compound-editor {
     float: right;
