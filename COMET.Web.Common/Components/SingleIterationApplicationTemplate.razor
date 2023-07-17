@@ -41,6 +41,7 @@ else
 		<div class="row m-top-10px">
 			@if (this.ViewModel.SelectedIteration is not null)
 			{
+				<DxTextBox ReadOnly="true" Text="@($"Model and Iteration : {this.ViewModel.SelectedIterationData.IterationName}")" SizeMode="SizeMode.Large"></DxTextBox>
 				<CascadingValue Value="this.ViewModel.SelectedIteration">
 					<div>
 						@this.Body

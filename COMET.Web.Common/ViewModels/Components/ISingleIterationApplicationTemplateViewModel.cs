@@ -26,7 +26,8 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.Services.SessionManagement;
+	using COMET.Web.Common.Model;
+	using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     /// <summary>
@@ -53,6 +54,11 @@ namespace COMET.Web.Common.ViewModels.Components
 		/// The <see cref="Guid" /> of the <see cref="Iteration" /> that will be used
 		/// </summary>
 		Iteration SelectedIteration { get; set; }
+
+		/// <summary>
+		/// The <see cref="IterationData" /> that will be used
+		/// </summary>
+		IterationData SelectedIterationData { get; set; }
 
 		/// <summary>
 		/// Selects an <see cref="Iteration" />

@@ -26,7 +26,8 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.Services.SessionManagement;
+	using COMET.Web.Common.Model;
+	using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -50,6 +51,11 @@ namespace COMET.Web.Common.ViewModels.Components
         private Iteration selectedIteration;
 
         /// <summary>
+        /// The <see cref="IterationData" /> that will be used
+        /// </summary>
+        public IterationData SelectedIterationData { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SingleIterationApplicationTemplateViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -70,6 +76,7 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.SelectedIteration = iteration;
             this.IsOnIterationSelectionMode = false;
+            this.SelectedIterationData = new IterationData(iteration.IterationSetup, true);
         }
 
         /// <summary>
