@@ -448,7 +448,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
-                this.AvailableCategories = this.AvailableCategories.Concat(referenceDataLibrary.DefinedCategory);
+                this.AvailableCategories = this.AvailableCategories.Concat(referenceDataLibrary.DefinedCategory).Where(category => category.PermissibleClass.Contains(ClassKind.ElementDefinition)).ToList();
             }
 
             this.AvailableDomains = this.sessionService.Session.RetrieveSiteDirectory().Domain;
