@@ -136,7 +136,7 @@ namespace COMETwebapp.Components.Viewer
 
             if (this.ViewModel.OptionSelector.SelectedOption != null)
             {
-                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToString();
+                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToShortGuid();
             }
 
             this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.ViewerPage);
