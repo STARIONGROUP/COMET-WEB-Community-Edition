@@ -25,6 +25,7 @@
 namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 {
 	using CDP4Common.EngineeringModelData;
+	using CDP4Common.SiteDirectoryData;
 
 	using CDP4Dal;
 
@@ -44,6 +45,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 		private ElementDefinitionCreationViewModel viewModel;
 		private Mock<ISessionService> sessionService;
 		private Iteration iteration;
+		private DomainOfExpertise domain;
+
 
 		[SetUp]
 		public void Setup()
@@ -51,6 +54,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 			this.sessionService = new Mock<ISessionService>();
 			var session = new Mock<ISession>();
 			this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+			this.domain = new DomainOfExpertise()
+			{
+				Iid = Guid.NewGuid(),
+				ShortName = "SYS"
+			};
+
+			session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Domain = { this.domain } });
 
 			var topElement = new ElementDefinition()
 			{
