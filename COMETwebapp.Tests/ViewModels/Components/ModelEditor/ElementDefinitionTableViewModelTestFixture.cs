@@ -25,8 +25,8 @@
 namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 {
     using CDP4Common.EngineeringModelData;
-
-    using CDP4Dal;
+	using CDP4Common.SiteDirectoryData;
+	using CDP4Dal;
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -43,7 +43,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
     public class ElementDefinitionTableViewModelTestFixture
     {
         private ElementDefinitionTableViewModel viewModel;
-        private Mock<ISessionService> sessionService;
+		private DomainOfExpertise domain;
+		private Mock<ISessionService> sessionService;
         private Iteration iteration;
 
         [SetUp]
@@ -53,7 +54,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
             var session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
-            var topElement = new ElementDefinition()
+			this.domain = new DomainOfExpertise()
+			{
+				Iid = Guid.NewGuid(),
+				ShortName = "SYS"
+			};
+
+			session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Domain = { this.domain } });
+
+			var topElement = new ElementDefinition()
             {
                 Iid = Guid.NewGuid(),
                 Name = "Container",
@@ -130,5 +139,35 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
         }
-    }
+
+		[Test]
+		public void VerifyElementCreationPopup()
+		{
+			Assert.That(this.viewModel.IsOnCreationMode, Is.False);
+
+            this.viewModel.OpenCreateElementDefinitionCreationPopup();
+
+            Assert.That(this.viewModel.IsOnCreationMode, Is.True);
+		}
+
+		[Test]
+		public async Task VerifyAddingElementDefinition()
+		{
+			this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition
+			{
+				ShortName = "A",
+				Name = "B",
+				Owner = this.domain
+			};
+
+			this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category> { new Category { Name = "C" } };
+			this.viewModel.ElementDefinitionCreationViewModel.IsTopElement = true;
+
+			this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
+
+			await this.viewModel.ElementDefinitionCreationViewModel.OnValidSubmit.InvokeAsync();
+
+			Assert.That(this.viewModel.IsOnCreationMode, Is.False);
+		}
+	}
 }

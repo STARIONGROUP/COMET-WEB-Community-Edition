@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ElementDefinitionTableViewModelTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="ElementDefinitionCreationViewModelTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -25,9 +25,8 @@
 namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 {
 	using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
+
 	using CDP4Dal;
-	using CDP4Dal.Events;
 
 	using COMET.Web.Common.Services.SessionManagement;
 
@@ -43,7 +42,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 	public class ElementDefinitionCreationViewModelTestFixture
 	{
 		private ElementDefinitionCreationViewModel viewModel;
-		private DomainOfExpertise domain;
 		private Mock<ISessionService> sessionService;
 		private Iteration iteration;
 
@@ -53,14 +51,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 			this.sessionService = new Mock<ISessionService>();
 			var session = new Mock<ISession>();
 			this.sessionService.Setup(x => x.Session).Returns(session.Object);
-
-			this.domain = new DomainOfExpertise()
-			{
-				Iid = Guid.NewGuid(),
-				ShortName = "SYS"
-			};
-
-			session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Domain = { this.domain } });
 
 			var topElement = new ElementDefinition()
 			{
@@ -105,26 +95,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 			{
 				Assert.That(this.viewModel.AvailableCategories, Is.Not.Null);
 			});
-		}
-
-		[Test]
-		public async Task VerifyAddingElementDefinition()
-		{
-			this.viewModel.ElementDefinition = new ElementDefinition
-			{
-				ShortName = "A",
-				Name = "B",
-				Owner = this.domain
-			};
-
-			this.viewModel.SelectedCategories = new List<Category> { new Category { Name = "C" } };
-			this.viewModel.IsTopElement = true;
-
-			this.viewModel.ElementDefinition.Category = this.viewModel.SelectedCategories.ToList();
-
-			await this.viewModel.OnValidSubmit.InvokeAsync();
-
-			Assert.That(this.viewModel.ElementDefinition.Name, Is.Not.Null);
 		}
 	}
 }

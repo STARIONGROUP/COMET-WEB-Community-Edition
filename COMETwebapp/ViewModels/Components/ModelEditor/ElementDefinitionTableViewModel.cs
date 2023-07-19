@@ -83,7 +83,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 		/// <param name="sessionService">the <see cref="ISessionService" /></param>
 		public ElementDefinitionTableViewModel(ISessionService sessionService) : base(sessionService)
         {
-            this.iteration = sessionService.OpenIterations.Items.FirstOrDefault();
+            this.iteration = sessionService?.OpenIterations.Items.FirstOrDefault();
 			this.sessionService = sessionService;
             this.InitializeElements();
 
