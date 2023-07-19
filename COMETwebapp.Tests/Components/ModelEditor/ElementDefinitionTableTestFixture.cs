@@ -34,11 +34,11 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using Microsoft.Extensions.DependencyInjection;
-
-    using Moq;
+	using COMETwebapp.ViewModels.Components.SystemRepresentation;
+	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+	using DevExpress.Blazor;
+	using Microsoft.Extensions.DependencyInjection;
+	using Moq;
 
     using NUnit.Framework;
 
@@ -50,6 +50,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         private TestContext context;
         private IRenderedComponent<ElementDefinitionTable> renderedComponent;
         private ElementDefinitionTable table;
+        private ElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel;
 
         [SetUp]
         public void SetUp()
@@ -59,9 +60,12 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             this.context.Services.AddSingleton<ISessionService, SessionService>();
             this.context.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
 
+            this.elementDefinitionDetailsViewModel = new ElementDefinitionDetailsViewModel();
+
             var elementDefinitionTableViewModel = new Mock<IElementDefinitionTableViewModel>();
             elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns(new ObservableCollection<ElementDefinitionRowViewModel>() { new ElementDefinitionRowViewModel() { ElementDefinitionName = "Test" } });
             elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns(new ObservableCollection<ElementDefinitionRowViewModel>() { new ElementDefinitionRowViewModel() { ElementDefinitionName = "Test1" } });
+            elementDefinitionTableViewModel.Setup(x => x.ElementDefinitionDetailsViewModel).Returns(this.elementDefinitionDetailsViewModel);
 
             this.context.Services.AddSingleton(elementDefinitionTableViewModel.Object);
 
@@ -92,5 +96,15 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         {
             Assert.That(() => this.table.MoveGridRow(1, 1, It.IsAny<bool>()), Throws.Nothing);
         }
-    }
+
+		[Test]
+		public async Task VerifyAddingElementDefinition()
+		{
+			var addButton = this.renderedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "addElementDefinition");
+
+			Assert.That(addButton.Instance, Is.Not.Null);
+
+			await this.renderedComponent.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+		}
+	}
 }

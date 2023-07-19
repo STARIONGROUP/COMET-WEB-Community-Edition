@@ -200,13 +200,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         public void VerifyInitializeViewModel()
         {
             this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
-            this.viewModel.OnInitialized();
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(4));
-                Assert.That(this.viewModel.AvailableDomains, Has.Count.EqualTo(1));
-                Assert.That(this.viewModel.AvailableCategories, Has.Count.EqualTo(0));
             });
         }
 
@@ -377,26 +374,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
             Assert.That(() => this.viewModel.UpdateRows(new List<Thing> { elementDefinition }), Throws.Nothing);
-        }
-
-        [Test]
-        public void VerifyAddingElementDefinition()
-        {
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
-
-            this.viewModel.ElementDefinition = new ElementDefinition
-            {
-                ShortName = "A",
-                Name = "B",
-                Owner = this.domain
-            };
-
-            this.viewModel.SelectedCategories = new List<Category> { new Category { Name = "C" } };
-            this.viewModel.IsTopElement = true;
-
-            this.viewModel.ElementDefinition.Category = this.viewModel.SelectedCategories.ToList();
-
-            Assert.That(() => this.viewModel.AddingElementDefinition(), Throws.Nothing);
         }
     }
 }

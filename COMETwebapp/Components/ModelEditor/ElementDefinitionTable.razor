@@ -34,6 +34,8 @@
                     ShowAllRows="true"
                     CssClass="first-grid"
                     AllowSort="false"
+                    RowClick="this.ViewModel.SelectElement"
+                    AllowSelectRowByClick="true"
                     VerticalScrollBarMode="ScrollBarMode.Visible">
                 <Columns>
                     <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
@@ -55,5 +57,15 @@
                 </Columns>
             </DxGrid>
         </div>
+        <div style="width: 1300px; padding-left: 40px">
+            <h4>Panel Editor</h4>
+            <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+        </div>
     </div>
+    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Create Participant" @bind-Visible="@this.ViewModel.IsOnCreationMode">
+		<Content>
+			<ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
+		</Content>
+    </DxPopup>
 </LoadingComponent>

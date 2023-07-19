@@ -1,0 +1,56 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData;
+
+<EditForm Context="EditFormContext" Model="@this.ViewModel.ElementDefinition" OnValidSubmit="@this.ViewModel.OnValidSubmit">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutTabPages>
+                    <DxFormLayoutTabPage Caption="Basic">
+                        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.ShortName" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.Name" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+                            <DxComboBox Data="@this.ViewModel.AvailableDomains"
+                                        TextFieldName="@nameof(DomainOfExpertise.Name)"
+                            @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Is Top Element:" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@this.ViewModel.IsTopElement" />
+                        </DxFormLayoutItem>
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="Category">
+                        <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
+                        @bind-Values="@this.ViewModel.SelectedCategories"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   TextFieldName="@nameof(Category.Name)"
+                                   ShowCheckboxes="true" />
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+    <div class="modal-footer m-top-10px">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Create" SubmitFormOnClick="true" />
+    </div>
+</EditForm>

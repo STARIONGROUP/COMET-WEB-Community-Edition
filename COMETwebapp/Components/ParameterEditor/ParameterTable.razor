@@ -71,11 +71,6 @@
             AllowSelectRowByClick="false"
             ShowFilterRow="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
-            CustomizeEditModel="CustomizeEditElementDefinition"
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Create Element Definition"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="this.ViewModel.AddingElementDefinition"
             VerticalScrollBarMode="ScrollBarMode.Visible"
             HorizontalScrollBarMode="ScrollBarMode.Visible">
         <Columns>
@@ -110,35 +105,6 @@
                 </HeaderTemplate>
             </DxGridCommandColumn>
         </Columns>
-        <EditFormTemplate Context="EditFormContext">
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutTabPages>
-                    <DxFormLayoutTabPage Caption="Basic">
-                        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.ShortName" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.Name" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
-                            <DxComboBox Data="@this.ViewModel.AvailableDomains"
-                                        TextFieldName="@nameof(DomainOfExpertise.Name)"
-                            @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Is Top Element:" ColSpanMd="6">
-                            <DxCheckBox @bind-Checked="@this.ViewModel.IsTopElement" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutTabPage>
-                    <DxFormLayoutTabPage Caption="Category">
-                        <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
-                        @bind-Values="@this.ViewModel.SelectedCategories"
-                                   SelectionMode="ListBoxSelectionMode.Multiple"
-                                   TextFieldName="@nameof(Category.Name)"
-                                   ShowCheckboxes="true" />
-                    </DxFormLayoutTabPage>
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
-        </EditFormTemplate>
     </DxGrid>
 </div>
 

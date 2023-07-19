@@ -25,14 +25,14 @@
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
     using COMET.Web.Common.ViewModels.Components;
+	using COMETwebapp.ViewModels.Components.SystemRepresentation;
+	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+	using DevExpress.Blazor;
+	using System.Collections.ObjectModel;
 
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using System.Collections.ObjectModel;
-
-    /// <summary>
-    /// Interface for the <see cref="ElementDefinitionTableViewModel"/>
-    /// </summary>
+	/// <summary>
+	/// Interface for the <see cref="ElementDefinitionTableViewModel"/>
+	/// </summary>
     public interface IElementDefinitionTableViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
@@ -44,5 +44,37 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Gets the collection of the <see cref="ElementDefinitionRowViewModel"/>
         /// </summary>
         ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; }
-    }
+
+		/// <summary>
+		///     Value indicating the user is currently creating a new <see cref="ElementDefinition" />
+		/// </summary>
+		bool IsOnCreationMode { get; set; }
+
+		/// <summary>
+		/// Represents the selected ElementDefinitionRowViewModel
+		/// </summary>
+		object SelectedElementDefinition { get; set; }
+
+		/// <summary>
+		/// The <see cref="IElementDefinitionDetailsViewModel" />
+		/// </summary>
+		IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; }
+
+		/// <summary>
+		///     Gets the <see cref="IElementDefinitionCreationViewModel" />
+		/// </summary>
+		IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
+
+		/// <summary>
+		///     Opens the <see cref="ElementDefinitionCreation" /> popup
+		/// </summary>
+		void OpenCreateElementDefinitionCreationPopup();
+
+		/// <summary>
+		/// set the selected <see cref="SystemNodeViewModel" />
+		/// </summary>
+		/// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
+		/// <returns>A <see cref="Task" /></returns>
+		void SelectElement(GridRowClickEventArgs args);
+	}
 }

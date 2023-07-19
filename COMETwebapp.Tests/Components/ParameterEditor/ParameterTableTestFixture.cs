@@ -98,15 +98,5 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(this.table.ViewModel, Is.Not.Null);
             });
         }
-
-        [Test]
-        public async Task VerifyAddingElementDefinition()
-        {
-            var addButton = this.renderedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "addElementButton");
-
-            Assert.That(addButton.Instance, Is.Not.Null);
-            
-            await this.renderedComponent.InvokeAsync(addButton.Instance.Click.InvokeAsync);
-        }
     }
 }
