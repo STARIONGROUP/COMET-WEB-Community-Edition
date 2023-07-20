@@ -26,6 +26,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <ValidationMessageComponent ValidationMessage="@(this.errorMessage)" />
     <div style="display: flex">
         <div style="width: 500px">
             <h4>Target Model</h4>
