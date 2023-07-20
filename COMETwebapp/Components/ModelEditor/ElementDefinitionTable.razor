@@ -50,6 +50,8 @@
                     ShowAllRows="true"
                     CssClass="second-grid"
                     AllowSort="false"
+                    RowClick="this.ViewModel.SelectElement"
+                    AllowSelectRowByClick="true"
                     VerticalScrollBarMode="ScrollBarMode.Visible">
                 <Columns>
                     <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
@@ -57,13 +59,21 @@
                 </Columns>
             </DxGrid>
         </div>
-        <div style="width: 1300px; padding-left: 40px">
-            <h4>Panel Editor</h4>
-            <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+        <div style="width: 1300px; padding-left: 40px;">
+            <div>
+                <h4>Panel Editor</h4>
+            </div>
+            <div style="display:flex; justify-content: space-between;">
+                <div style="flex: 1;">
+                    <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+                </div>
+                <div style="padding-left: 20px;">
+                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
+                </div>
+            </div>
         </div>
     </div>
-    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
-    <DxPopup CloseOnOutsideClick="false" HeaderText="Create Participant" @bind-Visible="@this.ViewModel.IsOnCreationMode">
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode">
 		<Content>
 			<ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
 		</Content>
