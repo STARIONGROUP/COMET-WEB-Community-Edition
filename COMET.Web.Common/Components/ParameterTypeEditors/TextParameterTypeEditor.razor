@@ -40,20 +40,27 @@
 else
 {
     <div class="parameter-row">
-        <DxTextBox InputCssClass="text-parameter-type"
-                   Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
-                   CssClass="parameter-input"
-                   TextChanged="@((e) => this.OpenMemoPopup(e))"
-                   ReadOnly="this.ViewModel.IsReadOnly"
-                   BindValueMode="BindValueMode.OnInput"/>
+            <Tooltip MarginBottom="bottom-60" Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]">
+                <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
+                       InputCssClass="text-prameter-editor"
+                       CssClass="parameter-input"
+                       ReadOnly="true">
+                    <Buttons>
+                        <DxEditorButton IconCssClass="icon icon-edit"
+                                        Tooltip="Open Multiline editor"
+                                        Click="this.OpenMemoPopup" />
+                    </Buttons>
+                </DxTextBox>
+            </Tooltip>
         @if (this.ViewModel.Parameter?.Scale != null)
         {
             <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
         }
     </div>
     <DxPopup @bind-Visible="@this.IsOnEditMode" HeaderText="@this.ViewModel.ParameterType.Name" Shown="OnShown" Width="auto" CloseOnOutsideClick="true" MaxHeight="1000" MaxWidth="900" MinWidth="400">
-        <DxMemo @ref="this.multiLineEditor" Text="@this.CurrentText"
+        <DxMemo @ref="this.multiLineEditor"
                 BindValueMode="@this.BindValueMode"
+                Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                 TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
                 NullText="Type text..."
                 ReadOnly="this.ViewModel.IsReadOnly"

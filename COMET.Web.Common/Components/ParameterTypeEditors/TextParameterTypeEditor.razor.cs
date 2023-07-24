@@ -61,16 +61,10 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         public bool IsOnEditMode { get; set; }
 
         /// <summary>
-        /// Value of the current text
-        /// </summary>
-        public string CurrentText { get; set; }
-
-        /// <summary>
         /// opens the memo popup
         /// </summary>
-        private void OpenMemoPopup(string value)
+        private void OpenMemoPopup()
         {
-            this.CurrentText = value;
             this.IsOnEditMode = true;
         }
 
