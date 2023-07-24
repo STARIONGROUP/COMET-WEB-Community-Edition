@@ -43,7 +43,7 @@ else
         <DxTextBox InputCssClass="text-parameter-type"
                    Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                    CssClass="parameter-input"
-                   TextChanged="@(async (e) => await this.OpenMemoPopup(e))"
+                   TextChanged="@((e) => this.OpenMemoPopup(e))"
                    ReadOnly="this.ViewModel.IsReadOnly"
                    BindValueMode="BindValueMode.OnInput"/>
         @if (this.ViewModel.Parameter?.Scale != null)
@@ -51,7 +51,7 @@ else
             <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
         }
     </div>
-    <DxPopup @bind-Visible="@this.IsOnEditMode" Width="auto" CloseOnOutsideClick="true">
+    <DxPopup @bind-Visible="@this.IsOnEditMode" HeaderText="@this.ViewModel.ParameterType.Name" Shown="OnShown" Width="auto" CloseOnOutsideClick="true" MaxHeight="1000" MaxWidth="900" MinWidth="400">
         <DxMemo @ref="this.multiLineEditor" Text="@this.CurrentText"
                 BindValueMode="@this.BindValueMode"
                 TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"

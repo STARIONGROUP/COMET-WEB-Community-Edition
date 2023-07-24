@@ -68,11 +68,18 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         /// <summary>
         /// opens the memo popup
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task OpenMemoPopup(string value)
+        private void OpenMemoPopup(string value)
         {
             this.CurrentText = value;
             this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// set focus on the memo popup
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task OnShown()
+        {
             await multiLineEditor.FocusAsync();
         }
 
