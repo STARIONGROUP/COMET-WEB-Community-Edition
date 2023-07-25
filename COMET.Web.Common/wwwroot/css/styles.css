@@ -209,6 +209,15 @@
     justify-content: flex-start;
 }
 
+.parameter-row-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    position: absolute;
+    width: 9.5%;
+}
+
 .highlighted {
     color: blue;
 }
@@ -299,7 +308,7 @@
 }
 
 .tooltip-wrapper {
-    position: relative;
+    position: absolute;
     display: inline-block;
     cursor: help;
 }

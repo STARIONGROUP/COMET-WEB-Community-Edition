@@ -39,19 +39,19 @@
 }
 else
 {
-    <div class="parameter-row">
-            <Tooltip MarginBottom="bottom-60" Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]">
-                <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
+    <div class="parameter-row-text">
+        <Tooltip MarginBottom="bottom-60 text-align-center" Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]">
+            <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                        InputCssClass="text-prameter-editor"
                        CssClass="parameter-input"
                        ReadOnly="true">
-                    <Buttons>
-                        <DxEditorButton IconCssClass="icon icon-edit"
-                                        Tooltip="Open Multiline editor"
-                                        Click="this.OpenMemoPopup" />
-                    </Buttons>
-                </DxTextBox>
-            </Tooltip>
+                <Buttons>
+                    <DxEditorButton IconCssClass="icon icon-edit"
+                                    Tooltip="Open Multiline editor"
+                                    Click="this.OpenMemoPopup" />
+                </Buttons>
+            </DxTextBox>
+        </Tooltip>     
         @if (this.ViewModel.Parameter?.Scale != null)
         {
             <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
