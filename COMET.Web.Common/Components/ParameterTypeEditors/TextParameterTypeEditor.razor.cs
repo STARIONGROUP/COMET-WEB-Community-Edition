@@ -53,6 +53,30 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         [Parameter]
         public BindValueMode BindValueMode { get; set; }
 
+        private DxMemo multiLineEditor;
+
+        /// <summary>
+        /// Value asserting that the component is on edit mode
+        /// </summary>
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// opens the memo popup
+        /// </summary>
+        private void OpenMemoPopup()
+        {
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// set focus on the memo popup
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task OnShown()
+        {
+            await multiLineEditor.FocusAsync();
+        }
+
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.

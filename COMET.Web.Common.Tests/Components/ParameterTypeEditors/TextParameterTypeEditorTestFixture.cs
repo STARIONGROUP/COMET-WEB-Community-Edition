@@ -113,6 +113,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             var textbox = this.renderedComponent.FindComponent<DxTextBox>();
             Assert.That(textbox, Is.Not.Null);
             await this.renderedComponent.InvokeAsync(() => textbox.Instance.TextChanged.InvokeAsync("value"));
+            var textboxbutton = this.renderedComponent.FindComponent<DxEditorButton>();
+            Assert.That(textboxbutton, Is.Not.Null);
+            await this.renderedComponent.InvokeAsync(() => textboxbutton.Instance.Click.InvokeAsync(null));
+            var memobox = this.renderedComponent.FindComponent<DxMemo>();
+            await this.renderedComponent.InvokeAsync(() => memobox.Instance.TextChanged.InvokeAsync("value"));
             Assert.That(this.eventCallbackCalled, Is.True);
         }
 
