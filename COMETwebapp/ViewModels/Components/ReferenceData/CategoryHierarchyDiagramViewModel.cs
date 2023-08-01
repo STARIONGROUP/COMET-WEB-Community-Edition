@@ -102,7 +102,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 
             }
 
-            var position2 = new Point(50, 50);
             var numberOfSubNodes = this.SubCategories.Count();
 
             // add subcategories
@@ -112,7 +111,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 int currentIndex = this.SubCategories.ToList().IndexOf(subCategory);
                 int xOffset = (currentIndex - (numberOfSubNodes - 1) / 2) * distanceBetweenNodes;
 
-                position2 = new Point(node12.Position.X + xOffset, -200);
+                var position2 = new Point(node12.Position.X + xOffset, -200);
 
                 var node2 = new NodeModel(subCategory.Name, position2);
                 node2.Title = subCategory.Name;
