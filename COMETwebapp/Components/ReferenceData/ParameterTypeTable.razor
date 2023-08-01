@@ -20,6 +20,7 @@ Copyright (c) 2023 RHEA System S.A.
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="Grid"
             Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
             ShowAllRows="true"
             SearchBoxNullText="Search for a parameter type..."

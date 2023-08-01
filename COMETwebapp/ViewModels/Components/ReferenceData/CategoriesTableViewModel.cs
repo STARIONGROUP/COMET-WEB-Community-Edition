@@ -38,8 +38,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
     using COMETwebapp.Wrappers;
-
+    using DevExpress.Blazor;
     using DynamicData;
 
     using ReactiveUI;
@@ -109,6 +111,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
         public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
+		/// The <see cref="ICategoryHierarchyDiagramViewModel" />
+		/// </summary>
+		public ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; } = new CategoryHierarchyDiagramViewModel();
 
         /// <summary>
         /// The <see cref="Category" /> to create or edit
@@ -407,6 +414,41 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.Rows.Items.First(x => x.Category.Iid == existingRow.Category.Iid).UpdateProperties(existingRow);
             }
+        }
+
+        /// <summary>
+		/// set the selected <see cref="CategoryRowViewModel" />
+		/// </summary>
+		/// <param name="args">The selected <see cref="CategoryRowViewModel" /></param>
+		public void SelectCategory(GridRowClickEventArgs args)
+        {
+            var selectedCategory = (CategoryRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
+            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
+
+            this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;
+            this.CategoryHierarchyDiagramViewModel.SubCategories = this.GetSubCategories(this.CategoryHierarchyDiagramViewModel.SelectedCategory);
+
+            this.CategoryHierarchyDiagramViewModel.SetupDiagram();
+        }
+
+        /// <summary>
+		/// Get the subcategories of a category
+		/// </summary>
+		/// <param name="category">The category
+        /// <returns>A <see cref="List{Category}" /></returns>
+        public List<Category> GetSubCategories(Category category)
+        {
+            var subCategories = new List<Category>();
+            
+            foreach(var cat in this.DataSource.Items)
+            {
+               if(cat.SuperCategory.Contains(category))
+                {
+                    subCategories.Add(cat);
+                }
+            }
+
+            return subCategories;
         }
     }
 }
