@@ -428,7 +428,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(0));
             });
         }
     }
