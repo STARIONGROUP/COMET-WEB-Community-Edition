@@ -423,14 +423,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory1;
             this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory1.SuperCategory;
-            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.AllDerivedCategories();
+            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.SuperCategory;
 
             await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());            
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(0));
+                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(1));
             });
         }
     }
