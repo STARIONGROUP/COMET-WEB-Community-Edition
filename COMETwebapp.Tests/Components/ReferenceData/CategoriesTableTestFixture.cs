@@ -47,6 +47,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
@@ -416,13 +417,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
 
+            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory1)));
+
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory1;
             this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory1.SuperCategory;
             this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.AllDerivedCategories();
 
-            // use InvokeAsync
             await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());            
 
             Assert.Multiple(() =>

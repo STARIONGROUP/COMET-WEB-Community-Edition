@@ -37,7 +37,7 @@ Copyright (c) 2023 RHEA System S.A.
         PopupEditFormHeaderText="Create Category"
         EditMode="GridEditMode.PopupEditForm"
         EditModelSaving="this.ViewModel.AddingCategory"
-        RowClick="this.ViewModel.SelectCategory"
+        RowClick="((e) =>this.ViewModel.SelectCategory((CategoryRowViewModel)e.Grid.GetDataItem(e.VisibleIndex)))"
         AllowSelectRowByClick="true"
         SelectionMode="GridSelectionMode.Single"
         CustomizeElement="DisableDeprecatedCategories">

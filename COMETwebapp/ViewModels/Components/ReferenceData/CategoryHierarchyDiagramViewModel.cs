@@ -80,7 +80,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.Diagram.Nodes.Clear();
             var position = new Point(50, 50);
-            var nodeCaption = this.SelectedCategory.Name;
             var node12 = new CategoryNode(this.SelectedCategory, position);
             node12.AddPort(PortAlignment.Bottom);
             node12.AddPort(PortAlignment.Top);

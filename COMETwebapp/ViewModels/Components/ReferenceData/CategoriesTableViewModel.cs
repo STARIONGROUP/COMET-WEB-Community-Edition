@@ -419,10 +419,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
 		/// set the selected <see cref="CategoryRowViewModel" />
 		/// </summary>
-		/// <param name="args">The selected <see cref="CategoryRowViewModel" /></param>
-		public void SelectCategory(GridRowClickEventArgs args)
+		/// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
+		public void SelectCategory(CategoryRowViewModel selectedCategory)
         {
-            var selectedCategory = (CategoryRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
             this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
 
             this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;

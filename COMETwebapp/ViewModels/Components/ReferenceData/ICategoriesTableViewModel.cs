@@ -134,7 +134,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
 		/// set the selected <see cref="CategoryRowViewModel" />
 		/// </summary>
-		/// <param name="args">The selected <see cref="CategoryRowViewModel" /></param>
-		void SelectCategory(GridRowClickEventArgs args);
+		/// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
+		void SelectCategory(CategoryRowViewModel selectedCategory);
     }
 }
