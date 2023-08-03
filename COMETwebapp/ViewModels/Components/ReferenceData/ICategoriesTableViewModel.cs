@@ -136,12 +136,5 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 		/// </summary>
 		/// <param name="args">The selected <see cref="CategoryRowViewModel" /></param>
 		void SelectCategory(GridRowClickEventArgs args);
-
-        /// <summary>
-		/// Get the subcategories of a category
-		/// </summary>
-		/// <param name="category">The category
-        /// <returns>A <see cref="List{Category}" /></returns>
-        List<Category> GetSubCategories(Category category);
     }
 }

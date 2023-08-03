@@ -32,6 +32,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Common.SiteDirectoryData;
 
     using ReactiveUI;
+    using COMETwebapp.Components.ReferenceData;
 
     /// <summary>
     ///     View model for the <see cref="CategoryHierarchyDiagram" /> component
@@ -68,13 +69,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public Diagram Diagram { get; set; }
 
         /// <summary>
+        /// The svg path of arrow
+        /// </summary>
+        const string svgArrowPath = "M -0.093 17.86 V -18.5 L 29.233 -0.32 L -0.093 17.86 z M 1.407 -15.806 v 30.9715 L 26.3865 -0.32 L 1.407 -15.806 z";
+
+        /// <summary>
         /// Create diagram nodes and links
         /// </summary>
         public void SetupDiagram()
         {
             this.Diagram.Nodes.Clear();
             var position = new Point(50, 50);
-            var node12 = new NodeModel(this.SelectedCategory.Name, position);
+            var nodeCaption = this.SelectedCategory.Name;
+            var node12 = new CategoryNode(this.SelectedCategory, position);
             node12.AddPort(PortAlignment.Bottom);
             node12.AddPort(PortAlignment.Top);
             node12.Title = this.SelectedCategory.Name;
@@ -89,7 +96,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 
                 position = new Point(node12.Position.X - xOffset, 300);
 
-                var node = new NodeModel(row.Name, position);
+                var node = new CategoryNode(row, position);
                 node.Title = row.Name;
                 node.AddPort(PortAlignment.Top);
                 Diagram.Nodes.Add(node);
@@ -97,7 +104,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
-                    TargetMarker = LinkMarker.Arrow
+                    TargetMarker = new LinkMarker(svgArrowPath, 100)
                 });
 
             }
@@ -113,17 +120,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 
                 var position2 = new Point(node12.Position.X + xOffset, -200);
 
-                var node2 = new NodeModel(subCategory.Name, position2);
+                var node2 = new CategoryNode(subCategory, position2);
                 node2.Title = subCategory.Name;
                 node2.AddPort(PortAlignment.Bottom);
                 Diagram.Nodes.Add(node2);
-                Diagram.Links.Add(new LinkModel(node12.GetPort(PortAlignment.Top), node2.GetPort(PortAlignment.Bottom))
+                Diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Bottom), node12.GetPort(PortAlignment.Top))
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
-                    SourceMarker = LinkMarker.Arrow
+                    TargetMarker = new LinkMarker(svgArrowPath, 100)
                 });
-
             }
         }
     }

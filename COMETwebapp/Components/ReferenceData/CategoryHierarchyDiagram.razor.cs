@@ -67,6 +67,7 @@ namespace COMETwebapp.Components.ReferenceData
                 },
             };
             this.ViewModel.Diagram = new Diagram(options);
+            this.ViewModel.Diagram.RegisterModelComponent<CategoryNode, CategoryNodeComponent>();
         }
     }
 }

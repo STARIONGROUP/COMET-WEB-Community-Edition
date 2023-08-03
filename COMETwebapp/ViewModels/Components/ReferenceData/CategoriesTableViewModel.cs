@@ -426,29 +426,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
 
             this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;
-            this.CategoryHierarchyDiagramViewModel.SubCategories = this.GetSubCategories(this.CategoryHierarchyDiagramViewModel.SelectedCategory);
+            this.CategoryHierarchyDiagramViewModel.SubCategories = this.CategoryHierarchyDiagramViewModel.SelectedCategory.AllDerivedCategories();
 
             this.CategoryHierarchyDiagramViewModel.SetupDiagram();
-        }
-
-        /// <summary>
-		/// Get the subcategories of a category
-		/// </summary>
-		/// <param name="category">The category
-        /// <returns>A <see cref="List{Category}" /></returns>
-        public List<Category> GetSubCategories(Category category)
-        {
-            var subCategories = new List<Category>();
-            
-            foreach(var cat in this.DataSource.Items)
-            {
-               if(cat.SuperCategory.Contains(category))
-                {
-                    subCategories.Add(cat);
-                }
-            }
-
-            return subCategories;
         }
     }
 }

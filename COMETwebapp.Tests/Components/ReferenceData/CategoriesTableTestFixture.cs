@@ -420,7 +420,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory1;
             this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory1.SuperCategory;
-            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.viewModel.GetSubCategories(this.elementDefinitionCategory1);
+            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.AllDerivedCategories();
 
             // use InvokeAsync
             await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());            
