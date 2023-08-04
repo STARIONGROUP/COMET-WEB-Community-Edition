@@ -111,6 +111,14 @@ namespace COMETwebapp.Model
                 Icon = "people",
                 Description = "Manage users",
                 Url = WebAppConstantValues.UserManagementPage
+            },
+            new Application
+            {
+                Name = "Model Editor",
+                Color = "#76fd98",
+                Icon = "box",
+                Description = "Populate model",
+                Url = WebAppConstantValues.ModelEditorPage
             }
         };
     }

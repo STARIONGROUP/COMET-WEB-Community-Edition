@@ -79,8 +79,6 @@ namespace COMETwebapp.Components.ParameterEditor
         {
             base.OnInitialized();
 
-            this.ViewModel.OnInitialized();
-
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
@@ -90,23 +88,6 @@ namespace COMETwebapp.Components.ParameterEditor
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.closeEditor = new EventCallbackFactory().Create(this, () => { this.ViewModel.IsOnEditMode = false; });
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new <see cref="ElementDefinition" />
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditElementDefinition(GridCustomizeEditModelEventArgs e)
-        {
-            var dataItem = (ElementDefinition)e.DataItem;
-
-            if (dataItem == null)
-            {
-                e.EditModel = new ElementDefinition();
-            }
-
-            this.ViewModel.ElementDefinition = new ElementDefinition();
-            this.ViewModel.SelectedCategories = new List<Category>();
         }
     }
 }

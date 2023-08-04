@@ -209,3 +209,15 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
     height: 100%;
     width: 100%;
 }
+
+.ui-state-highlight {
+    background-color: rgba(var(--bs-primary-rgb), .3);
+}
+
+.ui-state-hover {
+    background: rgba(var(--bs-primary-rgb), .3);
+}
+
+.ui-draggable-dragging {
+    box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
+}

@@ -1,0 +1,42 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//     This file is part of COMET WEB Community Edition
+//      The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+//
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//     Affero General Public License for more details.
+//
+//     You should have received a copy of the GNU Affero General Public License
+//     along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData;
+@using COMET.Web.Common.Extensions;
+@using COMETwebapp.Model
+@using CDP4Common.EngineeringModelData
+@using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+@inherits DisposableComponent
+
+@if (this.ViewModel.SelectedSystemNode != null)
+{
+	<DxGrid Data="this.ViewModel.Rows" ColumnResizeMode="GridColumnResizeMode.ColumnsContainer" ShowAllRows="true" >
+		<Columns>
+			<DxGridDataColumn Caption="Name" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ParameterTypeName)" />
+			<DxGridDataColumn Caption="Short Name" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ShortName)" Width="120" />
+			<DxGridDataColumn Caption="Actual Value" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ActualValue)" />
+			<DxGridDataColumn Caption="Published Value" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.PublishedValue)" />
+			<DxGridDataColumn Caption="Owner" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.Owner)" Width="50"/>
+			<DxGridDataColumn Caption="Switch" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.SwitchValue)" Width="100"/>
+			<DxGridDataColumn Caption="Model Code" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ModelCode)" Width="300"/>
+		</Columns>
+	</DxGrid>
+}

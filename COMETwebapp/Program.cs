@@ -35,6 +35,7 @@ namespace COMETwebapp
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
@@ -87,6 +88,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            builder.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             builder.Services.AddAntDesign();
         }
@@ -111,6 +113,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
             builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
             builder.Services.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
+            builder.Services.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
         }
     }
 }

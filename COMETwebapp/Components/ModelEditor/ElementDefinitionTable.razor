@@ -1,0 +1,82 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.ViewModels.Components.ParameterEditor
+@using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
+
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <ValidationMessageComponent ValidationMessage="@(this.errorMessage)" />
+    <div style="display: flex">
+        <div style="width: 500px">
+            <h4>Target Model</h4>
+            <DxGrid @ref="this.FirstGrid"
+                    Data="this.ViewModel.RowsTarget"
+                    ShowAllRows="true"
+                    CssClass="first-grid"
+                    AllowSort="false"
+                    RowClick="this.ViewModel.SelectElement"
+                    AllowSelectRowByClick="true"
+                    VerticalScrollBarMode="ScrollBarMode.Visible">
+                <Columns>
+                    <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
+                    <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
+                </Columns>
+            </DxGrid>
+        </div>
+        <div style="width: 500px; padding-left: 10px">
+            <h4>Source Model</h4>
+            <DxGrid @ref="this.SecondGrid"
+                    Data="this.ViewModel.RowsSource"
+                    ShowAllRows="true"
+                    CssClass="second-grid"
+                    AllowSort="false"
+                    RowClick="this.ViewModel.SelectElement"
+                    AllowSelectRowByClick="true"
+                    VerticalScrollBarMode="ScrollBarMode.Visible">
+                <Columns>
+                    <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
+                    <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
+                </Columns>
+            </DxGrid>
+        </div>
+        <div style="width: 1300px; padding-left: 40px;">
+            <div>
+                <h4>Panel Editor</h4>
+            </div>
+            <div style="display:flex; justify-content: space-between;">
+                <div style="flex: 1;">
+                    <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+                </div>
+                <div style="padding-left: 20px;">
+                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode">
+		<Content>
+			<ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
+		</Content>
+    </DxPopup>
+</LoadingComponent>
