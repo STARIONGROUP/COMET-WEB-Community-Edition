@@ -111,25 +111,13 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Records an <see cref="ObjectChangedEvent" />
+        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent"/>
         /// </summary>
-        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
-        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent"/></param>
+        /// <returns>true if the change should be recorded, false otherwise</returns>
+        protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
         {
-            switch (objectChangedEvent.EventKind)
-            {
-                case EventKind.Added:
-                    this.AddedThings.Add(objectChangedEvent.ChangedThing);
-                    break;
-                case EventKind.Removed:
-                    this.DeletedThings.Add(objectChangedEvent.ChangedThing);
-                    break;
-                case EventKind.Updated:
-                    this.UpdatedThings.Add(objectChangedEvent.ChangedThing);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(objectChangedEvent), "Unrecognised value EventKind value");
-            }
+            return true;
         }
 
         /// <summary>

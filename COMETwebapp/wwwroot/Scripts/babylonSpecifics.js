@@ -42,7 +42,8 @@ function CreateScene(engine, canvas) {
     Camera.panningSensibility = CameraPanningSensibility;
     Camera.wheelPrecision = CameraZoomSensibility;
 
-    let light1 = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0), scene);
+    let light = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0));
+    scene.light = light;
 
     return scene;
 };
@@ -190,8 +191,8 @@ async function LoadPrimitive(primitive) {
     const result = await BABYLON.SceneLoader.ImportMeshAsync(null, path, fileName, Scene);
     let meshes = result.meshes;
 
-    for (let i = 0; i < meshes.length; i++) {
-        InitializePrimitiveData(meshes[i], primitive);
+    for (let mesh of meshes) {
+        InitializePrimitiveData(mesh, primitive);
     }
 }
 

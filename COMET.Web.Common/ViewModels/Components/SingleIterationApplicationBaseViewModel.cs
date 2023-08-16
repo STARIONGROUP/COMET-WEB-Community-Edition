@@ -108,20 +108,6 @@ namespace COMET.Web.Common.ViewModels.Components
         public bool HasSetInitialValuesOnce { get; set; }
 
         /// <summary>
-        /// Records an <see cref="ObjectChangedEvent" />
-        /// </summary>
-        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
-        protected override void RecordChange(ObjectChangedEvent objectChangedEvent)
-        {
-            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
-            {
-                return;
-            }
-
-            base.RecordChange(objectChangedEvent);
-        }
-
-        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -146,6 +132,21 @@ namespace COMET.Web.Common.ViewModels.Components
             this.IsLoading = true;
             this.CurrentDomain = this.CurrentIteration == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent"/>
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent"/></param>
+        /// <returns>true if the change should be recorded, false otherwise</returns>
+        protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
