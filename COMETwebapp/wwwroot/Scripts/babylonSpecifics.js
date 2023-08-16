@@ -42,7 +42,8 @@ function CreateScene(engine, canvas) {
     Camera.panningSensibility = CameraPanningSensibility;
     Camera.wheelPrecision = CameraZoomSensibility;
 
-    new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0), scene);
+    let light = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0));
+    scene.light = light;
 
     return scene;
 };
