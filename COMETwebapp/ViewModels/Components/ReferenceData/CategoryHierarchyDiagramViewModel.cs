@@ -93,7 +93,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 int currentIndex = this.Rows.ToList().IndexOf(row);
                 int xOffset = (currentIndex - (numberOfNodes - 1) / 2) * distanceBetweenNodes;
 
-                position = new Point(node12.Position.X - xOffset, 300);
+                position = new Point(node12.Position.X - xOffset, -200);
 
                 var node = new CategoryNode(row, position);
                 node.Title = row.Name;
@@ -103,7 +103,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
-                    TargetMarker = new LinkMarker(svgArrowPath, 100)
+                    TargetMarker = new LinkMarker(svgArrowPath, 30)
                 });
 
             }
@@ -117,7 +117,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 int currentIndex = this.SubCategories.ToList().IndexOf(subCategory);
                 int xOffset = (currentIndex - (numberOfSubNodes - 1) / 2) * distanceBetweenNodes;
 
-                var position2 = new Point(node12.Position.X + xOffset, -200);
+                var position2 = new Point(node12.Position.X + xOffset, 300);
 
                 var node2 = new CategoryNode(subCategory, position2);
                 node2.Title = subCategory.Name;
@@ -127,7 +127,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
-                    TargetMarker = new LinkMarker(svgArrowPath, 100)
+                    TargetMarker = new LinkMarker(svgArrowPath, 60)
                 });
             }
         }
