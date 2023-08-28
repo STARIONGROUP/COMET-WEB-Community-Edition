@@ -221,36 +221,3 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 .ui-draggable-dragging {
     box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
 }
-
-.card.dotted {
-    border: 2px dotted #000;
-}
-
-::deep .port {
-    width: 20px;
-    height: 46px;
-    position: absolute;
-}
-
-    ::deep .port:hover {
-        background: #eee;
-        cursor: pointer;
-    }
-
-.node > .card.dotted ::deep .port {
-    border-right-color: #4582ec;
-    border-left-color: #4582ec;
-}
-
-::deep .port.right {
-    top: 45px;
-    right: -1px;
-    border-right: 1px solid rgba(0,0,0,0.125);
-}
-
-::deep .port.left {
-    top: 0;
-    left: -1px;
-    border-left: 1px solid rgba(0,0,0,0.125);
-}
-
