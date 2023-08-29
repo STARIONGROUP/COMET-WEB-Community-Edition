@@ -96,9 +96,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
-		/// The <see cref="ICategoryHierarchyDiagramViewModel" />
-		/// </summary>
-	    ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; }
+        /// The <see cref="ICategoryHierarchyDiagramViewModel" />
+        /// </summary>
+        ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; }
 
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
@@ -132,9 +132,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         Task OnInitializedAsync();
 
         /// <summary>
-		/// set the selected <see cref="CategoryRowViewModel" />
-		/// </summary>
-		/// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-		void SelectCategory(CategoryRowViewModel selectedCategory);
+        /// set the selected <see cref="CategoryRowViewModel" />
+        /// </summary>
+        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
+        void SelectCategory(CategoryRowViewModel selectedCategory);
     }
 }

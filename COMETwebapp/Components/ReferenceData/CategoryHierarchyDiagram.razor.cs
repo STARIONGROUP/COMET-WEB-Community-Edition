@@ -42,6 +42,10 @@ namespace COMETwebapp.Components.ReferenceData
         [Parameter]
         public ICategoryHierarchyDiagramViewModel ViewModel { get; set; }
 
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();

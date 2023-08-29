@@ -113,9 +113,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
-		/// The <see cref="ICategoryHierarchyDiagramViewModel" />
-		/// </summary>
-		public ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; } = new CategoryHierarchyDiagramViewModel();
+        /// The <see cref="ICategoryHierarchyDiagramViewModel" />
+        /// </summary>
+        public ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; } = new CategoryHierarchyDiagramViewModel();
 
         /// <summary>
         /// The <see cref="Category" /> to create or edit
@@ -297,6 +297,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             updatedRows[index] = new CategoryRowViewModel(category);
             this.UpdateRows(updatedRows);
             await this.RefreshAccessRight();
+            this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
 
         /// <summary>
@@ -417,10 +418,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-		/// set the selected <see cref="CategoryRowViewModel" />
-		/// </summary>
-		/// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-		public void SelectCategory(CategoryRowViewModel selectedCategory)
+        /// set the selected <see cref="CategoryRowViewModel" />
+        /// </summary>
+        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
+        public void SelectCategory(CategoryRowViewModel selectedCategory)
         {
             this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
 
