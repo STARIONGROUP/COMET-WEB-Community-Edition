@@ -21,10 +21,10 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using Microsoft.AspNetCore.Components;
-
 namespace COMETwebapp.Components.ReferenceData
 {
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
     ///     Support class for the <see cref="CategoryNodeComponent"/>
     /// </summary>
