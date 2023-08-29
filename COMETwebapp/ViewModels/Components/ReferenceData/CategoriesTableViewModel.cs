@@ -38,8 +38,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
     using COMETwebapp.Wrappers;
-
+    using DevExpress.Blazor;
     using DynamicData;
 
     using ReactiveUI;
@@ -109,6 +111,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
         public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
+        /// The <see cref="ICategoryHierarchyDiagramViewModel" />
+        /// </summary>
+        public ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; } = new CategoryHierarchyDiagramViewModel();
 
         /// <summary>
         /// The <see cref="Category" /> to create or edit
@@ -290,6 +297,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             updatedRows[index] = new CategoryRowViewModel(category);
             this.UpdateRows(updatedRows);
             await this.RefreshAccessRight();
+            this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
 
         /// <summary>
@@ -407,6 +415,20 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.Rows.Items.First(x => x.Category.Iid == existingRow.Category.Iid).UpdateProperties(existingRow);
             }
+        }
+
+        /// <summary>
+        /// set the selected <see cref="CategoryRowViewModel" />
+        /// </summary>
+        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
+        public void SelectCategory(CategoryRowViewModel selectedCategory)
+        {
+            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
+
+            this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;
+            this.CategoryHierarchyDiagramViewModel.SubCategories = this.CategoryHierarchyDiagramViewModel.SelectedCategory.AllDerivedCategories();
+
+            this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
     }
 }

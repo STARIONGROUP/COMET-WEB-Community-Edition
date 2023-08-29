@@ -47,6 +47,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
@@ -160,9 +161,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.elementDefinitionCategory1 = new Category(Guid.NewGuid(), this.assembler.Cache, this.uri) { Name = "Batteries", ShortName = "BAT" };
             this.elementDefinitionCategory1.PermissibleClass.Add(ClassKind.ElementDefinition);
-            this.siteReferenceDataLibrary.DefinedCategory.Add(this.elementDefinitionCategory1);
             this.elementDefinitionCategory2 = new Category(Guid.NewGuid(), this.assembler.Cache, this.uri) { Name = "Reaction Wheels", ShortName = "RW", IsDeprecated = true };
             this.elementDefinitionCategory2.PermissibleClass.Add(ClassKind.ElementDefinition);
+
+            this.elementDefinitionCategory1.SuperCategory.Add(this.elementDefinitionCategory2);
+            this.elementDefinitionCategory2.SuperCategory.Add(this.elementDefinitionCategory1);
+
+            this.siteReferenceDataLibrary.DefinedCategory.Add(this.elementDefinitionCategory1);
             this.siteReferenceDataLibrary.DefinedCategory.Add(this.elementDefinitionCategory2);
 
             this.iteration = new Iteration(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -405,6 +410,28 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             await this.viewModel.AddingCategory();
             CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(this.viewModel.Category, EventKind.Added));
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public async Task VerifyDisplayCategoryDiagram()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory1)));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory1;
+            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory1.SuperCategory;
+            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.SuperCategory;
+
+            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());            
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(1));
+            });
         }
     }
 }
