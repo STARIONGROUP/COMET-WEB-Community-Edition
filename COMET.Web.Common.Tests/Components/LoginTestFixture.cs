@@ -57,6 +57,7 @@ namespace COMET.Web.Common.Tests.Components
         {
             this.authenticationService = new Mock<IAuthenticationService>();
             this.serverConnexionService = new Mock<IServerConnexionService>();
+            this.serverConnexionService.Setup(x => x.ServerAddress).Returns("http://localhost.com");
             this.context = new TestContext();
             this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnexionService.Object);
             this.context.Services.AddSingleton(this.viewModel);
