@@ -43,98 +43,98 @@ namespace COMET.Web.Common.Components
     using ReactiveUI;
 
     /// <summary>
-	/// Shared component that will englobe all applications where only one <see cref="Iteration" /> needs to be selected
-	/// </summary>
-	public partial class SingleIterationApplicationTemplate: DisposableComponent
-	{
-		/// <summary>
-		/// Body of the application
-		/// </summary>
-		[Parameter]
-		public RenderFragment Body { get; set; }
+    /// Shared component that will englobe all applications where only one <see cref="Iteration" /> needs to be selected
+    /// </summary>
+    public partial class SingleIterationApplicationTemplate: DisposableComponent
+    {
+        /// <summary>
+        /// Body of the application
+        /// </summary>
+        [Parameter]
+        public RenderFragment Body { get; set; }
 
-		/// <summary>
-		/// The <see cref="Guid" /> of selected <see cref="Iteration" />
-		/// </summary>
-		[Parameter]
-		public Guid IterationId { get; set; }
+        /// <summary>
+        /// The <see cref="Guid" /> of selected <see cref="Iteration" />
+        /// </summary>
+        [Parameter]
+        public Guid IterationId { get; set; }
 
-		/// <summary>
-		/// The <see cref="ISingleIterationApplicationTemplateViewModel" />
-		/// </summary>
-		[Inject]
-		public ISingleIterationApplicationTemplateViewModel ViewModel { get; set; }
+        /// <summary>
+        /// The <see cref="ISingleIterationApplicationTemplateViewModel" />
+        /// </summary>
+        [Inject]
+        public ISingleIterationApplicationTemplateViewModel ViewModel { get; set; }
 
-		/// <summary>
-		/// The <see cref="NavigationManager" />
-		/// </summary>
-		[Inject]
-		public NavigationManager NavigationManager { get; set; }
+        /// <summary>
+        /// The <see cref="NavigationManager" />
+        /// </summary>
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
 
-		/// <summary>
-		/// The <see cref="IServerConnectionService" />
-		/// </summary>
-		[Inject]
-		public IServerConnectionService ServerConnectionService { get; set; }
+        /// <summary>
+        /// The <see cref="IServerConnectionService" />
+        /// </summary>
+        [Inject]
+        public IServerConnectionService ServerConnectionService { get; set; }
 
-		/// <summary>
-		/// Method invoked when the component is ready to start, having received its
-		/// initial parameters from its parent in the render tree.
-		/// </summary>
-		protected override void OnInitialized()
-		{
-			base.OnInitialized();
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnIterationSelectionMode)
                 .Merge(this.ViewModel.SessionService.OpenIterations.CountChanged.Select(_ => true))
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-			this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedIteration)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedIteration)
                 .Select(_ => true)
                 .Merge(CDPMessageBus.Current.Listen<DomainChangedEvent>().Select(_ => true))
                 .Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
-		}
+        }
 
-		/// <summary>
-		/// Method invoked when the component has received parameters from its parent in
-		/// the render tree, and the incoming values have been assigned to properties.
-		/// </summary>
-		protected override void OnParametersSet()
-		{
-			base.OnParametersSet();
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
 
-			if (this.IterationId == Guid.Empty)
-			{
-				switch (this.ViewModel.SessionService.OpenIterations.Count)
-				{
-					case 1:
-						this.ViewModel.SelectIteration(this.ViewModel.SessionService.OpenIterations.Items.First());
-						break;
-					case > 1:
-						this.ViewModel.AskToSelectIteration();
-						break;
-				}
-			}
-			else if(this.IterationId != Guid.Empty && this.ViewModel.SelectedIteration == null)
-			{
-				var iteration = this.ViewModel.SessionService.OpenIterations.Items.FirstOrDefault(x => x.Iid == this.IterationId);
+            if (this.IterationId == Guid.Empty)
+            {
+                switch (this.ViewModel.SessionService.OpenIterations.Count)
+                {
+                    case 1:
+                        this.ViewModel.SelectIteration(this.ViewModel.SessionService.OpenIterations.Items.First());
+                        break;
+                    case > 1:
+                        this.ViewModel.AskToSelectIteration();
+                        break;
+                }
+            }
+            else if(this.IterationId != Guid.Empty && this.ViewModel.SelectedIteration == null)
+            {
+                var iteration = this.ViewModel.SessionService.OpenIterations.Items.FirstOrDefault(x => x.Iid == this.IterationId);
 
-				if (iteration != null)
-				{
-					this.ViewModel.SelectIteration(iteration);
-				}
-				else
-				{
-					this.IterationId = Guid.Empty;
-				}
-			}
-		}
+                if (iteration != null)
+                {
+                    this.ViewModel.SelectIteration(iteration);
+                }
+                else
+                {
+                    this.IterationId = Guid.Empty;
+                }
+            }
+        }
 
-		/// <summary>
-		/// Sets the correct url based on the selected <see cref="Iteration" />
-		/// </summary>
-		internal void SetCorrectUrl()
-		{
+        /// <summary>
+        /// Sets the correct url based on the selected <see cref="Iteration" />
+        /// </summary>
+        internal void SetCorrectUrl()
+        {
             var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty).Split('?')[0];
 
             var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
@@ -143,12 +143,17 @@ namespace COMET.Web.Common.Components
             {
                 currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
                 currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedIteration.IterationSetup.Container.Iid.ToShortGuid();
-				currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
-                currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
+
+                if (string.IsNullOrEmpty(this.ServerConnectionService.ServerAddress))
+                {
+					currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
+
+				}
+				currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
             }
             else
             {
-				currentOptions.Clear();
+                currentOptions.Clear();
             }
 
             var targetOptions = new Dictionary<string, string>();
@@ -159,7 +164,7 @@ namespace COMET.Web.Common.Components
             }
 
             var targetUrl = QueryHelpers.AddQueryString(urlPage, targetOptions);
-			this.NavigationManager.NavigateTo(targetUrl);
-		}
-	}
+            this.NavigationManager.NavigateTo(targetUrl);
+        }
+    }
 }

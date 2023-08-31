@@ -29,8 +29,8 @@ namespace COMET.Web.Common.Extensions
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.RegistrationService;
-	using COMET.Web.Common.Services.ServerConnectionService;
-	using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Publications;
@@ -83,8 +83,8 @@ namespace COMET.Web.Common.Extensions
         private static void RegisterServices(this WebAssemblyHostBuilder builder)
         {
             builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
-			builder.Services.AddScoped<IServerConnectionService, ServerConnectionService>();
-			builder.Services.AddSingleton<ISessionService, SessionService>();
+            builder.Services.AddScoped<IServerConnectionService, ServerConnectionService>();
+            builder.Services.AddSingleton<ISessionService, SessionService>();
             builder.Services.AddSingleton<AuthenticationStateProvider, CometWebAuthStateProvider>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             builder.Services.AddSingleton<IAutoRefreshService, AutoRefreshService>();

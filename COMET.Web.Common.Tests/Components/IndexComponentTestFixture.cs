@@ -40,8 +40,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
-	using COMET.Web.Common.Services.ServerConnectionService;
-	using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;

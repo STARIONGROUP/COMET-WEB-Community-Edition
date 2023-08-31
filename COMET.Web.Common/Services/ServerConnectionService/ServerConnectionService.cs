@@ -25,17 +25,19 @@
 namespace COMET.Web.Common.Services.ServerConnectionService
 {
     using System;
-    using System.Text.Json;
+	using System.Net;
+	using System.Text.Json;
 
     using COMET.Web.Common.Model;
-	using COMET.Web.Common.Utilities;
-	using Microsoft.Extensions.Options;
+    using COMET.Web.Common.Utilities;
 
-	/// <summary>
-	/// Service that holds the text data from the configuration file
-	/// </summary>
+    using Microsoft.Extensions.Options;
+
+    /// <summary>
+    /// Service that holds the text data from the configuration file
+    /// </summary>
     public class ServerConnectionService : IServerConnectionService
-	{
+    {
         /// <summary>
         /// The json file that contains the server configuration
         /// </summary>
@@ -83,14 +85,29 @@ namespace COMET.Web.Common.Services.ServerConnectionService
             try
             {
                 var path = ContentPathBuilder.BuildPath(this.ServerConfigurationFile);
-                var jsonContent = await this.http.GetStreamAsync(path);
-                configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
-                ServerAddress = configurations["ServerAddress"];
-            }
+
+				using (var response = await this.http.GetAsync(path))
+				{
+					if (response.IsSuccessStatusCode)
+					{
+						var jsonContent = await response.Content.ReadAsStreamAsync();
+						configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+						this.ServerAddress = configurations["ServerAddress"];
+					}
+					else if (response.StatusCode == HttpStatusCode.NotFound)
+					{
+						Console.WriteLine($"Server configuration file not found at {path}");
+					}
+					else
+					{
+						Console.WriteLine($"Error fetching server configuration. Status code: {response.StatusCode}");
+					}
+				}
+			}
             catch (Exception e)
             {
-				Console.WriteLine(e);
-				return;
+                Console.WriteLine(e);
+                return;
             }
 
             this.isInitialized = true;
