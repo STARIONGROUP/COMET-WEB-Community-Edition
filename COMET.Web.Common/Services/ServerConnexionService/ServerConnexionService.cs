@@ -90,7 +90,8 @@ namespace COMET.Web.Common.Services.ServerConnexionService
             }
             catch (Exception e)
             {
-                return;
+				Console.WriteLine(e);
+				return;
             }
 
             this.isInitialized = true;
