@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IServerConnexionService.cs" company="RHEA System S.A.">
+//  <copyright file="IServerConnectionService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,12 +23,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Services.ServerConnexionService
+namespace COMET.Web.Common.Services.ServerConnectionService
 {
     /// <summary>
     /// Service that holds the text data from the configuration file
     /// </summary>
-    public interface IServerConnexionService
+    public interface IServerConnectionService
     {
         /// <summary>
         /// The Server Address to use
@@ -36,7 +36,7 @@ namespace COMET.Web.Common.Services.ServerConnexionService
         string ServerAddress { get; }
 
         /// <summary>
-        /// Initializes the <see cref="IServerConnexionService"/>
+        /// Initializes the <see cref="IServerConnectionService"/>
         /// </summary>
         /// <returns>an asynchronous operation</returns>
         Task InitializeService();

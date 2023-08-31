@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ServerConnexionService.cs" company="RHEA System S.A.">
+//  <copyright file="ServerConnectionService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -22,21 +22,20 @@
 // 
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
-namespace COMET.Web.Common.Services.ServerConnexionService
+namespace COMET.Web.Common.Services.ServerConnectionService
 {
     using System;
     using System.Text.Json;
 
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Utilities;
+	using COMET.Web.Common.Utilities;
+	using Microsoft.Extensions.Options;
 
-    using Microsoft.Extensions.Options;
-
-    /// <summary>
-    /// Service that holds the text data from the configuration file
-    /// </summary>
-    public class ServerConnexionService : IServerConnexionService
-    {
+	/// <summary>
+	/// Service that holds the text data from the configuration file
+	/// </summary>
+    public class ServerConnectionService : IServerConnectionService
+	{
         /// <summary>
         /// The json file that contains the server configuration
         /// </summary>
@@ -58,18 +57,18 @@ namespace COMET.Web.Common.Services.ServerConnexionService
         private bool isInitialized;
 
         /// <summary>
-        /// Creates a new instance of type <see cref="ServerConnexionService"/>
+        /// Creates a new instance of type <see cref="ServerConnectionService"/>
         /// </summary>
         /// <param name="options">the <see cref="IOptions{GlobalOptions}"/></param>
         /// <param name="httpClient">the <see cref="HttpClient"/></param>
-        public ServerConnexionService(IOptions<GlobalOptions> options, HttpClient httpClient)
+        public ServerConnectionService(IOptions<GlobalOptions> options, HttpClient httpClient)
         {
             this.ServerConfigurationFile = options.Value.ServerConfigurationFile ?? "server_configuration.json";
             this.http = httpClient;
         }
 
         /// <summary>
-        /// Initializes the <see cref="ServerConnexionService"/>
+        /// Initializes the <see cref="ServerConnectionService"/>
         /// </summary>
         /// <returns>an asynchronous operation</returns>
         public async Task InitializeService()

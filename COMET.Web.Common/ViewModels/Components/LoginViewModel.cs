@@ -27,7 +27,7 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-	using COMET.Web.Common.Services.ServerConnexionService;
+	using COMET.Web.Common.Services.ServerConnectionService;
 	using COMET.Web.Common.Services.SessionManagement;
 	using ReactiveUI;
 
@@ -42,9 +42,9 @@ namespace COMET.Web.Common.ViewModels.Components
         private readonly IAuthenticationService authenticationService;
 
 		/// <summary>
-		/// Gets the <see cref="IServerConnexionService" />
+		/// Gets the <see cref="IServerConnectionService" />
 		/// </summary>
-		public IServerConnexionService serverConnexionService { get; }
+		public IServerConnectionService serverConnectionService { get; }
 
 		/// <summary>
 		/// Backing field for <see cref="AuthenticationState" />
@@ -55,9 +55,9 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
         /// </summary>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        public LoginViewModel(IAuthenticationService authenticationService, IServerConnexionService serverConnexionService)
+        public LoginViewModel(IAuthenticationService authenticationService, IServerConnectionService serverConnectionService)
         {
-            this.serverConnexionService = serverConnexionService;
+            this.serverConnectionService = serverConnectionService;
             this.authenticationService = authenticationService;
         }
 
@@ -83,9 +83,9 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.AuthenticationState = AuthenticationStateKind.Authenticating;
 
-            if(this.serverConnexionService.ServerAddress != null)
+            if(this.serverConnectionService.ServerAddress != null)
             {
-                this.AuthenticationDto.SourceAddress = this.serverConnexionService.ServerAddress;
+                this.AuthenticationDto.SourceAddress = this.serverConnectionService.ServerAddress;
             }
 
             this.AuthenticationState = await this.authenticationService.Login(this.AuthenticationDto);
