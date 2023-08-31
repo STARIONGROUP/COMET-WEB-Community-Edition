@@ -62,6 +62,11 @@ namespace COMET.Web.Common.Model
         public string JsonConfigurationFile { get; set; }
 
         /// <summary>
+        /// Gets or sets the configuration file used to set server address.
+        /// </summary>
+        public string ServerConfigurationFile { get; set; }
+
+        /// <summary>
         /// Defines the <see cref="Type" /> that should be used as MainLayout
         /// </summary>
         public Type MainLayoutType { get; set; } = typeof(MainLayout);

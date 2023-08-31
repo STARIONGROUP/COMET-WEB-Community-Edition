@@ -26,9 +26,9 @@
 namespace COMET.Web.Common.Tests.ViewModels.Components
 {
     using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
+    using CDP4Common.SiteDirectoryData;
 
-	using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -98,9 +98,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                     Iid = Guid.NewGuid(),
                     IterationSetup = new IterationSetup(Guid.NewGuid(), null, null)
                     {
-						IterationNumber = 1,
+                        IterationNumber = 1,
                         Container = new EngineeringModelSetup(Guid.NewGuid(), null, null)
-					}
+                    }
                 },
                 new ()
                 {

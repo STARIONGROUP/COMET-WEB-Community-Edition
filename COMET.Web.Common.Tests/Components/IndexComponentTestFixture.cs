@@ -40,6 +40,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Services.ServerConnectionService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Test.Helpers;
@@ -66,6 +67,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context = new TestContext();
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
+            this.serverConnectionService = new Mock<IServerConnectionService>();
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
 
@@ -79,6 +81,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.versionService.Object);
+            this.context.Services.AddSingleton(this.serverConnectionService.Object);
             this.context.Services.AddSingleton<ILoginViewModel, LoginViewModel>();
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(this.registrationService.Object);
@@ -100,6 +103,7 @@ namespace COMET.Web.Common.Tests.Components
         private TestContext context;
         private Mock<IVersionService> versionService;
         private Mock<ISessionService> sessionService;
+        private Mock<IServerConnectionService> serverConnectionService;
         private Mock<IAuthenticationService> authenticationService;
         private TestAuthorizationContext authorization;
         private SourceList<Iteration> sourceList;

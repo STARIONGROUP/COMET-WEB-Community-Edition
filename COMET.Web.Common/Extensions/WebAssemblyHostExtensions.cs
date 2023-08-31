@@ -26,6 +26,7 @@
 namespace COMET.Web.Common.Extensions
 {
     using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.ServerConnectionService;
 
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -42,11 +43,17 @@ namespace COMET.Web.Common.Extensions
         public static async Task InitializeServices(this WebAssemblyHost host)
         {
             var service = host.Services.GetService(typeof(IConfigurationService));
+            var serverConnectionService = host.Services.GetService(typeof(IServerConnectionService));
 
             if (service is ConfigurationService configurationService)
             {
                 await configurationService.InitializeService();
             }
-		}
+
+            if (serverConnectionService is ServerConnectionService serverConfigurationService)
+            {
+                await serverConfigurationService.InitializeService();
+            }
+        }
 	}
 }

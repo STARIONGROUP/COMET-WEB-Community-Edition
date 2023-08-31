@@ -25,14 +25,17 @@
 <EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
 	<DataAnnotationsValidator/>
 	<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-		<DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
-			<Template>
-				<DxTextBox Id="sourceaddress" @bind-Text="@(this.ViewModel.AuthenticationDto.SourceAddress)"
-				           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-				           NullText="Enter the url for the server"
-				           Enabled="@string.IsNullOrEmpty(this.RequestedServer)"/>
-			</Template>
-		</DxFormLayoutItem>
+		@if (string.IsNullOrEmpty(this.ViewModel.serverConnectionService.ServerAddress))
+		{
+			<DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
+				<Template>
+					<DxTextBox Id="sourceaddress" @bind-Text="@(this.ViewModel.AuthenticationDto.SourceAddress)"
+							   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+							   NullText="Enter the url for the server"
+							   Enabled="@string.IsNullOrEmpty(this.RequestedServer)" />
+				</Template>
+			</DxFormLayoutItem>
+		}
 		<DxFormLayoutItem Caption="UserName:" BeginRow="true" ColSpanLg="12">
 			<Template>
 				<DxTextBox Id="username" @bind-Text="@(this.ViewModel.AuthenticationDto.UserName)"

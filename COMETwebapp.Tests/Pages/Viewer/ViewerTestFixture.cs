@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.ServerConnectionService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -120,6 +121,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            this.context.Services.AddSingleton<IServerConnectionService, ServerConnectionService>();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
