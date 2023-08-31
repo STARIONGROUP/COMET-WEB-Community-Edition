@@ -35,8 +35,9 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Test.Helpers;
+	using COMET.Web.Common.Services.ServerConnexionService;
+	using COMET.Web.Common.Services.SessionManagement;
+	using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -115,7 +116,8 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
+			this.context.Services.AddSingleton<IServerConnexionService, ServerConnexionService>();
+			this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
 

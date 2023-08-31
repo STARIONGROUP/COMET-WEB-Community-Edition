@@ -30,7 +30,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.SessionManagement;
+	using COMET.Web.Common.Services.ServerConnexionService;
+	using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
 
@@ -49,13 +50,15 @@ namespace COMET.Web.Common.Tests.Components
         private ILoginViewModel viewModel;
         private TestContext context;
         private Mock<IAuthenticationService> authenticationService;
+		private Mock<IServerConnexionService> serverConnexionService;
 
-        [SetUp]
+		[SetUp]
         public void Setup()
         {
             this.authenticationService = new Mock<IAuthenticationService>();
+            this.serverConnexionService = new Mock<IServerConnexionService>();
             this.context = new TestContext();
-            this.viewModel = new LoginViewModel(this.authenticationService.Object);
+            this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnexionService.Object);
             this.context.Services.AddSingleton(this.viewModel);
             this.context.ConfigureDevExpressBlazor();
         }

@@ -36,8 +36,9 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
-    using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Test.Helpers;
+	using COMET.Web.Common.Services.ServerConnexionService;
+	using COMET.Web.Common.Services.SessionManagement;
+	using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -122,8 +123,9 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
+			this.context.Services.AddSingleton<IServerConnexionService, ServerConnexionService>();
 
-            var configurationService = new Mock<IConfigurationService>();
+			var configurationService = new Mock<IConfigurationService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
         }

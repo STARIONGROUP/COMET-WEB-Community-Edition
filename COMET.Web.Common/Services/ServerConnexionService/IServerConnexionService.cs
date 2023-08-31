@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="AuthenticationDto.cs" company="RHEA System S.A.">
+//  <copyright file="IServerConnexionService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,31 +23,22 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Model.DTO
+namespace COMET.Web.Common.Services.ServerConnexionService
 {
-    using System.ComponentModel.DataAnnotations;
-
     /// <summary>
-    /// Authentication information to connect to an E-TM-10-25 data source
+    /// Service that holds the text data from the configuration file
     /// </summary>
-    public class AuthenticationDto
+    public interface IServerConnexionService
     {
         /// <summary>
-        /// Gets or sets the address of the datasource to connect to
+        /// The Server Address to use
         /// </summary>
-        [Url]
-        public string SourceAddress { get; set; }
+        string ServerAddress { get; }
 
         /// <summary>
-        /// Gets or sets the username to authenticate with
+        /// Initializes the <see cref="IServerConnexionService"/>
         /// </summary>
-        [Required]
-        public string UserName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the password to authenticate with
-        /// </summary>
-        [Required]
-        public string Password { get; set; }
+        /// <returns>an asynchronous operation</returns>
+        Task InitializeService();
     }
 }

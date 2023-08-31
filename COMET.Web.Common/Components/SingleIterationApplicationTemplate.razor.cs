@@ -33,6 +33,7 @@ namespace COMET.Web.Common.Components
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.ServerConnexionService;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
@@ -69,6 +70,12 @@ namespace COMET.Web.Common.Components
 		/// </summary>
 		[Inject]
 		public NavigationManager NavigationManager { get; set; }
+
+		/// <summary>
+		/// The <see cref="IServerConnexionService" />
+		/// </summary>
+		[Inject]
+		public IServerConnexionService ServerConnexionService { get; set; }
 
 		/// <summary>
 		/// Method invoked when the component is ready to start, having received its
@@ -136,7 +143,7 @@ namespace COMET.Web.Common.Components
             {
                 currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
                 currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedIteration.IterationSetup.Container.Iid.ToShortGuid();
-                currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
+				currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
                 currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
             }
             else

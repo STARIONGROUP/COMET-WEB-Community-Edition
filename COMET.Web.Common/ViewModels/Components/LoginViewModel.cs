@@ -27,13 +27,13 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.SessionManagement;
+	using COMET.Web.Common.Services.ServerConnexionService;
+	using COMET.Web.Common.Services.SessionManagement;
+	using ReactiveUI;
 
-    using ReactiveUI;
-
-    /// <summary>
-    /// View Model that enables the user to login against a COMET Server
-    /// </summary>
+	/// <summary>
+	/// View Model that enables the user to login against a COMET Server
+	/// </summary>
     public class LoginViewModel : ReactiveObject, ILoginViewModel
     {
         /// <summary>
@@ -41,17 +41,23 @@ namespace COMET.Web.Common.ViewModels.Components
         /// </summary>
         private readonly IAuthenticationService authenticationService;
 
-        /// <summary>
-        /// Backing field for <see cref="AuthenticationState" />
-        /// </summary>
-        private AuthenticationStateKind authenticationState;
+		/// <summary>
+		/// Gets the <see cref="IServerConnexionService" />
+		/// </summary>
+		public IServerConnexionService serverConnexionService { get; }
+
+		/// <summary>
+		/// Backing field for <see cref="AuthenticationState" />
+		/// </summary>
+		private AuthenticationStateKind authenticationState;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
         /// </summary>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        public LoginViewModel(IAuthenticationService authenticationService)
+        public LoginViewModel(IAuthenticationService authenticationService, IServerConnexionService serverConnexionService)
         {
+            this.serverConnexionService = serverConnexionService;
             this.authenticationService = authenticationService;
         }
 
@@ -76,6 +82,12 @@ namespace COMET.Web.Common.ViewModels.Components
         public async Task ExecuteLogin()
         {
             this.AuthenticationState = AuthenticationStateKind.Authenticating;
+
+            if(this.serverConnexionService.ServerAddress != null)
+            {
+                this.AuthenticationDto.SourceAddress = this.serverConnexionService.ServerAddress;
+            }
+
             this.AuthenticationState = await this.authenticationService.Login(this.AuthenticationDto);
 
             if (this.authenticationState == AuthenticationStateKind.Success)
