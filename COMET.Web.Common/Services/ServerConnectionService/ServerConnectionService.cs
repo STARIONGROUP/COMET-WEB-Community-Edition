@@ -25,8 +25,8 @@
 namespace COMET.Web.Common.Services.ServerConnectionService
 {
     using System;
-	using System.Net;
-	using System.Text.Json;
+    using System.Net;
+    using System.Text.Json;
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities;
@@ -86,24 +86,24 @@ namespace COMET.Web.Common.Services.ServerConnectionService
             {
                 var path = ContentPathBuilder.BuildPath(this.ServerConfigurationFile);
 
-				using (var response = await this.http.GetAsync(path))
-				{
-					if (response.IsSuccessStatusCode)
-					{
-						var jsonContent = await response.Content.ReadAsStreamAsync();
-						configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
-						this.ServerAddress = configurations["ServerAddress"];
-					}
-					else if (response.StatusCode == HttpStatusCode.NotFound)
-					{
-						Console.WriteLine($"Server configuration file not found at {path}");
-					}
-					else
-					{
-						Console.WriteLine($"Error fetching server configuration. Status code: {response.StatusCode}");
-					}
-				}
-			}
+                using (var response = await this.http.GetAsync(path))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonContent = await response.Content.ReadAsStreamAsync();
+                        configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                        this.ServerAddress = configurations["ServerAddress"];
+                    }
+                    else if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Console.WriteLine($"Server configuration file not found at {path}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error fetching server configuration. Status code: {response.StatusCode}");
+                    }
+                }
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e);

@@ -37,8 +37,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
-	using COMET.Web.Common.Services.ServerConnectionService;
-	using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;

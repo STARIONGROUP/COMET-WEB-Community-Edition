@@ -27,13 +27,13 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-	using COMET.Web.Common.Services.ServerConnectionService;
-	using COMET.Web.Common.Services.SessionManagement;
-	using ReactiveUI;
+    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.SessionManagement;
+    using ReactiveUI;
 
-	/// <summary>
-	/// View Model that enables the user to login against a COMET Server
-	/// </summary>
+    /// <summary>
+    /// View Model that enables the user to login against a COMET Server
+    /// </summary>
     public class LoginViewModel : ReactiveObject, ILoginViewModel
     {
         /// <summary>
@@ -41,15 +41,15 @@ namespace COMET.Web.Common.ViewModels.Components
         /// </summary>
         private readonly IAuthenticationService authenticationService;
 
-		/// <summary>
-		/// Gets the <see cref="IServerConnectionService" />
-		/// </summary>
-		public IServerConnectionService serverConnectionService { get; }
+        /// <summary>
+        /// Gets the <see cref="IServerConnectionService" />
+        /// </summary>
+        public IServerConnectionService serverConnectionService { get; }
 
-		/// <summary>
-		/// Backing field for <see cref="AuthenticationState" />
-		/// </summary>
-		private AuthenticationStateKind authenticationState;
+        /// <summary>
+        /// Backing field for <see cref="AuthenticationState" />
+        /// </summary>
+        private AuthenticationStateKind authenticationState;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.

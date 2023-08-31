@@ -146,10 +146,10 @@ namespace COMET.Web.Common.Components
 
                 if (string.IsNullOrEmpty(this.ServerConnectionService.ServerAddress))
                 {
-					currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
+                    currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
 
-				}
-				currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
+                }
+                currentOptions[QueryKeys.DomainKey] = this.ViewModel.SessionService.GetDomainOfExpertise(this.ViewModel.SelectedIteration).Iid.ToShortGuid();
             }
             else
             {

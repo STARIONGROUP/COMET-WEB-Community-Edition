@@ -91,53 +91,53 @@ namespace COMET.Web.Common.Tests.Services.ServerConnectionService
                 Assert.That(this.serverConnectionService.ServerAddress, Is.EqualTo("http://localhost:5000/"));	
             });
 
-			handlerMock
-				.Protected()
-				.Setup<Task<HttpResponseMessage>>(
-					"SendAsync",
-					ItExpr.IsAny<HttpRequestMessage>(),
-					ItExpr.IsAny<CancellationToken>()
-				)
-				.ReturnsAsync(new HttpResponseMessage
-				{
-					StatusCode = HttpStatusCode.NotFound,
-				})
-				.Verifiable();
+            handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                })
+                .Verifiable();
 
-			httpClient = new HttpClient(handlerMock.Object)
-			{
-				BaseAddress = new Uri("http://localhost")
-			};
+            httpClient = new HttpClient(handlerMock.Object)
+            {
+                BaseAddress = new Uri("http://localhost")
+            };
 
-			serverConnectionService = new ServerConnectionService(options.Object, httpClient);
+            serverConnectionService = new ServerConnectionService(options.Object, httpClient);
 
-			await this.serverConnectionService.InitializeService();
+            await this.serverConnectionService.InitializeService();
 
-			Assert.That(this.serverConnectionService.ServerAddress, Is.Null);
+            Assert.That(this.serverConnectionService.ServerAddress, Is.Null);
 
-			handlerMock
-				.Protected()
-				.Setup<Task<HttpResponseMessage>>(
-					"SendAsync",
-					ItExpr.IsAny<HttpRequestMessage>(),
-					ItExpr.IsAny<CancellationToken>()
-				)
-				.ReturnsAsync(new HttpResponseMessage
-				{
-					StatusCode = HttpStatusCode.BadRequest,
-				})
-				.Verifiable();
+            handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                })
+                .Verifiable();
 
-			httpClient = new HttpClient(handlerMock.Object)
-			{
-				BaseAddress = new Uri("http://localhost")
-			};
+            httpClient = new HttpClient(handlerMock.Object)
+            {
+                BaseAddress = new Uri("http://localhost")
+            };
 
-			serverConnectionService = new ServerConnectionService(options.Object, httpClient);
+            serverConnectionService = new ServerConnectionService(options.Object, httpClient);
 
-			await this.serverConnectionService.InitializeService();
+            await this.serverConnectionService.InitializeService();
 
-			Assert.That(this.serverConnectionService.ServerAddress, Is.Null);
-		}
-	}
+            Assert.That(this.serverConnectionService.ServerAddress, Is.Null);
+        }
+    }
 }
