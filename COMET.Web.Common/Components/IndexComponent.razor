@@ -37,9 +37,9 @@
 				<DxPopup Visible="true" HeaderText="Open a Model" ShowFooter="false" CloseOnEscape="false" CloseOnOutsideClick="false"
 				 ShowCloseButton="false">
 					<div class="row">
-						<div id="welcome-user-notice" class="open__model__header col p-0 col-10 font-weight-bold">
-							@context.User.Identity?.Name - @this.ViewModel.SessionService.Session.DataSourceUri
-						</div>
+                        <div id="welcome-user-notice" class="open__model__header col p-0 col-10 font-weight-bold">
+                            @context.User.Identity?.Name - @this.ViewModel.SessionService.Session.DataSourceUri
+                        </div>
 						<div class="col p-0">
 							<a class="m-left-10px" @onclick="@(() => this.ViewModel.Logout())">Log Out</a>
 						</div>
@@ -67,22 +67,13 @@
 			</div>
 			<div class="row text-align-start m-top-20px align-items-center justify-content-md-center">
 				<div class="width-70">
-					<div id="unauthorized-notice" class="text-align-center font-weight-bold">Connect and Open a Model.</div>
-					<DxTreeView CssClass="m-top-10px">
-						<Nodes>
-							<DxTreeViewNode Name="ConnectView" Text="Connect" Expanded CssClass="color-title font-weight-bold">
-								<Nodes>
-									<DxTreeViewNode CssClass="font-weight-100">
-										<Template Context="_">
-											<Login RequestedServer="@this.requestedServer" />
-										</Template>
-									</DxTreeViewNode>
-								</Nodes>
-							</DxTreeViewNode>
-						</Nodes>
-						</DxTreeView>
-					</div>
-				</div>
+                    <div id="unauthorized-notice" class="text-align-center font-weight-bold">Connect and Open a Model.</div>
+					<div class="m-top-10px color-title">
+                        <h5 class="color-title font-weight-bold">Connect</h5>
+                        <Login RequestedServer="@this.requestedServer"/>
+                    </div>
+                </div>
 			</div>
-		</NotAuthorized>
-		</AuthorizeView>
+		</div>
+	</NotAuthorized>
+</AuthorizeView>
