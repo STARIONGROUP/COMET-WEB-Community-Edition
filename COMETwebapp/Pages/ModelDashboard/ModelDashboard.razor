@@ -23,7 +23,7 @@ Copyright (c) 2023 RHEA System S.A.
 @inherits COMET.Web.Common.Pages.SingleIterationPageTemplate
 @attribute [Route(WebAppConstantValues.ModelDashboardPage)]
 
-<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
+<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration" ShowActiveModel="true">
     <Body>
 		<ModelDashboardBody />
     </Body>

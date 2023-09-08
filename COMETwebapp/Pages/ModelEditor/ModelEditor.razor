@@ -23,7 +23,7 @@
 @inherits COMET.Web.Common.Pages.SingleIterationPageTemplate
 @attribute [Route(WebAppConstantValues.ModelEditorPage)]
 
-<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
+<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration" ShowActiveModel="true">
     <Body>
         <COMETwebapp.Components.ModelEditor.ElementDefinitionTable />
     </Body>

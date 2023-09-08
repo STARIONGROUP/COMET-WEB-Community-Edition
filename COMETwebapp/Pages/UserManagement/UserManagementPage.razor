@@ -19,7 +19,7 @@ Copyright (c) 2023 RHEA System S.A.
 @attribute [Route(WebAppConstantValues.UserManagementPage)]
 @attribute [Authorize]
 
-<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration">
+<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration" ShowActiveModel="true">
      <Body>
          <UserManagementTable />
      </Body>
