@@ -37,7 +37,6 @@ namespace COMET.Web.Common.Tests.Shared
     using CDP4Dal;
 
     using COMET.Web.Common.Components;
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
@@ -74,7 +73,7 @@ namespace COMET.Web.Common.Tests.Shared
         private Mock<IRegistrationService> registrationService;
         private Mock<IVersionService> versionService;
         private Mock<IConfigurationService> configurationService;
-		private SourceList<Iteration> sourceList;
+        private SourceList<Iteration> sourceList;
         private List<Type> registeredMenuEntries;
         private List<Application> registeredApplications;
 
@@ -108,7 +107,7 @@ namespace COMET.Web.Common.Tests.Shared
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
             this.configurationService = new Mock<IConfigurationService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
-			this.context.ConfigureDevExpressBlazor();
+            this.context.ConfigureDevExpressBlazor();
         }
 
         [TearDown]
@@ -276,8 +275,8 @@ namespace COMET.Web.Common.Tests.Shared
             navigationManager.NavigateTo("/AnUrl");
             var renderer = this.context.RenderComponent<TopMenu>();
             var topMenuTitle = renderer.FindComponent<TopMenuTitle>();
-            var link =(ElementWrapper) topMenuTitle.Find("a");
-            var htmlAnchor = (IHtmlAnchorElement) link.WrappedElement;
+            var link = (ElementWrapper)topMenuTitle.Find("a");
+            var htmlAnchor = (IHtmlAnchorElement)link.WrappedElement;
             Assert.That(navigationManager.Uri, Does.EndWith("AnUrl"));
             navigationManager.NavigateTo(htmlAnchor.Href);
             Assert.That(navigationManager.Uri, Does.Not.EndWith("AnUrl"));
@@ -288,7 +287,7 @@ namespace COMET.Web.Common.Tests.Shared
         {
             this.registrationService.Setup(x => x.CustomHeader).Returns(typeof(CustomHeader));
             var renderer = this.context.RenderComponent<TopMenu>();
-            
+
             Assert.Multiple(() =>
             {
                 Assert.That(() => renderer.FindComponent<TopMenuTitle>(), Throws.Exception);
@@ -300,7 +299,7 @@ namespace COMET.Web.Common.Tests.Shared
         {
         }
 
-        private class CustomHeader: MenuEntryBase
+        private class CustomHeader : MenuEntryBase
         {
         }
     }
