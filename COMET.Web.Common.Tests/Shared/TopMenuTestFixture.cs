@@ -37,7 +37,9 @@ namespace COMET.Web.Common.Tests.Shared
     using CDP4Dal;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -71,7 +73,8 @@ namespace COMET.Web.Common.Tests.Shared
         private Mock<IAuthenticationService> authenticationService;
         private Mock<IRegistrationService> registrationService;
         private Mock<IVersionService> versionService;
-        private SourceList<Iteration> sourceList;
+        private Mock<IConfigurationService> configurationService;
+		private SourceList<Iteration> sourceList;
         private List<Type> registeredMenuEntries;
         private List<Application> registeredApplications;
 
@@ -103,7 +106,9 @@ namespace COMET.Web.Common.Tests.Shared
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
-            this.context.ConfigureDevExpressBlazor();
+            this.configurationService = new Mock<IConfigurationService>();
+            this.context.Services.AddSingleton(this.configurationService.Object);
+			this.context.ConfigureDevExpressBlazor();
         }
 
         [TearDown]
