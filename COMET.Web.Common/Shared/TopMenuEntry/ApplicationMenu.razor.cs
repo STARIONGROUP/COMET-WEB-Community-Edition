@@ -26,6 +26,7 @@
 namespace COMET.Web.Common.Shared.TopMenuEntry
 {
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
 
     using Microsoft.AspNetCore.Components;
@@ -40,5 +41,11 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         /// </summary>
         [Inject]
         internal IRegistrationService RegistrationService { get; set; }
+
+        /// <summary>
+        /// The <see cref="IConfigurationService"/>
+        /// </summary>
+        [Inject]
+        public IConfigurationService ConfigurationService { get; set; }
     }
 }

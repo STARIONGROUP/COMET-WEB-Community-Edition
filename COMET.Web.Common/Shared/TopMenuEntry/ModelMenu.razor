@@ -20,6 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Shared.TopMenuEntry
+@using COMET.Web.Common.Enumerations
 @inherits AuthorizedMenuEntry
 
 <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelViewModel)" />
@@ -32,14 +33,14 @@
 	<OpenModel />
 </DxPopup>
 
-<DxMenuItem Name="model-entry" Text="Models" IconCssClass="icon icon-folder" Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)">
+<DxMenuItem Name="model-entry" Text="@this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle)" IconCssClass="icon icon-folder" Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)">
     <TextTemplate>
         <span id="@context.Name">
             @context.Text
         </span>
     </TextTemplate>
     <Items>
-        <DxMenuItem Name="model-entry-open" Text="Open Model" Click="@this.ViewModel.AskToOpenIteration">
+        <DxMenuItem Name="model-entry-open" Text="@this.ConfigurationService.GetText(TextConfigurationKind.ModelOpenButtonCaption)" Click="@this.ViewModel.AskToOpenIteration">
             <TextTemplate Context="contextSwitch">
                 <span id="@contextSwitch.Name">
                     @contextSwitch.Text

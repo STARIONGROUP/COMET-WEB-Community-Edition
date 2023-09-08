@@ -5,5 +5,8 @@
   "ModelTitleCaption": "Model",
   "IterationTitleCaption": "Iteration",
   "DomainTitleCaption": "Domain",
-  "LandingPageTitle" : "" 
+  "LandingPageTitle": "",
+  "NavigationApplicationSelectorTitle": "Application",
+  "NavigationModelSelectorTitle": "Models",
+  "ModelOpenButtonCaption": "Open Model"
 }

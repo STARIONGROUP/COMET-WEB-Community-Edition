@@ -63,6 +63,21 @@ namespace COMET.Web.Common.Enumerations
         /// <summary>
         /// The title to use in the landing page
         /// </summary>
-        LandingPageTitle = 6
+        LandingPageTitle = 6,
+
+        /// <summary>
+        /// The caption to use as navigation application selector title
+        /// </summary>
+        NavigationApplicationSelectorTitle = 7,
+
+        /// <summary>
+        /// The caption to use as navigation model selector title
+        /// </summary>
+        NavigationModelSelectorTitle = 8,
+
+        /// <summary>
+        /// The caption to use as title for the open button
+        /// </summary>
+        ModelOpenButtonCaption = 9,
     }
 }

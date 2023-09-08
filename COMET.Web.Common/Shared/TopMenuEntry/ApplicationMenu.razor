@@ -21,9 +21,10 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Shared.TopMenuEntry
 
+@using COMET.Web.Common.Enumerations
 @inherits AuthorizedMenuEntry
 
-<DxMenuItem Text="Application" IconCssClass="oi oi-layers" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated">
+<DxMenuItem Text="@this.ConfigurationService.GetText(TextConfigurationKind.NavigationApplicationSelectorTitle)" IconCssClass="oi oi-layers" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated">
 	<Items>
 		@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications)
 		{
