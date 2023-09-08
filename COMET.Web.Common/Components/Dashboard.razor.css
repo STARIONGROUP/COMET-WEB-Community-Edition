@@ -1,3 +1,10 @@
-﻿#dashboard-title{
-    text-align:center;
+﻿.dashboard-title-container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+#dashboard-title{
+    margin:0;
 }

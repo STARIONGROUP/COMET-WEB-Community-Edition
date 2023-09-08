@@ -23,7 +23,9 @@
 @using COMET.Web.Common.Enumerations
 @namespace COMET.Web.Common.Components
 <div id="dashboard" class="container-fluid dashboard">
-    <h3 id="dashboard-title">@(this.ConfigurationService.GetText(TextConfigurationKind.LandingPageTitle))</h3>
+    <div class="dashboard-title-container">
+        <h3 id="dashboard-title">@(this.ConfigurationService.GetText(TextConfigurationKind.LandingPageTitle))</h3>
+    </div>
     <div class="row justify-content-center dashboard__cards">
         @foreach (var application in this.RegistrationService.RegisteredApplications)
         {
