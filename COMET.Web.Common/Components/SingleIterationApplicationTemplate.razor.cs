@@ -54,6 +54,12 @@ namespace COMET.Web.Common.Components
         public RenderFragment Body { get; set; }
 
         /// <summary>
+        /// A property to show the active model
+        /// </summary>
+        [Parameter]
+        public bool ShowActiveModel { get; set; }
+
+        /// <summary>
         /// The <see cref="Guid" /> of selected <see cref="Iteration" />
         /// </summary>
         [Parameter]
