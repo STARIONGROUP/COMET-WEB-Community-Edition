@@ -1,0 +1,105 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.Utilities
+@using COMETwebapp.Extensions
+@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.BookEditor.IBookEditorBodyViewModel>
+
+<LoadingComponent IsVisible="this.ViewModel.IsLoading">
+    <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
+        <div id="books-column" class="book-editor-column">
+            <div class="column-header">
+                <h5 style="background-color:#eba434;">Books</h5>
+                <button class="icon icon-plus add-item-button"></button>
+            </div>
+            <div class="column-content">
+                <hr class="horizontal-line right-half-width"/>
+                @foreach (var book in this.ViewModel.AvailableBooks.Items)
+                {
+                    var conditionalClass = this.ViewModel.SelectedBook == book ? "selected" : "";
+                    <button @onclick="() => { this.ViewModel.SelectedBook = book; }" class="book-button @conditionalClass">
+                        @book.Name
+                    </button>
+                    <hr class="vertical-line"/>
+                }
+            </div>
+        </div>
+        <div id="sections-column" class="book-editor-column">
+            <div class="column-header">
+                <h5 style="background-color:#56bd08;">Sections</h5>
+                <button class="icon icon-plus add-item-button"></button>
+            </div>
+            <div class="column-content">
+                @if (this.ViewModel.SelectedBook != null && this.ViewModel.SelectedBook.Section.Any())
+                {
+                    <hr class="horizontal-line"/>
+                    foreach (var sectionValue in this.ViewModel.SelectedBook.Section.ToList())
+                    {
+                        var conditionalClass = this.ViewModel.SelectedSection == sectionValue ? "selected" : "";
+                        <button @onclick="() => { this.ViewModel.SelectedSection = sectionValue; }" class="section-button @conditionalClass">
+                            @sectionValue.Name
+                        </button>
+                        <div class="vertical-line"></div>
+                    }
+                }
+            </div>
+        </div>
+        <div id="pages-column" class="book-editor-column">
+            <div class="column-header">
+                <h5 style="background-color:#51dded;">Pages</h5>
+                <button class="icon icon-plus add-item-button"></button>
+            </div>
+            <div class="column-content">
+               @if (this.ViewModel.SelectedSection != null && this.ViewModel.SelectedSection.Page.Any())
+               {
+                   <hr class="horizontal-line"/>
+                   foreach (var pageValue in this.ViewModel.SelectedSection.Page.ToList())
+                   {
+                       var conditionalClass = this.ViewModel.SelectedPage == pageValue ? "selected" : "";
+                       <button @onclick="() => { this.ViewModel.SelectedPage = pageValue; }" class="page-button @conditionalClass">
+                           @pageValue.Name
+                       </button>
+                       <div class="vertical-line"></div>
+                   }
+               }
+            </div>
+        </div>
+        <div id="notes-column" class="book-editor-column">
+            <div class="column-header">
+                <h5 style="background-color:#eb6075;">Notes</h5>
+                <button class="icon icon-plus add-item-button"></button>
+            </div>
+            <div class="column-content">
+                @if (this.ViewModel.SelectedPage != null && this.ViewModel.SelectedPage.Note.Any())
+                {
+                    <hr class="horizontal-line left-half-width"/>
+                    foreach (var note in this.ViewModel.SelectedPage.Note.ToList())
+                    {
+                        <button class="note-button">
+                            @note.Name
+                        </button>
+                        <div class="vertical-line"></div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</LoadingComponent>

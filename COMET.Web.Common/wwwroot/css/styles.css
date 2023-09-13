@@ -36,6 +36,10 @@
     background-image: url(SVG/icons/upload-cloud.svg)
 }
 
+.icon-plus {
+    background-image: url(SVG/icons/plus-circle.svg)
+}
+
 .logo-size {
     max-width: 95px;
     height: auto;

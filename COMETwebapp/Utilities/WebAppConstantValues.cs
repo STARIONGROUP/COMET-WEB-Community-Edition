@@ -120,5 +120,10 @@ namespace COMETwebapp.Utilities
         /// The page name of the Model Editor
         /// </summary>
         public const string ModelEditorPage = "ModelEditor";
+
+        /// <summary>
+        /// The page name of the Book Editor
+        /// </summary>
+        public const string BookEditorPage = "BookEditor";
     }
 }

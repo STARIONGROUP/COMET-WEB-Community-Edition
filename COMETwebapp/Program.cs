@@ -50,6 +50,8 @@ namespace COMETwebapp
     
     using System.Reflection;
 
+    using COMETwebapp.ViewModels.Components.BookEditor;
+
     /// <summary>
     /// Point of entry of the application
     /// </summary>
@@ -114,6 +116,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
             builder.Services.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
             builder.Services.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
+            builder.Services.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
         }
     }
 }
