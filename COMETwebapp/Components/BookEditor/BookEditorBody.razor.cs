@@ -36,5 +36,31 @@ namespace COMETwebapp.Components.BookEditor
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
         }
+
+        /// <summary>
+        /// Gets the text of the header depending on the state of the ViewModel
+        /// </summary>
+        /// <returns></returns>
+        private string GetHeaderText()
+        {
+            if (this.ViewModel.IsOnBookCreation)
+            {
+                return "Create a new Book";
+            }
+            else if (this.ViewModel.IsOnSectionCreation)
+            {
+                return "Create a new Section";
+            }
+            else if (this.ViewModel.IsOnPageCreation)
+            {
+                return "Create a new Page";
+            }
+            else if (this.ViewModel.IsOnNoteCreation)
+            {
+                return "Create a new Node";
+            }
+
+            return string.Empty;
+        }
     }
 }

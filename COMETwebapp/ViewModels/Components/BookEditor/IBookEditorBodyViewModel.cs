@@ -26,10 +26,12 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
+    using CDP4Common.SiteDirectoryData;
     
     using COMET.Web.Common.ViewModels.Components;
     
     using DynamicData;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// ViewModel for the BookEditorBody component
@@ -55,5 +57,70 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Gets or sets the collection of available <see cref="Book"/> for this <see cref="EngineeringModel"/>
         /// </summary>
         SourceList<Book> AvailableBooks { get; set; }
+
+        /// <summary>
+        /// Gets or sets the available categories
+        /// </summary>
+        List<Category> AvailableCategories { get; set; }
+
+        /// <summary>
+        /// Gets or sets the active <see cref="DomainOfExpertise"/>
+        /// </summary>
+        List<DomainOfExpertise> ActiveDomains { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on book creation state
+        /// </summary>
+        bool IsOnBookCreation { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on section creation state
+        /// </summary>
+        bool IsOnSectionCreation { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on page creation state
+        /// </summary>
+        bool IsOnPageCreation { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on node creation state
+        /// </summary>
+        bool IsOnNoteCreation { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Book"/> that's about to be created
+        /// </summary>
+        Book BookToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Section"/> that's about to be created
+        /// </summary>
+        Section SectionToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Page"/> that's about to be created
+        /// </summary>
+        Page PageToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Note"/> that's about to be created
+        /// </summary>
+        Note NoteToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback"/> for when an item is created
+        /// </summary>
+        EventCallback OnCreateItem { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback"/> for when an item has canceled it's creation
+        /// </summary>
+        EventCallback OnCancelCreateItem { get; set; }
+
+        /// <summary>
+        /// Resets the states for creation modes
+        /// </summary>
+        void ResetCreationStates();
     }
 }

@@ -21,14 +21,59 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
+@using COMET.Web.Common.Components.BookEditor
+@using CDP4Common.ReportingData
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.BookEditor.IBookEditorBodyViewModel>
 
 <LoadingComponent IsVisible="this.ViewModel.IsLoading">
+    
+    @{
+        var popupVisible = this.ViewModel.IsOnBookCreation || this.ViewModel.IsOnSectionCreation || this.ViewModel.IsOnPageCreation || this.ViewModel.IsOnNoteCreation;
+        var parameters = new Dictionary<string, object>
+        {
+            {nameof(BookInput.Book), this.ViewModel.BookToCreate},
+            {nameof(BookInput.ActiveDomains), this.ViewModel.ActiveDomains},
+            {nameof(BookInput.AvailableCategories), this.ViewModel.AvailableCategories}
+        };
+        var booksColumnConditionalClass = this.ViewModel.SelectedSection != null ? "collapsed" : "";
+    }
+
+    <DxPopup Visible="popupVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()" Closed="@(this.ViewModel.ResetCreationStates)">
+        <Content>
+            <DynamicComponent Type="typeof(BookInput)" Parameters="@parameters"/>
+        </Content>
+        <FooterTemplate>
+            <div class="modal-footer">
+                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@this.ViewModel.OnCreateItem" />
+                <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnCancelCreateItem" />
+            </div>
+        </FooterTemplate>
+    </DxPopup>
+    
     <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
-        <div id="books-column" class="book-editor-column">
+        <BookEditorColumn TItem="Book" HeaderHexColor="#eba434" HeaderTitle="Books"
+                          Items="@this.ViewModel.AvailableBooks.Items.ToList()" 
+                          @bind-SelectedValue="@this.ViewModel.SelectedBook"
+                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnBookCreation = true)"/>
+
+        <BookEditorColumn TItem="Section" HeaderHexColor="#56bd08" HeaderTitle="Sections"
+                          Items="@this.ViewModel.SelectedBook?.Section.ToList()"
+                          @bind-SelectedValue="@this.ViewModel.SelectedSection"
+                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnSectionCreation = true)"/>
+
+        <BookEditorColumn TItem="Page" HeaderHexColor="#51dded" HeaderTitle="Pages"
+                          Items="@this.ViewModel.SelectedSection?.Page.ToList()"
+                          @bind-SelectedValue="@this.ViewModel.SelectedPage"
+                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnPageCreation = true)"/>
+
+        <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
+                          Items="@this.ViewModel.SelectedPage?.Note.ToList()"
+                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"/>
+
+@*         <div id="books-column" class="book-editor-column @booksColumnConditionalClass">
             <div class="column-header">
                 <h5 style="background-color:#eba434;">Books</h5>
-                <button class="icon icon-plus add-item-button"></button>
+                <button class="icon icon-plus add-item-button" @onclick="@(() => this.ViewModel.IsOnBookCreation = true)"></button>
             </div>
             <div class="column-content">
                 <hr class="horizontal-line right-half-width"/>
@@ -45,7 +90,7 @@
         <div id="sections-column" class="book-editor-column">
             <div class="column-header">
                 <h5 style="background-color:#56bd08;">Sections</h5>
-                <button class="icon icon-plus add-item-button"></button>
+                <button class="icon icon-plus add-item-button" @onclick="@(() => this.ViewModel.IsOnSectionCreation = true)"></button>
             </div>
             <div class="column-content">
                 @if (this.ViewModel.SelectedBook != null && this.ViewModel.SelectedBook.Section.Any())
@@ -65,27 +110,27 @@
         <div id="pages-column" class="book-editor-column">
             <div class="column-header">
                 <h5 style="background-color:#51dded;">Pages</h5>
-                <button class="icon icon-plus add-item-button"></button>
+                <button class="icon icon-plus add-item-button" @onclick="@(() => this.ViewModel.IsOnPageCreation = true)"></button>
             </div>
             <div class="column-content">
-               @if (this.ViewModel.SelectedSection != null && this.ViewModel.SelectedSection.Page.Any())
-               {
-                   <hr class="horizontal-line"/>
-                   foreach (var pageValue in this.ViewModel.SelectedSection.Page.ToList())
-                   {
-                       var conditionalClass = this.ViewModel.SelectedPage == pageValue ? "selected" : "";
-                       <button @onclick="() => { this.ViewModel.SelectedPage = pageValue; }" class="page-button @conditionalClass">
-                           @pageValue.Name
-                       </button>
-                       <div class="vertical-line"></div>
-                   }
-               }
+                @if (this.ViewModel.SelectedSection != null && this.ViewModel.SelectedSection.Page.Any())
+                {
+                    <hr class="horizontal-line"/>
+                    foreach (var pageValue in this.ViewModel.SelectedSection.Page.ToList())
+                    {
+                        var conditionalClass = this.ViewModel.SelectedPage == pageValue ? "selected" : "";
+                        <button @onclick="() => { this.ViewModel.SelectedPage = pageValue; }" class="page-button @conditionalClass">
+                            @pageValue.Name
+                        </button>
+                        <div class="vertical-line"></div>
+                    }
+                }
             </div>
         </div>
         <div id="notes-column" class="book-editor-column">
             <div class="column-header">
                 <h5 style="background-color:#eb6075;">Notes</h5>
-                <button class="icon icon-plus add-item-button"></button>
+                <button class="icon icon-plus add-item-button" @onclick="@(() => this.ViewModel.IsOnNoteCreation = true)"></button>
             </div>
             <div class="column-content">
                 @if (this.ViewModel.SelectedPage != null && this.ViewModel.SelectedPage.Note.Any())
@@ -100,6 +145,6 @@
                     }
                 }
             </div>
-        </div>
+        </div> *@
     </div>
 </LoadingComponent>

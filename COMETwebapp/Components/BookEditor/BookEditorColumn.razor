@@ -1,0 +1,50 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits DisposableComponent
+@typeparam TItem
+
+@{
+    var columnConditionalClass = this.IsCollapsed ? "collapsed" : "";
+}
+
+<div class="book-editor-column @columnConditionalClass">
+    <div class="column-header">
+        <h5 style="background-color:@this.HeaderHexColor">@this.HeaderTitle</h5>
+        <button class="icon icon-plus add-item-button" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())"></button>
+    </div>
+    <div class="column-content">
+        <hr class="horizontal-line right-half-width"/>
+        @if (this.Items.Any())
+        {
+
+        }
+        <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
+            @{
+                var conditionalClass = this.SelectedValue.Equals(item) ? "selected" : "";
+                <button @onclick="@(async () => { await this.OnSelectedValueChanged(item); })" class="book-button @conditionalClass">
+                    @item.ToString()
+                </button>
+                <hr class="vertical-line"/>
+            }
+        </Virtualize>
+    </div>
+</div>

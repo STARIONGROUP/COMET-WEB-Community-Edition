@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
+    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
@@ -34,6 +35,8 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
@@ -41,6 +44,26 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     /// </summary>
     public class BookEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IBookEditorBodyViewModel
     {
+        /// <summary>
+        /// Backing field for the <see cref="IsOnBookCreation"/> property
+        /// </summary>
+        private bool isOnBookCreation;
+
+        /// <summary>
+        /// Backing field for the <see cref="IsOnSectionCreation"/> property
+        /// </summary>
+        private bool isOnSectionCreation;
+
+        /// <summary>
+        /// Backing field for the <see cref="IsOnPageCreation"/> property
+        /// </summary>
+        private bool isOnPageCreation;
+
+        /// <summary>
+        /// Backing field for the <see cref="IsOnNoteCreation"/> property
+        /// </summary>
+        private bool isOnNodeCreation;
+
         /// <summary>
         /// Backing field for the <see cref="SelectedBook"/> property
         /// </summary>
@@ -89,6 +112,82 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         public SourceList<Book> AvailableBooks { get; set; } = new();
 
         /// <summary>
+        /// Gets or sets the available categories
+        /// </summary>
+        public List<Category> AvailableCategories { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the active <see cref="DomainOfExpertise"/>
+        /// </summary>
+        public List<DomainOfExpertise> ActiveDomains { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on book creation state
+        /// </summary>
+        public bool IsOnBookCreation
+        {
+            get => this.isOnBookCreation;
+            set => this.RaiseAndSetIfChanged(ref this.isOnBookCreation, value);
+        }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on section creation state
+        /// </summary>
+        public bool IsOnSectionCreation
+        {
+            get => this.isOnSectionCreation;
+            set => this.RaiseAndSetIfChanged(ref this.isOnSectionCreation, value);
+        }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on page creation state
+        /// </summary>
+        public bool IsOnPageCreation
+        {
+            get => this.isOnPageCreation;
+            set => this.RaiseAndSetIfChanged(ref this.isOnPageCreation, value);
+        }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on node creation state
+        /// </summary>
+        public bool IsOnNoteCreation
+        {
+            get => this.isOnNodeCreation;
+            set => this.RaiseAndSetIfChanged(ref this.isOnNodeCreation, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Book"/> that's about to be created
+        /// </summary>
+        public Book BookToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Section"/> that's about to be created
+        /// </summary>
+        public Section SectionToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Page"/> that's about to be created
+        /// </summary>
+        public Page PageToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Note"/> that's about to be created
+        /// </summary>
+        public Note NoteToCreate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback"/> for when an item is created
+        /// </summary>
+        public EventCallback OnCreateItem { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback"/> for when an item has canceled it's creation
+        /// </summary>
+        public EventCallback OnCancelCreateItem { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BookEditorBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -96,6 +195,12 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         {
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedBook).Subscribe(_ => this.OnSelectedBookChanged()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSection).Subscribe(_ => this.OnSelectedSectionChanged()));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.IsOnBookCreation, x=> x.IsOnSectionCreation, x=>x.IsOnPageCreation, x=>x.IsOnNoteCreation).Subscribe(_=>this.ResetDataToCreate()));
+
+            this.OnCreateItem = new EventCallbackFactory().Create(this, this.OnHandleCreateItem);
+
+            this.OnCancelCreateItem = new EventCallbackFactory().Create(this, this.ResetCreationStates);
         }
 
         /// <summary>
@@ -115,16 +220,44 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         {
             this.IsLoading = true;
             await base.OnIterationChanged();
-            var a = this.CurrentIteration;
 
-            this.AvailableBooks.Edit(inner =>
+            if (this.CurrentIteration.Container is EngineeringModel engineeringModel)
             {
-                inner.Clear();
-                inner.AddRange(((EngineeringModel)this.CurrentIteration.Container).Book);
-            });
+                this.AvailableBooks.Edit(inner =>
+                {
+                    inner.Clear();
+                    inner.AddRange(engineeringModel.Book);
+                });
 
+                this.ActiveDomains.Clear();
+                this.ActiveDomains.AddRange(engineeringModel.EngineeringModelSetup.ActiveDomain);
+
+                this.AvailableCategories.Clear();
+                var categories = engineeringModel.RequiredRdls.SelectMany(x => x.DefinedCategory);
+                this.AvailableCategories.AddRange(categories);
+            }
+
+            this.ResetDataToCreate();
             this.CreateFakeData();
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Resets the states for creation modes
+        /// </summary>
+        public void ResetCreationStates()
+        {
+            this.IsOnBookCreation = this.IsOnSectionCreation = this.IsOnPageCreation = this.IsOnNoteCreation = false;
+        }
+
+        /// <summary>
+        /// Resets the data that is going to be used for creating a book, section or page
+        /// </summary>
+        private void ResetDataToCreate()
+        {
+            this.BookToCreate = new();
+            this.SectionToCreate = new();
+            this.PageToCreate = new();
         }
 
         /// <summary>
@@ -142,6 +275,31 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         private void OnSelectedSectionChanged()
         {
             this.SelectedPage = null;
+        }
+
+        /// <summary>
+        /// Handles the creation of an item
+        /// </summary>
+        private void OnHandleCreateItem()
+        {
+            if (this.IsOnBookCreation)
+            {
+
+            }
+            else if (this.IsOnSectionCreation)
+            {
+
+            }
+            else if (this.IsOnPageCreation)
+            {
+
+            }
+            else if (this.IsOnNoteCreation)
+            {
+
+            }
+
+            this.ResetCreationStates();
         }
 
         private void CreateFakeData()
