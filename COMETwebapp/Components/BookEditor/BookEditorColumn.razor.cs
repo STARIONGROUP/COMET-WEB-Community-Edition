@@ -34,6 +34,18 @@ namespace COMETwebapp.Components.BookEditor
     public partial class BookEditorColumn<TItem>
     {
         /// <summary>
+        /// Gets or sets if the lines should be drawn in the right side
+        /// </summary>
+        [Parameter]
+        public bool LinesOnRight { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the first horizontal line should be the half width
+        /// </summary>
+        [Parameter]
+        public bool HorizontalLineHalfWidth { get; set; }
+
+        /// <summary>
         /// Gets or sets the title of the header
         /// </summary>
         [Parameter]

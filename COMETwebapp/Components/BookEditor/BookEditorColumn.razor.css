@@ -44,19 +44,21 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    row-gap: 10px;
     padding-top: 2%;
     position: relative;
 }
 
-.node-container {
+.node-inner-content {
+    position: relative;
+    width: 100%;
+    border: 1px dashed #555;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
 }
 
-.book-button, .section-button, .page-button, .note-button {
+.book-button {
     border: 0;
     box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
     padding: 5%;
@@ -75,29 +77,50 @@
 }
 
 .vertical-line {
+    position:absolute;
+    left:15%;
     background-color: transparent;
-    height: 15px;
+    height: 100%;
     border: 0;
-    border-left: 2px dashed #CCC;
+    border-left: 2px dashed #555;
 }
+
+    .vertical-line.first {
+        height: 50%;
+        top: 55%;
+        transform: translateY(-50%);
+    }
+
+    .vertical-line.right-side{
+        left:85%;
+    }
+
+    .vertical-line.last {
+        height: 50%;
+        top: 5%;
+        transform: translateY(-50%);
+    }
 
 .horizontal-line {
     background-color: transparent;
     margin: 0;
-    top: 55px;
-    left: 0px;
     position: absolute;
-    width: 100%;
     border: 0;
     border-top: 2px dashed #555;
+    width: 50%;
+    left: 15%;
 }
 
-.left-half-width {
-    left: 0%;
-    width: 50%;
-}
+    .horizontal-line.first {
+        width: 50%;
+        left: 0%;
+    }
 
-.right-half-width {
-    left: 50%;
-    width: 50%;
-}
+    .horizontal-line.right-side {
+        left: 50%;
+    }
+
+    .horizontal-line.first.full-width{
+        width:100%;
+    }
+

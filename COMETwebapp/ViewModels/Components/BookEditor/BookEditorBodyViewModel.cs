@@ -338,11 +338,16 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                     new Section
                     {
                         Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section 2"
                     }
                 }
             };
 
             this.AvailableBooks.Add(book);
+            this.AvailableBooks.Add(new Book());
         }
     }
 }

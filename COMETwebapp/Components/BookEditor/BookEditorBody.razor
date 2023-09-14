@@ -54,7 +54,9 @@
         <BookEditorColumn TItem="Book" HeaderHexColor="#eba434" HeaderTitle="Books"
                           Items="@this.ViewModel.AvailableBooks.Items.ToList()" 
                           @bind-SelectedValue="@this.ViewModel.SelectedBook"
-                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnBookCreation = true)"/>
+                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnBookCreation = true)"
+                          LinesOnRight="true"
+                          HorizontalLineHalfWidth="true"/>
 
         <BookEditorColumn TItem="Section" HeaderHexColor="#56bd08" HeaderTitle="Sections"
                           Items="@this.ViewModel.SelectedBook?.Section.ToList()"
@@ -68,7 +70,8 @@
 
         <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
                           Items="@this.ViewModel.SelectedPage?.Note.ToList()"
-                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"/>
+                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"
+                          HorizontalLineHalfWidth="true" />
 
 @*         <div id="books-column" class="book-editor-column @booksColumnConditionalClass">
             <div class="column-header">

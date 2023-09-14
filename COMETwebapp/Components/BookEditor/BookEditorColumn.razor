@@ -32,19 +32,25 @@
         <button class="icon icon-plus add-item-button" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())"></button>
     </div>
     <div class="column-content">
-        <hr class="horizontal-line right-half-width"/>
-        @if (this.Items.Any())
+        @if (this.Items != null && this.Items.Any())
         {
+            <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
+                @{
+                    var conditionalClass = item.Equals(this.SelectedValue) ? "selected" : "";
+                    var firstClass = item.Equals(this.Items.First()) && this.Items.Count > 1 ? "first" : "";
+                    var lastClass = item.Equals(this.Items.Last()) && this.Items.Count > 1 ? "last" : "";
 
+                    var fullWidthClass = this.HorizontalLineHalfWidth ? "" : "full-width";
+                    var rightSideClass = this.LinesOnRight ? "right-side" : "";
+                    <div class="node-inner-content">
+                        <hr class="horizontal-line @firstClass @lastClass @fullWidthClass @rightSideClass" />
+                        <hr class="vertical-line @firstClass @lastClass @rightSideClass"/>
+                        <button @onclick="@(async () => { await this.OnSelectedValueChanged(item); })" class="book-button @conditionalClass">
+                            @item.ToString()
+                        </button>
+                    </div>
+                }
+            </Virtualize>
         }
-        <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
-            @{
-                var conditionalClass = this.SelectedValue.Equals(item) ? "selected" : "";
-                <button @onclick="@(async () => { await this.OnSelectedValueChanged(item); })" class="book-button @conditionalClass">
-                    @item.ToString()
-                </button>
-                <hr class="vertical-line"/>
-            }
-        </Virtualize>
     </div>
 </div>
