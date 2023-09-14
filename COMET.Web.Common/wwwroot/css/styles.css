@@ -40,6 +40,14 @@
     background-image: url(SVG/icons/plus-circle.svg)
 }
 
+.icon-arrow-left {
+    background-image: url(SVG/icons/arrow-left.svg)
+}
+
+.icon-arrow-right {
+    background-image: url(SVG/icons/arrow-right.svg)
+}
+
 .logo-size {
     max-width: 95px;
     height: auto;

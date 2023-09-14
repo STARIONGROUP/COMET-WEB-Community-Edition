@@ -34,6 +34,12 @@ namespace COMETwebapp.Components.BookEditor
     public partial class BookEditorColumn<TItem>
     {
         /// <summary>
+        /// Gets or sets the class to use for the collapse button
+        /// </summary>
+        [Parameter]
+        public string CollapseButtonIconClass { get; set; }
+
+        /// <summary>
         /// Gets or sets if the lines should be drawn in the right side
         /// </summary>
         [Parameter]
@@ -86,6 +92,18 @@ namespace COMETwebapp.Components.BookEditor
         /// </summary>
         [Parameter]
         public EventCallback OnCreateNewItemClick { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="EventCallback"/> for when the user request to collapse the column
+        /// </summary>
+        [Parameter]
+        public EventCallback OnCollapseClicked { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content template to render if any
+        /// </summary>
+        [Parameter]
+        public RenderFragment<TItem> ContentTemplate { get; set; }
 
         /// <summary>
         /// Hanlder for when the selected value changes

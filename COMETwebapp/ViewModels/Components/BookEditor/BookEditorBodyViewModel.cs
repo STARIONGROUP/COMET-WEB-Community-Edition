@@ -347,7 +347,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             };
 
             this.AvailableBooks.Add(book);
-            this.AvailableBooks.Add(new Book());
+            this.AvailableBooks.Add(new Book(){Name = "Book 2"});
         }
     }
 }

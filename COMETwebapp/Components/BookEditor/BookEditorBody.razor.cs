@@ -22,6 +22,8 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
+using ReactiveUI;
+
 namespace COMETwebapp.Components.BookEditor
 {
     /// <summary>
@@ -29,12 +31,32 @@ namespace COMETwebapp.Components.BookEditor
     /// </summary>
     public partial class BookEditorBody
     {
+        private bool IsBooksColumnCollapsed { get; set; }
+
+        private bool IsSectionColumnCollapsed { get; set; }
+
+        private bool IsPageColumnCollapsed { get; set; }
+        
         /// <summary>
         /// Initializes values of the component and of the ViewModel based on parameters provided from the url
         /// </summary>
         /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnBookCreation, 
+                    x => x.ViewModel.IsOnSectionCreation,
+                    x => x.ViewModel.IsOnPageCreation, 
+                    x => x.ViewModel.IsOnNoteCreation)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
