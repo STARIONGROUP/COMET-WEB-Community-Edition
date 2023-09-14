@@ -467,3 +467,15 @@
 #sfpt-table th {
     position: sticky;
 }
+
+.dashboard-title-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#dashboard-title {
+    text-align: center;
+    color: #16386f;
+}
