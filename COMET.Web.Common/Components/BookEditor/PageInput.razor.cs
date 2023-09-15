@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BookInput.razor.cs" company="RHEA System S.A.">
+//  <copyright file="PageInput.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -31,15 +31,15 @@ namespace COMET.Web.Common.Components.BookEditor
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the BookInput component
+    /// Support class for the PageInput component
     /// </summary>
-    public partial class BookInput
+    public partial class PageInput
     {
         /// <summary>
-        /// Gets or sets the book for which the input is being provided
+        /// Gets or sets the page for which the input is being provided
         /// </summary>
         [Parameter]
-        public Book Book { get; set; }
+        public Page Page { get; set; }
 
         /// <summary>
         /// Gets or sets the active <see cref="DomainOfExpertise"/>
@@ -59,7 +59,7 @@ namespace COMET.Web.Common.Components.BookEditor
         /// <param name="categories"></param>
         private void OnCategoryChange(IEnumerable<Category> categories)
         {
-            this.Book.Category = categories.ToList();
+            this.Page.Category = categories.ToList();
         }
     }
 }

@@ -29,18 +29,20 @@
 
     @{
         var popupVisible = this.ViewModel.IsOnBookCreation || this.ViewModel.IsOnSectionCreation || this.ViewModel.IsOnPageCreation || this.ViewModel.IsOnNoteCreation;
+
+        var parameter = this.GetDynamicComponentParameter();
+
         var parameters = new Dictionary<string, object>
-    {
-    {nameof(BookInput.Book), this.ViewModel.BookToCreate},
-    {nameof(BookInput.ActiveDomains), this.ViewModel.ActiveDomains},
-    {nameof(BookInput.AvailableCategories), this.ViewModel.AvailableCategories}
-    };
-        var booksColumnConditionalClass = this.ViewModel.SelectedSection != null ? "collapsed" : "";
+        {
+            {parameter.key, parameter.item},
+            {"ActiveDomains", this.ViewModel.ActiveDomains},
+            {"AvailableCategories", this.ViewModel.AvailableCategories}
+        };
     }
 
     <DxPopup Visible="popupVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()" Closed="@(this.ViewModel.ResetCreationStates)">
         <Content>
-            <DynamicComponent Type="typeof(BookInput)" Parameters="@parameters" />
+            <DynamicComponent Type="@parameter.type" Parameters="@parameters"/>
         </Content>
         <FooterTemplate>
             <div class="modal-footer">

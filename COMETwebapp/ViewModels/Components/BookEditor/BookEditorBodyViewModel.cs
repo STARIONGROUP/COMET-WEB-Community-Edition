@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.BookEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
@@ -238,7 +239,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             }
 
             this.ResetDataToCreate();
-            this.CreateFakeData();
+            //this.CreateFakeData();
             this.IsLoading = false;
         }
 
@@ -255,9 +256,9 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// </summary>
         private void ResetDataToCreate()
         {
-            this.BookToCreate = new();
-            this.SectionToCreate = new();
-            this.PageToCreate = new();
+            this.BookToCreate = new(Guid.NewGuid(), null, null);
+            this.SectionToCreate = new(Guid.NewGuid(), null, null);
+            this.PageToCreate = new(Guid.NewGuid(), null, null);
         }
 
         /// <summary>
@@ -280,11 +281,15 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <summary>
         /// Handles the creation of an item
         /// </summary>
-        private void OnHandleCreateItem()
+        private async Task OnHandleCreateItem()
         {
             if (this.IsOnBookCreation)
             {
-
+                var engineeringModel = this.CurrentIteration.Container as EngineeringModel;
+                var engineeringModelClone = engineeringModel?.Clone(false);
+                this.BookToCreate.Container = engineeringModel;
+               // engineeringModelClone?.Book.Add(this.BookToCreate);
+                await this.SessionService.CreateThing(engineeringModelClone, this.BookToCreate);
             }
             else if (this.IsOnSectionCreation)
             {

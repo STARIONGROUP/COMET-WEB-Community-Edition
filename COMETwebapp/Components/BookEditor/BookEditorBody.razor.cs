@@ -22,19 +22,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using ReactiveUI;
-
 namespace COMETwebapp.Components.BookEditor
 {
+    using COMET.Web.Common.Components.BookEditor;
+
+    using ReactiveUI;
+
     /// <summary>
     /// Core component for the Book Editor application
     /// </summary>
     public partial class BookEditorBody
     {
+        /// <summary>
+        /// Gets or sets if the books column is collapsed
+        /// </summary>
         private bool IsBooksColumnCollapsed { get; set; }
 
+        /// <summary>
+        /// Gets or sets if the sections column is collapsed
+        /// </summary>
         private bool IsSectionColumnCollapsed { get; set; }
 
+        /// <summary>
+        /// Gets or sets if the page column is collapsed
+        /// </summary>
         private bool IsPageColumnCollapsed { get; set; }
         
         /// <summary>
@@ -52,6 +63,7 @@ namespace COMETwebapp.Components.BookEditor
         protected override void OnInitialized()
         {
             base.OnInitialized();
+
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnBookCreation, 
                     x => x.ViewModel.IsOnSectionCreation,
                     x => x.ViewModel.IsOnPageCreation, 
@@ -83,6 +95,32 @@ namespace COMETwebapp.Components.BookEditor
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the parameter for the dynamic component being redered
+        /// </summary>
+        /// <returns>the parameter key and values</returns>
+        private (string key, object item, Type type) GetDynamicComponentParameter()
+        {
+            if (this.ViewModel.IsOnBookCreation)
+            {
+                return (nameof(BookInput.Book), this.ViewModel.BookToCreate, typeof(BookInput));
+            }
+            else if (this.ViewModel.IsOnSectionCreation)
+            {
+                return (nameof(SectionInput.Section), this.ViewModel.SectionToCreate, typeof(SectionInput));
+            }
+            else if (this.ViewModel.IsOnPageCreation)
+            {
+                return (nameof(PageInput.Page), this.ViewModel.PageToCreate, typeof(PageInput));
+            }
+            else if (this.ViewModel.IsOnNoteCreation)
+            {
+                return ("", null, null);
+            }
+
+            return ("", null, null);
         }
     }
 }
