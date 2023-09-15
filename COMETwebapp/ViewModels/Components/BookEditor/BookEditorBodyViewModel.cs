@@ -24,7 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.BookEditor
 {
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
@@ -239,7 +238,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             }
 
             this.ResetDataToCreate();
-            //this.CreateFakeData();
+            this.CreateFakeData();
             this.IsLoading = false;
         }
 
@@ -286,9 +285,9 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             if (this.IsOnBookCreation)
             {
                 var engineeringModel = this.CurrentIteration.Container as EngineeringModel;
-                var engineeringModelClone = engineeringModel?.Clone(false);
-                this.BookToCreate.Container = engineeringModel;
-               // engineeringModelClone?.Book.Add(this.BookToCreate);
+                //this.BookToCreate.Container = engineeringModel;
+                var engineeringModelClone = engineeringModel.Clone(false);
+                //engineeringModelClone?.Book.Add(this.BookToCreate);
                 await this.SessionService.CreateThing(engineeringModelClone, this.BookToCreate);
             }
             else if (this.IsOnSectionCreation)
@@ -342,11 +341,50 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                     },
                     new Section
                     {
+                        Name = "Section 2",
+                        Page =
+                        {
+                            new Page
+                            {
+                                Name = "Page"
+                            },
+                            new Page
+                            {
+                                Name = "Page 2"
+                            }
+                        }
+                    },
+                    new Section
+                    {
                         Name = "Empty Section"
                     },
                     new Section
                     {
-                        Name = "Empty Section 2"
+                        Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section"
+                    },
+                    new Section
+                    {
+                        Name = "Empty Section"
                     }
                 }
             };

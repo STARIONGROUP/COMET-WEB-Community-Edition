@@ -92,6 +92,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             builder.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
+            builder.Services.AddSingleton<IDomDataService, DomDataService>();
             builder.Services.AddAntDesign();
         }
 

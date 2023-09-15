@@ -31,20 +31,14 @@ namespace COMETwebapp.Services.Interoperability
     /// <summary>
     /// Class used for calling the draggableElementGrid.js methods
     /// </summary>
-    public class DraggableElementService : IDraggableElementService
+    public class DraggableElementService : InteroperabilityService, IDraggableElementService
     {
-        /// <summary>
-        /// Gets or sets the see <see cref="IJSRuntime"/>
-        /// </summary>
-        public IJSRuntime JsRuntime { get; }
-
         /// <summary>
         /// Creates a new instance of type <see cref="DraggableElementService"/>
         /// </summary>
-        /// <param name="jsRuntime">the <see cref="JsRuntime"/></param>
-        public DraggableElementService(IJSRuntime jsRuntime)
+        /// <param name="jsRuntime">the <see cref="IJSRuntime"/></param>
+        public DraggableElementService(IJSRuntime jsRuntime) : base(jsRuntime)
         {
-            this.JsRuntime = jsRuntime;
         }
 
         /// <summary>
@@ -54,7 +48,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>A <see cref="Task" /></returns>
         public async Task LoadDotNetHelper(DotNetObjectReference<ElementDefinitionTable> dotNetHelper)
         {
-            await JsRuntime.InvokeVoidAsync("setDotNetHelper", dotNetHelper);
+            await this.JsRuntime.InvokeVoidAsync("setDotNetHelper", dotNetHelper);
         }
 
         /// <summary>
@@ -65,7 +59,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>A <see cref="Task" /></returns>
         public async Task InitDraggableGrids(string firstGrid, string secondGrid)
         {
-            await JsRuntime.InvokeVoidAsync("initialize", firstGrid, secondGrid);
+            await this.JsRuntime.InvokeVoidAsync("initialize", firstGrid, secondGrid);
         }
     }
 }

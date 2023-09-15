@@ -61,7 +61,8 @@
                           LinesOnRight="true"
                           HorizontalLineHalfWidth="true"
                           IsCollapsed="@this.IsBooksColumnCollapsed"
-                          CollapseButtonIconClass="no-display">
+                          CollapseButtonIconClass="no-display"
+                          CssClass="book-nodes">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -73,7 +74,8 @@
                           OnCreateNewItemClick="@(() => this.ViewModel.IsOnSectionCreation = true)"
                           IsCollapsed="@this.IsSectionColumnCollapsed"
                           OnCollapseClicked="@(() => this.IsBooksColumnCollapsed = !this.IsBooksColumnCollapsed)"
-                          CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")">
+                          CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                          CssClass="section-nodes">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -85,7 +87,8 @@
                           OnCreateNewItemClick="@(() => this.ViewModel.IsOnPageCreation = true)"
                           IsCollapsed="@this.IsPageColumnCollapsed"
                           OnCollapseClicked="@(() => this.IsSectionColumnCollapsed = !this.IsSectionColumnCollapsed)"
-                          CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")">
+                          CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                          CssClass="page-nodes">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>

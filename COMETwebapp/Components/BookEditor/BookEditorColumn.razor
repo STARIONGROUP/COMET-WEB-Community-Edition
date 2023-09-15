@@ -20,6 +20,7 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
+@using DynamicData
 @typeparam TItem
 
 @{
@@ -37,16 +38,23 @@
         {
             <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
                 @{
-                    var conditionalClass = item.Equals(this.SelectedValue) ? "selected" : "";
+                    var isSelected = item.Equals(this.SelectedValue);
+                    var conditionalClass = isSelected ? "selected" : "";
                     var firstClass = item.Equals(this.Items.First()) && this.Items.Count > 1 ? "first" : "";
                     var lastClass = item.Equals(this.Items.Last()) && this.Items.Count > 1 ? "last" : "";
 
                     var fullWidthClass = this.HorizontalLineHalfWidth ? "" : "full-width";
                     var rightSideClass = this.LinesOnRight ? "right-side" : "";
-                    <div class="node-inner-content">
-                        <hr class="horizontal-line @firstClass @lastClass @fullWidthClass @rightSideClass" />
-                        <hr class="vertical-line @firstClass @lastClass @rightSideClass"/>
-                        <button @onclick="@(async () => { await this.OnSelectedValueChanged(item); })" class="book-button @conditionalClass">
+
+                    var index = this.Items.IndexOf(item);
+
+                    <div class="node-inner-content @this.CssClass">
+                        @if (!this.LinesOnRight)
+                        {
+                            <hr class="horizontal-line @firstClass @lastClass @fullWidthClass @rightSideClass"/>
+                            <hr class="vertical-line @firstClass @lastClass @rightSideClass"/>
+                        }
+                        <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="book-button @conditionalClass">
                             @if (this.ContentTemplate != null)
                             {
                                 @this.ContentTemplate(item)
@@ -56,9 +64,24 @@
                                 @item.ToString()
                             }
                         </button>
+
+                        @if (isSelected)
+                        {
+                            <div class="edit-node-container">
+                                <button class="icon icon-arrow-up"></button>
+                                <button class="icon icon-arrow-down"></button>
+                                <button class="icon icon-edit"></button>
+                                <button class="icon icon-trash"></button>
+                            </div>
+                        }
                     </div>
                 }
             </Virtualize>
         }
+        <svg class="svg-path">
+            <polyline points="@this.GeneratePathPoints()"
+                      style="fill:none;stroke:#CCC;stroke-width:2" 
+                      stroke-dasharray="8,3" />
+        </svg>
     </div>
 </div>

@@ -48,6 +48,18 @@
     background-image: url(SVG/icons/arrow-right.svg)
 }
 
+.icon-arrow-up {
+    background-image: url(SVG/icons/arrow-up.svg)
+}
+
+.icon-arrow-down {
+    background-image: url(SVG/icons/arrow-down.svg)
+}
+
+.icon-trash {
+    background-image: url(SVG/icons/trash.svg)
+}
+
 .logo-size {
     max-width: 95px;
     height: auto;

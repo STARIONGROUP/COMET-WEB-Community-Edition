@@ -24,7 +24,9 @@
 
 namespace COMETwebapp.Components.BookEditor
 {
-    using System.Drawing;
+    using CDP4JsonSerializer.JsonConverter;
+
+    using COMETwebapp.Services.Interoperability;
 
     using Microsoft.AspNetCore.Components;
 
@@ -33,6 +35,12 @@ namespace COMETwebapp.Components.BookEditor
     /// </summary>
     public partial class BookEditorColumn<TItem>
     {
+        /// <summary>
+        /// Gets or sets the <see cref="IDomDataService"/>
+        /// </summary>
+        [Inject]
+        public IDomDataService DomDataService { get; set; }
+
         /// <summary>
         /// Gets or sets the class to use for the collapse button
         /// </summary>
@@ -105,14 +113,60 @@ namespace COMETwebapp.Components.BookEditor
         [Parameter]
         public RenderFragment<TItem> ContentTemplate { get; set; }
 
+        private float[] firstItemSizeAndPosition = {};
+
+        private float[] sizeAndPosition = {};
+
+        [Parameter]
+        public string CssClass { get; set; }
+
         /// <summary>
         /// Hanlder for when the selected value changes
         /// </summary>
         /// <param name="item">the item selected</param>
         /// <returns>an asynchronous operation</returns>
-        private async Task OnSelectedValueChanged(TItem item)
+        private async Task OnSelectedValueChanged(TItem item, int itemIndex)
         {
-            await this.SelectedValueChanged.InvokeAsync(item);
+            try
+            {
+                this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass);
+                this.sizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass);
+                await this.SelectedValueChanged.InvokeAsync(item);
+            }
+            catch (Exception ex) 
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Generate the path points for the polyline
+        /// </summary>
+        /// <returns>the path</returns>
+        private string GeneratePathPoints()
+        {
+            if (this.sizeAndPosition.Length < 4 || this.firstItemSizeAndPosition.Length < 4)
+            {
+                return string.Empty;
+            }
+
+            var left = this.sizeAndPosition[0];
+            var top = this.sizeAndPosition[1];
+            var width = this.sizeAndPosition[2];
+            var height = this.sizeAndPosition[3];
+
+            var finalTop = (int)(this.firstItemSizeAndPosition[1] + this.firstItemSizeAndPosition[3] / 2.0f);
+
+            var x1 = (int)(width*0.6);
+            var y1 = (int)(top + height/2.0f);
+            var x2 = (int)(width*0.9);
+            var y2 = (int)(top + height / 2.0f);
+            var x3 = (int)(width*0.9);
+            var y3 = finalTop;
+            var x4 = (int)(width);
+            var y4 = finalTop;
+
+            return $"{x1},{y1},{x2},{y2},{x3},{y3},{x4},{y4}";
         }
     }
 }

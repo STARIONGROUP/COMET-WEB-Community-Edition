@@ -34,11 +34,6 @@ namespace COMETwebapp.Services.Interoperability
     public interface IDraggableElementService
     {
         /// <summary>
-        /// Gets or sets the see <see cref="IJSRuntime"/>
-        /// </summary>
-        IJSRuntime JsRuntime { get; }
-
-        /// <summary>
         /// Set the dotnet helper
         /// </summary>
         /// <param name="dotNetHelper">the dotnet helper</param>
