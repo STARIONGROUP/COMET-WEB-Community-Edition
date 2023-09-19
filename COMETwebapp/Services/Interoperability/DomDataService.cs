@@ -24,7 +24,6 @@
 
 namespace COMETwebapp.Services.Interoperability
 {
-    using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
 
     /// <summary>
@@ -45,10 +44,11 @@ namespace COMETwebapp.Services.Interoperability
         /// </summary>
         /// <param name="elementIndex">the index of the element to search</param>
         /// <param name="cssSelector">the selector to use to select the items</param>
+        /// <param name="useScroll">If the scroll must be taken into account for the calculations</param>
         /// <returns>the size and position</returns>
-        public async Task<float[]> GetElementSizeAndPosition(int elementIndex, string cssSelector)
+        public async Task<float[]> GetElementSizeAndPosition(int elementIndex, string cssSelector, bool useScroll)
         {
-             return await this.JsRuntime.InvokeAsync<float[]>("GetElementSizeAndPosition", elementIndex, cssSelector);
+             return await this.JsRuntime.InvokeAsync<float[]>("GetElementSizeAndPosition", elementIndex, cssSelector, useScroll);
         }
     }
 }

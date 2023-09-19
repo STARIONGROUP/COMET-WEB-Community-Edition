@@ -238,7 +238,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             }
 
             this.ResetDataToCreate();
-            this.CreateFakeData();
+            //this.CreateFakeData();
             this.IsLoading = false;
         }
 

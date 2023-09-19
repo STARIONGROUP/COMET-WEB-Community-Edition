@@ -24,9 +24,9 @@
 
 namespace COMETwebapp.Components.BookEditor
 {
-    using CDP4JsonSerializer.JsonConverter;
-
     using COMETwebapp.Services.Interoperability;
+
+    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -48,17 +48,11 @@ namespace COMETwebapp.Components.BookEditor
         public string CollapseButtonIconClass { get; set; }
 
         /// <summary>
-        /// Gets or sets if the lines should be drawn in the right side
+        /// Gets or sets if the lines should be drawn in the left side or not drawn at all
         /// </summary>
         [Parameter]
-        public bool LinesOnRight { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the first horizontal line should be the half width
-        /// </summary>
-        [Parameter]
-        public bool HorizontalLineHalfWidth { get; set; }
-
+        public bool DrawLeftLines { get; set; } = true;
+        
         /// <summary>
         /// Gets or sets the title of the header
         /// </summary>
@@ -119,24 +113,29 @@ namespace COMETwebapp.Components.BookEditor
 
         [Parameter]
         public string CssClass { get; set; }
-
+       
         /// <summary>
         /// Hanlder for when the selected value changes
         /// </summary>
         /// <param name="item">the item selected</param>
+        /// <param name="itemIndex">the index of the item selected</param>
         /// <returns>an asynchronous operation</returns>
         private async Task OnSelectedValueChanged(TItem item, int itemIndex)
         {
-            try
-            {
-                this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass);
-                this.sizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass);
-                await this.SelectedValueChanged.InvokeAsync(item);
-            }
-            catch (Exception ex) 
-            {
+            this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, false);
+            this.sizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
+            await this.SelectedValueChanged.InvokeAsync(item);
+        }
 
-            }
+        /// <summary>
+        /// Callback method called from JS when an element performs scroll
+        /// </summary>
+        /// <returns></returns>
+        public async Task OnScroll()
+        {
+            var itemIndex = this.Items.IndexOf(this.SelectedValue);
+            this.sizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
+            await this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
@@ -149,7 +148,7 @@ namespace COMETwebapp.Components.BookEditor
             {
                 return string.Empty;
             }
-
+            
             var left = this.sizeAndPosition[0];
             var top = this.sizeAndPosition[1];
             var width = this.sizeAndPosition[2];
@@ -167,6 +166,30 @@ namespace COMETwebapp.Components.BookEditor
             var y4 = finalTop;
 
             return $"{x1},{y1},{x2},{y2},{x3},{y3},{x4},{y4}";
+        }
+
+        private (string verticalPath, string horizontalPath) GenerateLeftPathPoints(bool isFirst, bool isLast)
+        {
+            if (this.sizeAndPosition.Length < 4 || this.firstItemSizeAndPosition.Length < 4)
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            var top = this.sizeAndPosition[1];
+            var width = this.sizeAndPosition[2];
+            var height = this.sizeAndPosition[3];
+
+            var x1 = (int)(width*0.1);
+            var y1 = (int)(top);
+            var x2 = (int)(width*0.1);
+            var y2 = (int)(top + height);
+
+            var x3 = (int)(width*0.0);
+            var y3 = (int)(top + height / 2.0f);
+            var x4 = (int)(width*0.2);
+            var y4 = (int)(top + height / 2.0f);
+
+            return ($"{x1},{y1},{x2},{y2}",$"{x3},{y3},{x4},{y4}");
         }
     }
 }

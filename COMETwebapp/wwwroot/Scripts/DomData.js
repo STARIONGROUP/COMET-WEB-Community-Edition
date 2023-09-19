@@ -1,16 +1,28 @@
-﻿function GetElementSizeAndPosition(index, cssSelector) {
+﻿function GetElementSizeAndPosition(index, cssSelector, useScroll) {
 
     var elements = document.getElementsByClassName(cssSelector);
     var element = elements[index];
-    console.log(elements);
-    if (element != null) {
-        try {
-            console.log(element);
+    
+    if (element != null)
+    {
+        try
+        {
+            if (useScroll)
+            {
+                console.log("Position using scroll...")
+                var offsetTop = element.getBoundingClientRect().top - element.offsetParent.getBoundingClientRect().top;
+                return [element.offsetLeft, offsetTop, element.offsetWidth, element.offsetHeight];
+            }
+
+            console.log("Position NOT using scroll...")
             return [element.offsetLeft, element.offsetTop, element.offsetWidth, element.offsetHeight];
-        } catch (error) {
+        }
+        catch (error)
+        {
+            console.log(error);
             return [0, 0, 0, 0];
         }
     }
-    console.log("Element not found");
+    
     return [0, 0, 0, 0];
 }

@@ -31,10 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		.github\workflows\publish-docker-container.yml = .github\workflows\publish-docker-container.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDP4Common", "..\COMET-SDK-Community-Edition\CDP4Common\CDP4Common.csproj", "{3BB827A8-4C73-4746-A898-50E09C5A6237}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDP4ServicesDal", "..\COMET-SDK-Community-Edition\CDP4ServicesDal\CDP4ServicesDal.csproj", "{F1DE6907-1F53-43BB-95D0-8344C63D3F8D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,14 +55,6 @@ Global
 		{C1BEF589-7A99-4B95-A036-471259115495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1BEF589-7A99-4B95-A036-471259115495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1BEF589-7A99-4B95-A036-471259115495}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BB827A8-4C73-4746-A898-50E09C5A6237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BB827A8-4C73-4746-A898-50E09C5A6237}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BB827A8-4C73-4746-A898-50E09C5A6237}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BB827A8-4C73-4746-A898-50E09C5A6237}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1DE6907-1F53-43BB-95D0-8344C63D3F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1DE6907-1F53-43BB-95D0-8344C63D3F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1DE6907-1F53-43BB-95D0-8344C63D3F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1DE6907-1F53-43BB-95D0-8344C63D3F8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

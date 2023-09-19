@@ -36,52 +36,68 @@
     <div class="column-content">
         @if (this.Items != null && this.Items.Any())
         {
-            <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
-                @{
-                    var isSelected = item.Equals(this.SelectedValue);
-                    var conditionalClass = isSelected ? "selected" : "";
-                    var firstClass = item.Equals(this.Items.First()) && this.Items.Count > 1 ? "first" : "";
-                    var lastClass = item.Equals(this.Items.Last()) && this.Items.Count > 1 ? "last" : "";
+            <div class="column-scroll-content" @onscroll="@(this.OnScroll)">
 
-                    var fullWidthClass = this.HorizontalLineHalfWidth ? "" : "full-width";
-                    var rightSideClass = this.LinesOnRight ? "right-side" : "";
+                <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
+                    @{
+                        var isSelected = item.Equals(this.SelectedValue);
+                        var isFirst = item.Equals(this.Items.First()) && this.Items.Count > 1;
+                        var isLast = item.Equals(this.Items.Last()) && this.Items.Count > 1;
+                        var conditionalClass = isSelected ? "selected" : "";
+                        var firstClass = isFirst ? "first" : "";
+                        var lastClass = isLast ? "last" : "";
 
-                    var index = this.Items.IndexOf(item);
+                        var index = this.Items.IndexOf(item);
 
-                    <div class="node-inner-content @this.CssClass">
-                        @if (!this.LinesOnRight)
-                        {
-                            <hr class="horizontal-line @firstClass @lastClass @fullWidthClass @rightSideClass"/>
-                            <hr class="vertical-line @firstClass @lastClass @rightSideClass"/>
-                        }
-                        <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="book-button @conditionalClass">
-                            @if (this.ContentTemplate != null)
+                        <div class="node-inner-content @this.CssClass">
+                            @if (this.DrawLeftLines)
                             {
-                                @this.ContentTemplate(item)
-                            }
-                            else
-                            {
-                                @item.ToString()
-                            }
-                        </button>
+                                <hr class="horizontal-line @firstClass @lastClass" />
+                                <hr class="vertical-line @firstClass @lastClass" />
 
-                        @if (isSelected)
-                        {
-                            <div class="edit-node-container">
-                                <button class="icon icon-arrow-up"></button>
-                                <button class="icon icon-arrow-down"></button>
-                                <button class="icon icon-edit"></button>
-                                <button class="icon icon-trash"></button>
-                            </div>
-                        }
-                    </div>
-                }
-            </Virtualize>
+                                // var points = this.GenerateLeftPathPoints(isFirst, isLast);
+
+                                // <svg class="svg-path">
+                                //     <polyline points="@points.horizontalPath"
+                                //               style="fill:none;stroke:#CCC;stroke-width:2"
+                                //               stroke-dasharray="8,3" />
+                                //     <polyline points="@points.verticalPath"
+                                //               style="fill:none;stroke:#CCC;stroke-width:2"
+                                //               stroke-dasharray="8,3" />
+                                // </svg>
+                            }
+
+                            <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="book-button @conditionalClass">
+                                @if (this.ContentTemplate != null)
+                                {
+                                    @this.ContentTemplate(item)
+                                }
+                                else
+                                {
+                                    @item.ToString()
+                                }
+                            </button>
+
+                            @if (isSelected)
+                            {
+                                <div class="edit-node-container">
+                                    <button class="icon icon-arrow-up"></button>
+                                    <button class="icon icon-arrow-down"></button>
+                                    <button class="icon icon-edit"></button>
+                                    <button class="icon icon-trash"></button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </Virtualize>
+
+            </div>
+
+            <svg class="svg-path">
+                <polyline points="@this.GeneratePathPoints()"
+                          style="fill:none;stroke:#CCC;stroke-width:2"
+                          stroke-dasharray="8,3" />
+            </svg>
         }
-        <svg class="svg-path">
-            <polyline points="@this.GeneratePathPoints()"
-                      style="fill:none;stroke:#CCC;stroke-width:2" 
-                      stroke-dasharray="8,3" />
-        </svg>
     </div>
 </div>

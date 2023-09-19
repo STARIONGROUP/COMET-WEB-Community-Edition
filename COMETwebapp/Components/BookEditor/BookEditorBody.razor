@@ -58,8 +58,7 @@
                           Items="@this.ViewModel.AvailableBooks.Items.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedBook"
                           OnCreateNewItemClick="@(() => this.ViewModel.IsOnBookCreation = true)"
-                          LinesOnRight="true"
-                          HorizontalLineHalfWidth="true"
+                          DrawLeftLines="false"
                           IsCollapsed="@this.IsBooksColumnCollapsed"
                           CollapseButtonIconClass="no-display"
                           CssClass="book-nodes">
@@ -97,7 +96,6 @@
         <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
                           Items="@this.ViewModel.SelectedPage?.Note.ToList()"
                           OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"
-                          HorizontalLineHalfWidth="true"
                           OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")">
             <ContentTemplate>
