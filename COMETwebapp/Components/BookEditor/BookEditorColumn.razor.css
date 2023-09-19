@@ -6,6 +6,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    height:85vh;
     max-height: 85vh;
     border: 0px dashed #555;
     padding: 2.5% 0%;

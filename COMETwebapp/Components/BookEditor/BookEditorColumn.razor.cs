@@ -107,13 +107,27 @@ namespace COMETwebapp.Components.BookEditor
         [Parameter]
         public RenderFragment<TItem> ContentTemplate { get; set; }
 
+        /// <summary>
+        /// The data of size and position of the first item in the list
+        /// </summary>
         private float[] firstItemSizeAndPosition = {};
 
-        private float[] sizeAndPosition = {};
+        /// <summary>
+        /// The data of size and position of the last item in the list
+        /// </summary>
+        private float[] lastItemSizeAndPosition = {};
 
+        /// <summary>
+        /// The data of size and position of the selected item
+        /// </summary>
+        private float[] selectedItemSizeAndPosition = {};
+
+        /// <summary>
+        /// Gets or sets the class used to selected the nodes
+        /// </summary>
         [Parameter]
         public string CssClass { get; set; }
-       
+
         /// <summary>
         /// Hanlder for when the selected value changes
         /// </summary>
@@ -123,7 +137,8 @@ namespace COMETwebapp.Components.BookEditor
         private async Task OnSelectedValueChanged(TItem item, int itemIndex)
         {
             this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, false);
-            this.sizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
+            this.lastItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(this.Items.Count - 1, this.CssClass, false);
+            this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
             await this.SelectedValueChanged.InvokeAsync(item);
         }
 
@@ -134,7 +149,7 @@ namespace COMETwebapp.Components.BookEditor
         public async Task OnScroll()
         {
             var itemIndex = this.Items.IndexOf(this.SelectedValue);
-            this.sizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
+            this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
             await this.InvokeAsync(this.StateHasChanged);
         }
 
@@ -144,15 +159,14 @@ namespace COMETwebapp.Components.BookEditor
         /// <returns>the path</returns>
         private string GeneratePathPoints()
         {
-            if (this.sizeAndPosition.Length < 4 || this.firstItemSizeAndPosition.Length < 4)
+            if (this.selectedItemSizeAndPosition.Length < 4 || this.firstItemSizeAndPosition.Length < 4)
             {
                 return string.Empty;
             }
-            
-            var left = this.sizeAndPosition[0];
-            var top = this.sizeAndPosition[1];
-            var width = this.sizeAndPosition[2];
-            var height = this.sizeAndPosition[3];
+
+            var top = this.selectedItemSizeAndPosition[1];
+            var width = this.selectedItemSizeAndPosition[2];
+            var height = this.selectedItemSizeAndPosition[3];
 
             var finalTop = (int)(this.firstItemSizeAndPosition[1] + this.firstItemSizeAndPosition[3] / 2.0f);
 
@@ -168,28 +182,45 @@ namespace COMETwebapp.Components.BookEditor
             return $"{x1},{y1},{x2},{y2},{x3},{y3},{x4},{y4}";
         }
 
-        private (string verticalPath, string horizontalPath) GenerateLeftPathPoints(bool isFirst, bool isLast)
+        /// <summary>
+        /// Generate the path points for the common left polylines
+        /// </summary>
+        /// <returns>the path</returns>
+        private (string verticalPath, string staticLine) GenerateCommonLeftPathPoints()
         {
-            if (this.sizeAndPosition.Length < 4 || this.firstItemSizeAndPosition.Length < 4)
+            if (this.firstItemSizeAndPosition.Length < 4 || this.lastItemSizeAndPosition.Length < 4)
             {
                 return (string.Empty, string.Empty);
             }
 
-            var top = this.sizeAndPosition[1];
-            var width = this.sizeAndPosition[2];
-            var height = this.sizeAndPosition[3];
+            var topY = (int)(this.firstItemSizeAndPosition[1] + this.firstItemSizeAndPosition[3] / 2.0f);
+            var bottomY = (int)(this.lastItemSizeAndPosition[1] + this.lastItemSizeAndPosition[3] / 2.0f);
 
-            var x1 = (int)(width*0.1);
-            var y1 = (int)(top);
-            var x2 = (int)(width*0.1);
-            var y2 = (int)(top + height);
+            var width = this.firstItemSizeAndPosition[2];
 
-            var x3 = (int)(width*0.0);
-            var y3 = (int)(top + height / 2.0f);
-            var x4 = (int)(width*0.2);
-            var y4 = (int)(top + height / 2.0f);
+            var x = (int)(width * 0.1);
 
-            return ($"{x1},{y1},{x2},{y2}",$"{x3},{y3},{x4},{y4}");
+            return ($"{x},{topY},{x},{bottomY}", $"{0},{topY},{x},{topY}");
+        }
+
+        /// <summary>
+        /// Generae the path points for the horizontal lines in the nodes
+        /// </summary>
+        /// <returns></returns>
+        private string GenerateHorizontalPathPoints()
+        {
+            if (this.firstItemSizeAndPosition.Length < 4)
+            {
+                return string.Empty;
+            }
+
+            var y = (int)(this.firstItemSizeAndPosition[3] / 2.0f);
+            var width = this.firstItemSizeAndPosition[2];
+
+            var x1 = (int)(width * 0.1);
+            var x2 = (int)(width * 0.5);
+
+            return $"{x1},{y},{x2},{y}";
         }
     }
 }

@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.BookEditor
 {
+    using CDP4Common.ReportingData;
+
     using COMET.Web.Common.Components.BookEditor;
 
     using ReactiveUI;
@@ -120,7 +122,8 @@ namespace COMETwebapp.Components.BookEditor
                 return ("", null, null);
             }
 
-            return ("", null, null);
+            //Return must contain non null values for the dynamic component to work
+            return (nameof(BookInput.Book), new Book(), typeof(BookInput));
         }
     }
 }

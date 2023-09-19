@@ -238,7 +238,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             }
 
             this.ResetDataToCreate();
-            //this.CreateFakeData();
             this.IsLoading = false;
         }
 
@@ -285,112 +284,26 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             if (this.IsOnBookCreation)
             {
                 var engineeringModel = this.CurrentIteration.Container as EngineeringModel;
-                //this.BookToCreate.Container = engineeringModel;
                 var engineeringModelClone = engineeringModel.Clone(false);
-                //engineeringModelClone?.Book.Add(this.BookToCreate);
                 await this.SessionService.CreateThing(engineeringModelClone, this.BookToCreate);
             }
             else if (this.IsOnSectionCreation)
             {
-
+                var bookClone = this.SelectedBook.Clone(false);
+                await this.SessionService.CreateThing(bookClone, this.SectionToCreate);
             }
             else if (this.IsOnPageCreation)
             {
-
+                var sectionClone = this.SelectedSection.Clone(false);
+                await this.SessionService.CreateThing(sectionClone, this.PageToCreate);
             }
             else if (this.IsOnNoteCreation)
             {
-
+                var pageClone = this.SelectedPage.Clone(false);
+                await this.SessionService.CreateThing(pageClone, this.NoteToCreate);
             }
 
             this.ResetCreationStates();
-        }
-
-        private void CreateFakeData()
-        {
-            var book = new Book
-            {
-                Name = "Example Book",
-                Section =
-                {
-                    new Section
-                    {
-                        Name = "Example Section",
-                        Page =
-                        {
-                            new Page
-                            {
-                                Name = "Example Page",
-                                Note =
-                                {
-                                    new BinaryNote
-                                    {
-                                        Name = "Binary Note"
-                                    },
-                                    new TextualNote
-                                    {
-                                        Name = "Textual Note"
-                                    }
-                                }
-                            },
-                            new Page
-                            {
-                                Name = "Example Page 2"
-                            }
-                        }
-                    },
-                    new Section
-                    {
-                        Name = "Section 2",
-                        Page =
-                        {
-                            new Page
-                            {
-                                Name = "Page"
-                            },
-                            new Page
-                            {
-                                Name = "Page 2"
-                            }
-                        }
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    },
-                    new Section
-                    {
-                        Name = "Empty Section"
-                    }
-                }
-            };
-
-            this.AvailableBooks.Add(book);
-            this.AvailableBooks.Add(new Book(){Name = "Book 2"});
         }
     }
 }

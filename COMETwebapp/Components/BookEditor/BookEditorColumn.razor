@@ -52,19 +52,11 @@
                         <div class="node-inner-content @this.CssClass">
                             @if (this.DrawLeftLines)
                             {
-                                <hr class="horizontal-line @firstClass @lastClass" />
-                                <hr class="vertical-line @firstClass @lastClass" />
-
-                                // var points = this.GenerateLeftPathPoints(isFirst, isLast);
-
-                                // <svg class="svg-path">
-                                //     <polyline points="@points.horizontalPath"
-                                //               style="fill:none;stroke:#CCC;stroke-width:2"
-                                //               stroke-dasharray="8,3" />
-                                //     <polyline points="@points.verticalPath"
-                                //               style="fill:none;stroke:#CCC;stroke-width:2"
-                                //               stroke-dasharray="8,3" />
-                                // </svg>
+                                <svg class="svg-path">
+                                    <polyline points="@this.GenerateHorizontalPathPoints()"
+                                              style="fill:none;stroke:#CCC;stroke-width:2"
+                                              stroke-dasharray="8,3" />
+                                </svg>
                             }
 
                             <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="book-button @conditionalClass">
@@ -92,11 +84,24 @@
                 </Virtualize>
 
             </div>
-
+            
             <svg class="svg-path">
                 <polyline points="@this.GeneratePathPoints()"
                           style="fill:none;stroke:#CCC;stroke-width:2"
                           stroke-dasharray="8,3" />
+                          
+                @if (this.DrawLeftLines)
+                {
+                    var (verticalLine, horizontalSlice) = this.GenerateCommonLeftPathPoints();
+
+                    <polyline points="@verticalLine"
+                              style="fill:none;stroke:#CCC;stroke-width:2"
+                              stroke-dasharray="8,3" />
+
+                    <polyline points="@horizontalSlice"
+                              style="fill:none;stroke:#CCC;stroke-width:2"
+                              stroke-dasharray="8,3" />
+                }
             </svg>
         }
     </div>
