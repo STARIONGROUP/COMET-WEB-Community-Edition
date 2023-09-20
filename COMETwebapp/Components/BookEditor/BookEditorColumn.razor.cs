@@ -158,7 +158,9 @@ namespace COMETwebapp.Components.BookEditor
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            await this.DomDataService.SubscribeToResizeEvent(nameof(OnSizeChanged));
+            var dotnetReference = DotNetObjectReference.Create(this);
+            await this.DomDataService.LoadDotNetHelper(dotnetReference);
+            await this.DomDataService.SubscribeToResizeEvent("OnSizeChanged");
         }
 
         /// <summary>
@@ -169,6 +171,7 @@ namespace COMETwebapp.Components.BookEditor
         /// <returns>an asynchronous operation</returns>
         private async Task OnSelectedValueChanged(TItem item, int itemIndex)
         {
+            this.SelectedValue = item;
             this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, false);
             this.lastItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(this.Items.Count - 1, this.CssClass, false);
             this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
@@ -256,10 +259,16 @@ namespace COMETwebapp.Components.BookEditor
             return $"{x1},{y},{x2},{y}";
         }
 
+        /// <summary>
+        /// Method called when the size of the window changes
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
         [JSInvokable]
-        public static async Task OnSizeChanged()
+        public async Task OnSizeChanged()
         {
-            
+            this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, false);
+            this.lastItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(this.Items.Count - 1, this.CssClass, false);
+            this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, true);
         }
     }
 }

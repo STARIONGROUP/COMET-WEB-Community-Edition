@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Services.Interoperability
 {
+    using COMETwebapp.Components.BookEditor;
+    using COMETwebapp.Components.ModelEditor;
     using Microsoft.JSInterop;
 
     /// <summary>
@@ -37,6 +39,16 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="jsRuntime">the <see cref="IJSRuntime"/></param>
         public DomDataService(IJSRuntime jsRuntime) : base(jsRuntime)
         {
+        }
+
+        /// <summary>
+        /// Set the dotnet helper
+        /// </summary>
+        /// <param name="dotNetHelper">the dotnet helper</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task LoadDotNetHelper<TItem>(DotNetObjectReference<BookEditorColumn<TItem>> dotNetHelper)
+        {
+            await this.JsRuntime.InvokeVoidAsync("setDotNetHelper", dotNetHelper);
         }
 
         /// <summary>

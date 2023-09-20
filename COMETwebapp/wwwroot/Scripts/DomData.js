@@ -1,4 +1,12 @@
-﻿function GetElementSizeAndPosition(index, cssSelector, useScroll)
+﻿/**
+ * Sets the dotnet helper
+ * @param {any} helper
+ */
+function setDotNetHelper(helper) {
+    dotNetHelper = helper;
+}
+
+function GetElementSizeAndPosition(index, cssSelector, useScroll)
 {
     var elements = document.getElementsByClassName(cssSelector);
     var element = elements[index];
@@ -24,9 +32,16 @@
     return [0, 0, 0, 0];
 }
 
-function SubscribeToResizeEvent(callbackMethodName) {
+function SubscribeToResizeEvent(callbackMethodName)
+{
     window.addEventListener("resize", () =>
     {
-        DotNet.invokeMethodAsync('COMETwebapp', callbackMethodName);
+        try
+        {
+            dotNetHelper.invokeMethodAsync(callbackMethodName);
+        }
+        catch (error) {
+            console.log(error);
+        }
     });
 }

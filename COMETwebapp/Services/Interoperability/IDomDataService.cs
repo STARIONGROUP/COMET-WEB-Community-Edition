@@ -24,6 +24,10 @@
 
 namespace COMETwebapp.Services.Interoperability
 {
+    using COMETwebapp.Components.BookEditor;
+
+    using Microsoft.JSInterop;
+
     /// <summary>
     /// The service used to retrieve several data from the DOM
     /// </summary>
@@ -44,5 +48,12 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="callbackMethodName">the callback method name</param>
         /// <returns>an asynchronous operation</returns>
         Task SubscribeToResizeEvent(string callbackMethodName);
+
+        /// <summary>
+        /// Set the dotnet helper
+        /// </summary>
+        /// <param name="dotNetHelper">the dotnet helper</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task LoadDotNetHelper<TItem>(DotNetObjectReference<BookEditorColumn<TItem>> dotNetHelper);
     }
 }
