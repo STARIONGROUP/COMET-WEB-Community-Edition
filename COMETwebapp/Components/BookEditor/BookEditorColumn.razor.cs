@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.BookEditor
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     /// <summary>
     /// Support class for the BookEditorColumn component
@@ -129,6 +130,32 @@ namespace COMETwebapp.Components.BookEditor
         public string CssClass { get; set; }
 
         /// <summary>
+        /// Gets or sets the callback for when the edit button is clicked
+        /// </summary>
+        [Parameter]
+        public EventCallback<TItem> OnEditClicked { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback for when the delete button is clicked
+        /// </summary>
+        [Parameter]
+        public EventCallback<TItem> OnDeleteClicked { get; set; }
+        
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        ///
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+            await this.DomDataService.SubscribeToResizeEvent(nameof(OnSizeChanged));
+        }
+
+        /// <summary>
         /// Hanlder for when the selected value changes
         /// </summary>
         /// <param name="item">the item selected</param>
@@ -221,6 +248,12 @@ namespace COMETwebapp.Components.BookEditor
             var x2 = (int)(width * 0.5);
 
             return $"{x1},{y},{x2},{y}";
+        }
+
+        [JSInvokable]
+        public static async Task OnSizeChanged()
+        {
+            
         }
     }
 }

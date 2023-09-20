@@ -37,5 +37,12 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="useScroll">If the scroll must be taken into account for the calculations</param>
         /// <returns>the size and position</returns>
         Task<float[]> GetElementSizeAndPosition(int elementIndex, string cssSelector, bool useScroll);
+        
+        /// <summary>
+        /// Subscribes for the resize event with a callback method name
+        /// </summary>
+        /// <param name="callbackMethodName">the callback method name</param>
+        /// <returns>an asynchronous operation</returns>
+        Task SubscribeToResizeEvent(string callbackMethodName);
     }
 }

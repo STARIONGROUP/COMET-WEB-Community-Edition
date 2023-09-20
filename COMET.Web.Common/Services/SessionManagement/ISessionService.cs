@@ -164,6 +164,30 @@ namespace COMET.Web.Common.Services.SessionManagement
         Task UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate);
 
         /// <summary>
+        /// Deletes a <see cref="Thing"/> from it's container
+        /// </summary>
+        /// <param name="containerClone">the container clone of the thing to delete</param>
+        /// <param name="thingToDelete">the thing to delete in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task DeleteThing(Thing containerClone, Thing thingToDelete);
+
+        /// <summary>
+        /// Deletes a collection of <see cref="Thing"/> from it's container
+        /// </summary>
+        /// <param name="containerClone">the container clone of the thing to delete</param>
+        /// <param name="thingsToDelete">the things to delete in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task DeleteThings(Thing containerClone, params Thing[] thingsToDelete);
+
+        /// <summary>
+        /// Deletes a collection <see cref="Thing"/> from it's container
+        /// </summary>
+        /// <param name="containerClone">the container clone of the thing to delete</param>
+        /// <param name="thingsToDelete">the things to delete in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        Task DeleteThings(Thing containerClone, IEnumerable<Thing> thingsToDelete);
+
+        /// <summary>
         /// Gets the <see cref="ParticipantRole" /> inside an iteration
         /// </summary>
         /// <returns>the <see cref="Participant"/></returns>

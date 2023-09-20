@@ -50,5 +50,15 @@ namespace COMETwebapp.Services.Interoperability
         {
              return await this.JsRuntime.InvokeAsync<float[]>("GetElementSizeAndPosition", elementIndex, cssSelector, useScroll);
         }
+
+        /// <summary>
+        /// Subscribes for the resize event with a callback method name
+        /// </summary>
+        /// <param name="callbackMethodName">the callback method name</param>
+        /// <returns>an asynchronous operation</returns>
+        public async Task SubscribeToResizeEvent(string callbackMethodName)
+        {
+            await this.JsRuntime.InvokeVoidAsync("SubscribeToResizeEvent", callbackMethodName);
+        }
     }
 }

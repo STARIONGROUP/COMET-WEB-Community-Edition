@@ -61,7 +61,8 @@
                           DrawLeftLines="false"
                           IsCollapsed="@this.IsBooksColumnCollapsed"
                           CollapseButtonIconClass="no-display"
-                          CssClass="book-nodes">
+                          CssClass="book-nodes"
+                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -74,7 +75,8 @@
                           IsCollapsed="@this.IsSectionColumnCollapsed"
                           OnCollapseClicked="@(() => this.IsBooksColumnCollapsed = !this.IsBooksColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
-                          CssClass="section-nodes">
+                          CssClass="section-nodes"
+                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -87,7 +89,8 @@
                           IsCollapsed="@this.IsPageColumnCollapsed"
                           OnCollapseClicked="@(() => this.IsSectionColumnCollapsed = !this.IsSectionColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
-                          CssClass="page-nodes">
+                          CssClass="page-nodes"
+                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -97,7 +100,8 @@
                           Items="@this.ViewModel.SelectedPage?.Note.ToList()"
                           OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"
                           OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
-                          CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")">
+                          CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>

@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.BookEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
@@ -31,6 +32,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     using COMET.Web.Common.ViewModels.Components;
     
     using DynamicData;
+    
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -122,5 +124,12 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Resets the states for creation modes
         /// </summary>
         void ResetCreationStates();
+
+        /// <summary>
+        /// Hanlder for when the user request to delete a thing (Book,Section,Page or Note)
+        /// </summary>
+        /// <param name="thing">the thing to delete</param>
+        /// <returns>an asynchronous operation</returns>
+        Task OnDeleteThing(Thing thing);
     }
 }

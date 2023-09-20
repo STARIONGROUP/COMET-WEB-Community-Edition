@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.BookEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
@@ -304,6 +305,25 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             }
 
             this.ResetCreationStates();
+        }
+
+        /// <summary>
+        /// Hanlder for when the user request to delete a thing (Book,Section,Page or Note)
+        /// </summary>
+        /// <param name="thing">the thing to delete</param>
+        /// <returns>an asynchronous operation</returns>
+        public async Task OnDeleteThing(Thing thing)
+        {
+            if (thing is not Book && thing is not Section && thing is not Page && thing is not Note)
+            {
+                throw new ArgumentException("The thing to delete should be a (Book, Section, Page or Note)", nameof(thing));
+            }
+
+            var thingContainer = thing.Container;
+            var thingContainerClone = thingContainer.Clone(false);
+
+            await this.SessionService.DeleteThing(thingContainerClone, thing.Clone(false));
+            await this.OnIterationChanged();
         }
     }
 }
