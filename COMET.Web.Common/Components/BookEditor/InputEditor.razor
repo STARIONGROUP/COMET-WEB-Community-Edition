@@ -24,6 +24,7 @@
 @using CDP4Common.SiteDirectoryData
 @using CDP4Common.CommonData
 @using CDP4Common.EngineeringModelData
+@using CDP4Common.ReportingData
 @typeparam TItem
 
 <DxTabs>
@@ -56,6 +57,13 @@
                                 TextFieldName="@nameof(DomainOfExpertise.Name)"
                                 CssClass="w-100"/>
                 </div>
+            }
+            
+            @if (this.Item is TextualNote textualNote)
+            {
+                <DxMemo @bind-Text="textualNote.Content"
+                        CssClass="w-100"
+                        Rows="4"/>
             }
         </div>
     </DxTabPage>

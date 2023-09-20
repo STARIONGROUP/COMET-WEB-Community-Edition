@@ -27,27 +27,14 @@
 
 <LoadingComponent IsVisible="this.ViewModel.IsLoading">
 
-    @{
-        var popupVisible = this.ViewModel.IsOnBookCreation || this.ViewModel.IsOnSectionCreation || this.ViewModel.IsOnPageCreation || this.ViewModel.IsOnNoteCreation;
-
-        var parameter = this.GetDynamicComponentParameter();
-
-        var parameters = new Dictionary<string, object>
-        {
-            {parameter.key, parameter.item},
-            {"ActiveDomains", this.ViewModel.ActiveDomains},
-            {"AvailableCategories", this.ViewModel.AvailableCategories}
-        };
-    }
-
-    <DxPopup Visible="popupVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()" Closed="@(this.ViewModel.ResetCreationStates)">
+    <DxPopup @bind-Visible="@this.ViewModel.IsOnCreateMode" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()">
         <Content>
-            <DynamicComponent Type="@parameter.type" Parameters="@parameters"/>
+            <InputEditor Item="@this.ViewModel.ThingToCreate" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories" />
         </Content>
         <FooterTemplate>
             <div class="modal-footer">
-                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@this.ViewModel.OnCreateItem" />
-                <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnCancelCreateItem" />
+                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@this.ViewModel.OnCreateThing" />
+                <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.ViewModel.IsOnCreateMode = false)" />
             </div>
         </FooterTemplate>
     </DxPopup>
@@ -69,11 +56,11 @@
         <BookEditorColumn TItem="Book" HeaderHexColor="#eba434" HeaderTitle="Books"
                           Items="@this.ViewModel.AvailableBooks.Items.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedBook"
-                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnBookCreation = true)"
                           DrawLeftLines="false"
                           IsCollapsed="@this.IsBooksColumnCollapsed"
                           CollapseButtonIconClass="no-display"
                           CssClass="book-nodes"
+                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Book()))"
                           OnEditClicked="@((b) => this.ViewModel.SetThingToEdit(b))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
@@ -84,11 +71,11 @@
         <BookEditorColumn TItem="Section" HeaderHexColor="#56bd08" HeaderTitle="Sections"
                           Items="@this.ViewModel.SelectedBook?.Section.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedSection"
-                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnSectionCreation = true)"
                           IsCollapsed="@this.IsSectionColumnCollapsed"
                           OnCollapseClicked="@(() => this.IsBooksColumnCollapsed = !this.IsBooksColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
                           CssClass="section-nodes"
+                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Section()))"
                           OnEditClicked="@((s) => this.ViewModel.SetThingToEdit(s))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
@@ -99,11 +86,11 @@
         <BookEditorColumn TItem="Page" HeaderHexColor="#51dded" HeaderTitle="Pages"
                           Items="@this.ViewModel.SelectedSection?.Page.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedPage"
-                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnPageCreation = true)"
                           IsCollapsed="@this.IsPageColumnCollapsed"
                           OnCollapseClicked="@(() => this.IsSectionColumnCollapsed = !this.IsSectionColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
                           CssClass="page-nodes"
+                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Page()))"
                           OnEditClicked="@((p) => this.ViewModel.SetThingToEdit(p))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
@@ -113,13 +100,21 @@
 
         <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
                           Items="@this.ViewModel.SelectedPage?.Note.ToList()"
-                          OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"
                           OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                          CssClass="note-nodes"
+                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new TextualNote(){ LanguageCode = "es" }))"
                           OnEditClicked="@((n) => this.ViewModel.SetThingToEdit(n))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
-                @context.Name
+                @if (context is TextualNote textualNote)
+                {
+                    @textualNote.Content
+                }
+                else
+                {
+                    @context.Name
+                }
             </ContentTemplate>
         </BookEditorColumn>
     </div>

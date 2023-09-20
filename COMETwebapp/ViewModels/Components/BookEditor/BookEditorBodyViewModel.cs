@@ -71,6 +71,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         private bool isOnEditMode;
 
         /// <summary>
+        /// Backing field for the <see cref="IsOnCreateMode"/> property
+        /// </summary>
+        private bool isOnCreateMode;
+
+        /// <summary>
         /// Backing field for the <see cref="SelectedBook"/> property
         /// </summary>
         private Book selectedBook;
@@ -203,9 +208,23 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         }
 
         /// <summary>
+        /// Gets or sets if the ViewModel is on create mode
+        /// </summary>
+        public bool IsOnCreateMode
+        {
+            get => this.isOnCreateMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnCreateMode, value);
+        }
+
+        /// <summary>
         /// Gets or sets the thing to be edited
         /// </summary>
         public Thing ThingToEdit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the thing to be created
+        /// </summary>
+        public Thing ThingToCreate { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BookEditorBodyViewModel" /> class.
@@ -217,10 +236,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSection).Subscribe(_ => this.OnSelectedSectionChanged()));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.IsOnBookCreation, x=> x.IsOnSectionCreation, x=>x.IsOnPageCreation, x=>x.IsOnNoteCreation).Subscribe(_=>this.ResetDataToCreate()));
-
-            this.OnCreateItem = new EventCallbackFactory().Create(this, this.OnHandleCreateItem);
-
-            this.OnCancelCreateItem = new EventCallbackFactory().Create(this, this.ResetCreationStates);
         }
 
         /// <summary>
@@ -297,33 +312,103 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         }
 
         /// <summary>
-        /// Handles the creation of an item
+        /// Validates that the thing is a valid thing for the operations in this ViewModel
         /// </summary>
-        private async Task OnHandleCreateItem()
+        /// <param name="thing">the thing to validate</param>
+        private void ValidateThing(Thing thing)
         {
-            if (this.IsOnBookCreation)
+            if (thing is not Book && thing is not Section && thing is not Page && thing is not Note)
             {
-                var engineeringModel = this.CurrentIteration.Container as EngineeringModel;
-                var engineeringModelClone = engineeringModel.Clone(false);
-                await this.SessionService.CreateThing(engineeringModelClone, this.BookToCreate);
+                throw new ArgumentException("The thing to should be a (Book, Section, Page or Note)", nameof(thing));
             }
-            else if (this.IsOnSectionCreation)
+        }
+
+        /// <summary>
+        /// Sets the thing to be created
+        /// </summary>
+        /// <param name="thing">the thing</param>
+        public void SetThingToCreate(Thing thing)
+        {
+            this.ValidateThing(thing);
+
+            this.ThingToCreate = thing;
+            this.IsOnCreateMode = true;
+        }
+
+        /// <summary>
+        /// Hanlder for when the user request to create a new thing (Book,Section,Page or Note)
+        /// </summary>
+        /// <returns></returns>
+        public async Task OnCreateThing()
+        {
+            if (this.ThingToCreate == null)
             {
-                var bookClone = this.SelectedBook.Clone(false);
-                await this.SessionService.CreateThing(bookClone, this.SectionToCreate);
-            }
-            else if (this.IsOnPageCreation)
-            {
-                var sectionClone = this.SelectedSection.Clone(false);
-                await this.SessionService.CreateThing(sectionClone, this.PageToCreate);
-            }
-            else if (this.IsOnNoteCreation)
-            {
-                var pageClone = this.SelectedPage.Clone(false);
-                await this.SessionService.CreateThing(pageClone, this.NoteToCreate);
+                throw new InvalidOperationException("The thing to create can't be null");
             }
 
-            this.ResetCreationStates();
+            this.ValidateThing(this.ThingToCreate);
+
+            Thing thingContainer;
+
+            switch (this.ThingToCreate)
+            {
+                case Book: 
+                    thingContainer = this.CurrentIteration.Container;
+                    break;
+                case Section: 
+                    thingContainer = this.SelectedBook;
+                    break;
+                case Page: 
+                    thingContainer = this.SelectedSection;
+                    break;
+                case Note: 
+                    thingContainer = this.SelectedPage;
+                    break;
+
+                default:
+                    this.ThingToCreate = null;
+                    this.IsOnCreateMode = false;
+                    return;
+            }
+
+            await this.SessionService.CreateThing(thingContainer.Clone(false), this.ThingToCreate);
+
+            this.ThingToCreate = null;
+            this.IsOnCreateMode = false;
+        }
+
+        /// <summary>
+        /// Sets the thing to be edited
+        /// </summary>
+        /// <param name="thing">the thing</param>
+        public void SetThingToEdit(Thing thing)
+        {
+            this.ValidateThing(thing);
+
+            this.ThingToEdit = thing;
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Handler for when the user request to edit a thing (Book,Section,Page or Note)
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        public async Task OnEditThing()
+        {
+            if (this.ThingToEdit == null)
+            {
+                throw new InvalidOperationException("The thing to edit can't be null");
+            }
+
+            this.ValidateThing(this.ThingToEdit);
+
+            var thingContainer = this.ThingToEdit.Container;
+            var thingContainerClone = thingContainer.Clone(false);
+
+            await this.SessionService.UpdateThing(thingContainerClone, this.ThingToEdit.Clone(false));
+
+            this.ThingToEdit = null;
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
@@ -343,46 +428,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             await this.SessionService.DeleteThing(thingContainerClone, thing.Clone(false));
             await this.OnIterationChanged();
-        }
-
-        /// <summary>
-        /// Sets the thing to be edited
-        /// </summary>
-        /// <param name="thing">the thing</param>
-        public void SetThingToEdit(Thing thing)
-        {
-            if (thing is not Book && thing is not Section && thing is not Page && thing is not Note)
-            {
-                throw new ArgumentException("The thing to edit should be a (Book, Section, Page or Note)", nameof(thing));
-            }
-
-            this.ThingToEdit = thing;
-            this.IsOnEditMode = true;
-        }
-
-        /// <summary>
-        /// Handler for when the user request to edit a thing (Book,Section,Page or Note)
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        public async Task OnEditThing()
-        {
-            if (this.ThingToEdit == null)
-            {
-                throw new InvalidOperationException("The thing to edit can't be null");
-            }
-
-            if (this.ThingToEdit is not Book && this.ThingToEdit is not Section && this.ThingToEdit is not Page && this.ThingToEdit is not Note)
-            {
-                throw new ArgumentException("The thing to edit should be a (Book, Section, Page or Note)", nameof(this.ThingToEdit));
-            }
-
-            var thingContainer = this.ThingToEdit.Container;
-            var thingContainerClone = thingContainer.Clone(false);
-
-            await this.SessionService.UpdateThing(thingContainerClone, this.ThingToEdit.Clone(false));
-
-            this.ThingToEdit = null;
-            this.IsOnEditMode = false;
         }
     }
 }

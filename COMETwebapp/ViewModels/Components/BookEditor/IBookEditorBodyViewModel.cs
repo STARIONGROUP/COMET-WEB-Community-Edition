@@ -96,6 +96,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         bool IsOnEditMode { get; set; }
 
         /// <summary>
+        /// Gets or sets if the ViewModel is on create mode
+        /// </summary>
+        bool IsOnCreateMode { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="Book"/> that's about to be created
         /// </summary>
         Book BookToCreate { get; set; }
@@ -121,6 +126,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         Thing ThingToEdit { get; set; }
 
         /// <summary>
+        /// Gets or sets the thing to be created
+        /// </summary>
+        Thing ThingToCreate { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="EventCallback"/> for when an item is created
         /// </summary>
         EventCallback OnCreateItem { get; set; }
@@ -134,6 +144,18 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Resets the states for creation modes
         /// </summary>
         void ResetCreationStates();
+
+        /// <summary>
+        /// Sets the thing to be created
+        /// </summary>
+        /// <param name="thing">the thing</param>
+        void SetThingToCreate(Thing thing);
+
+        /// <summary>
+        /// Hanlder for when the user request to create a new thing (Book,Section,Page or Note)
+        /// </summary>
+        /// <returns></returns>
+        Task OnCreateThing();
 
         /// <summary>
         /// Hanlder for when the user request to delete a thing (Book,Section,Page or Note)
