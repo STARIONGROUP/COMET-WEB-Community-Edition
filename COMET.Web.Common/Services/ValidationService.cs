@@ -31,7 +31,7 @@ namespace COMET.Web.Common.Services
     using System.Text.RegularExpressions;
 
     /// <summary>
-    /// The purpose of the <see cref="ValidationService" /> is to check and report on the validity of a field in a
+    /// The purpose of the <see cref="ValidationService" /> is to check and report on the validity of a field in a form
     /// </summary>
     public static class ValidationService
     {
@@ -76,28 +76,7 @@ namespace COMET.Web.Common.Services
             { "EnumerationValueDefinitionShortName", new ValidationRule { PropertyName = "ShortName", Rule = @"^([^()\s][\S]*)$", ErrorText = "The ShortName can not be empty or contain a whitespace." } },
             { "EnumerationValueDefinitionName", new ValidationRule { PropertyName = "Name", Rule = @"^([^()\s][\S]*)$", ErrorText = "The Name can not be empty or contain a whitespace." } }
         };
-
-        /// <summary>
-        /// Validate all the properties of a <see cref="Thing"/> using REFLECTION!
-        /// </summary>
-        /// <param name="thing">the thing to validate</param>
-        /// <returns>the collection of errors if any</returns>
-        public static IEnumerable<string> ValidateThing(Thing thing)
-        {
-            var properties = thing.GetType().GetProperties();
-
-            var validationErrors = new List<string>();
-
-            foreach (var property in properties)
-            {
-                var propertyValue = property.GetValue(thing);
-                var validationError = ValidateProperty(property.Name, propertyValue);
-                validationErrors.Add(validationError);
-            }
-
-            return validationErrors;
-        }
-
+        
         /// <summary>
         /// Validate a property of a <see cref="Thing"/>
         /// </summary>

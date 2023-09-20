@@ -30,10 +30,9 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     using CDP4Common.SiteDirectoryData;
     
     using COMET.Web.Common.ViewModels.Components;
-    
+    using COMET.Web.Common.ViewModels.Components.BookEditor;
+
     using DynamicData;
-    
-    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// ViewModel for the BookEditorBody component
@@ -56,6 +55,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         Page SelectedPage { get; set; }
 
         /// <summary>
+        /// Gets or sets the current selected <see cref="Note"/>
+        /// </summary>
+        Note SelectedNote { get; set; }
+
+        /// <summary>
         /// Gets or sets the collection of available <see cref="Book"/> for this <see cref="EngineeringModel"/>
         /// </summary>
         SourceList<Book> AvailableBooks { get; set; }
@@ -71,16 +75,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         List<DomainOfExpertise> ActiveDomains { get; set; }
 
         /// <summary>
-        /// Gets or sets if the ViewModel is on edit mode
-        /// </summary>
-        bool IsOnEditMode { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on create mode
-        /// </summary>
-        bool IsOnCreateMode { get; set; }
-
-        /// <summary>
         /// Gets or sets the thing to be edited
         /// </summary>
         Thing ThingToEdit { get; set; }
@@ -89,7 +83,22 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Gets or sets the thing to be created
         /// </summary>
         Thing ThingToCreate { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the thing to be deleted
+        /// </summary>
+        Thing ThingToDelete { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IEditorPopupViewModel"/>
+        /// </summary>
+        IEditorPopupViewModel EditorPopupViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IConfirmCancelPopupViewModel"/>
+        /// </summary>
+        IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
+
         /// <summary>
         /// Sets the thing to be created
         /// </summary>
@@ -103,12 +112,17 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         Task OnCreateThing();
 
         /// <summary>
+        /// Sets the thing to be deleted
+        /// </summary>
+        /// <param name="thingToDelete">the thing</param>
+        void SetThingToDelete(Thing thingToDelete);
+
+        /// <summary>
         /// Hanlder for when the user request to delete a thing (Book,Section,Page or Note)
         /// </summary>
-        /// <param name="thing">the thing to delete</param>
         /// <returns>an asynchronous operation</returns>
-        Task OnDeleteThing(Thing thing);
-        
+        Task OnDeleteThing();
+
         /// <summary>
         /// Sets the thing to be edited
         /// </summary>

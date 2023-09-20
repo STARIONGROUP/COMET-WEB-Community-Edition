@@ -33,8 +33,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DynamicData;
+
+    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
@@ -43,16 +46,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     /// </summary>
     public class BookEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IBookEditorBodyViewModel
     {
-        /// <summary>
-        /// Backing field for the <see cref="IsOnEditMode"/> property
-        /// </summary>
-        private bool isOnEditMode;
-
-        /// <summary>
-        /// Backing field for the <see cref="IsOnCreateMode"/> property
-        /// </summary>
-        private bool isOnCreateMode;
-
         /// <summary>
         /// Backing field for the <see cref="SelectedBook"/> property
         /// </summary>
@@ -67,6 +60,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Backing field for the <see cref="SelectedPage"/> property
         /// </summary>
         private Page selectedPage;
+
+        /// <summary>
+        /// Backing field for the <see cref="SelectedNote"/> property
+        /// </summary>
+        private Note selectedNote;
 
         /// <summary>
         /// Gets or sets the current selected <see cref="Book"/>
@@ -96,6 +94,15 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         }
 
         /// <summary>
+        /// Gets or sets the current selected <see cref="Note"/>
+        /// </summary>
+        public Note SelectedNote
+        {
+            get => this.selectedNote;
+            set => this.RaiseAndSetIfChanged(ref this.selectedNote, value);
+        }
+
+        /// <summary>
         /// Gets or sets the collection of available <see cref="Book"/> for this <see cref="EngineeringModel"/>
         /// </summary>
         public SourceList<Book> AvailableBooks { get; set; } = new();
@@ -111,24 +118,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         public List<DomainOfExpertise> ActiveDomains { get; set; } = new();
         
         /// <summary>
-        /// Gets or sets if the ViewModel is on edit mode
-        /// </summary>
-        public bool IsOnEditMode
-        {
-            get => this.isOnEditMode;
-            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
-        }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on create mode
-        /// </summary>
-        public bool IsOnCreateMode
-        {
-            get => this.isOnCreateMode;
-            set => this.RaiseAndSetIfChanged(ref this.isOnCreateMode, value);
-        }
-
-        /// <summary>
         /// Gets or sets the thing to be edited
         /// </summary>
         public Thing ThingToEdit { get; set; }
@@ -139,6 +128,21 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         public Thing ThingToCreate { get; set; }
 
         /// <summary>
+        /// Gets or sets the thing to be deleted
+        /// </summary>
+        public Thing ThingToDelete { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IEditorPopupViewModel"/>
+        /// </summary>
+        public IEditorPopupViewModel EditorPopupViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IConfirmCancelPopupViewModel"/>
+        /// </summary>
+        public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BookEditorBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -146,6 +150,22 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         {
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedBook).Subscribe(_ => this.OnSelectedBookChanged()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSection).Subscribe(_ => this.OnSelectedSectionChanged()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedPage).Subscribe(_ => this.OnSelectedPageChanged()));
+
+            this.EditorPopupViewModel = new EditorPopupViewModel();
+
+            this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                ContentText = "Are you sure you want to delete the thing?",
+            };
+
+            this.ConfirmCancelPopupViewModel.OnCancel = new EventCallbackFactory().Create(this, () => this.ConfirmCancelPopupViewModel.IsVisible = false);
+
+            this.ConfirmCancelPopupViewModel.OnConfirm = new EventCallbackFactory().Create(this, async () =>
+            {
+                await this.OnDeleteThing();
+                this.ConfirmCancelPopupViewModel.IsVisible = false;
+            });
         }
 
         /// <summary>
@@ -154,7 +174,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         private void OnSelectedBookChanged()
         {
             this.SelectedSection = null;
-            this.SelectedPage = null;
         }
 
         /// <summary>
@@ -163,6 +182,14 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         private void OnSelectedSectionChanged()
         {
             this.SelectedPage = null;
+        }
+
+        /// <summary>
+        /// Handler for when the selected page changed
+        /// </summary>
+        private void OnSelectedPageChanged()
+        {
+            this.SelectedNote = null;
         }
 
         /// <summary>
@@ -199,6 +226,9 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                 this.AvailableCategories.AddRange(categories);
             }
 
+            this.EditorPopupViewModel.AvailableCategories = this.AvailableCategories;
+            this.EditorPopupViewModel.ActiveDomains = this.ActiveDomains;
+
             this.IsLoading = false;
         }
 
@@ -223,7 +253,30 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             this.ValidateThing(thing);
 
             this.ThingToCreate = thing;
-            this.IsOnCreateMode = true;
+
+            var header = "";
+
+            switch (this.ThingToCreate)
+            {
+                case Book: 
+                    header = "Create a new Book"; 
+                    break;
+                case Section: 
+                    header = "Create a new Section";
+                    break;
+                case Page: 
+                    header = "Create a new Page";
+                    break;
+                case Note: 
+                    header = "Create a new Note";
+                    break;
+            }
+
+            this.EditorPopupViewModel.HeaderText = header;
+            this.EditorPopupViewModel.Item = this.ThingToCreate;
+            this.EditorPopupViewModel.OnConfirmClick = new EventCallbackFactory().Create(this, this.OnCreateThing);
+            this.EditorPopupViewModel.OnCancelClick = new EventCallbackFactory().Create(this, () => this.EditorPopupViewModel.IsVisible = false);
+            this.EditorPopupViewModel.IsVisible = true;
         }
 
         /// <summary>
@@ -258,14 +311,13 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
                 default:
                     this.ThingToCreate = null;
-                    this.IsOnCreateMode = false;
                     return;
             }
 
             await this.SessionService.CreateThing(thingContainer.Clone(false), this.ThingToCreate);
 
             this.ThingToCreate = null;
-            this.IsOnCreateMode = false;
+            this.EditorPopupViewModel.IsVisible = false;
         }
 
         /// <summary>
@@ -277,7 +329,30 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             this.ValidateThing(thing);
 
             this.ThingToEdit = thing;
-            this.IsOnEditMode = true;
+
+            var header = "";
+
+            switch (this.ThingToEdit)
+            {
+                case Book:
+                    header = "Edit the Book";
+                    break;
+                case Section:
+                    header = "Edit the Section";
+                    break;
+                case Page:
+                    header = "Edit the Page";
+                    break;
+                case Note:
+                    header = "Edit the Note";
+                    break;
+            }
+
+            this.EditorPopupViewModel.HeaderText = header;
+            this.EditorPopupViewModel.Item = this.ThingToEdit;
+            this.EditorPopupViewModel.OnConfirmClick = new EventCallbackFactory().Create(this, this.OnEditThing);
+            this.EditorPopupViewModel.OnCancelClick = new EventCallbackFactory().Create(this, () => this.EditorPopupViewModel.IsVisible = false);
+            this.EditorPopupViewModel.IsVisible = true;
         }
 
         /// <summary>
@@ -299,25 +374,39 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             await this.SessionService.UpdateThing(thingContainerClone, this.ThingToEdit.Clone(false));
 
             this.ThingToEdit = null;
-            this.IsOnEditMode = false;
+            this.EditorPopupViewModel.IsVisible = false;
+        }
+
+        /// <summary>
+        /// Sets the thing to be deleted
+        /// </summary>
+        /// <param name="thingToDelete">the thing</param>
+        public void SetThingToDelete(Thing thingToDelete)
+        {
+            this.ValidateThing(thingToDelete);
+
+            this.ThingToDelete = thingToDelete;
+
+            this.ConfirmCancelPopupViewModel.IsVisible = true;
         }
 
         /// <summary>
         /// Hanlder for when the user request to delete a thing (Book,Section,Page or Note)
         /// </summary>
-        /// <param name="thing">the thing to delete</param>
         /// <returns>an asynchronous operation</returns>
-        public async Task OnDeleteThing(Thing thing)
+        public async Task OnDeleteThing()
         {
-            if (thing is not Book && thing is not Section && thing is not Page && thing is not Note)
+            if (this.ThingToDelete == null)
             {
-                throw new ArgumentException("The thing to delete should be a (Book, Section, Page or Note)", nameof(thing));
+                throw new InvalidOperationException("The thing to delete can't be null");
             }
 
-            var thingContainer = thing.Container;
+            this.ValidateThing(this.ThingToDelete);
+
+            var thingContainer = this.ThingToDelete.Container;
             var thingContainerClone = thingContainer.Clone(false);
 
-            await this.SessionService.DeleteThing(thingContainerClone, thing.Clone(false));
+            await this.SessionService.DeleteThing(thingContainerClone, this.ThingToDelete.Clone(false));
             await this.OnIterationChanged();
         }
     }

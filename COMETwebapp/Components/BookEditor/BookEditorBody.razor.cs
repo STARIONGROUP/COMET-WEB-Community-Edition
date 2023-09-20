@@ -24,10 +24,6 @@
 
 namespace COMETwebapp.Components.BookEditor
 {
-    using CDP4Common.ReportingData;
-
-    using COMET.Web.Common.Components.BookEditor;
-
     using ReactiveUI;
 
     /// <summary>
@@ -66,40 +62,9 @@ namespace COMETwebapp.Components.BookEditor
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode,
-                                                        x => x.ViewModel.IsOnCreateMode)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.EditorPopupViewModel.IsVisible,
+                    x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
-        /// <summary>
-        /// Gets the text of the header depending on the state of the ViewModel
-        /// </summary>
-        /// <returns></returns>
-        private string GetHeaderText()
-        {
-            if (this.ViewModel.IsOnCreateMode)
-            {
-                switch (this.ViewModel.ThingToCreate)
-                {
-                    case Book: return "Create a new Book";
-                    case Section: return "Create a new Section";
-                    case Page: return "Create a new Page";
-                    case Note: return "Create a new Note";
-                }
-            }
-
-            if (this.ViewModel.IsOnEditMode)
-            {
-                switch (this.ViewModel.ThingToEdit)
-                {
-                    case Book: return "Edit the Book";
-                    case Section: return "Edit the Section";
-                    case Page: return "Edit the Page";
-                    case Note: return "Edit the Note";
-                }
-            }
-
-            return string.Empty;
         }
     }
 }

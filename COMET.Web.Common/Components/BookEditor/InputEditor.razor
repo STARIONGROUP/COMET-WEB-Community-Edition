@@ -62,9 +62,12 @@
 
                 @if (this.Item is TextualNote textualNote)
                 {
-                    <DxMemo @bind-Text="textualNote.Content"
-                            CssClass="w-100"
-                            Rows="4" />
+                    <div class="w-100 editor-row">
+                        <p>Content:</p>
+                        <DxMemo @bind-Text="textualNote.Content"
+                                CssClass="w-100"
+                                Rows="4" />
+                    </div>
                 }
             </div>
         </DxTabPage>
@@ -83,6 +86,4 @@
             </div>
         </DxTabPage>
     </DxTabs>
-    
-    <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
 </div>

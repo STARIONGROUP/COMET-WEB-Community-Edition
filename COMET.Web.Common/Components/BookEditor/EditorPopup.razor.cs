@@ -25,13 +25,17 @@
 
 namespace COMET.Web.Common.Components.BookEditor
 {
-    using CDP4Common.Helpers;
-
+    using CDP4Common.ReportingData;
+    
     using COMET.Web.Common.Services;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using Microsoft.AspNetCore.Components;
-    
+
+    using INamedThing = CDP4Common.CommonData.INamedThing;
+    using IOwnedThing = CDP4Common.EngineeringModelData.IOwnedThing;
+    using IShortNamedThing = CDP4Common.CommonData.IShortNamedThing;
+
     /// <summary>
     /// Support class for the BookEditorPopup component
     /// </summary>
@@ -62,7 +66,47 @@ namespace COMET.Web.Common.Components.BookEditor
         /// </summary>
         private async Task OnConfirmClick()
         {
-            var validationErrors = ValidationService.ValidateThing(this.ViewModel.Item);
+            var validationErrors = new List<string>();
+
+            if (this.ViewModel.Item is INamedThing namedThing)
+            {
+                var error = ValidationService.ValidateProperty(nameof(namedThing.Name), namedThing.Name);
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    validationErrors.Add(error);
+                }
+            }
+
+            if (this.ViewModel.Item is IShortNamedThing shortNamedThing)
+            {
+                var error = ValidationService.ValidateProperty(nameof(shortNamedThing.ShortName), shortNamedThing.ShortName);
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    validationErrors.Add(error);
+                }
+            }
+
+            if (this.ViewModel.Item is IOwnedThing ownedThing)
+            {
+                var error = ownedThing.Owner == null ? "The thing must be owned by a DoE" : string.Empty;
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    validationErrors.Add(error);
+                }
+            }
+
+            if (this.ViewModel.Item is TextualNote textualNote)
+            {
+                var error = string.IsNullOrEmpty(textualNote.Content)? "The textual note must contain a content" : string.Empty;
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    validationErrors.Add(error);
+                }
+            }
 
             this.ViewModel.ValidationErrors.Edit(inner =>
             {

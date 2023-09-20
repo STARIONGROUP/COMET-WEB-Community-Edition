@@ -22,7 +22,7 @@
 @namespace COMET.Web.Common.Components.BookEditor
 @inherits DisposableComponent
 
-<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.ViewModel.HeaderText">
+<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.ViewModel.HeaderText" Closed="@(()=> this.ViewModel.OnCancelClick.InvokeAsync())">
     <Content>
         <InputEditor Item="@this.ViewModel.Item" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories" />
         <div style="display:flex; flex-direction:column">

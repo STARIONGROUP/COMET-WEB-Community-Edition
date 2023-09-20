@@ -26,30 +26,10 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.BookEditor.IBookEditorBodyViewModel>
 
 <LoadingComponent IsVisible="this.ViewModel.IsLoading">
-
-    <DxPopup @bind-Visible="@this.ViewModel.IsOnCreateMode" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()">
-        <Content>
-            <InputEditor Item="@this.ViewModel.ThingToCreate" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories" />
-        </Content>
-        <FooterTemplate>
-            <div class="modal-footer">
-                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@this.ViewModel.OnCreateThing" />
-                <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.ViewModel.IsOnCreateMode = false)" />
-            </div>
-        </FooterTemplate>
-    </DxPopup>
     
-    <DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()">
-        <Content>
-            <InputEditor Item="@this.ViewModel.ThingToEdit" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories"/>
-        </Content>
-        <FooterTemplate>
-            <div class="modal-footer">
-                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@this.ViewModel.OnEditThing" />
-                <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.ViewModel.IsOnEditMode = false)" />
-            </div>
-        </FooterTemplate>
-    </DxPopup>
+    <EditorPopup ViewModel="@this.ViewModel.EditorPopupViewModel"/>
+    
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel"/>
 
     <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
 
@@ -62,7 +42,7 @@
                           CssClass="book-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Book()))"
                           OnEditClicked="@((b) => this.ViewModel.SetThingToEdit(b))"
-                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
+                          OnDeleteClicked="@((b) => this.ViewModel.SetThingToDelete(b))">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -77,7 +57,7 @@
                           CssClass="section-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Section()))"
                           OnEditClicked="@((s) => this.ViewModel.SetThingToEdit(s))"
-                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
+                          OnDeleteClicked="@((s) => this.ViewModel.SetThingToDelete(s))">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -92,7 +72,7 @@
                           CssClass="page-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Page()))"
                           OnEditClicked="@((p) => this.ViewModel.SetThingToEdit(p))"
-                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
+                          OnDeleteClicked="@((p) => this.ViewModel.SetThingToDelete(p))">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -100,12 +80,13 @@
 
         <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
                           Items="@this.ViewModel.SelectedPage?.Note.ToList()"
+                          @bind-SelectedValue="@this.ViewModel.SelectedNote"
                           OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
                           CssClass="note-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new TextualNote(){ LanguageCode = "es" }))"
                           OnEditClicked="@((n) => this.ViewModel.SetThingToEdit(n))"
-                          OnDeleteClicked="@this.ViewModel.OnDeleteThing">
+                          OnDeleteClicked="@((n) => this.ViewModel.SetThingToDelete(n))">
             <ContentTemplate>
                 @if (context is TextualNote textualNote)
                 {

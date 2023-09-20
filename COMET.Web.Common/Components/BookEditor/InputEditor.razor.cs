@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Components.BookEditor
 {
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using Microsoft.AspNetCore.Components;
