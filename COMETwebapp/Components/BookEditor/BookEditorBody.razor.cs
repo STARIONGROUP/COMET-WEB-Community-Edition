@@ -69,7 +69,8 @@ namespace COMETwebapp.Components.BookEditor
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnBookCreation, 
                     x => x.ViewModel.IsOnSectionCreation,
                     x => x.ViewModel.IsOnPageCreation, 
-                    x => x.ViewModel.IsOnNoteCreation)
+                    x => x.ViewModel.IsOnNoteCreation,
+                    x => x.ViewModel.IsOnEditMode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 

@@ -66,6 +66,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         private bool isOnNodeCreation;
 
         /// <summary>
+        /// Backing field for the <see cref="IsOnEditMode"/> property
+        /// </summary>
+        private bool isOnEditMode;
+
+        /// <summary>
         /// Backing field for the <see cref="SelectedBook"/> property
         /// </summary>
         private Book selectedBook;
@@ -187,6 +192,20 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Gets or sets the <see cref="EventCallback"/> for when an item has canceled it's creation
         /// </summary>
         public EventCallback OnCancelCreateItem { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the ViewModel is on edit mode
+        /// </summary>
+        public bool IsOnEditMode
+        {
+            get => this.isOnEditMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the thing to be edited
+        /// </summary>
+        public Thing ThingToEdit { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BookEditorBodyViewModel" /> class.
@@ -324,6 +343,46 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             await this.SessionService.DeleteThing(thingContainerClone, thing.Clone(false));
             await this.OnIterationChanged();
+        }
+
+        /// <summary>
+        /// Sets the thing to be edited
+        /// </summary>
+        /// <param name="thing">the thing</param>
+        public void SetThingToEdit(Thing thing)
+        {
+            if (thing is not Book && thing is not Section && thing is not Page && thing is not Note)
+            {
+                throw new ArgumentException("The thing to edit should be a (Book, Section, Page or Note)", nameof(thing));
+            }
+
+            this.ThingToEdit = thing;
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Handler for when the user request to edit a thing (Book,Section,Page or Note)
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        public async Task OnEditThing()
+        {
+            if (this.ThingToEdit == null)
+            {
+                throw new InvalidOperationException("The thing to edit can't be null");
+            }
+
+            if (this.ThingToEdit is not Book && this.ThingToEdit is not Section && this.ThingToEdit is not Page && this.ThingToEdit is not Note)
+            {
+                throw new ArgumentException("The thing to edit should be a (Book, Section, Page or Note)", nameof(this.ThingToEdit));
+            }
+
+            var thingContainer = this.ThingToEdit.Container;
+            var thingContainerClone = thingContainer.Clone(false);
+
+            await this.SessionService.UpdateThing(thingContainerClone, this.ThingToEdit.Clone(false));
+
+            this.ThingToEdit = null;
+            this.IsOnEditMode = false;
         }
     }
 }

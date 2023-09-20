@@ -51,6 +51,18 @@
             </div>
         </FooterTemplate>
     </DxPopup>
+    
+    <DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.GetHeaderText()">
+        <Content>
+            <InputEditor Item="@this.ViewModel.ThingToEdit" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories"/>
+        </Content>
+        <FooterTemplate>
+            <div class="modal-footer">
+                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@this.ViewModel.OnEditThing" />
+                <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.ViewModel.IsOnEditMode = false)" />
+            </div>
+        </FooterTemplate>
+    </DxPopup>
 
     <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
 
@@ -62,6 +74,7 @@
                           IsCollapsed="@this.IsBooksColumnCollapsed"
                           CollapseButtonIconClass="no-display"
                           CssClass="book-nodes"
+                          OnEditClicked="@((b) => this.ViewModel.SetThingToEdit(b))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
@@ -76,6 +89,7 @@
                           OnCollapseClicked="@(() => this.IsBooksColumnCollapsed = !this.IsBooksColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
                           CssClass="section-nodes"
+                          OnEditClicked="@((s) => this.ViewModel.SetThingToEdit(s))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
@@ -90,6 +104,7 @@
                           OnCollapseClicked="@(() => this.IsSectionColumnCollapsed = !this.IsSectionColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
                           CssClass="page-nodes"
+                          OnEditClicked="@((p) => this.ViewModel.SetThingToEdit(p))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
@@ -101,6 +116,7 @@
                           OnCreateNewItemClick="@(() => this.ViewModel.IsOnNoteCreation = true)"
                           OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
                           CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                          OnEditClicked="@((n) => this.ViewModel.SetThingToEdit(n))"
                           OnDeleteClicked="@this.ViewModel.OnDeleteThing">
             <ContentTemplate>
                 @context.Name
