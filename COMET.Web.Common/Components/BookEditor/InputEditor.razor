@@ -27,58 +27,62 @@
 @using CDP4Common.ReportingData
 @typeparam TItem
 
-<DxTabs>
-    <DxTabPage Text="Basic">
-        <div class="tab-content">
-            @if (this.Item is INamedThing namedThing)
-            {
-                <div class="w-100 editor-row">
-                    <p>Name:</p>
-                    <DxTextBox CssClass="w-100" @bind-Text="@namedThing.Name"/>
-                </div>
-            }
+<div>
+    <DxTabs>
+        <DxTabPage Text="Basic">
+            <div class="tab-content">
+                @if (this.Item is INamedThing namedThing)
+                {
+                    <div class="w-100 editor-row">
+                        <p>Name:</p>
+                        <DxTextBox CssClass="w-100" @bind-Text="@namedThing.Name" />
+                    </div>
+                }
 
-            @if (this.Item is IShortNamedThing shortNamedThing)
-            {
-                <div class="w-100 editor-row">
-                    <p>ShortName:</p>
-                    <DxTextBox CssClass="w-100" @bind-Text="@shortNamedThing.ShortName"/>
-                </div>
-            }
-            
-            @if (this.Item is IOwnedThing ownedThing)
-            {
-                <div class="w-100 editor-row">
-                    <p>Owner:</p>
-                    <DxComboBox @bind-Value="@ownedThing.Owner"
-                                Data="@this.ActiveDomains"
-                                TData="DomainOfExpertise"
-                                TValue="DomainOfExpertise"
-                                TextFieldName="@nameof(DomainOfExpertise.Name)"
-                                CssClass="w-100"/>
-                </div>
-            }
-            
-            @if (this.Item is TextualNote textualNote)
-            {
-                <DxMemo @bind-Text="textualNote.Content"
-                        CssClass="w-100"
-                        Rows="4"/>
-            }
-        </div>
-    </DxTabPage>
-    <DxTabPage Text="Category">
-        <div class="tab-content">
-            <DxListBox Data="@this.AvailableCategories"
-                       TData="Category"
-                       TValue="Category"
-                       ValuesChanged="@this.OnCategoryChange"
-                       TextFieldName="@nameof(Category.Name)"
-                       SelectionMode="ListBoxSelectionMode.Multiple"
-                       ShowCheckboxes="true"
-                       CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
-                       style="flex-basis: 240px">
-            </DxListBox>
-        </div>
-    </DxTabPage>
-</DxTabs>
+                @if (this.Item is IShortNamedThing shortNamedThing)
+                {
+                    <div class="w-100 editor-row">
+                        <p>ShortName:</p>
+                        <DxTextBox CssClass="w-100" @bind-Text="@shortNamedThing.ShortName" />
+                    </div>
+                }
+
+                @if (this.Item is IOwnedThing ownedThing)
+                {
+                    <div class="w-100 editor-row">
+                        <p>Owner:</p>
+                        <DxComboBox @bind-Value="@ownedThing.Owner"
+                                    Data="@this.ActiveDomains"
+                                    TData="DomainOfExpertise"
+                                    TValue="DomainOfExpertise"
+                                    TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                    CssClass="w-100" />
+                    </div>
+                }
+
+                @if (this.Item is TextualNote textualNote)
+                {
+                    <DxMemo @bind-Text="textualNote.Content"
+                            CssClass="w-100"
+                            Rows="4" />
+                }
+            </div>
+        </DxTabPage>
+        <DxTabPage Text="Category">
+            <div class="tab-content">
+                <DxListBox Data="@this.AvailableCategories"
+                           TData="Category"
+                           TValue="Category"
+                           ValuesChanged="@this.OnCategoryChange"
+                           TextFieldName="@nameof(Category.Name)"
+                           SelectionMode="ListBoxSelectionMode.Multiple"
+                           ShowCheckboxes="true"
+                           CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                           style="flex-basis: 240px">
+                </DxListBox>
+            </div>
+        </DxTabPage>
+    </DxTabs>
+    
+    <ValidationMessageComponent ValidationMessage="@this.ViewModel.ValidationMessage" />
+</div>

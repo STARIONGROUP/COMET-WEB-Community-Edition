@@ -36,8 +36,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
     using DynamicData;
 
-    using Microsoft.AspNetCore.Components;
-
     using ReactiveUI;
 
     /// <summary>
@@ -45,26 +43,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     /// </summary>
     public class BookEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IBookEditorBodyViewModel
     {
-        /// <summary>
-        /// Backing field for the <see cref="IsOnBookCreation"/> property
-        /// </summary>
-        private bool isOnBookCreation;
-
-        /// <summary>
-        /// Backing field for the <see cref="IsOnSectionCreation"/> property
-        /// </summary>
-        private bool isOnSectionCreation;
-
-        /// <summary>
-        /// Backing field for the <see cref="IsOnPageCreation"/> property
-        /// </summary>
-        private bool isOnPageCreation;
-
-        /// <summary>
-        /// Backing field for the <see cref="IsOnNoteCreation"/> property
-        /// </summary>
-        private bool isOnNodeCreation;
-
         /// <summary>
         /// Backing field for the <see cref="IsOnEditMode"/> property
         /// </summary>
@@ -131,73 +109,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Gets or sets the active <see cref="DomainOfExpertise"/>
         /// </summary>
         public List<DomainOfExpertise> ActiveDomains { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on book creation state
-        /// </summary>
-        public bool IsOnBookCreation
-        {
-            get => this.isOnBookCreation;
-            set => this.RaiseAndSetIfChanged(ref this.isOnBookCreation, value);
-        }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on section creation state
-        /// </summary>
-        public bool IsOnSectionCreation
-        {
-            get => this.isOnSectionCreation;
-            set => this.RaiseAndSetIfChanged(ref this.isOnSectionCreation, value);
-        }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on page creation state
-        /// </summary>
-        public bool IsOnPageCreation
-        {
-            get => this.isOnPageCreation;
-            set => this.RaiseAndSetIfChanged(ref this.isOnPageCreation, value);
-        }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on node creation state
-        /// </summary>
-        public bool IsOnNoteCreation
-        {
-            get => this.isOnNodeCreation;
-            set => this.RaiseAndSetIfChanged(ref this.isOnNodeCreation, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Book"/> that's about to be created
-        /// </summary>
-        public Book BookToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Section"/> that's about to be created
-        /// </summary>
-        public Section SectionToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Page"/> that's about to be created
-        /// </summary>
-        public Page PageToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Note"/> that's about to be created
-        /// </summary>
-        public Note NoteToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when an item is created
-        /// </summary>
-        public EventCallback OnCreateItem { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when an item has canceled it's creation
-        /// </summary>
-        public EventCallback OnCancelCreateItem { get; set; }
-
+        
         /// <summary>
         /// Gets or sets if the ViewModel is on edit mode
         /// </summary>
@@ -234,8 +146,23 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         {
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedBook).Subscribe(_ => this.OnSelectedBookChanged()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSection).Subscribe(_ => this.OnSelectedSectionChanged()));
+        }
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.IsOnBookCreation, x=> x.IsOnSectionCreation, x=>x.IsOnPageCreation, x=>x.IsOnNoteCreation).Subscribe(_=>this.ResetDataToCreate()));
+        /// <summary>
+        /// Handler for when the selected book changed
+        /// </summary>
+        private void OnSelectedBookChanged()
+        {
+            this.SelectedSection = null;
+            this.SelectedPage = null;
+        }
+
+        /// <summary>
+        /// Handler for when the selected section changed
+        /// </summary>
+        private void OnSelectedSectionChanged()
+        {
+            this.SelectedPage = null;
         }
 
         /// <summary>
@@ -272,43 +199,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                 this.AvailableCategories.AddRange(categories);
             }
 
-            this.ResetDataToCreate();
             this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// Resets the states for creation modes
-        /// </summary>
-        public void ResetCreationStates()
-        {
-            this.IsOnBookCreation = this.IsOnSectionCreation = this.IsOnPageCreation = this.IsOnNoteCreation = false;
-        }
-
-        /// <summary>
-        /// Resets the data that is going to be used for creating a book, section or page
-        /// </summary>
-        private void ResetDataToCreate()
-        {
-            this.BookToCreate = new(Guid.NewGuid(), null, null);
-            this.SectionToCreate = new(Guid.NewGuid(), null, null);
-            this.PageToCreate = new(Guid.NewGuid(), null, null);
-        }
-
-        /// <summary>
-        /// Handler for when the selected book changed
-        /// </summary>
-        private void OnSelectedBookChanged()
-        {
-            this.SelectedSection = null;
-            this.SelectedPage = null;
-        }
-
-        /// <summary>
-        /// Handler for when the selected section changed
-        /// </summary>
-        private void OnSelectedSectionChanged()
-        {
-            this.SelectedPage = null;
         }
 
         /// <summary>

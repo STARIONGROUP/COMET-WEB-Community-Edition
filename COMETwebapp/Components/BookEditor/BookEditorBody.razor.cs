@@ -66,11 +66,8 @@ namespace COMETwebapp.Components.BookEditor
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnBookCreation, 
-                    x => x.ViewModel.IsOnSectionCreation,
-                    x => x.ViewModel.IsOnPageCreation, 
-                    x => x.ViewModel.IsOnNoteCreation,
-                    x => x.ViewModel.IsOnEditMode)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode,
+                                                        x => x.ViewModel.IsOnCreateMode)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
@@ -80,51 +77,29 @@ namespace COMETwebapp.Components.BookEditor
         /// <returns></returns>
         private string GetHeaderText()
         {
-            if (this.ViewModel.IsOnBookCreation)
+            if (this.ViewModel.IsOnCreateMode)
             {
-                return "Create a new Book";
+                switch (this.ViewModel.ThingToCreate)
+                {
+                    case Book: return "Create a new Book";
+                    case Section: return "Create a new Section";
+                    case Page: return "Create a new Page";
+                    case Note: return "Create a new Note";
+                }
             }
-            else if (this.ViewModel.IsOnSectionCreation)
+
+            if (this.ViewModel.IsOnEditMode)
             {
-                return "Create a new Section";
-            }
-            else if (this.ViewModel.IsOnPageCreation)
-            {
-                return "Create a new Page";
-            }
-            else if (this.ViewModel.IsOnNoteCreation)
-            {
-                return "Create a new Node";
+                switch (this.ViewModel.ThingToEdit)
+                {
+                    case Book: return "Edit the Book";
+                    case Section: return "Edit the Section";
+                    case Page: return "Edit the Page";
+                    case Note: return "Edit the Note";
+                }
             }
 
             return string.Empty;
-        }
-
-        /// <summary>
-        /// Gets the parameter for the dynamic component being redered
-        /// </summary>
-        /// <returns>the parameter key and values</returns>
-        private (string key, object item, Type type) GetDynamicComponentParameter()
-        {
-            if (this.ViewModel.IsOnBookCreation)
-            {
-                return (nameof(BookInput.Book), this.ViewModel.BookToCreate, typeof(BookInput));
-            }
-            else if (this.ViewModel.IsOnSectionCreation)
-            {
-                return (nameof(SectionInput.Section), this.ViewModel.SectionToCreate, typeof(SectionInput));
-            }
-            else if (this.ViewModel.IsOnPageCreation)
-            {
-                return (nameof(PageInput.Page), this.ViewModel.PageToCreate, typeof(PageInput));
-            }
-            else if (this.ViewModel.IsOnNoteCreation)
-            {
-                return ("", null, null);
-            }
-
-            //Return must contain non null values for the dynamic component to work
-            return (nameof(BookInput.Book), new Book(), typeof(BookInput));
         }
     }
 }

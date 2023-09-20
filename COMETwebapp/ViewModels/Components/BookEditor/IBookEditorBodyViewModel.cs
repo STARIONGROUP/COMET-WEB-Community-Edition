@@ -71,26 +71,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         List<DomainOfExpertise> ActiveDomains { get; set; }
 
         /// <summary>
-        /// Gets or sets if the ViewModel is on book creation state
-        /// </summary>
-        bool IsOnBookCreation { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on section creation state
-        /// </summary>
-        bool IsOnSectionCreation { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on page creation state
-        /// </summary>
-        bool IsOnPageCreation { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the ViewModel is on node creation state
-        /// </summary>
-        bool IsOnNoteCreation { get; set; }
-
-        /// <summary>
         /// Gets or sets if the ViewModel is on edit mode
         /// </summary>
         bool IsOnEditMode { get; set; }
@@ -101,26 +81,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         bool IsOnCreateMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Book"/> that's about to be created
-        /// </summary>
-        Book BookToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Section"/> that's about to be created
-        /// </summary>
-        Section SectionToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Page"/> that's about to be created
-        /// </summary>
-        Page PageToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Note"/> that's about to be created
-        /// </summary>
-        Note NoteToCreate { get; set; }
-
-        /// <summary>
         /// Gets or sets the thing to be edited
         /// </summary>
         Thing ThingToEdit { get; set; }
@@ -129,22 +89,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Gets or sets the thing to be created
         /// </summary>
         Thing ThingToCreate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when an item is created
-        /// </summary>
-        EventCallback OnCreateItem { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when an item has canceled it's creation
-        /// </summary>
-        EventCallback OnCancelCreateItem { get; set; }
-
-        /// <summary>
-        /// Resets the states for creation modes
-        /// </summary>
-        void ResetCreationStates();
-
+        
         /// <summary>
         /// Sets the thing to be created
         /// </summary>
