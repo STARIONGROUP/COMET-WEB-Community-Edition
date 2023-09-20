@@ -42,9 +42,13 @@
 
 .add-item-button,.collapse-button {
     border: 0;
+    border-radius: 5px;
     background-color: transparent;
 }
 
+.add-item-button.disabled-button{
+    background-color: #DDD;
+}
 
 .column-content {
     width: 100%;
@@ -95,70 +99,6 @@
 .selected {
     box-shadow: 0px 0px 0px 2px #333388 !important;
 }
-
-.vertical-line {
-    position:absolute;
-    left:10%;
-    background-color: transparent;
-    height: 100%;
-    border: 0;
-    border-left: 2px dashed #555;
-}
-
-    .vertical-line.first {
-        height: 50%;
-        transform: translateY(50%);
-    }
-
-    .vertical-line.right-side{
-        left:85%;
-    }
-
-    .vertical-line.last {
-        height: 50%;
-        transform: translateY(-50%);
-    }
-
-.horizontal-line {
-    background-color: transparent;
-    margin: 0;
-    position: absolute;
-    border: 0;
-    border-top: 2px dashed #555;
-    width: 50%;
-    left: 10%;
-}
-
-    .horizontal-line.first {
-        width: 50%;
-        left: 0%;
-    }
-
-    .horizontal-line.right-side {
-        left: 35%;
-    }
-
-    .horizontal-line.first.full-width{
-        width:50%;
-    }
-
-    .horizontal-line.first.right-side {
-        left: 50%;
-    }
-
-    .horizontal-line.first-slice {
-        display:none;
-        width: 50%;
-        left: 0%;
-        border-top: 2px dashed red;
-    }
-
-    .horizontal-line.first.first-slice {
-        display:block;
-        width: 20%;
-        left: 0%;
-        border-top: 2px dashed red;
-    }
 
 .edit-node-container{
     display: flex;

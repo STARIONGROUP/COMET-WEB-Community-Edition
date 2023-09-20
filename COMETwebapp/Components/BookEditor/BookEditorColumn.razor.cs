@@ -140,7 +140,13 @@ namespace COMETwebapp.Components.BookEditor
         /// </summary>
         [Parameter]
         public EventCallback<TItem> OnDeleteClicked { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets if the add button is disabled
+        /// </summary>
+        [Parameter]
+        public bool IsAddButtonDisabled { get; set; }
+
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.

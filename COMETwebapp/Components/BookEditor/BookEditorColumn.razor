@@ -25,13 +25,14 @@
 
 @{
     var columnConditionalClass = this.IsCollapsed ? "collapsed" : "";
+    var buttonDisabledClass = this.IsAddButtonDisabled ? "disabled-button" : "";
 }
 
 <div class="book-editor-column @columnConditionalClass">
     <div class="column-header">
         <button class="icon collapse-button @this.CollapseButtonIconClass" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"></button>
         <h5 style="background-color:@this.HeaderHexColor">@this.HeaderTitle</h5>
-        <button class="icon icon-plus add-item-button" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())"></button>
+        <button class="icon icon-plus add-item-button @buttonDisabledClass" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())" disabled="@this.IsAddButtonDisabled"></button>
     </div>
     <div class="column-content">
         @if (this.Items != null && this.Items.Any())
@@ -41,11 +42,7 @@
                 <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
                     @{
                         var isSelected = item.Equals(this.SelectedValue);
-                        var isFirst = item.Equals(this.Items.First()) && this.Items.Count > 1;
-                        var isLast = item.Equals(this.Items.Last()) && this.Items.Count > 1;
                         var conditionalClass = isSelected ? "selected" : "";
-                        var firstClass = isFirst ? "first" : "";
-                        var lastClass = isLast ? "last" : "";
 
                         var index = this.Items.IndexOf(item);
 

@@ -57,7 +57,8 @@
                           CssClass="section-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Section()))"
                           OnEditClicked="@((s) => this.ViewModel.SetThingToEdit(s))"
-                          OnDeleteClicked="@((s) => this.ViewModel.SetThingToDelete(s))">
+                          OnDeleteClicked="@((s) => this.ViewModel.SetThingToDelete(s))"
+                          IsAddButtonDisabled="@(this.ViewModel.SelectedBook == null)">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -72,7 +73,8 @@
                           CssClass="page-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Page()))"
                           OnEditClicked="@((p) => this.ViewModel.SetThingToEdit(p))"
-                          OnDeleteClicked="@((p) => this.ViewModel.SetThingToDelete(p))">
+                          OnDeleteClicked="@((p) => this.ViewModel.SetThingToDelete(p))"
+                          IsAddButtonDisabled="@(this.ViewModel.SelectedSection == null)">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -86,7 +88,8 @@
                           CssClass="note-nodes"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new TextualNote(){ LanguageCode = "es" }))"
                           OnEditClicked="@((n) => this.ViewModel.SetThingToEdit(n))"
-                          OnDeleteClicked="@((n) => this.ViewModel.SetThingToDelete(n))">
+                          OnDeleteClicked="@((n) => this.ViewModel.SetThingToDelete(n))"
+                          IsAddButtonDisabled="@(this.ViewModel.SelectedPage == null)">
             <ContentTemplate>
                 @if (context is TextualNote textualNote)
                 {
