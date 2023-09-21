@@ -107,9 +107,46 @@ namespace COMETwebapp.Tests.Components.BookEditor
             Assert.Multiple(() =>
             {
                 Assert.That(bookEditorColumn.Instance, Is.Not.Null);
+                Assert.That(bookEditorColumn.Instance.HeaderHexColor, Is.EqualTo("#eba434"));
+                Assert.That(bookEditorColumn.Instance.HeaderTitle, Is.EqualTo("Books"));
+                Assert.That(bookEditorColumn.Instance.Items, Is.Null.Or.Empty);
+                Assert.That(bookEditorColumn.Instance.DrawLeftLines, Is.False);
+                Assert.That(bookEditorColumn.Instance.CollapseButtonIconClass, Is.EqualTo("no-display"));
+                Assert.That(bookEditorColumn.Instance.CssClass, Is.EqualTo("book-node"));
+                Assert.That(bookEditorColumn.Instance.OnCreateNewItemClick.HasDelegate, Is.True);
+                Assert.That(bookEditorColumn.Instance.OnEditClicked.HasDelegate, Is.True);
+                Assert.That(bookEditorColumn.Instance.OnDeleteClicked.HasDelegate, Is.True);
+                
                 Assert.That(sectionEditorColumn.Instance, Is.Not.Null);
+                Assert.That(sectionEditorColumn.Instance.HeaderHexColor, Is.EqualTo("#56bd08"));
+                Assert.That(sectionEditorColumn.Instance.HeaderTitle, Is.EqualTo("Sections"));
+                Assert.That(sectionEditorColumn.Instance.Items, Is.Null.Or.Empty);
+                Assert.That(sectionEditorColumn.Instance.DrawLeftLines, Is.True);
+                Assert.That(sectionEditorColumn.Instance.CssClass, Is.EqualTo("section-node"));
+                Assert.That(sectionEditorColumn.Instance.OnCreateNewItemClick.HasDelegate, Is.True);
+                Assert.That(sectionEditorColumn.Instance.OnEditClicked.HasDelegate, Is.True);
+                Assert.That(sectionEditorColumn.Instance.OnDeleteClicked.HasDelegate, Is.True);
+
                 Assert.That(pageEditorColumn.Instance, Is.Not.Null);
+                Assert.That(pageEditorColumn.Instance.HeaderHexColor, Is.EqualTo("#51dded"));
+                Assert.That(pageEditorColumn.Instance.HeaderTitle, Is.EqualTo("Pages"));
+                Assert.That(pageEditorColumn.Instance.Items, Is.Null.Or.Empty);
+                Assert.That(pageEditorColumn.Instance.DrawLeftLines, Is.True);
+                Assert.That(pageEditorColumn.Instance.CssClass, Is.EqualTo("page-node"));
+                Assert.That(pageEditorColumn.Instance.OnCreateNewItemClick.HasDelegate, Is.True);
+                Assert.That(pageEditorColumn.Instance.OnEditClicked.HasDelegate, Is.True);
+                Assert.That(pageEditorColumn.Instance.OnDeleteClicked.HasDelegate, Is.True);
+
                 Assert.That(noteEditorColumn.Instance, Is.Not.Null);
+                Assert.That(noteEditorColumn.Instance, Is.Not.Null);
+                Assert.That(noteEditorColumn.Instance.HeaderHexColor, Is.EqualTo("#eb6075"));
+                Assert.That(noteEditorColumn.Instance.HeaderTitle, Is.EqualTo("Notes"));
+                Assert.That(noteEditorColumn.Instance.Items, Is.Null.Or.Empty);
+                Assert.That(noteEditorColumn.Instance.DrawLeftLines, Is.True);
+                Assert.That(noteEditorColumn.Instance.CssClass, Is.EqualTo("note-node"));
+                Assert.That(noteEditorColumn.Instance.OnCreateNewItemClick.HasDelegate, Is.True);
+                Assert.That(noteEditorColumn.Instance.OnEditClicked.HasDelegate, Is.True);
+                Assert.That(noteEditorColumn.Instance.OnDeleteClicked.HasDelegate, Is.True);
             });
         }
     }
