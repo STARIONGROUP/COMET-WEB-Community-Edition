@@ -34,20 +34,14 @@ namespace COMETwebapp.Services.Interoperability
     /// <summary>
     /// Class used for calling the babylon.js methods
     /// </summary>
-    public class BabylonInterop : IBabylonInterop
+    public class BabylonInterop : InteroperabilityService, IBabylonInterop
     {
-        /// <summary>
-        /// Gets or sets the see <see cref="IJSRuntime"/>
-        /// </summary>
-        public IJSRuntime JsRuntime { get;}
-        
         /// <summary>
         /// Creates a new instance of type <see cref="BabylonInterop"/>
         /// </summary>
-        /// <param name="jsRuntime">the <see cref="JsRuntime"/></param>
-        public BabylonInterop(IJSRuntime jsRuntime)
+        /// <param name="jsRuntime">the <see cref="IJSRuntime"/></param>
+        public BabylonInterop(IJSRuntime jsRuntime) : base(jsRuntime)
         {
-            this.JsRuntime = jsRuntime;
         }
 
         /// <summary>

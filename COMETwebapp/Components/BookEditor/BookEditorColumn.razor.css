@@ -1,0 +1,131 @@
+﻿.no-display{
+    display:none;
+}
+
+.book-editor-column {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height:85vh;
+    max-height: 85vh;
+    border: 0px dashed #555;
+    padding: 2.5% 0%;
+    transition: all 1s;
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+}
+
+    .book-editor-column.collapsed {
+        width: 0%;
+    }
+
+    .book-editor-column.collapsed div{
+        display:none;
+    }
+
+.column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    column-gap: 5px;
+}
+
+    .column-header > h5 {
+        font-size: 1rem;
+        text-transform: uppercase;
+        text-align: center;
+        margin: 0;
+        box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+        padding: 1%;
+        border-radius: 15px;
+        color: white;
+    }
+
+.add-item-button,.collapse-button {
+    border: 0;
+    border-radius: 5px;
+    background-color: transparent;
+}
+
+.add-item-button.disabled-button{
+    background-color: #DDD;
+}
+
+.column-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 2%;
+    position: relative;
+}
+
+.column-scroll-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.node-inner-content {
+    position: relative;
+    width: 100%;
+    border: 0;
+    display: flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    padding:2%;
+}
+
+.node-button {
+    border: 0;
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+    padding: 5%;
+    min-width: 50%;
+    border-radius: 7px;
+    transition: all 0.3s;
+    z-index: 1;
+}
+
+    .node-button:hover {
+        box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.2);
+    }
+
+.selected {
+    box-shadow: 0px 0px 0px 2px #333388 !important;
+}
+
+.edit-node-container{
+    display: flex;
+    flex-direction: column;
+    position:absolute;
+    right: 20%;
+    background-color: #EEE;
+    border-radius:5px;
+    overflow:hidden;
+    padding: 2px;
+    row-gap: 1px;
+}
+
+.edit-node-container > button{
+    border: 0;
+    background-color: transparent;
+}
+
+.edit-node-container > button:hover{
+    background-color: #CCC;
+}
+
+.svg-path{
+    position:absolute;
+    top: 0%;
+    left:0%;
+    width:100%;
+    height:100%;
+    z-index:-1;
+}

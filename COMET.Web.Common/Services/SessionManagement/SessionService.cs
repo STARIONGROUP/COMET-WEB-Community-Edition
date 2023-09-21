@@ -314,7 +314,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             // register all updates with the transaction.
             thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
-
+            
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
             // to the Thing object.
             var operationContainer = transaction.FinalizeTransaction();
@@ -327,6 +327,81 @@ namespace COMET.Web.Common.Services.SessionManagement
             catch (Exception ex)
             {
                 Console.WriteLine($"The update operation failed: {ex.Message}");
+            }
+            finally
+            {
+                sw.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Deletes a <see cref="Thing"/> from it's container
+        /// </summary>
+        /// <param name="containerClone">the container clone of the thing to delete</param>
+        /// <param name="thingToDelete">the cloned thing to delete in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task DeleteThing(Thing containerClone, Thing thingToDelete)
+        {
+            await this.DeleteThings(containerClone, new List<Thing> { thingToDelete });
+        }
+
+        /// <summary>
+        /// Deletes a collection of <see cref="Thing"/> from it's container
+        /// </summary>
+        /// <param name="containerClone">the container clone of the thing to delete</param>
+        /// <param name="thingsToDelete">the cloned things to delete in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task DeleteThings(Thing containerClone, params Thing[] thingsToDelete)
+        {
+            await this.DeleteThings(containerClone, thingsToDelete.ToList());
+        }
+
+        /// <summary>
+        /// Deletes a collection <see cref="Thing"/> from it's container
+        /// </summary>
+        /// <param name="containerClone">the container clone of the thing to delete</param>
+        /// <param name="thingsToDelete">the cloned things to delete in the session</param>
+        /// <returns>An asynchronous operation</returns>
+        public async Task DeleteThings(Thing containerClone, IEnumerable<Thing> thingsToDelete)
+        {
+            if (thingsToDelete == null)
+            {
+                return;
+            }
+
+            var sw = Stopwatch.StartNew();
+
+            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
+            var thingClone = containerClone;
+
+            if (containerClone.Original == null)
+            {
+                thingClone = containerClone.Clone(false);
+            }
+
+            // set the context of the transaction to the thing changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(thingClone);
+            var transaction = new ThingTransaction(context);
+
+            // register all deletes with the transaction.
+            foreach (var thingToDelete in thingsToDelete)
+            {
+                var thingToDeleteClone = thingToDelete.Clone(false);
+                transaction.Delete(thingToDeleteClone, containerClone);
+            }
+
+            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
+            // to the Thing object.
+            var operationContainer = transaction.FinalizeTransaction();
+
+            try
+            {
+                await this.Session.Write(operationContainer);
+                Console.WriteLine($"Delete done in {sw.ElapsedMilliseconds} [ms]");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"The delete operation failed: {ex.Message}");
             }
             finally
             {

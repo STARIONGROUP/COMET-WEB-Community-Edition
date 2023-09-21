@@ -291,5 +291,19 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             thingsToUpdate.Add(clone);
             Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
         }
+
+        [Test]
+        public void VerifyDeleteThings()
+        {
+            this.sessionService.IsSessionOpen = true;
+
+            var element = new ElementDefinition
+            {
+                Name = "Battery",
+                Owner = this.sessionService.GetDomainOfExpertise(this.iteration)
+            };
+
+            Assert.DoesNotThrow(() => this.sessionService.DeleteThing(this.iteration, element.Clone(false)));
+        }
     }
 }

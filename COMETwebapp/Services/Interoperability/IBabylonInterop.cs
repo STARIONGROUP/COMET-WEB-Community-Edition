@@ -27,18 +27,12 @@ namespace COMETwebapp.Services.Interoperability
     using COMETwebapp.Model;
     
     using Microsoft.AspNetCore.Components;
-    using Microsoft.JSInterop;
 
     /// <summary>
     /// The <see cref="IBabylonInterop"/> is used to call the babylon.js methods
     /// </summary>
     public interface IBabylonInterop
     {
-        /// <summary>
-        /// Gets or sets the see <see cref="IJSRuntime"/>
-        /// </summary>
-        IJSRuntime JsRuntime { get; }
-
         /// <summary>
         /// Initializes the canvas with the Babylon.js engine
         /// </summary>

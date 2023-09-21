@@ -50,6 +50,8 @@ namespace COMETwebapp
     
     using System.Reflection;
 
+    using COMETwebapp.ViewModels.Components.BookEditor;
+
     /// <summary>
     /// Point of entry of the application
     /// </summary>
@@ -90,6 +92,7 @@ namespace COMETwebapp
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             builder.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
             builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
+            builder.Services.AddSingleton<IDomDataService, DomDataService>();
             builder.Services.AddAntDesign();
         }
 
@@ -114,6 +117,7 @@ namespace COMETwebapp
             builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
             builder.Services.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
             builder.Services.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
+            builder.Services.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
         }
     }
 }

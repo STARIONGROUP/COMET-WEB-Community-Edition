@@ -1,0 +1,102 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023 RHEA System S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//    This file is part of COMET WEB Community Edition
+//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits DisposableComponent
+@using DynamicData
+@typeparam TItem
+
+@{
+    var columnConditionalClass = this.IsCollapsed ? "collapsed" : "";
+    var buttonDisabledClass = this.IsAddButtonDisabled ? "disabled-button" : "";
+}
+
+<div class="book-editor-column @columnConditionalClass">
+    <div class="column-header">
+        <button class="icon collapse-button @this.CollapseButtonIconClass" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"></button>
+        <h5 style="background-color:@this.HeaderHexColor" class="header-text">@this.HeaderTitle</h5>
+        <button class="icon icon-plus add-item-button @buttonDisabledClass" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())" disabled="@this.IsAddButtonDisabled"></button>
+    </div>
+    <div class="column-content">
+        @if (this.Items != null && this.Items.Any())
+        {
+            <div class="column-scroll-content" @onscroll="@(this.OnScroll)">
+
+                <Virtualize TItem="@TItem" Items="@this.Items" Context="item">
+                    @{
+                        var isSelected = item.Equals(this.SelectedValue);
+                        var conditionalClass = isSelected ? "selected" : "";
+
+                        var index = this.Items.IndexOf(item);
+
+                        <div class="node-inner-content @this.CssClass">
+                            @if (this.DrawLeftLines)
+                            {
+                                <svg class="svg-path">
+                                    <polyline points="@this.GenerateHorizontalPathPoints()"
+                                              style="fill:none;stroke:#CCC;stroke-width:2"
+                                              stroke-dasharray="8,3" />
+                                </svg>
+                            }
+
+                            <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="node-button @conditionalClass">
+                                @if (this.ContentTemplate != null)
+                                {
+                                    @this.ContentTemplate(item)
+                                }
+                                else
+                                {
+                                    @item.ToString()
+                                }
+                            </button>
+
+                            @if (isSelected)
+                            {
+                                <div class="edit-node-container">
+                                    <button class="icon icon-edit edit-button" @onclick="@(async () => await this.OnEditClicked.InvokeAsync(item))"></button>
+                                    <button class="icon icon-trash delete-button" @onclick="@(async () => await this.OnDeleteClicked.InvokeAsync(item))"></button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </Virtualize>
+            </div>
+            
+            <svg class="svg-path">
+                <polyline points="@this.GeneratePathPoints()"
+                          style="fill:none;stroke:#CCC;stroke-width:2"
+                          stroke-dasharray="8,3" />
+                          
+                @if (this.DrawLeftLines)
+                {
+                    var (verticalLine, horizontalSlice) = this.GenerateCommonLeftPathPoints();
+
+                    <polyline points="@verticalLine"
+                              style="fill:none;stroke:#CCC;stroke-width:2"
+                              stroke-dasharray="8,3" />
+
+                    <polyline points="@horizontalSlice"
+                              style="fill:none;stroke:#CCC;stroke-width:2"
+                              stroke-dasharray="8,3" />
+                }
+            </svg>
+        }
+    </div>
+</div>

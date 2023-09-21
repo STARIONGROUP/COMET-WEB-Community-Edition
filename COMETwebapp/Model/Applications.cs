@@ -119,6 +119,14 @@ namespace COMETwebapp.Model
                 Icon = "box",
                 Description = "Populate model",
                 Url = WebAppConstantValues.ModelEditorPage
+            },
+            new Application
+            {
+                Name = "Book Editor",
+                Color = "#76fd98",
+                Icon = "book",
+                Description = "Manage books",
+                Url = WebAppConstantValues.BookEditorPage
             }
         };
     }
