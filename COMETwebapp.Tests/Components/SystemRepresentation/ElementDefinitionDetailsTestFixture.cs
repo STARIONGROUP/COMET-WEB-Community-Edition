@@ -75,6 +75,12 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             };
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public void VerifyComponent()
         {

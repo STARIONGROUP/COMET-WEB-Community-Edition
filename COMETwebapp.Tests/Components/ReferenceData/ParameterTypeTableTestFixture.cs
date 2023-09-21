@@ -273,6 +273,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
+        
+        [TearDown]
+        public void Teardown()
+        {
+            this.context.CleanContext();
+        }
+
         [Test]
         public async Task VerifyOnInitialized()
         {            
