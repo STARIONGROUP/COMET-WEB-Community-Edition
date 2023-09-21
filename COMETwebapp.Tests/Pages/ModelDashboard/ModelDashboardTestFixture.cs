@@ -130,6 +130,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         public void Teardown()
         {
             this.context.CleanContext();
+            CDPMessageBus.Current.ClearSubscriptions();
         }
 
         [Test]
