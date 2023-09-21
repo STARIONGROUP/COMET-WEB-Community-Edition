@@ -407,7 +407,8 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             var thingContainerClone = thingContainer.Clone(false);
 
             await this.SessionService.DeleteThing(thingContainerClone, this.ThingToDelete.Clone(false));
-            await this.OnIterationChanged();
+            
+            this.ThingToDelete = null;
         }
     }
 }

@@ -31,7 +31,7 @@
 <div class="book-editor-column @columnConditionalClass">
     <div class="column-header">
         <button class="icon collapse-button @this.CollapseButtonIconClass" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"></button>
-        <h5 style="background-color:@this.HeaderHexColor">@this.HeaderTitle</h5>
+        <h5 style="background-color:@this.HeaderHexColor" class="header-text">@this.HeaderTitle</h5>
         <button class="icon icon-plus add-item-button @buttonDisabledClass" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())" disabled="@this.IsAddButtonDisabled"></button>
     </div>
     <div class="column-content">
@@ -56,7 +56,7 @@
                                 </svg>
                             }
 
-                            <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="book-button @conditionalClass">
+                            <button @onclick="@(async () => { await this.OnSelectedValueChanged(item, index); })" class="node-button @conditionalClass">
                                 @if (this.ContentTemplate != null)
                                 {
                                     @this.ContentTemplate(item)
