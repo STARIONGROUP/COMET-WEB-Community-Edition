@@ -73,16 +73,20 @@
         </DxTabPage>
         <DxTabPage Text="Category">
             <div class="tab-content">
-                <DxListBox Data="@this.AvailableCategories"
-                           TData="Category"
-                           TValue="Category"
-                           ValuesChanged="@this.OnCategoryChange"
-                           TextFieldName="@nameof(Category.Name)"
-                           SelectionMode="ListBoxSelectionMode.Multiple"
-                           ShowCheckboxes="true"
-                           CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
-                           style="flex-basis: 240px">
-                </DxListBox>
+                @if (this.Item is ICategorizableThing categorizableThing)
+                {
+                    <DxListBox Values="@categorizableThing.Category"
+                               Data="@this.AvailableCategories"
+                               TData="Category"
+                               TValue="Category"
+                               ValuesChanged="@this.OnCategoryChange"
+                               TextFieldName="@nameof(Category.Name)"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               ShowCheckboxes="true"
+                               CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                               style="flex-basis: 240px">
+                    </DxListBox>
+                }
             </div>
         </DxTabPage>
     </DxTabs>
