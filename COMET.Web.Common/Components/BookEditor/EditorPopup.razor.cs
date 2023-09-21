@@ -71,42 +71,28 @@ namespace COMET.Web.Common.Components.BookEditor
             if (this.ViewModel.Item is INamedThing namedThing)
             {
                 var error = ValidationService.ValidateProperty(nameof(namedThing.Name), namedThing.Name);
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    validationErrors.Add(error);
-                }
+                validationErrors.Add(error);
             }
 
             if (this.ViewModel.Item is IShortNamedThing shortNamedThing)
             {
                 var error = ValidationService.ValidateProperty(nameof(shortNamedThing.ShortName), shortNamedThing.ShortName);
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    validationErrors.Add(error);
-                }
+                validationErrors.Add(error);
             }
 
             if (this.ViewModel.Item is IOwnedThing ownedThing)
             {
                 var error = ownedThing.Owner == null ? "The thing must be owned by a DoE" : string.Empty;
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    validationErrors.Add(error);
-                }
+                validationErrors.Add(error);
             }
 
             if (this.ViewModel.Item is TextualNote textualNote)
             {
                 var error = string.IsNullOrEmpty(textualNote.Content)? "The textual note must contain a content" : string.Empty;
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    validationErrors.Add(error);
-                }
+                validationErrors.Add(error);
             }
+
+            validationErrors = validationErrors.Where(x => !string.IsNullOrEmpty(x)).ToList();
 
             this.ViewModel.ValidationErrors.Edit(inner =>
             {

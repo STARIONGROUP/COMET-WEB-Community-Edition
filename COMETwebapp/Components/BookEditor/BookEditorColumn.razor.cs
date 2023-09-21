@@ -111,17 +111,17 @@ namespace COMETwebapp.Components.BookEditor
         /// <summary>
         /// The data of size and position of the first item in the list
         /// </summary>
-        private float[] firstItemSizeAndPosition = {};
+        private float[] firstItemSizeAndPosition = Array.Empty<float>();
 
         /// <summary>
         /// The data of size and position of the last item in the list
         /// </summary>
-        private float[] lastItemSizeAndPosition = {};
+        private float[] lastItemSizeAndPosition = Array.Empty<float>();
 
         /// <summary>
         /// The data of size and position of the selected item
         /// </summary>
-        private float[] selectedItemSizeAndPosition = {};
+        private float[] selectedItemSizeAndPosition = Array.Empty<float>();
 
         /// <summary>
         /// Gets or sets the class used to selected the nodes

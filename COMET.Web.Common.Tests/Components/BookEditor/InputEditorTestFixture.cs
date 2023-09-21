@@ -31,16 +31,9 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using COMET.Web.Common.Components.BookEditor;
     using COMET.Web.Common.Test.Helpers;
-    using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DevExpress.Blazor;
-
-    using DynamicData;
-
-    using Microsoft.AspNetCore.Components;
-
-    using Moq;
-
+    
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -89,9 +82,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         [Test]
         public void VerifyComponent()
         {
-            var dxtabs = this.component.FindComponent<DxTabs>();
-
-            dxtabs.Instance.ActiveTabIndex = 0;
+            var basicTab = this.component.Find(".basic-tab");
+            basicTab.Click();
 
             var textboxes = this.component.FindComponents<DxTextBox>();
             var combobox = this.component.FindComponent<DxComboBox<DomainOfExpertise, DomainOfExpertise>>();
@@ -106,7 +98,9 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
                 Assert.That(combobox.Instance.Value, Is.EqualTo(this.activeDomains.First()));
             });
 
-            dxtabs.Instance.ActiveTabIndex = 1;
+            var categoryTab = this.component.Find(".category-tab");
+            categoryTab.Click();
+
             this.component.Render();
 
             var listbox = this.component.FindComponent<DxListBox<Category, Category>>();

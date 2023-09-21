@@ -56,7 +56,7 @@ namespace COMET.Web.Common.Components.BookEditor
         /// <summary>
         /// Handler for when the selected categories changed
         /// </summary>
-        /// <param name="categories"></param>
+        /// <param name="categories">the changed categories</param>
         private void OnCategoryChange(IEnumerable<Category> categories)
         {
             if (this.Item is ICategorizableThing categorizableThing)

@@ -29,7 +29,7 @@
 
 <div>
     <DxTabs>
-        <DxTabPage Text="Basic">
+        <DxTabPage Text="Basic" CssClass="basic-tab">
             <div class="tab-content">
                 @if (this.Item is INamedThing namedThing)
                 {
@@ -71,7 +71,7 @@
                 }
             </div>
         </DxTabPage>
-        <DxTabPage Text="Category">
+        <DxTabPage Text="Category" CssClass="category-tab">
             <div class="tab-content">
                 @if (this.Item is ICategorizableThing categorizableThing)
                 {

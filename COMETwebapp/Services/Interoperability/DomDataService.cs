@@ -25,7 +25,7 @@
 namespace COMETwebapp.Services.Interoperability
 {
     using COMETwebapp.Components.BookEditor;
-    using COMETwebapp.Components.ModelEditor;
+    
     using Microsoft.JSInterop;
 
     /// <summary>

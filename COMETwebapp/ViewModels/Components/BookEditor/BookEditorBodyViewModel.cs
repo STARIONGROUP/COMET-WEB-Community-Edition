@@ -236,7 +236,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Validates that the thing is a valid thing for the operations in this ViewModel
         /// </summary>
         /// <param name="thing">the thing to validate</param>
-        private void ValidateThing(Thing thing)
+        private static void ValidateThing(Thing thing)
         {
             if (thing is not Book && thing is not Section && thing is not Page && thing is not Note)
             {
@@ -250,7 +250,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <param name="thing">the thing</param>
         public void SetThingToCreate(Thing thing)
         {
-            this.ValidateThing(thing);
+            ValidateThing(thing);
 
             this.ThingToCreate = thing;
 
@@ -290,7 +290,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                 throw new InvalidOperationException("The thing to create can't be null");
             }
 
-            this.ValidateThing(this.ThingToCreate);
+            ValidateThing(this.ThingToCreate);
 
             Thing thingContainer;
 
@@ -326,7 +326,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <param name="thing">the thing</param>
         public void SetThingToEdit(Thing thing)
         {
-            this.ValidateThing(thing);
+            ValidateThing(thing);
 
             this.ThingToEdit = thing;
 
@@ -366,7 +366,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                 throw new InvalidOperationException("The thing to edit can't be null");
             }
 
-            this.ValidateThing(this.ThingToEdit);
+            ValidateThing(this.ThingToEdit);
 
             var thingContainer = this.ThingToEdit.Container;
             var thingContainerClone = thingContainer.Clone(false);
@@ -383,7 +383,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <param name="thingToDelete">the thing</param>
         public void SetThingToDelete(Thing thingToDelete)
         {
-            this.ValidateThing(thingToDelete);
+            ValidateThing(thingToDelete);
 
             this.ThingToDelete = thingToDelete;
 
@@ -401,7 +401,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                 throw new InvalidOperationException("The thing to delete can't be null");
             }
 
-            this.ValidateThing(this.ThingToDelete);
+            ValidateThing(this.ThingToDelete);
 
             var thingContainer = this.ThingToDelete.Container;
             var thingContainerClone = thingContainer.Clone(false);

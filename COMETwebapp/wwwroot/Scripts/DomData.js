@@ -6,10 +6,16 @@ function setDotNetHelper(helper) {
     dotNetHelper = helper;
 }
 
+/**
+ * Gets an element size and position relative to its parent
+ * @param {int} index
+ * @param {string} cssSelector
+ * @param {bool} useScroll
+ */
 function GetElementSizeAndPosition(index, cssSelector, useScroll)
 {
-    var elements = document.getElementsByClassName(cssSelector);
-    var element = elements[index];
+    let elements = document.getElementsByClassName(cssSelector);
+    let element = elements[index];
     
     if (element != null)
     {
@@ -17,7 +23,7 @@ function GetElementSizeAndPosition(index, cssSelector, useScroll)
         {
             if (useScroll)
             {
-                var offsetTop = element.getBoundingClientRect().top - element.offsetParent.getBoundingClientRect().top;
+                let offsetTop = element.getBoundingClientRect().top - element.offsetParent.getBoundingClientRect().top;
                 return [element.offsetLeft, offsetTop, element.offsetWidth, element.offsetHeight];
             }
 
@@ -32,6 +38,10 @@ function GetElementSizeAndPosition(index, cssSelector, useScroll)
     return [0, 0, 0, 0];
 }
 
+/**
+ * Subscribes to the resize event of the window and use a callback method to alert
+ * @param {string} callbackMethodName
+ */
 function SubscribeToResizeEvent(callbackMethodName)
 {
     window.addEventListener("resize", () =>
