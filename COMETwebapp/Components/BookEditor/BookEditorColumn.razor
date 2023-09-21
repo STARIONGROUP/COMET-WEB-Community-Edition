@@ -70,8 +70,8 @@
                             @if (isSelected)
                             {
                                 <div class="edit-node-container">
-                                    <button class="icon icon-edit" @onclick="@(async () => await this.OnEditClicked.InvokeAsync(item))"></button>
-                                    <button class="icon icon-trash" @onclick="@(async () => await this.OnDeleteClicked.InvokeAsync(item))"></button>
+                                    <button class="icon icon-edit edit-button" @onclick="@(async () => await this.OnEditClicked.InvokeAsync(item))"></button>
+                                    <button class="icon icon-trash delete-button" @onclick="@(async () => await this.OnDeleteClicked.InvokeAsync(item))"></button>
                                 </div>
                             }
                         </div>

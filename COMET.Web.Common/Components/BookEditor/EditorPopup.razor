@@ -34,8 +34,8 @@
     </Content>
     <FooterTemplate>
         <div class="modal-footer">
-            <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(async () => await this.OnConfirmClick())" />
-            <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@(async () => await this.ViewModel.OnCancelClick.InvokeAsync())" />
+            <DxButton CssClass="ok-button" Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(async () => await this.OnConfirmClick())" />
+            <DxButton CssClass="cancel-button" Text="Cancel" RenderStyle="ButtonRenderStyle.Danger" Click="@(async () => await this.ViewModel.OnCancelClick.InvokeAsync())" />
         </div>
     </FooterTemplate>
 </DxPopup>

@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.Services.Interoperability
 {
+    using Bunit;
+
     using CDP4Common.ReportingData;
 
     using COMETwebapp.Components.BookEditor;
@@ -35,37 +37,37 @@ namespace COMETwebapp.Tests.Services.Interoperability
 
     using NUnit.Framework;
 
+    using TestContext = Bunit.TestContext;
+
     [TestFixture]
     public class DomDataServiceTestFixture
     {
-        private Mock<IDomDataService> service;
+        private TestContext context;
+        private DomDataService service;
 
         [SetUp]
         public void Setup()
         {
-            this.service = new Mock<IDomDataService>();
+            this.context = new TestContext();
+            var jsRuntime = new Mock<IJSRuntime>();
+
+            this.context.JSInterop.SetupVoid("setDotNetHelper");
+            this.context.JSInterop.SetupVoid("SubscribeToResizeEvent");
+            this.context.JSInterop.Setup<float[]>("GetElementSizeAndPosition").SetResult(new float[] { 1, 2, 3, 4 });
             
-            this.service.Setup(x => x.GetElementSizeAndPosition(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new float[] { 1, 2, 3, 4 });
+            this.service = new DomDataService(jsRuntime.Object);
         }
 
         [Test]
-        public async Task VerifyMethods()
+        public void VerifyMethods()
         {
             var dotnet = DotNetObjectReference.Create(new BookEditorColumn<Book>());
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => this.service.Object.LoadDotNetHelper(dotnet), Throws.Nothing);
-                Assert.That(async () => await this.service.Object.GetElementSizeAndPosition(0, "node", true), Throws.Nothing);
-            });
-
-            var sizeAndPosition = await this.service.Object.GetElementSizeAndPosition(0, "node", true);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(sizeAndPosition, Is.EquivalentTo(new float[] { 1, 2, 3, 4 }));
-                Assert.That(() => this.service.Object.SubscribeToResizeEvent("resize"), Throws.Nothing);
+                Assert.That(() => this.service.LoadDotNetHelper(dotnet), Throws.Nothing);
+                Assert.That(async () => await this.service.GetElementSizeAndPosition(0, "node", true), Throws.Nothing);
+                Assert.That(() => this.service.SubscribeToResizeEvent("resize"), Throws.Nothing);
             });
         }
     }
