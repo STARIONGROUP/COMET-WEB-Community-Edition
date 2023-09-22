@@ -47,6 +47,9 @@
     <Content Update="wwwroot\DefaultTextConfiguration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\BookInputConfiguration.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\server_configuration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

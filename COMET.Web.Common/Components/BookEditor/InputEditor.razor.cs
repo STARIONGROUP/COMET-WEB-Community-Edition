@@ -25,16 +25,41 @@
 
 namespace COMET.Web.Common.Components.BookEditor
 {
+    using System.Text.Json;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Model;
+    using COMET.Web.Common.Utilities;
+   
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Support class for the InputEditor component
     /// </summary>
     public partial class InputEditor<TItem>
     {
+        /// <summary>
+        /// Gets or sets the <see cref="ILogger"/>
+        /// </summary>
+        [Inject]
+        ILogger<InputEditor<TItem>> Logger { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="HttpClient"/>
+        /// </summary>
+        [Inject]
+        HttpClient HttpClient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IOptions{GlobalOptions}"/>
+        /// </summary>
+        [Inject]
+        public IOptions<GlobalOptions> Options { get; set; }
+
         /// <summary>
         /// Gets or sets the item for which the input is being provided
         /// </summary>
@@ -52,7 +77,54 @@ namespace COMET.Web.Common.Components.BookEditor
         /// </summary>
         [Parameter]
         public IEnumerable<Category> AvailableCategories { get; set; }
-        
+
+        /// <summary>
+        /// Sets if the component should show the name field
+        /// </summary>
+        private bool showName;
+
+        /// <summary>
+        /// Sets if the component should show the shorname field
+        /// </summary>
+        private bool showShortName;
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        ///
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+
+            var jsonFile = this.Options.Value.JsonConfigurationFile ?? "BookInputConfiguration.json";
+
+            try
+            {
+                var path = ContentPathBuilder.BuildPath(jsonFile);
+                var jsonContent = await this.HttpClient.GetStreamAsync(path);
+                var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
+
+                if (configurations.TryGetValue("ShowName", out var showNameValue))
+                {
+                    this.showName = showNameValue;
+                }
+
+                if (configurations.TryGetValue("ShowShortName", out var showShortNameValue))
+                {
+                    this.showShortName = showShortNameValue;
+                }
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, "Error while getting the configuration file.");
+                return;
+            }
+        }
+
         /// <summary>
         /// Handler for when the selected categories changed
         /// </summary>
