@@ -21,16 +21,33 @@ namespace COMET.Web.Common.Components
     public partial class MultiComboBox<TItem>
     {
         /// <summary>
+        /// The last selected value of the combobox
+        /// </summary>
+        private TItem lastSelectedValue;
+
+        /// <summary>
+        /// Gets or sets the maximum number of chips that the combo should show
+        /// </summary>
+        [Parameter]
+        public int MaxNumberOfChips { get; set; } = 3;
+
+        /// <summary>
         /// Gets or sets if the checkboxes for the selected items should be drawn
         /// </summary>
         [Parameter]
-        public bool ShowCheckBoxes { get; set; }
+        public bool ShowCheckBoxes { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the item template for the selected items
         /// </summary>
         [Parameter]
         public RenderFragment<TItem> RowTemplate { get; set; }
+
+        /// <summary>
+        /// Gets or sets item template to show when the number of selected items is greater or equal to the <see cref="MaxNumberOfChips"/>
+        /// </summary>
+        [Parameter]
+        public RenderFragment EditorTextTemplate { get; set; }
 
         /// <summary>
         /// Gets or sets the data of the combobox
@@ -63,6 +80,8 @@ namespace COMET.Web.Common.Components
         /// <returns>an asynchronous operation</returns>
         private async Task ItemSelected(TItem newValue)
         {
+            this.lastSelectedValue = default;
+
             if(this.Values.Contains(newValue))
             {
                 this.Values.Remove(newValue);

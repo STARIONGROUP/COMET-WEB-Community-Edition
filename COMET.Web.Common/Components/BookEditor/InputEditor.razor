@@ -74,7 +74,6 @@
             <MultiComboBox TItem="Category"
                            Values="@categorizableThing.Category"
                            Data="@this.AvailableCategories"
-                           ShowCheckBoxes="true"
                            ValuesChanged="@this.OnCategoryChange">
                 <RowTemplate>
                     <span>@context.Name</span>

@@ -26,6 +26,8 @@
             Data="@this.Data"
             ValueChanged="@this.ItemSelected"
             Enabled="@this.Enabled"
+            Value="@this.lastSelectedValue"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
             CssClass="w-100">
     <ItemTemplate>
         <div class="multi-combo-item-template">
@@ -47,12 +49,12 @@
     </ItemTemplate>
 
     <EditBoxTemplate>
-        @if(this.Values.Count <= 2)
+        @if(this.Values.Count <= this.MaxNumberOfChips)
         {
             <div class="chips-container">
                 @foreach(var value in this.Values)
                 {
-                    <button class="chip" @onclick="@(() => this.ItemSelected(value))">
+                    <div class="chip">
                         @if (this.RowTemplate != null)
                         {
                             @this.RowTemplate(value)
@@ -61,13 +63,21 @@
                         {
                             @value
                         }
-                    </button>
+                        <button class="chip-button icon icon-close" @onclick="@(() => this.ItemSelected(value))"></button>
+                    </div>
                 }
             </div>
         }
         else
         {
-            <div>@(this.Values.Count) items are selected</div>
+            if (this.EditorTextTemplate != null)
+            {
+                @this.EditorTextTemplate
+            }
+            else
+            {
+                <div>@(this.Values.Count) items are selected</div>
+            }
         }
     </EditBoxTemplate>
 </DxComboBox>

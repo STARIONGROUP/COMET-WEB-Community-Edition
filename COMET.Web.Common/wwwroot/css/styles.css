@@ -60,6 +60,10 @@
     background-image: url(SVG/icons/trash.svg)
 }
 
+.icon-close {
+    background-image: url(SVG/icons/close.svg)
+}
+
 .logo-size {
     max-width: 95px;
     height: auto;

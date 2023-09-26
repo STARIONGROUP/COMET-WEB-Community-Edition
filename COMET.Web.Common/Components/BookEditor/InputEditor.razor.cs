@@ -31,6 +31,7 @@ namespace COMET.Web.Common.Components.BookEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities;
    
     using Microsoft.AspNetCore.Components;
@@ -46,19 +47,25 @@ namespace COMET.Web.Common.Components.BookEditor
         /// Gets or sets the <see cref="ILogger"/>
         /// </summary>
         [Inject]
-        ILogger<InputEditor<TItem>> Logger { get; set; }
+        public ILogger<InputEditor<TItem>> Logger { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="HttpClient"/>
         /// </summary>
         [Inject]
-        HttpClient HttpClient { get; set; }
+        public HttpClient HttpClient { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IOptions{GlobalOptions}"/>
         /// </summary>
         [Inject]
         public IOptions<GlobalOptions> Options { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISessionService"/>
+        /// </summary>
+        [Inject] 
+        public ISessionService SessionService { get; set; }
 
         /// <summary>
         /// Gets or sets the item for which the input is being provided
@@ -116,6 +123,11 @@ namespace COMET.Web.Common.Components.BookEditor
                 if (configurations.TryGetValue("ShowShortName", out var showShortNameValue))
                 {
                     this.showShortName = showShortNameValue;
+                }
+
+                if (this.Item is IOwnedThing ownedThing)
+                {
+                    ownedThing.Owner = this.SessionService.Session.ActivePerson.DefaultDomain;
                 }
             }
             catch (Exception e)
