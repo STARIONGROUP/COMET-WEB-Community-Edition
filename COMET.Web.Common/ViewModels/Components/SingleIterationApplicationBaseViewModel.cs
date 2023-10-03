@@ -141,7 +141,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <returns>true if the change should be recorded, false otherwise</returns>
         protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
         {
-            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>().Iid != this.CurrentIteration.Iid)
+            if (this.CurrentIteration == null || objectChangedEvent.ChangedThing.GetContainerOfType<Iteration>()?.Iid != this.CurrentIteration.Iid)
             {
                 return false;
             }

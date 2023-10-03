@@ -82,7 +82,7 @@ namespace COMET.Web.Common.WebAssembly.Services.ConfigurationService
             try
             {
                 var path = ContentPathBuilder.BuildPath(this.serverConfigurationFile);
-                using var response = await this.http.GetAsync(path);
+                var response = await this.http.GetAsync(path);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -93,10 +93,12 @@ namespace COMET.Web.Common.WebAssembly.Services.ConfigurationService
                 else if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     this.logger.LogError("Server configuration file not found at {path}", path);
+                    return;
                 }
                 else
                 {
                     this.logger.LogError("Error fetching server configuration. Status code: {response}", response.StatusCode);
+                    return;
                 }
             }
             catch (Exception e)
