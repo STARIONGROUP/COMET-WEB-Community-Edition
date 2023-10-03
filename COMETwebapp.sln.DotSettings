@@ -255,7 +255,7 @@
  &lt;copyright file="$FILENAME$" company="RHEA System S.A."&gt;&#xD;
     Copyright (c) $CURRENT_YEAR$ RHEA System S.A.&#xD;
 &#xD;
-    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar&#xD;
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine&#xD;
 &#xD;
     This file is part of COMET WEB Community Edition&#xD;
     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.&#xD;

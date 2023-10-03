@@ -27,7 +27,7 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.ConfigurationService;
 
     /// <summary>
     /// View Model that enables the user to login against a COMET Server
@@ -35,9 +35,9 @@ namespace COMET.Web.Common.ViewModels.Components
     public interface ILoginViewModel
     {
         /// <summary>
-        /// Gets the <see cref="IServerConnectionService" />
+        /// Gets the <see cref="IConfigurationService" />
         /// </summary>
-        IServerConnectionService serverConnectionService { get; }
+        IConfigurationService serverConnectionService { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="AuthenticationStateKind" />

@@ -14,6 +14,30 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Data\DefaultTextConfiguration.json" />
+      <None Remove="Resources\configuration\DefaultTextConfiguration.json" />
+      <None Remove="Resources\configuration\server_configuration.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Data\DefaultTextConfiguration.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+      <Content Include="Resources\configuration\DefaultTextConfiguration.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+      <Content Include="Resources\configuration\server_configuration.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="bunit" Version="1.14.4" />
         <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
@@ -28,11 +52,16 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\COMET.Web.Common.Test\COMET.Web.Common.Test.csproj" />
         <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="WebAssembly\Services\StringTableService\" />
     </ItemGroup>
 
 </Project>

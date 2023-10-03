@@ -26,8 +26,8 @@
 namespace COMET.Web.Common.Shared.TopMenuEntry
 {
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Services.StringTableService;
 
     using Microsoft.AspNetCore.Components;
 
@@ -43,9 +43,9 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         internal IRegistrationService RegistrationService { get; set; }
 
         /// <summary>
-        /// The <see cref="IConfigurationService"/>
+        /// The <see cref="IStringTableService"/>
         /// </summary>
         [Inject]
-        public IConfigurationService ConfigurationService { get; set; }
+        public IStringTableService ConfigurationService { get; set; }
     }
 }

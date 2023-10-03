@@ -34,8 +34,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Services.StringTableService;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
@@ -51,7 +51,7 @@ namespace COMET.Web.Common.Tests.Components
     {
         private List<Application> applications;
         private Mock<IRegistrationService> registrationService;
-        private Mock<IConfigurationService> configurationService;
+        private Mock<IStringTableService> configurationService;
         private TestContext context;
 
         [SetUp]
@@ -83,7 +83,7 @@ namespace COMET.Web.Common.Tests.Components
             this.registrationService.Setup(x => x.RegisteredApplications)
                 .Returns(this.applications);
 
-            this.configurationService = new Mock<IConfigurationService>();
+            this.configurationService = new Mock<IStringTableService>();
             this.configurationService.Setup(x => x.GetText(TextConfigurationKind.LandingPageTitle)).Returns(string.Empty);
 
             this.context = new TestContext();

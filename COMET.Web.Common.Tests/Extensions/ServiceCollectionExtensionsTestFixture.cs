@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IServerConnectionService.cs" company="RHEA System S.A.">
+//  <copyright file="ServiceCollectionExtensionsTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -23,22 +23,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Services.ServerConnectionService
+namespace COMET.Web.Common.Tests.Extensions
 {
-    /// <summary>
-    /// Service that holds the text data from the configuration file
-    /// </summary>
-    public interface IServerConnectionService
-    {
-        /// <summary>
-        /// The Server Address to use
-        /// </summary>
-        string ServerAddress { get; }
+    using COMET.Web.Common.Extensions;
 
-        /// <summary>
-        /// Initializes the <see cref="IServerConnectionService"/>
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        Task InitializeService();
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
+
+    using NUnit.Framework;
+
+    [TestFixture]
+    public class ServiceCollectionExtensionsTestFixture
+    {
+        [Test]
+        public void VerifyRegistration()
+        {
+            var serviceCollection = new Mock<IServiceCollection>();
+            
+            Assert.Multiple(() => 
+            {
+                Assert.That(() => serviceCollection.Object.RegisterCommonLibrary(), Throws.Nothing);
+                Assert.That(() => serviceCollection.Object.RegisterCommonLibrary(false), Throws.Nothing);
+                Assert.That(() => serviceCollection.Object.RegisterCommonLibrary(false, options => { }), Throws.Nothing);
+            });
+        }
     }
 }

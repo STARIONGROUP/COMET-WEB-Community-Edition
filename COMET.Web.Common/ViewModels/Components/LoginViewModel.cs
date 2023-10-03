@@ -27,7 +27,7 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using ReactiveUI;
 
@@ -42,9 +42,9 @@ namespace COMET.Web.Common.ViewModels.Components
         private readonly IAuthenticationService authenticationService;
 
         /// <summary>
-        /// Gets the <see cref="IServerConnectionService" />
+        /// Gets the <see cref="IConfigurationService" />
         /// </summary>
-        public IServerConnectionService serverConnectionService { get; }
+        public IConfigurationService serverConnectionService { get; }
 
         /// <summary>
         /// Backing field for <see cref="AuthenticationState" />
@@ -55,7 +55,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
         /// </summary>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        public LoginViewModel(IAuthenticationService authenticationService, IServerConnectionService serverConnectionService)
+        public LoginViewModel(IAuthenticationService authenticationService, IConfigurationService serverConnectionService)
         {
             this.serverConnectionService = serverConnectionService;
             this.authenticationService = authenticationService;

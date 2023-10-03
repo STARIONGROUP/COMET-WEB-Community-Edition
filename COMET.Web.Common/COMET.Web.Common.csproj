@@ -30,8 +30,8 @@
     <PackageReference Include="CDP4ServicesDal-CE" Version="24.1.0" />
     <PackageReference Include="DevExpress.Blazor" Version="23.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
     <PackageReference Include="ReactiveUI" Version="18.4.26" />
   </ItemGroup>
   <ItemGroup>

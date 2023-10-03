@@ -29,7 +29,6 @@ namespace COMET.Web.Common.ViewModels.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 

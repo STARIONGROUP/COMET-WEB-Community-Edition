@@ -40,8 +40,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
-    using COMET.Web.Common.Services.ServerConnectionService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
@@ -67,7 +67,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context = new TestContext();
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
-            this.serverConnectionService = new Mock<IServerConnectionService>();
+            this.serverConnectionService = new Mock<IConfigurationService>();
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
 
@@ -88,7 +88,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context.ConfigureDevExpressBlazor();
             this.authorization = this.context.AddTestAuthorization();
             
-            var configurationService = new Mock<IConfigurationService>();
+            var configurationService = new Mock<IStringTableService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
 }
@@ -103,7 +103,7 @@ namespace COMET.Web.Common.Tests.Components
         private TestContext context;
         private Mock<IVersionService> versionService;
         private Mock<ISessionService> sessionService;
-        private Mock<IServerConnectionService> serverConnectionService;
+        private Mock<IConfigurationService> serverConnectionService;
         private Mock<IAuthenticationService> authenticationService;
         private TestAuthorizationContext authorization;
         private SourceList<Iteration> sourceList;

@@ -38,10 +38,10 @@ namespace COMET.Web.Common.Tests.Shared
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Shared;
     using COMET.Web.Common.Shared.TopMenuEntry;
@@ -72,7 +72,7 @@ namespace COMET.Web.Common.Tests.Shared
         private Mock<IAuthenticationService> authenticationService;
         private Mock<IRegistrationService> registrationService;
         private Mock<IVersionService> versionService;
-        private Mock<IConfigurationService> configurationService;
+        private Mock<IStringTableService> configurationService;
         private SourceList<Iteration> sourceList;
         private List<Type> registeredMenuEntries;
         private List<Application> registeredApplications;
@@ -105,7 +105,7 @@ namespace COMET.Web.Common.Tests.Shared
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
-            this.configurationService = new Mock<IConfigurationService>();
+            this.configurationService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
         }

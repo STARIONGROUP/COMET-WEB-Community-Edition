@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿/*
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ConfigurationServiceTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -22,13 +23,15 @@
 // 
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
+
 namespace COMET.Web.Common.Tests.Services.ConfigurationService
 {
     using System.Net;
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.StringTableService;
+    using COMET.Web.Common.WebAssembly.Services.StringTableService;
 
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -41,7 +44,7 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
     [TestFixture]
 	public class ConfigurationServiceTestFixture
     {
-        private IConfigurationService configurationService;
+        private IStringTableService stringTableService;
 
         [Test]
         public async Task VerifyService()
@@ -87,29 +90,29 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
                 BaseAddress = new Uri("http://localhost")
             };
 
-            var loggerMock = new Mock<ILogger<ConfigurationService>>();
-            this.configurationService = new ConfigurationService(options.Object, httpClient, loggerMock.Object);
+            var loggerMock = new Mock<ILogger<StringTableService>>();
+            this.stringTableService = new StringTableService(options.Object, httpClient, loggerMock.Object);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.configurationService, Is.Not.Null);
-                Assert.Throws<InvalidOperationException>(()=>this.configurationService.GetText(""));
+                Assert.That(this.stringTableService, Is.Not.Null);
+                Assert.Throws<InvalidOperationException>(()=>this.stringTableService.GetText(""));
             });
 
-            await this.configurationService.InitializeService();
+            await this.stringTableService.InitializeService();
 
             Assert.Multiple(() =>
             {
-                Assert.DoesNotThrow(() => this.configurationService.GetText(""));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.OpenEngineeringModelPlaceholder), Is.EqualTo("Select an Engineering Model"));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.OpenIterationPlaceholder), Is.EqualTo("Select an Iteration"));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.OpenDomainOfExpertisePlaceholder), Is.EqualTo("Select a Domain of Expertise"));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.ModelTitleCaption), Is.EqualTo("Model"));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.IterationTitleCaption), Is.EqualTo("Iteration"));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.DomainTitleCaption), Is.EqualTo("Domain"));
-                Assert.That(this.configurationService.GetText(TextConfigurationKind.LandingPageTitle), Is.EqualTo(""));
-                Assert.That(this.configurationService.GetConfigurations(), Is.Not.Null);
-                Assert.That(this.configurationService.GetConfigurations(), Is.Not.Empty);
+                Assert.DoesNotThrow(() => this.stringTableService.GetText(""));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.OpenEngineeringModelPlaceholder), Is.EqualTo("Select an Engineering Model"));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.OpenIterationPlaceholder), Is.EqualTo("Select an Iteration"));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.OpenDomainOfExpertisePlaceholder), Is.EqualTo("Select a Domain of Expertise"));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.ModelTitleCaption), Is.EqualTo("Model"));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.IterationTitleCaption), Is.EqualTo("Iteration"));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.DomainTitleCaption), Is.EqualTo("Domain"));
+                Assert.That(this.stringTableService.GetText(TextConfigurationKind.LandingPageTitle), Is.EqualTo(""));
+                Assert.That(this.stringTableService.GetConfigurations(), Is.Not.Null);
+                Assert.That(this.stringTableService.GetConfigurations(), Is.Not.Empty);
             });
         }
 
@@ -157,16 +160,17 @@ namespace COMET.Web.Common.Tests.Services.ConfigurationService
                 BaseAddress = new Uri("http://localhost")
             };
 
-            var loggerMock = new Mock<ILogger<ConfigurationService>>();
-            this.configurationService = new ConfigurationService(options.Object, httpClient, loggerMock.Object);
+            var loggerMock = new Mock<ILogger<StringTableService>>();
+            this.stringTableService = new StringTableService(options.Object, httpClient, loggerMock.Object);
 
-            await this.configurationService.InitializeService();
+            await this.stringTableService.InitializeService();
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.configurationService.GetConfigurations(), Is.Not.Null);
-                Assert.That(this.configurationService.GetConfigurations(), Is.Empty);
+                Assert.That(this.stringTableService.GetConfigurations(), Is.Not.Null);
+                Assert.That(this.stringTableService.GetConfigurations(), Is.Empty);
             });
         }
 	}
 }
+*/

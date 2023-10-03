@@ -27,7 +27,7 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components;
@@ -46,10 +46,10 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         public IModelMenuViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The <see cref="IConfigurationService"/>
+        /// The <see cref="IStringTableService"/>
         /// </summary>
         [Inject]
-        public IConfigurationService ConfigurationService { get; set; }
+        public IStringTableService ConfigurationService { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

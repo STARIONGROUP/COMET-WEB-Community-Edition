@@ -47,10 +47,13 @@ namespace COMETwebapp
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
     
     using System.Diagnostics.CodeAnalysis;
-    
     using System.Reflection;
 
+    using COMET.Web.Common;
+
     using COMETwebapp.ViewModels.Components.BookEditor;
+
+    using Microsoft.AspNetCore.Components.Web;
 
     /// <summary>
     /// Point of entry of the application
@@ -65,18 +68,26 @@ namespace COMETwebapp
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            builder.AddCometWebCommon(options =>
+            builder.RootComponents.Add<App>("#app");
+            builder.RootComponents.Add<HeadOutlet>("head::after");
+
+            builder.Services.RegisterCommonLibrary(false, options =>
             {
                 options.Applications = Applications.ExistingApplications;
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
                 options.AdditionalMenuEntries.AddRange(new List<Type>{typeof(ShowHideDeprecatedThings), typeof(AboutMenu)});
+            });
+            
+            builder.Services.AddScoped(_ => new HttpClient()
+            {
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
             RegisterServices(builder);
             RegisterViewModels(builder);
 
             var host = builder.Build();
-            await host.InitializeServices();
+            await host.Services.InitializeServices();
             await host.RunAsync();
         }
 
@@ -86,7 +97,7 @@ namespace COMETwebapp
         /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
         public static void RegisterServices(WebAssemblyHostBuilder builder)
         {
-            builder.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
             builder.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
             builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();

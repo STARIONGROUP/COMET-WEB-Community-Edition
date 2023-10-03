@@ -25,17 +25,24 @@
 
 @{
     var dateTimeStringSplitted = this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex].Split('T');
-    DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime);
+    var timeSpan = TimeSpan.Zero;
 
-    var timeString = dateTimeStringSplitted[1];
-    var values = timeString.Split(':');
+    if (!DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime))
+    {
+        dateTime = default;
+    }
+    else
+    {
+        var timeString = dateTimeStringSplitted[1];
+        var values = timeString.Split(':');
 
-    int.TryParse(values[0], out var hours);
-    int.TryParse(values[1], out var minutes);
-    int.TryParse(values[2], out var seconds);
+        int.TryParse(values[0], out var hours);
+        int.TryParse(values[1], out var minutes);
+        int.TryParse(values[2], out var seconds);
 
-    var timeSpan = new TimeSpan(hours, minutes, seconds);
- 
+        timeSpan = new TimeSpan(hours, minutes, seconds);
+    }
+
     <DxDateEdit CssClass="date-time-parameter-type cw-320"
                 Date="@dateTime"
                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
