@@ -91,9 +91,19 @@ namespace COMET.Web.Common.Components.BookEditor
         private bool showName;
 
         /// <summary>
+        /// The name of the ShowName property on the configuration file
+        /// </summary>
+        private const string showNameConfigurationProperty = "ShowName";
+
+        /// <summary>
         /// Sets if the component should show the shorname field
         /// </summary>
         private bool showShortName;
+
+        /// <summary>
+        /// The name of the ShowShortName property on the configuration file
+        /// </summary>
+        private const string showShortNameConfigurationProperty = "ShowShortName";
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -115,12 +125,12 @@ namespace COMET.Web.Common.Components.BookEditor
                 var jsonContent = await this.HttpClient.GetStreamAsync(path);
                 var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
 
-                if (configurations.TryGetValue("ShowName", out var showNameValue))
+                if (configurations.TryGetValue(showNameConfigurationProperty, out var showNameValue))
                 {
                     this.showName = showNameValue;
                 }
 
-                if (configurations.TryGetValue("ShowShortName", out var showShortNameValue))
+                if (configurations.TryGetValue(showShortNameConfigurationProperty, out var showShortNameValue))
                 {
                     this.showShortName = showShortNameValue;
                 }
@@ -133,7 +143,6 @@ namespace COMET.Web.Common.Components.BookEditor
             catch (Exception e)
             {
                 this.Logger.LogError(e, "Error while getting the configuration file.");
-                return;
             }
         }
 
