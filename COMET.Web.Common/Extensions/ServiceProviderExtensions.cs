@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="Dashboard.razor.cs" company="RHEA System S.A.">
+//  <copyright file="BuilderExtension.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -23,29 +23,38 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components
+namespace COMET.Web.Common.Extensions
 {
-    using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.StringTableService;
 
-    using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
-    /// The <see cref="Dashboard" /> provide an overview on all registered <see cref="Application" />
+    /// Extension class for <see cref="IServiceProvider" />
     /// </summary>
-    public partial class Dashboard
+    public static class ServiceProviderExtensions
     {
         /// <summary>
-        /// The <see cref="IRegistrationService" />
+        /// Initialize the neccesary services of the webapp
         /// </summary>
-        [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
+        /// <param name="serviceProvider">the <see cref="IServiceProvider" /></param>
+        /// <returns>an asynchronous operation</returns>
+        public static async Task InitializeServices(this IServiceProvider serviceProvider)
+        {
+            var stringTableService = serviceProvider.GetRequiredService<IStringTableService>();
+            
+            if (stringTableService != null)
+            {
+                await stringTableService.InitializeService();
+            }
 
-        /// <summary>
-        /// The <see cref="IStringTableService"/>
-        /// </summary>
-        [Inject]
-        public IStringTableService ConfigurationService { get; set; }
+            var configurationService = serviceProvider.GetRequiredService<IConfigurationService>();
+
+            if (configurationService != null)
+            {
+                await configurationService.InitializeService();
+            }
+        }
     }
 }

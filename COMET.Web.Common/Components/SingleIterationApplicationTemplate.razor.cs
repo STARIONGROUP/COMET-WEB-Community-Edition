@@ -33,7 +33,7 @@ namespace COMET.Web.Common.Components
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
-    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
@@ -78,10 +78,10 @@ namespace COMET.Web.Common.Components
         public NavigationManager NavigationManager { get; set; }
 
         /// <summary>
-        /// The <see cref="IServerConnectionService" />
+        /// The <see cref="IConfigurationService" />
         /// </summary>
         [Inject]
-        public IServerConnectionService ServerConnectionService { get; set; }
+        public IConfigurationService ServerConnectionService { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

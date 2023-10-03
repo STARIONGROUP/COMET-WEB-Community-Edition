@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿/*
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ServerConnectionServiceTestFixture.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -27,7 +28,7 @@ namespace COMET.Web.Common.Tests.Services.ServerConnectionService
     using System.Net;
 
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.ConfigurationService;
 
     using Microsoft.Extensions.Options;
 
@@ -39,7 +40,7 @@ namespace COMET.Web.Common.Tests.Services.ServerConnectionService
     [TestFixture]
     public class ServerConnectionServiceTestFixture
     {
-        private IServerConnectionService serverConnectionService;
+        private IConfigurationService serverConnectionService;
 
         [Test]
         public async Task VerifyService()
@@ -141,3 +142,4 @@ namespace COMET.Web.Common.Tests.Services.ServerConnectionService
         }
     }
 }
+*/

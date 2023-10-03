@@ -28,28 +28,34 @@
         Value="@(this.Value.First())"
         Scale="@(this.Scale)"/>
 }
-else if (this.ParameterType is ArrayParameterType arrayParameterType)
-{
-    <ArrayParameter
-        ArrayParameterType="arrayParameterType"
-        Values="@(this.Value)"/>
-}
 else
-{
-    var compoundParameterType = (CompoundParameterType)this.ParameterType;
-    <div class="p-0 compound">
-        @foreach (var component in compoundParameterType.Component.ToList())
+    switch (this.ParameterType)
+    {
+        case ArrayParameterType arrayParameterType:
+            <ArrayParameter
+                ArrayParameterType="@arrayParameterType"
+                Values="@this.Value"/>
+            break;
+        case CompoundParameterType compoundParameterType:
         {
-            var indexStart = 0;
-            for (var componentIndex = 0; componentIndex < compoundParameterType.Component.IndexOf(component); componentIndex++)
-            {
-                indexStart += compoundParameterType.Component.ElementAt(componentIndex).ParameterType.NumberOfValues;
-            }
+            <div class="p-0 compound">
+                @foreach (var component in compoundParameterType.Component.ToList())
+                {
+                    var indexStart = 0;
+                    for (var componentIndex = 0; componentIndex < compoundParameterType.Component.IndexOf(component); componentIndex++)
+                    {
+                        indexStart += compoundParameterType.Component.ElementAt(componentIndex).ParameterType.NumberOfValues;
+                    }
 
-            <CompoundParameterComponent
-                IndexStartInParameterTypeComponent="indexStart"
-                Values="@(this.Value)"
-                Component="component"/>
+                    <CompoundParameterComponent
+                        IndexStartInParameterTypeComponent="@indexStart"
+                        Values="@this.Value"
+                        Component="@component"/>
+                }
+            </div>
+            break;
         }
-    </div>
-}
+        case SampledFunctionParameterType sfpt:
+            <div>Component under development</div>
+            break;
+    }

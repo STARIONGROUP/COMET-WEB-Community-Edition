@@ -35,12 +35,11 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Services.ServerConnectionService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-
     using COMETwebapp.Pages.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
@@ -116,14 +115,14 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton<IServerConnectionService, ServerConnectionService>();
+            this.context.Services.AddSingleton(new Mock<IConfigurationService>().Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
 
-            var configurationService = new Mock<IConfigurationService>();
-            configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
-            this.context.Services.AddSingleton(configurationService.Object);
+            var stringTableService = new Mock<IStringTableService>();
+            stringTableService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
+            this.context.Services.AddSingleton(stringTableService.Object);
         }
 
         [TearDown]

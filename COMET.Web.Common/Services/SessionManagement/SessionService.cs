@@ -159,8 +159,15 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </returns>
         public IEnumerable<EngineeringModelSetup> GetParticipantModels()
         {
-            return this.GetSiteDirectory().Model
-                .Where(m => m.Participant.Any(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)));
+            if (this.IsSessionOpen)
+            {
+                return this.GetSiteDirectory().Model
+                    .Where(m => m.Participant.Any(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)));
+            }
+            else
+            {
+                return Enumerable.Empty<EngineeringModelSetup>();
+            }
         }
 
         /// <summary>

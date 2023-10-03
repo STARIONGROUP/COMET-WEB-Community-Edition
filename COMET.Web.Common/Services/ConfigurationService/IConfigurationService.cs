@@ -25,37 +25,20 @@
 
 namespace COMET.Web.Common.Services.ConfigurationService
 {
-    using COMET.Web.Common.Enumerations;
-
     /// <summary>
-    /// Service that holds the text data from the configuration file
+    /// Service that holds the configuration for the application
     /// </summary>
     public interface IConfigurationService
     {
+        /// <summary>
+        /// The Server Address to use
+        /// </summary>
+        string ServerAddress { get; }
+
         /// <summary>
         /// Initializes the <see cref="IConfigurationService"/>
         /// </summary>
         /// <returns>an asynchronous operation</returns>
         Task InitializeService();
-
-        /// <summary>
-        /// Gets the text asociated to a key
-        /// </summary>
-        /// <param name="key">the key</param>
-        /// <returns>the text asociated to the key</returns>
-        string GetText(string key);
-
-        /// <summary>
-        /// Gets the text asociated to a key
-        /// </summary>
-        /// <param name="configurationKind">the <see cref="TextConfigurationKind"/> key</param>
-        /// <returns>the text asociated to the key</returns>
-        string GetText(TextConfigurationKind configurationKind);
-
-        /// <summary>
-        /// Gets the configurations of the <see cref="ConfigurationService"/>
-        /// </summary>
-        /// <returns>a dictionary with the configurations</returns>
-        Dictionary<string, string> GetConfigurations();
     }
 }

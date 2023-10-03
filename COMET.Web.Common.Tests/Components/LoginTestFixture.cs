@@ -30,7 +30,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.ServerConnectionService;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -50,13 +50,13 @@ namespace COMET.Web.Common.Tests.Components
         private ILoginViewModel viewModel;
         private TestContext context;
         private Mock<IAuthenticationService> authenticationService;
-        private Mock<IServerConnectionService> serverConnectionService;
+        private Mock<IConfigurationService> serverConnectionService;
 
         [SetUp]
         public void Setup()
         {
             this.authenticationService = new Mock<IAuthenticationService>();
-            this.serverConnectionService = new Mock<IServerConnectionService>();
+            this.serverConnectionService = new Mock<IConfigurationService>();
             this.serverConnectionService.Setup(x => x.ServerAddress).Returns("http://localhost.com");
             this.context = new TestContext();
             this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnectionService.Object);

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IServerConnectionService.cs" company="RHEA System S.A.">
+//  <copyright file="IStringTableService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,22 +23,33 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Services.ServerConnectionService
+namespace COMET.Web.Common.Services.StringTableService
 {
+    using COMET.Web.Common.Enumerations;
+
     /// <summary>
     /// Service that holds the text data from the configuration file
     /// </summary>
-    public interface IServerConnectionService
+    public interface IStringTableService
     {
         /// <summary>
-        /// The Server Address to use
-        /// </summary>
-        string ServerAddress { get; }
-
-        /// <summary>
-        /// Initializes the <see cref="IServerConnectionService"/>
+        /// Initializes the <see cref="IStringTableService"/>
         /// </summary>
         /// <returns>an asynchronous operation</returns>
         Task InitializeService();
+
+        /// <summary>
+        /// Gets the text asociated to a key
+        /// </summary>
+        /// <param name="key">the key</param>
+        /// <returns>the text asociated to the key</returns>
+        string GetText(string key);
+
+        /// <summary>
+        /// Gets the text asociated to a key
+        /// </summary>
+        /// <param name="configurationKind">the <see cref="TextConfigurationKind"/> key</param>
+        /// <returns>the text asociated to the key</returns>
+        string GetText(TextConfigurationKind configurationKind);
     }
 }

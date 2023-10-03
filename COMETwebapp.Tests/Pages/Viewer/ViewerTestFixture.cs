@@ -25,40 +25,39 @@
 namespace COMETwebapp.Tests.Pages.Viewer
 {
     using Bunit;
-    
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    
+
     using CDP4Dal;
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Services.ServerConnectionService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-
     using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
-    
+
     using DevExpress.Blazor;
-    
+
     using DynamicData;
-    
+
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
-    
+
     using Moq;
-    
+
     using NUnit.Framework;
-    
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -121,12 +120,12 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
-            this.context.Services.AddSingleton<IServerConnectionService, ServerConnectionService>();
+            this.context.Services.AddSingleton(new Mock<IConfigurationService>().Object);
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
 
-            var configurationService = new Mock<IConfigurationService>();
+            var configurationService = new Mock<IStringTableService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
             this.context.Services.AddSingleton(configurationService.Object);
         }

@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="Dashboard.razor.cs" company="RHEA System S.A.">
+//  <copyright file="BaseConfigurationService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -23,29 +23,27 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components
+namespace COMET.Web.Common.Services.ConfigurationService
 {
-    using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.RegistrationService;
-    using COMET.Web.Common.Services.StringTableService;
-
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    /// The <see cref="Dashboard" /> provide an overview on all registered <see cref="Application" />
+    /// Base Service that holds the configuration for the application
     /// </summary>
-    public partial class Dashboard
+    public abstract class BaseConfigurationService: IConfigurationService
     {
         /// <summary>
-        /// The <see cref="IRegistrationService" />
+        /// Value to assert that the service has been initialized
         /// </summary>
-        [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
+        protected bool IsInitialized { get; set; }
 
         /// <summary>
-        /// The <see cref="IStringTableService"/>
+        /// The Server Address to use
         /// </summary>
-        [Inject]
-        public IStringTableService ConfigurationService { get; set; }
+        public string ServerAddress { get; protected set; }
+
+        /// <summary>
+        /// Initializes the <see cref="IConfigurationService"/>
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        public abstract Task InitializeService();
     }
 }
