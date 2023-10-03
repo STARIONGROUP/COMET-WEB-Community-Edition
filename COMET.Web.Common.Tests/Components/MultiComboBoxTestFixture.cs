@@ -33,8 +33,6 @@ namespace COMET.Web.Common.Tests.Components
 
     using DevExpress.Blazor;
 
-    using Microsoft.AspNetCore.Authorization.Infrastructure;
-
     using TestContext = Bunit.TestContext;
 
     using NUnit.Framework;
@@ -64,6 +62,15 @@ namespace COMET.Web.Common.Tests.Components
                 parameter.Add(p => p.ShowCheckBoxes, true);
                 parameter.Add(p => p.MaxNumberOfChips, 2);
                 parameter.Add(p => p.Enabled, true);
+
+                parameter.Add(p => p.EditorTextTemplate, builder =>
+                {
+                    builder.OpenElement(0, "span");
+                    builder.AddContent(1, ""); 
+                    builder.CloseElement();
+                });
+
+                parameter.Add(p => p.RowTemplate, value => value.Name);
             });
         }
 
@@ -76,13 +83,13 @@ namespace COMET.Web.Common.Tests.Components
                 Assert.IsNotEmpty(this.component.Instance.Data);
                 Assert.IsNotEmpty(this.component.Instance.Values);
                 Assert.IsTrue(this.component.Instance.ShowCheckBoxes);
+                Assert.IsNotNull(this.component.Instance.EditorTextTemplate);
             });
-
+            
             this.component.Render();
 
             var comboBox = this.component.FindComponent<DxComboBox<Category, Category>>();
-
-            Assert.Multiple(() => { Assert.IsNotNull(comboBox); });
+            Assert.IsNotNull(comboBox);
         }
     }
 }
