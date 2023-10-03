@@ -22,69 +22,67 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Components;
-
-using Bunit;
-
-using CDP4Common.DTO;
-
-using COMET.Web.Common.Components;
-using COMET.Web.Common.Test.Helpers;
-
-using DevExpress.Blazor;
-
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-
-using TestContext = Bunit.TestContext;
-
-using NUnit.Framework;
-
-[TestFixture]
-public class MultiComboBoxTestFixture
+namespace COMET.Web.Common.Tests.Components
 {
-    private TestContext context;
-    private IRenderedComponent<MultiComboBox<Category>> component;
-    private List<Category> availableCategories;
-    
-    [SetUp]
-    public void SetUp()
+    using Bunit;
+
+    using CDP4Common.DTO;
+
+    using COMET.Web.Common.Components;
+    using COMET.Web.Common.Test.Helpers;
+
+    using DevExpress.Blazor;
+
+    using Microsoft.AspNetCore.Authorization.Infrastructure;
+
+    using TestContext = Bunit.TestContext;
+
+    using NUnit.Framework;
+
+    [TestFixture]
+    public class MultiComboBoxTestFixture
     {
-        this.context = new TestContext();
-        this.context.ConfigureDevExpressBlazor();
-        
-        this.availableCategories = new List<Category>
-        {
-            new() { Name = "Category" }
-        };
+        private TestContext context;
+        private IRenderedComponent<MultiComboBox<Category>> component;
+        private List<Category> availableCategories;
 
-        this.component = this.context.RenderComponent<MultiComboBox<Category>>(parameter =>
+        [SetUp]
+        public void SetUp()
         {
-            parameter.Add(p => p.Data, this.availableCategories);
-            parameter.Add(p => p.Values, this.availableCategories);
-            parameter.Add(p => p.ShowCheckBoxes, true);
-            parameter.Add(p => p.MaxNumberOfChips, 2);
-            parameter.Add(p => p.Enabled, true);
-        });
-    }
+            this.context = new TestContext();
+            this.context.ConfigureDevExpressBlazor();
 
-    [Test]
-    public void VerifyComponent()
-    {
-        Assert.Multiple(() =>
+            this.availableCategories = new List<Category>
+            {
+                new() { Name = "Category" }
+            };
+
+            this.component = this.context.RenderComponent<MultiComboBox<Category>>(parameter =>
+            {
+                parameter.Add(p => p.Data, this.availableCategories);
+                parameter.Add(p => p.Values, this.availableCategories);
+                parameter.Add(p => p.ShowCheckBoxes, true);
+                parameter.Add(p => p.MaxNumberOfChips, 2);
+                parameter.Add(p => p.Enabled, true);
+            });
+        }
+
+        [Test]
+        public void VerifyComponent()
         {
-            Assert.IsTrue(this.component.Instance.Enabled);
-            Assert.IsNotEmpty(this.component.Instance.Data);
-            Assert.IsNotEmpty(this.component.Instance.Values);
-            Assert.IsTrue(this.component.Instance.ShowCheckBoxes);
-        });
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(this.component.Instance.Enabled);
+                Assert.IsNotEmpty(this.component.Instance.Data);
+                Assert.IsNotEmpty(this.component.Instance.Values);
+                Assert.IsTrue(this.component.Instance.ShowCheckBoxes);
+            });
 
-        this.component.Render();
-        
-        var comboBox = this.component.FindComponent<DxComboBox<Category,Category>>();
+            this.component.Render();
 
-        Assert.Multiple(() =>
-        {
-            Assert.IsNotNull(comboBox);
-        });
+            var comboBox = this.component.FindComponent<DxComboBox<Category, Category>>();
+
+            Assert.Multiple(() => { Assert.IsNotNull(comboBox); });
+        }
     }
 }
