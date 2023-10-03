@@ -121,9 +121,7 @@ namespace COMET.Web.Common.Components.BookEditor
 
             try
             {
-                var path = ContentPathBuilder.BuildPath(jsonFile);
-                var jsonContent = await this.HttpClient.GetStreamAsync(path);
-                var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
+                var configurations = await this.GetBookInputConfigurationAsync(jsonFile);
 
                 if (configurations.TryGetValue(showNameConfigurationProperty, out var showNameValue))
                 {
@@ -144,6 +142,19 @@ namespace COMET.Web.Common.Components.BookEditor
             {
                 this.Logger.LogError(e, "Error while getting the configuration file.");
             }
+        }
+
+        /// <summary>
+        /// Acquires the BookInput configurations
+        /// </summary>
+        /// <param name="fileName">The file name that contains the configurations</param>
+        /// <returns>A KeyValuePair collection with each available configuration</returns>
+        private async Task<Dictionary<string, bool>> GetBookInputConfigurationAsync(string fileName)
+        {
+            var path = ContentPathBuilder.BuildPath(fileName);
+            var jsonContent = await this.HttpClient.GetStreamAsync(path);
+            var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
+            return configurations;
         }
 
         /// <summary>
