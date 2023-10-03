@@ -90,6 +90,13 @@ namespace COMET.Web.Common.Tests.Components
 
             var comboBox = this.component.FindComponent<DxComboBox<Category, Category>>();
             Assert.IsNotNull(comboBox);
+
+            var comboBoxItemTemplate = (MultiComboBox<Category>) comboBox.Instance.ItemTemplate.Target;
+            
+            Assert.IsTrue(comboBoxItemTemplate.Enabled);
+            Assert.IsNotEmpty(comboBoxItemTemplate.Data);
+            Assert.IsNotEmpty(comboBoxItemTemplate.Values);
+            Assert.IsNotNull(comboBoxItemTemplate.RowTemplate);
         }
     }
 }
