@@ -65,23 +65,27 @@
     <!-- <ValidationSummary/> -->
     
     <ul class="validation-errors">
-        @foreach (var kvp in this.FieldsFocusedStatus)
+        @foreach (var fieldFocusedStatus in this.FieldsFocusedStatus)
         {
-            if (kvp.Value) continue;
+            if (fieldFocusedStatus.Value)
+            {
+                continue;
+            }
 
-                @if (kvp.Key == "SourceAddress" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.SourceAddress).FirstOrDefault()))
-                {
-                    <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.SourceAddress" /></li>
-                }
-                @if (kvp.Key == "UserName" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.UserName).FirstOrDefault()))
-                {
-                    <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.UserName" /></li>
-                }
-                @if (kvp.Key == "Password" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.Password).FirstOrDefault()))
-                {
-                    <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.Password" /></li>
-                }
-            
+            @if (fieldFocusedStatus.Key == "SourceAddress" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.SourceAddress).FirstOrDefault()))
+            {
+                <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.SourceAddress" /></li>
+            }
+
+            @if (fieldFocusedStatus.Key == "UserName" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.UserName).FirstOrDefault()))
+            {
+                <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.UserName" /></li>
+            }
+
+            @if (fieldFocusedStatus.Key == "Password" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.Password).FirstOrDefault()))
+            {
+                <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.Password" /></li>
+            }
         }
     </ul>
 

@@ -70,7 +70,6 @@ namespace COMET.Web.Common.Components
         /// </summary>
         public Dictionary<string, bool> FieldsFocusedStatus;
 
-
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
