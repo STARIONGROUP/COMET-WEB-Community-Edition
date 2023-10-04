@@ -66,9 +66,18 @@ namespace COMET.Web.Common.Components
         public bool LoginEnabled { get; set; } = true;
 
         /// <summary>
+        /// The dictionary of focus status from the fields, used by blazor component
+        /// </summary>
+        private Dictionary<string, bool> fieldsFocusedStatus;
+
+        /// <summary>
         /// The dictionary of focus status from the fields
         /// </summary>
-        public Dictionary<string, bool> FieldsFocusedStatus;
+        public Dictionary<string, bool> FieldsFocusedStatus
+        {
+            get => this.fieldsFocusedStatus;
+            private set => this.fieldsFocusedStatus = value;
+        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -78,7 +87,7 @@ namespace COMET.Web.Common.Components
         {
             base.OnInitialized();
 
-            this.FieldsFocusedStatus = new Dictionary<string, bool>()
+            this.fieldsFocusedStatus = new Dictionary<string, bool>()
             {
                 { "SourceAddress", false },
                 { "UserName", false },
@@ -140,7 +149,7 @@ namespace COMET.Web.Common.Components
         /// <param name="fieldName"></param>
         private void HandleFieldFocus(string fieldName)
         {
-            this.FieldsFocusedStatus[fieldName] = true; // Set the field as focused
+            this.fieldsFocusedStatus[fieldName] = true; // Set the field as focused
         }
 
         /// <summary>
@@ -149,7 +158,7 @@ namespace COMET.Web.Common.Components
         /// <param name="fieldName"></param>
         private void HandleFieldBlur(string fieldName)
         {
-            this.FieldsFocusedStatus[fieldName] = false; // Set the field as not focused when it loses focus
+            this.fieldsFocusedStatus[fieldName] = false; // Set the field as not focused when it loses focus
         }
     }
 }
