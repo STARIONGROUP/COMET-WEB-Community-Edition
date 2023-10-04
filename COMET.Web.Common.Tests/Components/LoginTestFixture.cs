@@ -79,6 +79,13 @@ namespace COMET.Web.Common.Tests.Components
             this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>()))
                 .ReturnsAsync(AuthenticationStateKind.ServerFail);
 
+            Assert.That(renderer.Instance.FieldsFocusedStatus, Is.EqualTo(new Dictionary<string, bool>()
+            {
+                { "SourceAddress", false },
+                { "UserName", false },
+                { "Password", false }
+            }));
+
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
