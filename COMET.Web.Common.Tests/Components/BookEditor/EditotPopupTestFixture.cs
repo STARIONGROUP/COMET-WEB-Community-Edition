@@ -31,6 +31,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.BookEditor;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
@@ -40,6 +41,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -58,12 +60,15 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private List<Category> availableCategories;
         private bool onCancelCalled;
         private bool onAcceptCalled;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void Setup()
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.book = new Book();
 

@@ -24,17 +24,27 @@
 
 namespace COMET.Web.Common.Tests.Components.BookEditor
 {
+    using System.Text.Json;
+
     using Bunit;
 
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.BookEditor;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using DevExpress.Blazor;
-    
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
+
     using NUnit.Framework;
+
+    using RichardSzalay.MockHttp;
 
     using TestContext = Bunit.TestContext;
 
@@ -46,12 +56,26 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private Book book;
         private List<DomainOfExpertise> activeDomains;
         private List<Category> availableCategories;
-
+        private Mock<ISessionService> sessionService;
+        private MockHttpMessageHandler mockHttpMessageHandler;
+        private HttpClient httpClient;
+        private const string BookName = "Book Example";
+        private const string BookShortName = "bookExample";
+        
         [SetUp]
         public void Setup()
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
+            this.mockHttpMessageHandler = new MockHttpMessageHandler();
+            this.httpClient = this.mockHttpMessageHandler.ToHttpClient();
+            this.httpClient.BaseAddress = new Uri("http://localhost/");
+            this.context.Services.AddScoped(_ => this.httpClient);
+            var httpResponse = new HttpResponseMessage();
+            httpResponse.Content = new StringContent("{\n  \"ShowName\": true,\n  \"ShowShortName\" : true \n}\n");
+            this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/BookInputConfiguration.json").Respond(_ => httpResponse);
 
             this.activeDomains = new List<DomainOfExpertise>
             {
@@ -65,8 +89,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
             this.book = new Book()
             {
-                Name = "Book Example",
-                ShortName = "bookExample",
+                Name = BookName,
+                ShortName = BookShortName,
                 Owner = this.activeDomains.First(),
                 Category = this.availableCategories
             };
@@ -82,33 +106,27 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         [Test]
         public void VerifyComponent()
         {
-            var basicTab = this.component.Find(".basic-tab");
-            basicTab.Click();
-
             var textboxes = this.component.FindComponents<DxTextBox>();
             var combobox = this.component.FindComponent<DxComboBox<DomainOfExpertise, DomainOfExpertise>>();
+            var categoryComboBox = this.component.FindComponent<MultiComboBox<Category>>();
 
-            var nameTextbox = textboxes[0];
-            var shortNameTextbox = textboxes[1];
-
+            var nameTextbox = textboxes.FirstOrDefault(x => x.Instance.Text == BookName);
+            var shortNameTextbox = textboxes.FirstOrDefault(x => x.Instance.Text == BookShortName);
+            
             Assert.Multiple(() =>
             {
-                Assert.That(nameTextbox.Instance.Text, Is.EqualTo("Book Example"));
-                Assert.That(shortNameTextbox.Instance.Text, Is.EqualTo("bookExample"));
+                Assert.IsNotNull(nameTextbox);
+                Assert.IsNotNull(shortNameTextbox);
                 Assert.That(combobox.Instance.Value, Is.EqualTo(this.activeDomains.First()));
+                Assert.That(categoryComboBox.Instance, Is.Not.Null);
             });
-
-            var categoryTab = this.component.Find(".category-tab");
-            categoryTab.Click();
-
+            
             this.component.Render();
-
-            var listbox = this.component.FindComponent<DxListBox<Category, Category>>();
-
+            
             Assert.Multiple(() =>
             {
-                Assert.That(listbox.Instance.Data, Is.EquivalentTo(this.availableCategories));
-                Assert.That(listbox.Instance.Values, Is.EquivalentTo(this.availableCategories));
+                Assert.That(categoryComboBox.Instance.Data, Is.EquivalentTo(this.availableCategories));
+                Assert.That(categoryComboBox.Instance.Values, Is.EquivalentTo(this.availableCategories));
             });
         }
     }
