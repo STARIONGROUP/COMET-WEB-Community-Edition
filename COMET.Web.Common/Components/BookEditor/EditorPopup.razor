@@ -24,7 +24,7 @@
 
 <DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.ViewModel.HeaderText" Closed="@(()=> this.ViewModel.OnCancelClick.InvokeAsync())">
     <Content>
-        <InputEditor Item="@this.ViewModel.Item" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories" />
+        <InputEditor Item="@this.ViewModel.Item" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories" ShowName="@this.showName" ShowShortName="@this.showShortName" />
         <div style="display:flex; flex-direction:column">
             @foreach (var validationError in this.ViewModel.ValidationErrors.Items)
             {

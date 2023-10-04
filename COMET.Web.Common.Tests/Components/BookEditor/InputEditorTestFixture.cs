@@ -100,6 +100,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
                 parameters.Add(p => p.Item, this.book);
                 parameters.Add(p => p.ActiveDomains, this.activeDomains);
                 parameters.Add(p => p.AvailableCategories, this.availableCategories);
+                parameters.Add(p => p.ShowName, true);
+                parameters.Add(p => p.ShowShortName, true);
             });
         }
 
@@ -119,6 +121,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
                 Assert.IsNotNull(shortNameTextbox);
                 Assert.That(combobox.Instance.Value, Is.EqualTo(this.activeDomains.First()));
                 Assert.That(categoryComboBox.Instance, Is.Not.Null);
+                Assert.IsTrue(this.component.Instance.ShowName);
+                Assert.IsTrue(this.component.Instance.ShowShortName);
             });
             
             this.component.Render();
