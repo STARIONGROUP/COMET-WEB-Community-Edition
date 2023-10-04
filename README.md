@@ -21,7 +21,6 @@ A demo version of the web application is available at https://comet-web.cdp4.org
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
 
-
 ## Build Status
 
 GitHub actions are used to build and test the software
@@ -32,13 +31,6 @@ Master | ![Build Status](https://github.com/RHEAGROUP/COMET-WEB-Community-Editio
 Development | ![Build Status](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=development)
 
 > The CDP4-COMET-WEB SPA is automaticaly deployed to https://comet-web.cdp4.org using a [Github action](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
-
-# CodeCov - Code Coverage
-
-Branch      | Build Status
------------ | ------------
-Master      | [![codecov](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition/branch/master/graph/badge.svg?token=2kfZrIOUtI)](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition)
-Development | [![codecov](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition/branch/development/graph/badge.svg?token=2kfZrIOUtI)](https://codecov.io/gh/RHEAGROUP/COMET-WEB-Community-Edition)
 
 ## Concurrent Design
 
@@ -54,7 +46,6 @@ project                                                                         
 ------------------------------------------------------------------------------- | ------------
 [CDP4.WEB.Common](https://www.nuget.org/packages/CDP4.WEB.Common)             | [![NuGet Badge](https://buildstats.info/nuget/CDP4.WEB.Common)](https://buildstats.info/nuget/CDP4.WEB.Common)
 [CDP4.WEB.Common.Test](https://www.nuget.org/packages/CDP4.WEB.Common.Test)   | [![NuGet Badge](https://buildstats.info/nuget/CDP4.WEB.Common.Test)](https://buildstats.info/nuget/CDP4.WEB.Common.Test)
-
 
 ## Web Application Build and Deploy using Docker - Manual
 
