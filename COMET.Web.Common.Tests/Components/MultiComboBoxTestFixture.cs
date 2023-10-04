@@ -54,7 +54,11 @@ namespace COMET.Web.Common.Tests.Components
 
             this.availableCategories = new List<Category>
             {
-                new() { Name = "Category" }
+                new() { Name = "Category" },
+                new() { Name = "Category2" },
+                new() { Name = "Category3" },
+                new() { Name = "Category4" },
+                new() { Name = "Category5" },
             };
 
             this.component = this.context.RenderComponent<MultiComboBox<Category>>(parameter =>
@@ -77,7 +81,7 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
-        public void VerifyComponent()
+        public async Task VerifyComponent()
         {
             Assert.Multiple(() =>
             {
@@ -94,9 +98,12 @@ namespace COMET.Web.Common.Tests.Components
             Assert.IsNotNull(comboBox);
             Assert.IsNull(comboBox.Instance.Value);
             
-            var dropdownItems = this.component.FindAll(".chip");
+            await this.component.InvokeAsync(() => comboBox.Instance.ShowDropDown());
+            
+            var dropdownItems = this.component.FindAll(".item-template-checkbox");
             Assert.IsNotNull(dropdownItems);
             Assert.IsNotEmpty(dropdownItems);
+            Assert.AreEqual(this.availableCategories.Count, dropdownItems.Count);
         }
     }
 }

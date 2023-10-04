@@ -34,7 +34,7 @@
             @if (this.ShowCheckBoxes)
             {
                 var isSelected = this.Values.Contains(context);
-                <DxCheckBox Checked="@isSelected"></DxCheckBox>
+                <DxCheckBox CssClass="item-template-checkbox" Checked="@isSelected"></DxCheckBox>
             }
             
             @if (this.RowTemplate != null)
