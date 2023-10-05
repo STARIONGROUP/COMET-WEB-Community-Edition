@@ -28,7 +28,7 @@
 @typeparam TItem
 
 <div class="input-content">
-    @if (this.Item is INamedThing namedThing && this.showName)
+    @if (this.Item is INamedThing namedThing && this.ShowName)
     {
         <div class="w-100 editor-row">
             <p>Name:</p>
@@ -36,7 +36,7 @@
         </div>
     }
 
-    @if (this.Item is IShortNamedThing shortNamedThing && this.showShortName)
+    @if (this.Item is IShortNamedThing shortNamedThing && this.ShowShortName)
     {
         <div class="w-100 editor-row">
             <p>ShortName:</p>

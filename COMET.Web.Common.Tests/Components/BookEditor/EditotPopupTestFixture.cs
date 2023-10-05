@@ -36,7 +36,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DevExpress.Blazor;
-    using DevExpress.Blazor.Popup.Internal;
 
     using DynamicData;
 
@@ -46,6 +45,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using Moq;
 
     using NUnit.Framework;
+
+    using RichardSzalay.MockHttp;
 
     using TestContext = Bunit.TestContext;
 
@@ -61,6 +62,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private bool onCancelCalled;
         private bool onAcceptCalled;
         private Mock<ISessionService> sessionService;
+        private MockHttpMessageHandler mockHttpMessageHandler;
+        private HttpClient httpClient;
 
         [SetUp]
         public void Setup()
@@ -69,7 +72,13 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(this.sessionService.Object);
-
+            this.mockHttpMessageHandler = new MockHttpMessageHandler();
+            this.httpClient = this.mockHttpMessageHandler.ToHttpClient();
+            this.httpClient.BaseAddress = new Uri("http://localhost/");
+            this.context.Services.AddScoped(_ => this.httpClient);
+            var httpResponse = new HttpResponseMessage();
+            httpResponse.Content = new StringContent("{\n  \"ShowName\": true,\n  \"ShowShortName\" : true \n}\n");
+            this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/BookInputConfiguration.json").Respond(_ => httpResponse);
             this.book = new Book();
 
             this.activeDomains = new List<DomainOfExpertise>

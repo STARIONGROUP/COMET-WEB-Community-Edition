@@ -27,6 +27,7 @@ namespace COMET.Web.Common.Components.BookEditor
 {
     using System.Text.Json;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -48,18 +49,6 @@ namespace COMET.Web.Common.Components.BookEditor
         /// </summary>
         [Inject]
         public ILogger<InputEditor<TItem>> Logger { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="HttpClient"/>
-        /// </summary>
-        [Inject]
-        public HttpClient HttpClient { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IOptions{GlobalOptions}"/>
-        /// </summary>
-        [Inject]
-        public IOptions<GlobalOptions> Options { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISessionService"/>
@@ -84,27 +73,19 @@ namespace COMET.Web.Common.Components.BookEditor
         /// </summary>
         [Parameter]
         public IEnumerable<Category> AvailableCategories { get; set; }
-
+        
         /// <summary>
-        /// Sets if the component should show the name field
+        /// Gets or sets if the InputEditor should display the Name field
         /// </summary>
-        private bool showName;
-
+        [Parameter]
+        public bool ShowName { get; set; }
+        
         /// <summary>
-        /// The name of the ShowName property on the configuration file
+        /// Gets or sets if the InputEditor should display the ShortName field
         /// </summary>
-        private const string showNameConfigurationProperty = "ShowName";
-
-        /// <summary>
-        /// Sets if the component should show the shorname field
-        /// </summary>
-        private bool showShortName;
-
-        /// <summary>
-        /// The name of the ShowShortName property on the configuration file
-        /// </summary>
-        private const string showShortNameConfigurationProperty = "ShowShortName";
-
+        [Parameter]
+        public bool ShowShortName { get; set; }
+        
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
@@ -117,44 +98,28 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             await base.OnInitializedAsync();
 
-            var jsonFile = this.Options.Value.JsonConfigurationFile ?? "BookInputConfiguration.json";
-
             try
             {
-                var configurations = await this.GetBookInputConfigurationAsync(jsonFile);
-
-                if (configurations.TryGetValue(showNameConfigurationProperty, out var showNameValue))
-                {
-                    this.showName = showNameValue;
-                }
-
-                if (configurations.TryGetValue(showShortNameConfigurationProperty, out var showShortNameValue))
-                {
-                    this.showShortName = showShortNameValue;
-                }
-
                 if (this.Item is IOwnedThing ownedThing)
                 {
                     ownedThing.Owner = this.SessionService.Session.ActivePerson.DefaultDomain;
                 }
-            }
-            catch (Exception e)
-            {
-                this.Logger.LogError(e, "Error while getting the configuration file.");
-            }
-        }
 
-        /// <summary>
-        /// Acquires the BookInput configurations
-        /// </summary>
-        /// <param name="fileName">The file name that contains the configurations</param>
-        /// <returns>A KeyValuePair collection with each available configuration</returns>
-        private async Task<Dictionary<string, bool>> GetBookInputConfigurationAsync(string fileName)
-        {
-            var path = ContentPathBuilder.BuildPath(fileName);
-            var jsonContent = await this.HttpClient.GetStreamAsync(path);
-            var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
-            return configurations;
+                //Name and ShortName are required fields on the SDK - setting these to - as default, as per request on the ticket.
+                if (this.Item is INamedThing namedThing && !this.ShowName)
+                {
+                    namedThing.Name = "-";
+                }
+
+                if (this.Item is IShortNamedThing shortNamedThing && !this.ShowShortName)
+                {
+                    shortNamedThing.ShortName = "-";
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Exception while setting default values of the InputEditor.");
+            }
         }
 
         /// <summary>

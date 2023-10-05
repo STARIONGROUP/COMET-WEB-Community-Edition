@@ -25,12 +25,18 @@
 
 namespace COMET.Web.Common.Components.BookEditor
 {
+    using System.Text.Json;
+
     using CDP4Common.ReportingData;
-    
+
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     using INamedThing = CDP4Common.CommonData.INamedThing;
     using IOwnedThing = CDP4Common.EngineeringModelData.IOwnedThing;
@@ -48,6 +54,41 @@ namespace COMET.Web.Common.Components.BookEditor
         public IEditorPopupViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="HttpClient"/>
+        /// </summary>
+        [Inject]
+        public HttpClient HttpClient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IOptions{TOptions}"/>
+        /// </summary>
+        [Inject]
+        public IOptions<GlobalOptions> Options { get; set; }
+        
+        [Inject]
+        public ILogger<EditorPopup> Logger { get; set; }
+        
+        /// <summary>
+        /// Sets if the component should show the name field
+        /// </summary>
+        private bool showName;
+
+        /// <summary>
+        /// The name of the ShowName property on the configuration file
+        /// </summary>
+        private const string showNameConfigurationProperty = "ShowName";
+
+        /// <summary>
+        /// Sets if the component should show the shorname field
+        /// </summary>
+        private bool showShortName;
+
+        /// <summary>
+        /// The name of the ShowShortName property on the configuration file
+        /// </summary>
+        private const string showShortNameConfigurationProperty = "ShowShortName";
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         ///
@@ -59,6 +100,40 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             await base.OnInitializedAsync();
             this.Disposables.Add(this.ViewModel.ValidationErrors.Connect().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            
+            var jsonFile = this.Options.Value.JsonConfigurationFile ?? "BookInputConfiguration.json";
+
+            try
+            {
+                var configurations = await this.GetBookInputConfigurationAsync(jsonFile);
+
+                if (configurations.TryGetValue(showNameConfigurationProperty, out var showNameValue))
+                {
+                    this.showName = showNameValue;
+                }
+
+                if (configurations.TryGetValue(showShortNameConfigurationProperty, out var showShortNameValue))
+                {
+                    this.showShortName = showShortNameValue;
+                }
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, "Error while getting the configuration file.");
+            }
+        }
+        
+        /// <summary>
+        /// Acquires the BookInput configurations
+        /// </summary>
+        /// <param name="fileName">The file name that contains the configurations</param>
+        /// <returns>A KeyValuePair collection with each available configuration</returns>
+        private async Task<Dictionary<string, bool>> GetBookInputConfigurationAsync(string fileName)
+        {
+            var path = ContentPathBuilder.BuildPath(fileName);
+            var jsonContent = await this.HttpClient.GetStreamAsync(path);
+            var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
+            return configurations;
         }
 
         /// <summary>
@@ -68,13 +143,13 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             var validationErrors = new List<string>();
 
-            if (this.ViewModel.Item is INamedThing namedThing)
+            if (this.ViewModel.Item is INamedThing namedThing && this.showName)
             {
                 var error = ValidationService.ValidateProperty(nameof(namedThing.Name), namedThing.Name);
                 validationErrors.Add(error);
             }
 
-            if (this.ViewModel.Item is IShortNamedThing shortNamedThing)
+            if (this.ViewModel.Item is IShortNamedThing shortNamedThing && this.showShortName)
             {
                 var error = ValidationService.ValidateProperty(nameof(shortNamedThing.ShortName), shortNamedThing.ShortName);
                 validationErrors.Add(error);
