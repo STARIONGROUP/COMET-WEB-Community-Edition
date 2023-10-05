@@ -24,8 +24,6 @@
 
 namespace COMET.Web.Common.Tests.Components.BookEditor
 {
-    using System.Text.Json;
-
     using Bunit;
 
     using CDP4Common.ReportingData;
@@ -43,8 +41,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using Moq;
 
     using NUnit.Framework;
-
-    using RichardSzalay.MockHttp;
 
     using TestContext = Bunit.TestContext;
 

@@ -1,4 +1,4 @@
 {
-  "ShowName": false,
-  "ShowShortName" : false 
+  "ShowName": true,
+  "ShowShortName" : true 
 }

@@ -36,7 +36,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DevExpress.Blazor;
-    using DevExpress.Blazor.Popup.Internal;
 
     using DynamicData;
 

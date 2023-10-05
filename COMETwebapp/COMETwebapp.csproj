@@ -30,10 +30,4 @@
       <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Update="wwwroot\BookInputConfiguration.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
-
 </Project>
