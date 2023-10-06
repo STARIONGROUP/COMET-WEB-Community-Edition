@@ -25,8 +25,6 @@
 
 namespace COMET.Web.Common.Tests.Components
 {
-    using AngleSharp.Dom;
-
     using Bunit;
 
     using COMET.Web.Common.Components;
@@ -40,7 +38,7 @@ namespace COMET.Web.Common.Tests.Components
     using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.JSInterop;
+
     using Moq;
 
     using NUnit.Framework;
@@ -85,22 +83,27 @@ namespace COMET.Web.Common.Tests.Components
                 { "Password", false }
             }));
 
-            Assert.IsFalse(renderer.Instance.FieldsFocusedStatus["UserName"]);
-            const string fieldToFocusOn = "Username";
-
+            const string fieldToFocusOn = "UserName";
+            Assert.That(renderer.Instance.FieldsFocusedStatus[fieldToFocusOn], Is.False);
             renderer.Instance.HandleFieldFocus(fieldToFocusOn);
-       
-            foreach (var fieldStatus in renderer.Instance.FieldsFocusedStatus)
+            
+            Assert.Multiple(()=>
             {
-                Assert.That(fieldStatus.Value, fieldStatus.Key == fieldToFocusOn ? Is.True : Is.False);
-            }
+                foreach (var fieldStatus in renderer.Instance.FieldsFocusedStatus)
+                {
+                    Assert.That(fieldStatus.Value, fieldStatus.Key == fieldToFocusOn ? Is.True : Is.False);
+                }
+            });
 
             renderer.Instance.HandleFieldBlur(fieldToFocusOn);
 
-            foreach (var fieldStatus in renderer.Instance.FieldsFocusedStatus)
+            Assert.Multiple(() =>
             {
-                Assert.That(fieldStatus.Value, Is.False);
-            }
+                foreach (var fieldStatus in renderer.Instance.FieldsFocusedStatus)
+                {
+                    Assert.That(fieldStatus.Value, Is.False);
+                }
+            });
         }
 
         [Test]

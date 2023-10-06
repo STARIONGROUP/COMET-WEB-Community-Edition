@@ -66,18 +66,9 @@ namespace COMET.Web.Common.Components
         public bool LoginEnabled { get; set; } = true;
 
         /// <summary>
-        /// The dictionary of focus status from the fields, used by blazor component
+        /// The dictionary of focus status from the form fields
         /// </summary>
-        private Dictionary<string, bool> fieldsFocusedStatus;
-
-        /// <summary>
-        /// The dictionary of focus status from the fields
-        /// </summary>
-        public Dictionary<string, bool> FieldsFocusedStatus
-        {
-            get => this.fieldsFocusedStatus;
-            private set => this.fieldsFocusedStatus = value;
-        }
+        public Dictionary<string, bool> FieldsFocusedStatus { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -87,7 +78,7 @@ namespace COMET.Web.Common.Components
         {
             base.OnInitialized();
 
-            this.fieldsFocusedStatus = new Dictionary<string, bool>()
+            this.FieldsFocusedStatus = new Dictionary<string, bool>()
             {
                 { "SourceAddress", false },
                 { "UserName", false },
@@ -149,7 +140,7 @@ namespace COMET.Web.Common.Components
         /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus"/></param>
         public void HandleFieldFocus(string fieldName)
         {
-            this.fieldsFocusedStatus[fieldName] = true; // Set the field as focused
+            this.FieldsFocusedStatus[fieldName] = true; // Set the field as focused
         }
 
         /// <summary>
@@ -158,7 +149,7 @@ namespace COMET.Web.Common.Components
         /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus"/></param>
         public void HandleFieldBlur(string fieldName)
         {
-            this.fieldsFocusedStatus[fieldName] = false; // Set the field as not focused when it loses focus
+            this.FieldsFocusedStatus[fieldName] = false; // Set the field as not focused when it loses focus
         }
     }
 }
