@@ -146,8 +146,8 @@ namespace COMET.Web.Common.Components
         /// <summary>
         /// Handles the focus event of the given fieldName
         /// </summary>
-        /// <param name="fieldName"></param>
-        private void HandleFieldFocus(string fieldName)
+        /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus"/></param>
+        public void HandleFieldFocus(string fieldName)
         {
             this.fieldsFocusedStatus[fieldName] = true; // Set the field as focused
         }
@@ -155,8 +155,8 @@ namespace COMET.Web.Common.Components
         /// <summary>
         /// Handles the blur event of the given fieldName
         /// </summary>
-        /// <param name="fieldName"></param>
-        private void HandleFieldBlur(string fieldName)
+        /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus"/></param>
+        public void HandleFieldBlur(string fieldName)
         {
             this.fieldsFocusedStatus[fieldName] = false; // Set the field as not focused when it loses focus
         }
