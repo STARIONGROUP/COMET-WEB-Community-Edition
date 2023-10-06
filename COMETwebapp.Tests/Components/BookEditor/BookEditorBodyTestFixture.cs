@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -61,6 +62,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
         private Section selectedSection;
         private Page selectedPage;
         private Note selectedNote;
+        private Mock<IConfigurationService> configurationService;
 
         [SetUp]
         public void Setup()
@@ -68,6 +70,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
+            this.configurationService = new Mock<IConfigurationService>();
 
             this.selectedBook = new Book();
             this.selectedSection = new Section();
@@ -106,6 +109,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.Services.AddSingleton(domDataService.Object);
 
             this.component = this.context.RenderComponent<BookEditorBody>();

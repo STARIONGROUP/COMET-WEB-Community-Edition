@@ -25,6 +25,9 @@
 
 namespace COMET.Web.Common.Services.ConfigurationService
 {
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Model.DTO;
+
     /// <summary>
     /// Service that holds the configuration for the application
     /// </summary>
@@ -34,6 +37,11 @@ namespace COMET.Web.Common.Services.ConfigurationService
         /// The Server Address to use
         /// </summary>
         string ServerAddress { get; }
+        
+        /// <summary>
+        /// The configuration values for the Book feature
+        /// </summary>
+        BookInputConfiguration BookInputConfiguration { get; }
 
         /// <summary>
         /// Initializes the <see cref="IConfigurationService"/>

@@ -25,6 +25,10 @@
 
 namespace COMET.Web.Common.Server.Services.ConfigurationService
 {
+    using System.Text.Json;
+
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
 
     using Microsoft.Extensions.Configuration;
@@ -38,6 +42,11 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
         /// Gets the ServerAddress section key
         /// </summary>
         public const string AddressSection = "ServerAddress";
+
+        /// <summary>
+        /// Gets the BookInputConfiguration section key
+        /// </summary>
+        public const string BookInputConfigurationSection = "BookInputConfiguration";
 
         /// <summary>
         /// Gets the <see cref="IConfiguration" />
@@ -71,6 +80,13 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
                 this.ServerAddress = addressSection.Value;
             }
 
+            var bookInputConfigurationSection = this.configuration.GetSection(BookInputConfigurationSection);
+
+            if (bookInputConfigurationSection.Exists())
+            {
+                this.BookInputConfiguration = JsonSerializer.Deserialize<BookInputConfiguration>(bookInputConfigurationSection.Value);
+            }
+            
             this.IsInitialized = true;
             return Task.CompletedTask;
         }
