@@ -76,19 +76,9 @@ namespace COMET.Web.Common.Components.BookEditor
         private bool showName;
 
         /// <summary>
-        /// The name of the ShowName property on the configuration file
-        /// </summary>
-        private const string showNameConfigurationProperty = "ShowName";
-
-        /// <summary>
         /// Sets if the component should show the shorname field
         /// </summary>
         private bool showShortName;
-
-        /// <summary>
-        /// The name of the ShowShortName property on the configuration file
-        /// </summary>
-        private const string showShortNameConfigurationProperty = "ShowShortName";
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
