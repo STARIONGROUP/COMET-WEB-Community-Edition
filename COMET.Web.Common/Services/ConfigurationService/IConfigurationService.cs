@@ -26,7 +26,6 @@
 namespace COMET.Web.Common.Services.ConfigurationService
 {
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Model.DTO;
 
     /// <summary>
     /// Service that holds the configuration for the application
@@ -36,7 +35,7 @@ namespace COMET.Web.Common.Services.ConfigurationService
         /// <summary>
         /// Holds all of the configuration related values
         /// </summary>
-        public ServerConfiguration ServerConfiguration { get; set; }
+        ServerConfiguration ServerConfiguration { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IConfigurationService"/>

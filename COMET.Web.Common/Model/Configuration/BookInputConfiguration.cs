@@ -24,8 +24,9 @@
 
 namespace COMET.Web.Common.Model.Configuration;
 
-using System.Text.Json.Serialization;
-
+/// <summary>
+/// Holds all of the configuration related to the Book feature
+/// </summary>
 public class BookInputConfiguration
 {
     /// <summary>

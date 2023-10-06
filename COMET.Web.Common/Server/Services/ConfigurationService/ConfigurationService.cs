@@ -39,14 +39,9 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
     public class ConfigurationService : BaseConfigurationService
     {
         /// <summary>
-        /// Gets the ServerAddress section key
+        /// Gets the ServerConfiguration section key
         /// </summary>
-        public const string AddressSection = "ServerAddress";
-
-        /// <summary>
-        /// Gets the BookInputConfiguration section key
-        /// </summary>
-        public const string BookInputConfigurationSection = "BookInputConfiguration";
+        public const string ServerConfigurationSection = "ServerConfiguration";
 
         /// <summary>
         /// Gets the <see cref="IConfiguration" />
@@ -74,19 +69,12 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
             }
 
             this.ServerConfiguration = new ServerConfiguration();
+
+            var serverConfigurationSection = this.configuration.GetSection(ServerConfigurationSection);
             
-            var addressSection = this.configuration.GetSection(AddressSection);
-
-            if (addressSection.Exists())
+            if (serverConfigurationSection.Exists())
             {
-                this.ServerConfiguration.ServerAddress = addressSection.Value;
-            }
-
-            var bookInputConfigurationSection = this.configuration.GetSection(BookInputConfigurationSection);
-
-            if (bookInputConfigurationSection.Exists())
-            {
-                this.ServerConfiguration.BookInputConfiguration = JsonSerializer.Deserialize<BookInputConfiguration>(bookInputConfigurationSection.Value);
+                this.ServerConfiguration = JsonSerializer.Deserialize<ServerConfiguration>(serverConfigurationSection.Value);
             }
             
             this.IsInitialized = true;
