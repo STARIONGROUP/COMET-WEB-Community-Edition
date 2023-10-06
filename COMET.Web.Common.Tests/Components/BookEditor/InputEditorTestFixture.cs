@@ -24,8 +24,6 @@
 
 namespace COMET.Web.Common.Tests.Components.BookEditor
 {
-    using System.Text.Json;
-
     using Bunit;
 
     using CDP4Common.ReportingData;
@@ -44,8 +42,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using NUnit.Framework;
 
-    using RichardSzalay.MockHttp;
-
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -57,8 +53,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private List<DomainOfExpertise> activeDomains;
         private List<Category> availableCategories;
         private Mock<ISessionService> sessionService;
-        private MockHttpMessageHandler mockHttpMessageHandler;
-        private HttpClient httpClient;
         private const string BookName = "Book Example";
         private const string BookShortName = "bookExample";
         
@@ -69,13 +63,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.mockHttpMessageHandler = new MockHttpMessageHandler();
-            this.httpClient = this.mockHttpMessageHandler.ToHttpClient();
-            this.httpClient.BaseAddress = new Uri("http://localhost/");
-            this.context.Services.AddScoped(_ => this.httpClient);
-            var httpResponse = new HttpResponseMessage();
-            httpResponse.Content = new StringContent("{\n  \"ShowName\": true,\n  \"ShowShortName\" : true \n}\n");
-            this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/BookInputConfiguration.json").Respond(_ => httpResponse);
 
             this.activeDomains = new List<DomainOfExpertise>
             {
@@ -100,6 +87,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
                 parameters.Add(p => p.Item, this.book);
                 parameters.Add(p => p.ActiveDomains, this.activeDomains);
                 parameters.Add(p => p.AvailableCategories, this.availableCategories);
+                parameters.Add(p => p.ShowName, true);
+                parameters.Add(p => p.ShowShortName, true);
             });
         }
 
@@ -119,6 +108,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
                 Assert.IsNotNull(shortNameTextbox);
                 Assert.That(combobox.Instance.Value, Is.EqualTo(this.activeDomains.First()));
                 Assert.That(categoryComboBox.Instance, Is.Not.Null);
+                Assert.IsTrue(this.component.Instance.ShowName);
+                Assert.IsTrue(this.component.Instance.ShowShortName);
             });
             
             this.component.Render();

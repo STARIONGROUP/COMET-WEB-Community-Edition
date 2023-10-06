@@ -29,6 +29,7 @@ namespace COMET.Web.Common.Tests.Components
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -58,7 +59,7 @@ namespace COMET.Web.Common.Tests.Components
         {
             this.authenticationService = new Mock<IAuthenticationService>();
             this.serverConnectionService = new Mock<IConfigurationService>();
-            this.serverConnectionService.Setup(x => x.ServerAddress).Returns("http://localhost.com");
+            this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration { ServerAddress = "http://localhost.com" });
             this.context = new TestContext();
             this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnectionService.Object);
             this.context.Services.AddSingleton(this.viewModel);

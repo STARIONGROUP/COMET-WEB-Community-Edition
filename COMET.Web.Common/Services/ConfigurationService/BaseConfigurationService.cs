@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Services.ConfigurationService
 {
+    using COMET.Web.Common.Model.Configuration;
+
     /// <summary>
     /// Base Service that holds the configuration for the application
     /// </summary>
@@ -36,9 +38,9 @@ namespace COMET.Web.Common.Services.ConfigurationService
         protected bool IsInitialized { get; set; }
 
         /// <summary>
-        /// The Server Address to use
+        /// Holds all of the configuration related values
         /// </summary>
-        public string ServerAddress { get; protected set; }
+        public ServerConfiguration ServerConfiguration { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IConfigurationService"/>

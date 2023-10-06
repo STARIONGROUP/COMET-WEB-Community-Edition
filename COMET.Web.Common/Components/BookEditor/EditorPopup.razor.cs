@@ -25,12 +25,20 @@
 
 namespace COMET.Web.Common.Components.BookEditor
 {
+    using System.Text.Json;
+
     using CDP4Common.ReportingData;
-    
+
+    using COMET.Web.Common.Model;
+    using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services;
+    using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     using INamedThing = CDP4Common.CommonData.INamedThing;
     using IOwnedThing = CDP4Common.EngineeringModelData.IOwnedThing;
@@ -48,6 +56,31 @@ namespace COMET.Web.Common.Components.BookEditor
         public IEditorPopupViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="HttpClient"/>
+        /// </summary>
+        [Inject]
+        public IConfigurationService ConfigurationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IOptions{TOptions}"/>
+        /// </summary>
+        [Inject]
+        public IOptions<GlobalOptions> Options { get; set; }
+        
+        [Inject]
+        public ILogger<EditorPopup> Logger { get; set; }
+        
+        /// <summary>
+        /// Sets if the component should show the name field
+        /// </summary>
+        private bool showName;
+
+        /// <summary>
+        /// Sets if the component should show the shorname field
+        /// </summary>
+        private bool showShortName;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         ///
@@ -59,6 +92,11 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             await base.OnInitializedAsync();
             this.Disposables.Add(this.ViewModel.ValidationErrors.Connect().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            var configurations = this.ConfigurationService.ServerConfiguration.BookInputConfiguration;
+
+            //The fields will be shown by default
+            this.showName = configurations?.ShowName ?? true;
+            this.showShortName = configurations?.ShowShortName ?? true;
         }
 
         /// <summary>
@@ -68,13 +106,13 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             var validationErrors = new List<string>();
 
-            if (this.ViewModel.Item is INamedThing namedThing)
+            if (this.ViewModel.Item is INamedThing namedThing && this.showName)
             {
                 var error = ValidationService.ValidateProperty(nameof(namedThing.Name), namedThing.Name);
                 validationErrors.Add(error);
             }
 
-            if (this.ViewModel.Item is IShortNamedThing shortNamedThing)
+            if (this.ViewModel.Item is IShortNamedThing shortNamedThing && this.showShortName)
             {
                 var error = ValidationService.ValidateProperty(nameof(shortNamedThing.ShortName), shortNamedThing.ShortName);
                 validationErrors.Add(error);

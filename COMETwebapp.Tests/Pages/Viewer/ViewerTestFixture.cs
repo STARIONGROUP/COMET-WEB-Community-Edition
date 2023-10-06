@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -113,6 +114,9 @@ namespace COMETwebapp.Tests.Pages.Viewer
                     }
                 }
             };
+            
+            var mockConfigurationService = new Mock<IConfigurationService>();
+            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
@@ -120,7 +124,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IViewerBodyViewModel, ViewerBodyViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
-            this.context.Services.AddSingleton(new Mock<IConfigurationService>().Object);
+            this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();

@@ -36,6 +36,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -74,9 +75,11 @@ namespace COMET.Web.Common.Tests.Components
             sessionService.Setup(x => x.Session).Returns(session.Object);
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise(){Iid = Guid.NewGuid()});
             this.viewModel.Setup(x => x.SessionService).Returns(sessionService.Object);
+            var mockConfigurationService = new Mock<IConfigurationService>();
+            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
-            this.context.Services.AddSingleton(new Mock<IConfigurationService>().Object);
+            this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
             this.context.Services.AddSingleton(sessionService.Object);
             this.context.ConfigureDevExpressBlazor();

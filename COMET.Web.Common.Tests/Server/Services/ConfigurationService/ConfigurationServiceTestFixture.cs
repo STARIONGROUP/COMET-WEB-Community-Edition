@@ -25,6 +25,7 @@
 
 namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
 {
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Server.Services.ConfigurationService;
 
     using Microsoft.Extensions.Configuration;
@@ -32,7 +33,7 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
     using Moq;
 
     using NUnit.Framework;
-
+    
     [TestFixture]
     public class ConfigurationServiceTestFixture
     {
@@ -40,34 +41,50 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
         public async Task VerifyInitializeServiceWithEmptyConfiguration()
         {
             var configuration = new Mock<IConfiguration>();
-            configuration.Setup(x => x.GetSection(ConfigurationService.AddressSection)).Returns(new Mock<IConfigurationSection>().Object);
+            configuration.Setup(x => x.GetSection(ConfigurationService.ServerConfigurationSection)).Returns(new Mock<IConfigurationSection>().Object);
             var service = new ConfigurationService(configuration.Object);
             await service.InitializeService();
 
             Assert.Multiple(() =>
             {
-                configuration.Verify(x => x.GetSection(ConfigurationService.AddressSection), Times.Once);
-                Assert.That(service.ServerAddress, Is.Null);
+                configuration.Verify(x => x.GetSection(ConfigurationService.ServerConfigurationSection), Times.Once);
+                Assert.That(service.ServerConfiguration, Is.Null);
             });
             
             await service.InitializeService();
-            configuration.Verify(x => x.GetSection(ConfigurationService.AddressSection), Times.Once);
+
+            Assert.Multiple(() =>
+            {
+                configuration.Verify(x => x.GetSection(ConfigurationService.ServerConfigurationSection), Times.Once);
+            });
         }
 
         [Test]
         public async Task VerifyInitializeServiceWithConfiguration()
         {
-            var configurationSection = new Mock<IConfigurationSection>();
-            configurationSection.Setup(x => x.Value).Returns("https://a.b.c");
-            var configuration = new Mock<IConfiguration>();
-            configuration.Setup(x => x.GetSection(ConfigurationService.AddressSection)).Returns(configurationSection.Object);
-            var service = new ConfigurationService(configuration.Object);
+            var serverConfiguration = new ServerConfiguration
+            {
+                ServerAddress = "https://a.b.c",
+                BookInputConfiguration = new BookInputConfiguration()
+                {
+                    ShowName = true,
+                    ShowShortName = true
+                }
+            };
+            
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("Data/server_configuration_tests.json")
+                .Build();
+            
+            var service = new ConfigurationService(config);
             await service.InitializeService();
-
+            
             Assert.Multiple(() =>
             {
-                configuration.Verify(x => x.GetSection(ConfigurationService.AddressSection), Times.Once);
-                Assert.That(service.ServerAddress, Is.EqualTo(configurationSection.Object.Value));
+                Assert.That(service.ServerConfiguration.ServerAddress, Is.EqualTo(serverConfiguration.ServerAddress));
+                Assert.That(service.ServerConfiguration.BookInputConfiguration, Is.Not.Null);
+                Assert.That(service.ServerConfiguration.BookInputConfiguration.ShowName, Is.EqualTo(serverConfiguration.BookInputConfiguration.ShowName));
+                Assert.That(service.ServerConfiguration.BookInputConfiguration.ShowShortName, Is.EqualTo(serverConfiguration.BookInputConfiguration.ShowShortName));
             });
         }
     }

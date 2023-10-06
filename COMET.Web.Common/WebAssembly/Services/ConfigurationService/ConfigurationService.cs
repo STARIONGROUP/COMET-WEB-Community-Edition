@@ -29,6 +29,7 @@ namespace COMET.Web.Common.WebAssembly.Services.ConfigurationService
     using System.Text.Json;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Utilities;
 
@@ -87,8 +88,8 @@ namespace COMET.Web.Common.WebAssembly.Services.ConfigurationService
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStreamAsync();
-                    var configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
-                    this.ServerAddress = configurations["ServerAddress"];
+                    var serverConfiguration = JsonSerializer.Deserialize<ServerConfiguration>(jsonContent);
+                    this.ServerConfiguration = serverConfiguration;
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)
                 {
