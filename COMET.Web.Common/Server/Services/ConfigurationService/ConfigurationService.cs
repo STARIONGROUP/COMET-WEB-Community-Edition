@@ -25,10 +25,7 @@
 
 namespace COMET.Web.Common.Server.Services.ConfigurationService
 {
-    using System.Text.Json;
-
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
 
     using Microsoft.Extensions.Configuration;
@@ -68,15 +65,7 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
                 return Task.CompletedTask;
             }
 
-            this.ServerConfiguration = new ServerConfiguration();
-
-            var serverConfigurationSection = this.configuration.GetSection(ServerConfigurationSection);
-            
-            if (serverConfigurationSection.Exists())
-            {
-                this.ServerConfiguration = JsonSerializer.Deserialize<ServerConfiguration>(serverConfigurationSection.Value);
-            }
-            
+            this.ServerConfiguration = this.configuration.GetSection(ServerConfigurationSection).Get<ServerConfiguration>();
             this.IsInitialized = true;
             return Task.CompletedTask;
         }

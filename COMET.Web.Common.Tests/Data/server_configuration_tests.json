@@ -1,0 +1,9 @@
+{
+  "ServerConfiguration": {
+    "ServerAddress": "https://a.b.c",
+    "BookInputConfiguration": {
+      "ShowName": true,
+      "ShowShortName": true
+    }
+  }
+}
