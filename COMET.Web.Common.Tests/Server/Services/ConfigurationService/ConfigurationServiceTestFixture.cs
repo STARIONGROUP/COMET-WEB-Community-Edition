@@ -25,8 +25,6 @@
 
 namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
 {
-    using System.Text.Json;
-
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Server.Services.ConfigurationService;
 
@@ -50,8 +48,7 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
             Assert.Multiple(() =>
             {
                 configuration.Verify(x => x.GetSection(ConfigurationService.ServerConfigurationSection), Times.Once);
-                Assert.That(service.ServerConfiguration.ServerAddress, Is.Null);
-                Assert.That(service.ServerConfiguration.BookInputConfiguration, Is.Null);
+                Assert.That(service.ServerConfiguration, Is.Null);
             });
             
             await service.InitializeService();
@@ -65,8 +62,6 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
         [Test]
         public async Task VerifyInitializeServiceWithConfiguration()
         {
-            var serverAddressMockConfigurationSection = new Mock<IConfigurationSection>();
-
             var serverConfiguration = new ServerConfiguration
             {
                 ServerAddress = "https://a.b.c",
@@ -76,13 +71,12 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
                     ShowShortName = true
                 }
             };
-
-            var serverConfigurationJson = JsonSerializer.Serialize(serverConfiguration);
-            serverAddressMockConfigurationSection.Setup(x => x.Value).Returns(serverConfigurationJson);
             
-            var configuration = new Mock<IConfiguration>();
-            configuration.Setup(x => x.GetSection(ConfigurationService.ServerConfigurationSection)).Returns(serverAddressMockConfigurationSection.Object);
-            var service = new ConfigurationService(configuration.Object);
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("Data/server_configuration_tests.json")
+                .Build();
+            
+            var service = new ConfigurationService(config);
             await service.InitializeService();
             
             Assert.Multiple(() =>
