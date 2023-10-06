@@ -38,6 +38,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -68,6 +69,7 @@ namespace COMET.Web.Common.Tests.Components
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
             this.serverConnectionService = new Mock<IConfigurationService>();
+            this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
 

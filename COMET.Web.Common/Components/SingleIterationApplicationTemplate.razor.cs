@@ -150,7 +150,7 @@ namespace COMET.Web.Common.Components
                 currentOptions[QueryKeys.IterationKey] = this.ViewModel.SelectedIteration.Iid.ToShortGuid();
                 currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedIteration.IterationSetup.Container.Iid.ToShortGuid();
 
-                if (string.IsNullOrEmpty(this.ServerConnectionService.ServerAddress))
+                if (string.IsNullOrEmpty(this.ServerConnectionService.ServerConfiguration.ServerAddress))
                 {
                     currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
 

@@ -30,7 +30,9 @@ namespace COMET.Web.Common.Components.BookEditor
     using CDP4Common.ReportingData;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
@@ -57,7 +59,7 @@ namespace COMET.Web.Common.Components.BookEditor
         /// Gets or sets the <see cref="HttpClient"/>
         /// </summary>
         [Inject]
-        public HttpClient HttpClient { get; set; }
+        public IConfigurationService ConfigurationService { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IOptions{TOptions}"/>
@@ -74,19 +76,9 @@ namespace COMET.Web.Common.Components.BookEditor
         private bool showName;
 
         /// <summary>
-        /// The name of the ShowName property on the configuration file
-        /// </summary>
-        private const string showNameConfigurationProperty = "ShowName";
-
-        /// <summary>
         /// Sets if the component should show the shorname field
         /// </summary>
         private bool showShortName;
-
-        /// <summary>
-        /// The name of the ShowShortName property on the configuration file
-        /// </summary>
-        private const string showShortNameConfigurationProperty = "ShowShortName";
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -100,40 +92,11 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             await base.OnInitializedAsync();
             this.Disposables.Add(this.ViewModel.ValidationErrors.Connect().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            
-            var jsonFile = this.Options.Value.JsonConfigurationFile ?? "BookInputConfiguration.json";
+            var configurations = this.ConfigurationService.ServerConfiguration.BookInputConfiguration;
 
-            try
-            {
-                var configurations = await this.GetBookInputConfigurationAsync(jsonFile);
-
-                if (configurations.TryGetValue(showNameConfigurationProperty, out var showNameValue))
-                {
-                    this.showName = showNameValue;
-                }
-
-                if (configurations.TryGetValue(showShortNameConfigurationProperty, out var showShortNameValue))
-                {
-                    this.showShortName = showShortNameValue;
-                }
-            }
-            catch (Exception e)
-            {
-                this.Logger.LogError(e, "Error while getting the configuration file.");
-            }
-        }
-        
-        /// <summary>
-        /// Acquires the BookInput configurations
-        /// </summary>
-        /// <param name="fileName">The file name that contains the configurations</param>
-        /// <returns>A KeyValuePair collection with each available configuration</returns>
-        private async Task<Dictionary<string, bool>> GetBookInputConfigurationAsync(string fileName)
-        {
-            var path = ContentPathBuilder.BuildPath(fileName);
-            var jsonContent = await this.HttpClient.GetStreamAsync(path);
-            var configurations = JsonSerializer.Deserialize<Dictionary<string, bool>>(jsonContent);
-            return configurations;
+            //The fields will be shown by default
+            this.showName = configurations?.ShowName ?? true;
+            this.showShortName = configurations?.ShowShortName ?? true;
         }
 
         /// <summary>

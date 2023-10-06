@@ -25,15 +25,17 @@
 
 namespace COMET.Web.Common.Services.ConfigurationService
 {
+    using COMET.Web.Common.Model.Configuration;
+
     /// <summary>
     /// Service that holds the configuration for the application
     /// </summary>
     public interface IConfigurationService
     {
         /// <summary>
-        /// The Server Address to use
+        /// Holds all of the configuration related values
         /// </summary>
-        string ServerAddress { get; }
+        ServerConfiguration ServerConfiguration { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IConfigurationService"/>

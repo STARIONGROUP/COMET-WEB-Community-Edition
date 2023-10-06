@@ -1,3 +1,9 @@
 {
-  "ServerAddress": ""
+  "ServerConfiguration": {
+    "ServerAddress": "",
+    "BookInputConfiguration": {
+      "ShowName": true,
+      "ShowShortName": true
+    }
+  }
 }

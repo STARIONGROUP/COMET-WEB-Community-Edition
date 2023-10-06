@@ -25,6 +25,10 @@
 
 namespace COMET.Web.Common.Server.Services.ConfigurationService
 {
+    using System.Text.Json;
+
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
 
     using Microsoft.Extensions.Configuration;
@@ -35,9 +39,9 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
     public class ConfigurationService : BaseConfigurationService
     {
         /// <summary>
-        /// Gets the ServerAddress section key
+        /// Gets the ServerConfiguration section key
         /// </summary>
-        public const string AddressSection = "ServerAddress";
+        public const string ServerConfigurationSection = "ServerConfiguration";
 
         /// <summary>
         /// Gets the <see cref="IConfiguration" />
@@ -64,13 +68,15 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
                 return Task.CompletedTask;
             }
 
-            var addressSection = this.configuration.GetSection(AddressSection);
+            this.ServerConfiguration = new ServerConfiguration();
 
-            if (addressSection.Exists())
+            var serverConfigurationSection = this.configuration.GetSection(ServerConfigurationSection);
+            
+            if (serverConfigurationSection.Exists())
             {
-                this.ServerAddress = addressSection.Value;
+                this.ServerConfiguration = JsonSerializer.Deserialize<ServerConfiguration>(serverConfigurationSection.Value);
             }
-
+            
             this.IsInitialized = true;
             return Task.CompletedTask;
         }

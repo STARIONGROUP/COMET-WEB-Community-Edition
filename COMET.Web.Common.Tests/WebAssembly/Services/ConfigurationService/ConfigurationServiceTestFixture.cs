@@ -96,7 +96,7 @@ namespace COMET.Web.Common.Tests.WebAssembly.Services.ConfigurationService
             httpResponse.StatusCode = HttpStatusCode.OK;
             httpResponse.Content = new StringContent("{\"ServerAddress\":\"http://localhost\"}");
             await this.configurationService.InitializeService();
-            Assert.That(this.configurationService.ServerAddress, Is.EqualTo("http://localhost"));
+            Assert.That(this.configurationService.ServerConfiguration.ServerAddress, Is.EqualTo("http://localhost"));
         }
     }
 }

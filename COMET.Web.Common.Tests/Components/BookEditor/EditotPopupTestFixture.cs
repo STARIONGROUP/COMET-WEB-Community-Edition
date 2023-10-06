@@ -31,6 +31,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.BookEditor;
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
@@ -62,8 +64,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private bool onCancelCalled;
         private bool onAcceptCalled;
         private Mock<ISessionService> sessionService;
-        private MockHttpMessageHandler mockHttpMessageHandler;
-        private HttpClient httpClient;
+        private Mock<IConfigurationService> configurationService;
 
         [SetUp]
         public void Setup()
@@ -71,14 +72,10 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
+            this.configurationService = new Mock<IConfigurationService>();
+            this.configurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.mockHttpMessageHandler = new MockHttpMessageHandler();
-            this.httpClient = this.mockHttpMessageHandler.ToHttpClient();
-            this.httpClient.BaseAddress = new Uri("http://localhost/");
-            this.context.Services.AddScoped(_ => this.httpClient);
-            var httpResponse = new HttpResponseMessage();
-            httpResponse.Content = new StringContent("{\n  \"ShowName\": true,\n  \"ShowShortName\" : true \n}\n");
-            this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/BookInputConfiguration.json").Respond(_ => httpResponse);
+            this.context.Services.AddSingleton(this.configurationService.Object);
             this.book = new Book();
 
             this.activeDomains = new List<DomainOfExpertise>

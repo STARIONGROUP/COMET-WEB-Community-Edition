@@ -83,9 +83,9 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.AuthenticationState = AuthenticationStateKind.Authenticating;
 
-            if(!string.IsNullOrEmpty(this.serverConnectionService.ServerAddress))
+            if(!string.IsNullOrEmpty(this.serverConnectionService.ServerConfiguration.ServerAddress))
             {
-                this.AuthenticationDto.SourceAddress = this.serverConnectionService.ServerAddress;
+                this.AuthenticationDto.SourceAddress = this.serverConnectionService.ServerConfiguration.ServerAddress;
             }
 
             this.AuthenticationState = await this.authenticationService.Login(this.AuthenticationDto);
