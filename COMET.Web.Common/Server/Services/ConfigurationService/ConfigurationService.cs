@@ -25,8 +25,6 @@
 
 namespace COMET.Web.Common.Server.Services.ConfigurationService
 {
-    using System.Text.Json;
-
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
 
