@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -71,6 +72,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
+            this.configurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
             this.selectedBook = new Book();
             this.selectedSection = new Section();

@@ -25,7 +25,7 @@
 <EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
 	<DataAnnotationsValidator/>
 	<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-		@if (string.IsNullOrEmpty(this.ViewModel.serverConnectionService.ServerAddress))
+		@if (string.IsNullOrEmpty(this.ViewModel.serverConnectionService.ServerConfiguration.ServerAddress))
 		{
 			<DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
 				<Template>

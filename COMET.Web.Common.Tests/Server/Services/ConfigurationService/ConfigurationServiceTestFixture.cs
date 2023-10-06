@@ -25,16 +25,12 @@
 
 namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
 {
-    using System.Text;
-
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Server.Services.ConfigurationService;
 
     using Microsoft.Extensions.Configuration;
 
     using Moq;
-
-    using Newtonsoft.Json;
 
     using NUnit.Framework;
 
@@ -56,13 +52,17 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
             {
                 configuration.Verify(x => x.GetSection(ConfigurationService.AddressSection), Times.Once);
                 configuration.Verify(x => x.GetSection(ConfigurationService.BookInputConfigurationSection), Times.Once);
-                Assert.That(service.ServerAddress, Is.Null);
-                Assert.That(service.BookInputConfiguration, Is.Null);
+                Assert.That(service.ServerConfiguration.ServerAddress, Is.Null);
+                Assert.That(service.ServerConfiguration.BookInputConfiguration, Is.Null);
             });
             
             await service.InitializeService();
-            configuration.Verify(x => x.GetSection(ConfigurationService.AddressSection), Times.Once);
-            configuration.Verify(x => x.GetSection(ConfigurationService.BookInputConfigurationSection), Times.Once);
+
+            Assert.Multiple(() =>
+            {
+                configuration.Verify(x => x.GetSection(ConfigurationService.AddressSection), Times.Once);
+                configuration.Verify(x => x.GetSection(ConfigurationService.BookInputConfigurationSection), Times.Once);
+            });
         }
 
         [Test]
@@ -84,10 +84,10 @@ namespace COMET.Web.Common.Tests.Server.Services.ConfigurationService
             
             Assert.Multiple(() =>
             {
-                Assert.That(service.ServerAddress, Is.EqualTo(serverAddressMockConfigurationSection.Object.Value));
-                Assert.IsNotNull(service.BookInputConfiguration);
-                Assert.That(service.BookInputConfiguration.ShowName, Is.EqualTo(bookInputConfiguration.ShowName));
-                Assert.That(service.BookInputConfiguration.ShowShortName, Is.EqualTo(bookInputConfiguration.ShowShortName));
+                Assert.That(service.ServerConfiguration.ServerAddress, Is.EqualTo(serverAddressMockConfigurationSection.Object.Value));
+                Assert.That(service.ServerConfiguration.BookInputConfiguration, Is.Not.Null);
+                Assert.That(service.ServerConfiguration.BookInputConfiguration.ShowName, Is.EqualTo(bookInputConfiguration.ShowName));
+                Assert.That(service.ServerConfiguration.BookInputConfiguration.ShowShortName, Is.EqualTo(bookInputConfiguration.ShowShortName));
             });
         }
     }

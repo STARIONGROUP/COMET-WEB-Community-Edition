@@ -31,12 +31,10 @@ public class BookInputConfiguration
     /// <summary>
     /// Verifies if the Name field will be displayed on the Book Input form
     /// </summary>
-    [JsonPropertyName("ShowName")]
     public bool ShowName { get; set; }
 
     /// <summary>
     /// Verifies if the ShortName field will be displayed on the Book Input form
     /// </summary>
-    [JsonPropertyName("ShowShortName")]
     public bool ShowShortName { get; set; }
 }

@@ -102,7 +102,7 @@ namespace COMET.Web.Common.Components.BookEditor
         {
             await base.OnInitializedAsync();
             this.Disposables.Add(this.ViewModel.ValidationErrors.Connect().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            var configurations = this.ConfigurationService.BookInputConfiguration;
+            var configurations = this.ConfigurationService.ServerConfiguration.BookInputConfiguration;
 
             //The fields will be shown by default
             this.showName = configurations?.ShowName ?? true;

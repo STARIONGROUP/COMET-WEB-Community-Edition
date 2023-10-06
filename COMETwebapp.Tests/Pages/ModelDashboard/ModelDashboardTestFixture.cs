@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -112,10 +113,13 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
                 }
             };
 
+            var mockConfigurationService = new Mock<IConfigurationService>();
+            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton(new Mock<IConfigurationService>().Object);
+            this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();

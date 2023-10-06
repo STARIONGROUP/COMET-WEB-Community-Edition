@@ -73,18 +73,20 @@ namespace COMET.Web.Common.Server.Services.ConfigurationService
                 return Task.CompletedTask;
             }
 
+            this.ServerConfiguration = new ServerConfiguration();
+            
             var addressSection = this.configuration.GetSection(AddressSection);
 
             if (addressSection.Exists())
             {
-                this.ServerAddress = addressSection.Value;
+                this.ServerConfiguration.ServerAddress = addressSection.Value;
             }
 
             var bookInputConfigurationSection = this.configuration.GetSection(BookInputConfigurationSection);
 
             if (bookInputConfigurationSection.Exists())
             {
-                this.BookInputConfiguration = JsonSerializer.Deserialize<BookInputConfiguration>(bookInputConfigurationSection.Value);
+                this.ServerConfiguration.BookInputConfiguration = JsonSerializer.Deserialize<BookInputConfiguration>(bookInputConfigurationSection.Value);
             }
             
             this.IsInitialized = true;

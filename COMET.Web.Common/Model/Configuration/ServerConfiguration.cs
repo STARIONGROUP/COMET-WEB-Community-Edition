@@ -24,13 +24,18 @@
 
 namespace COMET.Web.Common.Model.Configuration;
 
-using System.Text.Json.Serialization;
-
+/// <summary>
+/// This class holds all of the configuration related properties that are stored on the local configuration files.
+/// </summary>
 public class ServerConfiguration
 {
-    [JsonPropertyName("ServerAddress")]
+    /// <summary>
+    /// The Server Address to use
+    /// </summary>
     public string ServerAddress { get; set; }
 
-    [JsonPropertyName("BookInputConfiguration")]
+    /// <summary>
+    /// The configuration values for the Book feature
+    /// </summary>
     public BookInputConfiguration BookInputConfiguration { get; set; }
 }

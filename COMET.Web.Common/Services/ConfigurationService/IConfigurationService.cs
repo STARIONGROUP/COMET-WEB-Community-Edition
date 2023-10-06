@@ -34,14 +34,9 @@ namespace COMET.Web.Common.Services.ConfigurationService
     public interface IConfigurationService
     {
         /// <summary>
-        /// The Server Address to use
+        /// Holds all of the configuration related values
         /// </summary>
-        string ServerAddress { get; }
-        
-        /// <summary>
-        /// The configuration values for the Book feature
-        /// </summary>
-        BookInputConfiguration BookInputConfiguration { get; }
+        public ServerConfiguration ServerConfiguration { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IConfigurationService"/>
