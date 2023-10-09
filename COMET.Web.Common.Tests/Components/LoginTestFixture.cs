@@ -44,6 +44,7 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
+
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -73,7 +74,37 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
-        public async Task VerifyFocusingAndBluring()
+        public async Task VerifyErrorsShown()
+        {
+            var renderer = this.context.RenderComponent<Login>();
+            var errorsElement = renderer.Find(".validation-errors");
+            var numberOfRequiredFieldsInFirstLoginTry = renderer.Instance.FieldsFocusedStatus.Count - 1;
+
+            Assert.That(errorsElement.InnerHtml, Is.Empty);
+
+            await renderer.Find("button").ClickAsync(new MouseEventArgs());
+            Assert.That(errorsElement.ChildElementCount, Is.EqualTo(numberOfRequiredFieldsInFirstLoginTry));
+
+            // Username input field
+            await renderer.Find("input").FocusAsync(new FocusEventArgs());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.FieldsFocusedStatus["UserName"], Is.True);
+                Assert.That(errorsElement.ChildElementCount, Is.EqualTo(numberOfRequiredFieldsInFirstLoginTry - 1));
+            });
+
+            await renderer.Find("input").BlurAsync(new FocusEventArgs());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.FieldsFocusedStatus["UserName"], Is.False);
+                Assert.That(errorsElement.ChildElementCount, Is.EqualTo(numberOfRequiredFieldsInFirstLoginTry));
+            });
+        }
+
+        [Test]
+        public void VerifyFocusingAndBluring()
         {
             var renderer = this.context.RenderComponent<Login>();
 
