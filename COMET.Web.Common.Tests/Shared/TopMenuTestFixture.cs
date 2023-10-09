@@ -87,7 +87,12 @@ namespace COMET.Web.Common.Tests.Shared
             this.autoRefreshService = new Mock<IAutoRefreshService>();
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
-            this.registeredMenuEntries = new List<Type>();
+            this.registeredMenuEntries = new List<Type>()
+            {
+                typeof(ApplicationMenu),
+                typeof(ModelMenu),
+                typeof(SessionMenu)
+            };
             this.registeredApplications = new List<Application>();
             this.registrationService = new Mock<IRegistrationService>();
             this.registrationService.Setup(x => x.RegisteredAuthorizedMenuEntries).Returns(this.registeredMenuEntries);
