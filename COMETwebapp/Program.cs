@@ -50,6 +50,7 @@ namespace COMETwebapp
     using System.Reflection;
 
     using COMET.Web.Common;
+    using COMET.Web.Common.Shared.TopMenuEntry;
 
     using COMETwebapp.ViewModels.Components.BookEditor;
 
@@ -75,7 +76,7 @@ namespace COMETwebapp
             {
                 options.Applications = Applications.ExistingApplications;
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
-                options.AdditionalMenuEntries.AddRange(new List<Type>{typeof(ShowHideDeprecatedThings), typeof(AboutMenu)});
+                options.AdditionalMenuEntries.AddRange(new List<Type>{ typeof(ApplicationMenu), typeof(ModelMenu), typeof(SessionMenu), typeof(ShowHideDeprecatedThings), typeof(AboutMenu)});
             });
             
             builder.Services.AddScoped(_ => new HttpClient()

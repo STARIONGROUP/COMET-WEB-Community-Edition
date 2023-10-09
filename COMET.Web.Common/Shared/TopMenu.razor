@@ -39,10 +39,6 @@
             }
         </TitleTemplate>
         <Items>
-            <ApplicationMenu />
-            <ModelMenu />
-            <SessionMenu />
-            
             @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
             {
                 <DynamicComponent Type="@menuEntry"/>
