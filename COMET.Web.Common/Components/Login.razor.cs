@@ -29,6 +29,7 @@ namespace COMET.Web.Common.Components
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
 
     using ReactiveUI;
 
@@ -65,12 +66,24 @@ namespace COMET.Web.Common.Components
         public bool LoginEnabled { get; set; } = true;
 
         /// <summary>
+        /// The dictionary of focus status from the form fields
+        /// </summary>
+        public Dictionary<string, bool> FieldsFocusedStatus { get; private set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
+
+            this.FieldsFocusedStatus = new Dictionary<string, bool>()
+            {
+                { "SourceAddress", false },
+                { "UserName", false },
+                { "Password", false }
+            };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.AuthenticationState)
                 .Subscribe(_ => this.ComputeDisplayProperties()));
@@ -119,6 +132,24 @@ namespace COMET.Web.Common.Components
             this.LoginEnabled = false;
             await this.ViewModel.ExecuteLogin();
             this.LoginEnabled = true;
+        }
+
+        /// <summary>
+        /// Handles the focus event of the given fieldName
+        /// </summary>
+        /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus"/></param>
+        public void HandleFieldFocus(string fieldName)
+        {
+            this.FieldsFocusedStatus[fieldName] = true; // Set the field as focused
+        }
+
+        /// <summary>
+        /// Handles the blur event of the given fieldName
+        /// </summary>
+        /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus"/></param>
+        public void HandleFieldBlur(string fieldName)
+        {
+            this.FieldsFocusedStatus[fieldName] = false; // Set the field as not focused when it loses focus
         }
     }
 }

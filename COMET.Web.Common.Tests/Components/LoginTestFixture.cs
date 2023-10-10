@@ -37,6 +37,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -72,6 +73,71 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
+        public async Task VerifyErrorsShown()
+        {
+            var renderer = this.context.RenderComponent<Login>();
+            var errorsElement = renderer.Find(".validation-errors");
+            var numberOfRequiredFieldsInFirstLoginTry = renderer.Instance.FieldsFocusedStatus.Count - 1;
+
+            Assert.That(errorsElement.InnerHtml, Is.Empty);
+
+            await renderer.Find("button").ClickAsync(new MouseEventArgs());
+            Assert.That(errorsElement.ChildElementCount, Is.EqualTo(numberOfRequiredFieldsInFirstLoginTry));
+
+            // Username input field
+            await renderer.Find("input").FocusAsync(new FocusEventArgs());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.FieldsFocusedStatus["UserName"], Is.True);
+                Assert.That(errorsElement.ChildElementCount, Is.EqualTo(numberOfRequiredFieldsInFirstLoginTry - 1));
+            });
+
+            await renderer.Find("input").BlurAsync(new FocusEventArgs());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.FieldsFocusedStatus["UserName"], Is.False);
+                Assert.That(errorsElement.ChildElementCount, Is.EqualTo(numberOfRequiredFieldsInFirstLoginTry));
+            });
+        }
+
+        [Test]
+        public void VerifyFocusingAndBluring()
+        {
+            var renderer = this.context.RenderComponent<Login>();
+
+            Assert.That(renderer.Instance.FieldsFocusedStatus, Is.EqualTo(new Dictionary<string, bool>()
+            {
+                { "SourceAddress", false },
+                { "UserName", false },
+                { "Password", false }
+            }));
+
+            const string fieldToFocusOn = "UserName";
+            Assert.That(renderer.Instance.FieldsFocusedStatus[fieldToFocusOn], Is.False);
+            renderer.Instance.HandleFieldFocus(fieldToFocusOn);
+            
+            Assert.Multiple(()=>
+            {
+                foreach (var fieldStatus in renderer.Instance.FieldsFocusedStatus)
+                {
+                    Assert.That(fieldStatus.Value, fieldStatus.Key == fieldToFocusOn ? Is.True : Is.False);
+                }
+            });
+
+            renderer.Instance.HandleFieldBlur(fieldToFocusOn);
+
+            Assert.Multiple(() =>
+            {
+                foreach (var fieldStatus in renderer.Instance.FieldsFocusedStatus)
+                {
+                    Assert.That(fieldStatus.Value, Is.False);
+                }
+            });
+        }
+
+        [Test]
         public async Task VerifyPerformLogin()
         {
             var renderer = this.context.RenderComponent<Login>();
@@ -79,6 +145,13 @@ namespace COMET.Web.Common.Tests.Components
 
             this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>()))
                 .ReturnsAsync(AuthenticationStateKind.ServerFail);
+
+            Assert.That(renderer.Instance.FieldsFocusedStatus, Is.EqualTo(new Dictionary<string, bool>()
+            {
+                { "SourceAddress", false },
+                { "UserName", false },
+                { "Password", false }
+            }));
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
