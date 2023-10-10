@@ -66,10 +66,9 @@ namespace COMET.Web.Common.Components
         public bool LoginEnabled { get; set; } = true;
 
         /// <summary>
-        /// The dictionary of focus status from the fields
+        /// The dictionary of focus status from the form fields
         /// </summary>
-        public Dictionary<string, bool> FieldsFocusedStatus;
-
+        public Dictionary<string, bool> FieldsFocusedStatus { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
