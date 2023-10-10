@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ISingleIterationApplicationBaseViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="SingleEngineeringModelApplicationTemplate.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -23,36 +23,16 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.ViewModels.Components
+namespace COMET.Web.Common.Components.Applications
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     /// <summary>
-    /// Base view model for any application that will need only one <see cref="Iteration" />
+    /// Shared component that will englobe all applications where only one <see cref="EngineeringModel" /> needs to be selected
     /// </summary>
-    public interface ISingleIterationApplicationBaseViewModel : IDisposableObject
+    public partial class SingleEngineeringModelApplicationTemplate
     {
-        /// <summary>
-        /// The current <see cref="Iteration" /> to work with
-        /// </summary>
-        Iteration CurrentIteration { get; set; }
-
-        /// <summary>
-        /// Value asserting that the view model has set initial values at least once
-        /// </summary>
-        bool HasSetInitialValuesOnce { get; set; }
-
-        /// <summary>
-        /// Gets the current <see cref="DomainOfExpertise" />
-        /// </summary>
-        DomainOfExpertise CurrentDomain { get; }
-
-        /// <summary>
-        /// Value asserting that the current <see cref="ISingleIterationApplicationBaseViewModel" /> is loading
-        /// </summary>
-        bool IsLoading { get; set; }
     }
 }

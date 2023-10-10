@@ -30,7 +30,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;
@@ -94,7 +94,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            return this.OnIterationChanged();
+            return this.OnThingChanged();
         }
 
         /// <summary>
@@ -111,18 +111,18 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         /// Update this view model properties
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
+        protected override async Task OnThingChanged()
         {
-            await base.OnIterationChanged();
-            this.OptionSelector.CurrentIteration = this.CurrentIteration;
-            this.FiniteStateSelector.CurrentIteration = this.CurrentIteration;
-            this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
+            await base.OnThingChanged();
+            this.OptionSelector.CurrentIteration = this.CurrentThing;
+            this.FiniteStateSelector.CurrentIteration = this.CurrentThing;
+            this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
 
-            this.AvailableDomains = this.CurrentIteration == null
+            this.AvailableDomains = this.CurrentThing == null
                 ? Enumerable.Empty<DomainOfExpertise>()
-                : this.SessionService.GetModelDomains((EngineeringModelSetup)this.CurrentIteration.IterationSetup.Container);
+                : this.SessionService.GetModelDomains((EngineeringModelSetup)this.CurrentThing.IterationSetup.Container);
 
-            this.CurrentDomain = this.CurrentIteration == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentIteration);
+            this.CurrentDomain = this.CurrentThing == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentThing);
             await this.UpdateDashboards();
         }
 
@@ -135,11 +135,11 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
             this.IsLoading = true;
             await Task.Delay(1);
 
-            this.ParameterDashboard.UpdateProperties(this.CurrentIteration, this.OptionSelector.SelectedOption,
+            this.ParameterDashboard.UpdateProperties(this.CurrentThing, this.OptionSelector.SelectedOption,
                 this.FiniteStateSelector.SelectedActualFiniteState, this.ParameterTypeSelector.SelectedParameterType,
                 this.CurrentDomain, this.AvailableDomains);
 
-            this.ElementDashboard.UpdateProperties(this.CurrentIteration, this.CurrentDomain);
+            this.ElementDashboard.UpdateProperties(this.CurrentThing, this.CurrentDomain);
             this.IsLoading = false;
         }
     }

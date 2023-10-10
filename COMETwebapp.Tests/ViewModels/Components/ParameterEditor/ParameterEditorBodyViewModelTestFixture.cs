@@ -220,7 +220,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.tableViewModel = new Mock<IParameterTableViewModel>();
 
             this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object, this.tableViewModel.Object);
-            this.viewModel.CurrentIteration = this.iteration;
+            this.viewModel.CurrentThing = this.iteration;
         }
 
         [TearDown]
@@ -265,7 +265,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentIteration.Option.Last();
+            this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentThing.Option.Last();
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.Option.Last(),

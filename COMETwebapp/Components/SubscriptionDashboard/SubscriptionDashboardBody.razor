@@ -21,7 +21,7 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
-@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SubscriptionDashboard.ISubscriptionDashboardBodyViewModel>
+@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SubscriptionDashboard.ISubscriptionDashboardBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.SubscriptionDashboardPage.QueryPageBodyName()" class="row">

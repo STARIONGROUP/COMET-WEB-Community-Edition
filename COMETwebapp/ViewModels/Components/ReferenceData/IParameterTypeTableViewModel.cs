@@ -21,24 +21,25 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
-    
-    using COMET.Web.Common.ViewModels.Components;
-    
+
+    using COMET.Web.Common.ViewModels.Components.Applications;
+
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    
+
     using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public interface IParameterTypeTableViewModel: ISingleIterationApplicationBaseViewModel
+    public interface IParameterTypeTableViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
-        ///     Gets or sets the data source for the grid control.
+        /// Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<ParameterType> DataSource { get; }
 
@@ -53,10 +54,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         Task OnInitializedAsync();

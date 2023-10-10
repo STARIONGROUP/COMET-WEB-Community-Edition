@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Components
+namespace COMET.Web.Common.Tests.Components.Applications
 {
     using Bunit;
 
@@ -34,6 +34,7 @@ namespace COMET.Web.Common.Tests.Components
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
@@ -42,6 +43,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using DynamicData;
@@ -73,7 +75,7 @@ namespace COMET.Web.Common.Tests.Components
             var session = new Mock<ISession>();
             session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
             sessionService.Setup(x => x.Session).Returns(session.Object);
-            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise(){Iid = Guid.NewGuid()});
+            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise { Iid = Guid.NewGuid() });
             this.viewModel.Setup(x => x.SessionService).Returns(sessionService.Object);
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
@@ -92,14 +94,58 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
-        public void VerifyWithoutIterationIdParameter()
+        public void VerifyWithIterationIdParameter()
         {
-            this.openIterations.Add(new Iteration()
+            this.openIterations.Add(new Iteration
             {
                 Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
-                    Container = new EngineeringModelSetup()
+                    Container = new EngineeringModelSetup
+                    {
+                        Iid = Guid.NewGuid()
+                    }
+                }
+            });
+
+            var renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, Guid.NewGuid()); });
+
+            Assert.That(renderer.Instance.IterationId, Is.EqualTo(Guid.Empty));
+
+            _ = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
+
+            this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Once);
+
+            this.viewModel.Setup(x => x.SelectedThing).Returns(new Iteration
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup = new IterationSetup
+                {
+                    Container = new EngineeringModelSetup
+                    {
+                        Iid = Guid.NewGuid()
+                    }
+                }
+            });
+
+            renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.openIterations.Items.First().Iid));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Once);
+            });
+        }
+
+        [Test]
+        public void VerifyWithoutIterationIdParameter()
+        {
+            this.openIterations.Add(new Iteration
+            {
+                Iid = Guid.NewGuid(),
+                IterationSetup = new IterationSetup
+                {
+                    Container = new EngineeringModelSetup
                     {
                         Iid = Guid.NewGuid()
                     }
@@ -121,12 +167,12 @@ namespace COMET.Web.Common.Tests.Components
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
-                this.viewModel.Verify(x => x.SelectIteration(this.openIterations.Items.First()), Times.Once);
+                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Once);
             });
 
-            this.viewModel.Setup(x => x.SelectedIteration).Returns(this.openIterations.Items.First());
+            this.viewModel.Setup(x => x.SelectedThing).Returns(this.openIterations.Items.First());
             renderer.Instance.SetCorrectUrl();
-            var iteration = this.viewModel.Object.SelectedIteration;
+            var iteration = this.viewModel.Object.SelectedThing;
 
             Assert.Multiple(() =>
             {
@@ -154,13 +200,13 @@ namespace COMET.Web.Common.Tests.Components
             });
 
             Assert.That(() => renderer.FindComponent<IterationSelector>(), Throws.Exception);
-            this.viewModel.Verify(x => x.AskToSelectIteration(), Times.Once);
-            this.viewModel.Setup(x => x.IsOnIterationSelectionMode).Returns(true);
+            this.viewModel.Verify(x => x.AskToSelectThing(), Times.Once);
+            this.viewModel.Setup(x => x.IsOnSelectionMode).Returns(true);
             this.viewModel.Setup(x => x.IterationSelectorViewModel).Returns(new IterationSelectorViewModel());
             renderer.Render();
             Assert.That(() => renderer.FindComponent<IterationSelector>(), Throws.Nothing);
             this.openIterations.Clear();
-            this.viewModel.Setup(x => x.SelectedIteration).Returns((Iteration)null);
+            this.viewModel.Setup(x => x.SelectedThing).Returns((Iteration)null);
             renderer.Instance.SetCorrectUrl();
 
             Assert.Multiple(() =>
@@ -168,59 +214,6 @@ namespace COMET.Web.Common.Tests.Components
                 Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
                 Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
                 Assert.That(() => CDPMessageBus.Current.SendMessage(new DomainChangedEvent(null, null)), Throws.Nothing);
-            });
-        }
-
-        [Test]
-        public void VerifyWithIterationIdParameter()
-        {
-            this.openIterations.Add(new Iteration()
-            {
-                Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
-                {
-                    Container = new EngineeringModelSetup()
-                    {
-                        Iid = Guid.NewGuid()
-                    }
-                }
-            });
-
-            var renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, Guid.NewGuid());
-            });
-
-            Assert.That(renderer.Instance.IterationId, Is.EqualTo(Guid.Empty));
-
-            _ = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid);
-            });
-
-            this.viewModel.Verify(x => x.SelectIteration(this.openIterations.Items.First()), Times.Once);
-
-            this.viewModel.Setup(x => x.SelectedIteration).Returns(new Iteration()
-            {
-                Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
-                {
-                    Container = new EngineeringModelSetup()
-                    {
-                        Iid = Guid.NewGuid()
-                    }
-                }
-            });
-
-            renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid);
-            });
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.openIterations.Items.First().Iid));
-                this.viewModel.Verify(x => x.SelectIteration(this.openIterations.Items.First()), Times.Once);
             });
         }
     }

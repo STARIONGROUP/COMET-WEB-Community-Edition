@@ -23,7 +23,7 @@
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.ViewModels.Components.ParameterEditor
 @using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
+@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <ValidationMessageComponent ValidationMessage="@(this.errorMessage)" />

@@ -28,6 +28,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
@@ -66,6 +68,9 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel);
             
             this.context.ConfigureDevExpressBlazor();
+            var configuration = new Mock<IConfigurationService>();
+            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(this.viewModel);
         }
 
@@ -82,7 +87,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             
             _ = this.context.RenderComponent<SubscriptionDashboardBody>(parameters =>
             {
-                parameters.Add(p => p.CurrentIteration, new Iteration());
+                parameters.Add(p => p.CurrentThing, new Iteration());
             });
 
             Assert.Multiple(() =>
@@ -150,7 +155,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             _ = this.context.RenderComponent<SubscriptionDashboardBody>(parameters =>
             {
-                parameters.Add(p => p.CurrentIteration, iteration);
+                parameters.Add(p => p.CurrentThing, iteration);
             });
 
             Assert.Multiple(() =>

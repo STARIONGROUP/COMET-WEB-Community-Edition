@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SingleIterationApplicationBase.razor.cs" company="RHEA System S.A.">
+//  <copyright file="ApplicationBase.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -23,13 +23,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components
+namespace COMET.Web.Common.Components.Applications
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Utilities;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.WebUtilities;
@@ -37,10 +36,10 @@ namespace COMET.Web.Common.Components
     using ReactiveUI;
 
     /// <summary>
-    /// Base component for any application that will need only one <see cref="Iteration" />
+    /// Base component for any application
     /// </summary>
-    /// <typeparam name="TViewModel">An <see cref="ISingleIterationApplicationBaseViewModel" /></typeparam>
-    public abstract partial class SingleIterationApplicationBase<TViewModel>
+    /// <typeparam name="TViewModel">An <see cref="IApplicationBaseViewModel" /></typeparam>
+    public abstract partial class ApplicationBase<TViewModel>
     {
         /// <summary>
         /// The <see cref="TViewModel" />
@@ -55,10 +54,15 @@ namespace COMET.Web.Common.Components
         public NavigationManager NavigationManager { get; set; }
 
         /// <summary>
-        /// The <see cref="Iteration" />
+        /// The <see cref="IConfigurationService" />
         /// </summary>
-        [CascadingParameter]
-        public Iteration CurrentIteration { get; set; }
+        [Inject]
+        public IConfigurationService ConfigurationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of required URL Parameters
+        /// </summary>
+        protected int NumberOfUrlRequiredParameters { get; set; } = 1;
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -70,9 +74,8 @@ namespace COMET.Web.Common.Components
 
             this.Disposables.Add(this.ViewModel);
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.CurrentIteration
-                    , x => x.ViewModel.IsLoading)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -83,23 +86,30 @@ namespace COMET.Web.Common.Components
         {
             base.OnParametersSet();
 
-            this.ViewModel.CurrentIteration = this.CurrentIteration;
-
-            if (!this.ViewModel.HasSetInitialValuesOnce)
+            if (this.ViewModel.HasSetInitialValuesOnce)
             {
-                this.InitializeValues(this.NavigationManager.Uri.GetParametersFromUrl());
-                this.ViewModel.HasSetInitialValuesOnce = true;
+                return;
+            }
+
+            this.InitializeValues(this.NavigationManager.Uri.GetParametersFromUrl());
+            this.ViewModel.HasSetInitialValuesOnce = true;
+        }
+
+        /// <summary>
+        /// Sets the URL parameters that are required for this application
+        /// </summary>
+        /// <param name="currentOptions">A <see cref="Dictionary{TKey,TValue}" /> of current URL parameters that comes form the URI</param>
+        /// <param name="urlParameters">A <see cref="Dictionary{TKey,TValue}" /> of parameters that have to be included</param>
+        protected virtual void SetUrlParameters(Dictionary<string, string> currentOptions, Dictionary<string, string> urlParameters)
+        {
+            if (currentOptions.TryGetValue(QueryKeys.ServerKey, out var serverValue))
+            {
+                urlParameters[QueryKeys.ServerKey] = serverValue;
             }
         }
 
         /// <summary>
-        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
-        /// </summary>
-        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
-        protected abstract void InitializeValues(Dictionary<string, string> parameters);
-
-        /// <summary>
-        /// Updates the url of the <see cref="NavigationManager" /> with the
+        /// Updates the url of the <see cref="Microsoft.AspNetCore.Components.NavigationManager" /> with the
         /// <param name="additionalParameters"></param>
         /// </summary>
         /// <param name="additionalParameters">A <see cref="Dictionary{TKey,TValue}" /> of additional parameters</param>
@@ -109,29 +119,21 @@ namespace COMET.Web.Common.Components
             var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
             var requiredOptions = new Dictionary<string, string>();
 
-            if (currentOptions.TryGetValue(QueryKeys.IterationKey, out var iterationValue))
-            {
-                requiredOptions[QueryKeys.IterationKey] = iterationValue;
-            }
+            this.SetUrlParameters(currentOptions, requiredOptions);
 
-            if (currentOptions.TryGetValue(QueryKeys.DomainKey, out var domainValue))
+            if (!string.IsNullOrEmpty(this.ConfigurationService.ServerConfiguration.ServerAddress))
             {
-                requiredOptions[QueryKeys.DomainKey] = domainValue;
+                if (requiredOptions.TryGetValue(QueryKeys.ServerKey, out _) || requiredOptions.Count != this.NumberOfUrlRequiredParameters - 1)
+                {
+                    return;
+                }
             }
-
-            if (currentOptions.TryGetValue(QueryKeys.ServerKey, out var serverValue))
+            else
             {
-                requiredOptions[QueryKeys.ServerKey] = serverValue;
-            }
-
-            if (currentOptions.TryGetValue(QueryKeys.ModelKey, out var modelValue))
-            {
-                requiredOptions[QueryKeys.ModelKey] = modelValue;
-            }
-
-            if (requiredOptions.Count != 4)
-            {
-                return;
+                if (requiredOptions.Count != this.NumberOfUrlRequiredParameters)
+                {
+                    return;
+                }
             }
 
             foreach (var additionalParameter in additionalParameters)
@@ -141,5 +143,11 @@ namespace COMET.Web.Common.Components
 
             this.NavigationManager.NavigateTo(QueryHelpers.AddQueryString($"/{pageName}", requiredOptions));
         }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected abstract void InitializeValues(Dictionary<string, string> parameters);
     }
 }

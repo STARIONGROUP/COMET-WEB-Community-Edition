@@ -36,11 +36,12 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using CDP4Dal.DAL;
     
     using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SystemRepresentation;
-    using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
@@ -82,6 +83,9 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddAntDesign();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
+            var configuration = new Mock<IConfigurationService>();
+            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.context.Services.AddSingleton(configuration.Object);
 
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
@@ -264,7 +268,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         {
             var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
             {
-                parameters.Add(p => p.CurrentIteration, this.iteration);
+                parameters.Add(p => p.CurrentThing, this.iteration);
             });
 
             var option1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
@@ -283,25 +287,25 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         [Test]
         public async Task VerifySelectNode()
         {
-            var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters =>
+            this.context.RenderComponent<SystemRepresentationBody>(parameters =>
             {
-                parameters.Add(p => p.CurrentIteration, this.iteration);
+                parameters.Add(p => p.CurrentThing, this.iteration);
             });
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.viewModel.Elements.Clear();
-            this.viewModel.Elements.Add(this.iteration.Element.First());
+            this.viewModel.Elements.Add(this.iteration.Element[0]);
 
-            this.viewModel.SelectElement(new SystemNodeViewModel(this.viewModel.Elements.FirstOrDefault().Name));
+            this.viewModel.SelectElement(new SystemNodeViewModel(this.viewModel.Elements.FirstOrDefault()!.Name));
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.SelectedSystemNode, Is.Not.Null);
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ParameterTypeName, Is.EqualTo(this.iteration.Element.First().Parameter.First().ParameterType.Name));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ShortName, Is.EqualTo(this.iteration.Element.First().Parameter.First().ParameterType.ShortName));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().Owner, Is.EqualTo(this.iteration.Element.First().Parameter.First().Owner.ShortName));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ParameterTypeName, Is.EqualTo(this.iteration.Element[0].Parameter[0].ParameterType.Name));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ShortName, Is.EqualTo(this.iteration.Element[0].Parameter[0].ParameterType.ShortName));
+                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().Owner, Is.EqualTo(this.iteration.Element[0].Parameter[0].Owner.ShortName));
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().PublishedValue, Is.Not.Null);
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
                 Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);

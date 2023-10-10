@@ -24,15 +24,15 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
-    using COMET.Web.Common.ViewModels.Components;
-	using COMETwebapp.ViewModels.Components.SystemRepresentation;
-	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-	using DevExpress.Blazor;
-	using System.Collections.ObjectModel;
+    using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+    using DevExpress.Blazor;
+    using System.Collections.ObjectModel;
 
-	/// <summary>
-	/// Interface for the <see cref="ElementDefinitionTableViewModel"/>
-	/// </summary>
+    /// <summary>
+    /// Interface for the <see cref="ElementDefinitionTableViewModel"/>
+    /// </summary>
     public interface IElementDefinitionTableViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SessionService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
@@ -55,6 +55,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
+        /// Gets a readonly collection of open <see cref="EngineeringModel" />
+        /// </summary>
+        public IReadOnlyCollection<EngineeringModel> OpenEngineeringModels => this.QueryOpenEngineeringModels();
+
+        /// <summary>
         /// Gets or sets the <see cref="ISession" />
         /// </summary>
         public ISession Session { get; set; }
@@ -103,7 +108,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
             var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-
+            
             var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri)
             {
                 Container = model
@@ -439,6 +444,16 @@ namespace COMET.Web.Common.Services.SessionManagement
             }
 
             return participantInformation.Item1;
+        }
+
+        /// <summary>
+        /// Queries all open <see cref="EngineeringModel" />
+        /// </summary>
+        /// <returns>A collection of <see cref="EngineeringModel" /></returns>
+        private List<EngineeringModel> QueryOpenEngineeringModels()
+        {
+            return this.OpenIterations.Items.Select(x => (EngineeringModel)x.Container)
+                .DistinctBy(x => x.Iid).ToList();
         }
     }
 }

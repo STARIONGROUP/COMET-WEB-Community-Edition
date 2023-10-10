@@ -28,8 +28,9 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
-    
+
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DynamicData;

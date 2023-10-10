@@ -40,7 +40,9 @@ namespace COMETwebapp.Tests.Pages.Viewer
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Pages.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SubscriptionService;
@@ -83,16 +85,16 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.session = new Mock<ISession>();
             this.session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
-            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise { Iid = Guid.NewGuid() });
 
-            this.firstIteration = new Iteration()
+            this.firstIteration = new Iteration
             {
                 Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
                     Iid = Guid.NewGuid(),
                     IterationNumber = 1,
-                    Container = new EngineeringModelSetup()
+                    Container = new EngineeringModelSetup
                     {
                         Iid = Guid.NewGuid(),
                         Name = "EnVision"
@@ -100,21 +102,21 @@ namespace COMETwebapp.Tests.Pages.Viewer
                 }
             };
 
-            this.secondIteration = new Iteration()
+            this.secondIteration = new Iteration
             {
                 Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
                     Iid = Guid.NewGuid(),
                     IterationNumber = 4,
-                    Container = new EngineeringModelSetup()
+                    Container = new EngineeringModelSetup
                     {
                         Iid = Guid.NewGuid(),
                         Name = "Loft"
                     }
                 }
             };
-            
+
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
@@ -141,10 +143,26 @@ namespace COMETwebapp.Tests.Pages.Viewer
         }
 
         [Test]
-        public void VerifyOpenModelPresent()
+        public void VerifyIterationPreselection()
         {
-            var renderer = this.context.RenderComponent<Viewer>();
-            Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
+            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
+
+            this.context.RenderComponent<Viewer>(parameters => { parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid()); });
+
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
+                Assert.That(navigation.Uri.Contains("server"), Is.True);
+                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
+            });
+
+            this.viewModel.SelectedThing = null;
+
+            this.context.RenderComponent<Viewer>(parameters => { parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid()); });
+
+            Assert.That(this.viewModel.SelectedThing, Is.Null);
         }
 
         [Test]
@@ -163,39 +181,17 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.SelectedIteration, Is.Not.Null);
+                Assert.That(this.viewModel.SelectedThing, Is.Not.Null);
                 Assert.That(navigation.Uri.Contains("server"), Is.True);
                 Assert.That(navigation.Uri.Contains(this.secondIteration.Iid.ToShortGuid()), Is.True);
             });
         }
 
         [Test]
-        public void VerifyIterationPreselection()
+        public void VerifyOpenModelPresent()
         {
-            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
-
-            this.context.RenderComponent<Viewer>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid());
-            });
-
-            var navigation = this.context.Services.GetService<NavigationManager>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.SelectedIteration, Is.EqualTo(this.firstIteration));
-                Assert.That(navigation.Uri.Contains("server"), Is.True);
-                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
-            });
-
-            this.viewModel.SelectedIteration = null;
-
-            this.context.RenderComponent<Viewer>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
-            });
-
-            Assert.That(this.viewModel.SelectedIteration, Is.Null);
+            var renderer = this.context.RenderComponent<Viewer>();
+            Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
         }
     }
 }

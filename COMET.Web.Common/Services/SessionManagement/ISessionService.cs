@@ -54,6 +54,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         bool IsSessionOpen { get; set; }
 
         /// <summary>
+        /// Gets a readonly collection of open <see cref="EngineeringModel" />
+        /// </summary>
+        IReadOnlyCollection<EngineeringModel> OpenEngineeringModels { get; }
+
+        /// <summary>
         /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
         /// </summary>
         /// <returns>The <see cref="SiteDirectory" /></returns>

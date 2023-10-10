@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DynamicData;
@@ -198,19 +199,19 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            return this.OnIterationChanged();
+            return this.OnThingChanged();
         }
 
         /// <summary>
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
+        protected override async Task OnThingChanged()
         {
             this.IsLoading = true;
-            await base.OnIterationChanged();
+            await base.OnThingChanged();
 
-            if (this.CurrentIteration.Container is EngineeringModel engineeringModel)
+            if (this.CurrentThing.Container is EngineeringModel engineeringModel)
             {
                 this.AvailableBooks.Edit(inner =>
                 {
@@ -297,7 +298,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             switch (this.ThingToCreate)
             {
                 case Book: 
-                    thingContainer = this.CurrentIteration.Container;
+                    thingContainer = this.CurrentThing.Container;
                     break;
                 case Section: 
                     thingContainer = this.SelectedBook;

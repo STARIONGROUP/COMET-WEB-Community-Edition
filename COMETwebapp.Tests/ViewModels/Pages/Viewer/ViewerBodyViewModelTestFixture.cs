@@ -170,7 +170,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             var babylonInterop = new Mock<IBabylonInterop>();
 
             this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object);
-            this.viewModel.CurrentIteration = iteration;
+            this.viewModel.CurrentThing = iteration;
         }
 
         [TearDown]

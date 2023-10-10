@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterEditorBodyViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.SubscriptionService;
@@ -160,13 +160,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Update this view model properties
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
+        protected override async Task OnThingChanged()
         {
-            await base.OnIterationChanged();
+            await base.OnThingChanged();
             this.IsOwnedParameters = true;
-            this.ElementSelector.CurrentIteration = this.CurrentIteration;
-            this.OptionSelector.CurrentIteration = this.CurrentIteration;
-            this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
+            this.ElementSelector.CurrentIteration = this.CurrentThing;
+            this.OptionSelector.CurrentIteration = this.CurrentThing;
+            this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
             await this.InitializeTable();
         }
 
@@ -178,7 +178,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             this.IsLoading = true;
             await Task.Delay(1);
-            this.ParameterTableViewModel.InitializeViewModel(this.CurrentIteration, this.CurrentDomain, this.OptionSelector.SelectedOption);
+            this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
             this.IsLoading = false;
         }
 
@@ -188,7 +188,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <returns>A <see cref="Task" /></returns>
         private async Task ApplyFilters()
         {
-            if (this.CurrentIteration != null)
+            if (this.CurrentThing != null)
             {
                 this.IsLoading = true;
                 await Task.Delay(1);

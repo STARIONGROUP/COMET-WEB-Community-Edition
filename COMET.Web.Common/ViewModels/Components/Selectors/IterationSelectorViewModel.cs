@@ -59,10 +59,10 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// <summary>
         /// Updates this view model properties
         /// </summary>
-        /// <param name="availableIterations">A collection of available <see cref="Iteration" /></param>
-        public void UpdateProperties(IEnumerable<Iteration> availableIterations)
+        /// <param name="availableThings">A collection of available <see cref="Iteration" /></param>
+        public void UpdateProperties(IEnumerable<Iteration> availableThings)
         {
-            this.iterations = availableIterations;
+            this.iterations = availableThings;
             this.AvailableIterations = this.iterations.Select(x => new IterationData(x.IterationSetup, true));
             this.SelectedIteration = null;
         }

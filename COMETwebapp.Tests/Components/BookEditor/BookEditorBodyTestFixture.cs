@@ -27,7 +27,6 @@ namespace COMETwebapp.Tests.Components.BookEditor
     using Bunit;
 
     using CDP4Common.CommonData;
-    using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
 
@@ -87,7 +86,6 @@ namespace COMETwebapp.Tests.Components.BookEditor
             availableBooks.Add(this.selectedBook);
 
             this.viewModel = new Mock<IBookEditorBodyViewModel>();
-            this.viewModel.Setup(x => x.CurrentIteration).Returns(new Iteration());
             this.viewModel.Setup(x => x.CurrentDomain).Returns(new DomainOfExpertise());
             this.viewModel.Setup(x => x.AvailableBooks).Returns(availableBooks);
             this.viewModel.Setup(x => x.SelectedBook).Returns(this.selectedBook);

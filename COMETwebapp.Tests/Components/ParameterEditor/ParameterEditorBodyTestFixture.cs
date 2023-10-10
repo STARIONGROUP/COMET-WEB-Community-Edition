@@ -38,6 +38,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -89,6 +91,9 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object));
 
+            var configuration = new Mock<IConfigurationService>();
+            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(parameterEditorViewModel.Object);
 
             var parameterTableViewModelMock = new Mock<IParameterTableViewModel>();
