@@ -33,11 +33,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
+
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
 
     using DynamicData;
 
@@ -55,11 +55,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Injected property to get access to <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
-
-        /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         /// A collection of all <see cref="ParameterTypeRowViewModel" />
@@ -111,6 +106,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// </summary>
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
         /// A reactive collection of <see cref="ParameterTypeRowViewModel" />
         /// </summary>
         public SourceList<ParameterTypeRowViewModel> Rows { get; } = new();
@@ -119,17 +119,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Gets or sets the data source for the grid control.
         /// </summary>
         public SourceList<ParameterType> DataSource { get; } = new();
-
-        /// <summary>
-        /// Handles the refresh of the current <see cref="ISession" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-            this.IsLoading = false;
-        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -190,6 +179,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            this.IsLoading = true;
+            await Task.Delay(1);
+            this.IsLoading = false;
+        }
+
+        /// <summary>
         /// Refresh the displayed container name for the category rows
         /// </summary>
         /// <param name="rdl">
@@ -199,6 +199,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.IsLoading = true;
             await Task.Delay(1);
+
             foreach (var parameter in this.Rows.Items)
             {
                 if (parameter.ContainerName != rdl.ShortName)
@@ -206,6 +207,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     parameter.ContainerName = rdl.ShortName;
                 }
             }
+
             this.IsLoading = false;
         }
 
@@ -216,10 +218,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.IsLoading = true;
             await Task.Delay(1);
+
             foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.ParameterType.Container);
             }
+
             this.IsLoading = false;
         }
 

@@ -58,13 +58,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         [Test]
         public void VerifyOnIterationChanged()
         {
-            Assert.That(() => this.viewModel.CurrentIteration = null,Throws.Nothing);
+            Assert.That(() => this.viewModel.CurrentThing = null,Throws.Nothing);
             var domain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
-            this.viewModel.CurrentIteration = new Iteration();
+            this.viewModel.CurrentThing = new Iteration();
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(), 
-                this.viewModel.CurrentIteration.Option, this.viewModel.CurrentIteration), Times.Once);
+                this.viewModel.CurrentThing.Option, this.viewModel.CurrentThing), Times.Once);
         }
 
         [Test]

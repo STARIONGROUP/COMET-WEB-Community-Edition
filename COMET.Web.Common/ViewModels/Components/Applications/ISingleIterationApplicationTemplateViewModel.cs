@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ISingleIterationApplicationTemplateViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023 RHEA System S.A.
 // 
@@ -22,53 +22,26 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.ViewModels.Components
+namespace COMET.Web.Common.ViewModels.Components.Applications
 {
     using CDP4Common.EngineeringModelData;
 
-	using COMET.Web.Common.Model;
-	using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     /// <summary>
     /// ViewModel that will englobe all applications where only one <see cref="Iteration" /> needs to be selected
     /// </summary>
-    public interface ISingleIterationApplicationTemplateViewModel
-	{
-		/// <summary>
-		/// Gets the <see cref="ISessionService" />
-		/// </summary>
-		ISessionService SessionService { get; }
+    public interface ISingleIterationApplicationTemplateViewModel : ISingleThingApplicationTemplateViewModel<Iteration>
+    {
+        /// <summary>
+        /// The <see cref="IterationData" /> that will be used
+        /// </summary>
+        IterationData SelectedIterationData { get; set; }
 
-		/// <summary>
-		/// Gets the <see cref="IIterationSelectorViewModel" />
-		/// </summary>
-		IIterationSelectorViewModel IterationSelectorViewModel { get; }
-
-		/// <summary>
-		/// Value asserting that the user should select an <see cref="Iteration" />
-		/// </summary>
-		bool IsOnIterationSelectionMode { get; set; }
-
-		/// <summary>
-		/// The <see cref="Guid" /> of the <see cref="Iteration" /> that will be used
-		/// </summary>
-		Iteration SelectedIteration { get; set; }
-
-		/// <summary>
-		/// The <see cref="IterationData" /> that will be used
-		/// </summary>
-		IterationData SelectedIterationData { get; set; }
-
-		/// <summary>
-		/// Selects an <see cref="Iteration" />
-		/// </summary>
-		/// <param name="iteration">The selected <see cref="Iteration" /></param>
-		void SelectIteration(Iteration iteration);
-
-		/// <summary>
-		/// Asks the user to selects the <see cref="Iteration" /> that he wants to works with
-		/// </summary>
-		void AskToSelectIteration();
-	}
+        /// <summary>
+        /// Gets the <see cref="IIterationSelectorViewModel"/>
+        /// </summary>
+        IIterationSelectorViewModel IterationSelectorViewModel { get; }
+    }
 }

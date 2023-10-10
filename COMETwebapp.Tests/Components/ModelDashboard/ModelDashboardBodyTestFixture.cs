@@ -39,6 +39,8 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
@@ -78,6 +80,9 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
             this.context.Services.AddSingleton(this.sessionService.Object);
+            var configuration = new Mock<IConfigurationService>();
+            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.context.Services.AddSingleton(configuration.Object);
             this.viewModel = this.context.Services.GetService<IModelDashboardBodyViewModel>() as ModelDashboardBodyViewModel;
         }
 
@@ -92,7 +97,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         public async Task VerifyModelDashboardComponent()
         {
             var renderer = this.context.RenderComponent<ModelDashboardBody>();
-            Assert.That(this.viewModel.CurrentIteration, Is.Null);
+            Assert.That(this.viewModel.CurrentThing, Is.Null);
             CDPMessageBus.Current.SendMessage(new DomainChangedEvent(null, null));
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
 
@@ -256,7 +261,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             parameter3.ValueSet.Add(new ParameterValueSet()
             {
-                ActualState = actualFiniteStateList.ActualState.First(),
+                ActualState = actualFiniteStateList.ActualState[0],
                 Published = new ValueArray<string>(compoundValues),
                 Formula = new ValueArray<string>(noValues),
                 Manual = new ValueArray<string>(compoundValues),
@@ -265,7 +270,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             parameter3.ValueSet.Add(new ParameterValueSet()
             {
-                ActualState = actualFiniteStateList.ActualState.Last(),
+                ActualState = actualFiniteStateList.ActualState[^1],
                 Published = new ValueArray<string>(compoundValues),
                 Formula = new ValueArray<string>(noValues),
                 Manual = new ValueArray<string>(compoundValues),
@@ -284,7 +289,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             iteration.Element.AddRange(new List<ElementDefinition>{element1, element2, element3});
             iteration.TopElement = element1;
-            this.viewModel.CurrentIteration = iteration;
+            this.viewModel.CurrentThing = iteration;
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>

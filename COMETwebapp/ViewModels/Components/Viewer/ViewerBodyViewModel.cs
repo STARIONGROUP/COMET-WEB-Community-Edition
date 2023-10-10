@@ -28,9 +28,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.Interoperability;
@@ -116,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         public IEnumerable<ElementBase> InitializeElements()
         {
-            return this.CurrentIteration?.QueryElementsBase().ToList() ?? new List<ElementBase>();
+            return this.CurrentThing?.QueryElementsBase().ToList() ?? new List<ElementBase>();
         }
 
         /// <summary>
@@ -139,18 +138,18 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            return this.OnIterationChanged();
+            return this.OnThingChanged();
         }
 
         /// <summary>
         /// Update this view model properties
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
+        protected override async Task OnThingChanged()
         {
-            await base.OnIterationChanged();
-            this.OptionSelector.CurrentIteration = this.CurrentIteration;
-            this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentIteration;
+            await base.OnThingChanged();
+            this.OptionSelector.CurrentIteration = this.CurrentThing;
+            this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentThing;
 
             await this.InitializeViewModel();
         }

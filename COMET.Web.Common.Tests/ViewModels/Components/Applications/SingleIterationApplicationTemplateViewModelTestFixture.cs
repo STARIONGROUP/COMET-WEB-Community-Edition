@@ -23,13 +23,13 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.ViewModels.Components
+namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using DynamicData;
@@ -63,29 +63,29 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         }
 
         [Test]
+        public void VerifyOnOpenIterationCountChanged()
+        {
+            this.openIterations.Add(new Iteration());
+            Assert.That(this.viewModel.SelectedThing, Is.Not.Null);
+            this.viewModel.SelectedThing = null;
+            this.openIterations.Add(new Iteration());
+            Assert.That(this.viewModel.SelectedThing, Is.Null);
+            this.openIterations.RemoveAt(1);
+            Assert.That(this.viewModel.SelectedThing, Is.Not.Null);
+            this.openIterations.Clear();
+            Assert.That(this.viewModel.SelectedThing, Is.Null);
+        }
+
+        [Test]
         public void VerifyProperties()
         {
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SessionService, Is.EqualTo(this.sessionService.Object));
                 Assert.That(this.viewModel.IterationSelectorViewModel, Is.EqualTo(this.iterationSelectorViewModel.Object));
-                Assert.That(this.viewModel.SelectedIteration, Is.Null);
-                Assert.That(this.viewModel.IsOnIterationSelectionMode, Is.False);
+                Assert.That(this.viewModel.SelectedThing, Is.Null);
+                Assert.That(this.viewModel.IsOnSelectionMode, Is.False);
             });
-        }
-
-        [Test]
-        public void VerifyOnOpenIterationCountChanged()
-        {
-            this.openIterations.Add(new Iteration());
-            Assert.That(this.viewModel.SelectedIteration, Is.Not.Null);
-            this.viewModel.SelectedIteration = null;
-            this.openIterations.Add(new Iteration());
-            Assert.That(this.viewModel.SelectedIteration, Is.Null);
-            this.openIterations.RemoveAt(1);
-            Assert.That(this.viewModel.SelectedIteration, Is.Not.Null);
-            this.openIterations.Clear();
-            Assert.That(this.viewModel.SelectedIteration, Is.Null);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         {
             var iterations = new List<Iteration>
             {
-                new ()
+                new()
                 {
                     Iid = Guid.NewGuid(),
                     IterationSetup = new IterationSetup(Guid.NewGuid(), null, null)
@@ -102,27 +102,27 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                         Container = new EngineeringModelSetup(Guid.NewGuid(), null, null)
                     }
                 },
-                new ()
+                new()
                 {
                     Iid = Guid.NewGuid()
                 }
             };
 
             this.openIterations.AddRange(iterations);
-            this.viewModel.AskToSelectIteration();
-            
+            this.viewModel.AskToSelectThing();
+
             Assert.Multiple(() =>
             {
                 this.iterationSelectorViewModel.Verify(x => x.UpdateProperties(this.openIterations.Items), Times.Once);
-                Assert.That(this.viewModel.IsOnIterationSelectionMode, Is.True);
+                Assert.That(this.viewModel.IsOnSelectionMode, Is.True);
             });
 
-            this.viewModel.SelectIteration(iterations.First());
-            
+            this.viewModel.OnThingSelect(iterations[0]);
+
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.IsOnIterationSelectionMode, Is.False);
-                Assert.That(this.viewModel.SelectedIteration, Is.EqualTo(iterations.First()));
+                Assert.That(this.viewModel.IsOnSelectionMode, Is.False);
+                Assert.That(this.viewModel.SelectedThing, Is.EqualTo(iterations[0]));
             });
         }
     }

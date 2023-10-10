@@ -24,16 +24,16 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
-    using CDP4Common.SiteDirectoryData;
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-    
+
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -51,7 +51,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         public SystemRepresentationBodyViewModel(ISessionService sessionService) : base(sessionService)
         {
-            this.ProductTreeViewModel = new SystemRepresentationTreeViewModel()
+            this.ProductTreeViewModel = new SystemRepresentationTreeViewModel
             {
                 OnClick = new EventCallbackFactory().Create<SystemNodeViewModel>(this, this.SelectElement)
             };
@@ -85,14 +85,49 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
+        /// set the selected <see cref="SystemNodeViewModel" />
+        /// </summary>
+        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        public void SelectElement(SystemNodeViewModel selectedNode)
+        {
+            // It is preferable to have a selection based on the Iid of the Thing
+            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
+
+            this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
+            {
+                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Apply all the filters on the <see cref="SystemRepresentationTreeViewModel" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ApplyFilters()
+        {
+            if (this.CurrentThing != null)
+            {
+                this.IsLoading = true;
+                await Task.Delay(1);
+
+                this.OnOptionFilterChange(this.OptionSelector.SelectedOption);
+
+                this.IsLoading = false;
+            }
+        }
+
+        /// <summary>
         /// Updates Elements list when a filter for option is selected
         /// </summary>
-        /// <param name="selectedOption">the selected <see cref="Option"/></param>
+        /// <param name="selectedOption">the selected <see cref="Option" /></param>
         public void OnOptionFilterChange(Option selectedOption)
         {
             this.Elements.Clear();
-        
-            var nestedElements = this.CurrentIteration.QueryNestedElements(selectedOption).ToList();
+
+            var nestedElements = this.CurrentThing.QueryNestedElements(selectedOption).ToList();
 
             var associatedElements = new List<ElementUsage>();
             associatedElements.AddRange(nestedElements.SelectMany(x => x.ElementUsage));
@@ -118,11 +153,11 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// Update this view model properties
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
+        protected override async Task OnThingChanged()
         {
             this.Elements.Clear();
-            await base.OnIterationChanged();
-            this.OptionSelector.CurrentIteration = this.CurrentIteration;
+            await base.OnThingChanged();
+            this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.InitializeElements();
             await this.ApplyFilters();
             this.IsLoading = false;
@@ -140,9 +175,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             {
                 this.IsLoading = true;
                 await Task.Delay(1);
-               
+
                 await this.ApplyFilters();
-                
+
                 this.IsLoading = false;
             }
         }
@@ -153,7 +188,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            return this.OnIterationChanged();
+            return this.OnThingChanged();
         }
 
         /// <summary>
@@ -161,47 +196,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// </summary>
         private void InitializeElements()
         {
-            if (this.CurrentIteration.TopElement != null)
+            if (this.CurrentThing.TopElement != null)
             {
-                this.Elements.Add(this.CurrentIteration.TopElement);
+                this.Elements.Add(this.CurrentThing.TopElement);
             }
 
-            this.CurrentIteration.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
-        }
-
-        /// <summary>
-        /// set the selected <see cref="SystemNodeViewModel" />
-        /// </summary>
-        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
-        /// <returns>A <see cref="Task" /></returns>
-        public void SelectElement(SystemNodeViewModel selectedNode)
-        {
-            // It is preferable to have a selection based on the Iid of the Thing
-            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
-            
-            this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
-            {
-                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-                _ => null
-            };
-        }
-
-        /// <summary>
-        /// Apply all the filters on the <see cref="SystemRepresentationTreeViewModel" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task ApplyFilters()
-        {
-            if (this.CurrentIteration != null)
-            {
-                this.IsLoading = true;
-                await Task.Delay(1);
-
-                this.OnOptionFilterChange(this.OptionSelector.SelectedOption);
-
-                this.IsLoading = false;
-            }
+            this.CurrentThing.Element.ForEach(e => this.Elements.AddRange(e.ContainedElement));
         }
     }
 }

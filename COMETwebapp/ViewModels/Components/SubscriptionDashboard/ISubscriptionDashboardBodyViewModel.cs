@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 {
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     /// <summary>

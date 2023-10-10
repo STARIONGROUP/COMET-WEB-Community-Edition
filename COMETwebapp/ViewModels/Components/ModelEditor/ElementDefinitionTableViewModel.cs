@@ -25,75 +25,80 @@
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
     using System.Collections.ObjectModel;
-    using System.Reactive.Linq;
-	using CDP4Common.CommonData;
-	using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
-	using CDP4Dal;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
-	using COMETwebapp.ViewModels.Components.SystemRepresentation;
-	using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-	using DevExpress.Blazor;
-	using DynamicData;
-	using Microsoft.AspNetCore.Components;
-	using ReactiveUI;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
-	/// <summary>
-	/// ViewModel for the <see cref="ElementDefinitionTable" />
-	/// </summary>
+    using DevExpress.Blazor;
+
+    using DynamicData;
+
+    using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
+
+    /// <summary>
+    /// ViewModel for the <see cref="ElementDefinitionTable" />
+    /// </summary>
     public class ElementDefinitionTableViewModel : SingleIterationApplicationBaseViewModel, IElementDefinitionTableViewModel
     {
+        /// <summary>
+        /// The current <see cref="Iteration" />
+        /// </summary>
+        private readonly Iteration iteration;
+
+        /// <summary>
+        /// The <see cref="ISessionService" />
+        /// </summary>
+        private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// Backing field for <see cref="IsOnCreationMode" />
+        /// </summary>
+        private bool isOnCreationMode;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
+        /// </summary>
+        /// <param name="sessionService">the <see cref="ISessionService" /></param>
+        public ElementDefinitionTableViewModel(ISessionService sessionService) : base(sessionService)
+        {
+            this.iteration = sessionService?.OpenIterations.Items.FirstOrDefault();
+            this.sessionService = sessionService;
+            this.InitializeElements();
+
+            this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService)
+            {
+                OnValidSubmit = new EventCallbackFactory().Create(this, this.AddingElementDefinition)
+            };
+
+            this.InitializeSubscriptions(new List<Type> { typeof(ElementBase) });
+        }
+
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
         public List<ElementBase> Elements { get; set; } = new();
 
         /// <summary>
-        /// The current <see cref="Iteration" />
+        /// The <see cref="IElementDefinitionDetailsViewModel" />
         /// </summary>
-        private readonly Iteration iteration;
+        public IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; } = new ElementDefinitionDetailsViewModel();
 
-		/// <summary>
-		/// The <see cref="ISessionService" />
-		/// </summary>
-		private readonly ISessionService sessionService;
-
-		/// <summary>
-		///     Backing field for <see cref="IsOnCreationMode" />
-		/// </summary>
-		private bool isOnCreationMode;
-
-		/// <summary>
-		/// The <see cref="IElementDefinitionDetailsViewModel" />
-		/// </summary>
-		public IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; } = new ElementDefinitionDetailsViewModel();
-
-		/// <summary>
-		///     Gets the <see cref="IElementDefinitionCreationViewModel" />
-		/// </summary>
-		public IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
-
-		/// <summary>
-		/// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
-		/// </summary>
-		/// <param name="sessionService">the <see cref="ISessionService" /></param>
-		public ElementDefinitionTableViewModel(ISessionService sessionService) : base(sessionService)
-        {
-            this.iteration = sessionService?.OpenIterations.Items.FirstOrDefault();
-			this.sessionService = sessionService;
-            this.InitializeElements();
-
-			this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService)
-			{
-				OnValidSubmit = new EventCallbackFactory().Create(this, this.AddingElementDefinition)
-			};
-
-			this.InitializeSubscriptions(new List<Type> { typeof(ElementBase) });
-        }
+        /// <summary>
+        /// Gets the <see cref="IElementDefinitionCreationViewModel" />
+        /// </summary>
+        public IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
 
         /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" /> for target model
@@ -105,34 +110,131 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         public ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; } = new();
 
-		/// <summary>
-		///     Value indicating the user is currently creating a new <see cref="ElementDefinition" />
-		/// </summary>
-		public bool IsOnCreationMode
-		{
-			get => this.isOnCreationMode;
-			set => this.RaiseAndSetIfChanged(ref this.isOnCreationMode, value);
-		}
-
-		/// <summary>
-		/// Represents the selected ElementDefinitionRowViewModel
-		/// </summary>
-		public object SelectedElementDefinition { get; set; }
-
-		/// <summary>
-		/// Initialize <see cref="ElementBase" /> list
-		/// </summary>
-		private void InitializeElements()
+        /// <summary>
+        /// Value indicating the user is currently creating a new <see cref="ElementDefinition" />
+        /// </summary>
+        public bool IsOnCreationMode
         {
-            if (this.iteration != null)
+            get => this.isOnCreationMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnCreationMode, value);
+        }
+
+        /// <summary>
+        /// Represents the selected ElementDefinitionRowViewModel
+        /// </summary>
+        public object SelectedElementDefinition { get; set; }
+
+        /// <summary>
+        /// set the selected <see cref="SystemNodeViewModel" />
+        /// </summary>
+        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        public void SelectElement(GridRowClickEventArgs args)
+        {
+            var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
+
+            // It is preferable to have a selection based on the Iid of the Thing
+            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedNode.ElementBase;
+
+            this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
             {
-                this.iteration.Element.ForEach(e =>
+                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Opens the <see cref="ElementDefinitionCreation" /> popup
+        /// </summary>
+        public void OpenCreateElementDefinitionCreationPopup()
+        {
+            this.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition();
+            this.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category>();
+            this.IsOnCreationMode = true;
+        }
+
+        /// <summary>
+        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
+        public void UpdateRows(IEnumerable<ElementBase> updatedThings)
+        {
+            foreach (var element in updatedThings)
+            {
+                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+
+                if (row != null)
                 {
-                    this.Elements.Add(e);
-                    this.Elements.AddRange(e.ContainedElement);
-                });
-                this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
-                this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
+                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
+                }
+
+                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+
+                if (row != null)
+                {
+                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
+        public void RemoveRows(IEnumerable<ElementBase> deletedThings)
+        {
+            foreach (var element in deletedThings)
+            {
+                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+
+                if (row != null)
+                {
+                    this.RowsSource.Remove(row);
+                }
+
+                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+
+                if (row != null)
+                {
+                    this.RowsTarget.Remove(row);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to create a new <see cref="ElementDefinition" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task AddingElementDefinition()
+        {
+            var thingsToCreate = new List<Thing>();
+
+            if (this.ElementDefinitionCreationViewModel.SelectedCategories.Any())
+            {
+                this.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
+            }
+
+            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = this.iteration;
+            thingsToCreate.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
+            var clonedIteration = this.iteration.Clone(false);
+
+            if (this.ElementDefinitionCreationViewModel.IsTopElement)
+            {
+                clonedIteration.TopElement = this.ElementDefinitionCreationViewModel.ElementDefinition;
+            }
+
+            clonedIteration.Element.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
+
+            try
+            {
+                await this.sessionService.CreateThings(clonedIteration, thingsToCreate);
+                this.IsOnCreationMode = false;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                throw;
             }
         }
 
@@ -159,120 +261,32 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.IsLoading = false;
         }
 
-        /// <summary>   
-        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// <summary>
+        /// Update this view model properties
         /// </summary>
-        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
-        public void UpdateRows(IEnumerable<ElementBase> updatedThings)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
         {
-            foreach (ElementBase element in updatedThings)
-            {
-                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                if (row != null)
-                {
-                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
-                }
-                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                if (row != null)
-                {
-                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
-                }
-            }
+            await base.OnThingChanged();
+            this.IsLoading = false;
         }
 
         /// <summary>
-        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// Initialize <see cref="ElementBase" /> list
         /// </summary>
-        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
-        public void RemoveRows(IEnumerable<ElementBase> deletedThings)
+        private void InitializeElements()
         {
-            foreach (ElementBase element in deletedThings)
+            if (this.iteration != null)
             {
-                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                if (row != null)
+                this.iteration.Element.ForEach(e =>
                 {
-                    this.RowsSource.Remove(row);
-                }
-                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                if (row != null)
-                {
-                    this.RowsTarget.Remove(row);
-                }
+                    this.Elements.Add(e);
+                    this.Elements.AddRange(e.ContainedElement);
+                });
+
+                this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
+                this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
             }
-        }
-
-		/// <summary>
-		/// set the selected <see cref="SystemNodeViewModel" />
-		/// </summary>
-		/// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
-		/// <returns>A <see cref="Task" /></returns>
-		public void SelectElement(GridRowClickEventArgs args)
-		{
-            var selectedNode = (ElementDefinitionRowViewModel) args.Grid.GetDataItem(args.VisibleIndex);
-            // It is preferable to have a selection based on the Iid of the Thing
-            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedNode.ElementBase;
-
-			this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
-			{
-				ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-				ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-				_ => null
-			};
-		}
-
-		/// <summary>
-		///     Opens the <see cref="ElementDefinitionCreation" /> popup
-		/// </summary>
-		public void OpenCreateElementDefinitionCreationPopup()
-		{
-			this.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition();
-			this.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category>();
-			this.IsOnCreationMode = true;
-		}
-
-		/// <summary>
-		/// Tries to create a new <see cref="ElementDefinition" />
-		/// </summary>
-		/// <returns>A <see cref="Task" /></returns>
-		public async Task AddingElementDefinition()
-		{
-			var thingsToCreate = new List<Thing>();
-
-			if (this.ElementDefinitionCreationViewModel.SelectedCategories.Any())
-			{
-				this.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
-			}
-
-			this.ElementDefinitionCreationViewModel.ElementDefinition.Container = this.iteration;
-			thingsToCreate.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
-			var clonedIteration = this.iteration.Clone(false);
-
-			if (this.ElementDefinitionCreationViewModel.IsTopElement)
-			{
-				clonedIteration.TopElement = this.ElementDefinitionCreationViewModel.ElementDefinition;
-			}
-
-			clonedIteration.Element.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
-			try
-			{
-				await this.sessionService.CreateThings(clonedIteration, thingsToCreate);
-				this.IsOnCreationMode = false;
-			}
-			catch (Exception exception)
-			{
-				Console.WriteLine(exception.Message);
-				throw;
-			}
-		}
-
-		/// <summary>
-		/// Update this view model properties
-		/// </summary>
-		/// <returns>A <see cref="Task" /></returns>
-		protected override async Task OnIterationChanged()
-        {
-            await base.OnIterationChanged();
-            this.IsLoading = false;
         }
     }
 }

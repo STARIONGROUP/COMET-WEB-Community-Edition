@@ -31,10 +31,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
-
-    using COMETwebapp.Extensions;
 
     using ReactiveUI;
 
@@ -81,26 +79,26 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
+        protected override async Task OnThingChanged()
         {
-            await base.OnIterationChanged();
+            await base.OnThingChanged();
 
-            this.OptionSelector.CurrentIteration = this.CurrentIteration;
-            this.ParameterTypeSelector.CurrentIteration = this.CurrentIteration;
+            this.OptionSelector.CurrentIteration = this.CurrentThing;
+            this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
 
-            var ownedSubscriptions = this.CurrentIteration?.QueryOwnedParameterSubscriptions(this.CurrentDomain).ToList()
+            var ownedSubscriptions = this.CurrentThing?.QueryOwnedParameterSubscriptions(this.CurrentDomain).ToList()
                                      ?? new List<ParameterSubscription>();
 
-            var availableOptions = this.CurrentIteration?.Option.ToList();
+            var availableOptions = this.CurrentThing?.Option.ToList();
 
-            var subscribedParameters = this.CurrentIteration?.QuerySubscribedParameterByOthers(this.CurrentDomain).ToList()
+            var subscribedParameters = this.CurrentThing?.QuerySubscribedParameterByOthers(this.CurrentDomain).ToList()
                                        ?? new List<ParameterOrOverrideBase>();
 
             var availableParameterTypes = ownedSubscriptions.Select(x => x.ParameterType).ToList();
             availableParameterTypes.AddRange(subscribedParameters.Select(x => x.ParameterType));
             this.ParameterTypeSelector.FilterAvailableParameterTypes(availableParameterTypes.Select(x => x.Iid).Distinct());
 
-            this.SubscribedTable.UpdateProperties(ownedSubscriptions, availableOptions, this.CurrentIteration);
+            this.SubscribedTable.UpdateProperties(ownedSubscriptions, availableOptions, this.CurrentThing);
             this.DomainOfExpertiseSubscriptionTable.UpdateProperties(subscribedParameters);
             await Task.Delay(1);
             this.IsLoading = false;
@@ -112,7 +110,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
-            await this.OnIterationChanged();
+            await this.OnThingChanged();
             await this.UpdateTables();
         }
 
@@ -123,7 +121,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         protected override Task OnDomainChanged()
         {
             base.OnDomainChanged();
-            return this.OnIterationChanged();
+            return this.OnThingChanged();
         }
 
         /// <summary>

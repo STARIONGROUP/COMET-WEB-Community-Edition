@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.ViewModels.Components
+namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -33,7 +33,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using Moq;
 
@@ -44,6 +44,36 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
     {
         private SingleIterationApplicationViewModel viewModel;
         private Mock<ISessionService> sessionService;
+
+        private class SingleIterationApplicationViewModel : SingleIterationApplicationBaseViewModel
+        {
+            public int OnSessionRefreshCount;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
+            /// </summary>
+            /// <param name="sessionService">The <see cref="ISessionService" /></param>
+            public SingleIterationApplicationViewModel(ISessionService sessionService) : base(sessionService)
+            {
+            }
+
+            public IReadOnlyList<Thing> AddedThingsReadOnlyList => this.AddedThings.AsReadOnly();
+
+            public void Initialize(IEnumerable<Type> types)
+            {
+                this.InitializeSubscriptions(types);
+            }
+
+            /// <summary>
+            /// Handles the refresh of the current <see cref="ISession" />
+            /// </summary>
+            /// <returns>A <see cref="Task" /></returns>
+            protected override Task OnSessionRefreshed()
+            {
+                this.OnSessionRefreshCount++;
+                return Task.CompletedTask;
+            }
+        }
 
         [SetUp]
         public void Setup()
@@ -59,15 +89,23 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         }
 
         [Test]
-        public void VerifyProperties()
+        public void VerifyObjectChangeSubscriptions()
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.CurrentDomain, Is.Null);
-                Assert.That(this.viewModel.IsLoading, Is.False);
-                Assert.That(this.viewModel.HasSetInitialValuesOnce, Is.False);
-                Assert.That(this.viewModel.CurrentIteration, Is.Null);
-            });
+            this.viewModel.Initialize(new List<Type> { typeof(ElementBase) });
+            var elementDefinition = new ElementDefinition { Container = new Iteration() };
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
+
+            this.viewModel.CurrentThing = new Iteration { Iid = Guid.NewGuid() };
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
+
+            this.viewModel.CurrentThing.Element.Add(elementDefinition);
+
+            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            Assert.That(this.viewModel.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -77,14 +115,14 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             var domain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
-            this.viewModel.CurrentIteration = iteration;
+            this.viewModel.CurrentThing = iteration;
             this.viewModel.HasSetInitialValuesOnce = true;
             Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(domain));
             var newDomain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(newDomain);
             CDPMessageBus.Current.SendMessage(new DomainChangedEvent(iteration, newDomain));
             Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(newDomain));
-            this.viewModel.CurrentIteration = null;
+            this.viewModel.CurrentThing = null;
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
         }
 
@@ -97,53 +135,15 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         }
 
         [Test]
-        public void VerifyObjectChangeSubscriptions()
+        public void VerifyProperties()
         {
-            this.viewModel.Initialize(new List<Type>{typeof(ElementBase)});
-            var elementDefinition = new ElementDefinition(){Container = new Iteration()};
-
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
-
-            this.viewModel.CurrentIteration = new Iteration(){Iid = Guid.NewGuid()};
-
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
-
-            this.viewModel.CurrentIteration.Element.Add(elementDefinition);
-
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            Assert.That(this.viewModel.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
-        }
-
-        private class SingleIterationApplicationViewModel : SingleIterationApplicationBaseViewModel
-        {
-            public int OnSessionRefreshCount;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
-            /// </summary>
-            /// <param name="sessionService">The <see cref="ISessionService" /></param>
-            public SingleIterationApplicationViewModel(ISessionService sessionService) : base(sessionService)
+            Assert.Multiple(() =>
             {
-            }
-
-            /// <summary>
-            /// Handles the refresh of the current <see cref="ISession" />
-            /// </summary>
-            /// <returns>A <see cref="Task" /></returns>
-            protected override Task OnSessionRefreshed()
-            {
-                this.OnSessionRefreshCount++;
-                return Task.CompletedTask;
-            }
-
-            public void Initialize(IEnumerable<Type> types)
-            {
-                this.InitializeSubscriptions(types);
-            }
-
-            public IReadOnlyList<Thing> AddedThingsReadOnlyList => this.AddedThings.AsReadOnly();
+                Assert.That(this.viewModel.CurrentDomain, Is.Null);
+                Assert.That(this.viewModel.IsLoading, Is.False);
+                Assert.That(this.viewModel.HasSetInitialValuesOnce, Is.False);
+                Assert.That(this.viewModel.CurrentThing, Is.Null);
+            });
         }
     }
 }

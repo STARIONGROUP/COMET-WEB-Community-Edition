@@ -34,7 +34,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
     /// <summary>
     /// View model that enable the user to select one selected <see cref="Iteration" />
     /// </summary>
-    public interface IIterationSelectorViewModel
+    public interface IIterationSelectorViewModel: IThingSelectorViewModel<Iteration>
     {
         /// <summary>
         /// The selected <see cref="IterationData" />
@@ -45,17 +45,6 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// A collection of available <see cref="IterationData" />
         /// </summary>
         IEnumerable<IterationData> AvailableIterations { get; set; }
-
-        /// <summary>
-        /// <see cref="EventCallback{TValue}" /> to call when the <see cref="Iteration" /> has been selected
-        /// </summary>
-        EventCallback<Iteration> OnSubmit { get; set; }
-
-        /// <summary>
-        /// Updates this view model properties
-        /// </summary>
-        /// <param name="availableIterations">A collection of available <see cref="Iteration" /></param>
-        void UpdateProperties(IEnumerable<Iteration> availableIterations);
 
         /// <summary>
         /// Submit the selection of the <see cref="IterationSelectorViewModel.SelectedIteration" />

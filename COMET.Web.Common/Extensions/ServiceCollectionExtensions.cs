@@ -35,6 +35,7 @@ namespace COMET.Web.Common.Extensions
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Publications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;

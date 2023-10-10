@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -52,5 +52,15 @@
     <Content Update="wwwroot\server_configuration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\SingleThingApplicationTemplate.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\Applications\ApplicationTemplate.razor" />
+    <_ContentIncludedByDefault Remove="Components\SingleThingApplicationTemplate.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Applications\ApplicationTemplate.razor" />
   </ItemGroup>
 </Project>

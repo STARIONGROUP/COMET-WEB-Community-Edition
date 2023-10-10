@@ -22,11 +22,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
+namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
-	using CDP4Dal;
+    using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -94,13 +95,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
             this.viewModel = new ElementDefinitionTableViewModel(this.sessionService.Object);
-            this.viewModel.CurrentIteration = this.iteration;
+            this.viewModel.CurrentThing = this.iteration;
         }
 
         [TearDown]
         public void TearDown()
         {
             this.viewModel.Dispose();
+            CDPMessageBus.Current.ClearSubscriptions();
         }
 
         [Test]
@@ -160,7 +162,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEdior
 				Owner = this.domain
 			};
 
-			this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category> { new Category { Name = "C" } };
+			this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category> { new() { Name = "C" } };
 			this.viewModel.ElementDefinitionCreationViewModel.IsTopElement = true;
 
 			this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories.ToList();

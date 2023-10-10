@@ -41,6 +41,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
     using COMETwebapp.Pages.ParameterEditor;
     using COMETwebapp.Services.SubscriptionService;
@@ -168,7 +169,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.SelectedIteration, Is.Not.Null);
+                Assert.That(this.viewModel.SelectedThing, Is.Not.Null);
                 Assert.That(navigation.Uri.Contains("server"), Is.True);
                 Assert.That(navigation.Uri.Contains(this.secondIteration.Iid.ToShortGuid()), Is.True);
             });
@@ -188,19 +189,19 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.SelectedIteration, Is.EqualTo(this.firstIteration));
+                Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
                 Assert.That(navigation.Uri.Contains("server"), Is.True);
                 Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
             });
 
-            this.viewModel.SelectedIteration = null;
+            this.viewModel.SelectedThing = null;
 
             this.context.RenderComponent<ParameterEditor>(parameters =>
             {
                 parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
             });
 
-            Assert.That(this.viewModel.SelectedIteration, Is.Null);
+            Assert.That(this.viewModel.SelectedThing, Is.Null);
         }
     }
 }

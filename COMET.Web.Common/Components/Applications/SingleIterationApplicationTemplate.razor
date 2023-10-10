@@ -19,11 +19,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@namespace COMET.Web.Common.Components
+@namespace COMET.Web.Common.Components.Applications
+@inherits SingleThingApplicationTemplate<CDP4Common.EngineeringModelData.Iteration, COMET.Web.Common.ViewModels.Components.Applications.ISingleIterationApplicationTemplateViewModel>
 
-@inherits DisposableComponent
-
-<DxPopup @bind-Visible="@this.ViewModel.IsOnIterationSelectionMode" CloseOnEscape="false" ShowFooter="false" ShowCloseButton="false"
+<DxPopup @bind-Visible="@this.ViewModel.IsOnSelectionMode" CloseOnEscape="false" ShowFooter="false" ShowCloseButton="false"
          CloseOnOutsideClick="false" HeaderText="Choose an Iteration">
 	<IterationSelector ViewModel="@this.ViewModel.IterationSelectorViewModel"/>
 </DxPopup>
@@ -39,13 +38,13 @@ else
 {
 	<div class="container-fluid">
 		<div class="row m-top-10px">
-			@if (this.ViewModel.SelectedIteration is not null)
+			@if (this.ViewModel.SelectedThing is not null)
 			{
 				@if (this.ShowActiveModel)
 				{
 				    <DxTextBox ReadOnly="true" Text="@($"Active Model : {this.ViewModel.SelectedIterationData?.IterationName}")" SizeMode="SizeMode.Large" CssClass="m-bottom-20px-left-20px" ></DxTextBox>
 				}
-				<CascadingValue Value="this.ViewModel.SelectedIteration">
+				<CascadingValue Value="this.ViewModel.SelectedThing">
 					<div>
 						@this.Body
 					</div>

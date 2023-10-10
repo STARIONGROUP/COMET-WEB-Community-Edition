@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.UserManagement
 {
-    using System.Reactive.Linq;
-
     using AntDesign;
 
     using CDP4Common.CommonData;
@@ -37,7 +35,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
@@ -64,11 +62,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
-        /// <summary>
         /// Backing field for <see cref="IsOnDeprecationMode" />
         /// </summary>
         private bool isOnDeprecationMode;
@@ -88,69 +81,9 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Handles the refresh of the current <see cref="ISession" />
+        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
-        {
-            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
-            {
-                return;
-            }
-
-            this.IsLoading = true;
-            await Task.Delay(1);
-
-            this.RemoveRows(this.DeletedThings.OfType<Person>());
-            this.UpdateRows(this.UpdatedThings.OfType<Person>());
-            this.Rows.AddRange(this.AddedThings.OfType<Person>().Select(x => new PersonRowViewModel(x)));
-
-            this.ClearRecordedChanges();
-            this.RefreshAccessRight();
-            this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent"/>
-        /// </summary>
-        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent"/></param>
-        /// <returns>true if the change should be recorded, false otherwise</returns>
-        protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
-        /// </summary>
-        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
-        public void RemoveRows(IEnumerable<Person> deletedThings)
-        {
-            foreach (Person person in deletedThings)
-            {
-                var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
-                if (row != null)
-                {
-                    this.Rows.Remove(row);
-                }
-            }
-        }
-
-        /// <summary>   
-        /// Updates rows related to <see cref="ElementBase" /> that have been updated
-        /// </summary>
-        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
-        public void UpdateRows(IEnumerable<Person> updatedThings)
-        {
-            foreach (Person person in updatedThings)
-            {
-                var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
-                if (row != null)
-                {
-                    row.UpdateProperties(new PersonRowViewModel(person));
-                }
-            }
-        }
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         /// The <see cref="Person" /> to create or edit
@@ -320,6 +253,40 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
+        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
+        public void RemoveRows(IEnumerable<Person> deletedThings)
+        {
+            foreach (var person in deletedThings)
+            {
+                var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
+
+                if (row != null)
+                {
+                    this.Rows.Remove(row);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
+        public void UpdateRows(IEnumerable<Person> updatedThings)
+        {
+            foreach (var person in updatedThings)
+            {
+                var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
+
+                if (row != null)
+                {
+                    row.UpdateProperties(new PersonRowViewModel(person));
+                }
+            }
+        }
+
+        /// <summary>
         /// Tries to undeprecate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -348,6 +315,49 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+            await Task.Delay(1);
+
+            this.RemoveRows(this.DeletedThings.OfType<Person>());
+            this.UpdateRows(this.UpdatedThings.OfType<Person>());
+            this.Rows.AddRange(this.AddedThings.OfType<Person>().Select(x => new PersonRowViewModel(x)));
+
+            this.ClearRecordedChanges();
+            this.RefreshAccessRight();
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent" />
+        /// </summary>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
+        /// <returns>true if the change should be recorded, false otherwise</returns>
+        protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Update this view model properties
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.IsLoading = false;
+        }
+
+        /// <summary>
         /// Updates the active user access rights
         /// </summary>
         private void RefreshAccessRight()
@@ -357,16 +367,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                 row.IsAllowedToWrite = row.Person.Iid != this.sessionService.Session.ActivePerson.Iid
                                        && this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
             }
-        }
-
-        /// <summary>
-        /// Update this view model properties
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnIterationChanged()
-        {
-            await base.OnIterationChanged();
-            this.IsLoading = false;
         }
     }
 }

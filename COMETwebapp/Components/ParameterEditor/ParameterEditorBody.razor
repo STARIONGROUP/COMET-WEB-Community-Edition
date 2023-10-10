@@ -21,7 +21,7 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
-@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
+@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.ParameterEditorPage.QueryPageBodyName()" class="container-fluid">

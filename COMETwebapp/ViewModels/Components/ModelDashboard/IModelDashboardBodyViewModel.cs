@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelDashboard
 {
-    using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.ModelDashboard.Elements;

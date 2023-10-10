@@ -38,6 +38,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -97,6 +99,9 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
+            var configuration = new Mock<IConfigurationService>();
+            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.context.Services.AddSingleton(configuration.Object);
 
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);

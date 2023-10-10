@@ -34,14 +34,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components;
-    
+    using COMET.Web.Common.ViewModels.Components.Applications;
+
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
     using COMETwebapp.Wrappers;
-    using DevExpress.Blazor;
+
     using DynamicData;
 
     using ReactiveUI;
@@ -172,18 +170,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
-        /// Handles the refresh of the current <see cref="ISession" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-            this.IsLoading = false;
-        }
-
-
-        /// <summary>
         /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category" />
         /// </summary>
         public void OnCancelButtonClick()
@@ -271,6 +257,20 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
             await this.UpdateProperties(this.DataSource.Items);
             await this.RefreshAccessRight();
+        }
+
+        /// <summary>
+        /// set the selected <see cref="CategoryRowViewModel" />
+        /// </summary>
+        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
+        public void SelectCategory(CategoryRowViewModel selectedCategory)
+        {
+            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
+
+            this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;
+            this.CategoryHierarchyDiagramViewModel.SubCategories = this.CategoryHierarchyDiagramViewModel.SelectedCategory.AllDerivedCategories();
+
+            this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
 
         /// <summary>
@@ -362,6 +362,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            this.IsLoading = true;
+            await Task.Delay(1);
+            this.IsLoading = false;
+        }
+
+        /// <summary>
         /// Refresh the displayed container name for the category rows
         /// </summary>
         /// <param name="rdl">
@@ -371,6 +382,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.IsLoading = true;
             await Task.Delay(1);
+
             foreach (var category in this.Rows.Items)
             {
                 if (category.ContainerName != rdl.ShortName)
@@ -378,6 +390,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
                     category.ContainerName = rdl.ShortName;
                 }
             }
+
             this.IsLoading = false;
         }
 
@@ -388,10 +401,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         {
             this.IsLoading = true;
             await Task.Delay(1);
+
             foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.Category, row.Category.Container);
             }
+
             this.IsLoading = false;
         }
 
@@ -415,20 +430,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.Rows.Items.First(x => x.Category.Iid == existingRow.Category.Iid).UpdateProperties(existingRow);
             }
-        }
-
-        /// <summary>
-        /// set the selected <see cref="CategoryRowViewModel" />
-        /// </summary>
-        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-        public void SelectCategory(CategoryRowViewModel selectedCategory)
-        {
-            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Category;
-
-            this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;
-            this.CategoryHierarchyDiagramViewModel.SubCategories = this.CategoryHierarchyDiagramViewModel.SelectedCategory.AllDerivedCategories();
-
-            this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
     }
 }
