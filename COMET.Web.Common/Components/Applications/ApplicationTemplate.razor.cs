@@ -25,54 +25,43 @@
 
 namespace COMET.Web.Common.Components.Applications
 {
-    using System.ComponentModel;
+    using COMET.Web.Common.Extensions;
 
-    using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Utilities;
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
-    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.WebUtilities;
 
     /// <summary>
-    /// Shared component that will englobe all applications
-    /// </summary>
-    /// <typeparam name="TViewModel">Any <see cref="IApplicationTemplateViewModel"/></typeparam>
-    public partial class ApplicationTemplate<TViewModel>
-    {
-        /// <summary>
-        /// Body of the application
-        /// </summary>
-        [Parameter]
-        public RenderFragment Body { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the <typeparamref name="TViewModel" />
-        /// </summary>
-        [Inject]
-        public TViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// The <see cref="NavigationManager" />
-        /// </summary>
-        [Inject]
-        public NavigationManager NavigationManager { get; set; }
-
-        /// <summary>
-        /// The <see cref="IConfigurationService" />
-        /// </summary>
-        [Inject]
-        public IConfigurationService ConfigurationService { get; set; }
-
-        /// <summary>
-        /// Set URL parameters based on the current context
-        /// </summary>
-        /// <param name="currentOptions">A <see cref="Dictionary{TKey,TValue}" /> of URL parameters</param>
-        protected virtual void SetUrlParameters(Dictionary<string, string> currentOptions)
+	/// Shared component that will englobe any applications that on need to be connected to a 10-25 datasource
+	/// </summary>
+	public partial class ApplicationTemplate
+	{
+		/// <summary>
+		/// Method invoked when the component is ready to start, having received its
+		/// initial parameters from its parent in the render tree.
+		/// </summary>
+        protected override void OnInitialized()
         {
-            if (string.IsNullOrEmpty(this.ConfigurationService.ServerConfiguration.ServerAddress))
+            base.OnInitialized();
+
+            this.SetCorrectUrl();
+        }
+
+        /// <summary>
+        /// Sets the correct url based on the context
+        /// </summary>
+        internal void SetCorrectUrl()
+        {
+            var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty).Split('?')[0];
+            var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
+            this.SetUrlParameters(currentOptions);
+            var targetOptions = new Dictionary<string, string>();
+
+            foreach (var currentOption in currentOptions.Where(x => !string.IsNullOrEmpty(x.Value)))
             {
-                currentOptions[QueryKeys.ServerKey] = this.ViewModel.SessionService.Session.DataSourceUri;
+                targetOptions[currentOption.Key] = currentOption.Value;
             }
+
+            var targetUrl = QueryHelpers.AddQueryString(urlPage, targetOptions);
+            this.NavigationManager.NavigateTo(targetUrl);
         }
     }
 }
