@@ -20,6 +20,5 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components.Applications
-@typeparam TThing where TThing: CDP4Common.CommonData.Thing
-@typeparam TViewModel where TViewModel: class, COMET.Web.Common.ViewModels.Components.Applications.ISingleThingApplicationTemplateViewModel<TThing>
-@inherits GenericApplicationTemplate<TViewModel>
+@typeparam TViewModel where TViewModel: class, COMET.Web.Common.ViewModels.Components.Applications.IApplicationTemplateViewModel
+@inherits DisposableComponent

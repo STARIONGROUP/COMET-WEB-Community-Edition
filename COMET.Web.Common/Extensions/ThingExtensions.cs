@@ -36,7 +36,7 @@ namespace COMET.Web.Common.Extensions
     /// </summary>
     public static class ThingExtensions
     {
-		/// <summary>
+        /// <summary>
         /// Gets the name of the <see cref="Iteration" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>

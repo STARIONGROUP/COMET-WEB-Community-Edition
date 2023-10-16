@@ -100,6 +100,8 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<IModelMenuViewModel, ModelMenuViewModel>();
             serviceProvider.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
             serviceProvider.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
+            serviceProvider.AddTransient<ISingleEngineeringModelApplicationTemplateViewModel, SingleEngineeringModelApplicationTemplateViewModel>();
+            serviceProvider.AddTransient<IApplicationTemplateViewModel, ApplicationTemplateViewModel>();
             serviceProvider.AddTransient<IPublicationsViewModel, PublicationsViewModel>();
         }
     }
