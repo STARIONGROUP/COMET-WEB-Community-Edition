@@ -26,7 +26,6 @@
 namespace COMET.Web.Common.Tests.Components.Applications
 {
     using CDP4Dal;
-    using CDP4Dal.DAL;
 
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Model.Configuration;

@@ -37,7 +37,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Initializes a new <see cref="ApplicationTemplateViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        protected ApplicationTemplateViewModel(ISessionService sessionService)
+        public ApplicationTemplateViewModel(ISessionService sessionService)
         {
             this.SessionService = sessionService;
         }
