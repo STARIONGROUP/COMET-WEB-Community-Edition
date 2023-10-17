@@ -99,6 +99,7 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<ISessionMenuViewModel, SessionMenuViewModel>();
             serviceProvider.AddScoped<IModelMenuViewModel, ModelMenuViewModel>();
             serviceProvider.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
+            serviceProvider.AddTransient<IEngineeringModelSelectorViewModel, EngineeringModelSelectorViewModel>();
             serviceProvider.AddTransient<ISingleIterationApplicationTemplateViewModel, SingleIterationApplicationTemplateViewModel>();
             serviceProvider.AddTransient<ISingleEngineeringModelApplicationTemplateViewModel, SingleEngineeringModelApplicationTemplateViewModel>();
             serviceProvider.AddTransient<IApplicationTemplateViewModel, ApplicationTemplateViewModel>();

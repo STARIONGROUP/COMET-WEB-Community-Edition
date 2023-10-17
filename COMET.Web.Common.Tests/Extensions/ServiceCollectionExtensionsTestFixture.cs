@@ -25,8 +25,12 @@
 
 namespace COMET.Web.Common.Tests.Extensions
 {
-    using COMET.Web.Common.Extensions;
+    using System.Reflection;
 
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
+
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -37,16 +41,34 @@ namespace COMET.Web.Common.Tests.Extensions
     public class ServiceCollectionExtensionsTestFixture
     {
         [Test]
-        public void VerifyRegistration()
+        public void VerifyServerRegistration()
         {
-            var serviceCollection = new Mock<IServiceCollection>();
-            
-            Assert.Multiple(() => 
+            var serviceCollection = new ServiceCollection();
+            var configuration = new Mock<IConfiguration>();
+            serviceCollection.AddSingleton(configuration.Object);
+            serviceCollection.AddLogging();
+            serviceCollection.RegisterCommonLibrary(globalOptions: _ => { });
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            foreach (var service in serviceCollection.Where(x => x.ServiceType.Assembly == Assembly.GetAssembly(typeof(ISessionService))))
             {
-                Assert.That(() => serviceCollection.Object.RegisterCommonLibrary(), Throws.Nothing);
-                Assert.That(() => serviceCollection.Object.RegisterCommonLibrary(false), Throws.Nothing);
-                Assert.That(() => serviceCollection.Object.RegisterCommonLibrary(false, options => { }), Throws.Nothing);
-            });
+                Assert.That(() => serviceProvider.GetService(service.ServiceType), Throws.Nothing);
+            }
+        }
+
+        [Test]
+        public void VerifyWebAssemblyRegistration()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddScoped(_ => new HttpClient());
+            serviceCollection.AddLogging();
+            serviceCollection.RegisterCommonLibrary(false,globalOptions: _ => { });
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            foreach (var service in serviceCollection.Where(x => x.ServiceType.Assembly == Assembly.GetAssembly(typeof(ISessionService))))
+            {
+                Assert.That(() => serviceProvider.GetService(service.ServiceType), Throws.Nothing);
+            }
         }
     }
 }

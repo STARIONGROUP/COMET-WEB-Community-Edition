@@ -304,6 +304,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(themalDomain);
             CDPMessageBus.Current.SendMessage(new DomainChangedEvent(iteration, themalDomain));
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            await Task.Delay(1000);
 
             var buttonToDo = renderer.Find(".todo-btn");
             await renderer.InvokeAsync(() => buttonToDo.ClickAsync(new MouseEventArgs()));
