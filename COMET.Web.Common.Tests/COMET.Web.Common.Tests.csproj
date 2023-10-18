@@ -38,6 +38,7 @@
         <Content Include="Data\server_configuration_tests.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+      <None Remove="Resources\configuration\naming_convention.json" />
       <Content Include="Resources\configuration\naming_convention.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
