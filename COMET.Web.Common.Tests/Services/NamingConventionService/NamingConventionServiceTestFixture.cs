@@ -26,6 +26,7 @@
 
 namespace COMET.Web.Common.Tests.Services.NamingConventionService
 {
+    using COMET.Web.Common.Server.Services.NamingConventionService;
     using COMET.Web.Common.Services.NamingConventionService;
 
     using Microsoft.Extensions.Logging;
@@ -53,13 +54,13 @@ namespace COMET.Web.Common.Tests.Services.NamingConventionService
             await this.service.InitializeService();
             var enumValues = Enum.GetValues<NamingConventionKindTestEnum>();
 
-            foreach (var namingConventionKind in enumValues)
+            Assert.Multiple(() =>
             {
-                Assert.Multiple(() =>
+                foreach (var namingConventionKind in enumValues)
                 {
                     Assert.That(this.service.GetNamingConventionValue(namingConventionKind), Is.Not.Empty);
-                });
-            }
+                }
+            });
         }
 
         /// To be used for testing purposes only
