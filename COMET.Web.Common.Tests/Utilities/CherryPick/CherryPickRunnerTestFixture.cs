@@ -22,45 +22,46 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.Utilities.CherryPick;
-
-using NUnit.Framework;
-
-using CDP4Common.SiteDirectoryData;
-
-using Moq;
-
-[TestFixture]
-public class CherryPickRunnerTestFixture
+namespace COMET.Web.Common.Tests.Utilities.CherryPick
 {
-    private Common.Utilities.CherryPick.CherryPickRunner viewModel;
-    private Mock<Common.Services.SessionManagement.ISessionService> sessionService;
-    private Mock<Common.Utilities.CherryPick.INeedCherryPickedData> needCherryPickedData;
+    using NUnit.Framework;
 
-    [SetUp]
-    public void Setup()
+    using CDP4Common.SiteDirectoryData;
+
+    using Moq;
+
+    [TestFixture]
+    public class CherryPickRunnerTestFixture
     {
-        this.sessionService = new Mock<Common.Services.SessionManagement.ISessionService>();
-        this.needCherryPickedData = new Mock<Common.Utilities.CherryPick.INeedCherryPickedData>();
-        this.viewModel = new Common.Utilities.CherryPick.CherryPickRunner(this.sessionService.Object);
-    }
+        private Common.Utilities.CherryPick.CherryPickRunner viewModel;
+        private Mock<Common.Services.SessionManagement.ISessionService> sessionService;
+        private Mock<Common.Utilities.CherryPick.INeedCherryPickedData> needCherryPickedData;
 
-    [Test]
-    public async Task VerifyProperties()
-    {
-        Assert.That(this.viewModel.IsCherryPicking, Is.False);
-        this.viewModel.InitializeProperties(new List<Common.Utilities.CherryPick.INeedCherryPickedData> { this.needCherryPickedData.Object });
+        [SetUp]
+        public void Setup()
+        {
+            this.sessionService = new Mock<Common.Services.SessionManagement.ISessionService>();
+            this.needCherryPickedData = new Mock<Common.Utilities.CherryPick.INeedCherryPickedData>();
+            this.viewModel = new Common.Utilities.CherryPick.CherryPickRunner(this.sessionService.Object);
+        }
 
-        this.sessionService.Setup(x => x.Session.RetrieveSiteDirectory()).Returns(new SiteDirectory());
+        [Test]
+        public async Task VerifyProperties()
+        {
+            Assert.That(this.viewModel.IsCherryPicking, Is.False);
+            this.viewModel.InitializeProperties(new List<Common.Utilities.CherryPick.INeedCherryPickedData> { this.needCherryPickedData.Object });
 
-        var propertyInfo = typeof(Common.Utilities.CherryPick.CherryPickRunner).GetProperty("IsCherryPicking", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            this.sessionService.Setup(x => x.Session.RetrieveSiteDirectory()).Returns(new SiteDirectory());
 
-        propertyInfo?.SetValue(this.viewModel, true, null);
-        await this.viewModel.RunCherryPick();
-        this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<CDP4Common.DTO.Thing>>>()), Times.Never);
+            var propertyInfo = typeof(Common.Utilities.CherryPick.CherryPickRunner).GetProperty("IsCherryPicking", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
-        propertyInfo?.SetValue(this.viewModel, false, null);
-        await this.viewModel.RunCherryPick();
-        this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<CDP4Common.DTO.Thing>>>()), Times.Once);
+            propertyInfo?.SetValue(this.viewModel, true, null);
+            await this.viewModel.RunCherryPick();
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<CDP4Common.DTO.Thing>>>()), Times.Never);
+
+            propertyInfo?.SetValue(this.viewModel, false, null);
+            await this.viewModel.RunCherryPick();
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<CDP4Common.DTO.Thing>>>()), Times.Once);
+        }
     }
 }
