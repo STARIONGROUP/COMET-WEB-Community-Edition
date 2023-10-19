@@ -50,12 +50,5 @@ namespace COMET.Web.Common.Services.NamingConventionService
         /// <param name="namingConventionKind">The <see cref="NamingConventionKind" /></param>
         /// <returns>The defined naming convention, if exists</returns>
         string GetNamingConventionValue(TEnum namingConventionKind);
-
-        /// <summary>
-        /// Gets the naming convention configuration
-        /// </summary>
-        /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration();
     }
 }

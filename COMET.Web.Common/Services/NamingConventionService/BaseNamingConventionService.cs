@@ -99,6 +99,6 @@ namespace COMET.Web.Common.Services.NamingConventionService
         /// </summary>
         /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
         /// <exception cref="NotImplementedException"></exception>
-        public abstract Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration();
+        protected abstract Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration();
     }
 }

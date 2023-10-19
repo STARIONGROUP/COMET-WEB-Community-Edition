@@ -51,7 +51,7 @@ namespace COMET.Web.Common.Server.Services.NamingConventionService
         /// Gets the naming convention configuration
         /// </summary>
         /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
-        public override async Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration()
+        protected override async Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration()
         {
             try
             {
