@@ -32,7 +32,7 @@ namespace COMET.Web.Common.Services.NamingConventionService
     /// <see cref="Category" /> to use for example
     /// </summary>
     /// <typeparam name="TEnum">Any type of enumeration that will contain the different types of naming conventions</typeparam>
-    public class BaseNamingConventionService<TEnum> : INamingConventionService<TEnum> where TEnum : Enum
+    public abstract class BaseNamingConventionService<TEnum> : INamingConventionService<TEnum> where TEnum : Enum
     {
         /// <summary>
         /// <see cref="Dictionary{TKey,TValue}" /> that holds the defined naming convention
@@ -99,9 +99,6 @@ namespace COMET.Web.Common.Services.NamingConventionService
         /// </summary>
         /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration();
     }
 }
