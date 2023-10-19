@@ -23,93 +23,94 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Tests.WebAssembly.Services.NamingConventionService;
-
-using System.Net;
-
-using COMET.Web.Common.Services.NamingConventionService;
-using COMET.Web.Common.Test.Helpers;
-using COMET.Web.Common.WebAssembly.Services.NamingConventionService;
-
-using Microsoft.Extensions.Logging;
-
-using Moq;
-
-using NUnit.Framework;
-
-using RichardSzalay.MockHttp;
-
-[TestFixture]
-public class NamingConventionServiceTestFixture
+namespace COMET.Web.Common.Tests.WebAssembly.Services.NamingConventionService
 {
-    private NamingConventionService<NamingConventionKindTestEnum> service;
-    private MockHttpMessageHandler mockHttpMessageHandler;
-    private Mock<ILogger<INamingConventionService<NamingConventionKindTestEnum>>> logger;
+    using System.Net;
 
-    [SetUp]
-    public void Setup()
+    using COMET.Web.Common.Services.NamingConventionService;
+    using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.WebAssembly.Services.NamingConventionService;
+
+    using Microsoft.Extensions.Logging;
+
+    using Moq;
+
+    using NUnit.Framework;
+
+    using RichardSzalay.MockHttp;
+
+    [TestFixture]
+    public class NamingConventionServiceTestFixture
     {
-        this.mockHttpMessageHandler = new MockHttpMessageHandler();
-        var httpClient = this.mockHttpMessageHandler.ToHttpClient();
-        httpClient.BaseAddress = new Uri("http://localhost/");
-        this.logger = new Mock<ILogger<INamingConventionService<NamingConventionKindTestEnum>>>();
-        this.service = new NamingConventionService<NamingConventionKindTestEnum>(this.logger.Object, httpClient);
-    }
+        private NamingConventionService<NamingConventionKindTestEnum> service;
+        private MockHttpMessageHandler mockHttpMessageHandler;
+        private Mock<ILogger<INamingConventionService<NamingConventionKindTestEnum>>> logger;
 
-    [Test]
-    public async Task VerifyService()
-    {
-        this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/naming_convention.json")
-            .Throw(new Exception());
-
-        await this.service.InitializeService();
-        this.logger.Verify(LogLevel.Critical, o => o!.ToString()!.Contains("Exception has been raised"), Times.Once());
-
-        this.mockHttpMessageHandler.ResetBackendDefinitions();
-
-        var httpResponse = new HttpResponseMessage()
+        [SetUp]
+        public void Setup()
         {
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+            this.mockHttpMessageHandler = new MockHttpMessageHandler();
+            var httpClient = this.mockHttpMessageHandler.ToHttpClient();
+            httpClient.BaseAddress = new Uri("http://localhost/");
+            this.logger = new Mock<ILogger<INamingConventionService<NamingConventionKindTestEnum>>>();
+            this.service = new NamingConventionService<NamingConventionKindTestEnum>(this.logger.Object, httpClient);
+        }
 
-        this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/naming_convention.json")
-            .Respond(_ => httpResponse);
-
-        await this.service.InitializeService();
-        this.logger.Verify(LogLevel.Error, o => o!.ToString()!.Contains("Error fetching naming conventions. Status code:"), Times.Once());
-
-        httpResponse.StatusCode = HttpStatusCode.NotFound;
-
-        await this.service.InitializeService();
-        this.logger.Verify(LogLevel.Error, o => o!.ToString()!.Contains("Naming conventions file not found at "), Times.Once());
-
-        httpResponse.StatusCode = HttpStatusCode.OK;
-
-        var json = """
-                   {
-                     "TestValue1": "TestValue1",
-                     "TestValue2": "TestValue2"
-                   }
-                   """;
-
-        httpResponse.Content = new StringContent(json);
-        await this.service.InitializeService();
-        
-        var enumValues = Enum.GetValues<NamingConventionKindTestEnum>();
-
-        Assert.Multiple(() =>
+        [Test]
+        public async Task VerifyService()
         {
-            foreach (var namingConventionKind in enumValues)
+            this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/naming_convention.json")
+                .Throw(new Exception());
+
+            await this.service.InitializeService();
+            this.logger.Verify(LogLevel.Critical, o => o!.ToString()!.Contains("Exception has been raised"), Times.Once());
+
+            this.mockHttpMessageHandler.ResetBackendDefinitions();
+
+            var httpResponse = new HttpResponseMessage()
             {
-                Assert.That(this.service.GetNamingConventionValue(namingConventionKind), Is.Not.Empty);
-            }
-        });
-    }
+                StatusCode = HttpStatusCode.InternalServerError
+            };
 
-    /// To be used for testing purposes only
-    public enum NamingConventionKindTestEnum
-    {
-        TestValue1,
-        TestValue2
+            this.mockHttpMessageHandler.When(HttpMethod.Get, "/_content/CDP4.WEB.Common/naming_convention.json")
+                .Respond(_ => httpResponse);
+
+            await this.service.InitializeService();
+            this.logger.Verify(LogLevel.Error, o => o!.ToString()!.Contains("Error fetching naming conventions. Status code:"), Times.Once());
+
+            httpResponse.StatusCode = HttpStatusCode.NotFound;
+
+            await this.service.InitializeService();
+            this.logger.Verify(LogLevel.Error, o => o!.ToString()!.Contains("Naming conventions file not found at "), Times.Once());
+
+            httpResponse.StatusCode = HttpStatusCode.OK;
+
+            var json = """
+                       {
+                         "TestValue1": "TestValue1",
+                         "TestValue2": "TestValue2"
+                       }
+                       """;
+
+            httpResponse.Content = new StringContent(json);
+            await this.service.InitializeService();
+        
+            var enumValues = Enum.GetValues<NamingConventionKindTestEnum>();
+
+            Assert.Multiple(() =>
+            {
+                foreach (var namingConventionKind in enumValues)
+                {
+                    Assert.That(this.service.GetNamingConventionValue(namingConventionKind), Is.Not.Empty);
+                }
+            });
+        }
+
+        /// To be used for testing purposes only
+        public enum NamingConventionKindTestEnum
+        {
+            TestValue1,
+            TestValue2
+        }
     }
 }

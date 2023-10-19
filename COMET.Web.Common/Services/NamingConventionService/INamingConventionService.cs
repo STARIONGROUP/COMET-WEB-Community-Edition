@@ -28,6 +28,7 @@ namespace COMET.Web.Common.Services.NamingConventionService
     /// <summary>
     /// The <see cref="INamingConventionService"/> provides static information based on defined naming convention, like for names of <see cref="Category"/> to use for example
     /// </summary>
+    /// <typeparam name="TEnum">Any type of enumeration that will contain the different types of naming conventions</typeparam>
     public interface INamingConventionService<in TEnum> where TEnum : Enum
     {
         /// <summary>
@@ -50,6 +51,11 @@ namespace COMET.Web.Common.Services.NamingConventionService
         /// <returns>The defined naming convention, if exists</returns>
         string GetNamingConventionValue(TEnum namingConventionKind);
 
+        /// <summary>
+        /// Gets the naming convention configuration
+        /// </summary>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
+        /// <exception cref="NotImplementedException"></exception>
         Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration();
     }
 }

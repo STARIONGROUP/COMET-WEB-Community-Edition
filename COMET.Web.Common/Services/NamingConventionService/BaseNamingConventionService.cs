@@ -23,79 +23,85 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Services.NamingConventionService;
-
-using Microsoft.Extensions.Logging;
-
-public class BaseNamingConventionService<TEnum> : INamingConventionService<TEnum> where TEnum : Enum
+namespace COMET.Web.Common.Services.NamingConventionService
 {
-    /// <summary>
-    /// <see cref="Dictionary{TKey,TValue}" /> that holds the defined naming convention
-    /// </summary>
-    private readonly Dictionary<string, string> definedNaming = new(StringComparer.OrdinalIgnoreCase);
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// The <see cref="ILogger{TCategoryName}" />
+    /// The <see cref="BaseNamingConventionService{TEnum}" /> provides static information based on defined naming convention, like for names of
+    /// <see cref="Category" /> to use for example
     /// </summary>
-    private readonly ILogger<INamingConventionService<TEnum>> logger;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NamingConventionService" /> class.
-    /// </summary>
-    /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-    protected BaseNamingConventionService(ILogger<INamingConventionService<TEnum>> logger)
+    /// <typeparam name="TEnum">Any type of enumeration that will contain the different types of naming conventions</typeparam>
+    public class BaseNamingConventionService<TEnum> : INamingConventionService<TEnum> where TEnum : Enum
     {
-        this.logger = logger;
-    }
+        /// <summary>
+        /// <see cref="Dictionary{TKey,TValue}" /> that holds the defined naming convention
+        /// </summary>
+        private readonly Dictionary<string, string> definedNaming = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Initializes this service
-    /// </summary>
-    /// <returns>A <see cref="Task" /></returns>
-    public async Task InitializeService()
-    {
-        var namingConvention = await this.GetNamingConventionConfiguration();
+        /// <summary>
+        /// The <see cref="ILogger{TCategoryName}" />
+        /// </summary>
+        protected readonly ILogger<INamingConventionService<TEnum>> Logger;
 
-        foreach (var namingConventionKind in Enum.GetValues(typeof(TEnum)))
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseNamingConventionService{TEnum}" /> class.
+        /// </summary>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        protected BaseNamingConventionService(ILogger<INamingConventionService<TEnum>> logger)
         {
-            if (namingConvention.TryGetValue(namingConventionKind.ToString(), out var namingConventionValue))
+            this.Logger = logger;
+        }
+
+        /// <summary>
+        /// Initializes this service
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task InitializeService()
+        {
+            var namingConvention = await this.GetNamingConventionConfiguration();
+
+            foreach (var namingConventionKind in Enum.GetValues(typeof(TEnum)))
             {
-                this.definedNaming[namingConventionKind.ToString()] = namingConventionValue;
-            }
-            else
-            {
-                this.logger.LogWarning("{namingConventionKind} is missing from the Naming Convention configuration file", namingConventionKind.ToString());
+                if (namingConvention.TryGetValue(namingConventionKind.ToString(), out var namingConventionValue))
+                {
+                    this.definedNaming[namingConventionKind.ToString()] = namingConventionValue;
+                }
+                else
+                {
+                    this.Logger.LogWarning("{namingConventionKind} is missing from the Naming Convention configuration file", namingConventionKind.ToString());
+                }
             }
         }
-    }
 
-    /// <summary>
-    /// Gets the value for naming convention
-    /// </summary>
-    /// <param name="namingConventionKey">The naming convention key</param>
-    /// <returns>The defined naming convention, if exists</returns>
-    public string GetNamingConventionValue(string namingConventionKey)
-    {
-        return this.definedNaming.TryGetValue(namingConventionKey, out var namingConventionValue) ? namingConventionValue : string.Empty;
-    }
+        /// <summary>
+        /// Gets the value for naming convention
+        /// </summary>
+        /// <param name="namingConventionKey">The naming convention key</param>
+        /// <returns>The defined naming convention, if exists</returns>
+        public string GetNamingConventionValue(string namingConventionKey)
+        {
+            return this.definedNaming.TryGetValue(namingConventionKey, out var namingConventionValue) ? namingConventionValue : string.Empty;
+        }
 
-    /// <summary>
-    /// Gets the value for naming convention
-    /// </summary>
-    /// <param name="namingConventionKind">The <see cref="NamingConventionKind" /></param>
-    /// <returns>The defined naming convention, if exists</returns>
-    public string GetNamingConventionValue(TEnum namingConventionKind)
-    {
-        return this.GetNamingConventionValue(namingConventionKind.ToString());
-    }
+        /// <summary>
+        /// Gets the value for naming convention
+        /// </summary>
+        /// <param name="namingConventionKind">The enum that is used by the service</param>
+        /// <returns>The defined naming convention, if exists</returns>
+        public string GetNamingConventionValue(TEnum namingConventionKind)
+        {
+            return this.GetNamingConventionValue(namingConventionKind.ToString());
+        }
 
-    /// <summary>
-    /// Gets the naming convention configuration
-    /// </summary>
-    /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public virtual Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration()
-    {
-        throw new NotImplementedException();
+        /// <summary>
+        /// Gets the naming convention configuration
+        /// </summary>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public virtual Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

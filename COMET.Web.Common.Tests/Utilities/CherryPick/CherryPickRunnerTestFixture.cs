@@ -30,32 +30,35 @@ namespace COMET.Web.Common.Tests.Utilities.CherryPick
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.CherryPick;
+
     using Moq;
 
     [TestFixture]
     public class CherryPickRunnerTestFixture
     {
-        private Common.Utilities.CherryPick.CherryPickRunner viewModel;
-        private Mock<Common.Services.SessionManagement.ISessionService> sessionService;
-        private Mock<Common.Utilities.CherryPick.INeedCherryPickedData> needCherryPickedData;
+        private CherryPickRunner viewModel;
+        private Mock<ISessionService> sessionService;
+        private Mock<INeedCherryPickedData> needCherryPickedData;
 
         [SetUp]
         public void Setup()
         {
-            this.sessionService = new Mock<Common.Services.SessionManagement.ISessionService>();
-            this.needCherryPickedData = new Mock<Common.Utilities.CherryPick.INeedCherryPickedData>();
-            this.viewModel = new Common.Utilities.CherryPick.CherryPickRunner(this.sessionService.Object);
+            this.sessionService = new Mock<ISessionService>();
+            this.needCherryPickedData = new Mock<INeedCherryPickedData>();
+            this.viewModel = new CherryPickRunner(this.sessionService.Object);
         }
 
         [Test]
         public async Task VerifyProperties()
         {
             Assert.That(this.viewModel.IsCherryPicking, Is.False);
-            this.viewModel.InitializeProperties(new List<Common.Utilities.CherryPick.INeedCherryPickedData> { this.needCherryPickedData.Object });
+            this.viewModel.InitializeProperties(new List<INeedCherryPickedData> { this.needCherryPickedData.Object });
 
             this.sessionService.Setup(x => x.Session.RetrieveSiteDirectory()).Returns(new SiteDirectory());
 
-            var propertyInfo = typeof(Common.Utilities.CherryPick.CherryPickRunner).GetProperty("IsCherryPicking", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            var propertyInfo = typeof(CherryPickRunner).GetProperty("IsCherryPicking", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
             propertyInfo?.SetValue(this.viewModel, true, null);
             await this.viewModel.RunCherryPick();

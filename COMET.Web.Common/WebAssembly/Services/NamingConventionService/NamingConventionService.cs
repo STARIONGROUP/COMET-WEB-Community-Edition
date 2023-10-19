@@ -41,18 +41,17 @@ namespace COMET.Web.Common.WebAssembly.Services.NamingConventionService
     public class NamingConventionService<TEnum> : BaseNamingConventionService<TEnum> where TEnum : Enum
     {
         /// <summary>
-        /// The <see cref="ILogger{TCategoryName}" />
-        /// </summary>
-        private readonly ILogger<INamingConventionService<TEnum>> logger;
-
-        /// <summary>
         /// The <see cref="HttpClient"/>
         /// </summary>
         private readonly HttpClient httpClient;
 
+        /// <summary>
+        /// Creates a new instance of type <see cref="NamingConfigurationService" />
+        /// </summary>
+        /// <param name="logger">the <see cref="ILogger{T}" /></param>
+        /// <param name="httpClient">the <see cref="HttpClient" /></param>
         public NamingConventionService(ILogger<INamingConventionService<TEnum>> logger, HttpClient httpClient) : base(logger)
         {
-            this.logger = logger;
             this.httpClient = httpClient;
         }
 
@@ -76,16 +75,16 @@ namespace COMET.Web.Common.WebAssembly.Services.NamingConventionService
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    this.logger.LogError("Naming conventions file not found at {path}", path);
+                    this.Logger.LogError("Naming conventions file not found at {path}", path);
                     return ImmutableDictionary<string, string>.Empty;
                 }
 
-                this.logger.LogError("Error fetching naming conventions. Status code: {response}", response.StatusCode);
+                this.Logger.LogError("Error fetching naming conventions. Status code: {response}", response.StatusCode);
                 return ImmutableDictionary<string, string>.Empty;
             }
             catch (Exception e)
             {
-                this.logger.LogCritical("Exception has been raised : {message}", e.Message);
+                this.Logger.LogCritical("Exception has been raised : {message}", e.Message);
                 return ImmutableDictionary<string, string>.Empty;
             }
         }
