@@ -70,6 +70,45 @@ namespace COMET.Web.Common.Utilities.CherryPick
             this.needCherryPicked.Clear();
             this.needCherryPicked.AddRange(needCherryPickedData);
         }
+        
+        /// <summary>
+        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task RunCherryPickAsync()
+        {
+            var availableEngineeringModelSetups = this.sessionService.GetParticipantModels().ToList();
+            var engineeringModelAndIterationIdTuple = availableEngineeringModelSetups.Select(x => (x.Iid, x.IterationSetup.Single(c => c.FrozenOn == null).Iid));
+            await this.RunCherryPickAsync(engineeringModelAndIterationIdTuple);
+        }
+        
+        /// <summary>
+        /// Runs the cherrypick features based on data required from <see cref="NeedCherryPicked" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids)
+        {
+            if (this.IsCherryPicking)
+            {
+                return;
+            }
+
+            this.IsCherryPicking = true;
+            var classKinds = this.GetClassKindsForCherryPick();
+            var categoryIds = this.GetCategoryIdsForCherryPick();
+
+            var cherryPicks = ids.Select(pair => this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds))
+                .ToList();
+
+            var results = (await Task.WhenAll(cherryPicks)).Where(x => x.Any()).ToList();
+            
+            foreach (var needCherryPickedData in this.needCherryPicked)
+            {
+                needCherryPickedData.ProcessCherryPickedData(results);
+            }
+
+            this.IsCherryPicking = false;
+        }
 
         /// <summary>
         /// Gets the defined category ids to be used as a filter
@@ -98,67 +137,6 @@ namespace COMET.Web.Common.Utilities.CherryPick
         private IEnumerable<ClassKind> GetClassKindsForCherryPick()
         {
             return this.needCherryPicked.SelectMany(x => x.ClassKindsOfInterest).Distinct();
-        }
-
-        /// <summary>
-        /// Processes the retrieved cherry picked data
-        /// </summary>
-        /// <param name="cherryPickedData">The cherry picked data</param>
-        private void ProcessCherryPickedData(IReadOnlyCollection<IEnumerable<Thing>> cherryPickedData)
-        {
-            foreach (var needCherryPickedData in this.needCherryPicked)
-            {
-                needCherryPickedData.ProcessCherryPickedData(cherryPickedData);
-            }
-        }
-        
-        /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task RunCherryPickAsync()
-        {
-            if (this.IsCherryPicking)
-            {
-                return;
-            }
-
-            this.IsCherryPicking = true;
-            
-            var classKinds = this.GetClassKindsForCherryPick();
-            var categoriesIds = this.GetCategoryIdsForCherryPick();
-            
-            var availableEngineeringModelSetups = this.sessionService.GetParticipantModels().ToList();
-            var cherryPicks = availableEngineeringModelSetups.Select(engineeringModelSetup => this.sessionService.Session.CherryPick(engineeringModelSetup.EngineeringModelIid, engineeringModelSetup.IterationSetup.Single(x => x.FrozenOn == null).IterationIid, classKinds, categoriesIds)).ToList();
-            var results = (await Task.WhenAll(cherryPicks)).Where(x => x.Any()).ToList();
-
-            this.ProcessCherryPickedData(results);
-            this.IsCherryPicking = false;
-        }
-
-        /// <summary>
-        /// Runs the cherrypick features for a specific Engineering Model and Iteration, based on data required from <see cref="needCherryPicked" />
-        /// </summary>
-        /// <param name="engineeringModelId">The engineering model Id that we want to cherry pick from</param>
-        /// <param name="iterationId">The iteration Id that we want to cherry pick from</param>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task RunSingleCherryPickAsync(Guid engineeringModelId, Guid iterationId)
-        {
-            if (this.IsCherryPicking)
-            {
-                return;
-            }
-
-            this.IsCherryPicking = true;
-            
-            var classKinds = this.GetClassKindsForCherryPick();
-            var categoriesIds = this.GetCategoryIdsForCherryPick();
-            
-            var cherryPicks = await this.sessionService.Session.CherryPick(engineeringModelId, iterationId, classKinds, categoriesIds);
-
-            this.ProcessCherryPickedData(new []{ cherryPicks });
-
-            this.IsCherryPicking = false;
         }
     }
 }

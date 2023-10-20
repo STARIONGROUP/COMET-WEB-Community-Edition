@@ -42,17 +42,16 @@ namespace COMET.Web.Common.Utilities.CherryPick
         void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData);
 
         /// <summary>
-        /// Runs the cherrypick features for a specific Engineering Model and Iteration, based on data required from <see cref="NeedCherryPicked" />
-        /// </summary>
-        /// <param name="engineeringModelId">The engineering model Id that we want to cherry pick from</param>
-        /// <param name="iterationId">The iteration Id that we want to cherry pick from</param>
-        /// <returns>A <see cref="Task" /></returns>
-        Task RunSingleCherryPickAsync(Guid engineeringModelId, Guid iterationId);
-        
-        /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" />
+        /// Runs the cherrypick features based on data required from &lt;see cref="CherryPickRunner.NeedCherryPicked" /&gt;
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task RunCherryPickAsync();
+
+        /// <summary>
+        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" /> and a particular set of EngineeringModelId and IterationId.
+        /// </summary>
+        /// <param name="ids">A <see cref="Tuple{Guid,Guid}"/> to run the cherry pick for a particular set of engineeringModelIds and iterationIds</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids);
     }
 }

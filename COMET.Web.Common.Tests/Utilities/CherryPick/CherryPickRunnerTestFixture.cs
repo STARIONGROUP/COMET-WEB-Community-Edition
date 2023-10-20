@@ -74,11 +74,11 @@ namespace COMET.Web.Common.Tests.Utilities.CherryPick
             var engineeringModelId = Guid.NewGuid();
             var iterationId = Guid.NewGuid();
             propertyInfo?.SetValue(this.viewModel, true, null);
-            await this.viewModel.RunSingleCherryPickAsync(engineeringModelId, iterationId);
+            await this.viewModel.RunCherryPickAsync(new[] { (engineeringModelId, iterationId)});
             this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<Thing>>>()), Times.Never);
             
             propertyInfo?.SetValue(this.viewModel, false, null);
-            await this.viewModel.RunSingleCherryPickAsync(engineeringModelId, iterationId);
+            await this.viewModel.RunCherryPickAsync(new[] { (engineeringModelId, iterationId)});
             this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<Thing>>>()), Times.Once);
         }
     }
