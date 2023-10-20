@@ -30,8 +30,6 @@ namespace COMET.Web.Common.Utilities.CherryPick
 
     using COMET.Web.Common.Services.SessionManagement;
 
-    using Thing = CDP4Common.DTO.Thing;
-
     /// <summary>
     /// Utility class that could run CherryPick query for <see cref="INeedCherryPickedData" />
     /// </summary>
@@ -83,8 +81,9 @@ namespace COMET.Web.Common.Utilities.CherryPick
         }
         
         /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="NeedCherryPicked" />
+        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" /> and a particular set of EngineeringModelId and IterationId.
         /// </summary>
+        /// <param name="ids">A <see cref="Tuple{Guid,Guid}"/> to run the cherry pick for a particular set of engineeringModelIds and iterationIds</param>
         /// <returns>A <see cref="Task" /></returns>
         public async Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids)
         {
