@@ -42,7 +42,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
         void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData);
 
         /// <summary>
-        /// Runs the cherrypick features based on data required from &lt;see cref="CherryPickRunner.NeedCherryPicked" /&gt;
+        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked"/>;
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task RunCherryPickAsync();

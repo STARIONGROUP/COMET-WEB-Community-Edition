@@ -70,7 +70,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
         }
         
         /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" />
+        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" /> for all the Engineering Models the user is participating on
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         public async Task RunCherryPickAsync()
