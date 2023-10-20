@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>1.0.32</Version>
+    <Version>1.0.33</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
@@ -21,7 +21,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>cdp4-icon.png</PackageIcon>
     <PackageReleaseNotes>
-      [ADD] CherryPickRunner and INamingConventionService
+      [ADD] CherryPick can run for given EM and Iteration iids
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
