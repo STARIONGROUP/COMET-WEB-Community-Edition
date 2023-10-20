@@ -25,6 +25,7 @@
 
 namespace COMET.Web.Common.Utilities.CherryPick
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -37,12 +38,12 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// <summary>
         /// Gets the collection of <see cref="INeedCherryPickedData" />
         /// </summary>
-        private readonly List<INeedCherryPickedData> NeedCherryPicked = new();
+        private readonly List<INeedCherryPickedData> needCherryPicked = new();
 
         /// <summary>
         /// Gets the <see cref="ISessionService"/>
         /// </summary>
-        protected readonly ISessionService SessionService;
+        private readonly ISessionService sessionService;
 
         /// <summary>
         /// Initializes a new <see cref="CherryPickRunner" />
@@ -50,7 +51,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         public CherryPickRunner(ISessionService sessionService)
         {
-            this.SessionService = sessionService;
+            this.sessionService = sessionService;
         }
 
         /// <summary>
@@ -61,18 +62,30 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// <summary>
         /// Initializes the internal properties
         /// </summary>
-        /// <param name="needCherryPicked">A collection of <see cref="INeedCherryPickedData"/></param>
-        public void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPicked)
+        /// <param name="needCherryPickedData">A collection of <see cref="INeedCherryPickedData"/></param>
+        public void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData)
         {
-            this.NeedCherryPicked.Clear();
-            this.NeedCherryPicked.AddRange(needCherryPicked);
+            this.needCherryPicked.Clear();
+            this.needCherryPicked.AddRange(needCherryPickedData);
         }
-
+        
         /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="NeedCherryPicked" />
+        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" /> for all the Engineering Models the user is participating on
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task RunCherryPick()
+        public async Task RunCherryPickAsync()
+        {
+            var availableEngineeringModelSetups = this.sessionService.GetParticipantModels().ToList();
+            var engineeringModelAndIterationIdTuple = availableEngineeringModelSetups.Select(x => (x.Iid, x.IterationSetup.Single(c => c.FrozenOn == null).Iid));
+            await this.RunCherryPickAsync(engineeringModelAndIterationIdTuple);
+        }
+        
+        /// <summary>
+        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" /> and a particular set of EngineeringModelId and IterationId.
+        /// </summary>
+        /// <param name="ids">A <see cref="Tuple{Guid,Guid}"/> to run the cherry pick for a particular set of engineeringModelIds and iterationIds</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids)
         {
             if (this.IsCherryPicking)
             {
@@ -80,31 +93,49 @@ namespace COMET.Web.Common.Utilities.CherryPick
             }
 
             this.IsCherryPicking = true;
-            var classKinds = this.NeedCherryPicked.SelectMany(x => x.ClassKindsOfInterest).Distinct();
-            var categoriesName = this.NeedCherryPicked.SelectMany(x => x.CategoriesOfInterest).Distinct();
+            var classKinds = this.GetClassKindsForCherryPick();
+            var categoryIds = this.GetCategoryIdsForCherryPick();
 
+            var cherryPicks = ids.Select(pair => this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds))
+                .ToList();
+
+            var results = (await Task.WhenAll(cherryPicks)).Where(x => x.Any()).ToList();
+            
+            foreach (var needCherryPickedData in this.needCherryPicked)
+            {
+                needCherryPickedData.ProcessCherryPickedData(results);
+            }
+
+            this.IsCherryPicking = false;
+        }
+
+        /// <summary>
+        /// Gets the defined category ids to be used as a filter
+        /// </summary>
+        /// <returns>A <see cref="IEnumerable{Guid}"/></returns> with the IDs of the categories to filter on
+        private IEnumerable<Guid> GetCategoryIdsForCherryPick()
+        {
+            var categoriesName = this.needCherryPicked.SelectMany(x => x.CategoriesOfInterest).Distinct();
             var categories = new List<Category>();
 
-            foreach (var referenceDataLibrary in this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
+            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
                 categories.AddRange(referenceDataLibrary.DefinedCategory
                     .Where(x => categoriesName.Contains(x.Name))
                     .ToList());
             }
 
-            var availableEngineeringModelSetups = this.SessionService.GetParticipantModels().ToList();
+            var categoriesIds = categories.Select(x => x.Iid);
+            return categoriesIds;
+        }
 
-            var cherryPicks = availableEngineeringModelSetups.Select(engineeringModelSetup => this.SessionService.Session.CherryPick(engineeringModelSetup.EngineeringModelIid, engineeringModelSetup.IterationSetup.Single(x => x.FrozenOn == null).IterationIid, classKinds, categories.Select(x => x.Iid)))
-                .ToList();
-
-            var results = (await Task.WhenAll(cherryPicks)).Where(x => x.Any()).ToList();
-
-            foreach (var needCherryPickedData in this.NeedCherryPicked)
-            {
-                needCherryPickedData.ProcessCherryPickedData(results);
-            }
-
-            this.IsCherryPicking = false;
+        /// <summary>
+        /// Gets the defined class kinds to be used as a filter
+        /// </summary>
+        /// <returns>A <see cref="IEnumerable{ClassKind}"/> with the <see cref="ClassKind"/> to filter on</returns>
+        private IEnumerable<ClassKind> GetClassKindsForCherryPick()
+        {
+            return this.needCherryPicked.SelectMany(x => x.ClassKindsOfInterest).Distinct();
         }
     }
 }

@@ -28,7 +28,8 @@ namespace COMET.Web.Common.Tests.Utilities.CherryPick
 {
     using NUnit.Framework;
 
-    using CDP4Common.SiteDirectoryData;
+    using SiteDirectory = CDP4Common.SiteDirectoryData.SiteDirectory;
+    using CDP4Common.DTO;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.CherryPick;
@@ -61,12 +62,24 @@ namespace COMET.Web.Common.Tests.Utilities.CherryPick
             var propertyInfo = typeof(CherryPickRunner).GetProperty("IsCherryPicking", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
             propertyInfo?.SetValue(this.viewModel, true, null);
-            await this.viewModel.RunCherryPick();
-            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<CDP4Common.DTO.Thing>>>()), Times.Never);
+            await this.viewModel.RunCherryPickAsync();
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<Thing>>>()), Times.Never);
 
             propertyInfo?.SetValue(this.viewModel, false, null);
-            await this.viewModel.RunCherryPick();
-            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<CDP4Common.DTO.Thing>>>()), Times.Once);
+            await this.viewModel.RunCherryPickAsync();
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<Thing>>>()), Times.Once);
+            
+            this.needCherryPickedData.Invocations.Clear();
+            
+            var engineeringModelId = Guid.NewGuid();
+            var iterationId = Guid.NewGuid();
+            propertyInfo?.SetValue(this.viewModel, true, null);
+            await this.viewModel.RunCherryPickAsync(new[] { (engineeringModelId, iterationId)});
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<Thing>>>()), Times.Never);
+            
+            propertyInfo?.SetValue(this.viewModel, false, null);
+            await this.viewModel.RunCherryPickAsync(new[] { (engineeringModelId, iterationId)});
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<IEnumerable<Thing>>>()), Times.Once);
         }
     }
 }
