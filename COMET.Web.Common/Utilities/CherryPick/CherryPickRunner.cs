@@ -76,7 +76,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
         public async Task RunCherryPickAsync()
         {
             var availableEngineeringModelSetups = this.sessionService.GetParticipantModels().ToList();
-            var engineeringModelAndIterationIdTuple = availableEngineeringModelSetups.Select(x => (x.Iid, x.IterationSetup.Single(c => c.FrozenOn == null).Iid));
+            var engineeringModelAndIterationIdTuple = availableEngineeringModelSetups.Select(x => (x.EngineeringModelIid, x.IterationSetup.Single(c => c.FrozenOn == null).IterationIid));
             await this.RunCherryPickAsync(engineeringModelAndIterationIdTuple);
         }
         
