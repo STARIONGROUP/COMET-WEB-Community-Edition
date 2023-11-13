@@ -200,6 +200,8 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             await this.Session.Refresh();
 
+            CDPMessageBus.Current.SendMessage(SessionStateKind.RefreshEnded);
+
             Console.WriteLine($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
         }
 

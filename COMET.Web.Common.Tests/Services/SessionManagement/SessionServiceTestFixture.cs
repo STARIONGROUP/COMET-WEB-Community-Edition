@@ -36,7 +36,6 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
-
     using Moq;
 
     using NUnit.Framework;
@@ -304,6 +303,18 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             };
 
             Assert.DoesNotThrow(() => this.sessionService.DeleteThing(this.iteration, element.Clone(false)));
+        }
+
+        [Test]
+        public void VerifyRefreshEndedCalled()
+        {
+            var onSessionRefreshedCalled = false;
+            void SetRefreshEndedCalled() { onSessionRefreshedCalled = true; }
+            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.RefreshEnded)
+                .Subscribe(_ => { SetRefreshEndedCalled(); });
+            this.sessionService.RefreshSession();
+
+            Assert.That(onSessionRefreshedCalled, Is.True);
         }
     }
 }

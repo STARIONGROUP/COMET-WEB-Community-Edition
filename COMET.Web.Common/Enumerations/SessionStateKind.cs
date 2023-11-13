@@ -43,6 +43,11 @@ namespace COMET.Web.Common.Enumerations
         /// <summary>
         /// When refresh is in progress
         /// </summary>
-        Refreshing
+        Refreshing,
+
+        /// <summary>
+        /// When refresh is finished
+        /// </summary>
+        RefreshEnded
     }
 }
