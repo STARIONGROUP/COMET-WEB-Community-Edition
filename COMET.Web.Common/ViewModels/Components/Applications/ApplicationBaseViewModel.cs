@@ -2,7 +2,7 @@
 //  <copyright file="ApplicationBaseViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Miguel Serra
 // 
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -53,7 +53,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         protected ApplicationBaseViewModel(ISessionService sessionService)
         {
             this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>()
-                .Where(x => x.Status == SessionStatus.EndUpdate)
+                .Where(x => x.Session == this.SessionService?.Session && x.Status == SessionStatus.EndUpdate)
                 .SubscribeAsync(_ => this.OnSessionRefreshed()));
 
             this.SessionService = sessionService;
