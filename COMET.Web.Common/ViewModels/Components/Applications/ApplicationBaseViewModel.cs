@@ -52,11 +52,11 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         protected ApplicationBaseViewModel(ISessionService sessionService)
         {
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>()
-                .Where(x => x.Session == sessionService?.Session && x.Status == SessionStatus.EndUpdate)
-                .SubscribeAsync(_ => this.OnSessionRefreshed()));
-
             this.SessionService = sessionService;
+
+            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>()
+                .Where(x => x.Session == this.SessionService?.Session && x.Status == SessionStatus.EndUpdate)
+                .SubscribeAsync(_ => this.OnSessionRefreshed()));
         }
 
         /// <summary>
