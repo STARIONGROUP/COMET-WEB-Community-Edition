@@ -60,14 +60,21 @@ namespace COMET.Web.Common.Tests.Components
                 new() { Name = "Category4" },
                 new() { Name = "Category5" },
             };
-
+        }
+        
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        public async Task VerifyComponent(bool isComponentEnabled, bool isComponentReadOnly)
+        {
             this.component = this.context.RenderComponent<MultiComboBox<Category>>(parameter =>
             {
                 parameter.Add(p => p.Data, this.availableCategories);
                 parameter.Add(p => p.Values, this.availableCategories);
                 parameter.Add(p => p.ShowCheckBoxes, true);
                 parameter.Add(p => p.MaxNumberOfChips, 2);
-                parameter.Add(p => p.Enabled, true);
+                parameter.Add(p => p.Enabled, isComponentEnabled);
+                parameter.Add(p => p.IsReadOnly, isComponentReadOnly);
 
                 parameter.Add(p => p.EditorTextTemplate, builder =>
                 {
@@ -78,14 +85,9 @@ namespace COMET.Web.Common.Tests.Components
 
                 parameter.Add(p => p.RowTemplate, value => value.Name);
             });
-        }
-
-        [Test]
-        public async Task VerifyComponent()
-        {
+            
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(this.component.Instance.Enabled);
                 Assert.IsNotEmpty(this.component.Instance.Data);
                 Assert.IsNotEmpty(this.component.Instance.Values);
                 Assert.IsTrue(this.component.Instance.ShowCheckBoxes);
@@ -95,15 +97,25 @@ namespace COMET.Web.Common.Tests.Components
             });
             
             var comboBox = this.component.FindComponent<DxComboBox<Category, Category>>();
-            Assert.IsNotNull(comboBox);
-            Assert.IsNull(comboBox.Instance.Value);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.IsNotNull(comboBox);
+                Assert.IsNull(comboBox.Instance.Value);
+                Assert.That(comboBox.Instance.ReadOnly, Is.EqualTo(isComponentReadOnly));
+                Assert.That(comboBox.Instance.Enabled, Is.EqualTo(isComponentEnabled));
+            });
             
             await this.component.InvokeAsync(() => comboBox.Instance.ShowDropDown());
             
             var dropdownItems = this.component.FindAll(".item-template-checkbox");
-            Assert.IsNotNull(dropdownItems);
-            Assert.IsNotEmpty(dropdownItems);
-            Assert.AreEqual(this.availableCategories.Count, dropdownItems.Count);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.IsNotNull(dropdownItems);
+                Assert.IsNotEmpty(dropdownItems);
+                Assert.AreEqual(this.availableCategories.Count, dropdownItems.Count); 
+            });
         }
     }
 }
