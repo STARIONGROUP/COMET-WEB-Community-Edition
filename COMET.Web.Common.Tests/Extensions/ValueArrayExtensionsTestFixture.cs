@@ -27,6 +27,7 @@ namespace COMET.Web.Common.Tests.Extensions
 {
     using System.Collections.Generic;
 
+    using CDP4Common.Helpers;
     using CDP4Common.Types;
 
     using COMET.Web.Common.Extensions;
