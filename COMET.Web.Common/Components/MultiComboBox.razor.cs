@@ -68,7 +68,8 @@ namespace COMET.Web.Common.Components
         public IEnumerable<TItem> Data { get; set; } = Enumerable.Empty<TItem>();
 
         /// <summary>
-        /// Gets or sets if the component should show all the fields as readonly
+        /// Gets or sets if the component should show all the fields as enabled/disabled.
+        /// If a component is disabled, the user can't select the values within the component.
         /// </summary>
         [Parameter]
         public bool Enabled { get; set; } = true;
@@ -83,7 +84,14 @@ namespace COMET.Web.Common.Components
         /// Gets or sets the callback used to update the component value
         /// </summary>
         [Parameter]
-        public EventCallback<List<TItem>> ValuesChanged { get; set; }        
+        public EventCallback<List<TItem>> ValuesChanged { get; set; }
+        
+        /// <summary>
+        /// Gets or sets if the component is read only.
+        /// If a component is read only, the user can select the values but not edit them.
+        /// </summary>
+        [Parameter]
+        public bool IsReadOnly { get; set; }
 
         /// <summary>
         /// Handler for when the value of the component has changed
