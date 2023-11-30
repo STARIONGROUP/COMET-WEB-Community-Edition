@@ -25,6 +25,7 @@
 namespace COMETwebapp.Extensions
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
 
     using COMET.Web.Common.Extensions;
 

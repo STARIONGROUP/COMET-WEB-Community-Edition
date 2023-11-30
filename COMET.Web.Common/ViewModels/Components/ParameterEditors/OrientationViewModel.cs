@@ -138,7 +138,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         {
             var orientationMatrix = this.Orientation.Matrix;
 
-            if (double.TryParse(value, out var valueParsed))
+            if (double.TryParse(value, CultureInfo.InvariantCulture, out var valueParsed))
             {
                 orientationMatrix[index] = valueParsed;
                 this.Orientation = new Orientation(orientationMatrix, this.AngleFormat);
