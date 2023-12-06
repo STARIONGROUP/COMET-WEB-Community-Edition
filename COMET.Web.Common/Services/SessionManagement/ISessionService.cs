@@ -33,6 +33,8 @@ namespace COMET.Web.Common.Services.SessionManagement
 
     using DynamicData;
 
+    using FluentResults;
+
     /// <summary>
     /// The <see cref="ISessionService" /> interface provides access to an <see cref="ISession" />
     /// </summary>
@@ -75,8 +77,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
-        /// <returns>An asynchronous operation</returns>
-        Task ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
 
         /// <summary>
         /// Close all the opened <see cref="Iteration" />
@@ -125,72 +127,72 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="container">the <see cref="Thing"/> container where the <param name="thingToCreate"></param> should be created</param>
         /// <param name="thingToCreate">the thing to create in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task CreateThing(Thing container, Thing thingToCreate);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> CreateThing(Thing container, Thing thingToCreate);
 
         /// <summary>
         /// Write new Things in an <see cref="Iteration"/>
         /// </summary>
         /// <param name="container">the <see cref="Thing"/> container where the <param name="thingsToCreate"></param> should be created</param>
         /// <param name="thingsToCreate">the things to create in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task CreateThings(Thing container, params Thing[] thingsToCreate);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> CreateThings(Thing container, params Thing[] thingsToCreate);
 
         /// <summary>
         /// Write new Things in an <see cref="Iteration" />
         /// </summary>
         /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task CreateThings(Thing container, IEnumerable<Thing> thingsToCreate);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> CreateThings(Thing container, IEnumerable<Thing> thingsToCreate);
 
         /// <summary>
         /// Write updated Thing in an <see cref="Iteration" />
         /// </summary>
         /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingToUpdate">the thing to update in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task UpdateThing(Thing container, Thing thingToUpdate);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> UpdateThing(Thing container, Thing thingToUpdate);
 
         /// <summary>
         /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
         /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task UpdateThings(Thing container, params Thing[] thingsToUpdate);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> UpdateThings(Thing container, params Thing[] thingsToUpdate);
 
         /// <summary>
         /// Write updated Things in an <see cref="Iteration" />
         /// </summary>
         /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate);
 
         /// <summary>
         /// Deletes a <see cref="Thing"/> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
         /// <param name="thingToDelete">the thing to delete in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task DeleteThing(Thing containerClone, Thing thingToDelete);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> DeleteThing(Thing containerClone, Thing thingToDelete);
 
         /// <summary>
         /// Deletes a collection of <see cref="Thing"/> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
         /// <param name="thingsToDelete">the things to delete in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task DeleteThings(Thing containerClone, params Thing[] thingsToDelete);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> DeleteThings(Thing containerClone, params Thing[] thingsToDelete);
 
         /// <summary>
         /// Deletes a collection <see cref="Thing"/> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
         /// <param name="thingsToDelete">the things to delete in the session</param>
-        /// <returns>An asynchronous operation</returns>
-        Task DeleteThings(Thing containerClone, IEnumerable<Thing> thingsToDelete);
+        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        Task<Result> DeleteThings(Thing containerClone, IEnumerable<Thing> thingsToDelete);
 
         /// <summary>
         /// Gets the <see cref="ParticipantRole" /> inside an iteration
