@@ -46,6 +46,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -74,10 +75,15 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            var logger = new Mock<ILogger<SessionService>>();
 
+            this.context = new TestContext();
             this.session = new Mock<ISession>();
-            this.sessionService = new SessionService { Session = this.session.Object };
+
+            this.sessionService = new SessionService(logger.Object)
+            {
+                Session = this.session.Object
+            };
 
             this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
