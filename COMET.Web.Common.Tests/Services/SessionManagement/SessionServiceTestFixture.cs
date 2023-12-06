@@ -36,6 +36,9 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
+
+    using Microsoft.Extensions.Logging;
+
     using Moq;
 
     using NUnit.Framework;
@@ -59,8 +62,13 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         [SetUp]
         public void Setup()
         {
+            var logger = new Mock<ILogger<SessionService>>();
+
             this.session = new Mock<ISession>();
-            this.sessionService = new SessionService { Session = this.session.Object };
+            this.sessionService = new SessionService(logger.Object)
+            {
+                Session = this.session.Object
+            };
             this.assembler = new Assembler(this.uri);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
