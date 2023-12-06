@@ -37,27 +37,6 @@ namespace COMET.Web.Common.Extensions
     public static class SessionServiceExtensions
     {
         /// <summary>
-        /// Marks a top element for a given iteration
-        /// </summary>
-        /// <param name="sessionService">The <see cref="ISessionService"/> in which the iteration will be updated</param>
-        /// <param name="iteration">The <see cref="Iteration"/> to be updated</param>
-        /// <param name="element">The <see cref="ElementDefinition"/> to be marked as top element</param>
-        /// <returns>A <see cref="Task"/></returns>
-        /// <exception cref="ArgumentNullException">Throws an <see cref="ArgumentException"/></exception>
-        public static async Task<Result> MarkTopElement(this ISessionService sessionService, Iteration iteration, ElementDefinition element)
-        {
-            if (iteration == null)
-            {
-                throw new ArgumentNullException(nameof(iteration));
-            }
-
-            var iterationClone = iteration.Clone(false);
-            iterationClone.TopElement = element;
-
-            return await sessionService.UpdateThing(iteration.Container, iterationClone);
-        }
-
-        /// <summary>
         /// Adds a new parameter for a given element definition
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService"/> in which data will be updated</param>
