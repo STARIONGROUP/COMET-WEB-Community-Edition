@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SingleIterationApplicationTemplateTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2023 RHEA System S.A.
+//  <copyright file="SingleEngineeringModelApplicationTemplateTestFixture.cs" company="RHEA System S.A.">
+//    Copyright (c) 2024 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
 //    This file is part of COMET WEB Community Edition
 //    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -28,15 +28,13 @@ namespace COMET.Web.Common.Tests.Components.Applications
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Extensions;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Components.Selectors;
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -58,24 +56,25 @@ namespace COMET.Web.Common.Tests.Components.Applications
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class SingleIterationApplicationTemplateTestFixture
+    public class SingleEngineeringModelApplicationTemplateTestFixture
     {
-        private Mock<ISingleIterationApplicationTemplateViewModel> viewModel;
-        private SourceList<Iteration> openIterations;
+        private Mock<ISingleEngineeringModelApplicationTemplateViewModel> viewModel;
+        private List<EngineeringModel> openEngineeringModels;
         private TestContext context;
 
         [SetUp]
         public void Setup()
         {
             this.context = new TestContext();
-            this.openIterations = new SourceList<Iteration>();
-            this.viewModel = new Mock<ISingleIterationApplicationTemplateViewModel>();
+            this.viewModel = new Mock<ISingleEngineeringModelApplicationTemplateViewModel>();
+
+            this.openEngineeringModels = [];
             var sessionService = new Mock<ISessionService>();
-            sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
+            sessionService.Setup(x => x.OpenEngineeringModels).Returns(this.openEngineeringModels);
+            sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             var session = new Mock<ISession>();
             session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
             sessionService.Setup(x => x.Session).Returns(session.Object);
-            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise { Iid = Guid.NewGuid() });
             this.viewModel.Setup(x => x.SessionService).Returns(sessionService.Object);
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
@@ -94,71 +93,50 @@ namespace COMET.Web.Common.Tests.Components.Applications
         }
 
         [Test]
-        public void VerifyWithIterationIdParameter()
+        public void VerifyWithEngineeringModelIdParameter()
         {
-            this.openIterations.Add(new Iteration
+            this.openEngineeringModels.Add(new EngineeringModel
             {
-                Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup
-                {
-                    Container = new EngineeringModelSetup
-                    {
-                        Iid = Guid.NewGuid()
-                    }
-                }
+                Iid = Guid.NewGuid()
             });
 
-            this.viewModel.Setup(x => x.OnThingSelect(It.IsAny<Iteration>())).Callback((Iteration iteration) => this.viewModel.Setup(x => x.SelectedThing).Returns(iteration));
-            var renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, Guid.NewGuid()); });
+            this.viewModel.Setup(x => x.OnThingSelect(It.IsAny<EngineeringModel>())).Callback((EngineeringModel engineeringModel) => this.viewModel.Setup(x => x.SelectedThing).Returns(engineeringModel));
+            var renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, Guid.NewGuid()); });
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.openIterations.Items.First().Iid));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Once);
+                Assert.That(renderer.Instance.EngineeringModelId, Is.EqualTo(this.openEngineeringModels[0].Iid));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openEngineeringModels[0]), Times.Once);
             });
 
-            this.viewModel.Setup(x => x.SelectedThing).Returns((Iteration)null);
-            _ = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
+            this.viewModel.Setup(x => x.SelectedThing).Returns((EngineeringModel)null);
+            _ = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
 
-            this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Exactly(2));
+            this.viewModel.Verify(x => x.OnThingSelect(this.openEngineeringModels[0]), Times.Exactly(2));
 
-            this.viewModel.Setup(x => x.SelectedThing).Returns(new Iteration
+            this.viewModel.Setup(x => x.SelectedThing).Returns(new EngineeringModel
             {
-                Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup
-                {
-                    Container = new EngineeringModelSetup
-                    {
-                        Iid = Guid.NewGuid()
-                    }
-                }
+                Iid = Guid.NewGuid()
             });
 
-            renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
+            renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.viewModel.Object.SelectedThing.Iid));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Exactly(2));
+                Assert.That(renderer.Instance.EngineeringModelId, Is.EqualTo(this.viewModel.Object.SelectedThing.Iid));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openEngineeringModels[0]), Times.Exactly(2));
             });
         }
 
         [Test]
-        public void VerifyWithoutIterationIdParameter()
+        public void VerifyWithoutEngineeringModelIdParameter()
         {
-            this.openIterations.Add(new Iteration
+            this.openEngineeringModels.Add(new EngineeringModel()
             {
-                Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup
-                {
-                    Container = new EngineeringModelSetup
-                    {
-                        Iid = Guid.NewGuid()
-                    }
-                }
+                Iid = Guid.NewGuid()
             });
 
-            var renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
+            var renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters =>
             {
                 parameters.Add(p => p.Body, builder =>
                 {
@@ -173,19 +151,17 @@ namespace COMET.Web.Common.Tests.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Exactly(2));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openEngineeringModels[0]), Times.Exactly(2));
             });
 
-            this.viewModel.Setup(x => x.SelectedThing).Returns(this.openIterations.Items.First());
+            this.viewModel.Setup(x => x.SelectedThing).Returns(this.openEngineeringModels[0]);
             renderer.Instance.SetCorrectUrl();
-            var iteration = this.viewModel.Object.SelectedThing;
+            var engineeringModel = this.viewModel.Object.SelectedThing;
 
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Does.Contain("localhost%3A5000"));
-                Assert.That(navigationManager.Uri, Does.Contain(iteration.Iid.ToShortGuid()));
-                Assert.That(navigationManager.Uri, Does.Contain(this.viewModel.Object.SessionService.GetDomainOfExpertise(iteration).Iid.ToShortGuid()));
-                Assert.That(navigationManager.Uri, Does.Contain(iteration.IterationSetup.Container.Iid.ToShortGuid()));
+                Assert.That(navigationManager.Uri, Does.Contain(engineeringModel.Iid.ToShortGuid()));
             });
 
             renderer.Render();
@@ -193,9 +169,9 @@ namespace COMET.Web.Common.Tests.Components.Applications
             var pElement = renderer.Find("p");
             Assert.That(pElement.TextContent, Is.EqualTo("body"));
 
-            this.openIterations.Add(new Iteration());
+            this.openEngineeringModels.Add(new EngineeringModel());
 
-            renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
+            renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters =>
             {
                 parameters.Add(p => p.Body, builder =>
                 {
@@ -205,21 +181,22 @@ namespace COMET.Web.Common.Tests.Components.Applications
                 });
             });
 
-            Assert.That(() => renderer.FindComponent<IterationSelector>(), Throws.Exception);
+            Assert.That(() => renderer.FindComponent<EngineeringModelSelector>(), Throws.Exception);
             this.viewModel.Verify(x => x.AskToSelectThing(), Times.Once);
             this.viewModel.Setup(x => x.IsOnSelectionMode).Returns(true);
-            this.viewModel.Setup(x => x.IterationSelectorViewModel).Returns(new IterationSelectorViewModel());
+            this.viewModel.Setup(x => x.EngineeringModelSelectorViewModel).Returns(new EngineeringModelSelectorViewModel());
             renderer.Render();
-            Assert.That(() => renderer.FindComponent<IterationSelector>(), Throws.Nothing);
-            this.openIterations.Clear();
-            this.viewModel.Setup(x => x.SelectedThing).Returns((Iteration)null);
+            Assert.That(() => renderer.FindComponent<EngineeringModelSelector>(), Throws.Nothing);
+            this.openEngineeringModels.Clear();
+            this.viewModel.Setup(x => x.SelectedThing).Returns((EngineeringModel)null);
             renderer.Instance.SetCorrectUrl();
+
+            renderer.Render();
 
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
                 Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
-                Assert.That(() => CDPMessageBus.Current.SendMessage(new DomainChangedEvent(null, null)), Throws.Nothing);
             });
         }
     }

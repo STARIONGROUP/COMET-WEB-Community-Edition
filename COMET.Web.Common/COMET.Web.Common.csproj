@@ -25,7 +25,7 @@
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CDP4ServicesDal-CE" Version="24.2.0" />
+    <PackageReference Include="CDP4ServicesDal-CE" Version="24.4.0" />
     <PackageReference Include="DevExpress.Blazor" Version="23.1.4" />
     <PackageReference Include="FluentResults" Version="3.15.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.4" />

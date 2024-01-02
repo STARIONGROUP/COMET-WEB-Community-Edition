@@ -62,7 +62,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         public override void OnThingSelect(Iteration thing)
         {
             base.OnThingSelect(thing);
-            this.SelectedIterationData = new IterationData(thing.IterationSetup, true);
+            this.SelectedIterationData = thing == null ? null : new IterationData(thing.IterationSetup, true);
         }
 
         /// <summary>

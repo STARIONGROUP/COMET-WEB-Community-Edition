@@ -27,7 +27,7 @@
     <EngineeringModelSelector ViewModel="@this.ViewModel.EngineeringModelSelectorViewModel"/>
 </DxPopup>
 
-@if (this.ViewModel.SessionService.OpenIterations.Count == 0)
+@if (this.ViewModel.SessionService.OpenEngineeringModels.Count == 0)
 {
     <DxPopup Visible="true" HeaderText="Open a Model" ShowFooter="false" CloseOnEscape="false" CloseOnOutsideClick="false"
              ShowCloseButton="false">

@@ -51,6 +51,7 @@ namespace COMET.Web.Common.Components.Applications
         /// </summary>
         protected override void OnInitialized()
         {
+            this.UpdateProperties();
             base.OnInitialized();
 
             this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>()
@@ -64,7 +65,14 @@ namespace COMET.Web.Common.Components.Applications
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
+            this.UpdateProperties();
+        }
 
+        /// <summary>
+        /// Update properties of the viewmodel based on provided parameters
+        /// </summary>
+        private void UpdateProperties()
+        {
             if (this.IterationId == Guid.Empty)
             {
                 switch (this.ViewModel.SessionService.OpenIterations.Count)
@@ -79,17 +87,10 @@ namespace COMET.Web.Common.Components.Applications
             }
             else if (this.IterationId != Guid.Empty && this.ViewModel.SelectedThing == null)
             {
-                var iteration = this.ViewModel.SessionService.OpenIterations.Items.FirstOrDefault(x => x.Iid == this.IterationId);
-
-                if (iteration != null)
-                {
-                    this.ViewModel.OnThingSelect(iteration);
-                }
-                else
-                {
-                    this.IterationId = Guid.Empty;
-                }
+                this.ViewModel.OnThingSelect(this.ViewModel.SessionService.OpenIterations.Items.FirstOrDefault(x => x.Iid == this.IterationId));
             }
+
+            this.IterationId = this.ViewModel.SelectedThing?.Iid ?? Guid.Empty;
         }
 
         /// <summary>
