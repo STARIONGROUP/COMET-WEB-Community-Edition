@@ -139,7 +139,7 @@ namespace COMET.Web.Common.ViewModels.Components
             this.IsOpeningSession = false;
 
             this.AvailableEngineeringModelSetups = this.sessionService.GetParticipantModels()
-                .Where(x => x.IterationSetup.Any(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
+                .Where(x => x.IterationSetup.Exists(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
                 .OrderBy(x => x.Name);
         }
 
@@ -169,7 +169,7 @@ namespace COMET.Web.Common.ViewModels.Components
         public void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId)
         {
             this.selectedEngineeringModel = this.AvailableEngineeringModelSetups.FirstOrDefault(x => x.Iid == modelId);
-            var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.FirstOrDefault(x => x.IterationIid == iterationId);
+            var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.Find(x => x.IterationIid == iterationId);
 
             if (iterationSetup != null)
             {
@@ -194,12 +194,7 @@ namespace COMET.Web.Common.ViewModels.Components
             }
             else
             {
-                this.SelectedIterationSetup = this.selectedEngineeringModel.IterationSetup
-                    .Where(x => x.FrozenOn == null)
-                    .Select(x => new IterationData(x))
-                    .LastOrDefault();
-
-                this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.FirstOrDefault(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
+                this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
                 
                 this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
@@ -207,6 +202,8 @@ namespace COMET.Web.Common.ViewModels.Components
                     .Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
                     .OrderBy(x => x.IterationNumber)
                     .Select(x => new IterationData(x));
+
+                this.SelectedIterationSetup = this.AvailableIterationSetups.Last();
             }
         }
     }
