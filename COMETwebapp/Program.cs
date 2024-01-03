@@ -24,37 +24,15 @@
 
 namespace COMETwebapp
 {
-    using COMET.Web.Common.Extensions;
-    
-    using COMETwebapp.Model;
-    using COMETwebapp.Model.Viewer;
-    using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.Services.SubscriptionService;
-    using COMETwebapp.Shared.TopMenuEntry;
-    using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.ModelDashboard;
-    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
-    using COMETwebapp.ViewModels.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
-    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.UserManagement;
-    using COMETwebapp.ViewModels.Components.Viewer;
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
-    
-    using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-    
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
-    using COMET.Web.Common;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Shared.TopMenuEntry;
 
-    using COMETwebapp.ViewModels.Components.BookEditor;
-
-    using Microsoft.AspNetCore.Components.Web;
+    using COMETwebapp.Extensions;
+    using COMETwebapp.Model;
+    using COMETwebapp.Shared.TopMenuEntry;
 
     /// <summary>
     /// Point of entry of the application
@@ -67,69 +45,29 @@ namespace COMETwebapp
         /// </summary>
         public static async Task Main(string[] args)
         {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            var builder = WebApplication.CreateBuilder(args);
 
-            builder.RootComponents.Add<App>("#app");
-            builder.RootComponents.Add<HeadOutlet>("head::after");
+            builder.Services.AddRazorPages();
+            builder.Services.AddServerSideBlazor();
 
-            builder.Services.RegisterCommonLibrary(false, options =>
+            builder.Services.RegisterCommonLibrary(true, options =>
             {
                 options.Applications = Applications.ExistingApplications;
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
-                options.AdditionalMenuEntries.AddRange(new List<Type>{ typeof(ApplicationMenu), typeof(ModelMenu), typeof(SessionMenu), typeof(ShowHideDeprecatedThings), typeof(AboutMenu)});
-            });
-            
-            builder.Services.AddScoped(_ => new HttpClient()
-            {
-                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+                options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationMenu), typeof(ModelMenu), typeof(SessionMenu), typeof(ShowHideDeprecatedThings), typeof(AboutMenu) });
             });
 
-            RegisterServices(builder);
-            RegisterViewModels(builder);
+            builder.Services.RegisterServices();
+            builder.Services.RegisterViewModels();
 
-            var host = builder.Build();
-            await host.Services.InitializeServices();
-            await host.RunAsync();
-        }
+            var app = builder.Build();
+            app.UseStaticFiles();
+            app.UseRouting();
+            app.MapBlazorHub();
+            app.MapFallbackToPage("/_Host");
 
-        /// <summary>
-        /// Register all services required to run the application inside the <see cref="WebAssemblyHostBuilder" />
-        /// </summary>
-        /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
-        public static void RegisterServices(WebAssemblyHostBuilder builder)
-        {
-            builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-            builder.Services.AddSingleton<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
-            builder.Services.AddSingleton<ISceneSettings, SceneSettings>();
-            builder.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
-            builder.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
-            builder.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
-            builder.Services.AddSingleton<IDomDataService, DomDataService>();
-            builder.Services.AddAntDesign();
-        }
-
-        /// <summary>
-        /// Register all view models required to run the application inside the <see cref="WebAssemblyHostBuilder" />
-        /// </summary>
-        /// <param name="builder">The <see cref="WebAssemblyHostBuilder" /></param>
-        public static void RegisterViewModels(WebAssemblyHostBuilder builder)
-        {
-            builder.Services.AddSingleton<IShowHideDeprecatedThingsViewModel, ShowHideDeprecatedThingsViewModel>();
-            builder.Services.AddTransient<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
-            builder.Services.AddTransient<IParameterTableViewModel, ParameterTableViewModel>();
-            builder.Services.AddTransient<IParameterDashboardViewModel, ParameterDashboardViewModel>();
-            builder.Services.AddTransient<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
-            builder.Services.AddTransient<ISubscriptionDashboardBodyViewModel, SubscriptionDashboardBodyViewModel>();
-            builder.Services.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
-            builder.Services.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
-            builder.Services.AddTransient<IViewerBodyViewModel, ViewerBodyViewModel>();
-            builder.Services.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
-            builder.Services.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
-            builder.Services.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
-            builder.Services.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
-            builder.Services.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
-            builder.Services.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
-            builder.Services.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
+            await app.Services.InitializeServices();
+            await app.RunAsync();
         }
     }
 }
