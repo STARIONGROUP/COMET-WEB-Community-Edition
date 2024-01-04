@@ -39,7 +39,7 @@
                 </Template>
             </DxFormLayoutItem>
         }
-        <DxFormLayoutItem Caption="UserName:" BeginRow="true" ColSpanLg="12">
+        <DxFormLayoutItem Caption="@(this.UsernameLabel)" BeginRow="true" ColSpanLg="12">
             <Template>
                 <DxTextBox Id="username" @bind-Text="@(this.ViewModel.AuthenticationDto.UserName)"
                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -49,7 +49,7 @@
                            @onblur="@(() => this.HandleFieldBlur("UserName"))" />
             </Template>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Password:" BeginRow="true" ColSpanLg="12">
+        <DxFormLayoutItem Caption="@(this.PasswordLabel)" BeginRow="true" ColSpanLg="12">
             <Template>
                 <DxTextBox Id="password" @bind-Text="@(this.ViewModel.AuthenticationDto.Password)"
                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
