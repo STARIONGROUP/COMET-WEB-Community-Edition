@@ -51,6 +51,18 @@ namespace COMET.Web.Common.Components
         public string RequestedServer { get; set; }
 
         /// <summary>
+        /// The label for the username input field
+        /// </summary>
+        [Parameter]
+        public string UsernameLabel { get; set; } = "UserName:";
+
+        /// <summary>
+        /// The label for the password input field
+        /// </summary>
+        [Parameter]
+        public string PasswordLabel { get; set; } = "Password:";
+
+        /// <summary>
         /// The text of the login button
         /// </summary>
         public string LoginButtonDisplayText { get; private set; }
