@@ -91,6 +91,7 @@ namespace COMET.Web.Common
                     {
                         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
                         cancellationTokenSource.Cancel();
+                        cancellationTokenSource.Dispose();
 
                         await Task.Delay(1);
 
