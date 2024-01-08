@@ -27,12 +27,76 @@ namespace COMET.Web.Common.Components.Applications
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Shared component that will englobe all applications where only one <see cref="EngineeringModel" /> needs to be selected
     /// </summary>
     public partial class SingleEngineeringModelApplicationTemplate
     {
+        /// <summary>
+        /// The <see cref="Guid" /> of selected <see cref="EngineeringModel" />
+        /// </summary>
+        [Parameter]
+        public Guid EngineeringModelId { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            this.UpdateProperties();
+            base.OnInitialized();
+        }
+
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            this.UpdateProperties();
+        }
+
+        /// <summary>
+        /// Update properties of the viewmodel based on provided parameters
+        /// </summary>
+        private void UpdateProperties()
+        {
+            if (this.EngineeringModelId == Guid.Empty)
+            {
+                switch (this.ViewModel.SessionService.OpenEngineeringModels.Count)
+                {
+                    case 1:
+                        this.ViewModel.OnThingSelect(this.ViewModel.SessionService.OpenEngineeringModels.First());
+                        break;
+                    case > 1:
+                        this.ViewModel.AskToSelectThing();
+                        break;
+                }
+            }
+            else if (this.EngineeringModelId != Guid.Empty && this.ViewModel.SelectedThing == null)
+            {
+                this.ViewModel.OnThingSelect(this.ViewModel.SessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == this.EngineeringModelId));
+            }
+
+            this.EngineeringModelId = this.ViewModel.SelectedThing?.Iid ?? Guid.Empty;
+        }
+
+        /// <summary>
+        /// Set URL parameters based on the current context
+        /// </summary>
+        /// <param name="currentOptions">A <see cref="Dictionary{TKey,TValue}" /> of URL parameters</param>
+        protected override void SetUrlParameters(Dictionary<string, string> currentOptions)
+        {
+            base.SetUrlParameters(currentOptions);
+
+            currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedThing.Iid.ToShortGuid();
+        }
     }
 }

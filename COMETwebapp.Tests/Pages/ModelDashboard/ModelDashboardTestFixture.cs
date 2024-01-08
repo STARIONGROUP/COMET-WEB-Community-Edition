@@ -192,7 +192,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
                 parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
             });
 
-            Assert.That(this.viewModel.SelectedThing, Is.Null);
+            Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }
     }
 }
