@@ -42,7 +42,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
         void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData);
 
         /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked"/>;
+        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" /> for all the Engineering Models the user is participating on
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
         /// <returns>A <see cref="Task" /></returns>
