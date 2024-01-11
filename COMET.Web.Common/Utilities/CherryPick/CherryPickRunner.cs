@@ -65,27 +65,30 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// <param name="needCherryPickedData">A collection of <see cref="INeedCherryPickedData"/></param>
         public void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData)
         {
+            this.IsCherryPicking = false;
             this.needCherryPicked.Clear();
             this.needCherryPicked.AddRange(needCherryPickedData);
         }
-        
+
         /// <summary>
         /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" /> for all the Engineering Models the user is participating on
         /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task RunCherryPickAsync()
+        public async Task RunCherryPickAsync(CancellationToken cancellationToken = default)
         {
             var availableEngineeringModelSetups = this.sessionService.GetParticipantModels().ToList();
             var engineeringModelAndIterationIdTuple = availableEngineeringModelSetups.Select(x => (x.EngineeringModelIid, x.IterationSetup.Single(c => c.FrozenOn == null).IterationIid));
-            await this.RunCherryPickAsync(engineeringModelAndIterationIdTuple);
+            await this.RunCherryPickAsync(engineeringModelAndIterationIdTuple, cancellationToken);
         }
-        
+
         /// <summary>
         /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" /> and a particular set of EngineeringModelId and IterationId.
         /// </summary>
         /// <param name="ids">A <see cref="Tuple{Guid,Guid}"/> to run the cherry pick for a particular set of engineeringModelIds and iterationIds</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids)
+        public async Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids, CancellationToken cancellationToken = default)
         {
             if (this.IsCherryPicking)
             {
@@ -99,7 +102,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
             var cherryPicks = ids.Select(pair => this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds))
                 .ToList();
 
-            var results = (await Task.WhenAll(cherryPicks)).Where(x => x.Any()).ToList();
+            var results = (await Task.WhenAll(cherryPicks).WaitAsync(cancellationToken)).Where(x => x.Any()).ToList();
             
             foreach (var needCherryPickedData in this.needCherryPicked)
             {
