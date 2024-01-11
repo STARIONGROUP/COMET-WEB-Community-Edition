@@ -44,14 +44,16 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// <summary>
         /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked"/>;
         /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
         /// <returns>A <see cref="Task" /></returns>
-        Task RunCherryPickAsync();
+        Task RunCherryPickAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" /> and a particular set of EngineeringModelId and IterationId.
         /// </summary>
         /// <param name="ids">A <see cref="Tuple{Guid,Guid}"/> to run the cherry pick for a particular set of engineeringModelIds and iterationIds</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
         /// <returns>A <see cref="Task" /></returns>
-        Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids);
+        Task RunCherryPickAsync(IEnumerable<(Guid engineeringModelId, Guid iterationId)> ids, CancellationToken cancellationToken = default);
     }
 }
