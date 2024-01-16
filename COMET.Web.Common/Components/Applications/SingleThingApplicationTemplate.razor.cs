@@ -68,10 +68,12 @@ namespace COMET.Web.Common.Components.Applications
 
         /// <summary>
         /// Sets the correct url based on the selected <typeparamref name="TThing" />
+        /// <para>If the current url already has all target options, it doesnt navigate</para>
         /// </summary>
         internal void SetCorrectUrl()
         {
-            var urlPage = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty).Split('?')[0];
+            var urlPathAndQueries = this.NavigationManager.Uri.Replace(this.NavigationManager.BaseUri, string.Empty);
+            var urlPage = urlPathAndQueries.Split('?')[0];
             var currentOptions = this.NavigationManager.Uri.GetParametersFromUrl();
 
             if (this.ViewModel.SelectedThing != null)
@@ -91,6 +93,12 @@ namespace COMET.Web.Common.Components.Applications
             }
 
             var targetUrl = QueryHelpers.AddQueryString(urlPage, targetOptions);
+
+            if (urlPathAndQueries == targetUrl)
+            {
+                return;
+            }
+
             this.NavigationManager.NavigateTo(targetUrl);
         }
     }
