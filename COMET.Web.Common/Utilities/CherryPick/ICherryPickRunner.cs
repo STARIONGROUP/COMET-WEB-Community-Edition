@@ -39,7 +39,8 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// Initializes the internal properties
         /// </summary>
         /// <param name="needCherryPickedData">A collection of <see cref="INeedCherryPickedData"/></param>
-        void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData);
+        /// <param name="maxNumberOfThreads">The number of threads to use when doing the cherry pick</param>
+        void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData, int maxNumberOfThreads = 1);
 
         /// <summary>
         /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" /> for all the Engineering Models the user is participating on

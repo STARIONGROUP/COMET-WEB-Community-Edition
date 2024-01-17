@@ -30,6 +30,8 @@ namespace COMET.Web.Common.Utilities.CherryPick
 
     using COMET.Web.Common.Services.SessionManagement;
 
+    using Dasync.Collections;
+
     /// <summary>
     /// Utility class that could run CherryPick query for <see cref="INeedCherryPickedData" />
     /// </summary>
@@ -44,6 +46,11 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// Gets the <see cref="ISessionService"/>
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// Gets the number of threads used in the cherry pick operation
+        /// </summary>
+        private int numberOfThreads = 1;
 
         /// <summary>
         /// Initializes a new <see cref="CherryPickRunner" />
@@ -63,9 +70,11 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// Initializes the internal properties
         /// </summary>
         /// <param name="needCherryPickedData">A collection of <see cref="INeedCherryPickedData"/></param>
-        public void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData)
+        /// <param name="maxNumberOfThreads">The number of threads to use when doing the cherry pick</param>
+        public void InitializeProperties(IEnumerable<INeedCherryPickedData> needCherryPickedData, int maxNumberOfThreads = 1)
         {
             this.IsCherryPicking = false;
+            this.numberOfThreads = maxNumberOfThreads;
             this.needCherryPicked.Clear();
             this.needCherryPicked.AddRange(needCherryPickedData);
         }
@@ -98,16 +107,18 @@ namespace COMET.Web.Common.Utilities.CherryPick
             this.IsCherryPicking = true;
             var classKinds = this.GetClassKindsForCherryPick();
             var categoryIds = this.GetCategoryIdsForCherryPick();
-
-            var cherryPicks = ids.Select(pair => this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds))
-                .ToList();
-
-            var results = (await Task.WhenAll(cherryPicks).WaitAsync(cancellationToken)).Where(x => x.Any()).ToList();
             
-            foreach (var needCherryPickedData in this.needCherryPicked)
+            await ids.ParallelForEachAsync(async pair =>
             {
-                needCherryPickedData.ProcessCherryPickedData(results);
-            }
+                var result = (await this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds)).ToList();
+                
+                foreach (var needCherryPickedData in this.needCherryPicked)
+                {
+                    needCherryPickedData.ProcessCherryPickedData(result);
+                }
+            },
+            this.numberOfThreads,
+            cancellationToken);
 
             this.IsCherryPicking = false;
         }

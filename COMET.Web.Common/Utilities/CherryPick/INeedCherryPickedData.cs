@@ -38,17 +38,17 @@ namespace COMET.Web.Common.Utilities.CherryPick
         /// <summary>
         /// Gets the collection of <see cref="Category" /> name that this object is interested on
         /// </summary>
-        public IReadOnlyCollection<string> CategoriesOfInterest { get; }
+        IReadOnlyCollection<string> CategoriesOfInterest { get; }
 
         /// <summary>
         /// Gets the collection of <see cref="ClassKind" /> that this object is interested on
         /// </summary>
-        public IReadOnlyCollection<ClassKind> ClassKindsOfInterest { get; }
+        IReadOnlyCollection<ClassKind> ClassKindsOfInterest { get; }
 
         /// <summary>
         /// Process Cherry picked data
         /// </summary>
-        /// <param name="cherryPickedData">A collection of collection  of <see cref="Thing" /></param>
-        public void ProcessCherryPickedData(IEnumerable<IEnumerable<Thing>> cherryPickedData);
+        /// <param name="cherryPickedData">A collection of <see cref="Thing" /></param>
+        void ProcessCherryPickedData(IEnumerable<Thing> cherryPickedData);
     }
 }
