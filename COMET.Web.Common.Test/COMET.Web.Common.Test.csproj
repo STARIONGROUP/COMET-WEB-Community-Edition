@@ -4,7 +4,7 @@
       <TargetFramework>net7.0</TargetFramework>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Version>1.0.4</Version>
+      <Version>1.0.5</Version>
       <AssemblyVersion>1.0.0</AssemblyVersion>
       <FileVersion>1.0.0</FileVersion>
       <Title>CDP4 WEB Common Test</Title>
@@ -19,13 +19,13 @@
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <PackageIcon>cdp4-icon.png</PackageIcon>
       <PackageReleaseNotes>
-          [ADD] ILogger extension for testing
-      </PackageReleaseNotes>
+	      [UPDATE] DevExpress v23.1.6
+	  </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="bunit.web" Version="1.14.4" />
-    <PackageReference Include="DevExpress.Blazor" Version="23.1.4" />
+    <PackageReference Include="DevExpress.Blazor" Version="23.1.6" />
     <PackageReference Include="Moq" Version="4.18.4" />
   </ItemGroup>
 

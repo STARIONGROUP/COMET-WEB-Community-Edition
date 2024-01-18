@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>1.0.45</Version>
+    <Version>1.0.46</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
@@ -21,14 +21,13 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>cdp4-icon.png</PackageIcon>
     <PackageReleaseNotes>
-      [FIX] Prevent navigation if URL is the same on Application and IterationTemplate
-      [ADD] Parallel processing of the CherryPickRunner
+      [UPDATE] DevExpress v23.1.6
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="AsyncEnumerator" Version="4.0.2" />
 	<PackageReference Include="CDP4ServicesDal-CE" Version="24.4.0" />
-    <PackageReference Include="DevExpress.Blazor" Version="23.1.4" />
+    <PackageReference Include="DevExpress.Blazor" Version="23.1.6" />
     <PackageReference Include="FluentResults" Version="3.15.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
