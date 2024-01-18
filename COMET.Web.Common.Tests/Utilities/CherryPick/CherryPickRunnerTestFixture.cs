@@ -26,15 +26,20 @@
 
 namespace COMET.Web.Common.Tests.Utilities.CherryPick
 {
+    using CDP4Common.CommonData;
+    using CDP4Common.DTO;
+
     using NUnit.Framework;
 
     using SiteDirectory = CDP4Common.SiteDirectoryData.SiteDirectory;
-    using CDP4Common.DTO;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.CherryPick;
 
     using Moq;
+
+    using Alias = CDP4Common.DTO.Alias;
+    using Thing = CDP4Common.DTO.Thing;
 
     [TestFixture]
     public class CherryPickRunnerTestFixture
@@ -79,7 +84,16 @@ namespace COMET.Web.Common.Tests.Utilities.CherryPick
             
             propertyInfo?.SetValue(this.viewModel, false, null);
             await this.viewModel.RunCherryPickAsync(new[] { (engineeringModelId, iterationId)});
-            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(Moq.It.IsAny<IEnumerable<Thing>>()), Times.Once);
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(It.IsAny<IEnumerable<Thing>>()), Times.Never);
+            
+            var mockThings = new List<Thing> { new Alias() };
+
+            this.sessionService.Setup(x => x.Session.CherryPick(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<IEnumerable<ClassKind>>(), It.IsAny<IEnumerable<Guid>>()))
+                .ReturnsAsync(mockThings);
+            
+            propertyInfo?.SetValue(this.viewModel, false, null);
+            await this.viewModel.RunCherryPickAsync(new[] { (engineeringModelId, iterationId)});
+            this.needCherryPickedData.Verify(x => x.ProcessCherryPickedData(It.IsAny<IEnumerable<Thing>>()), Times.Once);
         }
     }
 }
