@@ -105,7 +105,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 { 
                     new ParameterSubscriptionValueSet()
                     {
-                        SubscribedValueSet = parameter.ValueSet.First()
+                        SubscribedValueSet = parameter.ValueSet[0]
                     }
                 }
             };
@@ -120,9 +120,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             row.Changes[0] = new ValueArray<string>(new[] { "-" });
             row.Changes[1] = new ValueArray<string>(new[] { "-7" });
 
-            renderer.Render();
-            var expandButton = renderer.FindComponent<DxButton>();
-            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            await renderer.InvokeAsync(() => renderer.FindComponent<DxGrid>().Instance.ExpandAllGroupRows());
+
             var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
 
             await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
@@ -161,7 +160,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 {
                     new ParameterSubscriptionValueSet()
                     {
-                        SubscribedValueSet = parameter.ValueSet.First()
+                        SubscribedValueSet = parameter.ValueSet[0]
                     }
                 }
             };
@@ -175,10 +174,9 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             var row = this.rows.Items.First();
             row.Changes[0] = new ValueArray<string>(new[] { "-" });
             row.Changes[1] = new ValueArray<string>(new[] { "-7" });
+            
+            await renderer.InvokeAsync(() => renderer.FindComponent<DxGrid>().Instance.ExpandAllGroupRows());
 
-            renderer.Render();
-            var expandButton = renderer.FindComponent<DxButton>();
-            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
             var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
 
             await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
@@ -247,7 +245,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 {
                     new ParameterSubscriptionValueSet()
                     {
-                        SubscribedValueSet = parameter.ValueSet.First()
+                        SubscribedValueSet = parameter.ValueSet[0]
                     }
                 }
             };
@@ -262,9 +260,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             row.Changes[0] = new ValueArray<string>(new[] { "-" });
             row.Changes[1] = new ValueArray<string>(new[] { "cube | sphere" });
 
-            renderer.Render();
-            var expandButton = renderer.FindComponent<DxButton>();
-            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            await renderer.InvokeAsync(() => renderer.FindComponent<DxGrid>().Instance.ExpandAllGroupRows());
+
             var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
 
             await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
@@ -282,7 +279,6 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
 
             var element = new ElementDefinition();
-
 
             var compoundData = new OrderedItemList<ParameterTypeComponent>(null)
             {
@@ -345,7 +341,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 {
                     new ParameterSubscriptionValueSet()
                     {
-                        SubscribedValueSet = parameter.ValueSet.First()
+                        SubscribedValueSet = parameter.ValueSet[0]
                     }
                 }
             };
@@ -360,9 +356,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             row.Changes[0] = new ValueArray<string>(new[] { "-" });
             row.Changes[1] = new ValueArray<string>(new[] { "8" });
 
-            renderer.Render();
-            var expandButton = renderer.FindComponent<DxButton>();
-            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            await renderer.InvokeAsync(() => renderer.FindComponent<DxGrid>().Instance.ExpandAllGroupRows());
             var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
 
             await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
@@ -406,7 +400,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 {
                     new ParameterSubscriptionValueSet()
                     {
-                        SubscribedValueSet = parameter.ValueSet.First()
+                        SubscribedValueSet = parameter.ValueSet[0]
                     }
                 }
             };
@@ -421,9 +415,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             row.Changes[0] = new ValueArray<string>(new[] { "-" });
             row.Changes[1] = new ValueArray<string>(new[] { "17/04/2023" });
 
-            renderer.Render();
-            var expandButton = renderer.FindComponent<DxButton>();
-            await renderer.InvokeAsync(() => expandButton.Instance.Click.InvokeAsync(new MouseEventArgs()));
+            await renderer.InvokeAsync(() => renderer.FindComponent<DxGrid>().Instance.ExpandAllGroupRows());
             var moreButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Text != null);
 
             await renderer.InvokeAsync(() => moreButton.Instance.Click.InvokeAsync(new MouseEventArgs()));

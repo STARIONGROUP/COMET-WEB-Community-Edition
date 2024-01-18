@@ -55,6 +55,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.context.ConfigureDevExpressBlazor();
 
             var viewModel = new Mock<IDetailsComponentViewModel>();
+            viewModel.Setup(x => x.ParameterType).Returns(new TextParameterType());
 
             this.renderedComponent = this.context.RenderComponent<DetailsComponent>(parameters =>
             {
