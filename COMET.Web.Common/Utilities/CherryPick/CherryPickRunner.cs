@@ -109,14 +109,14 @@ namespace COMET.Web.Common.Utilities.CherryPick
             var categoryIds = this.GetCategoryIdsForCherryPick();
             
             await ids.ParallelForEachAsync(async pair =>
-            {
-                var result = (await this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds)).ToList();
-                
-                foreach (var needCherryPickedData in this.needCherryPicked)
                 {
-                    needCherryPickedData.ProcessCherryPickedData(result);
-                }
-            },
+                    var result = (await this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds)).ToList();
+                    
+                    foreach (var needCherryPickedData in this.needCherryPicked.Where(needCherryPickedData => result.Any()))
+                    {
+                        needCherryPickedData.ProcessCherryPickedData(result);
+                    }
+                },
             this.numberOfThreads,
             cancellationToken);
 
