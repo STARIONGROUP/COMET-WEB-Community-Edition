@@ -31,6 +31,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using Microsoft.AspNetCore.Components;
@@ -44,6 +46,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         private EventCallback<(IValueSet, int)> eventCallback;
         private ParameterType parameterType;
         private ParameterValueSet valueSet;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -62,7 +65,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
                 Manual = new ValueArray<string>(new List<string>() { "1", "2", "3" })
             };
 
-            this.viewModel = new DetailsComponentViewModel(true, this.parameterType, this.valueSet, this.eventCallback);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new DetailsComponentViewModel(true, this.parameterType, this.valueSet, this.eventCallback, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

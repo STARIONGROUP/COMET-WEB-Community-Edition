@@ -71,7 +71,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public UserManagementTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public UserManagementTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;

@@ -26,8 +26,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 {
     using Bunit;
 
-    using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Validation;
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.BookEditor;
@@ -48,8 +48,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using NUnit.Framework;
 
-    using RichardSzalay.MockHttp;
-
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
@@ -58,7 +56,6 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private TestContext context;
         private Mock<IEditorPopupViewModel> viewmodel;
         private IRenderedComponent<EditorPopup> component;
-        private Book book;
         private List<DomainOfExpertise> activeDomains;
         private List<Category> availableCategories;
         private bool onCancelCalled;
@@ -76,23 +73,23 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             this.configurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.configurationService.Object);
-            this.book = new Book();
+            this.context.Services.AddSingleton<IValidationService, ValidationService>();
 
-            this.activeDomains = new List<DomainOfExpertise>
-            {
-                new()
+            this.activeDomains =
+            [
+                new DomainOfExpertise()
                 {
                     Name = "Sys"
                 }
-            };
+            ];
 
-            this.availableCategories = new List<Category>
-            {
-                new()
+            this.availableCategories =
+            [
+                new Category
                 {
                     Name = "Category"
                 }
-            };
+            ];
 
             var onCancelClicked = new EventCallbackFactory().Create(this, () => this.onCancelCalled = true);
             var onConfirmClicked = new EventCallbackFactory().Create(this, () => this.onAcceptCalled = true);

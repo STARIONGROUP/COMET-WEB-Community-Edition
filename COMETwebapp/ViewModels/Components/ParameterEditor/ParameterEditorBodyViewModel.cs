@@ -58,15 +58,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             typeof(ParameterOrOverrideBase),
             typeof(ParameterValueSetBase),
         };
-        
+
         /// <summary>
         /// Creates a new instance of <see cref="ParameterEditorBodyViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="subscriptionService">the <see cref="ISubscriptionService" /></param>
         /// <param name="parameterTableView">The <see cref="IParameterTableViewModel" /></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         public ParameterEditorBodyViewModel(ISessionService sessionService, ISubscriptionService subscriptionService,
-            IParameterTableViewModel parameterTableView) : base(sessionService)
+            IParameterTableViewModel parameterTableView, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.SubscriptionService = subscriptionService;
             this.ParameterTableViewModel = parameterTableView;

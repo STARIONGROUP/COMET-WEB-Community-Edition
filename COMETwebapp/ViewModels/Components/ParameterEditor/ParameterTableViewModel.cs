@@ -92,12 +92,20 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private bool ownedParameters;
 
         /// <summary>
+        /// Gets the injected <see cref="ICDPMessageBus"/>
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ParameterTableViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
-        public ParameterTableViewModel(ISessionService sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public ParameterTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus)
         {
-            this.Disposables.Add(CDPMessageBus.Current.Listen<HaveComponentParameterTypeSelectedEvent>()
+            this.messageBus = messageBus;
+
+            this.Disposables.Add(this.messageBus.Listen<HaveComponentParameterTypeSelectedEvent>()
                 .Subscribe(x => this.HandleComponentSelected(x.HaveComponentParameter)));
 
             this.sessionService = sessionService;
@@ -372,8 +380,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 var isReadOnly = !this.permissionService.CanWrite(parameterOrOverrideBase);
 
                 rows.AddRange(parameterOrOverrideBase.ValueSets.Where(x => x.ActualOption == null || x.ActualOption.Iid == optionId)
-                    .Where(x => rows.All(r => ((ParameterValueSetBase)r.ValueSet).Iid != ((ParameterValueSetBase)x).Iid))
-                    .Select(x => new ParameterBaseRowViewModel(this.sessionService, isReadOnly, parameterOrOverrideBase, x)));
+                    .Where(x => rows.TrueForAll(r => ((ParameterValueSetBase)r.ValueSet).Iid != ((ParameterValueSetBase)x).Iid))
+                    .Select(x => new ParameterBaseRowViewModel(this.sessionService, isReadOnly, parameterOrOverrideBase, x, this.messageBus)));
             }
 
             return rows;

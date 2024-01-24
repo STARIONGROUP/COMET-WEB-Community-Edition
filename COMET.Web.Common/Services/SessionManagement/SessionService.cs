@@ -52,9 +52,25 @@ namespace COMET.Web.Common.Services.SessionManagement
     public class SessionService : ReactiveObject, ISessionService
     {
         /// <summary>
-        /// The <see cref="ILogger{T}"/>
+        /// The <see cref="ILogger{T}" />
         /// </summary>
         private readonly ILogger<SessionService> logger;
+
+        /// <summary>
+        /// Gets the injected <see cref="ICDPMessageBus" />
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
+        /// Creates a new instance of type <see cref="SessionService" />
+        /// </summary>
+        /// <param name="logger">the <see cref="ILogger{TCategoryName}" /></param>
+        /// <param name="messageBus">The <see cref="IMessageBus" /></param>
+        public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus)
+        {
+            this.logger = logger;
+            this.messageBus = messageBus;
+        }
 
         /// <summary>
         /// Gets a readonly collection of open <see cref="EngineeringModel" />
@@ -75,15 +91,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// True if the <see cref="ISession" /> is opened
         /// </summary>
         public bool IsSessionOpen { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="SessionService"/>
-        /// </summary>
-        /// <param name="logger">the <see cref="ILogger{TCategoryName}"/></param>
-        public SessionService(ILogger<SessionService> logger)
-        {
-            this.logger = logger;
-        }
 
         /// <summary>
         /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
@@ -115,7 +122,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain)
         {
             var result = new Result();
@@ -123,7 +130,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             this.logger.LogInformation("Opening iteration");
             var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
             var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-            
+
             var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri)
             {
                 Container = model
@@ -141,7 +148,7 @@ namespace COMET.Web.Common.Services.SessionManagement
                 var openedIteration = this.Session.OpenIterations.FirstOrDefault(x => x.Key.Iid == iterationSetup.IterationIid).Key;
                 this.OpenIterations.Add(openedIteration);
 
-                CDPMessageBus.Current.SendMessage(SessionStateKind.IterationOpened);
+                this.messageBus.SendMessage(SessionStateKind.IterationOpened);
                 this.logger.LogInformation("Iteration opened successfully");
                 result.Successes.Add(new Success("Iteration opened successfully"));
             }
@@ -192,10 +199,8 @@ namespace COMET.Web.Common.Services.SessionManagement
                 return this.GetSiteDirectory().Model
                     .Where(m => m.Participant.Any(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)));
             }
-            else
-            {
-                return Enumerable.Empty<EngineeringModelSetup>();
-            }
+
+            return Enumerable.Empty<EngineeringModelSetup>();
         }
 
         /// <summary>
@@ -219,11 +224,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         public async Task RefreshSession()
         {
             var sw = Stopwatch.StartNew();
-            CDPMessageBus.Current.SendMessage(SessionStateKind.Refreshing);
+            this.messageBus.SendMessage(SessionStateKind.Refreshing);
 
             await this.Session.Refresh();
 
-            CDPMessageBus.Current.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             this.logger.LogInformation($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
         }
@@ -239,22 +244,30 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Write a new Thing in an <see cref="Iteration"/>
+        /// Write a new Thing in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingToCreate"></param> should be created</param>
+        /// <param name="container">
+        /// the <see cref="Thing" /> container where the
+        /// <param name="thingToCreate"></param>
+        /// should be created
+        /// </param>
         /// <param name="thingToCreate">the thing to create in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> CreateThing(Thing container, Thing thingToCreate)
         {
             return await this.CreateThings(container, new List<Thing> { thingToCreate });
         }
 
         /// <summary>
-        /// Write new Things in an <see cref="Iteration"/>
+        /// Write new Things in an <see cref="Iteration" />
         /// </summary>
-        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingsToCreate"></param> should be created</param>
+        /// <param name="container">
+        /// the <see cref="Thing" /> container where the
+        /// <param name="thingsToCreate"></param>
+        /// should be created
+        /// </param>
         /// <param name="thingsToCreate">the things to create in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> CreateThings(Thing container, params Thing[] thingsToCreate)
         {
             return await this.CreateThings(container, thingsToCreate.ToList());
@@ -265,7 +278,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
         /// <param name="thingsToCreate">List of Things to create in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> CreateThings(Thing thing, IEnumerable<Thing> thingsToCreate)
         {
             var result = new Result();
@@ -314,7 +327,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingToUpdate">the thing to update in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> UpdateThing(Thing container, Thing thingToUpdate)
         {
             return await this.UpdateThings(container, new List<Thing> { thingToUpdate });
@@ -325,7 +338,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> UpdateThings(Thing container, params Thing[] thingsToUpdate)
         {
             return await this.UpdateThings(container, thingsToUpdate.ToList());
@@ -336,7 +349,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="thing">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
         /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> UpdateThings(Thing thing, IEnumerable<Thing> thingsToUpdate)
         {
             var result = new Result();
@@ -363,7 +376,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             // register all updates with the transaction.
             thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
-            
+
             // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
             // to the Thing object.
             var operationContainer = transaction.FinalizeTransaction();
@@ -388,33 +401,33 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Deletes a <see cref="Thing"/> from it's container
+        /// Deletes a <see cref="Thing" /> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
         /// <param name="thingToDelete">the cloned thing to delete in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> DeleteThing(Thing containerClone, Thing thingToDelete)
         {
             return await this.DeleteThings(containerClone, new List<Thing> { thingToDelete });
         }
 
         /// <summary>
-        /// Deletes a collection of <see cref="Thing"/> from it's container
+        /// Deletes a collection of <see cref="Thing" /> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
         /// <param name="thingsToDelete">the cloned things to delete in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> DeleteThings(Thing containerClone, params Thing[] thingsToDelete)
         {
             return await this.DeleteThings(containerClone, thingsToDelete.ToList());
         }
 
         /// <summary>
-        /// Deletes a collection <see cref="Thing"/> from it's container
+        /// Deletes a collection <see cref="Thing" /> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
         /// <param name="thingsToDelete">the cloned things to delete in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
         public async Task<Result> DeleteThings(Thing containerClone, IEnumerable<Thing> thingsToDelete)
         {
             var result = new Result();

@@ -78,6 +78,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
         private Iteration iteration;
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -102,11 +103,12 @@ namespace COMETwebapp.Tests.Components.UserManagement
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
+            this.messageBus = new CDPMessageBus();
 
-            this.assembler = new Assembler(this.uri);
+            this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object);
+            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -214,14 +216,14 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 }
             };
 
-            var option_1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            var option1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
                 ShortName = "OPT_1",
                 Name = "Option1"
             };
 
-            this.iteration.Option.Add(option_1);
-            this.iteration.DefaultOption = option_1;
+            this.iteration.Option.Add(option1);
+            this.iteration.DefaultOption = option1;
 
             this.engineeringSetup.IterationSetup.Add(this.iteration.IterationSetup);
 
@@ -251,6 +253,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -302,7 +305,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             };
 
             await this.viewModel.AddingPerson();
-            CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Added));
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Added));
 
             Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
         }
@@ -394,14 +397,14 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Iid = Guid.NewGuid()
             };
 
-            CDPMessageBus.Current.SendObjectChangeEvent(personTest, EventKind.Added);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
-            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Removed);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Removed);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
-            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Updated);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
         }

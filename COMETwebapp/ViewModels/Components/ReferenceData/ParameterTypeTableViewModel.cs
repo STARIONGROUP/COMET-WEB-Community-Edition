@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -66,38 +67,39 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.Disposables.Add(
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))
+                this.MessageBus.Listen<ObjectChangedEvent>(typeof(ParameterType))
                     .Where(objectChange => objectChange.EventKind == EventKind.Added &&
                                            objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                     .Select(x => x.ChangedThing as ParameterType)
-                    .Subscribe(async x => await this.AddNewParameterType(x)));
+                    .SubscribeAsync(this.AddNewParameterType));
 
             this.Disposables.Add(
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ParameterType))
+                this.MessageBus.Listen<ObjectChangedEvent>(typeof(ParameterType))
                     .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                            objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                     .Select(x => x.ChangedThing as ParameterType)
-                    .Subscribe(async x => await this.UpdateParameterType(x)));
+                    .SubscribeAsync(this.UpdateParameterType));
 
             this.Disposables.Add(
-                CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
+                this.MessageBus.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
                     .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                            objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                     .Select(x => x.ChangedThing as ReferenceDataLibrary)
-                    .Subscribe(async x => await this.RefreshContainerName(x)));
+                    .SubscribeAsync(this.RefreshContainerName));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
+            this.Disposables.Add(this.MessageBus.Listen<ObjectChangedEvent>(typeof(PersonRole))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as PersonRole)
-                .Subscribe(async _ => await this.RefreshAccessRight()));
+                .SubscribeAsync(_ => this.RefreshAccessRight()));
         }
 
         /// <summary>
@@ -142,7 +144,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Adds a new <see cref="ParameterType" />
         /// </summary>
-        public async Task AddNewParameterType(ParameterType parameterType)
+        public Task AddNewParameterType(ParameterType parameterType)
         {
             var newRows = new List<ParameterTypeRowViewModel>(this.allRows)
             {
@@ -150,19 +152,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             };
 
             this.UpdateRows(newRows);
-            await this.RefreshAccessRight();
+
+            return this.RefreshAccessRight();
         }
 
         /// <summary>
         /// Updates the <see cref="ParameterType" />
         /// </summary>
-        public async Task UpdateParameterType(ParameterType parameterType)
+        public Task UpdateParameterType(ParameterType parameterType)
         {
             var updatedRows = new List<ParameterTypeRowViewModel>(this.allRows);
             var index = updatedRows.FindIndex(x => x.ParameterType.Iid == parameterType.Iid);
             updatedRows[index] = new ParameterTypeRowViewModel(parameterType);
             this.UpdateRows(updatedRows);
-            await this.RefreshAccessRight();
+
+            return this.RefreshAccessRight();
         }
 
         /// <summary>

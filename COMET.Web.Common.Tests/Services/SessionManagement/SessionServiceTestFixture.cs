@@ -58,18 +58,22 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
         private SiteDirectory siteDirectory;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             var logger = new Mock<ILogger<SessionService>>();
+            this.messageBus = new CDPMessageBus();
 
             this.session = new Mock<ISession>();
-            this.sessionService = new SessionService(logger.Object)
+
+            this.sessionService = new SessionService(logger.Object, this.messageBus)
             {
                 Session = this.session.Object
             };
-            this.assembler = new Assembler(this.uri);
+
+            this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
@@ -149,6 +153,12 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
+        }
+
         [Test]
         public async Task VerifyClose()
         {
@@ -159,14 +169,14 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             Assert.Multiple(() =>
             {
                 Assert.That(this.sessionService.IsSessionOpen, Is.False);
-                Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
+                Assert.That(() => this.sessionService.Close(), Throws.Nothing);
             });
 
             this.session.Setup(x => x.Close()).ThrowsAsync(new Exception());
-            Assert.That(async () => await this.sessionService.Close(), Throws.Nothing);
+            Assert.That(() => this.sessionService.Close(), Throws.Nothing);
 
             this.sessionService.IsSessionOpen = true;
-            Assert.That(async () => await this.sessionService.Close(), Throws.Exception);
+            Assert.That(() => this.sessionService.Close(), Throws.Exception);
         }
 
         [Test]
@@ -197,6 +207,20 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
             thingsToCreate.Add(element.Clone(false));
             Assert.DoesNotThrow(() => this.sessionService.CreateThings(this.iteration, thingsToCreate));
+        }
+
+        [Test]
+        public void VerifyDeleteThings()
+        {
+            this.sessionService.IsSessionOpen = true;
+
+            var element = new ElementDefinition
+            {
+                Name = "Battery",
+                Owner = this.sessionService.GetDomainOfExpertise(this.iteration)
+            };
+
+            Assert.DoesNotThrow(() => this.sessionService.DeleteThing(this.iteration, element.Clone(false)));
         }
 
         [Test]
@@ -252,11 +276,29 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
+        public void VerifyRefreshEndedCalled()
+        {
+            var onSessionRefreshedCalled = false;
+
+            void SetRefreshEndedCalled()
+            {
+                onSessionRefreshedCalled = true;
+            }
+
+            this.messageBus.Listen<SessionStateKind>().Where(x => x == SessionStateKind.RefreshEnded)
+                .Subscribe(_ => { SetRefreshEndedCalled(); });
+
+            this.sessionService.RefreshSession();
+
+            Assert.That(onSessionRefreshedCalled, Is.True);
+        }
+
+        [Test]
         public void VerifyRefreshSession()
         {
             var beginRefreshReceived = false;
 
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing)
+            this.messageBus.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing)
                 .Subscribe(_ => { beginRefreshReceived = true; });
 
             this.sessionService.RefreshSession();
@@ -297,32 +339,6 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             clone.Name = "Satellite";
             thingsToUpdate.Add(clone);
             Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
-        }
-
-        [Test]
-        public void VerifyDeleteThings()
-        {
-            this.sessionService.IsSessionOpen = true;
-
-            var element = new ElementDefinition
-            {
-                Name = "Battery",
-                Owner = this.sessionService.GetDomainOfExpertise(this.iteration)
-            };
-
-            Assert.DoesNotThrow(() => this.sessionService.DeleteThing(this.iteration, element.Clone(false)));
-        }
-
-        [Test]
-        public void VerifyRefreshEndedCalled()
-        {
-            var onSessionRefreshedCalled = false;
-            void SetRefreshEndedCalled() { onSessionRefreshedCalled = true; }
-            CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.RefreshEnded)
-                .Subscribe(_ => { SetRefreshEndedCalled(); });
-            this.sessionService.RefreshSession();
-
-            Assert.That(onSessionRefreshedCalled, Is.True);
         }
     }
 }

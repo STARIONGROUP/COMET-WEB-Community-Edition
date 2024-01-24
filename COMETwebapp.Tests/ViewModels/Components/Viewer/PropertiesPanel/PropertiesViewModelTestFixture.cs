@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.Interoperability;
@@ -46,6 +48,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         private Mock<IBabylonInterop> babylonInterop;
         private Mock<ISessionService> sessionService;
         private Mock<ISelectionMediator> selectionMediator;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -60,8 +63,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 
             this.babylonInterop = new Mock<IBabylonInterop>();
             this.sessionService = new Mock<ISessionService>();
+            this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new PropertiesComponentViewModel(this.babylonInterop.Object, this.sessionService.Object, this.selectionMediator.Object);
+            this.viewModel = new PropertiesComponentViewModel(this.babylonInterop.Object, this.sessionService.Object, this.selectionMediator.Object, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

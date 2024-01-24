@@ -86,11 +86,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private CompoundParameterType sourceParameterType2;
         private Category elementDefinitionCategory1;
         private Category elementDefinitionCategory2;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
+            this.messageBus = new CDPMessageBus();
 
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
@@ -108,10 +110,10 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
 
-            this.assembler = new Assembler(this.uri);
+            this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new CategoriesTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object);
+            this.viewModel = new CategoriesTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -301,6 +303,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -414,7 +417,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new (ClassKind.ElementDefinition) };
 
             await this.viewModel.AddingCategory();
-            CDPMessageBus.Current.SendMessage(new ObjectChangedEvent(this.viewModel.Category, EventKind.Added));
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Category, EventKind.Added));
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
         }
 

@@ -46,6 +46,12 @@ namespace COMET.Web.Common.Components.Applications
         public Guid IterationId { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ICDPMessageBus" />
+        /// </summary>
+        [Inject]
+        public ICDPMessageBus MessageBus { get; set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -54,7 +60,7 @@ namespace COMET.Web.Common.Components.Applications
             this.UpdateProperties();
             base.OnInitialized();
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>()
+            this.Disposables.Add(this.MessageBus.Listen<DomainChangedEvent>()
                 .Subscribe(_ => this.InvokeAsync(this.SetCorrectUrl)));
         }
 

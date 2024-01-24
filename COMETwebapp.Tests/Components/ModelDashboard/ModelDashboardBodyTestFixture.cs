@@ -68,12 +68,14 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         private TestContext context;
         private ModelDashboardBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             this.context = new TestContext();
             this.sessionService = new Mock<ISessionService>();
+            this.messageBus = new CDPMessageBus();
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddAntDesign();
@@ -83,6 +85,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
+            this.context.Services.AddSingleton(this.messageBus);
             this.viewModel = this.context.Services.GetService<IModelDashboardBodyViewModel>() as ModelDashboardBodyViewModel;
         }
 
@@ -90,7 +93,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         public void Teardown()
         {
             this.context.CleanContext();
-            CDPMessageBus.Current.ClearSubscriptions();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -98,7 +101,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         {
             var renderer = this.context.RenderComponent<ModelDashboardBody>();
             Assert.That(this.viewModel.CurrentThing, Is.Null);
-            CDPMessageBus.Current.SendMessage(new DomainChangedEvent(null, null));
+            this.messageBus.SendMessage(new DomainChangedEvent(null, null));
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
 
             var iteration = new Iteration()
@@ -302,7 +305,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             });
 
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(themalDomain);
-            CDPMessageBus.Current.SendMessage(new DomainChangedEvent(iteration, themalDomain));
+            this.messageBus.SendMessage(new DomainChangedEvent(iteration, themalDomain));
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             await Task.Delay(1000);
 
@@ -349,7 +352,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
             Assert.That(navigation.Uri, Does.Contain("parameter="));
 
-            Assert.That(() => CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate)), Throws.Nothing);
+            Assert.That(() => this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate)), Throws.Nothing);
         }
     }
 }

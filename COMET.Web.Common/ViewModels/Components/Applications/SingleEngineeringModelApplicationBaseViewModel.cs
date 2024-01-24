@@ -27,6 +27,8 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
 {
     using CDP4Common.EngineeringModelData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
 
     /// <summary>
@@ -38,7 +40,8 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Initializes a new <see cref="SingleEngineeringModelApplicationBaseViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        protected SingleEngineeringModelApplicationBaseViewModel(ISessionService sessionService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        protected SingleEngineeringModelApplicationBaseViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
         }
     }

@@ -43,9 +43,10 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        protected SingleIterationApplicationBaseViewModel(ISessionService sessionService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        protected SingleIterationApplicationBaseViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
-            this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().SubscribeAsync(_ => this.OnDomainChanged()));
+            this.Disposables.Add(this.MessageBus.Listen<DomainChangedEvent>().SubscribeAsync(_ => this.OnDomainChanged()));
         }
 
         /// <summary>

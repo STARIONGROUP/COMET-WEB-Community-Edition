@@ -45,6 +45,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     {
         private ICompoundParameterTypeEditorViewModel viewModel;
         private CompoundParameterType parameterType;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -121,7 +122,14 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             sessionService.Setup(x => x.Session).Returns(session.Object);
 
-            this.viewModel = new CompoundParameterTypeEditorViewModel(this.parameterType, parameterValueSet, false);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new CompoundParameterTypeEditorViewModel(this.parameterType, parameterValueSet, false, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

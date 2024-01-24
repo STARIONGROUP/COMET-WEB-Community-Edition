@@ -53,14 +53,22 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
         private SubscriptionService subscriptionService;
         private Mock<ISessionService> sessionService;
         private SourceList<Iteration> openIterations;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
             this.openIterations = new SourceList<Iteration>();
+            this.messageBus = new CDPMessageBus();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
-            this.subscriptionService = new SubscriptionService(this.sessionService.Object, new Mock<INotificationService>().Object);
+            this.subscriptionService = new SubscriptionService(this.sessionService.Object, new Mock<INotificationService>().Object, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -175,7 +183,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
             });
 
             this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(systemOwner);
-            CDPMessageBus.Current.SendMessage(new DomainChangedEvent(iteration, systemOwner));
+            this.messageBus.SendMessage(new DomainChangedEvent(iteration, systemOwner));
 
             Assert.Multiple(() =>
             {
@@ -184,7 +192,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
                 Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(0));
             });
 
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
             Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(0));
 
             var nameProperty = typeof(ParameterValueSet).GetProperty(nameof(ParameterValueSet.RevisionNumber))!;
@@ -192,12 +200,12 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
             subscribed.Revisions[0] = new ParameterValueSet() { Published = new ValueArray<string>(new List<string>(){"-"})};
             subscribed.Published = new ValueArray<string>(new List<string>(){"45"});
 
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(1));
-                Assert.That(() => CDPMessageBus.Current.SendMessage(SessionStateKind.Refreshing), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.Refreshing), Throws.Nothing);
 
                 Assert.That(() =>this.subscriptionService.TrackedSubscriptions[iteration.Iid][0].QueryChangedValueSet(new TrackedParameterSubscription(new ParameterSubscription())),
                     Throws.ArgumentException);

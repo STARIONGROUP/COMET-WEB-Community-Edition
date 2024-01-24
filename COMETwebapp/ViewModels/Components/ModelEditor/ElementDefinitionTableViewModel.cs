@@ -71,7 +71,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
-        public ElementDefinitionTableViewModel(ISessionService sessionService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public ElementDefinitionTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.iteration = sessionService?.OpenIterations.Items.FirstOrDefault();
             this.sessionService = sessionService;
@@ -127,7 +128,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// set the selected <see cref="SystemNodeViewModel" />
         /// </summary>
-        /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
+        /// <param name="args">The selected <see cref="SystemNodeViewModel" /></param>
         /// <returns>A <see cref="Task" /></returns>
         public void SelectElement(GridRowClickEventArgs args)
         {
@@ -164,17 +165,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             {
                 var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
 
-                if (row != null)
-                {
-                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
-                }
+                row?.UpdateProperties(new ElementDefinitionRowViewModel(element));
 
                 row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-
-                if (row != null)
-                {
-                    row.UpdateProperties(new ElementDefinitionRowViewModel(element));
-                }
+                row?.UpdateProperties(new ElementDefinitionRowViewModel(element));
             }
         }
 
@@ -184,16 +178,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
         public void RemoveRows(IEnumerable<ElementBase> deletedThings)
         {
-            foreach (var element in deletedThings)
+            foreach (var elementId in deletedThings.Select(x => x.Iid))
             {
-                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == elementId);
 
                 if (row != null)
                 {
                     this.RowsSource.Remove(row);
                 }
 
-                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
+                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == elementId);
 
                 if (row != null)
                 {

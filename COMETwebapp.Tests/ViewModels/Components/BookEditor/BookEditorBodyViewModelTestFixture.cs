@@ -28,6 +28,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.BookEditor;
@@ -41,13 +43,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     {
         private IBookEditorBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
         {
             this.sessionService = new Mock<ISessionService>();
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new BookEditorBodyViewModel(this.sessionService.Object, this.messageBus);
+        }
 
-            this.viewModel = new BookEditorBodyViewModel(this.sessionService.Object);
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -136,7 +145,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
                 Assert.That(this.viewModel.EditorPopupViewModel.HeaderText, Is.EqualTo("Create a new Book"));
                 Assert.That(this.viewModel.EditorPopupViewModel.OnConfirmClick, Is.Not.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.OnCancelClick, Is.Not.Null);
-                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible = true);
+                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.True);
             });
         }
 
@@ -177,7 +186,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
                 Assert.That(this.viewModel.EditorPopupViewModel.HeaderText, Is.EqualTo("Edit the Book"));
                 Assert.That(this.viewModel.EditorPopupViewModel.OnConfirmClick, Is.Not.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.OnCancelClick, Is.Not.Null);
-                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible = true);
+                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.True);
             });
         }
 

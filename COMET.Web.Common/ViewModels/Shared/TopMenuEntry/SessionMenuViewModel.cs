@@ -25,10 +25,7 @@
 
 namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 {
-    using System.Reactive.Linq;
-
     using CDP4Dal;
-    using CDP4Dal.Events;
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.NotificationService;
@@ -53,17 +50,15 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         /// <param name="sessionService">The <see cref="ISessionMenuViewModel" /></param>
         /// <param name="autoRefreshService">The <see cref="IAutoRefreshService" /></param>
         /// <param name="notificationService">The <see cref="INotificationService" /></param>
-        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, INotificationService notificationService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, INotificationService notificationService, ICDPMessageBus messageBus)
         {
             this.SessionService = sessionService;
             this.AutoRefreshService = autoRefreshService;
             this.NotificationService = notificationService;
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionStateKind>().Where(x => x == SessionStateKind.Refreshing)
-                .Subscribe(_ => { this.IsRefreshing = true; }));
-
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate)
-                .Subscribe(_ => { this.IsRefreshing = false; }));
+            this.Disposables.Add(messageBus.Listen<SessionStateKind>()
+                .Subscribe(this.HandleSessionStateKind));
         }
 
         /// <summary>
@@ -98,5 +93,28 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         /// Gets the <see cref="ISessionService" />
         /// </summary>
         public ISessionService SessionService { get; }
+
+        /// <summary>
+        /// Handles the change of <see cref="SessionStateKind" />
+        /// </summary>
+        /// <param name="sessionState">The new <see cref="SessionStateKind" /></param>
+        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionStateKind" /> is unknowned</exception>
+        private void HandleSessionStateKind(SessionStateKind sessionState)
+        {
+            switch (sessionState)
+            {
+                case SessionStateKind.Refreshing:
+                    this.IsRefreshing = true;
+                    return;
+                case SessionStateKind.RefreshEnded:
+                    this.IsRefreshing = false;
+                    return;
+                case SessionStateKind.IterationClosed:
+                case SessionStateKind.IterationOpened:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sessionState), $"Unknowned SessionStateKind {sessionState}");
+            }
+        }
     }
 }

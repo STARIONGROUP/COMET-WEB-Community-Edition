@@ -49,6 +49,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         private readonly Uri uri = new ("http://test.com");
         private DomainOfExpertise domain;
         private Iteration iteration;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -56,7 +57,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            this.assembler = new Assembler(this.uri);
+            this.messageBus = new CDPMessageBus();
+            this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
             
             this.elementDefinitionDetailsViewModel = new ElementDefinitionDetailsViewModel();
@@ -79,6 +81,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -90,7 +93,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             });
 
             Assert.That(renderer.Instance, Is.Not.Null);
-            this.elementDefinitionDetailsViewModel.SelectedSystemNode = this.iteration.Element.First();
+            this.elementDefinitionDetailsViewModel.SelectedSystemNode = this.iteration.Element[0];
 
             renderer.Render();
 
@@ -99,7 +102,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             Assert.Multiple(() =>
             {
                 Assert.That(elementDefinitionDetails[1].InnerHtml, Is.Not.Null);
-                Assert.That(elementDefinitionDetails[1].InnerHtml, Does.Contain(this.iteration.Element.First().Name));
+                Assert.That(elementDefinitionDetails[1].InnerHtml, Does.Contain(this.iteration.Element[0].Name));
             });
         }
     }

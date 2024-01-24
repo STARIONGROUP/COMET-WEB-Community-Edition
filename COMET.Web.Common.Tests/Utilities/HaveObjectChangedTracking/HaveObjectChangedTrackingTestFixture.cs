@@ -38,8 +38,19 @@ namespace COMET.Web.Common.Tests.Utilities.HaveObjectChangedTracking
     [TestFixture]
     public class HaveObjectChangedTrackingTestFixture
     {
-        private class ObjectChangedTracking: HaveObjectChangedTracking
+        private CDPMessageBus messageBus;
+        private ObjectChangedTracking objectChangedTracking;
+
+        private class ObjectChangedTracking : HaveObjectChangedTracking
         {
+            /// <summary>
+            /// Initializes a new instance of <see cref="HaveObjectChangedTracking" />
+            /// </summary>
+            /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+            public ObjectChangedTracking(ICDPMessageBus messageBus) : base(messageBus)
+            {
+            }
+
             public IReadOnlyList<Thing> AddedThingsReadOnlyList => this.AddedThings.AsReadOnly();
 
             public IReadOnlyList<Thing> DeletedThingsReadOnlyList => this.DeletedThings.AsReadOnly();
@@ -57,65 +68,77 @@ namespace COMET.Web.Common.Tests.Utilities.HaveObjectChangedTracking
             }
         }
 
+        [SetUp]
+        public void Setup()
+        {
+            this.messageBus = new CDPMessageBus();
+            this.objectChangedTracking = new ObjectChangedTracking(this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
+        }
+
         [Test]
         public void VerifyCollectionsAfterObjectChangeEvent()
         {
-            var objectChangedTracking = new ObjectChangedTracking();
             var elementDefinition = new ElementDefinition();
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
 
             Assert.Multiple(() =>
             {
-                Assert.That(objectChangedTracking.AddedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.AddedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
             });
 
-            objectChangedTracking.Initialize(new List<Type> { typeof(ElementBase)});
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.objectChangedTracking.Initialize(new List<Type> { typeof(ElementBase) });
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
 
             Assert.Multiple(() =>
             {
-                Assert.That(objectChangedTracking.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
-                Assert.That(objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
+                Assert.That(this.objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
             });
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Updated);
 
             Assert.Multiple(() =>
             {
-                Assert.That(objectChangedTracking.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
-                Assert.That(objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.UpdatedThingsReadOnlyList, Has.Count.EqualTo(1));
+                Assert.That(this.objectChangedTracking.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
+                Assert.That(this.objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.UpdatedThingsReadOnlyList, Has.Count.EqualTo(1));
             });
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Removed);
 
             Assert.Multiple(() =>
             {
-                Assert.That(objectChangedTracking.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
-                Assert.That(objectChangedTracking.DeletedThingsReadOnlyList, Has.Count.EqualTo(1));
-                Assert.That(objectChangedTracking.UpdatedThingsReadOnlyList, Has.Count.EqualTo(1));
+                Assert.That(this.objectChangedTracking.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
+                Assert.That(this.objectChangedTracking.DeletedThingsReadOnlyList, Has.Count.EqualTo(1));
+                Assert.That(this.objectChangedTracking.UpdatedThingsReadOnlyList, Has.Count.EqualTo(1));
             });
 
-            objectChangedTracking.Clear();
+            this.objectChangedTracking.Clear();
 
             Assert.Multiple(() =>
             {
-                Assert.That(objectChangedTracking.AddedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.AddedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
             });
 
-            CDPMessageBus.Current.SendObjectChangeEvent(new Parameter(), EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(new Parameter(), EventKind.Removed);
 
             Assert.Multiple(() =>
             {
-                Assert.That(objectChangedTracking.AddedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
-                Assert.That(objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.AddedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.DeletedThingsReadOnlyList, Is.Empty);
+                Assert.That(this.objectChangedTracking.UpdatedThingsReadOnlyList, Is.Empty);
             });
         }
     }

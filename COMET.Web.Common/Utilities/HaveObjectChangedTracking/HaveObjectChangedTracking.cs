@@ -55,6 +55,20 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         protected readonly List<Thing> UpdatedThings = new();
 
         /// <summary>
+        /// Initializes a new instance of <see cref="HaveObjectChangedTracking" />
+        /// </summary>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        protected HaveObjectChangedTracking(ICDPMessageBus messageBus)
+        {
+            this.MessageBus = messageBus;
+        }
+
+        /// <summary>
+        /// Gets the injected <see cref="ICDPMessageBus" />
+        /// </summary>
+        protected ICDPMessageBus MessageBus { get; }
+
+        /// <summary>
         /// Initializes all <see cref="ObjectChangedEvent" /> subscription
         /// </summary>
         /// <param name="typesOfInterest">
@@ -63,7 +77,7 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         /// </param>
         protected void InitializeSubscriptions(IEnumerable<Type> typesOfInterest)
         {
-            var observables = typesOfInterest.Select(objectChangedTypeTarget => CDPMessageBus.Current.Listen<ObjectChangedEvent>(objectChangedTypeTarget)).ToList();
+            var observables = typesOfInterest.Select(objectChangedTypeTarget => this.MessageBus.Listen<ObjectChangedEvent>(objectChangedTypeTarget)).ToList();
             this.Disposables.Add(observables.Merge().Subscribe(this.RecordChange));
         }
 
@@ -78,9 +92,9 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         }
 
         /// <summary>
-        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent"/>
+        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent" />
         /// </summary>
-        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent"/></param>
+        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
         /// <returns>true if the change should be recorded, false otherwise</returns>
         protected virtual bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
         {

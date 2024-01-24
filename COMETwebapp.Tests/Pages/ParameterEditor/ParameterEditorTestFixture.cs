@@ -43,6 +43,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Pages.ParameterEditor;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
@@ -71,6 +72,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         private Mock<ISession> session;
         private Iteration firstIteration;
         private Iteration secondIteration;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -118,6 +120,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.messageBus = new CDPMessageBus();
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
@@ -128,6 +131,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
             this.context.Services.AddSingleton(mockConfigurationService.Object);
+            this.context.Services.AddSingleton(this.messageBus);
 
             var configurationService = new Mock<IStringTableService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
@@ -138,6 +142,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

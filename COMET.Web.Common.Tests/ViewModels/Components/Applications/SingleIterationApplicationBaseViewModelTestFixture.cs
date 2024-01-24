@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -44,6 +45,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
     {
         private SingleIterationApplicationViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private ICDPMessageBus messageBus;
 
         private class SingleIterationApplicationViewModel : SingleIterationApplicationBaseViewModel
         {
@@ -53,7 +55,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
             /// </summary>
             /// <param name="sessionService">The <see cref="ISessionService" /></param>
-            public SingleIterationApplicationViewModel(ISessionService sessionService) : base(sessionService)
+            /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+            public SingleIterationApplicationViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
             {
             }
 
@@ -79,13 +82,15 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
-            this.viewModel = new SingleIterationApplicationViewModel(this.sessionService.Object);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new SingleIterationApplicationViewModel(this.sessionService.Object, this.messageBus);
         }
 
         [TearDown]
         public void Teardown()
         {
             this.viewModel.Dispose();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -94,17 +99,17 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             this.viewModel.Initialize(new List<Type> { typeof(ElementBase) });
             var elementDefinition = new ElementDefinition { Container = new Iteration() };
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
             Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
 
             this.viewModel.CurrentThing = new Iteration { Iid = Guid.NewGuid() };
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
             Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
 
             this.viewModel.CurrentThing.Element.Add(elementDefinition);
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
             Assert.That(this.viewModel.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
         }
 
@@ -120,18 +125,43 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(domain));
             var newDomain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(newDomain);
-            CDPMessageBus.Current.SendMessage(new DomainChangedEvent(iteration, newDomain));
+            this.messageBus.SendMessage(new DomainChangedEvent(iteration, newDomain));
             Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(newDomain));
             this.viewModel.CurrentThing = null;
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
         }
 
         [Test]
-        public void VerifyOnSessionRefresh()
+        public void VerifySessionSubscription()
         {
-            Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
-            Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
+                Assert.That(this.viewModel.IsRefreshing, Is.False);
+            });
+            
+            this.messageBus.SendMessage(SessionStateKind.Refreshing);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
+                Assert.That(this.viewModel.IsRefreshing, Is.True);
+            });
+
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(1));
+                Assert.That(this.viewModel.IsRefreshing, Is.False);
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationClosed), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationOpened), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage((SessionStateKind)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
+            });
         }
 
         [Test]

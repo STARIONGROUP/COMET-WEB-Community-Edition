@@ -30,6 +30,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.HaveObjectChangedTracking;
@@ -47,16 +48,34 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         private bool isLoading;
 
         /// <summary>
+        /// Backing field for <see cref="IsRefreshing" />
+        /// </summary>
+        private bool isRefreshing;
+
+        /// <summary>
         /// Initialize a new instance of <see cref="ApplicationBaseViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        protected ApplicationBaseViewModel(ISessionService sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        protected ApplicationBaseViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(messageBus)
         {
             this.SessionService = sessionService;
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>()
-                .Where(x => x.Session == this.SessionService?.Session && x.Status == SessionStatus.EndUpdate)
-                .SubscribeAsync(_ => this.OnSessionRefreshed()));
+            this.Disposables.Add(this.MessageBus.Listen<SessionStateKind>()
+                .SubscribeAsync(this.HandleSessionStateKind));
+
+            this.Disposables.Add(this.MessageBus.Listen<SessionEvent>()
+                .Where(x => x.Status == SessionStatus.EndUpdate)
+                .SubscribeAsync(_ => this.OnEndUpdate()));
+        }
+
+        /// <summary>
+        /// Gets the assert that the current session is refreshing
+        /// </summary>
+        public bool IsRefreshing
+        {
+            get => this.isRefreshing;
+            private set => this.RaiseAndSetIfChanged(ref this.isRefreshing, value);
         }
 
         /// <summary>
@@ -79,9 +98,44 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         }
 
         /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected virtual Task OnEndUpdate()
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected abstract Task OnSessionRefreshed();
+
+        /// <summary>
+        /// Handles the change of the <see cref="SessionStateKind" />
+        /// </summary>
+        /// <param name="sessionState">The new <see cref="SessionStateKind" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionStateKind"/> is unknowned</exception>
+        private Task HandleSessionStateKind(SessionStateKind sessionState)
+        {
+            switch (sessionState)
+            {
+                case SessionStateKind.RefreshEnded:
+                    this.IsRefreshing = false;
+                    return this.OnSessionRefreshed();
+                case SessionStateKind.Refreshing:
+                    this.IsRefreshing = true;
+                    break;
+                case SessionStateKind.IterationClosed:
+                case SessionStateKind.IterationOpened:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sessionState), $"Unknowned SessionStateKind {sessionState}");
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

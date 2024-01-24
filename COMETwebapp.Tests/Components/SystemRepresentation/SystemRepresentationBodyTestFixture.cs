@@ -71,6 +71,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         private Iteration iteration;
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -79,8 +80,9 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
             this.context = new TestContext();
             this.session = new Mock<ISession>();
+            this.messageBus = new CDPMessageBus();
 
-            this.sessionService = new SessionService(logger.Object)
+            this.sessionService = new SessionService(logger.Object, this.messageBus)
             {
                 Session = this.session.Object
             };
@@ -93,10 +95,10 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
 
-            this.assembler = new Assembler(this.uri);
+            this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService);
+            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService, this.messageBus);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -267,6 +269,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         public void TearDown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

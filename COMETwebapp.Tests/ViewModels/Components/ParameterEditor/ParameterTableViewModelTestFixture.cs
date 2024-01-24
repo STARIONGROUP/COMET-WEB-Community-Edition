@@ -49,6 +49,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private DomainOfExpertise domain;
         private Iteration iteration;
         private Option option;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -58,7 +59,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.viewModel = new ParameterTableViewModel(this.sessionService.Object);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new ParameterTableViewModel(this.sessionService.Object, this.messageBus);
 
             this.option = new Option() { Iid = Guid.NewGuid() };
             var option2 = new Option() { Iid = Guid.NewGuid() };
@@ -196,6 +198,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.iteration.Option.Add(option2);
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
+        }
+
         [Test]
         public void VerifyInitializeViewModel()
         {
@@ -274,13 +282,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ApplyFilters(this.iteration.Option.Last(), null, null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, this.iteration.Element.Last(), null, true);
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, this.iteration.Element[^1], null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
 
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new ArrayParameterType() { Iid = Guid.NewGuid() }, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(0));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, this.iteration.TopElement.Parameter.First().ParameterType, true);
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, this.iteration.TopElement.Parameter[0].ParameterType, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, false);

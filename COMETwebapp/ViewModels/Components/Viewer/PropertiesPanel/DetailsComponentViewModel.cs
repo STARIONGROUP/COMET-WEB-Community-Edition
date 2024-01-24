@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
@@ -48,12 +50,16 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// event callback for when a <see cref="IValueSet" /> asociated to a
         /// <see cref="ParameterBase" /> has changed
         /// </param>
-        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<(IValueSet, int)> parameterValueSetChanged)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public DetailsComponentViewModel(bool isVisible, ParameterType parameterType, IValueSet valueSet, EventCallback<(IValueSet, int)> parameterValueSetChanged, ICDPMessageBus messageBus)
         {
             this.IsVisible = isVisible;
             this.ParameterType = parameterType;
-            this.ParameterEditorSelector = new ParameterTypeEditorSelectorViewModel(this.ParameterType, valueSet, false);
-            this.ParameterEditorSelector.ParameterValueChanged = parameterValueSetChanged;
+
+            this.ParameterEditorSelector = new ParameterTypeEditorSelectorViewModel(this.ParameterType, valueSet, false, messageBus)
+            {
+                ParameterValueChanged = parameterValueSetChanged
+            };
         }
 
         /// <summary>

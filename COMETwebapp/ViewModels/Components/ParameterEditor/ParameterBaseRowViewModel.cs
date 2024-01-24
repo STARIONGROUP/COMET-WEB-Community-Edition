@@ -28,6 +28,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
@@ -54,7 +56,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="isReadOnly">Value asserting if the row is readonly or not</param>
         /// <param name="parameterBase">the parameter of this row</param>
         /// <param name="valueSet">the valueSet of the parameter</param>
-        public ParameterBaseRowViewModel(ISessionService sessionService, bool isReadOnly, ParameterBase parameterBase, IValueSet valueSet)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public ParameterBaseRowViewModel(ISessionService sessionService, bool isReadOnly, ParameterBase parameterBase, IValueSet valueSet, ICDPMessageBus messageBus)
         {
             this.sessionService = sessionService;
             this.Parameter = parameterBase ?? throw new ArgumentNullException(nameof(parameterBase));
@@ -68,7 +71,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 OnUpdate = new EventCallbackFactory().Create(this, this.UpdateParameterValueSwitch)
             };
 
-            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, this.IsReadOnly)
+            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(this.ParameterType, this.ValueSet, this.IsReadOnly, messageBus)
             {
                 ParameterValueChanged = new EventCallbackFactory().Create<(IValueSet,int)>(this, this.OnParameterValueChanged)
             };

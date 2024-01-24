@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -74,35 +75,36 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public CategoriesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public CategoriesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
+            this.Disposables.Add(this.MessageBus.Listen<ObjectChangedEvent>(typeof(Category))
                 .Where(objectChange => objectChange.EventKind == EventKind.Added &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as Category)
-                .Subscribe(async x => await this.AddNewCategory(x)));
+                .SubscribeAsync(this.AddNewCategory));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(Category))
+            this.Disposables.Add(this.MessageBus.Listen<ObjectChangedEvent>(typeof(Category))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as Category)
-                .Subscribe(async x => await this.UpdateCategory(x)));
+                .SubscribeAsync(this.UpdateCategory));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
+            this.Disposables.Add(this.MessageBus.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as ReferenceDataLibrary)
-                .Subscribe(async x => await this.RefreshContainerName(x)));
+                .SubscribeAsync(this.RefreshContainerName));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<ObjectChangedEvent>(typeof(PersonRole))
+            this.Disposables.Add(this.MessageBus.Listen<ObjectChangedEvent>(typeof(PersonRole))
                 .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
                                        objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
                 .Select(x => x.ChangedThing as PersonRole)
-                .Subscribe(async _ => await this.RefreshAccessRight()));
+                .SubscribeAsync(_ => this.RefreshAccessRight()));
         }
 
         /// <summary>
@@ -276,7 +278,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Adds a new <see cref="Category" />
         /// </summary>
-        public async Task AddNewCategory(Category category)
+        public Task AddNewCategory(Category category)
         {
             var newRows = new List<CategoryRowViewModel>(this.allRows)
             {
@@ -284,7 +286,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             };
 
             this.UpdateRows(newRows);
-            await this.RefreshAccessRight();
+            return this.RefreshAccessRight();
         }
 
         /// <summary>

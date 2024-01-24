@@ -63,10 +63,12 @@ namespace COMET.Web.Common.Tests.Components.Applications
         private Mock<ISingleIterationApplicationTemplateViewModel> viewModel;
         private SourceList<Iteration> openIterations;
         private TestContext context;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
+            this.messageBus = new CDPMessageBus();
             this.context = new TestContext();
             this.openIterations = new SourceList<Iteration>();
             this.viewModel = new Mock<ISingleIterationApplicationTemplateViewModel>();
@@ -84,6 +86,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
             this.context.Services.AddSingleton(sessionService.Object);
+            this.context.Services.AddSingleton(this.messageBus);
             this.context.ConfigureDevExpressBlazor();
         }
 
@@ -91,6 +94,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -219,7 +223,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             {
                 Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
                 Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
-                Assert.That(() => CDPMessageBus.Current.SendMessage(new DomainChangedEvent(null, null)), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage(new DomainChangedEvent(null, null)), Throws.Nothing);
             });
         }
     }
