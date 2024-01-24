@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>1.0.48</Version>
+    <Version>1.0.49</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
@@ -21,7 +21,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>cdp4-icon.png</PackageIcon>
     <PackageReleaseNotes>
-      [ADD] CherryPick filters out empty response
+      [BUMP] CDP4ServicasDal-CE to version 25.1.0
+      [UPDATE] Usage of ICDPMessageBus as injectable service
+      [REMOVE] Remove ValidationService in favor of IValidationService existing in CDP4Dal
+      [UPDATE] Improvement on subscript to ICDPMessageBus in ApplicationBaseViewModel : OnSessionRefresh is called only on SessionRefresh, OnEndUpdate called on each EndUpdate 
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
