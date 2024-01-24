@@ -29,6 +29,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using NUnit.Framework;
@@ -36,6 +38,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     public class SampledFunctionParameterTypeEditorViewModelTestFixture
     {
         private SampledFunctionParameterTypeEditorViewModel viewModel;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -72,7 +75,14 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 ValueSwitch = ParameterSwitchKind.MANUAL
             };
 
-            this.viewModel = new SampledFunctionParameterTypeEditorViewModel(sampledFunctionParameterType, valueSet,false);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new SampledFunctionParameterTypeEditorViewModel(sampledFunctionParameterType, valueSet,false, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

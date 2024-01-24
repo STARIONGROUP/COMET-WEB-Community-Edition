@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
@@ -55,6 +57,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         private PropertiesComponent properties;
         private IRenderedComponent<PropertiesComponent> renderedComponent;
         private PropertiesComponentViewModel viewModel;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -73,20 +76,26 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
             var iterationService = new Mock<ISubscriptionService>();
             this.context.Services.AddSingleton(iterationService);
+            this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object)
+            this.viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object, this.messageBus)
             {
                 IsVisible = true,
+                ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>()
             };
-
-            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>();
 
             this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters =>
             {
-                parameters.Add(p => p.ViewModel, viewModel);
+                parameters.Add(p => p.ViewModel, this.viewModel);
             });
 
             this.properties = this.renderedComponent.Instance;
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

@@ -46,7 +46,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="subscribedTable">The <see cref="ISubscribedTableViewModel" /></param>
-        public SubscriptionDashboardBodyViewModel(ISessionService sessionService, ISubscribedTableViewModel subscribedTable) : base(sessionService)
+        /// <param name="messageBus">The <see cref="CDPMessageBus"/></param>
+        public SubscriptionDashboardBodyViewModel(ISessionService sessionService, ISubscribedTableViewModel subscribedTable, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.SubscribedTable = subscribedTable;
 

@@ -25,15 +25,11 @@
 
 namespace COMET.Web.Common.Components.BookEditor
 {
-    using System.Text.Json;
-
     using CDP4Common.ReportingData;
+    using CDP4Common.Validation;
 
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services;
     using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using Microsoft.AspNetCore.Components;
@@ -50,27 +46,6 @@ namespace COMET.Web.Common.Components.BookEditor
     public partial class EditorPopup
     {
         /// <summary>
-        /// Gets or sets the <see cref="IEditorPopupViewModel"/>
-        /// </summary>
-        [Parameter]
-        public IEditorPopupViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="HttpClient"/>
-        /// </summary>
-        [Inject]
-        public IConfigurationService ConfigurationService { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IOptions{TOptions}"/>
-        /// </summary>
-        [Inject]
-        public IOptions<GlobalOptions> Options { get; set; }
-        
-        [Inject]
-        public ILogger<EditorPopup> Logger { get; set; }
-        
-        /// <summary>
         /// Sets if the component should show the name field
         /// </summary>
         private bool showName;
@@ -81,13 +56,39 @@ namespace COMET.Web.Common.Components.BookEditor
         private bool showShortName;
 
         /// <summary>
+        /// Gets or sets the <see cref="IEditorPopupViewModel" />
+        /// </summary>
+        [Parameter]
+        public IEditorPopupViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="HttpClient" />
+        /// </summary>
+        [Inject]
+        public IConfigurationService ConfigurationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the injected <see cref="IValidationService" />
+        /// </summary>
+        [Inject]
+        public IValidationService ValidationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IOptions{TOptions}" />
+        /// </summary>
+        [Inject]
+        public IOptions<GlobalOptions> Options { get; set; }
+
+        [Inject]
+        public ILogger<EditorPopup> Logger { get; set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
-        ///
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -102,19 +103,19 @@ namespace COMET.Web.Common.Components.BookEditor
         /// <summary>
         /// Handler for when the confirm button has been clicked
         /// </summary>
-        private async Task OnConfirmClick()
+        private Task OnConfirmClick()
         {
             var validationErrors = new List<string>();
 
             if (this.ViewModel.Item is INamedThing namedThing && this.showName)
             {
-                var error = ValidationService.ValidateProperty(nameof(namedThing.Name), namedThing.Name);
+                var error = this.ValidationService.ValidateProperty(nameof(namedThing.Name), namedThing.Name);
                 validationErrors.Add(error);
             }
 
             if (this.ViewModel.Item is IShortNamedThing shortNamedThing && this.showShortName)
             {
-                var error = ValidationService.ValidateProperty(nameof(shortNamedThing.ShortName), shortNamedThing.ShortName);
+                var error = this.ValidationService.ValidateProperty(nameof(shortNamedThing.ShortName), shortNamedThing.ShortName);
                 validationErrors.Add(error);
             }
 
@@ -126,7 +127,7 @@ namespace COMET.Web.Common.Components.BookEditor
 
             if (this.ViewModel.Item is TextualNote textualNote)
             {
-                var error = string.IsNullOrEmpty(textualNote.Content)? "The textual note must contain a content" : string.Empty;
+                var error = string.IsNullOrEmpty(textualNote.Content) ? "The textual note must contain a content" : string.Empty;
                 validationErrors.Add(error);
             }
 
@@ -138,10 +139,7 @@ namespace COMET.Web.Common.Components.BookEditor
                 inner.AddRange(validationErrors);
             });
 
-            if (!this.ViewModel.ValidationErrors.Items.Any())
-            {
-                await this.ViewModel.OnConfirmClick.InvokeAsync();
-            }
+            return !this.ViewModel.ValidationErrors.Items.Any() ? this.ViewModel.OnConfirmClick.InvokeAsync() : Task.CompletedTask;
         }
     }
 }

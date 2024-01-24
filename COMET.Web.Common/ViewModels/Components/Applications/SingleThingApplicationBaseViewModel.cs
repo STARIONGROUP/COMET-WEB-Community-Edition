@@ -27,6 +27,8 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
 {
     using CDP4Common.CommonData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -49,7 +51,8 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Initializes a new <see cref="SingleThingApplicationBaseViewModel{TThing}" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        protected SingleThingApplicationBaseViewModel(ISessionService sessionService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        protected SingleThingApplicationBaseViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.CurrentThing))
                 .SubscribeAsync(_ => this.OnThingChanged()));

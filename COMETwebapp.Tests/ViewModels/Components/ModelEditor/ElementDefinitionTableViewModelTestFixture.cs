@@ -47,10 +47,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 		private DomainOfExpertise domain;
 		private Mock<ISessionService> sessionService;
         private Iteration iteration;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
+            this.messageBus = new CDPMessageBus();
             this.sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
@@ -94,15 +96,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             iterations.Add(this.iteration);
 
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
-            this.viewModel = new ElementDefinitionTableViewModel(this.sessionService.Object);
-            this.viewModel.CurrentThing = this.iteration;
+         
+            this.viewModel = new ElementDefinitionTableViewModel(this.sessionService.Object, this.messageBus)
+            {
+                CurrentThing = this.iteration
+            };
         }
 
         [TearDown]
         public void TearDown()
         {
+            this.messageBus.ClearSubscriptions();
             this.viewModel.Dispose();
-            CDPMessageBus.Current.ClearSubscriptions();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -130,14 +136,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             };
 
             this.iteration.Element.Add(elementDefinition);
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
-            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Removed);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Removed);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
-            CDPMessageBus.Current.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Updated);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
         }

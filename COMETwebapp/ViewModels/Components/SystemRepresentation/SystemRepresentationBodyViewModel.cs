@@ -49,7 +49,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public SystemRepresentationBodyViewModel(ISessionService sessionService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public SystemRepresentationBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.ProductTreeViewModel = new SystemRepresentationTreeViewModel
             {
@@ -92,7 +93,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         public void SelectElement(SystemNodeViewModel selectedNode)
         {
             // It is preferable to have a selection based on the Iid of the Thing
-            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.FirstOrDefault(e => e.Name.Equals(selectedNode.Title));
+            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.Find(e => e.Name.Equals(selectedNode.Title));
 
             this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
             {

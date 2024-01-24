@@ -147,7 +147,8 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// Initializes a new instance of the <see cref="BookEditorBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public BookEditorBodyViewModel(ISessionService sessionService) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public BookEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedBook).Subscribe(_ => this.OnSelectedBookChanged()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSection).Subscribe(_ => this.OnSelectedSectionChanged()));

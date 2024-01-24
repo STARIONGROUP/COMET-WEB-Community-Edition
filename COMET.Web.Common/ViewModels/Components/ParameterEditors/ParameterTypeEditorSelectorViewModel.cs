@@ -28,6 +28,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -35,6 +37,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     /// </summary>
     public class ParameterTypeEditorSelectorViewModel : IParameterTypeEditorSelectorViewModel
     {
+        /// <summary>
+        /// Gets the <see cref="ICDPMessageBus" />
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
         /// <summary>
         /// The <see cref="IHaveValueSetViewModel" />
         /// </summary>
@@ -56,13 +63,15 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
         /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
         /// <param name="isReadOnly">Value asserting that the <see cref="IParameterEditorBaseViewModel{T}" /> should be readonly</param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0)
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, ICDPMessageBus messageBus, int valueArrayIndex = 0)
         {
             this.InitializesProperties(isReadOnly);
             this.ValueSet = valueSet;
             this.ParameterType = parameterType;
             this.ValueArrayIndex = valueArrayIndex;
+            this.messageBus = messageBus;
         }
 
         /// <summary>
@@ -71,10 +80,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="parameterType">the <see cref="ParameterType" /> used for this view model</param>
         /// <param name="valueSet">the value set asociated to the ParameterTypeEditor</param>
         /// <param name="isReadOnly">Value asserting that the <see cref="IParameterEditorBaseViewModel{T}" /> should be readonly</param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         /// <param name="switchKind">The <see cref="ParameterSwitchKind" /></param>
-        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex, ParameterSwitchKind switchKind)
-            : this(parameterType, valueSet, isReadOnly, valueArrayIndex)
+        public ParameterTypeEditorSelectorViewModel(ParameterType parameterType, IValueSet valueSet, bool isReadOnly, ICDPMessageBus messageBus, int valueArrayIndex, ParameterSwitchKind switchKind)
+            : this(parameterType, valueSet, isReadOnly, messageBus, valueArrayIndex)
         {
             this.preSetSwitchKind = switchKind;
         }
@@ -97,7 +107,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Event Callback for when a value has changed on the parameter
         /// </summary>
-        public EventCallback<(IValueSet,int)> ParameterValueChanged { get; set; }
+        public EventCallback<(IValueSet, int)> ParameterValueChanged { get; set; }
 
         /// <summary>
         /// Gets the <see cref="MeasurementScale" /> to use
@@ -114,14 +124,14 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             this.haveValueSetViewModel = this.ParameterType switch
             {
                 BooleanParameterType booleanParameterType => new BooleanParameterTypeEditorViewModel(booleanParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                CompoundParameterType compoundParameterType => new CompoundParameterTypeEditorViewModel(compoundParameterType, this.ValueSet, this.isReadOnly, this.messageBus, this.ValueArrayIndex),
                 DateParameterType dateParameterType => new DateParameterTypeEditorViewModel(dateParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 DateTimeParameterType dateTimeParameterType => new DateTimeParameterTypeEditorViewModel(dateTimeParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 EnumerationParameterType enumerationParameterType => new EnumerationParameterTypeEditorViewModel(enumerationParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 QuantityKind quantityKind => new QuantityKindParameterTypeEditorViewModel(quantityKind, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 TextParameterType textParameterType => new TextParameterTypeEditorViewModel(textParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
                 TimeOfDayParameterType timeOfDayParameterType => new TimeOfDayParameterTypeEditorViewModel(timeOfDayParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
-                SampledFunctionParameterType sampledFunctionParameterType => new SampledFunctionParameterTypeEditorViewModel(sampledFunctionParameterType, this.ValueSet, this.isReadOnly, this.ValueArrayIndex),
+                SampledFunctionParameterType sampledFunctionParameterType => new SampledFunctionParameterTypeEditorViewModel(sampledFunctionParameterType, this.ValueSet, this.isReadOnly, this.messageBus, this.ValueArrayIndex),
                 _ => throw new NotImplementedException($"The ViewModel for the {this.ParameterType} has not been implemented")
             };
 

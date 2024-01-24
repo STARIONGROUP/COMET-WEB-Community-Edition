@@ -73,6 +73,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
         private Mock<ISession> session;
         private Iteration firstIteration;
         private Iteration secondIteration;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -119,6 +120,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.messageBus = new CDPMessageBus();
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
@@ -130,6 +132,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
             this.context.Services.AddSingleton<IBabylonInterop, BabylonInterop>();
             this.context.Services.AddSingleton<IActualFiniteStateSelectorViewModel, ActualFiniteStateSelectorViewModel>();
+            this.context.Services.AddSingleton(this.messageBus);
 
             var configurationService = new Mock<IStringTableService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
@@ -140,6 +143,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

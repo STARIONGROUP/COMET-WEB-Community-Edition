@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
@@ -46,13 +47,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         private SubscriptionDashboardBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<ISubscribedTableViewModel> subscribedTableViewModel;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
             this.subscribedTableViewModel = new Mock<ISubscribedTableViewModel>();
-            this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel.Object);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel.Object, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -70,7 +79,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         [Test]
         public void VerifyOnDomainChanged()
         {
-            CDPMessageBus.Current.SendMessage(new DomainChangedEvent(new Iteration(), new DomainOfExpertise()));
+            this.messageBus.SendMessage(new DomainChangedEvent(new Iteration(), new DomainOfExpertise()));
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), null), Times.Once);
@@ -79,7 +88,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         [Test]
         public void VerifySessionRefresh()
         {
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), null), Times.Once);

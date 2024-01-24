@@ -76,6 +76,7 @@ namespace COMET.Web.Common.Tests.Shared
         private SourceList<Iteration> sourceList;
         private List<Type> registeredMenuEntries;
         private List<Application> registeredApplications;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -87,19 +88,23 @@ namespace COMET.Web.Common.Tests.Shared
             this.autoRefreshService = new Mock<IAutoRefreshService>();
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
-            this.registeredMenuEntries = new List<Type>()
-            {
+
+            this.registeredMenuEntries =
+            [
                 typeof(ApplicationMenu),
                 typeof(ModelMenu),
                 typeof(SessionMenu)
-            };
-            this.registeredApplications = new List<Application>();
+            ];
+
+            this.registeredApplications = [];
             this.registrationService = new Mock<IRegistrationService>();
             this.registrationService.Setup(x => x.RegisteredAuthorizedMenuEntries).Returns(this.registeredMenuEntries);
             this.registrationService.Setup(x => x.RegisteredApplications).Returns(this.registeredApplications);
             this.versionService = new Mock<IVersionService>();
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
+            this.messageBus = new CDPMessageBus();
 
+            this.context.Services.AddSingleton(this.messageBus);
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton<AuthenticationStateProvider>(this.stateProvider);
@@ -119,6 +124,7 @@ namespace COMET.Web.Common.Tests.Shared
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

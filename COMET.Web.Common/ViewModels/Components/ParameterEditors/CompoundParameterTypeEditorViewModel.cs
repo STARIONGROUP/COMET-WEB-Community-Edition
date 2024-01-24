@@ -29,6 +29,8 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Components.ParameterTypeEditors;
     using COMET.Web.Common.Model;
 
@@ -43,8 +45,9 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="parameterType">the parameter type of this view model</param>
         /// <param name="valueSet">the value set asociated to this editor</param>
         /// <param name="isReadOnly">The readonly state</param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
-        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, valueArrayIndex)
+        public CompoundParameterTypeEditorViewModel(CompoundParameterType parameterType, IValueSet valueSet, bool isReadOnly, ICDPMessageBus messageBus, int valueArrayIndex = 0) : base(parameterType, valueSet, isReadOnly, messageBus, valueArrayIndex)
         {
         }
 

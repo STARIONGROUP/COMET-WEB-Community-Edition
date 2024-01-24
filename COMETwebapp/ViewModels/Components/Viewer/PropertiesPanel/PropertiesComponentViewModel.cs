@@ -32,6 +32,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
@@ -69,16 +71,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         private ParameterBase selectedParameter;
 
         /// <summary>
+        /// Gets the injected <see cref="ICDPMessageBus"/>
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="PropertiesComponentViewModel" />
         /// </summary>
         /// <param name="babylonInterop">the <see cref="IBabylonInterop" /></param>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="selectionMediator">the <see cref="ISelectionMediator" /></param>
-        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, ISessionService sessionService, ISelectionMediator selectionMediator)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public PropertiesComponentViewModel(IBabylonInterop babylonInterop, ISessionService sessionService, ISelectionMediator selectionMediator, ICDPMessageBus messageBus)
         {
             this.BabylonInterop = babylonInterop;
             this.SessionService = sessionService;
             this.SelectionMediator = selectionMediator;
+            this.messageBus = messageBus;
 
             this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async ((IValueSet,int) valueSet) => { await this.ParameterValueSetChanged(valueSet); });
 
@@ -196,14 +205,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// </returns>
         public IDetailsComponentViewModel CreateDetailsComponentViewModel()
         {
-            return new DetailsComponentViewModel(this.IsVisible, this.SelectedParameter?.ParameterType, this.GetUsedValueSet(), this.OnParameterValueSetChanged);
+            return new DetailsComponentViewModel(this.IsVisible, this.SelectedParameter?.ParameterType, this.GetUsedValueSet(), this.OnParameterValueSetChanged, this.messageBus);
         }
 
         /// <summary>
         /// Event for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed.
         /// </summary>
         /// <param name="valueTuple">The updated <see cref="IValueSet"/> with the index</param>
-        public async Task ParameterValueSetChanged((IValueSet valueSet,int _) valueTuple)
+        public Task ParameterValueSetChanged((IValueSet valueSet,int _) valueTuple)
         {
             if (valueTuple.valueSet is ParameterValueSetBase parameterValueSetBase)
             {
@@ -240,15 +249,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     
                     clonedValueSetBase.Manual = newValueArray;
                     this.ParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
-
-                    if (this.ChangedParameterValueSetRelations.ContainsKey(this.SelectedParameter))
-                    {
-                        this.ChangedParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
-                    }
-                    else
-                    {
-                        this.ChangedParameterValueSetRelations.Add(this.SelectedParameter, clonedValueSetBase);
-                    }
+                    this.ChangedParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
 
                     this.SelectionMediator.SelectedSceneObjectClone.UpdateParameter(this.SelectedParameter, clonedValueSetBase);
 
@@ -267,9 +268,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                         }
                     }
 
-                    await this.BabylonInterop.RegenerateMesh(this.SelectionMediator?.SelectedSceneObjectClone);
+                    return this.BabylonInterop.RegenerateMesh(this.SelectionMediator?.SelectedSceneObjectClone);
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -290,7 +293,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
                     if (this.ParametersInUse is not null && this.ParametersInUse.Any())
                     {
-                        this.SelectedParameter = this.ParametersInUse.First();
+                        this.SelectedParameter = this.ParametersInUse[0];
                     }
                 }
             }

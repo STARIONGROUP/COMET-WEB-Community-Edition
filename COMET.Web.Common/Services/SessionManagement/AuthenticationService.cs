@@ -53,6 +53,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Gets the injected <see cref="ICDPMessageBus"/>
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService" /> class.
         /// </summary>
         /// <param name="sessionService">
@@ -61,8 +66,10 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationStateProvider">
         /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </param>
-        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, ICDPMessageBus messageBus)
         {
+            this.messageBus = messageBus;
             this.authStateProvider = authenticationStateProvider;
             this.sessionService = sessionService;
         }
@@ -84,7 +91,7 @@ namespace COMET.Web.Common.Services.SessionManagement
                 var dal = new CdpServicesDal();
                 var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
-                this.sessionService.Session = new Session(dal, credentials);
+                this.sessionService.Session = new Session(dal, credentials, this.messageBus);
             }
             else
             {

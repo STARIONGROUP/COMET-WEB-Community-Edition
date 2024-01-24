@@ -41,5 +41,10 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Value asserting that the current <see cref="ISingleThingApplicationBaseViewModel{TThing}" /> is loading
         /// </summary>
         bool IsLoading { get; set; }
+
+        /// <summary>
+        /// Gets the assert that the current session is refreshing
+        /// </summary>
+        bool IsRefreshing { get; }
     }
 }

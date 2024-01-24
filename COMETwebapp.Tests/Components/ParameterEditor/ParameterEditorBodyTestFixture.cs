@@ -65,6 +65,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         private TestContext context;
         private IRenderedComponent<ParameterEditorBody> renderedComponent;
         private ParameterEditorBody editor;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -72,6 +73,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
+            this.messageBus = new CDPMessageBus();
             var sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory());
@@ -89,7 +91,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());
-            parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object));
+            parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object, this.messageBus));
 
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
@@ -131,7 +133,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             valueSet.Setup(x => x.ActualState).Returns(actualFiniteStateList.ActualState[0]);
             valueSet.Setup(x => x.ActualOption).Returns(new Option() { Name = "option" });
             
-            rowViewModels.Add(new ParameterBaseRowViewModel(sessionService.Object, false, parameter, valueSet.Object));
+            rowViewModels.Add(new ParameterBaseRowViewModel(sessionService.Object, false, parameter, valueSet.Object, this.messageBus));
 
             parameterTableViewModelMock.Setup(x => x.Rows).Returns(rowViewModels);
             this.context.Services.AddSingleton(parameterTableViewModelMock.Object);
@@ -144,6 +146,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

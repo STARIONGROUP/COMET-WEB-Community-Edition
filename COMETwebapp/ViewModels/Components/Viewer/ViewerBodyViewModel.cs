@@ -49,12 +49,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="selectionMediator"> the <see cref="ISelectionMediator" /></param>
         /// <param name="babylonInterop">the <see cref="IBabylonInterop" /></param>
-        public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public ViewerBodyViewModel(ISessionService sessionService, ISelectionMediator selectionMediator, IBabylonInterop babylonInterop, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.SelectionMediator = selectionMediator;
             this.ProductTreeViewModel = new ViewerProductTreeViewModel(selectionMediator);
             this.CanvasViewModel = new CanvasViewModel(babylonInterop, selectionMediator);
-            this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator);
+            this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator, this.MessageBus);
             this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates,

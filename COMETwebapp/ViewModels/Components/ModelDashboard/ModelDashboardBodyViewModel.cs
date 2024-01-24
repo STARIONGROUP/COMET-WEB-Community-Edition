@@ -48,7 +48,8 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="parameterDashboard">The <see cref="IParameterDashboardViewModel" /></param>
-        public ModelDashboardBodyViewModel(ISessionService sessionService, IParameterDashboardViewModel parameterDashboard) : base(sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public ModelDashboardBodyViewModel(ISessionService sessionService, IParameterDashboardViewModel parameterDashboard, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.ParameterDashboard = parameterDashboard;
 

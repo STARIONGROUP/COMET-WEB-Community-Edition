@@ -32,7 +32,6 @@ namespace COMETwebapp.Services.SubscriptionService
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
@@ -77,20 +76,21 @@ namespace COMETwebapp.Services.SubscriptionService
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="notificationService">The <see cref="INotificationService" /></param>
-        public SubscriptionService(ISessionService sessionService, INotificationService notificationService)
+        /// <param name="messageBus">The <see cref="IMessageBus"/></param>
+        public SubscriptionService(ISessionService sessionService, INotificationService notificationService, ICDPMessageBus messageBus)
         {
             this.sessionService = sessionService;
             this.notificationService = notificationService;
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.ComputeUpdateSinceLastTracking()));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<DomainChangedEvent>().Subscribe(x =>
+            this.Disposables.Add(messageBus.Listen<DomainChangedEvent>().Subscribe(x =>
                 {
                     this.UpdateTrackedSubscriptions(x.Iteration);
                     this.ComputeUpdateSinceLastTracking();
                 }
             ));
 
-            this.Disposables.Add(CDPMessageBus.Current.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate)
+            this.Disposables.Add(messageBus.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.EndUpdate)
                 .Subscribe(_ => this.ComputeUpdateSinceLastTracking()));
         }
 
@@ -206,7 +206,7 @@ namespace COMETwebapp.Services.SubscriptionService
 
             foreach (var subscription in newSubscriptions)
             {
-                var existingSubscription = oldSubcriptions.FirstOrDefault(x => x.ParameterSubscriptionId == subscription.ParameterSubscriptionId);
+                var existingSubscription = oldSubcriptions.Find(x => x.ParameterSubscriptionId == subscription.ParameterSubscriptionId);
                 this.subscriptionsWithUpdate[iteration.Iid].AddRange(existingSubscription?.QueryChangedValueSet(subscription) ?? subscription.CountChanges.Keys);
             }
 

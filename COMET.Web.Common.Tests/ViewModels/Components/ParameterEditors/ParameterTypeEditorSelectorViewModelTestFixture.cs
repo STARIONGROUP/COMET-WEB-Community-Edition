@@ -29,6 +29,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Model;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
@@ -38,6 +40,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     public class ParameterTypeEditorSelectorViewModelTestFixture
     {
         private IParameterTypeEditorSelectorViewModel viewModel;
+        private ICDPMessageBus messageBus;
 
         private IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType, new()
         {
@@ -48,8 +51,20 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             };
 
             var parameter = new T();
-            this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false);
+            this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false, this.messageBus);
             return this.viewModel.CreateParameterEditorViewModel<T>();
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            this.messageBus = new CDPMessageBus();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -61,7 +76,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(booleanParameterEditor, Is.TypeOf<BooleanParameterTypeEditorViewModel>());
                 Assert.That(booleanParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await booleanParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
+                Assert.That(() => booleanParameterEditor.OnParameterValueChanged("false"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -71,8 +86,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(booleanParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await booleanParameterEditor.OnParameterValueChanged("false"), Throws.InvalidOperationException);
-                Assert.That(async () => await booleanParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
+                Assert.That(() => booleanParameterEditor.OnParameterValueChanged("false"), Throws.InvalidOperationException);
+                Assert.That(() => booleanParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
             });
         }
 
@@ -85,7 +100,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(compoundParameterEditor, Is.TypeOf<CompoundParameterTypeEditorViewModel>());
                 Assert.That(compoundParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await compoundParameterEditor.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(0, "-")), Throws.Nothing);
+                Assert.That(() => compoundParameterEditor.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(0, "-")), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -95,7 +110,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(compoundParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await compoundParameterEditor.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(0, "-")), Throws.InvalidOperationException);
+                Assert.That(() => compoundParameterEditor.OnParameterValueChanged(new CompoundParameterTypeValueChangedEventArgs(0, "-")), Throws.InvalidOperationException);
             });
         }
 
@@ -108,7 +123,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(dateParameterEditor, Is.TypeOf<DateParameterTypeEditorViewModel>());
                 Assert.That(dateParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await dateParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
+                Assert.That(() => dateParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -118,8 +133,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(dateParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await dateParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
-                Assert.That(async () => await dateParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
+                Assert.That(() => dateParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+                Assert.That(() => dateParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
             });
         }
 
@@ -132,7 +147,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(dateTimeParameterEditor, Is.TypeOf<DateTimeParameterTypeEditorViewModel>());
                 Assert.That(dateTimeParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await dateTimeParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
+                Assert.That(() => dateTimeParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -142,8 +157,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(dateTimeParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await dateTimeParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
-                Assert.That(async () => await dateTimeParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
+                Assert.That(() => dateTimeParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+                Assert.That(() => dateTimeParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
             });
         }
 
@@ -156,7 +171,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(enumerationParameterEditor, Is.TypeOf<EnumerationParameterTypeEditorViewModel>());
                 Assert.That(enumerationParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await enumerationParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
+                Assert.That(() => enumerationParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -166,8 +181,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(enumerationParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await enumerationParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
-                Assert.That(async () => await enumerationParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
+                Assert.That(() => enumerationParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+                Assert.That(() => enumerationParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
             });
         }
 
@@ -181,14 +196,14 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             };
 
             var parameter = new SimpleQuantityKind();
-            this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false);
+            this.viewModel = new ParameterTypeEditorSelectorViewModel(parameter, valueSet, false, this.messageBus);
             var quantityKindEditor = this.viewModel.CreateParameterEditorViewModel<QuantityKind>();
 
             Assert.Multiple(() =>
             {
                 Assert.That(quantityKindEditor, Is.TypeOf<QuantityKindParameterTypeEditorViewModel>());
                 Assert.That(quantityKindEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await quantityKindEditor.OnParameterValueChanged("-"), Throws.Nothing);
+                Assert.That(() => quantityKindEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -198,8 +213,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(quantityKindEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await quantityKindEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
-                Assert.That(async () => await quantityKindEditor.OnParameterValueChanged("test"), Throws.Nothing);
+                Assert.That(() => quantityKindEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+                Assert.That(() => quantityKindEditor.OnParameterValueChanged("test"), Throws.Nothing);
             });
         }
 
@@ -212,7 +227,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(textParameterEditor, Is.TypeOf<TextParameterTypeEditorViewModel>());
                 Assert.That(textParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await textParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
+                Assert.That(() => textParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -222,8 +237,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(textParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await textParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
-                Assert.That(async () => await textParameterEditor.OnParameterValueChanged(5), Throws.Nothing);
+                Assert.That(() => textParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+                Assert.That(() => textParameterEditor.OnParameterValueChanged(5), Throws.Nothing);
             });
         }
 
@@ -236,7 +251,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             {
                 Assert.That(timeOfDayParameterEditor, Is.TypeOf<TimeOfDayParameterTypeEditorViewModel>());
                 Assert.That(timeOfDayParameterEditor.IsReadOnly, Is.False);
-                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
+                Assert.That(() => timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.Nothing);
             });
 
             this.viewModel.UpdateSwitchKind(ParameterSwitchKind.COMPUTED);
@@ -246,8 +261,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
             Assert.Multiple(() =>
             {
                 Assert.That(timeOfDayParameterEditor.IsReadOnly, Is.True);
-                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
-                Assert.That(async () => await timeOfDayParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
+                Assert.That(() => timeOfDayParameterEditor.OnParameterValueChanged("-"), Throws.InvalidOperationException);
+                Assert.That(() => timeOfDayParameterEditor.OnParameterValueChanged("test"), Throws.Nothing);
             });
         }
     }

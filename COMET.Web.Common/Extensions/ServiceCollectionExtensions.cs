@@ -25,6 +25,10 @@
 
 namespace COMET.Web.Common.Extensions
 {
+    using CDP4Common.Validation;
+
+    using CDP4Dal;
+
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Server.Services.ConfigurationService;
     using COMET.Web.Common.Server.Services.StringTableService;
@@ -81,6 +85,8 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddSingleton<IVersionService, VersionService>();
             serviceProvider.AddScoped<IRegistrationService, RegistrationService>();
             serviceProvider.AddScoped<INotificationService, NotificationService>();
+            serviceProvider.AddScoped<ICDPMessageBus, CDPMessageBus>();
+            serviceProvider.AddSingleton<IValidationService, ValidationService>();
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();

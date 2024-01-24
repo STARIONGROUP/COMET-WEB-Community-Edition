@@ -26,7 +26,6 @@
 namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
 {
     using CDP4Dal;
-    using CDP4Dal.Events;
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.NotificationService;
@@ -44,6 +43,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
         private Mock<INotificationService> notificationService;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -51,14 +51,16 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
             this.sessionService = new Mock<ISessionService>();
             this.autoRefreshService = new Mock<IAutoRefreshService>();
             this.notificationService = new Mock<INotificationService>();
+            this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new SessionMenuViewModel(this.sessionService.Object, this.autoRefreshService.Object, this.notificationService.Object);
+            this.viewModel = new SessionMenuViewModel(this.sessionService.Object, this.autoRefreshService.Object, this.notificationService.Object, this.messageBus);
         }
 
         [TearDown]
         public void Teardown()
         {
             this.viewModel.Dispose();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -83,10 +85,17 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
         [Test]
         public void VerifyMessageBusSubscriptions()
         {
-            CDPMessageBus.Current.SendMessage(SessionStateKind.Refreshing);
+            this.messageBus.SendMessage(SessionStateKind.Refreshing);
             Assert.That(this.viewModel.IsRefreshing, Is.True);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
             Assert.That(this.viewModel.IsRefreshing, Is.False);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationClosed), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationOpened), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage((SessionStateKind)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
+            });
         }
     }
 }

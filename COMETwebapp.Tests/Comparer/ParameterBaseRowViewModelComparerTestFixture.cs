@@ -29,6 +29,8 @@ namespace COMETwebapp.Tests.Comparer
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMETwebapp.Comparer;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
@@ -37,6 +39,20 @@ namespace COMETwebapp.Tests.Comparer
     [TestFixture]
     public class ParameterBaseRowViewModelComparerTestFixture
     {
+        private ICDPMessageBus messageBus;
+
+        [SetUp]
+        public void Setup()
+        {
+            this.messageBus = new CDPMessageBus();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
+        }
+
         [Test]
         public void VerifyComparer()
         {
@@ -80,8 +96,8 @@ namespace COMETwebapp.Tests.Comparer
 
             elementDefinition.Parameter.AddRange(new List<Parameter>{secondParameter, firstParameter});
 
-            var firstRow = new ParameterBaseRowViewModel(null, true, firstParameter, firstParameter.ValueSet[0]);
-            var secondRow = new ParameterBaseRowViewModel(null, true, secondParameter, secondParameter.ValueSet[0]);
+            var firstRow = new ParameterBaseRowViewModel(null, true, firstParameter, firstParameter.ValueSet[0], this.messageBus);
+            var secondRow = new ParameterBaseRowViewModel(null, true, secondParameter, secondParameter.ValueSet[0], this.messageBus);
             var comparer = new ParameterBaseRowViewModelComparer();
 
             Assert.Multiple(() =>

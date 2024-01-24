@@ -27,6 +27,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -56,6 +58,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         private Mock<ISubscriptionService> subscriptionService;
         private Mock<ISessionService> sessionService;
         private ISubscribedTableViewModel subscribedTableViewModel;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -65,7 +68,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             this.subscriptionService = new Mock<ISubscriptionService>();
             this.subscriptionService.Setup(x => x.SubscriptionsWithUpdate).Returns(new Dictionary<Guid, List<Guid>>());
             this.subscribedTableViewModel = new SubscribedTableViewModel(this.subscriptionService.Object);
-            this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel, this.messageBus);
             
             this.context.ConfigureDevExpressBlazor();
             var configuration = new Mock<IConfigurationService>();
@@ -78,6 +82,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

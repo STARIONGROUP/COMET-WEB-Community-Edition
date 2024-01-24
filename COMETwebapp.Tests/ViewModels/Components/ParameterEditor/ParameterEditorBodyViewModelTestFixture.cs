@@ -39,9 +39,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
-    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
@@ -57,6 +57,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private Mock<IParameterTableViewModel> tableViewModel;
         private Iteration iteration;
         private Mock<ISession> session;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -219,15 +220,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             var subscriptionService = new Mock<ISubscriptionService>();
             this.tableViewModel = new Mock<IParameterTableViewModel>();
+            this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object, this.tableViewModel.Object);
-            this.viewModel.CurrentThing = this.iteration;
+            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object, this.tableViewModel.Object, this.messageBus)
+            {
+                CurrentThing = this.iteration
+            };
         }
 
         [TearDown]
         public void Teardown()
         {
             this.viewModel.Dispose();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -282,7 +287,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         [Test]
         public async Task VerifyRefresh()
         {
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
             
             Assert.Multiple(() =>
             {
@@ -297,30 +302,30 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             };
 
             this.iteration.Element.Add(elementDefinition);
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.AddRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Updated);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Updated);
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.UpdateRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
 
-            CDPMessageBus.Current.SendObjectChangeEvent(elementDefinition, EventKind.Removed);
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Removed);
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
 
-            CDPMessageBus.Current.SendObjectChangeEvent(new ElementDefinition()
+            this.messageBus.SendObjectChangeEvent(new ElementDefinition()
             {
                 Container = new Iteration()
             }, EventKind.Removed);
 
-            CDPMessageBus.Current.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);

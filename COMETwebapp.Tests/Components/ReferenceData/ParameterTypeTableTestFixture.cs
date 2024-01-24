@@ -73,12 +73,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private SiteReferenceDataLibrary siteReferenceDataLibrary;
         private SimpleQuantityKind sourceParameterType1;
         private CompoundParameterType sourceParameterType2;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
 
+            this.messageBus = new CDPMessageBus();
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
             this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
@@ -95,10 +97,10 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
 
-            this.assembler = new Assembler(this.uri);
+            this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object);
+            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -272,12 +274,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
         }
-
         
         [TearDown]
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

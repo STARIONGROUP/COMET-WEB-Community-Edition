@@ -70,6 +70,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         private Mock<ISession> session;
         private Iteration firstIteration;
         private Iteration secondIteration;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -116,7 +117,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
 
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
-
+            this.messageBus = new CDPMessageBus();
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService.Object);
@@ -124,6 +125,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
+            this.context.Services.AddSingleton(this.messageBus);
 
             var stringTableService = new Mock<IStringTableService>();
             stringTableService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
@@ -134,7 +136,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         public void Teardown()
         {
             this.context.CleanContext();
-            CDPMessageBus.Current.ClearSubscriptions();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

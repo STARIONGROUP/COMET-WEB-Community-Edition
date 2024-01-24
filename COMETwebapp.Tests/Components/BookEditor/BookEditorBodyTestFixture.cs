@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
     using CDP4Common.CommonData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Validation;
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -111,6 +112,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.Services.AddSingleton(domDataService.Object);
+            this.context.Services.AddSingleton<IValidationService, ValidationService>();
 
             this.component = this.context.RenderComponent<BookEditorBody>();
         }

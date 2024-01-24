@@ -32,6 +32,8 @@ namespace COMET.Web.Common.Tests.Utilities
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
@@ -41,6 +43,7 @@ namespace COMET.Web.Common.Tests.Utilities
     public class CompoundComponentSelectedEventTestFixture
     {
         private ICompoundParameterTypeEditorViewModel viewModel;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -59,7 +62,14 @@ namespace COMET.Web.Common.Tests.Utilities
                 Manual = new ValueArray<string>(compoundValues),
             };
 
-            this.viewModel = new CompoundParameterTypeEditorViewModel(parameterType, parameterValueSet, false);
+            this.messageBus = new CDPMessageBus();
+            this.viewModel = new CompoundParameterTypeEditorViewModel(parameterType, parameterValueSet, false, this.messageBus);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]

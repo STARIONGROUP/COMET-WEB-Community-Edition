@@ -32,8 +32,11 @@ namespace COMET.Web.Common.Tests.Extensions
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+
     using Microsoft.Extensions.Logging;
+
     using Moq;
+
     using NUnit.Framework;
 
     [TestFixture]
@@ -41,17 +44,26 @@ namespace COMET.Web.Common.Tests.Extensions
     {
         private Mock<ISession> session;
         private ISessionService sessionService;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             var logger = new Mock<ILogger<SessionService>>();
+            this.messageBus = new CDPMessageBus();
 
             this.session = new Mock<ISession>();
-            this.sessionService = new SessionService(logger.Object)
+
+            this.sessionService = new SessionService(logger.Object, this.messageBus)
             {
                 Session = this.session.Object
             };
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -59,11 +71,13 @@ namespace COMET.Web.Common.Tests.Extensions
         {
             var model = new EngineeringModel();
             var iterationSetup = new IterationSetup();
-            var iteration = new Iteration()
+
+            var iteration = new Iteration
             {
                 IterationSetup = iterationSetup,
                 Container = model
             };
+
             model.Iteration.Add(iteration);
 
             var elementDefinition = new ElementDefinition();
@@ -71,7 +85,7 @@ namespace COMET.Web.Common.Tests.Extensions
 
             var textParameterType = new TextParameterType();
 
-            var doe = new DomainOfExpertise()
+            var doe = new DomainOfExpertise
             {
                 Name = "doe",
                 ShortName = "doe"

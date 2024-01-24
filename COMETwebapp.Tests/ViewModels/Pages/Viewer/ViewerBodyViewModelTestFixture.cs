@@ -27,9 +27,10 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
-    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
@@ -43,6 +44,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     public class ViewerBodyViewModelTestFixture
     {
         private IViewerBodyViewModel viewModel;
+        private ICDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -168,15 +170,19 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             var selectionMediatorMock = new Mock<ISelectionMediator>();
 
             var babylonInterop = new Mock<IBabylonInterop>();
+            this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object);
-            this.viewModel.CurrentThing = iteration;
+            this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object, this.messageBus)
+            {
+                CurrentThing = iteration
+            };
         }
 
         [TearDown]
         public void Teardown()
         {
             this.viewModel.Dispose();
+            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -208,11 +214,11 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             {
                 Assert.That(elements, Is.Not.Null);
                 Assert.That(elements, Has.Count.EqualTo(5));
-                Assert.That(elements.Any(x => x.Name == "topElement"), Is.True);
-                Assert.That(elements.Any(x => x.Name == "element1"), Is.True);
-                Assert.That(elements.Any(x => x.Name == "element2"), Is.True);
-                Assert.That(elements.Any(x => x.Name == "element3"), Is.True);
-                Assert.That(elements.Any(x => x.Name == "element4"), Is.True);
+                Assert.That(elements.Exists(x => x.Name == "topElement"), Is.True);
+                Assert.That(elements.Exists(x => x.Name == "element1"), Is.True);
+                Assert.That(elements.Exists(x => x.Name == "element2"), Is.True);
+                Assert.That(elements.Exists(x => x.Name == "element3"), Is.True);
+                Assert.That(elements.Exists(x => x.Name == "element4"), Is.True);
             });
         }
 
