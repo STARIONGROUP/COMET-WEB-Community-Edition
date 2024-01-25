@@ -4,7 +4,7 @@
       <TargetFramework>net7.0</TargetFramework>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Version>1.0.6</Version>
+      <Version>1.0.7</Version>
       <AssemblyVersion>1.0.0</AssemblyVersion>
       <FileVersion>1.0.0</FileVersion>
       <Title>CDP4 WEB Common Test</Title>
@@ -19,8 +19,9 @@
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <PackageIcon>cdp4-icon.png</PackageIcon>
       <PackageReleaseNotes>
-      [UPDATE] DevExpress v23.2.3
-	  </PackageReleaseNotes>
+      [ADD] XML Documentation
+	    </PackageReleaseNotes>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
