@@ -29,6 +29,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Extensions;
+    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
@@ -97,7 +98,11 @@ namespace COMET.Web.Common.Tests.Components.Applications
         {
             this.openEngineeringModels.Add(new EngineeringModel
             {
-                Iid = Guid.NewGuid()
+                Iid = Guid.NewGuid(),
+                EngineeringModelSetup = new EngineeringModelSetup()
+                {
+                    Iid = Guid.NewGuid()
+                }
             });
 
             this.viewModel.Setup(x => x.OnThingSelect(It.IsAny<EngineeringModel>())).Callback((EngineeringModel engineeringModel) => this.viewModel.Setup(x => x.SelectedThing).Returns(engineeringModel));
@@ -116,7 +121,11 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
             this.viewModel.Setup(x => x.SelectedThing).Returns(new EngineeringModel
             {
-                Iid = Guid.NewGuid()
+                Iid = Guid.NewGuid(),
+                EngineeringModelSetup = new EngineeringModelSetup()
+                {
+                    Iid = Guid.NewGuid()
+                }
             });
 
             renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
@@ -133,7 +142,11 @@ namespace COMET.Web.Common.Tests.Components.Applications
         {
             this.openEngineeringModels.Add(new EngineeringModel()
             {
-                Iid = Guid.NewGuid()
+                Iid = Guid.NewGuid(), 
+                EngineeringModelSetup = new EngineeringModelSetup()
+                {
+                    Iid = Guid.NewGuid()
+                }
             });
 
             var renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters =>
@@ -161,7 +174,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Does.Contain("localhost%3A5000"));
-                Assert.That(navigationManager.Uri, Does.Contain(engineeringModel.Iid.ToShortGuid()));
+                Assert.That(navigationManager.Uri, Does.Contain(engineeringModel.EngineeringModelSetup.Iid.ToShortGuid()));
             });
 
             renderer.Render();

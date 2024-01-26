@@ -96,7 +96,7 @@ namespace COMET.Web.Common.Components.Applications
         {
             base.SetUrlParameters(currentOptions);
 
-            currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedThing.Iid.ToShortGuid();
+            currentOptions[QueryKeys.ModelKey] = this.ViewModel.SelectedThing.EngineeringModelSetup.Iid.ToShortGuid();
         }
     }
 }
