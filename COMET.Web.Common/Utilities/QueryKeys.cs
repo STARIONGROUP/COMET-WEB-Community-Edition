@@ -39,7 +39,7 @@ namespace COMET.Web.Common.Utilities
         public const string ServerKey = "server";
 
         /// <summary>
-        /// The query key for the <see cref="EngineeringModel" /> id
+        /// The query key for the <see cref="EngineeringModelSetup" /> id
         /// </summary>
         public const string ModelKey = "modelId";
 

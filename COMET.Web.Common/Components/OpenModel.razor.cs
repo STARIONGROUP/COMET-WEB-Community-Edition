@@ -58,7 +58,7 @@ namespace COMET.Web.Common.Components
         public IOpenModelViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The <see cref="Guid" /> of a requested <see cref="EngineeringModel" />
+        /// The <see cref="Guid" /> of a requested <see cref="EngineeringModelSetup" />
         /// </summary>
         [Parameter]
         public Guid ModelId { get; set; }

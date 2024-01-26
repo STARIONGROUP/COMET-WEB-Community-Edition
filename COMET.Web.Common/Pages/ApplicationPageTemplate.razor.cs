@@ -1,6 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ApplicationPageTemplate.razor
-// .cs" company="RHEA System S.A.">
+//  <copyright file="ApplicationPageTemplate.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
@@ -26,11 +25,13 @@
 
 namespace COMET.Web.Common.Pages
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Base abstract component for any page for an Application
     /// </summary>
+    [Authorize]
     public abstract partial class ApplicationPageTemplate: ComponentBase
     {
     }
