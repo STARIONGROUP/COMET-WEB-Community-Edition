@@ -44,6 +44,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         int AutoRefreshInterval { get; set; }
 
         /// <summary>
+        /// Define seconds left in the timer before the next refresh
+        /// </summary>
+        int AutoRefreshSecondsLeft { get; }
+
+        /// <summary>
         /// Sets the timer according to the appropriate setting
         /// </summary>
         void SetTimer();

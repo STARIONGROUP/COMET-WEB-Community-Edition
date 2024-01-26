@@ -56,11 +56,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         private int autoRefreshInterval = 60;
 
         /// <summary>
-        /// Define seconds left in the timer before the next refresh
-        /// </summary>
-        private int autoRefreshSecondsLeft;
-
-        /// <summary>
         /// Backing field for <see cref="IsAutoRefreshEnabled" />
         /// </summary>
         private bool isAutoRefreshEnabled;
@@ -80,6 +75,11 @@ namespace COMET.Web.Common.Services.SessionManagement
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.IsAutoRefreshEnabled),
                 nameof(this.AutoRefreshInterval)).Subscribe(_ => this.SetTimer()));
         }
+
+        /// <summary>
+        /// Define seconds left in the timer before the next refresh
+        /// </summary>
+        public int AutoRefreshSecondsLeft { get; private set; }
 
         /// <summary>
         /// Enable / disable auto-refresh for the ISession
@@ -107,7 +107,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             if (this.IsAutoRefreshEnabled)
             {
-                this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
+                this.AutoRefreshSecondsLeft = this.AutoRefreshInterval;
                 this.timer.Start();
             }
             else
@@ -142,9 +142,9 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="e">The event arguments.</param>
         private async void OnTimerElapsed(object sender, EventArgs e)
         {
-            this.autoRefreshSecondsLeft -= 1;
+            this.AutoRefreshSecondsLeft -= 1;
 
-            if (this.autoRefreshSecondsLeft != 0)
+            if (this.AutoRefreshSecondsLeft != 0)
             {
                 return;
             }
@@ -152,7 +152,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             this.timer.Stop();
             await this.sessionService.RefreshSession();
 
-            this.autoRefreshSecondsLeft = this.AutoRefreshInterval;
+            this.AutoRefreshSecondsLeft = this.AutoRefreshInterval;
             this.timer.Start();
         }
     }
