@@ -25,7 +25,6 @@
 
 namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
 {
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -59,8 +58,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             public SingleIterationApplicationViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
             {
             }
-
-            public IReadOnlyList<Thing> GetAddedThings => this.AddedThings.AsReadOnly();
 
             public void Initialize(IEnumerable<Type> types)
             {
