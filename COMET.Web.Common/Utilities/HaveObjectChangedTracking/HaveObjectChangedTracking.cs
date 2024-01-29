@@ -64,24 +64,33 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         }
 
         /// <summary>
+        /// Gets the injected <see cref="ICDPMessageBus" />
+        /// </summary>
+        protected ICDPMessageBus MessageBus { get; }
+
+        /// <summary>
         /// Gets a <see cref="IReadOnlyCollection{T}" /> of added <see cref="Thing" />s
         /// </summary>
-        public IReadOnlyCollection<Thing> GetAddedThings => this.AddedThings;
+        public IReadOnlyCollection<Thing> GetAddedThings()
+        {
+            return this.AddedThings;
+        }
 
         /// <summary>
         /// Gets a <see cref="IReadOnlyCollection{T}" /> of deleted <see cref="Thing" />s
         /// </summary>
-        public IReadOnlyCollection<Thing> GetDeletedThings => this.DeletedThings;
+        public IReadOnlyCollection<Thing> GetDeletedThings()
+        {
+            return this.DeletedThings;
+        }
 
         /// <summary>
         /// Gets a <see cref="IReadOnlyCollection{T}" /> of updated <see cref="Thing" />s
         /// </summary>
-        public IReadOnlyCollection<Thing> GetUpdatedThings => this.UpdatedThings;
-
-        /// <summary>
-        /// Gets the injected <see cref="ICDPMessageBus" />
-        /// </summary>
-        protected ICDPMessageBus MessageBus { get; }
+        public IReadOnlyCollection<Thing> GetUpdatedThings()
+        {
+            return this.UpdatedThings;
+        }
 
         /// <summary>
         /// Clears all recorded changes
