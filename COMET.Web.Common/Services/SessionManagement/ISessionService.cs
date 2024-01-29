@@ -208,5 +208,36 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <exception cref="ArgumentException">If the <see cref="Iteration" /> is not opened</exception>
         /// <returns>The <see cref="DomainOfExpertise"/></returns>
         DomainOfExpertise GetDomainOfExpertise(Iteration iteration);
+
+        /// <summary>
+        /// Reads the <see cref="EngineeringModel" /> instances from the data-source
+        /// </summary>
+        /// <param name="engineeringModelIds">
+        /// The unique identifiers of the <see cref="EngineeringModel" />s that needs to be read from the data-source, in case the list is empty
+        /// all the <see cref="EngineeringModel" />s will be read
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task" />
+        /// </returns>
+        /// <remarks>
+        /// Only those <see cref="EngineeringModel" />s are returned that the <see cref="Person" /> is a <see cref="Participant" />
+        /// in.
+        /// </remarks>
+        Task<Result> ReadEngineeringModels(IEnumerable<Guid> engineeringModelIds);
+
+        /// <summary>
+        /// Reads the <see cref="EngineeringModel" /> instances from the data-source
+        /// </summary>
+        /// <param name="engineeringModelSetups">
+        /// A collection of <see cref="EngineeringModelSetup" /> where the <see cref="EngineeringModel" /> is tied to
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task" />
+        /// </returns>
+        /// <remarks>
+        /// Only those <see cref="EngineeringModel" />s are returned that the <see cref="Person" /> is a <see cref="Participant" />
+        /// in.
+        /// </remarks>
+        Task<Result> ReadEngineeringModels(IEnumerable<EngineeringModelSetup> engineeringModelSetups);
     }
 }

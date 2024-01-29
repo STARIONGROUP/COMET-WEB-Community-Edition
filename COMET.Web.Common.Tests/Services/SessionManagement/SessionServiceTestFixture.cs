@@ -340,5 +340,26 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             thingsToUpdate.Add(clone);
             Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
         }
+
+        [Test]
+        public void VerifyReadEngineeringModels()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => this.sessionService.ReadEngineeringModels(Enumerable.Empty<Guid>()).Result.IsSuccess, Is.True);
+                Assert.That(() => this.sessionService.ReadEngineeringModels(Enumerable.Empty<EngineeringModelSetup>()).Result.IsSuccess, Is.True);
+                Assert.That(() => this.sessionService.ReadEngineeringModels(new EngineeringModelSetup[]{new (){EngineeringModelIid = Guid.NewGuid()}}).Result.IsSuccess, Is.True);
+                this.session.Verify(x => x.Read(It.Is<IEnumerable<Guid>>(g => !g.Any())), Times.Exactly(2));
+                this.session.Verify(x => x.Read(It.Is<IEnumerable<Guid>>(g => g.Any())), Times.Once);
+            });
+
+            this.session.Setup(x => x.Read(It.IsAny<IEnumerable<Guid>>())).ThrowsAsync(new InvalidDataException());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => this.sessionService.ReadEngineeringModels(Enumerable.Empty<Guid>()).Result.IsSuccess, Is.False);
+                Assert.That(() => this.sessionService.ReadEngineeringModels(Enumerable.Empty<EngineeringModelSetup>()).Result.IsSuccess, Is.False);
+            });
+        }
     }
 }
