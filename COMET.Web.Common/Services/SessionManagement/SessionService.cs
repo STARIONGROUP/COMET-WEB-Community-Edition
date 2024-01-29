@@ -508,6 +508,55 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
+        /// Reads the <see cref="EngineeringModel" /> instances from the data-source
+        /// </summary>
+        /// <param name="engineeringModelIds">
+        /// The unique identifiers of the <see cref="EngineeringModel" />s that needs to be read from the data-source, in case the list is empty
+        /// all the <see cref="EngineeringModel" />s will be read
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task" />
+        /// </returns>
+        /// <remarks>
+        /// Only those <see cref="EngineeringModel" />s are returned that the <see cref="Person" /> is a <see cref="Participant" />
+        /// in.
+        /// </remarks>
+        public async Task<Result> ReadEngineeringModels(IEnumerable<Guid> engineeringModelIds)
+        {
+            var result = new Result();
+
+            try
+            {
+                await this.Session.Read(engineeringModelIds);
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError("During reading EnngineeringModel an error has occured: {exception}", exception.Message);
+                result.Reasons.Add(new Error($"During reading EnngineeringModel an error has occured: {exception.Message}"));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Reads the <see cref="EngineeringModel" /> instances from the data-source
+        /// </summary>
+        /// <param name="engineeringModelSetups">
+        /// A collection of <see cref="EngineeringModelSetup" /> where the <see cref="EngineeringModel" /> is tied to
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task" />
+        /// </returns>
+        /// <remarks>
+        /// Only those <see cref="EngineeringModel" />s are returned that the <see cref="Person" /> is a <see cref="Participant" />
+        /// in.
+        /// </remarks>
+        public Task<Result> ReadEngineeringModels(IEnumerable<EngineeringModelSetup> engineeringModelSetups)
+        {
+            return this.ReadEngineeringModels(engineeringModelSetups.Select(x => x.EngineeringModelIid));
+        }
+
+        /// <summary>
         /// Queries all open <see cref="EngineeringModel" />
         /// </summary>
         /// <returns>A collection of <see cref="EngineeringModel" /></returns>
