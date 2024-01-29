@@ -37,7 +37,7 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
     /// <summary>
     /// Base class for any class that needs to track <see cref="ObjectChangedEvent" /> for one or multiple types
     /// </summary>
-    public abstract class HaveObjectChangedTracking : DisposableObject
+    public abstract class HaveObjectChangedTracking : DisposableObject, IHaveObjectChangedTracking
     {
         /// <summary>
         /// A collection of added <see cref="Thing" />s
