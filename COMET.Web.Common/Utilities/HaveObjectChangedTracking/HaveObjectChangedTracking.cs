@@ -69,6 +69,40 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         protected ICDPMessageBus MessageBus { get; }
 
         /// <summary>
+        /// Gets a <see cref="IReadOnlyCollection{T}" /> of added <see cref="Thing" />s
+        /// </summary>
+        public IReadOnlyCollection<Thing> GetAddedThings()
+        {
+            return this.AddedThings;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="IReadOnlyCollection{T}" /> of deleted <see cref="Thing" />s
+        /// </summary>
+        public IReadOnlyCollection<Thing> GetDeletedThings()
+        {
+            return this.DeletedThings;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="IReadOnlyCollection{T}" /> of updated <see cref="Thing" />s
+        /// </summary>
+        public IReadOnlyCollection<Thing> GetUpdatedThings()
+        {
+            return this.UpdatedThings;
+        }
+
+        /// <summary>
+        /// Clears all recorded changes
+        /// </summary>
+        public void ClearRecordedChanges()
+        {
+            this.DeletedThings.Clear();
+            this.UpdatedThings.Clear();
+            this.AddedThings.Clear();
+        }
+
+        /// <summary>
         /// Initializes all <see cref="ObjectChangedEvent" /> subscription
         /// </summary>
         /// <param name="typesOfInterest">
@@ -79,16 +113,6 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         {
             var observables = typesOfInterest.Select(objectChangedTypeTarget => this.MessageBus.Listen<ObjectChangedEvent>(objectChangedTypeTarget)).ToList();
             this.Disposables.Add(observables.Merge().Subscribe(this.RecordChange));
-        }
-
-        /// <summary>
-        /// Clears all recorded changes
-        /// </summary>
-        protected void ClearRecordedChanges()
-        {
-            this.DeletedThings.Clear();
-            this.UpdatedThings.Clear();
-            this.AddedThings.Clear();
         }
 
         /// <summary>

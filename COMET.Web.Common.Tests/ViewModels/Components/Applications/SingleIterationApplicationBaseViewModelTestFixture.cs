@@ -25,7 +25,6 @@
 
 namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
 {
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -59,8 +58,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             public SingleIterationApplicationViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
             {
             }
-
-            public IReadOnlyList<Thing> AddedThingsReadOnlyList => this.AddedThings.AsReadOnly();
 
             public void Initialize(IEnumerable<Type> types)
             {
@@ -100,17 +97,17 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             var elementDefinition = new ElementDefinition { Container = new Iteration() };
 
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
+            Assert.That(this.viewModel.GetAddedThings, Is.Empty);
 
             this.viewModel.CurrentThing = new Iteration { Iid = Guid.NewGuid() };
 
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            Assert.That(this.viewModel.AddedThingsReadOnlyList, Is.Empty);
+            Assert.That(this.viewModel.GetAddedThings, Is.Empty);
 
             this.viewModel.CurrentThing.Element.Add(elementDefinition);
 
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            Assert.That(this.viewModel.AddedThingsReadOnlyList, Has.Count.EqualTo(1));
+            Assert.That(this.viewModel.GetAddedThings, Has.Count.EqualTo(1));
         }
 
         [Test]
