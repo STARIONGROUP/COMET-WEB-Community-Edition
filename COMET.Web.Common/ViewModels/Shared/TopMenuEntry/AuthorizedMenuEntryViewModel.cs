@@ -54,6 +54,7 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         {
             this.stateProvider = stateProvider;
             this.stateProvider.AuthenticationStateChanged += this.HandleAuthenticationState;
+            this.HandleAuthenticationState(this.stateProvider.GetAuthenticationStateAsync());
         }
 
         /// <summary>
