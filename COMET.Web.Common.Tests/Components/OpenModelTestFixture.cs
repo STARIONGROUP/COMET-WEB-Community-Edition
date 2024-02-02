@@ -31,6 +31,7 @@ namespace COMET.Web.Common.Tests.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
@@ -55,18 +56,20 @@ namespace COMET.Web.Common.Tests.Components
         private IOpenModelViewModel viewModel;
         private TestContext context;
         private Mock<ISessionService> sessionService;
+        private Mock<IConfigurationService> configurationService;
 
         [SetUp]
         public void Setup()
         {
             this.context = new TestContext();
             this.sessionService = new Mock<ISessionService>();
-            this.viewModel = new OpenModelViewModel(this.sessionService.Object);
+            this.configurationService = new Mock<IConfigurationService>();
+            this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
 
-            var configurationService = new Mock<IStringTableService>();
-            this.context.Services.AddSingleton(configurationService.Object);
+            var stringTableService = new Mock<IStringTableService>();
+            this.context.Services.AddSingleton(stringTableService.Object);
         }
 
         [TearDown]
