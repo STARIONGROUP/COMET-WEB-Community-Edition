@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
 
             this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object);
-            this.models = this.CreateData().ToList();
+            this.models = CreateData().ToList();
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.models);
         }
 
@@ -101,7 +101,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             Assert.That(this.viewModel.AvailableEngineeringModelSetups.Count(), Is.EqualTo(4));
         }
 
-        private IEnumerable<EngineeringModelSetup> CreateData()
+        private static IEnumerable<EngineeringModelSetup> CreateData()
         {
             var rdl1 = new ModelReferenceDataLibrary(Guid.NewGuid(), null, null)
             {
