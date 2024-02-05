@@ -25,17 +25,21 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
+    using System.Linq;
+    using System.Collections.Generic;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
     using DynamicData.Binding;
-
+    
     using ReactiveUI;
-
+    
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
@@ -45,6 +49,11 @@ namespace COMET.Web.Common.ViewModels.Components
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// Gets the <see cref="IConfigurationService" />
+        /// </summary>
+        private readonly IConfigurationService configurationService;
 
         /// <summary>
         /// Backing field for <see cref="IsOpeningSession" />
@@ -69,9 +78,11 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="OpenModelViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public OpenModelViewModel(ISessionService sessionService)
+        /// <param name="configurationService">The <see cref="IConfigurationService"/></param>
+        public OpenModelViewModel(ISessionService sessionService, IConfigurationService configurationService)
         {
             this.sessionService = sessionService;
+            this.configurationService = configurationService;
 
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.SelectedEngineeringModel))
                 .Subscribe(_ => this.ComputeAvailableCollections()));
@@ -138,9 +149,38 @@ namespace COMET.Web.Common.ViewModels.Components
             this.SelectedIterationSetup = null;
             this.IsOpeningSession = false;
 
-            this.AvailableEngineeringModelSetups = this.sessionService.GetParticipantModels()
+            var availableEngineeringModelSetups = this.sessionService.GetParticipantModels()
                 .Where(x => x.IterationSetup.Exists(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
-                .OrderBy(x => x.Name);
+                .OrderBy(x => x.Name).ToList();
+
+            var rdlFilter = this.configurationService.ServerConfiguration?.RdlFilter;
+
+            if (rdlFilter != null)
+            {
+                var filteredEngineeringModelSetups = availableEngineeringModelSetups;
+
+                if (rdlFilter.Kinds.Any())
+                {
+                    filteredEngineeringModelSetups = filteredEngineeringModelSetups
+                        .Where(x => rdlFilter.Kinds.Contains(x.Kind))
+                        .ToList();
+                }
+
+                if (rdlFilter.RdlShortNames.Any())
+                {
+                    filteredEngineeringModelSetups = filteredEngineeringModelSetups
+                        .Where(x => x.RequiredRdl.Any(c => rdlFilter.RdlShortNames.Contains(c.RequiredRdl.ShortName)))
+                        .ToList();
+                }
+
+                if (filteredEngineeringModelSetups.Any())
+                {
+                    this.AvailableEngineeringModelSetups = filteredEngineeringModelSetups;
+                    return;
+                }
+            }
+
+            this.AvailableEngineeringModelSetups = availableEngineeringModelSetups;
         }
 
         /// <summary>
