@@ -55,7 +55,6 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
         /// </summary>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        /// <param name="serverConnectionService">The <see cref="IConfigurationService"/></param>
         public LoginViewModel(IAuthenticationService authenticationService, IConfigurationService serverConnectionService)
         {
             this.serverConnectionService = serverConnectionService;

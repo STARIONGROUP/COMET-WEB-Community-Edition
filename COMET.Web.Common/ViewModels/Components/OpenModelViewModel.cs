@@ -29,7 +29,6 @@ namespace COMET.Web.Common.ViewModels.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
@@ -46,11 +45,6 @@ namespace COMET.Web.Common.ViewModels.Components
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
-
-        /// <summary>
-        /// Gets the <see cref="IConfigurationService" />
-        /// </summary>
-        private readonly IConfigurationService configurationService;
 
         /// <summary>
         /// Backing field for <see cref="IsOpeningSession" />
@@ -75,11 +69,9 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="OpenModelViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="configurationService">The <see cref="IConfigurationService"/></param>
-        public OpenModelViewModel(ISessionService sessionService, IConfigurationService configurationService)
+        public OpenModelViewModel(ISessionService sessionService)
         {
             this.sessionService = sessionService;
-            this.configurationService = configurationService;
 
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.SelectedEngineeringModel))
                 .Subscribe(_ => this.ComputeAvailableCollections()));
@@ -146,24 +138,9 @@ namespace COMET.Web.Common.ViewModels.Components
             this.SelectedIterationSetup = null;
             this.IsOpeningSession = false;
 
-            var availableEngineeringModelSetups = this.sessionService.GetParticipantModels()
+            this.AvailableEngineeringModelSetups = this.sessionService.GetParticipantModels()
                 .Where(x => x.IterationSetup.Exists(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
-                .OrderBy(x => x.Name).ToList();
-
-            var filteredEngineeringModelSetups = availableEngineeringModelSetups;
-
-            var rdlFilter = this.configurationService.ServerConfiguration?.RdlFilter;
-
-            if (rdlFilter != null)
-            {
-                filteredEngineeringModelSetups = filteredEngineeringModelSetups.Where(x =>
-                {
-                    return x.RequiredRdl.Exists(c => rdlFilter.RdlShortNames.Contains(c.RequiredRdl.ShortName))
-                           && rdlFilter.Kinds.Contains(x.Kind);
-                }).ToList();
-            }
-
-            this.AvailableEngineeringModelSetups = filteredEngineeringModelSetups;
+                .OrderBy(x => x.Name);
         }
 
         /// <summary>

@@ -22,26 +22,20 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Model.Configuration
+namespace COMET.Web.Common.Model.Configuration;
+
+/// <summary>
+/// This class holds all of the configuration related properties that are stored on the local configuration files.
+/// </summary>
+public class ServerConfiguration
 {
     /// <summary>
-    /// This class holds all of the configuration related properties that are stored on the local configuration files.
+    /// The Server Address to use
     /// </summary>
-    public class ServerConfiguration
-    {
-        /// <summary>
-        /// The Server Address to use
-        /// </summary>
-        public string ServerAddress { get; set; }
+    public string ServerAddress { get; set; }
 
-        /// <summary>
-        /// The configuration values for the Book feature
-        /// </summary>
-        public BookInputConfiguration BookInputConfiguration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="EngineeringModelRdlFilter"/>. If not filters are specified all the available models are shown
-        /// </summary>
-        public EngineeringModelRdlFilter RdlFilter { get; set; }
-    }
+    /// <summary>
+    /// The configuration values for the Book feature
+    /// </summary>
+    public BookInputConfiguration BookInputConfiguration { get; set; }
 }
