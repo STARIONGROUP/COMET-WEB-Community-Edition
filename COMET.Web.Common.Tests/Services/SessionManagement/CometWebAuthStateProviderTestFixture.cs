@@ -45,7 +45,8 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             var activePerson = new Person
             {
                 GivenName = "John",
-                Surname = "Doe"
+                Surname = "Doe",
+                Role = new PersonRole(){ ShortName = "personRole" }
             };
 
             this.sessionService = new Mock<ISessionService>();

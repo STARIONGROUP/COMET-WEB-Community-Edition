@@ -136,7 +136,18 @@ namespace COMET.Web.Common.Tests.Shared
             Assert.That(authorizedMenuEntries.All(x => !x.Instance.AuthorizedMenuEntryViewModel.IsAuthenticated), Is.True);
 
             var session = new Mock<ISession>();
-            session.Setup(x => x.ActivePerson).Returns(new Person() { GivenName = "User", ShortName = "User" });
+
+            var activePerson = new Person()
+            {
+                GivenName = "User",
+                ShortName = "User",
+                Role = new PersonRole()
+                {
+                    ShortName = "PersonRole"
+                }
+            };
+
+            session.Setup(x => x.ActivePerson).Returns(activePerson);
 
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
@@ -238,7 +249,18 @@ namespace COMET.Web.Common.Tests.Shared
         public void VerifyApplicationsRegistration()
         {
             var session = new Mock<ISession>();
-            session.Setup(x => x.ActivePerson).Returns(new Person() { GivenName = "User", ShortName = "User" });
+
+            var activePerson = new Person()
+            {
+                GivenName = "User", 
+                ShortName = "User",
+                Role = new PersonRole()
+                {
+                    ShortName = "PersonRole"
+                }
+            };
+
+            session.Setup(x => x.ActivePerson).Returns(activePerson);
 
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
