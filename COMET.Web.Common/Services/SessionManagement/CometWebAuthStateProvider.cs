@@ -72,6 +72,11 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 var person = this.sessionService.Session.ActivePerson;
                 identity = CreateClaimsIdentity(person);
+
+                if (!string.IsNullOrEmpty(person.Role.ShortName))
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, person.Role.ShortName));
+                }
             }
 
             return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity)));
