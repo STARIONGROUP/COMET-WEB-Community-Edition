@@ -88,20 +88,20 @@ namespace COMET.Web.Common.Tests.Components
             
             Assert.Multiple(() =>
             {
-                Assert.IsNotEmpty(this.component.Instance.Data);
-                Assert.IsNotEmpty(this.component.Instance.Values);
-                Assert.IsTrue(this.component.Instance.ShowCheckBoxes);
-                Assert.IsNotNull(this.component.Instance.EditorTextTemplate);
+                Assert.That(this.component.Instance.Data, Is.Not.Empty);
+                Assert.That(this.component.Instance.Values, Is.Not.Empty);
+                Assert.That(this.component.Instance.ShowCheckBoxes, Is.True);
+                Assert.That(this.component.Instance.EditorTextTemplate, Is.Not.Null);
                 Assert.That(this.component.Instance.MaxNumberOfChips, Is.EqualTo(2));
-                Assert.IsNotNull(this.component.Instance.RowTemplate);
+                Assert.That(this.component.Instance.RowTemplate, Is.Not.Null);
             });
             
             var comboBox = this.component.FindComponent<DxComboBox<Category, Category>>();
             
             Assert.Multiple(() =>
-            {
-                Assert.IsNotNull(comboBox);
-                Assert.IsNull(comboBox.Instance.Value);
+            {   
+                Assert.That(comboBox, Is.Not.Null);
+                Assert.That(comboBox.Instance.Value, Is.Null);
                 Assert.That(comboBox.Instance.ReadOnly, Is.EqualTo(isComponentReadOnly));
                 Assert.That(comboBox.Instance.Enabled, Is.EqualTo(isComponentEnabled));
             });
@@ -112,9 +112,9 @@ namespace COMET.Web.Common.Tests.Components
             
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(dropdownItems);
-                Assert.IsNotEmpty(dropdownItems);
-                Assert.AreEqual(this.availableCategories.Count, dropdownItems.Count); 
+                Assert.That(dropdownItems, Is.Not.Null);
+                Assert.That(dropdownItems, Is.Not.Empty);
+                Assert.That(dropdownItems.Count, Is.EqualTo(this.availableCategories.Count)); 
             });
         }
     }

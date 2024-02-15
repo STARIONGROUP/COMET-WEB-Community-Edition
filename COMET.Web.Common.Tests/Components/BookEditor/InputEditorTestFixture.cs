@@ -104,12 +104,12 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(nameTextbox);
-                Assert.IsNotNull(shortNameTextbox);
+                Assert.That (nameTextbox, Is.Not.Null);
+                Assert.That(shortNameTextbox, Is.Not.Null);
                 Assert.That(combobox.Instance.Value, Is.EqualTo(this.activeDomains.First()));
                 Assert.That(categoryComboBox.Instance, Is.Not.Null);
-                Assert.IsTrue(this.component.Instance.ShowName);
-                Assert.IsTrue(this.component.Instance.ShowShortName);
+                Assert.That(this.component.Instance.ShowName, Is.True);
+                Assert.That(this.component.Instance.ShowShortName, Is.True);
             });
             
             this.component.Render();

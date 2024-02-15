@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -17,12 +17,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AntDesign" Version="0.14.1" />
-        <PackageReference Include="BlazorStrap" Version="5.1.100" />
-        <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+        <PackageReference Include="AntDesign" Version="0.17.4" />
+        <PackageReference Include="BlazorStrap" Version="5.1.102.51923" />
+        <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.16" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.16" PrivateAssets="all" />
         <PackageReference Include="Z.Blazor.Diagrams" Version="2.1.6" />
     </ItemGroup>
 

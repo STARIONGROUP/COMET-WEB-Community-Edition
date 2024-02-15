@@ -274,7 +274,7 @@ namespace COMETwebapp.Tests.Model
         {
             foreach (var primitive in this.primitives)
             {
-                Assert.AreEqual(primitive.GetType().Name, primitive.Type);
+                Assert.That(primitive.GetType().Name, Is.EqualTo(primitive.Type));
             }
 
             var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
@@ -288,7 +288,7 @@ namespace COMETwebapp.Tests.Model
             });
             
             var parameter = parameters.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
-            Assert.IsNotNull(parameter);
+            Assert.That(parameter, Is.Not.Null);
         }
 
         [Test]

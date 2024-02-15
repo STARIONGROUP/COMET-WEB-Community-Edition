@@ -38,6 +38,7 @@ namespace COMET.Web.Common.Tests.Extensions
         private double[] matrix2;
 
         private const double Delta = 0.01;
+
         [SetUp]
         public void SetUp()
         {
@@ -50,45 +51,45 @@ namespace COMET.Web.Common.Tests.Extensions
         public void VerifyThatAnglesCanBeExtractedFromMatrix1()
         {
             var angles = this.matrix1.ToEulerAngles();
-            Assert.AreEqual(0.0, angles[0], Delta);
-            Assert.AreEqual(1.0471976, angles[1], Delta);
-            Assert.AreEqual(0.0, angles[2], Delta);
+            Assert.That(angles[0], Is.EqualTo(0.0).Within(Delta));
+            Assert.That(angles[1], Is.EqualTo(1.0471976).Within(Delta));
+            Assert.That(angles[2], Is.EqualTo(0.0).Within(Delta));
         }
 
         [Test]
         public void VerifyThatAnglesCanBeExtractedFromMatrix2()
         {
             var angles = this.matrix2.ToEulerAngles();
-            Assert.AreEqual(0.4363323, angles[0], Delta);
-            Assert.AreEqual(0.7853981, angles[1], Delta);
-            Assert.AreEqual(0.2617994, angles[2], Delta);
+            Assert.That(angles[0], Is.EqualTo(0.4363323).Within(Delta));
+            Assert.That(angles[1], Is.EqualTo(0.7853981).Within(Delta));
+            Assert.That(angles[2], Is.EqualTo(0.2617994).Within(Delta));
         }
 
         [Test]
         public void VerifyThatAnglesCanBeExtractedFromMatrix3()
         {
             var angles = this.matrix1.ToEulerAngles(AngleFormat.Degrees);
-            Assert.AreEqual(0.0, angles[0], Delta);
-            Assert.AreEqual(60.0, angles[1], Delta);
-            Assert.AreEqual(0.0, angles[2], Delta);
+            Assert.That(angles[0], Is.EqualTo(0.0).Within(Delta));
+            Assert.That(angles[1], Is.EqualTo(60.0).Within(Delta));
+            Assert.That(angles[2], Is.EqualTo(0.0).Within(Delta));
         }
 
         [Test]
         public void VerifyThatAnglesCanBeExtractedFromMatrix4()
         {
             var angles = this.matrix2.ToEulerAngles(AngleFormat.Degrees);
-            Assert.AreEqual(25.0, angles[0], Delta);
-            Assert.AreEqual(45.0, angles[1], Delta);
-            Assert.AreEqual(15.0, angles[2], Delta);
+            Assert.That(angles[0], Is.EqualTo(25.0).Within(Delta));
+            Assert.That(angles[1], Is.EqualTo(45.0).Within(Delta));
+            Assert.That(angles[2], Is.EqualTo(15.0).Within(Delta));
         }
 
         [Test]
         public void VerifyThatIdentityDontChangeOrientation()
         {
             var angles = this.identity.ToEulerAngles();
-            Assert.AreEqual(0.0, angles[0], Delta);
-            Assert.AreEqual(0.0, angles[1], Delta);
-            Assert.AreEqual(0.0, angles[2], Delta);
+            Assert.That(angles[0], Is.EqualTo(0.0).Within(Delta));
+            Assert.That(angles[1], Is.EqualTo(0.0).Within(Delta));
+            Assert.That(angles[2], Is.EqualTo(0.0).Within(Delta));
         }
 
         [Test]

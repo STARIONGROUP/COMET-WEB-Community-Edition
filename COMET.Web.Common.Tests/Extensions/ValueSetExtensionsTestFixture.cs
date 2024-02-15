@@ -119,7 +119,7 @@ namespace COMET.Web.Common.Tests.Extensions
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(result);
+                Assert.That(result, Is.True);
                 Assert.That(doubles[0], Is.EqualTo(1));
                 Assert.That(doubles[1], Is.EqualTo(2));
                 Assert.That(doubles[2], Is.EqualTo(3));

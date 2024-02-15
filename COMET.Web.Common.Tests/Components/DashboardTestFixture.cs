@@ -110,11 +110,11 @@ namespace COMET.Web.Common.Tests.Components
             var elementWrapper = (ElementWrapper)applicationCard.Find("a");
             var anchor = (IHtmlAnchorElement)elementWrapper.WrappedElement;
             navigationManager.NavigateTo(anchor.Href);
-           
+
             Assert.That(navigationManager.Uri, Does.EndWith(this.applications[0].Url));
 
             applicationCard = applicationCards[1];
             Assert.That(() => applicationCard.Find(".disabled"), Throws.Nothing);
-		}
+        }
 	}
 }
