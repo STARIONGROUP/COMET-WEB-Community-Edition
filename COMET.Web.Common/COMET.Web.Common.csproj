@@ -20,10 +20,12 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>cdp4-icon.png</PackageIcon>
-    <PackageReleaseNotes>
-        [ADD] PersonRole inside Claim
-    </PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReleaseNotes>
+        [Upddate] to CDP4-SDK version 26.2.0
+    </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="AsyncEnumerator" Version="4.0.2" />

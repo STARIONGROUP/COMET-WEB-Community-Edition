@@ -15,10 +15,12 @@
       <RepositoryType>Git</RepositoryType>
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <PackageIcon>cdp4-icon.png</PackageIcon>
-      <PackageReleaseNotes>
-      [ADD] XML Documentation
-	    </PackageReleaseNotes>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <IncludeSymbols>true</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+      <PackageReleaseNotes>
+        [ADD] XML Documentation
+      </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
