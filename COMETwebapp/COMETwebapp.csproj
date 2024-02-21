@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -21,13 +21,17 @@
         <PackageReference Include="BlazorStrap" Version="5.1.102.51923" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.16" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.16" PrivateAssets="all" />
         <PackageReference Include="Z.Blazor.Diagrams" Version="2.1.6" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="wwwroot\DefaultTextConfiguration.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

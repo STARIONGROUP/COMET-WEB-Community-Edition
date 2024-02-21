@@ -49,10 +49,10 @@ namespace COMETwebapp.Components.Shared
         private string license = string.Empty;
 
         /// <summary>
-        /// The <see cref="HttpClient" />
+        /// The <see cref="IHttpClientFactory" />
         /// </summary>
         [Inject]
-        public HttpClient HttpClient { get; set; }
+        public IHttpClientFactory HttpClientFactory { get; set; }
 
         /// <summary>
         /// The <see cref="IVersionService" />
@@ -66,7 +66,8 @@ namespace COMETwebapp.Components.Shared
         protected override async Task OnInitializedAsync()
         {
             this.cometWebVersion = this.VersionService.GetVersion();
-            this.license = await this.HttpClient.GetStringAsync(GitUrl);
+            var httpClient = this.HttpClientFactory.CreateClient("About");
+            this.license = await httpClient.GetStringAsync(GitUrl);
         }
     }
 }

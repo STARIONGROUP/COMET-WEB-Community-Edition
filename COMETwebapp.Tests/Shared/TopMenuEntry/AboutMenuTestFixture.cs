@@ -55,6 +55,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             this.versionService = new Mock<IVersionService>();
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.context.Services.AddSingleton(this.versionService.Object);
+            this.context.Services.AddSingleton(new Mock<IHttpClientFactory>().Object);
             this.context.ConfigureDevExpressBlazor();
         }
 
