@@ -102,7 +102,7 @@ namespace COMET.Web.Common.Tests.Shared
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.messageBus = new CDPMessageBus();
 
-            this.context.Services.AddSingleton(this.messageBus);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton<AuthenticationStateProvider>(this.stateProvider);
