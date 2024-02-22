@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Services.NamingConventionService
 {
+    using CDP4Common.SiteDirectoryData;
+
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -63,9 +65,9 @@ namespace COMET.Web.Common.Services.NamingConventionService
 
             foreach (var namingConventionKind in Enum.GetValues(typeof(TEnum)))
             {
-                if (namingConvention.TryGetValue(namingConventionKind.ToString(), out var namingConventionValue))
+                if (namingConvention.TryGetValue(namingConventionKind.ToString()!, out var namingConventionValue))
                 {
-                    this.definedNaming[namingConventionKind.ToString()] = namingConventionValue;
+                    this.definedNaming[namingConventionKind.ToString()!] = namingConventionValue;
                 }
                 else
                 {

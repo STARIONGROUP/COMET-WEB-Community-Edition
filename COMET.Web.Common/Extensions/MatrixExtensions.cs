@@ -63,13 +63,11 @@ namespace COMET.Web.Common.Extensions
         }
 
         /// <summary>
-        /// Transforms the
-        /// <param name="rotMatrix" />
-        /// that represents a rotation matrix of 3x3 to the rotation expressed in Euler Angles
+        /// Transforms the <paramref name="rotMatrix" /> that represents a rotation matrix of 3x3 to the rotation expressed in Euler Angles
         /// </summary>
         /// <param name="rotMatrix">
         /// the rotation matrix 3x3 stored in row-major order. For more info
-        /// <see cref="https://en.wikipedia.org/wiki/Row-_and_column-major_order" />
+        /// <see href="https://en.wikipedia.org/wiki/Row-_and_column-major_order" />
         /// </param>
         /// <param name="outputAngleFormat">The <see cref="AngleFormat" /></param>
         /// <returns>The Euler Angles in form [Rx,Ry,Rz]</returns>

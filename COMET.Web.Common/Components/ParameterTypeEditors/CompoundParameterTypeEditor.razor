@@ -27,8 +27,8 @@
 
 @if (string.Equals(this.ViewModel.ParameterType.ShortName, ConstantValues.OrientationShortName, StringComparison.InvariantCultureIgnoreCase))
 {
-    var compoundParameterViewModel = this.ViewModel as CompoundParameterTypeEditorViewModel;
-    <OrientationComponent ViewModel="@compoundParameterViewModel?.CreateOrientationViewModel()"/>
+    var compoundParameterViewModel = (ICompoundParameterTypeEditorViewModel)this.ViewModel;
+    <OrientationComponent ViewModel="@compoundParameterViewModel.CreateOrientationViewModel()"/>
 }
 else if (this.ViewModel.ValueSet is not null)
 {

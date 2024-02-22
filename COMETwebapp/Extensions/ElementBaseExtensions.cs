@@ -61,7 +61,7 @@ namespace COMETwebapp.Extensions
         }
         
         /// <summary>
-        /// Filters the <param name="elements"/> by the <param name="state"/>
+        /// Filters the <paramref name="elements"/> by the <paramref name="state"/>
         /// </summary>
         /// <param name="elements">the elements to filter</param>
         /// <param name="state">the state used to filter</param>

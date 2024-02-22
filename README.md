@@ -56,7 +56,7 @@ The CDP4-COMET-WEB SPA is built using docker and the result is a Docker containe
 ```
 $ ./solutionfolder# export DEVEXPRESS_NUGET_KEY=<YOUR-API-KEY>
 $ ./solutionfolder# DOCKER_BUILDKIT=1 docker build --secret id=DEVEXPRESS_NUGET_KEY,env=DEVEXPRESS_NUGET_KEY -f COMETwebapp/Dockerfile -t rheagroup/comet-web-community-edition:latest -t rheagroup/comet-web-community-edition:<specific-version> .
-$ ./solutionfolder# docker run -p 8080:80 --name comet-web rheagroup/comet-web-community-edition:latest
+$ ./solutionfolder# docker run -p 8080:8080 --name comet-web rheagroup/comet-web-community-edition:latest
 ```
 
 Push to docker hub

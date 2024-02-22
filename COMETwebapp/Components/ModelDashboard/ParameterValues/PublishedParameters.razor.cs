@@ -27,7 +27,7 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
     using CDP4Common.EngineeringModelData;
 
     /// <summary>
-    /// <see cref="HaveValueSetChart"/> for published <see cref="ParameterValueSetBase"/>
+    /// <see cref="HaveValueSetsChartData"/> for published <see cref="ParameterValueSetBase"/>
     /// </summary>
     public partial class PublishedParameters
 	{

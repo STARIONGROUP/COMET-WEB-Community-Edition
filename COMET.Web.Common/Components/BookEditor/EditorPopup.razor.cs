@@ -79,6 +79,9 @@ namespace COMET.Web.Common.Components.BookEditor
         [Inject]
         public IOptions<GlobalOptions> Options { get; set; }
 
+        /// <summary>
+        /// Gets or sets the injected <see cref="ILogger{TCategoryName}"/>
+        /// </summary>
         [Inject]
         public ILogger<EditorPopup> Logger { get; set; }
 

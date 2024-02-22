@@ -126,10 +126,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public object SelectedElementDefinition { get; set; }
 
         /// <summary>
-        /// set the selected <see cref="SystemNodeViewModel" />
+        /// set the selected <see cref="ElementDefinitionRowViewModel" /> 
         /// </summary>
-        /// <param name="args">The selected <see cref="SystemNodeViewModel" /></param>
-        /// <returns>A <see cref="Task" /></returns>
+        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
         public void SelectElement(GridRowClickEventArgs args)
         {
             var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);

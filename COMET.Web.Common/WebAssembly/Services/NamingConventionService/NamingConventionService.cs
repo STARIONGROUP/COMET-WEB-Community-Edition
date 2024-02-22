@@ -29,16 +29,18 @@ namespace COMET.Web.Common.WebAssembly.Services.NamingConventionService
     using System.Net;
     using System.Text.Json;
 
+    using CDP4Common.SiteDirectoryData;
+
     using COMET.Web.Common.Services.NamingConventionService;
     using COMET.Web.Common.Utilities;
 
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// The <see cref="NamingConventionService" /> provides static information based on defined naming convention, like for names of
+    /// The <see cref="NamingConventionService{TEnum}" /> provides static information based on defined naming convention, like for names of
     /// <see cref="Category" /> to use for example
     /// </summary>
-    public class NamingConventionService<TEnum> : BaseNamingConventionService<TEnum> where TEnum : Enum
+    public class NamingConventionService<TEnum>: BaseNamingConventionService<TEnum> where TEnum : Enum
     {
         /// <summary>
         /// The <see cref="HttpClient"/>
@@ -46,7 +48,7 @@ namespace COMET.Web.Common.WebAssembly.Services.NamingConventionService
         private readonly HttpClient httpClient;
 
         /// <summary>
-        /// Creates a new instance of type <see cref="NamingConfigurationService" />
+        /// Creates a new instance of type <see cref="NamingConventionService{TEnum}" />
         /// </summary>
         /// <param name="logger">the <see cref="ILogger{T}" /></param>
         /// <param name="httpClient">the <see cref="HttpClient" /></param>

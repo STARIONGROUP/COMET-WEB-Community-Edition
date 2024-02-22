@@ -54,7 +54,7 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         ///     Gets or sets the grid control that is being customized.
         /// </summary>
-        IGrid Grid { get; set; }
+        private IGrid Grid { get; set; }
 
         /// <summary>
         ///     Method invoked to highlight deprecated categories
@@ -71,14 +71,14 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         ///     Method invoked when creating a new category
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs"/></param>
         private void CustomizeEditCategory(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (Category)e.DataItem;
 
             if (dataItem == null)
             {
-                e.EditModel = new Category { };
+                e.EditModel = new Category();
             }
 
             this.ViewModel.Category = new Category();
@@ -127,12 +127,12 @@ namespace COMETwebapp.Components.ReferenceData
         /// that would cause an infinite render loop.
         /// </summary>
         /// <param name="firstRender">
-        /// Set to <c>true</c> if this is the first time <see cref="OnAfterRender(bool)"/> has been invoked
+        /// Set to <c>true</c> if this is the first time <see cref="ComponentBase.OnAfterRender(bool)"/> has been invoked
         /// on this component instance; otherwise <c>false</c>.
         /// </param>
         /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
         /// <remarks>
-        /// The <see cref="OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
+        /// The <see cref="ComponentBase.OnAfterRender(bool)"/> and <see cref="OnAfterRenderAsync(bool)"/> lifecycle methods
         /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
         /// Use the <paramref name="firstRender"/> parameter to ensure that initialization work is only performed
         /// once.

@@ -27,8 +27,6 @@ namespace COMET.Web.Common.Tests.Shared
 {
     using AngleSharp.Html.Dom;
 
-    using AngleSharpWrappers;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -308,10 +306,9 @@ namespace COMET.Web.Common.Tests.Shared
             navigationManager.NavigateTo("/AnUrl");
             var renderer = this.context.RenderComponent<TopMenu>();
             var topMenuTitle = renderer.FindComponent<TopMenuTitle>();
-            var link = (ElementWrapper)topMenuTitle.Find("a");
-            var htmlAnchor = (IHtmlAnchorElement)link.WrappedElement;
+            var link = (IHtmlAnchorElement)topMenuTitle.Find("a");
             Assert.That(navigationManager.Uri, Does.EndWith("AnUrl"));
-            navigationManager.NavigateTo(htmlAnchor.Href);
+            navigationManager.NavigateTo(link.Href);
             Assert.That(navigationManager.Uri, Does.Not.EndWith("AnUrl"));
         }
 

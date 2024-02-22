@@ -55,7 +55,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterSubscriptionRowViewModel" /> class.
         /// </summary>
-        /// <param name="subscription">The represented <see cref="subscription" /></param>
+        /// <param name="subscription">The represented <see cref="ParameterSubscription" /></param>
         /// <param name="option">The selected <see cref="Option" /></param>
         /// <param name="actualFiniteState">The <see cref="ActualFiniteState" /></param>
         public ParameterSubscriptionRowViewModel(ParameterSubscription subscription, Option option, ActualFiniteState actualFiniteState)

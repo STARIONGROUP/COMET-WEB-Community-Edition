@@ -50,7 +50,7 @@ namespace COMETwebapp.Model.Viewer.Primitives
         public override string Type { get; protected set; } = "Cone";
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cone" class/>
+        /// Initializes a new instance of <see cref="Cone"/> class
         /// </summary>
         /// <param name="radius">the radius of the base</param>
         /// <param name="height">the height of the cone</param>
@@ -61,7 +61,7 @@ namespace COMETwebapp.Model.Viewer.Primitives
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Cone" class/>
+        /// Initializes a new instance of <see cref="Cone" /> class
         /// </summary>
         /// <param name="x">position along the x axis</param>
         /// <param name="y">position along the y axis</param>

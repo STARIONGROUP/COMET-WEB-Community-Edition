@@ -42,7 +42,7 @@ namespace COMET.Web.Common.Components.Applications
     public abstract partial class ApplicationBase<TViewModel>
     {
         /// <summary>
-        /// The <see cref="TViewModel" />
+        /// The <typeparamref name="TViewModel" />
         /// </summary>
         [Inject]
         public TViewModel ViewModel { get; set; }
@@ -110,7 +110,7 @@ namespace COMET.Web.Common.Components.Applications
 
         /// <summary>
         /// Updates the url of the <see cref="Microsoft.AspNetCore.Components.NavigationManager" /> with the
-        /// <param name="additionalParameters"></param>
+        /// <paramref name="additionalParameters" />
         /// </summary>
         /// <param name="additionalParameters">A <see cref="Dictionary{TKey,TValue}" /> of additional parameters</param>
         /// <param name="pageName">The name of the ucrrent page</param>

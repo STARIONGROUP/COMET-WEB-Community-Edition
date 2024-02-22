@@ -25,8 +25,11 @@
 
 namespace COMET.Web.Common.Services.NamingConventionService
 {
+    using CDP4Common.SiteDirectoryData;
+
     /// <summary>
-    /// The <see cref="INamingConventionService"/> provides static information based on defined naming convention, like for names of <see cref="Category"/> to use for example
+    /// The <see cref="INamingConventionService{TEnum}" /> provides static information based on defined naming convention, like for names of
+    /// <see cref="Category" /> to use for example
     /// </summary>
     /// <typeparam name="TEnum">Any type of enumeration that will contain the different types of naming conventions</typeparam>
     public interface INamingConventionService<in TEnum> where TEnum : Enum
@@ -47,7 +50,7 @@ namespace COMET.Web.Common.Services.NamingConventionService
         /// <summary>
         /// Gets the value for naming convention
         /// </summary>
-        /// <param name="namingConventionKind">The <see cref="NamingConventionKind" /></param>
+        /// <param name="namingConventionKind">The <typeparamref name="TEnum" /></param>
         /// <returns>The defined naming convention, if exists</returns>
         string GetNamingConventionValue(TEnum namingConventionKind);
     }

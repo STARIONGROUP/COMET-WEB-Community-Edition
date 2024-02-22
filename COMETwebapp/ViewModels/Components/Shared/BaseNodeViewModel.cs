@@ -31,74 +31,27 @@ namespace COMETwebapp.ViewModels.Components.Shared
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel that handle information related to <see cref="BaseNodeViewModel{T}"/> inside a tree
+    /// ViewModel that handle information related to <see cref="BaseNodeViewModel{T}" /> inside a tree
     /// </summary>
     public abstract class BaseNodeViewModel<T> : DisposableObject, IBaseNodeViewModel where T : BaseNodeViewModel<T>
     {
         /// <summary>
-        /// Level of the tree. Increases by one for each nested element
-        /// </summary>
-        public int Level { get; set; }
-
-        /// <summary>
-        /// Gets or sets the title of this <see cref="BaseNodeViewModel{T}"/>
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Backing field for the <see cref="IsExpanded"/>
-        /// </summary>
-        private bool isExpanded = false;
-
-        /// <summary>
-        /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is expanded
-        /// </summary>
-        public bool IsExpanded
-        {
-            get => this.isExpanded;
-            set => this.RaiseAndSetIfChanged(ref this.isExpanded, value);
-        }
-
-        /// <summary>
-        /// Backing field for the <see cref="IsDrawn"/>
+        /// Backing field for the <see cref="IsDrawn" />
         /// </summary>
         private bool isDrawn = true;
 
         /// <summary>
-        /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is drawn
+        /// Backing field for the <see cref="IsExpanded" />
         /// </summary>
-        public bool IsDrawn
-        {
-            get => this.isDrawn;
-            set => this.RaiseAndSetIfChanged(ref this.isDrawn, value);
-        }
+        private bool isExpanded;
 
         /// <summary>
-        /// Backing field for the <see cref="IsSelected"/>
+        /// Backing field for the <see cref="IsSelected" />
         /// </summary>
         private bool isSelected;
 
         /// <summary>
-        /// Gets or sets if the <see cref="BaseNodeViewModel{T}"/> is selected
-        /// </summary>
-        public bool IsSelected
-        {
-            get => this.isSelected;
-            set => this.RaiseAndSetIfChanged(ref this.isSelected, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the parent of this <see cref="BaseNodeViewModel{T}"/>
-        /// </summary>
-        public T Parent { get; set; }
-
-        /// <summary>
-        /// Field for containing the children of this <see cref="BaseNodeViewModel{T}"/>
-        /// </summary>
-        protected List<T> Children { get; set; } = new();
-        
-        /// <summary>
-        /// Creates a new instance of type <see cref="BaseNodeViewModel{T}"/>
+        /// Creates a new instance of type <see cref="BaseNodeViewModel{T}" />
         /// </summary>
         /// <param name="title">the title of the node</param>
         protected BaseNodeViewModel(string title)
@@ -107,10 +60,57 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Adds a child to this <see cref="BaseNodeViewModel{T}"/>
+        /// Gets or sets the parent of this <see cref="BaseNodeViewModel{T}" />
+        /// </summary>
+        public T Parent { get; set; }
+
+        /// <summary>
+        /// Field for containing the children of this <see cref="BaseNodeViewModel{T}" />
+        /// </summary>
+        protected List<T> Children { get; set; } = [];
+
+        /// <summary>
+        /// Level of the tree. Increases by one for each nested element
+        /// </summary>
+        public int Level { get; set; }
+
+        /// <summary>
+        /// Gets or sets the title of this <see cref="BaseNodeViewModel{T}" />
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="BaseNodeViewModel{T}" /> is expanded
+        /// </summary>
+        public bool IsExpanded
+        {
+            get => this.isExpanded;
+            set => this.RaiseAndSetIfChanged(ref this.isExpanded, value);
+        }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="BaseNodeViewModel{T}" /> is drawn
+        /// </summary>
+        public bool IsDrawn
+        {
+            get => this.isDrawn;
+            set => this.RaiseAndSetIfChanged(ref this.isDrawn, value);
+        }
+
+        /// <summary>
+        /// Gets or sets if the <see cref="BaseNodeViewModel{T}" /> is selected
+        /// </summary>
+        public bool IsSelected
+        {
+            get => this.isSelected;
+            set => this.RaiseAndSetIfChanged(ref this.isSelected, value);
+        }
+
+        /// <summary>
+        /// Adds a child to this <see cref="BaseNodeViewModel{T}" />
         /// </summary>
         /// <param name="baseNodeViewModel">the child to add</param>
-        /// <returns>this <see cref="BaseNodeViewModel{T}"/></returns>
+        /// <returns>this <see cref="BaseNodeViewModel{T}" /></returns>
         public T AddChild(T baseNodeViewModel)
         {
             if (baseNodeViewModel is null)
@@ -125,10 +125,10 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Removes a child from this <see cref="BaseNodeViewModel{T}"/>
+        /// Removes a child from this <see cref="BaseNodeViewModel{T}" />
         /// </summary>
         /// <param name="baseNodeViewModel">the child to remove</param>
-        /// <returns>this <see cref="BaseNodeViewModel{T}"/></returns>
+        /// <returns>this <see cref="BaseNodeViewModel{T}" /></returns>
         public T RemoveChild(T baseNodeViewModel)
         {
             if (baseNodeViewModel is null)
@@ -143,9 +143,9 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets the <see cref="BaseNodeViewModel{T}"/> that is on top of the hierarchy
+        /// Gets the <see cref="BaseNodeViewModel{T}" /> that is on top of the hierarchy
         /// </summary>
-        /// <returns>the <see cref="BaseNodeViewModel{T}"/> or this baseNode if the RootViewModel can't be computed</returns>
+        /// <returns>the <see cref="BaseNodeViewModel{T}" /> or this baseNode if the RootViewModel can't be computed</returns>
         public T GetRootNode()
         {
             var currentParent = this.Parent;
@@ -170,7 +170,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         public List<T> GetFlatListOfDescendants(bool includeSelf = false)
         {
             var descendants = new List<T>();
-            this.GetListOfDescendantsRecursively((T)this, ref descendants);
+            GetListOfDescendantsRecursively((T)this, ref descendants);
 
             if (includeSelf && !descendants.Contains(this))
             {
@@ -178,24 +178,6 @@ namespace COMETwebapp.ViewModels.Components.Shared
             }
 
             return descendants;
-        }
-
-        /// <summary>
-        /// Helper method for <see cref="GetFlatListOfDescendants"/>
-        /// </summary>
-        /// <param name="current">the current evaluated <see cref="BaseNodeViewModel{T}"/></param>
-        /// <param name="descendants">the list of descendants till this moment</param>
-        private void GetListOfDescendantsRecursively(T current, ref List<T> descendants)
-        {
-            foreach (var child in current.GetChildren())
-            {
-                if (!descendants.Contains(child))
-                {
-                    descendants.Add(child);
-                }
-
-                this.GetListOfDescendantsRecursively(child, ref descendants);
-            }
         }
 
         /// <summary>
@@ -207,21 +189,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Helper method for <see cref="OrderAllDescendantsByShortName"/>
-        /// </summary>
-        /// <param name="current">the current evaluated <see cref="BaseNodeViewModel{T}"/></param>
-        private void OrderChildrenByShortNameHelper(T current)
-        {
-            current.Children = current.GetChildren().OrderBy(x => x.Title).ToList();
-
-            foreach (var child in current.GetChildren())
-            {
-                this.OrderChildrenByShortNameHelper(child);
-            }
-        }
-
-        /// <summary>
-        /// Gets the parent baseNode of this <see cref="BaseNodeViewModel{T}"/>
+        /// Gets the parent baseNode of this <see cref="BaseNodeViewModel{T}" />
         /// </summary>
         /// <returns>the parent baseNode</returns>
         public T GetParentNode()
@@ -230,14 +198,14 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets the children of this <see cref="BaseNodeViewModel{T}"/>
+        /// Gets the children of this <see cref="BaseNodeViewModel{T}" />
         /// </summary>
         /// <returns>the children of the baseNode</returns>
         public ICollection<T> GetChildren()
         {
             return this.Children.AsReadOnly();
         }
-        
+
         /// <summary>
         /// Gets if this method is the first child.
         /// </summary>
@@ -267,9 +235,10 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets the <see cref="BaseNodeViewModel{T}"/> that is on top of the hierarchy by the <see cref="numberOfLevels"/> specified
+        /// Gets the <see cref="BaseNodeViewModel{T}" /> that is on top of the hierarchy by the <paramref name="numberOfLevels" />
+        /// specified
         /// </summary>
-        /// <returns>the <see cref="BaseNodeViewModel{T}"/> or null if the ascendant can't be computed</returns>
+        /// <returns>the <see cref="BaseNodeViewModel{T}" /> or null if the ascendant can't be computed</returns>
         public T GetAscendant(int numberOfLevels)
         {
             if (numberOfLevels == 0)
@@ -295,7 +264,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets if the <param name="baseNodeViewModel"></param> is direct child of this one
+        /// Gets if the <paramref name="baseNodeViewModel" /> is direct child of this one
         /// </summary>
         /// <param name="baseNodeViewModel">the node to check</param>
         /// <returns>true if is a direct child, false otherwise</returns>
@@ -310,7 +279,9 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets if <param name="baseNodeViewModel"></param>is descendant of this one
+        /// Gets if
+        /// <param name="baseNodeViewModel"></param>
+        /// is descendant of this one
         /// </summary>
         /// <param name="baseNodeViewModel">the node to check</param>
         /// <returns>true if is a descendant, false otherwise</returns>
@@ -328,5 +299,37 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// Callback method for when a node is selected
         /// </summary>
         public abstract void RaiseTreeSelectionChanged();
+
+        /// <summary>
+        /// Helper method for <see cref="GetFlatListOfDescendants" />
+        /// </summary>
+        /// <param name="current">the current evaluated <see cref="BaseNodeViewModel{T}" /></param>
+        /// <param name="descendants">the list of descendants till this moment</param>
+        public static void GetListOfDescendantsRecursively(T current, ref List<T> descendants)
+        {
+            foreach (var child in current.GetChildren())
+            {
+                if (!descendants.Contains(child))
+                {
+                    descendants.Add(child);
+                }
+
+                GetListOfDescendantsRecursively(child, ref descendants);
+            }
+        }
+
+        /// <summary>
+        /// Helper method for <see cref="OrderAllDescendantsByShortName" />
+        /// </summary>
+        /// <param name="current">the current evaluated <see cref="BaseNodeViewModel{T}" /></param>
+        private void OrderChildrenByShortNameHelper(T current)
+        {
+            current.Children = current.GetChildren().OrderBy(x => x.Title).ToList();
+
+            foreach (var child in current.GetChildren())
+            {
+                this.OrderChildrenByShortNameHelper(child);
+            }
+        }
     }
 }

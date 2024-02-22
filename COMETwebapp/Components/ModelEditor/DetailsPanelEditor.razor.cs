@@ -23,7 +23,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.Components.ModelEditor
 {
-	using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
 	using Microsoft.AspNetCore.Components;
 
