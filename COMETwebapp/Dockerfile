@@ -19,7 +19,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Create a non-root user and give this user access to the working directory
-RUN chown -R $APP_UID /app
+RUN chown -R "$APP_UID" /app
 USER $APP_UID 
 
 ENTRYPOINT ["dotnet", "COMETwebapp.dll"]

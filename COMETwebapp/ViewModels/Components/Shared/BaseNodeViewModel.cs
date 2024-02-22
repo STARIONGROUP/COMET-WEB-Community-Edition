@@ -113,10 +113,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <returns>this <see cref="BaseNodeViewModel{T}" /></returns>
         public T AddChild(T baseNodeViewModel)
         {
-            if (baseNodeViewModel is null)
-            {
-                throw new ArgumentNullException(nameof(baseNodeViewModel));
-            }
+            ArgumentNullException.ThrowIfNull(baseNodeViewModel);
 
             baseNodeViewModel.Parent = (T)this;
             this.Children.Add(baseNodeViewModel);
@@ -131,10 +128,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// <returns>this <see cref="BaseNodeViewModel{T}" /></returns>
         public T RemoveChild(T baseNodeViewModel)
         {
-            if (baseNodeViewModel is null)
-            {
-                throw new ArgumentNullException(nameof(baseNodeViewModel));
-            }
+            ArgumentNullException.ThrowIfNull(baseNodeViewModel);
 
             baseNodeViewModel.Parent = null;
             this.Children.Remove(baseNodeViewModel);
@@ -279,9 +273,7 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
-        /// Gets if
-        /// <param name="baseNodeViewModel"></param>
-        /// is descendant of this one
+        /// Gets if <paramref name="baseNodeViewModel" /> is descendant of this one
         /// </summary>
         /// <param name="baseNodeViewModel">the node to check</param>
         /// <returns>true if is a descendant, false otherwise</returns>
