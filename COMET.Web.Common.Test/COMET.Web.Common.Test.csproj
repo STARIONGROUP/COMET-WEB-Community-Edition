@@ -5,6 +5,9 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Title>CDP4 WEB Common Test</Title>
+      <Version>2.0.0</Version>
+      <AssemblyVersion>2.0.0</AssemblyVersion>
+      <FileVersion>2.0.0</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
       <Company>RHEA System S.A.</Company>
       <Copyright>Copyright 2023 RHEA System S.A.</Copyright>
@@ -19,7 +22,7 @@
       <IncludeSymbols>true</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
       <PackageReleaseNotes>
-        [ADD] XML Documentation
+        [UPGRADE] Upgrade to Net8
       </PackageReleaseNotes>
   </PropertyGroup>
 
