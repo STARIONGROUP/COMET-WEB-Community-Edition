@@ -29,6 +29,9 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
+
+    using CDP4Dal;
 
     using COMET.Web.Common.Components.ParameterTypeEditors;
     using COMET.Web.Common.Test.Helpers;
@@ -49,6 +52,8 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         private IRenderedComponent<ParameterTypeEditorSelector> renderedComponent;
         private ParameterTypeEditorSelector editorSelector;
         private Mock<IParameterTypeEditorSelectorViewModel> viewModelMock;
+        private ParameterValueSet valueSet;
+        private Mock<ICDPMessageBus> messageBus;
 
         [SetUp]
         public void SetUp()
@@ -59,8 +64,15 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.viewModelMock = new Mock<IParameterTypeEditorSelectorViewModel>();
 
             this.renderedComponent = this.context.RenderComponent<ParameterTypeEditorSelector>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
-
             this.editorSelector = this.renderedComponent.Instance;
+         
+            this.valueSet = new ParameterValueSet()
+            {
+                Manual = new ValueArray<string>(["-"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            };
+
+            this.messageBus = new Mock<ICDPMessageBus>();
         }
 
         [TearDown]
@@ -88,9 +100,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
                 Iid = Guid.NewGuid()
             };
 
-            this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<BooleanParameterType>())
+                .Returns(new BooleanParameterTypeEditorViewModel(parameterType, this.valueSet, false));
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
+            this.renderedComponent.Render();
 
             var editor = this.renderedComponent.FindComponent<BooleanParameterTypeEditor>();
 
@@ -106,8 +120,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             };
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
+            
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<CompoundParameterType>())
+                .Returns(new CompoundParameterTypeEditorViewModel(parameterType, this.valueSet, false, this.messageBus.Object));
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent.Render();
 
             var editor = this.renderedComponent.FindComponent<CompoundParameterTypeEditor>();
 
@@ -124,7 +141,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<DateParameterType>())
+                .Returns(new DateParameterTypeEditorViewModel(parameterType, this.valueSet, false));
+
+            this.renderedComponent.Render();
 
             var editor = this.renderedComponent.FindComponent<DateParameterTypeEditor>();
 
@@ -141,8 +161,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<DateTimeParameterType>())
+                .Returns(new DateTimeParameterTypeEditorViewModel(parameterType, this.valueSet, false));
 
+            this.renderedComponent.Render();
             var editor = this.renderedComponent.FindComponent<DateTimeParameterTypeEditor>();
 
             Assert.That(editor, Is.Not.Null);
@@ -158,7 +180,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<EnumerationParameterType>())
+                .Returns(new EnumerationParameterTypeEditorViewModel(parameterType, this.valueSet, false));
+            
+            this.renderedComponent.Render();
 
             var editor = this.renderedComponent.FindComponent<EnumerationParameterTypeEditor>();
 
@@ -175,8 +200,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
-
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<QuantityKind>())
+                .Returns(new QuantityKindParameterTypeEditorViewModel(parameterType, this.valueSet, false));
+            
+            this.renderedComponent.Render();
             var editor = this.renderedComponent.FindComponent<QuantityKindParameterTypeEditor>();
 
             Assert.That(editor, Is.Not.Null);
@@ -192,7 +219,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<TextParameterType>())
+                .Returns(new TextParameterTypeEditorViewModel(parameterType, this.valueSet, false));
+            
+            this.renderedComponent.Render();
 
             var editor = this.renderedComponent.FindComponent<TextParameterTypeEditor>();
 
@@ -210,7 +240,10 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ParameterValueChanged).Returns(new EventCallback<(IValueSet, int)>());
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.viewModelMock.Setup(x => x.CreateParameterEditorViewModel<TimeOfDayParameterType>())
+                .Returns(new TimeOfDayParameterTypeEditorViewModel(parameterType, this.valueSet, false));
+            
+            this.renderedComponent.Render();
 
             var editor = this.renderedComponent.FindComponent<TimeOfDayParameterTypeEditor>();
 

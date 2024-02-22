@@ -169,8 +169,9 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             };
 
             this.viewModelMock.Setup(x => x.ParameterType).Returns(parameterType);
-
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            var orientationViewModel = new OrientationViewModel(this.viewModelMock.Object.ValueSet, EventCallback<(IValueSet, int)>.Empty);
+            this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>().Setup(x => x.CreateOrientationViewModel()).Returns(orientationViewModel);
+            this.renderedComponent.Render();
 
             var component = this.renderedComponent.FindComponent<OrientationComponent>();
             Assert.That(component, Is.Not.Null);

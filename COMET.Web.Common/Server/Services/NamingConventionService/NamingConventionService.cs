@@ -27,6 +27,8 @@ namespace COMET.Web.Common.Server.Services.NamingConventionService
 {
     using System.Text.Json;
 
+    using CDP4Common.SiteDirectoryData;
+
     using COMET.Web.Common.Services.NamingConventionService;
 
     using Microsoft.Extensions.Logging;
@@ -42,6 +44,10 @@ namespace COMET.Web.Common.Server.Services.NamingConventionService
         /// </summary>
         private readonly ILogger<INamingConventionService<TEnum>> logger;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="NamingConventionService{TEnum}" />
+        /// </summary>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public NamingConventionService(ILogger<INamingConventionService<TEnum>> logger) : base(logger)
         {
             this.logger = logger;
@@ -50,7 +56,7 @@ namespace COMET.Web.Common.Server.Services.NamingConventionService
         /// <summary>
         /// Gets the naming convention configuration
         /// </summary>
-        /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}"/> of the naming convention configuration</returns>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey,TValue}" /> of the naming convention configuration</returns>
         protected override async Task<IReadOnlyDictionary<string, string>> GetNamingConventionConfiguration()
         {
             try

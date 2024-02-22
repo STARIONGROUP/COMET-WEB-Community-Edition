@@ -30,6 +30,8 @@ using ReactiveUI;
 
 namespace COMETwebapp.Components.SystemRepresentation
 {
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
     /// Core component for the System Representation application
     /// </summary>

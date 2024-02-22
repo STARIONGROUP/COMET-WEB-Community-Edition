@@ -21,31 +21,36 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
-    using System.Linq;
-
     using Blazor.Diagrams.Core;
-    using Blazor.Diagrams.Core.Models;
     using Blazor.Diagrams.Core.Geometry;
+    using Blazor.Diagrams.Core.Models;
 
     using CDP4Common.SiteDirectoryData;
 
-    using ReactiveUI;
     using COMETwebapp.Components.ReferenceData;
 
+    using ReactiveUI;
+
     /// <summary>
-    ///     View model for the <see cref="CategoryHierarchyDiagram" /> component
+    /// View model for the <see cref="CategoryHierarchyDiagram" /> component
     /// </summary>
     public class CategoryHierarchyDiagramViewModel : ReactiveObject, ICategoryHierarchyDiagramViewModel
     {
         /// <summary>
-        ///     Backing field for <see cref="SelectedCategory" />
+        /// The svg path of arrow
+        /// </summary>
+        private const string SvgArrowPath = "M -0.093 17.86 V -18.5 L 29.233 -0.32 L -0.093 17.86 z M 1.407 -15.806 v 30.9715 L 26.3865 -0.32 L 1.407 -15.806 z";
+
+        /// <summary>
+        /// Backing field for <see cref="SelectedCategory" />
         /// </summary>
         private Category selectedCategory;
 
         /// <summary>
-        ///     The selected <see cref="Category"/>
+        /// The selected <see cref="Category" />
         /// </summary>
         public Category SelectedCategory
         {
@@ -69,11 +74,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public Diagram Diagram { get; set; }
 
         /// <summary>
-        /// The svg path of arrow
-        /// </summary>
-        const string svgArrowPath = "M -0.093 17.86 V -18.5 L 29.233 -0.32 L -0.093 17.86 z M 1.407 -15.806 v 30.9715 L 26.3865 -0.32 L 1.407 -15.806 z";
-
-        /// <summary>
         /// Create diagram nodes and links
         /// </summary>
         public void SetupDiagram()
@@ -81,31 +81,31 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             this.Diagram.Nodes.Clear();
             var position = new Point(50, 50);
             var node12 = new CategoryNode(this.SelectedCategory, position);
-            node12.AddPort(PortAlignment.Bottom);
+            node12.AddPort();
             node12.AddPort(PortAlignment.Top);
             node12.Title = this.SelectedCategory.Name;
-            Diagram.Nodes.Add(node12);
+            this.Diagram.Nodes.Add(node12);
             var numberOfNodes = this.Rows.Count();
+            const int distanceBetweenNodes = 200;
 
             foreach (var row in this.Rows)
             {
-                int distanceBetweenNodes = 200;
-                int currentIndex = this.Rows.ToList().IndexOf(row);
-                int xOffset = (currentIndex - (numberOfNodes - 1) / 2) * distanceBetweenNodes;
+                var currentIndex = this.Rows.ToList().IndexOf(row);
+                var xOffset = (currentIndex - (numberOfNodes - 1) / 2) * distanceBetweenNodes;
 
                 position = new Point(node12.Position.X - xOffset, -200);
 
                 var node = new CategoryNode(row, position);
                 node.Title = row.Name;
                 node.AddPort(PortAlignment.Top);
-                Diagram.Nodes.Add(node);
-                Diagram.Links.Add(new LinkModel(node12.GetPort(PortAlignment.Bottom), node.GetPort(PortAlignment.Top))
+                this.Diagram.Nodes.Add(node);
+
+                this.Diagram.Links.Add(new LinkModel(node12.GetPort(PortAlignment.Bottom), node.GetPort(PortAlignment.Top))
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
-                    TargetMarker = new LinkMarker(svgArrowPath, 30)
+                    TargetMarker = new LinkMarker(SvgArrowPath, 30)
                 });
-
             }
 
             var numberOfSubNodes = this.SubCategories.Count();
@@ -113,21 +113,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             // add subcategories
             foreach (var subCategory in this.SubCategories)
             {
-                int distanceBetweenNodes = 200; // You can adjust this value to control the spacing between nodes
-                int currentIndex = this.SubCategories.ToList().IndexOf(subCategory);
-                int xOffset = (currentIndex - (numberOfSubNodes - 1) / 2) * distanceBetweenNodes;
+                var currentIndex = this.SubCategories.ToList().IndexOf(subCategory);
+                var xOffset = (currentIndex - (numberOfSubNodes - 1) / 2) * distanceBetweenNodes;
 
                 var position2 = new Point(node12.Position.X + xOffset, 300);
 
                 var node2 = new CategoryNode(subCategory, position2);
                 node2.Title = subCategory.Name;
-                node2.AddPort(PortAlignment.Bottom);
-                Diagram.Nodes.Add(node2);
-                Diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Bottom), node12.GetPort(PortAlignment.Top))
+                node2.AddPort();
+                this.Diagram.Nodes.Add(node2);
+
+                this.Diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Bottom), node12.GetPort(PortAlignment.Top))
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
-                    TargetMarker = new LinkMarker(svgArrowPath, 60)
+                    TargetMarker = new LinkMarker(SvgArrowPath, 60)
                 });
             }
         }

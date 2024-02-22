@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
     using COMET.Web.Common.Components.ParameterTypeEditors;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
@@ -47,6 +48,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         private TestContext context;
         private DetailsComponent details;
         private IRenderedComponent<DetailsComponent> renderedComponent;
+        private Mock<IDetailsComponentViewModel> viewModel;
 
         [SetUp]
         public void SetUp()
@@ -54,14 +56,11 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            var viewModel = new Mock<IDetailsComponentViewModel>();
-            viewModel.Setup(x => x.ParameterType).Returns(new TextParameterType());
+            this.viewModel = new Mock<IDetailsComponentViewModel>();
+            this.viewModel.Setup(x => x.ParameterType).Returns(new TextParameterType());
 
-            this.renderedComponent = this.context.RenderComponent<DetailsComponent>(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, viewModel.Object);
-            });
-            
+            this.renderedComponent = this.context.RenderComponent<DetailsComponent>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
+
             this.details = this.renderedComponent.Instance;
         }
 
@@ -80,32 +79,29 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Assert.That(this.details.ViewModel, Is.Not.Null);
             });
         }
-        
+
         [Test]
         public void VerifyThatDetailsAreRendered()
         {
-            var viewModel = new Mock<IDetailsComponentViewModel>();
-
-            var parameter = new Parameter()
+            var parameter = new Parameter
             {
-                ParameterType = new EnumerationParameterType()
+                ParameterType = new EnumerationParameterType
                 {
                     ShortName = "EnumerationType",
                     ValueDefinition =
                     {
-                        new EnumerationValueDefinition(){Name = "True"},
-                        new EnumerationValueDefinition(){Name = "False"},
+                        new EnumerationValueDefinition { Name = "True" },
+                        new EnumerationValueDefinition { Name = "False" }
                     }
                 }
             };
 
-            viewModel.Setup(x => x.IsVisible).Returns(true);
-            viewModel.Setup(x => x.ParameterType).Returns(parameter.ParameterType);
-
-            this.renderedComponent.SetParametersAndRender(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, viewModel.Object);
-            });
+            this.viewModel.Setup(x => x.IsVisible).Returns(true);
+            this.viewModel.Setup(x => x.ParameterType).Returns(parameter.ParameterType);
+            var selector = new Mock<IParameterTypeEditorSelectorViewModel>();
+            selector.Setup(x => x.ParameterType).Returns(parameter.ParameterType);
+            this.viewModel.Setup(x => x.ParameterEditorSelector).Returns(selector.Object);
+            this.renderedComponent.Render();
 
             var result = this.renderedComponent.FindComponent<ParameterTypeEditorSelector>();
 

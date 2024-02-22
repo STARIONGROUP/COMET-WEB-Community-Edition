@@ -89,7 +89,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = new();
+        public List<ElementBase> Elements { get; set; } = [];
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -126,10 +126,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public object SelectedElementDefinition { get; set; }
 
         /// <summary>
-        /// set the selected <see cref="SystemNodeViewModel" />
+        /// set the selected <see cref="ElementDefinitionRowViewModel" /> 
         /// </summary>
-        /// <param name="args">The selected <see cref="SystemNodeViewModel" /></param>
-        /// <returns>A <see cref="Task" /></returns>
+        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
         public void SelectElement(GridRowClickEventArgs args)
         {
             var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
@@ -238,7 +237,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
-            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
+            if (this.AddedThings.Count == 0 && this.DeletedThings.Count ==0 && this.UpdatedThings.Count ==0)
             {
                 return;
             }
@@ -270,17 +269,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         private void InitializeElements()
         {
-            if (this.iteration != null)
+            if (this.iteration == null)
             {
-                this.iteration.Element.ForEach(e =>
-                {
-                    this.Elements.Add(e);
-                    this.Elements.AddRange(e.ContainedElement);
-                });
-
-                this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
-                this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
+                return;
             }
+
+            this.iteration.Element.ForEach(e =>
+            {
+                this.Elements.Add(e);
+                this.Elements.AddRange(e.ContainedElement);
+            });
+
+            this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
+            this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
         }
     }
 }

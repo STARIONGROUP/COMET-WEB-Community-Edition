@@ -62,7 +62,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         private string owner;
 
         /// <summary>
-        /// Backing field for <see cref="Switch" />
+        /// Backing field for <see cref="SwitchValue" />
         /// </summary>
         private string switchValue;
 

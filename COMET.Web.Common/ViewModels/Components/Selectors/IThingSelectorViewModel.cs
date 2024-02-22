@@ -32,7 +32,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
     /// <summary>
     /// View model that provide selection capabilities for a <typeparamref name="TThing"/>
     /// </summary>
-    /// <typeparam name="TThing">Any <see cref="TThing"/></typeparam>
+    /// <typeparam name="TThing">Any <see cref="Thing"/></typeparam>
     public interface IThingSelectorViewModel<TThing> where TThing: Thing
     {
         /// <summary>

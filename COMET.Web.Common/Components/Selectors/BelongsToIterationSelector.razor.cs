@@ -40,7 +40,7 @@ namespace COMET.Web.Common.Components.Selectors
     public abstract partial class BelongsToIterationSelector<TViewModel>
     {
         /// <summary>
-        /// The <see cref="TViewModel" />
+        /// The <typeparamref name="TViewModel" />
         /// </summary>
         [Parameter]
         public TViewModel ViewModel { get; set; }

@@ -27,8 +27,6 @@ namespace COMET.Web.Common.Tests.Shared
 {
     using AngleSharp.Html.Dom;
 
-    using AngleSharpWrappers;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
@@ -76,7 +74,7 @@ namespace COMET.Web.Common.Tests.Shared
         private SourceList<Iteration> sourceList;
         private List<Type> registeredMenuEntries;
         private List<Application> registeredApplications;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -104,7 +102,7 @@ namespace COMET.Web.Common.Tests.Shared
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.messageBus = new CDPMessageBus();
 
-            this.context.Services.AddSingleton(this.messageBus);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton<AuthenticationStateProvider>(this.stateProvider);
@@ -308,10 +306,9 @@ namespace COMET.Web.Common.Tests.Shared
             navigationManager.NavigateTo("/AnUrl");
             var renderer = this.context.RenderComponent<TopMenu>();
             var topMenuTitle = renderer.FindComponent<TopMenuTitle>();
-            var link = (ElementWrapper)topMenuTitle.Find("a");
-            var htmlAnchor = (IHtmlAnchorElement)link.WrappedElement;
+            var link = (IHtmlAnchorElement)topMenuTitle.Find("a");
             Assert.That(navigationManager.Uri, Does.EndWith("AnUrl"));
-            navigationManager.NavigateTo(htmlAnchor.Href);
+            navigationManager.NavigateTo(link.Href);
             Assert.That(navigationManager.Uri, Does.Not.EndWith("AnUrl"));
         }
 

@@ -27,8 +27,6 @@ namespace COMET.Web.Common.Tests.Components
 {
     using AngleSharp.Html.Dom;
 
-    using AngleSharpWrappers;
-
     using Bunit;
 
     using COMET.Web.Common.Components;
@@ -107,9 +105,8 @@ namespace COMET.Web.Common.Tests.Components
             var applicationCard = applicationCards[0];
             Assert.That(applicationCard.Instance.CurrentApplication, Is.EqualTo(this.applications[0]));
             var navigationManager = this.context.Services.GetService<NavigationManager>()!;
-            var elementWrapper = (ElementWrapper)applicationCard.Find("a");
-            var anchor = (IHtmlAnchorElement)elementWrapper.WrappedElement;
-            navigationManager.NavigateTo(anchor.Href);
+            var link = (IHtmlAnchorElement)applicationCard.Find("a");
+            navigationManager.NavigateTo(link.Href);
 
             Assert.That(navigationManager.Uri, Does.EndWith(this.applications[0].Url));
 

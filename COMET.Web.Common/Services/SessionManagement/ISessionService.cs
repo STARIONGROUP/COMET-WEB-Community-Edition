@@ -125,7 +125,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Write a new Thing in an <see cref="Iteration"/>
         /// </summary>
-        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingToCreate"></param> should be created</param>
+        /// <param name="container">the <see cref="Thing"/> container where the <paramref name="thingToCreate" /> should be created</param>
         /// <param name="thingToCreate">the thing to create in the session</param>
         /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
         Task<Result> CreateThing(Thing container, Thing thingToCreate);
@@ -133,7 +133,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Write new Things in an <see cref="Iteration"/>
         /// </summary>
-        /// <param name="container">the <see cref="Thing"/> container where the <param name="thingsToCreate"></param> should be created</param>
+        /// <param name="container">the <see cref="Thing"/> container where the <paramref name="thingsToCreate" /> should be created</param>
         /// <param name="thingsToCreate">the things to create in the session</param>
         /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
         Task<Result> CreateThings(Thing container, params Thing[] thingsToCreate);

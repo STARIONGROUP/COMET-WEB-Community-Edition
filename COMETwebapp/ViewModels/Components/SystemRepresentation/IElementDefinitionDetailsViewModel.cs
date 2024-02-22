@@ -25,7 +25,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
     using CDP4Common.EngineeringModelData;
     
-    using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     /// <summary>
@@ -34,7 +33,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     public interface IElementDefinitionDetailsViewModel
     {
         /// <summary>
-        ///     The selected <see cref="SystemNode"/>
+        ///     The selected <see cref="ElementBase"/>
         /// </summary>
         ElementBase SelectedSystemNode { get; set; }
 

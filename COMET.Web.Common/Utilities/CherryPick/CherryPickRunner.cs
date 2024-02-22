@@ -80,19 +80,19 @@ namespace COMET.Web.Common.Utilities.CherryPick
         }
 
         /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="needCherryPicked" /> for all the Engineering Models the user is participating on
+        /// Runs the cherrypick features based on data required from <see cref="INeedCherryPickedData" /> for all the Engineering Models the user is participating on
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task RunCherryPickAsync(CancellationToken cancellationToken = default)
+        public Task RunCherryPickAsync(CancellationToken cancellationToken = default)
         {
             var availableEngineeringModelSetups = this.sessionService.GetParticipantModels().ToList();
             var engineeringModelAndIterationIdTuple = availableEngineeringModelSetups.Select(x => (x.EngineeringModelIid, x.IterationSetup.Single(c => c.FrozenOn == null).IterationIid));
-            await this.RunCherryPickAsync(engineeringModelAndIterationIdTuple, cancellationToken);
+            return this.RunCherryPickAsync(engineeringModelAndIterationIdTuple, cancellationToken);
         }
 
         /// <summary>
-        /// Runs the cherrypick features based on data required from <see cref="CherryPickRunner.NeedCherryPicked" /> and a particular set of EngineeringModelId and IterationId.
+        /// Runs the cherrypick features based on data required from <see cref="INeedCherryPickedData" /> and a particular set of EngineeringModelId and IterationId.
         /// </summary>
         /// <param name="ids">A <see cref="Tuple{Guid,Guid}"/> to run the cherry pick for a particular set of engineeringModelIds and iterationIds</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel any tasks upon request. The default is <see cref="CancellationToken.None"/></param>
@@ -112,7 +112,7 @@ namespace COMET.Web.Common.Utilities.CherryPick
                 {
                     var result = (await this.sessionService.Session.CherryPick(pair.engineeringModelId, pair.iterationId, classKinds, categoryIds)).ToList();
                     
-                    foreach (var needCherryPickedData in this.needCherryPicked.Where(needCherryPickedData => result.Any()))
+                    foreach (var needCherryPickedData in this.needCherryPicked.Where(_ => result.Count != 0))
                     {
                         needCherryPickedData.ProcessCherryPickedData(result);
                     }

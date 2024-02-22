@@ -65,7 +65,7 @@ namespace COMET.Web.Common.Extensions
         public static string ToShortGuid(this Guid guid)
         {
             var enc = Convert.ToBase64String(guid.ToByteArray());
-            return enc.Replace("/", "_").Replace("+", "-").Substring(0, 22);
+            return enc.Replace("/", "_").Replace("+", "-")[..22];
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace COMET.Web.Common.Extensions
         /// </returns>
         /// <remarks>
         /// A ShortGuid is a base64 encoded guid-string representation where any "/" has been replaced with a "_"
-        /// and any "+" has been replaced with a "-" (to make the string representation <see cref=".Uri" /> friendly)
+        /// and any "+" has been replaced with a "-" (to make the string representation <see cref="Uri" /> friendly)
         /// A ShortGuid Array is a string that starts with "[", ends with "]" and contains a number of ShortGuid separated by a ";"
         /// </remarks>
         /// <exception cref="ArgumentException">
@@ -142,15 +142,7 @@ namespace COMET.Web.Common.Extensions
         /// </exception>
         public static IEnumerable<Guid> FromShortGuidArray(this string shortGuids)
         {
-            if (!shortGuids.StartsWith("["))
-            {
-                throw new ArgumentException("Invalid ShortGuid Array, must start with [", nameof(shortGuids));
-            }
-
-            if (!shortGuids.EndsWith("]"))
-            {
-                throw new ArgumentException("Invalid ShortGuid Array, must end with ]", nameof(shortGuids));
-            }
+            ValidateShortGuidArray(shortGuids);
 
             var listOfShortGuids = shortGuids.TrimStart('[').TrimEnd(']').Split(';');
 
@@ -179,6 +171,25 @@ namespace COMET.Web.Common.Extensions
             var shortGuids = guids.Select(guid => guid.ToShortGuid()).ToList();
 
             return "[" + string.Join(";", shortGuids) + "]";
+        }
+
+        /// <summary>
+        /// Verifies that the provided <paramref name="shortGuidArray" /> is a Valid one. A valid short guid array
+        /// should starts with a '[' and ends with ']'
+        /// </summary>
+        /// <param name="shortGuidArray">The array of short guid to verify</param>
+        /// <exception cref="ArgumentException">If the provided short guid array does not start with a '[' or not end with ']'</exception>
+        private static void ValidateShortGuidArray(string shortGuidArray)
+        {
+            if (!shortGuidArray.StartsWith('['))
+            {
+                throw new ArgumentException("Invalid ShortGuid Array, must start with [", nameof(shortGuidArray));
+            }
+
+            if (!shortGuidArray.EndsWith(']'))
+            {
+                throw new ArgumentException("Invalid ShortGuid Array, must end with ]", nameof(shortGuidArray));
+            }
         }
     }
 }

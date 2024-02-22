@@ -29,11 +29,13 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 	using CDP4Common.SiteDirectoryData;
 
 	using COMET.Web.Common.Services.SessionManagement;
-	
-	using Microsoft.AspNetCore.Components;
+
+    using COMETwebapp.Components.ModelEditor;
+
+    using Microsoft.AspNetCore.Components;
 
 	/// <summary>
-	///     View model for the <see cref="ParticipantCreation" /> component
+	///     View model for the <see cref="ElementDefinitionCreation" /> component
 	/// </summary>
 	public class ElementDefinitionCreationViewModel : IElementDefinitionCreationViewModel
 	{
@@ -43,7 +45,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 		private readonly ISessionService sessionService;
 
 		/// <summary>
-		///     Initializes a new instance of the <see cref="ParticipantCreationViewModel" /> class.
+		///     Initializes a new instance of the <see cref="ElementDefinitionCreationViewModel" /> class.
 		/// </summary>
 		/// <param name="sessionService">the <see cref="ISessionService" /></param>
 		public ElementDefinitionCreationViewModel(ISessionService sessionService)

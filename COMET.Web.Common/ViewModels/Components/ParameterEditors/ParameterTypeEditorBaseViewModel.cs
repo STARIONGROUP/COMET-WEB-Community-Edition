@@ -117,7 +117,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Gets or sets the value set of this <see cref="T" />
+        /// Gets or sets the value set of this <typeparamref name="T" />
         /// </summary>
         public IValueSet ValueSet { get; protected set; }
 
@@ -153,10 +153,17 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// Updates this view model properties
         /// </summary>
         /// <param name="readOnly">The readonly state</param>
-        public void UpdateProperties( bool readOnly)
+        public void UpdateProperties(bool readOnly)
         {
             this.InitializesProperties(readOnly);
         }
+
+        /// <summary>
+        /// Event for when a parameter's value has changed
+        /// </summary>
+        /// <param name="value">The new value</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public abstract Task OnParameterValueChanged(object value);
 
         /// <summary>
         /// Verifies if the changing value is valid
@@ -177,24 +184,17 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Event for when a parameter's value has changed
-        /// </summary>
-        /// <param name="value">The new value</param>
-        /// <returns>A <see cref="Task" /></returns>
-        public abstract Task OnParameterValueChanged(object value);
-
-        /// <summary>
         /// Updates the <see cref="ParameterValueSetBase" /> with the new
-        /// <param name="newValueArray"></param>
+        /// <paramref name="newValueArray" />
         /// </summary>
         /// <param name="valueSet">The <see cref="ParameterValueSetBase" /></param>
-        /// <param name="newValueArray"></param>
+        /// <param name="newValueArray">The new value for the <see cref="ValueArray" /></param>
         /// <returns>A <see cref="Task" /></returns>
         /// <exception cref="InvalidOperationException">
         /// If the current <see cref="ParameterSwitchKind" /> is
         /// <see cref="ParameterSwitchKind.COMPUTED" />
         /// </exception>
-        protected async Task UpdateValueSet(ParameterValueSetBase valueSet, ValueArray<string> newValueArray)
+        protected Task UpdateValueSet(ParameterValueSetBase valueSet, ValueArray<string> newValueArray)
         {
             this.ValueArray = newValueArray;
             var clone = valueSet.Clone(true);
@@ -207,11 +207,12 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
                 case ParameterSwitchKind.REFERENCE:
                     clone.Reference = newValueArray;
                     break;
+                case ParameterSwitchKind.COMPUTED:
                 default:
                     throw new InvalidOperationException($"The value of the {nameof(this.ValueSet)} can't be manually changed with the switch on {ParameterSwitchKind.COMPUTED}");
             }
 
-            await this.ParameterValueChanged.InvokeAsync((clone, this.ValueArrayIndex));
+            return this.ParameterValueChanged.InvokeAsync((clone, this.ValueArrayIndex));
         }
 
         /// <summary>

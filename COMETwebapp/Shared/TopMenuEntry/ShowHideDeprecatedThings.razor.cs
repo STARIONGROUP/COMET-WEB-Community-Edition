@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.Shared.TopMenuEntry
 {
-    using CDP4Dal;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 

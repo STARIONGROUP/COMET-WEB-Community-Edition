@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// View Model for the <see cref="COMETwebapp.Components.Viewer.Canvas.CanvasComponent"/>
+    /// View Model for the Canvas Element
     /// </summary>
     public interface ICanvasViewModel
     {
@@ -134,9 +134,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         IReadOnlyList<SceneObject> GetAllTemporarySceneObjects();
 
         /// <summary>
-        /// Handles the mouse up in the <see cref="COMETwebapp.Components.Viewer.Canvas.CanvasComponent"/>
+        /// Handles the mouse up in the Canvas
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/></returns>
         Task HandleMouseUp();
     }
 }
