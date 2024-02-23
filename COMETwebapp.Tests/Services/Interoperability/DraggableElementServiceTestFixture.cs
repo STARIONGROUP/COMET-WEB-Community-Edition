@@ -42,7 +42,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
     {
         private TestContext context;
         private Mock<IJSRuntime> jsRuntimeMock;
-        private IDraggableElementService draggableElementService;
+        private DraggableElementService draggableElementService;
 
         [SetUp]
         public void SetUp()

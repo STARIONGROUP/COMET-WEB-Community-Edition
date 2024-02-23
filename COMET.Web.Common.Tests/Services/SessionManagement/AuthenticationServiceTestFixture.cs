@@ -46,7 +46,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private CometWebAuthStateProvider cometWebAuthStateProvider;
         private AuthenticationDto authenticationDto;
         private Person person;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

@@ -47,7 +47,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
     public class SessionServiceTestFixture
     {
         private Mock<ISession> session;
-        private ISessionService sessionService;
+        private SessionService sessionService;
         private Participant participant;
         private Person person;
         private DomainOfExpertise domain;
@@ -58,7 +58,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private ModelReferenceDataLibrary referenceDataLibrary;
         private EngineeringModelSetup engineeringSetup;
         private SiteDirectory siteDirectory;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

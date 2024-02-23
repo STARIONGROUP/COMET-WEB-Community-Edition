@@ -39,7 +39,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
     [TestFixture]
     public class CanvasViewModelTestFixture
     {
-        private ICanvasViewModel viewModel;
+        private CanvasViewModel viewModel;
 
         private Mock<IBabylonInterop> babylonInterop;
         private Mock<ISelectionMediator> selectionMediator;

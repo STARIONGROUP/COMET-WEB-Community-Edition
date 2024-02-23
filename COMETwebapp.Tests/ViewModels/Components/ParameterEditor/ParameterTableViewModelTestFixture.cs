@@ -49,7 +49,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private DomainOfExpertise domain;
         private Iteration iteration;
         private Option option;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

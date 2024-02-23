@@ -57,7 +57,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         private PropertiesComponent properties;
         private IRenderedComponent<PropertiesComponent> renderedComponent;
         private PropertiesComponentViewModel viewModel;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

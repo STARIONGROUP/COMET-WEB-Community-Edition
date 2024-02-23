@@ -42,11 +42,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
     [TestFixture]
     public class DetailsComponentViewModelTestFixture
     {
-        private IDetailsComponentViewModel viewModel;
+        private DetailsComponentViewModel viewModel;
         private EventCallback<(IValueSet, int)> eventCallback;
         private ParameterType parameterType;
         private ParameterValueSet valueSet;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

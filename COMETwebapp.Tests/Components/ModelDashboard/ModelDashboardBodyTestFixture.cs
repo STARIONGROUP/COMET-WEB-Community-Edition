@@ -69,7 +69,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         private ModelDashboardBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private ICDPMessageBus messageBus;
-
+            
         [SetUp]
         public void Setup()
         {

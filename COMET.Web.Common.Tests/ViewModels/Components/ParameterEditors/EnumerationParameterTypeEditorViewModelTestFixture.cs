@@ -43,7 +43,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     [TestFixture]
     public class EnumerationParameterTypeEditorViewModelTestFixture
     {
-        private IEnumerationParameterTypeEditorViewModel viewModel;
+        private EnumerationParameterTypeEditorViewModel viewModel;
         private EnumerationParameterType parameterType;
 
         [SetUp]

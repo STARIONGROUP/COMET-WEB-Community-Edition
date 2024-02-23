@@ -53,7 +53,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
         private SubscriptionService subscriptionService;
         private Mock<ISessionService> sessionService;
         private SourceList<Iteration> openIterations;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

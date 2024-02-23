@@ -86,7 +86,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private CompoundParameterType sourceParameterType2;
         private Category elementDefinitionCategory1;
         private Category elementDefinitionCategory2;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

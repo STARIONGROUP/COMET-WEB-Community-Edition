@@ -41,7 +41,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     [TestFixture]
     public class OrientationViewModelTestFixture
     {
-        private IOrientationViewModel viewModel;
+        private OrientationViewModel viewModel;
         private EventCallback<(IValueSet,int)> onParameterValueSetChanged;
 
         [SetUp]

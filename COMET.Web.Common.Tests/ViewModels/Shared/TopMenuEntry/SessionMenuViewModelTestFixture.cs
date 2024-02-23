@@ -43,7 +43,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
         private Mock<INotificationService> notificationService;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

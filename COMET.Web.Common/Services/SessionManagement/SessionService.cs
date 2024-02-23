@@ -154,7 +154,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             }
             catch (Exception exception)
             {
-                this.logger.LogError($"During read operation an error has occured: {exception.Message}", exception);
+                this.logger.LogError(exception, "During read operation an error has occured");
                 result.Errors.Add(new Error($"During read operation an error has occured: {exception.Message}"));
                 throw;
             }
@@ -230,7 +230,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.logger.LogInformation($"Session refreshed in {sw.ElapsedMilliseconds} [ms]");
+            this.logger.LogInformation("Session refreshed in {ElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
         }
 
         /// <summary>
@@ -462,12 +462,12 @@ namespace COMET.Web.Common.Services.SessionManagement
             try
             {
                 await this.Session.Write(operationContainer);
-                this.logger.LogInformation($"Delete done in {sw.ElapsedMilliseconds} [ms]");
+                this.logger.LogInformation("Delete done in {ElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
                 result.Successes.Add(new Success($"Delete done in {sw.ElapsedMilliseconds} [ms]"));
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"The delete operation failed: {ex.Message}", ex);
+                this.logger.LogError(ex, $"The delete operation failed");
                 result.Errors.Add(new Error($"The delete operation failed: {ex.Message}"));
             }
             finally

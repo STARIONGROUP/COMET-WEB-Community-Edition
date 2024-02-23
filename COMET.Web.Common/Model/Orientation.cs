@@ -177,10 +177,7 @@ namespace COMET.Web.Common.Model
         {
             double rx, ry, rz;
 
-            if (matrix == null)
-            {
-                throw new ArgumentNullException(nameof(matrix));
-            }
+            ArgumentNullException.ThrowIfNull(matrix);
 
             if (matrix.Length != 9)
             {

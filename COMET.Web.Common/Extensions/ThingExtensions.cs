@@ -64,10 +64,7 @@ namespace COMET.Web.Common.Extensions
         /// <returns>A collection of <see cref="ElementDefinition" /></returns>
         public static IEnumerable<ElementDefinition> QueryUsedElementDefinitions(this Iteration iteration)
         {
-            if (iteration is null)
-            {
-                throw new ArgumentNullException(nameof(iteration));
-            }
+            ArgumentNullException.ThrowIfNull(iteration);
 
             var elementBase = iteration.QueryNestedElements();
             var elementDefinitions = new List<ElementDefinition>();
@@ -336,10 +333,7 @@ namespace COMET.Web.Common.Extensions
         /// <exception cref="ArgumentNullException">if the iteration is null</exception>
         public static IEnumerable<ElementBase> QueryElementsBase(this Iteration iteration)
         {
-            if (iteration is null)
-            {
-                throw new ArgumentNullException(nameof(iteration));
-            }
+            ArgumentNullException.ThrowIfNull(iteration);
 
             var elements = new List<ElementBase>();
 

@@ -38,7 +38,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     public class SampledFunctionParameterTypeEditorViewModelTestFixture
     {
         private SampledFunctionParameterTypeEditorViewModel viewModel;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

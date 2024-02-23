@@ -39,7 +39,7 @@ namespace COMETwebapp.Tests.Comparer
     [TestFixture]
     public class ParameterBaseRowViewModelComparerTestFixture
     {
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

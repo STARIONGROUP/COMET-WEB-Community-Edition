@@ -78,7 +78,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
         private Iteration iteration;
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

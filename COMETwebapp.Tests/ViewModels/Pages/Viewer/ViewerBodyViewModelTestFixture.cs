@@ -43,8 +43,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     [TestFixture]
     public class ViewerBodyViewModelTestFixture
     {
-        private IViewerBodyViewModel viewModel;
-        private ICDPMessageBus messageBus;
+        private ViewerBodyViewModel viewModel;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

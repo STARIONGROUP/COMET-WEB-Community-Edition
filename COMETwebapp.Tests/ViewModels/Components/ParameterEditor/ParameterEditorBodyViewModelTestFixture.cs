@@ -53,11 +53,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     [TestFixture]
     public class ParameterEditorBodyViewModelTestFixture
     {
-        private IParameterEditorBodyViewModel viewModel;
+        private ParameterEditorBodyViewModel viewModel;
         private Mock<IParameterTableViewModel> tableViewModel;
         private Iteration iteration;
         private Mock<ISession> session;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

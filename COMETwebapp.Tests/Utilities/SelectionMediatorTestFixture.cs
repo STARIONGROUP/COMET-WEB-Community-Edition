@@ -33,7 +33,7 @@ namespace COMETwebapp.Tests.Utilities
     [TestFixture]
     public class SelectionMediatorTestFixture
     {
-        private ISelectionMediator selectionMediator;
+        private SelectionMediator selectionMediator;
 
         [SetUp]
         public void SetUp()

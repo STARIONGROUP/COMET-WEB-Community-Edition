@@ -43,7 +43,7 @@ namespace COMET.Web.Common.Tests.Utilities
     public class CompoundComponentSelectedEventTestFixture
     {
         private ICompoundParameterTypeEditorViewModel viewModel;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

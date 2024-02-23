@@ -58,7 +58,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         private Mock<ISubscriptionService> subscriptionService;
         private Mock<ISessionService> sessionService;
         private ISubscribedTableViewModel subscribedTableViewModel;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

@@ -41,9 +41,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
     {
-        private IBookEditorBodyViewModel viewModel;
+        private BookEditorBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

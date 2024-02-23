@@ -43,9 +43,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     [TestFixture]
     public class CompoundParameterTypeEditorViewModelTestFixture
     {
-        private ICompoundParameterTypeEditorViewModel viewModel;
+        private CompoundParameterTypeEditorViewModel viewModel;
         private CompoundParameterType parameterType;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

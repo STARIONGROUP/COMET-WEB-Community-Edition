@@ -73,7 +73,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private SiteReferenceDataLibrary siteReferenceDataLibrary;
         private SimpleQuantityKind sourceParameterType1;
         private CompoundParameterType sourceParameterType2;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

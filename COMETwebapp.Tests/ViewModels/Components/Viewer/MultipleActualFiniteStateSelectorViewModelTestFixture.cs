@@ -43,7 +43,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
     {
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private readonly Uri uri = new("http://www.rheagroup.com");
-        private IMultipleActualFiniteStateSelectorViewModel viewModel;
+        private MultipleActualFiniteStateSelectorViewModel viewModel;
 
         [SetUp]
         public void SetUp()

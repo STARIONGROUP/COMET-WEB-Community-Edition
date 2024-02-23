@@ -44,7 +44,7 @@ namespace COMET.Web.Common.Tests.Extensions
     {
         private Mock<ISession> session;
         private ISessionService sessionService;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()

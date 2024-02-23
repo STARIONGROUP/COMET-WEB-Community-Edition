@@ -44,12 +44,12 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     public class ElementDefinitionTestFixture
     {
         private TestContext context;
-        private IElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel;
+        private ElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel;
         private Assembler assembler;
         private readonly Uri uri = new ("http://test.com");
         private DomainOfExpertise domain;
         private Iteration iteration;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

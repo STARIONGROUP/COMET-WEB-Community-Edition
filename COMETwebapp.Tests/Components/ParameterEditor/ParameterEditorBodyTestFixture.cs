@@ -65,7 +65,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         private TestContext context;
         private IRenderedComponent<ParameterEditorBody> renderedComponent;
         private ParameterEditorBody editor;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

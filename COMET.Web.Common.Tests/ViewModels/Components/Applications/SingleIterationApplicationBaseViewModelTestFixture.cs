@@ -44,7 +44,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
     {
         private SingleIterationApplicationViewModel viewModel;
         private Mock<ISessionService> sessionService;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         private class SingleIterationApplicationViewModel : SingleIterationApplicationBaseViewModel
         {

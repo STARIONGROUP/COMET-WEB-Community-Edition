@@ -48,7 +48,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         private Mock<IBabylonInterop> babylonInterop;
         private Mock<ISessionService> sessionService;
         private Mock<ISelectionMediator> selectionMediator;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()

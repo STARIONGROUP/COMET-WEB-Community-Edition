@@ -47,7 +47,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 		private DomainOfExpertise domain;
 		private Mock<ISessionService> sessionService;
         private Iteration iteration;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
