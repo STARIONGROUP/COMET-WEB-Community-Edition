@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <Version>2.0.0</Version>
+        <Version>2.0.1</Version>
         <Title>CDP4-CDP4-COMET WEB Community Edition</Title>
         <Description>A Blazor web application that implements ECSS-E-TM-10-25</Description>
         <Company>RHEA System S.A.</Company>
@@ -16,7 +16,7 @@
         <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReleaseNotes>
-         [UPGRADE] Upgrade to Net8
+         [Update] Copyright statement
         </PackageReleaseNotes>
     </PropertyGroup>
 
