@@ -4,8 +4,8 @@
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
 // 
-//    This file is part of COMET WEB Community Edition
-//    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
 //    Annex A and Annex C.
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
