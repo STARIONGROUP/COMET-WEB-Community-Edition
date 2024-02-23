@@ -42,15 +42,9 @@ namespace COMETwebapp.Extensions
         /// <returns>the collection with the changes</returns> 
         public static Dictionary<ParameterBase, IValueSet> GetChangesOnParameters(this Dictionary<ParameterBase, IValueSet> relation1, Dictionary<ParameterBase, IValueSet> relation2)
         {
-            if(relation1 == null)
-            {
-                throw new ArgumentNullException(nameof(relation1));
-            }
+            ArgumentNullException.ThrowIfNull(relation1);
 
-            if(relation2 == null)
-            {
-                throw new ArgumentNullException(nameof(relation2));
-            }
+            ArgumentNullException.ThrowIfNull(relation2);
 
             var changes = new Dictionary<ParameterBase, IValueSet>();
 

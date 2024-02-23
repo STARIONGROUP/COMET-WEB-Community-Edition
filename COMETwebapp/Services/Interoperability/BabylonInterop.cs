@@ -62,10 +62,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>an asynchronous task</returns>
         public async Task AddSceneObject(SceneObject sceneObject)
         {
-            if (sceneObject is null)
-            {
-                throw  new ArgumentNullException(nameof(sceneObject));
-            }
+            ArgumentNullException.ThrowIfNull(sceneObject);
 
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             await this.JsRuntime.InvokeVoidAsync("AddSceneObject", sceneObjectJson);
@@ -78,10 +75,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>an asynchronous task</returns>
         public async Task ClearSceneObject(SceneObject sceneObject)
         {
-            if (sceneObject is null)
-            {
-                throw new ArgumentNullException(nameof(sceneObject));
-            }
+            ArgumentNullException.ThrowIfNull(sceneObject);
 
             await this.ClearSceneObjects(new List<SceneObject>() { sceneObject });
         }
@@ -93,10 +87,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>an asynchronous task</returns>
         public async Task ClearSceneObjects(IEnumerable<SceneObject> sceneObjects)
         {
-            if (sceneObjects is null)
-            {
-                throw new ArgumentNullException(nameof(sceneObjects));
-            }
+            ArgumentNullException.ThrowIfNull(sceneObjects);
 
             var ids = sceneObjects.Select(x => x.ID).ToList();
             await this.JsRuntime.InvokeVoidAsync("DisposeAll", ids.ToArray());
@@ -110,10 +101,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>an asynchronous task</returns>
         public async Task SetVisibility(SceneObject sceneObject, bool visibility)
         {
-            if (sceneObject is null)
-            {
-                throw new ArgumentNullException(nameof(sceneObject));
-            }
+            ArgumentNullException.ThrowIfNull(sceneObject);
 
             await this.JsRuntime.InvokeVoidAsync("SetMeshVisibility", sceneObject.ID, visibility);
         }
