@@ -50,7 +50,7 @@ namespace COMETwebapp
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
-            builder.Services.RegisterCommonLibrary(true, options =>
+            builder.Services.RegisterCdp4CometCommonServices(true, options =>
             {
                 options.Applications = Applications.ExistingApplications;
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
@@ -66,7 +66,7 @@ namespace COMETwebapp
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
 
-            await app.Services.InitializeServices();
+            await app.Services.InitializeCdp4CometCommonServices();
             await app.RunAsync();
         }
     }

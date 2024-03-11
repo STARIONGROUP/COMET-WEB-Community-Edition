@@ -47,7 +47,7 @@ namespace COMET.Web.Common.Tests.Extensions
             var configuration = new Mock<IConfiguration>();
             serviceCollection.AddSingleton(configuration.Object);
             serviceCollection.AddLogging();
-            serviceCollection.RegisterCommonLibrary(globalOptions: _ => { });
+            serviceCollection.RegisterCdp4CometCommonServices(globalOptions: _ => { });
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             foreach (var service in serviceCollection.Where(x => x.ServiceType.Assembly == Assembly.GetAssembly(typeof(ISessionService))))
@@ -62,7 +62,7 @@ namespace COMET.Web.Common.Tests.Extensions
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddScoped(_ => new HttpClient());
             serviceCollection.AddLogging();
-            serviceCollection.RegisterCommonLibrary(false,globalOptions: _ => { });
+            serviceCollection.RegisterCdp4CometCommonServices(false,globalOptions: _ => { });
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             foreach (var service in serviceCollection.Where(x => x.ServiceType.Assembly == Assembly.GetAssembly(typeof(ISessionService))))
