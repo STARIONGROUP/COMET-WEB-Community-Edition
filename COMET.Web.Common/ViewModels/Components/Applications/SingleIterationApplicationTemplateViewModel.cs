@@ -81,6 +81,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
             if (this.SessionService.OpenIterations.Count is 0 or 1)
             {
                 this.SelectedThing = this.SessionService.OpenIterations.Items.FirstOrDefault();
+                this.SelectedIterationData = this.SelectedThing == null ? null : new IterationData(this.SelectedThing.IterationSetup, true);
             }
         }
     }
