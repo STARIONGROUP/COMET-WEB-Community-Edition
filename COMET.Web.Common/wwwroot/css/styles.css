@@ -332,7 +332,7 @@
 }
 
 .tooltip-wrapper {
-    position: absolute;
+    position: relative;
     display: inline-block;
     cursor: help;
 }

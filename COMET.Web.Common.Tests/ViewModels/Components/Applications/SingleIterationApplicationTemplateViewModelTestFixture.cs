@@ -65,7 +65,15 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
         [Test]
         public void VerifyOnOpenIterationCountChanged()
         {
-            this.openIterations.Add(new Iteration());
+            var iterationToAdd = new Iteration()
+            {
+                IterationSetup = new IterationSetup(Guid.NewGuid(), null, null)
+                {
+                    Container = new EngineeringModelSetup(Guid.NewGuid(), null, null)
+                }
+            };
+
+            this.openIterations.Add(iterationToAdd);
             Assert.That(this.viewModel.SelectedThing, Is.Not.Null);
             this.viewModel.SelectedThing = null;
             this.openIterations.Add(new Iteration());
