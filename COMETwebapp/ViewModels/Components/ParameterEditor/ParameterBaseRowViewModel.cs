@@ -92,6 +92,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             if (this.ValueSet is ParameterValueSetBase valueSetBase)
             {
                 this.PublishedValue = valueSetBase.Published.First();
+                this.IsPublishable = !valueSetBase.Published.First().SequenceEqual(valueSetBase.ActualValue.First());
+                Console.WriteLine($"{valueSetBase.Published.First()} = {valueSetBase.ActualValue.First()} => {valueSetBase.Published.First() == valueSetBase.ActualValue.First()}");
 
                 if (this.Parameter.Scale != null)
                 {
@@ -122,6 +124,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets the published value
         /// </summary>
         public string PublishedValue { get; private set; }
+
+        /// <summary>
+        /// Gets the condition to verify if the <see cref="Parameter"/> value if publishable
+        /// </summary>
+        public bool IsPublishable { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />

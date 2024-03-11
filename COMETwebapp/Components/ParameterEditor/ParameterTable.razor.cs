@@ -89,5 +89,24 @@ namespace COMETwebapp.Components.ParameterEditor
 
             this.closeEditor = new EventCallbackFactory().Create(this, () => { this.ViewModel.IsOnEditMode = false; });
         }
+
+        /// <summary>
+        /// Customizes the table rows
+        /// </summary>
+        /// <param name="e">The <see cref="GridCustomizeElementEventArgs"/></param>
+        private void OnCustomizeElement(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType != GridElementType.DataRow)
+            {
+                return;
+            }
+
+            var isPublishable = (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.IsPublishable));
+
+            if (isPublishable)
+            {
+                e.CssClass = "font-weight-bold";
+            }
+        }
     }
 }
