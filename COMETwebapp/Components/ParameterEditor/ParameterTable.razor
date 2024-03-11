@@ -63,7 +63,7 @@
 }
 
 <div class="container-fluid table-container">
-    <DxGrid @ref="Grid"
+    <DxGrid @ref="this.Grid"
             CssClass="default-grid"
             ShowAllRows="true"
             Data="@this.sortedCollection"
@@ -72,7 +72,8 @@
             ShowFilterRow="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
             VerticalScrollBarMode="ScrollBarMode.Visible"
-            HorizontalScrollBarMode="ScrollBarMode.Visible">
+            HorizontalScrollBarMode="ScrollBarMode.Visible"
+            CustomizeElement="this.OnCustomizeElement">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
@@ -98,6 +99,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.IsPublishable)" Caption="@("Is Publishable")" AllowGroup="false" AllowSort="false" Visible="false"/>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
             <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
                 <HeaderTemplate>
