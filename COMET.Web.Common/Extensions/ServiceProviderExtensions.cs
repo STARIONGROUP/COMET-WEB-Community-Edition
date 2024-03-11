@@ -36,11 +36,11 @@ namespace COMET.Web.Common.Extensions
     public static class ServiceProviderExtensions
     {
         /// <summary>
-        /// Initialize the neccesary services of the webapp
+        /// Initialize the neccesary services of the CDP4 Comet webapp
         /// </summary>
         /// <param name="serviceProvider">the <see cref="IServiceProvider" /></param>
         /// <returns>an asynchronous operation</returns>
-        public static async Task InitializeServices(this IServiceProvider serviceProvider)
+        public static async Task InitializeCdp4CometCommonServices(this IServiceProvider serviceProvider)
         {
             var stringTableService = serviceProvider.GetRequiredService<IStringTableService>();
             

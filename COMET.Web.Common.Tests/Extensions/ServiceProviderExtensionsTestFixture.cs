@@ -43,12 +43,12 @@ namespace COMET.Web.Common.Tests.Extensions
             serviceProvider.Setup(x => x.GetService(typeof(IStringTableService))).Returns(null);
             serviceProvider.Setup(x => x.GetService(typeof(IConfigurationService))).Returns(null);
 
-            Assert.That( () => serviceProvider.Object.InitializeServices(), Throws.Exception);
+            Assert.That( () => serviceProvider.Object.InitializeCdp4CometCommonServices(), Throws.Exception);
 
             serviceProvider.Setup(x => x.GetService(typeof(IStringTableService))).Returns(new Mock<IStringTableService>().Object);
             serviceProvider.Setup(x => x.GetService(typeof(IConfigurationService))).Returns(new Mock<IConfigurationService>().Object);
 
-            Assert.That( () => serviceProvider.Object.InitializeServices(), Throws.Nothing);
+            Assert.That( () => serviceProvider.Object.InitializeCdp4CometCommonServices(), Throws.Nothing);
         }
     }
 }

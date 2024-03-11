@@ -55,12 +55,12 @@ namespace COMET.Web.Common.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Register required Services
+        /// Register required CDP4 Comet common services
         /// </summary>
         /// <param name="serviceProvider">The <see cref="IServiceCollection" /></param>
         /// <param name="isBlazorServer">Value asserting if the application is a Blazor Server application</param>
         /// <param name="globalOptions">The optional <see cref="GlobalOptions"/></param>
-        public static void RegisterCommonLibrary(this IServiceCollection serviceProvider, bool isBlazorServer = true, Action<GlobalOptions> globalOptions = null)
+        public static void RegisterCdp4CometCommonServices(this IServiceCollection serviceProvider, bool isBlazorServer = true, Action<GlobalOptions> globalOptions = null)
         {
             if (isBlazorServer)
             {
