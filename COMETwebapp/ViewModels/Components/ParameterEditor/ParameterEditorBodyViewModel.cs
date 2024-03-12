@@ -78,6 +78,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 x => x.IsOwnedParameters).SubscribeAsync(_ => this.ApplyFilters()));
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
+            this.RegisterViewModelsWithReusableRows([this.ParameterTableViewModel]);
         }
 
         /// <summary>
@@ -127,9 +128,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
             this.IsLoading = true;
             await Task.Delay(1);
-            this.ParameterTableViewModel.RemoveRows(this.DeletedThings.ToList());
-            this.ParameterTableViewModel.UpdateRows(this.UpdatedThings.ToList());
-            this.ParameterTableViewModel.AddRows(this.AddedThings.ToList());
+
+            this.UpdateInnerComponents();
             this.ClearRecordedChanges();
             this.IsLoading = false;
         }
