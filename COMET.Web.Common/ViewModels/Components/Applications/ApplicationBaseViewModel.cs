@@ -118,9 +118,9 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         {
             foreach (var viewModel in this.RegisteredViewModelsWithReusableRows)
             {
-                viewModel.AddRows(this.AddedThings);
-                viewModel.UpdateRows(this.UpdatedThings);
-                viewModel.RemoveRows(this.DeletedThings);
+                viewModel.AddRows(this.AddedThings.ToList());
+                viewModel.UpdateRows(this.UpdatedThings.ToList());
+                viewModel.RemoveRows(this.DeletedThings.ToList());
             }
         }
 
