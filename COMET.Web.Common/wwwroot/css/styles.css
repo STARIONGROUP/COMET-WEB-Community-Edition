@@ -368,7 +368,6 @@
     font-size: 14px;
     top: 50%;
     transform: translateY(-50%);
-    border-color: transparent black transparent transparent;
     height: fit-content;
 }
 
