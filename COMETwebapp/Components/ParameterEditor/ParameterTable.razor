@@ -63,7 +63,7 @@
 }
 
 <div class="container-fluid table-container">
-    <DxGrid @ref="Grid"
+    <DxGrid @ref="this.Grid"
             CssClass="default-grid"
             ShowAllRows="true"
             Data="@this.sortedCollection"
@@ -72,7 +72,8 @@
             ShowFilterRow="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
             VerticalScrollBarMode="ScrollBarMode.Visible"
-            HorizontalScrollBarMode="ScrollBarMode.Visible">
+            HorizontalScrollBarMode="ScrollBarMode.Visible"
+            CustomizeElement="this.OnCustomizeElement">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
