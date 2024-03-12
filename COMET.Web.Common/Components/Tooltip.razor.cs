@@ -49,5 +49,11 @@ namespace COMET.Web.Common.Components
         /// </summary>
         [Parameter]
         public string MarginBottom { get; set; }
+
+        /// <summary>
+        /// Define the custom css class for the component
+        /// </summary>
+        [Parameter]
+        public string CssClass { get; set; }
     }
 }

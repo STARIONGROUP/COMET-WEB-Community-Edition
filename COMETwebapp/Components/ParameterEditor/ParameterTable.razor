@@ -100,11 +100,6 @@
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
-                <HeaderTemplate>
-                    <DxButton Id="addElementButton" Text="Add an Element Definition" IconCssClass="oi oi-plus" Click="() => Grid.StartEditNewRowAsync()" />
-                </HeaderTemplate>
-            </DxGridCommandColumn>
         </Columns>
     </DxGrid>
 </div>

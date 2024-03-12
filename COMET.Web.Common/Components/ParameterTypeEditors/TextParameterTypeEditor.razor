@@ -40,7 +40,9 @@
 else
 {
     <div class="parameter-row-text">
-        <Tooltip MarginBottom="bottom-60 text-align-center" Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]">
+        <Tooltip MarginBottom="text-align-center" 
+                 Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
+                 CssClass="position-absolute">
             <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                        InputCssClass="text-prameter-editor"
                        CssClass="parameter-input"
