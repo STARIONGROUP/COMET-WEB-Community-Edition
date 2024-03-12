@@ -98,9 +98,9 @@ namespace COMETwebapp.Components.ParameterEditor
         {
             if (e.ElementType == GridElementType.DataRow)
             {
-                var isPublishable = (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.IsPublishable));
+                var row = (ParameterBaseRowViewModel)this.Grid.GetDataItem(e.VisibleIndex);
 
-                if (isPublishable)
+                if (row.IsPublishable)
                 {
                     e.CssClass = "font-weight-bold";
                 }
@@ -109,9 +109,9 @@ namespace COMETwebapp.Components.ParameterEditor
             if (e.ElementType == GridElementType.GroupCell)
             {
                 var elementBaseName = (string)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.ElementBaseName));
-                var numberOfPublishableRowsInGroup = this.sortedCollection.Count(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
+                var isPublishableParameterInGroup = this.sortedCollection.Any(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
 
-                if (numberOfPublishableRowsInGroup > 0)
+                if (isPublishableParameterInGroup)
                 {
                     e.CssClass = "font-weight-bold";
                 }
