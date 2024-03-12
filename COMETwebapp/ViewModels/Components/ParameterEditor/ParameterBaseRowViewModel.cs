@@ -50,6 +50,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// The backing field for the <see cref="IsPublishable"/> property
+        /// </summary>
+        private bool isPublishable;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
@@ -93,7 +98,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             {
                 this.PublishedValue = valueSetBase.Published.First();
                 this.IsPublishable = !valueSetBase.Published.First().SequenceEqual(valueSetBase.ActualValue.First());
-                Console.WriteLine($"{valueSetBase.Published.First()} = {valueSetBase.ActualValue.First()} => {valueSetBase.Published.First() == valueSetBase.ActualValue.First()}");
 
                 if (this.Parameter.Scale != null)
                 {
@@ -128,7 +132,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the condition to verify if the <see cref="Parameter"/> value if publishable
         /// </summary>
-        public bool IsPublishable { get; private set; }
+        public bool IsPublishable
+        {
+            get => this.isPublishable;
+            set => this.RaiseAndSetIfChanged(ref this.isPublishable, value);
+        }
 
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
@@ -211,6 +219,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             if (!this.IsReadOnly && value.valueSet is ParameterValueSetBase parameterValueSetBase)
             {
                 await this.sessionService.UpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing>{parameterValueSetBase});
+                this.IsPublishable = !parameterValueSetBase.Published.First().SequenceEqual(parameterValueSetBase.ActualValue.First());
             }
         }
 

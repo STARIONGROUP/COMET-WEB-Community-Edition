@@ -96,16 +96,25 @@ namespace COMETwebapp.Components.ParameterEditor
         /// <param name="e">The <see cref="GridCustomizeElementEventArgs"/></param>
         private void OnCustomizeElement(GridCustomizeElementEventArgs e)
         {
-            if (e.ElementType != GridElementType.DataRow)
+            if (e.ElementType == GridElementType.DataRow)
             {
-                return;
+                var isPublishable = (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.IsPublishable));
+
+                if (isPublishable)
+                {
+                    e.CssClass = "font-weight-bold";
+                }
             }
 
-            var isPublishable = (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.IsPublishable));
-
-            if (isPublishable)
+            if (e.ElementType == GridElementType.GroupCell)
             {
-                e.CssClass = "font-weight-bold";
+                var elementBaseName = (string)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.ElementBaseName));
+                var numberOfPublishableRowsInGroup = this.sortedCollection.Count(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
+
+                if (numberOfPublishableRowsInGroup > 0)
+                {
+                    e.CssClass = "font-weight-bold";
+                }
             }
         }
     }
