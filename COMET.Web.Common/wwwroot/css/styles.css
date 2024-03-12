@@ -366,13 +366,22 @@
     border-radius: 6px;
     z-index: 1;
     font-size: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-color: transparent black transparent transparent;
+    height: fit-content;
 }
+
+    .tooltip-content:empty {
+        display: none;
+    }
 
     .tooltip-content::after {
         content: "";
         position: absolute;
         top: 50%;
         left: 0%;
+        transform: translateY(-50%);
         margin-left: -10px;
         border-width: 5px;
         border-style: solid;

@@ -21,7 +21,7 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
 
-<div class="tooltip-wrapper">
+<div class="tooltip-wrapper @(this.CssClass)">
     <span class="@(this.MarginBottom) tooltip-content">@(this.Text)</span>
     @(this.ChildContent)
 </div>
