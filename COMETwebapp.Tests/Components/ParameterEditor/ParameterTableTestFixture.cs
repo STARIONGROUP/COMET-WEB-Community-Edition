@@ -57,7 +57,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         private IRenderedComponent<ParameterTable> renderedComponent;
         private ParameterTable table;
         private Mock<ISessionService> sessionService;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
         private Mock<IParameterTableViewModel> parameterTableViewModel;
 
         [SetUp]
