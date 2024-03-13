@@ -39,7 +39,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using Moq;
 
     using NUnit.Framework;
-    using System.Runtime.Intrinsics.Arm;
 
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
@@ -59,6 +58,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
         [TearDown]
         public void Teardown()
         {
+            this.viewModel.Dispose();
             this.messageBus.ClearSubscriptions();
         }
 
