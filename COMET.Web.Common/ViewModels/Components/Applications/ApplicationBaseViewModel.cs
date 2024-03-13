@@ -98,6 +98,42 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         }
 
         /// <summary>
+        /// Gets or sets a collection of the registered view models with reusable rows
+        /// </summary>
+        private List<IHaveReusableRows> RegisteredViewModelsWithReusableRows { get; set; } = [];
+
+        /// <summary>
+        /// Registers a collection of view models with reusable rows
+        /// </summary>
+        /// <param name="viewModels">The view models that implement <see cref="IHaveReusableRows"/></param>
+        protected void RegisterViewModelsWithReusableRows(IEnumerable<IHaveReusableRows> viewModels)
+        {
+            this.RegisteredViewModelsWithReusableRows.AddRange(viewModels.ToList());
+        }
+
+        /// <summary>
+        /// Registers viewmodels with reusable rows
+        /// </summary>
+        /// <param name="viewModels">The view models that implement <see cref="IHaveReusableRows"/></param>
+        protected void RegisterViewModelWithReusableRows(params IHaveReusableRows[] viewModels)
+        {
+            this.RegisterViewModelsWithReusableRows(viewModels.ToList());
+        }
+
+        /// <summary>
+        /// Method used to update the view model inner components that recycle rows
+        /// </summary>
+        protected void UpdateInnerComponents()
+        {
+            foreach (var viewModel in this.RegisteredViewModelsWithReusableRows)
+            {
+                viewModel.AddRows(this.AddedThings.ToList());
+                viewModel.UpdateRows(this.UpdatedThings.ToList());
+                viewModel.RemoveRows(this.DeletedThings.ToList());
+            }
+        }
+
+        /// <summary>
         /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
