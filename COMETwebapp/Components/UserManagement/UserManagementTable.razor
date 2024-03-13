@@ -22,7 +22,7 @@
 @using COMETwebapp.ViewModels.Components.UserManagement.Rows
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.ViewModels.Components.UserManagement;
-@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.UserManagement.IUserManagementTableViewModel>;
+@inherits COMET.Web.Common.Components.Applications.ApplicationBase<COMETwebapp.ViewModels.Components.UserManagement.IUserManagementTableViewModel>;
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="Grid"

@@ -36,7 +36,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public interface IParameterTypeTableViewModel : ISingleIterationApplicationBaseViewModel
+    public interface IParameterTypeTableViewModel : IApplicationBaseViewModel
     {
         /// <summary>
         /// Gets or sets the data source for the grid control.

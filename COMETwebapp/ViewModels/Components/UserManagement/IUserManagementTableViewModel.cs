@@ -38,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     /// <summary>
     /// View model used to manage <see cref="Person" />
     /// </summary>
-    public interface IUserManagementTableViewModel : ISingleIterationApplicationBaseViewModel
+    public interface IUserManagementTableViewModel : IApplicationBaseViewModel
     {
         /// <summary>
         /// The <see cref="Person" /> to create

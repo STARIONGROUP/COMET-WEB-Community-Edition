@@ -82,7 +82,7 @@ namespace COMET.Web.Common.Components.Applications
             }
             else if (this.EngineeringModelId != Guid.Empty && this.ViewModel.SelectedThing == null)
             {
-                this.ViewModel.OnThingSelect(this.ViewModel.SessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == this.EngineeringModelId));
+                this.ViewModel.OnThingSelect(this.ViewModel.SessionService.OpenEngineeringModels.FirstOrDefault(x => x.EngineeringModelSetup.Iid == this.EngineeringModelId));
             }
 
             this.EngineeringModelId = this.ViewModel.SelectedThing?.Iid ?? Guid.Empty;

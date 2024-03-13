@@ -22,10 +22,10 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.Utilities
 @using COMETwebapp.Components.BookEditor
 @attribute [Route(WebAppConstantValues.BookEditorPage)]
-@inherits COMET.Web.Common.Pages.SingleIterationPageTemplate
+@inherits COMET.Web.Common.Pages.SingleEngineeringModelPageTemplate
 
-<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration" ShowActiveModel="true">
+<SingleEngineeringModelApplicationTemplate EngineeringModelId="@this.RequestedEngineeringModel" ShowActiveModel="true">
     <Body>
     <BookEditorBody/>
     </Body>
-</SingleIterationApplicationTemplate>
+</SingleEngineeringModelApplicationTemplate>

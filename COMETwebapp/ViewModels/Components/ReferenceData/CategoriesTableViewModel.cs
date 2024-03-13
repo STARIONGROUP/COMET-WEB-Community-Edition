@@ -48,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public class CategoriesTableViewModel : SingleIterationApplicationBaseViewModel, ICategoriesTableViewModel
+    public class CategoriesTableViewModel : ApplicationBaseViewModel, ICategoriesTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />

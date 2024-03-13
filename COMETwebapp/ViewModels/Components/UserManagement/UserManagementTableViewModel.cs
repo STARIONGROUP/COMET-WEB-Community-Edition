@@ -49,7 +49,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     /// <summary>
     /// View model used to manage <see cref="Person" />
     /// </summary>
-    public class UserManagementTableViewModel : SingleIterationApplicationBaseViewModel, IUserManagementTableViewModel
+    public class UserManagementTableViewModel : ApplicationBaseViewModel, IUserManagementTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
@@ -346,16 +346,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
         {
             return true;
-        }
-
-        /// <summary>
-        /// Update this view model properties
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnThingChanged()
-        {
-            await base.OnThingChanged();
-            this.IsLoading = false;
         }
 
         /// <summary>

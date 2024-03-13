@@ -45,7 +45,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     /// <summary>
     /// ViewModel for the BookEditorBody component
     /// </summary>
-    public class BookEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IBookEditorBodyViewModel
+    public class BookEditorBodyViewModel : SingleEngineeringModelApplicationBaseViewModel, IBookEditorBodyViewModel
     {
         /// <summary>
         /// Backing field for the <see cref="SelectedBook"/> property
@@ -204,34 +204,31 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         }
 
         /// <summary>
-        /// Update this view model properties when the <see cref="Iteration" /> has changed
+        /// Update this view model properties when the <see cref="EngineeringModel" /> has changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnThingChanged()
+        protected override Task OnThingChanged()
         {
             this.IsLoading = true;
-            await base.OnThingChanged();
 
-            if (this.CurrentThing.Container is EngineeringModel engineeringModel)
+            this.AvailableBooks.Edit(inner =>
             {
-                this.AvailableBooks.Edit(inner =>
-                {
-                    inner.Clear();
-                    inner.AddRange(engineeringModel.Book);
-                });
+                inner.Clear();
+                inner.AddRange(this.CurrentThing.Book);
+            });
 
-                this.ActiveDomains.Clear();
-                this.ActiveDomains.AddRange(engineeringModel.EngineeringModelSetup.ActiveDomain);
+            this.ActiveDomains.Clear();
+            this.ActiveDomains.AddRange(this.CurrentThing.EngineeringModelSetup.ActiveDomain);
 
-                this.AvailableCategories.Clear();
-                var categories = engineeringModel.RequiredRdls.SelectMany(x => x.DefinedCategory);
-                this.AvailableCategories.AddRange(categories);
-            }
+            this.AvailableCategories.Clear();
+            var categories = this.CurrentThing.RequiredRdls.SelectMany(x => x.DefinedCategory);
+            this.AvailableCategories.AddRange(categories);
 
             this.EditorPopupViewModel.AvailableCategories = this.AvailableCategories;
             this.EditorPopupViewModel.ActiveDomains = this.ActiveDomains;
 
             this.IsLoading = false;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -299,7 +296,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             switch (this.ThingToCreate)
             {
                 case Book: 
-                    thingContainer = this.CurrentThing.Container;
+                    thingContainer = this.CurrentThing;
                     break;
                 case Section: 
                     thingContainer = this.SelectedBook;

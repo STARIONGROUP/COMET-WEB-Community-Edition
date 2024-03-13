@@ -45,7 +45,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public class ParameterTypeTableViewModel : SingleIterationApplicationBaseViewModel, IParameterTypeTableViewModel
+    public class ParameterTypeTableViewModel : ApplicationBaseViewModel, IParameterTypeTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
