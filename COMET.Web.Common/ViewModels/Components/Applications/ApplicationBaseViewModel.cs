@@ -112,6 +112,15 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         }
 
         /// <summary>
+        /// Registers viewmodels with reusable rows
+        /// </summary>
+        /// <param name="viewModels">The view models that implement <see cref="IHaveReusableRows"/></param>
+        protected void RegisterViewModelsWithReusableRows(params IHaveReusableRows[] viewModels)
+        {
+            this.RegisterViewModelsWithReusableRows(viewModels.ToList());
+        }
+
+        /// <summary>
         /// Method used to update the view model inner components that recycle rows
         /// </summary>
         protected void UpdateInnerComponents()
