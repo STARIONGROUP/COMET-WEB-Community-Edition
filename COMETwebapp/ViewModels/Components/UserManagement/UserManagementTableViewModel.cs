@@ -49,7 +49,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     /// <summary>
     /// View model used to manage <see cref="Person" />
     /// </summary>
-    public class UserManagementTableViewModel : SingleIterationApplicationBaseViewModel, IUserManagementTableViewModel
+    public class UserManagementTableViewModel : ApplicationBaseViewModel, IUserManagementTableViewModel
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
@@ -79,6 +79,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
 
             this.InitializeSubscriptions(new List<Type> { typeof(Person) });
+            this.RegisterViewModelWithReusableRows(this);
         }
 
         /// <summary>
@@ -254,12 +255,12 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// Remove rows related to a <see cref="Person" /> that has been deleted
         /// </summary>
-        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
-        public void RemoveRows(IEnumerable<Person> deletedThings)
+        /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
+        public void RemoveRows(IEnumerable<Thing> deletedThings)
         {
-            foreach (var person in deletedThings)
+            foreach (var person in deletedThings.OfType<Person>())
             {
                 var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
 
@@ -271,12 +272,21 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// Add rows related to <see cref="Person" /> that has been added
         /// </summary>
-        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
-        public void UpdateRows(IEnumerable<Person> updatedThings)
+        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
+        public void AddRows(IEnumerable<Thing> addedThings)
         {
-            foreach (var person in updatedThings)
+            this.Rows.AddRange(addedThings.OfType<Person>().Select(x => new PersonRowViewModel(x)));
+        }
+
+        /// <summary>
+        /// Updates rows related to <see cref="Person" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
+        public void UpdateRows(IEnumerable<Thing> updatedThings)
+        {
+            foreach (var person in updatedThings.OfType<Person>())
             {
                 var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
 
@@ -329,10 +339,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             this.IsLoading = true;
             await Task.Delay(1);
 
-            this.RemoveRows(this.DeletedThings.OfType<Person>());
-            this.UpdateRows(this.UpdatedThings.OfType<Person>());
-            this.Rows.AddRange(this.AddedThings.OfType<Person>().Select(x => new PersonRowViewModel(x)));
-
+            this.UpdateInnerComponents();
             this.ClearRecordedChanges();
             this.RefreshAccessRight();
             this.IsLoading = false;
@@ -346,16 +353,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
         {
             return true;
-        }
-
-        /// <summary>
-        /// Update this view model properties
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnThingChanged()
-        {
-            await base.OnThingChanged();
-            this.IsLoading = false;
         }
 
         /// <summary>

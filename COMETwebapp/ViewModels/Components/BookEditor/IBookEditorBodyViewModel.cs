@@ -38,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     /// <summary>
     /// ViewModel for the BookEditorBody component
     /// </summary>
-    public interface IBookEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
+    public interface IBookEditorBodyViewModel : ISingleEngineeringModelApplicationBaseViewModel
     {
         /// <summary>
         /// Gets or sets the current selected <see cref="Book"/>

@@ -15,12 +15,12 @@ Copyright (c) 2023-2024 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Utilities
-@inherits COMET.Web.Common.Pages.SingleIterationPageTemplate
+@inherits COMET.Web.Common.Pages.ApplicationPageTemplate
 @attribute [Route(WebAppConstantValues.UserManagementPage)]
 @attribute [Authorize]
 
-<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration" ShowActiveModel="true">
+<ApplicationTemplate>
      <Body>
          <UserManagementTable />
      </Body>
-</SingleIterationApplicationTemplate>
+</ApplicationTemplate>

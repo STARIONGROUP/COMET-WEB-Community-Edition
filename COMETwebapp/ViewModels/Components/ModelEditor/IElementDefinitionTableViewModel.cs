@@ -39,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     /// <summary>
     /// Interface for the <see cref="ElementDefinitionTableViewModel" />
     /// </summary>
-    public interface IElementDefinitionTableViewModel : ISingleIterationApplicationBaseViewModel
+    public interface IElementDefinitionTableViewModel : ISingleIterationApplicationBaseViewModel, IHaveReusableRows
     {
         /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" />

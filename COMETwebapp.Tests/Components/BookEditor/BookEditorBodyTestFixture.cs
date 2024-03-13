@@ -87,7 +87,6 @@ namespace COMETwebapp.Tests.Components.BookEditor
             availableBooks.Add(this.selectedBook);
 
             this.viewModel = new Mock<IBookEditorBodyViewModel>();
-            this.viewModel.Setup(x => x.CurrentDomain).Returns(new DomainOfExpertise());
             this.viewModel.Setup(x => x.AvailableBooks).Returns(availableBooks);
             this.viewModel.Setup(x => x.SelectedBook).Returns(this.selectedBook);
             this.viewModel.Setup(x => x.SelectedSection).Returns(this.selectedSection);

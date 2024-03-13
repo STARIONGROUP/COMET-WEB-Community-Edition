@@ -26,18 +26,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
-    using DevExpress.Blazor;
+
     using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public interface ICategoriesTableViewModel : ISingleIterationApplicationBaseViewModel
+    public interface ICategoriesTableViewModel : IApplicationBaseViewModel
     {
         /// <summary>
         /// The <see cref="Category" /> to create or edit

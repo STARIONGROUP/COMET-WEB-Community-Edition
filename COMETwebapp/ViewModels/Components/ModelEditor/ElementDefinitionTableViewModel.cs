@@ -53,11 +53,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     public class ElementDefinitionTableViewModel : SingleIterationApplicationBaseViewModel, IElementDefinitionTableViewModel
     {
         /// <summary>
-        /// The current <see cref="Iteration" />
-        /// </summary>
-        private readonly Iteration iteration;
-
-        /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
@@ -74,9 +69,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         public ElementDefinitionTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
-            this.iteration = sessionService?.OpenIterations.Items.FirstOrDefault();
             this.sessionService = sessionService;
-            this.InitializeElements();
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService)
             {
@@ -84,6 +77,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             };
 
             this.InitializeSubscriptions(new List<Type> { typeof(ElementBase) });
+            this.RegisterViewModelWithReusableRows(this);
         }
 
         /// <summary>
@@ -155,12 +149,23 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         }
 
         /// <summary>
+        /// Add rows related to <see cref="ElementBase" /> that has been added
+        /// </summary>
+        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
+        public void AddRows(IEnumerable<Thing> addedThings)
+        {
+            var listOfAddedElementBases = addedThings.OfType<ElementBase>().ToList();
+            this.RowsSource.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionRowViewModel(e)));
+            this.RowsTarget.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionRowViewModel(e)));
+        }
+
+        /// <summary>
         /// Updates rows related to <see cref="ElementBase" /> that have been updated
         /// </summary>
         /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
-        public void UpdateRows(IEnumerable<ElementBase> updatedThings)
+        public void UpdateRows(IEnumerable<Thing> updatedThings)
         {
-            foreach (var element in updatedThings)
+            foreach (var element in updatedThings.OfType<ElementBase>())
             {
                 var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
 
@@ -175,9 +180,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
         /// </summary>
         /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
-        public void RemoveRows(IEnumerable<ElementBase> deletedThings)
+        public void RemoveRows(IEnumerable<Thing> deletedThings)
         {
-            foreach (var elementId in deletedThings.Select(x => x.Iid))
+            foreach (var elementId in deletedThings.OfType<ElementBase>().Select(x => x.Iid))
             {
                 var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == elementId);
 
@@ -208,9 +213,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 this.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
             }
 
-            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = this.iteration;
+            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = this.CurrentThing;
             thingsToCreate.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
-            var clonedIteration = this.iteration.Clone(false);
+            var clonedIteration = this.CurrentThing.Clone(false);
 
             if (this.ElementDefinitionCreationViewModel.IsTopElement)
             {
@@ -237,7 +242,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
-            if (this.AddedThings.Count == 0 && this.DeletedThings.Count ==0 && this.UpdatedThings.Count ==0)
+            if (this.AddedThings.Count == 0 && this.DeletedThings.Count == 0 && this.UpdatedThings.Count == 0)
             {
                 return;
             }
@@ -245,11 +250,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.IsLoading = true;
             await Task.Delay(1);
 
-            this.RemoveRows(this.DeletedThings.OfType<ElementBase>());
-            this.RowsSource.AddRange(this.AddedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
-            this.RowsTarget.AddRange(this.AddedThings.OfType<ElementBase>().Select(e => new ElementDefinitionRowViewModel(e)));
-            this.UpdateRows(this.UpdatedThings.OfType<ElementBase>());
-
+            this.UpdateInnerComponents();
             this.ClearRecordedChanges();
             this.IsLoading = false;
         }
@@ -261,20 +262,13 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         protected override async Task OnThingChanged()
         {
             await base.OnThingChanged();
-            this.IsLoading = false;
-        }
 
-        /// <summary>
-        /// Initialize <see cref="ElementBase" /> list
-        /// </summary>
-        private void InitializeElements()
-        {
-            if (this.iteration == null)
+            if (this.CurrentThing == null)
             {
                 return;
             }
 
-            this.iteration.Element.ForEach(e =>
+            this.CurrentThing.Element.ForEach(e =>
             {
                 this.Elements.Add(e);
                 this.Elements.AddRange(e.ContainedElement);
@@ -282,6 +276,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
             this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
             this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
+
+            this.IsLoading = false;
         }
     }
 }

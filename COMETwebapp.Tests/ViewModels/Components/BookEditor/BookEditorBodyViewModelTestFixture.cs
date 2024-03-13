@@ -27,9 +27,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
+    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.BookEditor;
@@ -56,6 +58,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
         [TearDown]
         public void Teardown()
         {
+            this.viewModel.Dispose();
             this.messageBus.ClearSubscriptions();
         }
 
@@ -247,6 +250,60 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
                 Assert.That(this.viewModel.ThingToDelete, Is.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.False);
             });
+        }
+
+        [Test]
+        public void VerifyOnThingChanged()
+        {
+            //Try to set a new engineering model value to the CurrentThing property
+            Assert.That(this.viewModel.CurrentThing, Is.Null);
+
+            var category = new Category()
+            {
+                Name = "category A",
+                ShortName = "catA"
+            };
+
+            var rdl = new ModelReferenceDataLibrary()
+            {
+                DefinedCategory = { category }
+            };
+
+            var activeDomain = new DomainOfExpertise()
+            {
+                Name = "tester",
+                ShortName = "tester"
+            };
+
+            var engineeringModelSetup = new EngineeringModelSetup()
+            {
+                ActiveDomain = { activeDomain },
+                RequiredRdl = { rdl }
+            };
+
+            this.viewModel.CurrentThing = new EngineeringModel()
+            {
+                EngineeringModelSetup = engineeringModelSetup
+            };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CurrentThing, Is.Not.Null);
+                Assert.That(this.viewModel.AvailableCategories, Contains.Item(category));
+                Assert.That(this.viewModel.ActiveDomains, Contains.Item(activeDomain));
+            });
+        }
+
+        [Test]
+        public void VerifySessionRefresh()
+        {
+            this.viewModel.CurrentThing = new EngineeringModel()
+            {
+                EngineeringModelSetup = new EngineeringModelSetup()
+            };
+
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            Assert.That(this.viewModel.CurrentThing, Is.Not.Null);
         }
     }
 }
