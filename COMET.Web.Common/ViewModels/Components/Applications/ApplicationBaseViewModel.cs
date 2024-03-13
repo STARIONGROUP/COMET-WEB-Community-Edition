@@ -115,7 +115,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Registers viewmodels with reusable rows
         /// </summary>
         /// <param name="viewModels">The view models that implement <see cref="IHaveReusableRows"/></param>
-        protected void RegisterViewModelsWithReusableRows(params IHaveReusableRows[] viewModels)
+        protected void RegisterViewModelWithReusableRows(params IHaveReusableRows[] viewModels)
         {
             this.RegisterViewModelsWithReusableRows(viewModels.ToList());
         }
