@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -392,19 +393,22 @@ namespace COMETwebapp.Tests.Components.UserManagement
         {
             this.context.RenderComponent<UserManagementTable>();
 
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
+
             var personTest = new Person()
             {
                 Iid = Guid.NewGuid()
             };
 
             this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
-            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Removed);
-            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Updated);
-            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
+            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
         }
