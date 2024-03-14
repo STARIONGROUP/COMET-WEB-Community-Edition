@@ -21,11 +21,10 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.UserManagement.Rows
 @using CDP4Common.SiteDirectoryData
-@using COMETwebapp.ViewModels.Components.UserManagement;
-@inherits COMET.Web.Common.Components.Applications.ApplicationBase<COMETwebapp.ViewModels.Components.UserManagement.IUserManagementTableViewModel>;
+@inherits COMET.Web.Common.Components.Applications.ApplicationBase<COMETwebapp.ViewModels.Components.UserManagement.IUserManagementTableViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <DxGrid @ref="Grid"
+    <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ShowSearchBox="true"
             SearchBoxNullText="Search for a person..."
@@ -37,7 +36,7 @@
             PopupEditFormCssClass="pw-800"
             PopupEditFormHeaderText="Create Person"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="this.ViewModel.AddingPerson"
+            EditModelSaving="@(this.OnEditModelSaving)"
             CustomizeElement="DisableDeprecatedPerson">
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="IsActive" ValueDisplayFormat="{0} Total" />
@@ -60,11 +59,14 @@
             <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Role" MinWidth="80" SearchEnabled="false" />
             <DxGridCommandColumn Width="200px" EditButtonVisible="false">
                 <HeaderTemplate>
-                    <DxButton Id="addPersonButton" Text="Add User" IconCssClass="oi oi-plus" CssClass="my-custom-style" Click="() => Grid.StartEditNewRowAsync()" />
+                    <DxButton Id="addPersonButton" Text="Add User" IconCssClass="oi oi-plus" CssClass="my-custom-style" Click="() => this.Grid.StartEditNewRowAsync()" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
                         var row = (PersonRowViewModel)context.DataItem;
+
+                        <DxButton Id="editPersonButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="row.IsAllowedToWrite" />
+
                         if (row.IsDeprecated)
                         {
                             <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />

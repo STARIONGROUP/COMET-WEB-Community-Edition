@@ -49,6 +49,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using COMETwebapp.ViewModels.Components.UserManagement;
 
     using DevExpress.Blazor;
+    using DevExpress.Blazor.Internal;
+    using DevExpress.XtraExport.Helpers;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -258,6 +260,30 @@ namespace COMETwebapp.Tests.Components.UserManagement
         }
 
         [Test]
+        public async Task VerifyComponent()
+        {
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            var grid = renderer.FindComponent<DxGrid>();
+            var buttons = grid.FindComponents<DxButton>();
+            var addNewPersonButton = buttons.First();
+            var editPersonButton = buttons.ElementAt(1);
+
+            await grid.InvokeAsync(addNewPersonButton.Instance.Click.InvokeAsync);
+            Assert.That(this.viewModel.Person.Name?.Trim(), Is.Empty);
+
+            await grid.InvokeAsync(editPersonButton.Instance.Click.InvokeAsync);
+            Assert.That(this.viewModel.Person.Name, Is.EqualTo(this.viewModel.Rows.Items.First().PersonName));
+        }
+
+        [Test]
         public async Task VerifyActivatingPerson()
         {
             var renderer = this.context.RenderComponent<UserManagementTable>();
@@ -288,6 +314,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
         public async Task VerifyAddingPerson()
         {
             var renderer = this.context.RenderComponent<UserManagementTable>();
+            this.viewModel.IsDefaultEmail = true;
+            this.viewModel.IsDefaultTelephoneNumber = true;
 
             Assert.Multiple(() =>
             {
@@ -302,13 +330,50 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Surname = "Test",
                 ShortName = "TT",
                 IsActive = true,
-                IsDeprecated = false
+                IsDeprecated = false,
+                EmailAddress = { new EmailAddress() },
+                TelephoneNumber = { new TelephoneNumber() }
             };
 
             await this.viewModel.AddingPerson();
             this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Added));
 
             Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
+        }
+
+        [Test]
+        public async Task VerifyEditingPerson()
+        {
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+            this.viewModel.IsDefaultEmail = true;
+            this.viewModel.IsDefaultTelephoneNumber = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            this.viewModel.Person = new Person
+            {
+                GivenName = "Test",
+                Surname = "Test",
+                ShortName = "TT",
+                IsActive = true,
+                IsDeprecated = false,
+                EmailAddress = { new EmailAddress() },
+                TelephoneNumber = { new TelephoneNumber() }
+            };
+
+            await this.viewModel.EditingPerson();
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Updated));
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.UpdateThing(It.IsAny<SiteDirectory>(), this.viewModel.Person), Times.Once);
+                Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
+            });
         }
 
         [Test]

@@ -26,7 +26,8 @@ namespace COMETwebapp.Components.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.UserManagement;
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.ViewModels.Components.UserManagement.Rows;
 
     using DevExpress.Blazor;
@@ -46,6 +47,11 @@ namespace COMETwebapp.Components.UserManagement
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
+
+        /// <summary>
+        /// Gets or sets the condition to check if a person should be created
+        /// </summary>
+        private bool ShouldCreatePerson { get; set; } = true;
 
         /// <summary>
         /// Method invoked when a custom summary calculation is required, allowing you to
@@ -73,7 +79,7 @@ namespace COMETwebapp.Components.UserManagement
         }
 
         /// <summary>
-        ///     Method invoked to "Show/Hide Deprecated Items" 
+        /// Method invoked to "Show/Hide Deprecated Items" 
         /// </summary>
         public void HideOrShowDeprecatedItems()
         {
@@ -97,8 +103,9 @@ namespace COMETwebapp.Components.UserManagement
 
             this.ViewModel.OnInitialized();
 
-            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.WhenAnyValue(x => x.Person).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -107,14 +114,33 @@ namespace COMETwebapp.Components.UserManagement
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
         private void CustomizeEditPerson(GridCustomizeEditModelEventArgs e)
         {
-            var dataItem = (Person)e.DataItem;
+            var dataItem = (PersonRowViewModel)e.DataItem;
+            this.ShouldCreatePerson = e.IsNew;
 
             if (dataItem == null)
             {
                 e.EditModel = new Person();
+                this.ViewModel.Person = new Person();
+                return;
             }
 
-            this.ViewModel.Person = new Person();
+            e.EditModel = dataItem;
+            this.ViewModel.Person = dataItem.Person.Clone(true);
+        }
+
+        /// <summary>
+        /// Method that is invoked when the edit/add person model form is being saved
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnEditModelSaving()
+        {
+            if (!this.ShouldCreatePerson)
+            {
+                await this.ViewModel.EditingPerson();
+                return;
+            }
+
+            await this.ViewModel.AddingPerson();
         }
 
         /// <summary>
