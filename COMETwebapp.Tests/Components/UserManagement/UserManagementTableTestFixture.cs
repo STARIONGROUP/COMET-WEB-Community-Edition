@@ -271,8 +271,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             var grid = renderer.FindComponent<DxGrid>();
             var buttons = grid.FindComponents<DxButton>();
-            var addNewPersonButton = buttons.First();
-            var editPersonButton = buttons.ElementAt(1);
+            var addNewPersonButton = buttons[0];
+            var editPersonButton = buttons[1];
 
             await grid.InvokeAsync(addNewPersonButton.Instance.Click.InvokeAsync);
 
