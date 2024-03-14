@@ -49,8 +49,6 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using COMETwebapp.ViewModels.Components.UserManagement;
 
     using DevExpress.Blazor;
-    using DevExpress.Blazor.Internal;
-    using DevExpress.XtraExport.Helpers;
 
     using Microsoft.Extensions.DependencyInjection;
 
