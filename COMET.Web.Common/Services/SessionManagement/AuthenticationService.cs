@@ -58,6 +58,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ICDPMessageBus messageBus;
 
         /// <summary>
+        /// The <see cref="HttpClient" /> used to retrieve data
+        /// </summary>
+        private readonly HttpClient httpClient;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService" /> class.
         /// </summary>
         /// <param name="sessionService">
@@ -67,11 +72,13 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, ICDPMessageBus messageBus)
+        /// <param name="httpClient">The <see cref="HttpClient"/></param>
+        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, ICDPMessageBus messageBus, HttpClient httpClient)
         {
             this.messageBus = messageBus;
             this.authStateProvider = authenticationStateProvider;
             this.sessionService = sessionService;
+            this.httpClient = httpClient;
         }
 
         /// <summary>
@@ -88,7 +95,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             if (authenticationDto.SourceAddress != null)
             {
                 var uri = new Uri(authenticationDto.SourceAddress);
-                var dal = new CdpServicesDal();
+                var dal = new CdpServicesDal(this.httpClient);
                 var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
                 this.sessionService.Session = new Session(dal, credentials, this.messageBus);
