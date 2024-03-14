@@ -275,10 +275,26 @@ namespace COMETwebapp.Tests.Components.UserManagement
             var editPersonButton = buttons.ElementAt(1);
 
             await grid.InvokeAsync(addNewPersonButton.Instance.Click.InvokeAsync);
-            Assert.That(this.viewModel.Person.Name?.Trim(), Is.Empty);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Person.Name?.Trim(), Is.Empty);
+                Assert.That(renderer.Instance.ShouldCreatePerson, Is.EqualTo(true));
+            });
+
+            await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
+            this.sessionService.Verify(x => x.CreateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Contains(this.viewModel.Person))), Times.Once);
 
             await grid.InvokeAsync(editPersonButton.Instance.Click.InvokeAsync);
-            Assert.That(this.viewModel.Person.Name, Is.EqualTo(this.viewModel.Rows.Items.First().PersonName));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Person.Name, Is.EqualTo(this.viewModel.Rows.Items.First().PersonName));
+                Assert.That(renderer.Instance.ShouldCreatePerson, Is.EqualTo(false));
+            });
+
+            await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
+            this.sessionService.Verify(x => x.UpdateThing(It.IsAny<SiteDirectory>(), It.Is<Thing>(c => c == this.viewModel.Person)), Times.Once);
         }
 
         [Test]

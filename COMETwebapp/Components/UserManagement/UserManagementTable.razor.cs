@@ -49,9 +49,9 @@ namespace COMETwebapp.Components.UserManagement
         private IGrid Grid { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if a person should be created
+        /// Gets the condition to check if a person should be created
         /// </summary>
-        private bool ShouldCreatePerson { get; set; } = true;
+        public bool ShouldCreatePerson { get; private set; } = true;
 
         /// <summary>
         /// Method invoked when a custom summary calculation is required, allowing you to
