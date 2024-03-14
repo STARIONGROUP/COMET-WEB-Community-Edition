@@ -46,6 +46,7 @@ namespace COMET.Web.Common.Tests.Extensions
             var serviceCollection = new ServiceCollection();
             var configuration = new Mock<IConfiguration>();
             serviceCollection.AddSingleton(configuration.Object);
+            serviceCollection.AddScoped(_ => new HttpClient());
             serviceCollection.AddLogging();
             serviceCollection.RegisterCdp4CometCommonServices(globalOptions: _ => { });
             var serviceProvider = serviceCollection.BuildServiceProvider();
