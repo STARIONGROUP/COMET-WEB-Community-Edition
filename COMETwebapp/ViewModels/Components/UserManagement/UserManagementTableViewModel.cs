@@ -27,7 +27,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using AntDesign;
 
     using CDP4Common.CommonData;
-    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -185,6 +184,28 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public void OnCancelButtonClick()
         {
             this.IsOnDeprecationMode = false;
+        }
+
+        /// <summary>
+        /// Tries to edit an existing <see cref="Person"/>
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task EditingPerson()
+        {
+            if (this.IsDefaultEmail)
+            {
+                this.Person.DefaultEmailAddress = this.EmailAddress;
+            }
+
+            if (this.IsDefaultTelephoneNumber)
+            {
+                this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
+            }
+
+            this.Person.EmailAddress.Add(this.EmailAddress);
+            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+
+            await this.sessionService.UpdateThing(this.sessionService.GetSiteDirectory(), this.Person);
         }
 
         /// <summary>

@@ -151,5 +151,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// want the component to refresh when that operation is completed.
         /// </summary>
         void OnInitialized();
+
+        /// <summary>
+        /// Tries to edit an existing <see cref="Person"/>
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task EditingPerson();
     }
 }
