@@ -84,6 +84,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
             serviceCollection.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
             serviceCollection.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
+            serviceCollection.AddTransient<IMeasurementUnitsTableViewModel, MeasurementUnitsTableViewModel>();
         }
     }
 }
