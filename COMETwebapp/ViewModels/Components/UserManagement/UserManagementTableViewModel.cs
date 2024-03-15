@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using AntDesign;
 
-    using CDP4Common;
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -86,6 +85,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
         public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
+        /// Gets or sets the condition to check if a person should be created
+        /// </summary>
+        public bool ShouldCreatePerson { get; set; } = true;
 
         /// <summary>
         /// The <see cref="Person" /> to create or edit
@@ -194,13 +198,15 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         {
             this.EmailAddress = new EmailAddress();
             this.TelephoneNumber = new TelephoneNumber();
+            this.IsDefaultEmail = false;
+            this.IsDefaultTelephoneNumber = false;
         }
 
         /// <summary>
-        /// Tries to edit an existing <see cref="Person"/>
+        /// Tries to create or edit an existing <see cref="Person"/>, based on the <see cref="ShouldCreatePerson"/> property
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task EditingPerson()
+        public async Task CreatingOrEditingPerson()
         {
             var thingsToCreate = new List<Thing>();
 
@@ -226,49 +232,16 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                 this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
             }
 
-            await this.sessionService.UpdateThing(this.sessionService.GetSiteDirectory(), this.Person);
-            await this.sessionService.CreateThings(this.Person, thingsToCreate);
-            this.ResetFields();
-        }
+            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
 
-        /// <summary>
-        /// Tries to create a new <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingPerson()
-        {
-            // try using edit person and if that doesnt work ask help for antoine
-            var thingsToCreate = new List<Thing>();
-
-            await this.sessionService.CreateThing(this.sessionService.GetSiteDirectory(), this.Person);
-
-            var personClone = this.Person.Clone(true);
-            personClone.ChangeKind = ChangeKind.Update;
-
-            if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
+            if (this.ShouldCreatePerson)
             {
-                personClone.EmailAddress.Add(this.EmailAddress);
-                thingsToCreate.Add(this.EmailAddress);
+                siteDirectoryClone.Person.Add(this.Person);
+                thingsToCreate.Add(siteDirectoryClone);
             }
 
-            if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
-            {
-                personClone.TelephoneNumber.Add(this.TelephoneNumber);
-                thingsToCreate.Add(this.TelephoneNumber);
-            }
-
-            if (this.IsDefaultEmail)
-            {
-                personClone.DefaultEmailAddress = this.EmailAddress;
-            }
-
-            if (this.IsDefaultTelephoneNumber)
-            {
-                personClone.DefaultTelephoneNumber = this.TelephoneNumber;
-            }
-
-            await this.sessionService.UpdateThing(this.sessionService.GetSiteDirectory(), personClone);
-            await this.sessionService.CreateThings(personClone, thingsToCreate);
+            thingsToCreate.Add(this.Person);
+            await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
             this.ResetFields();
         }
 

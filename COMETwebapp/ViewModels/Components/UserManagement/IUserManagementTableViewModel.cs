@@ -116,6 +116,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         string PopupDialog { get; set; }
 
         /// <summary>
+        /// Gets or sets the condition to check if a person should be created
+        /// </summary>
+        bool ShouldCreatePerson { get; set; }
+
+        /// <summary>
         /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -125,12 +130,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Person" />
         /// </summary>
         void OnCancelButtonClick();
-
-        /// <summary>
-        /// Tries to create a new <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task AddingPerson();
 
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
@@ -153,9 +152,9 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         void OnInitialized();
 
         /// <summary>
-        /// Tries to edit an existing <see cref="Person"/>
+        /// Tries to create or edit an existing <see cref="UserManagementTableViewModel.Person"/>, based on the <see cref="UserManagementTableViewModel.ShouldCreatePerson"/> property
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task EditingPerson();
+        Task CreatingOrEditingPerson();
     }
 }

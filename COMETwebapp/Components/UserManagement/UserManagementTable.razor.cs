@@ -49,11 +49,6 @@ namespace COMETwebapp.Components.UserManagement
         private IGrid Grid { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if a person should be created
-        /// </summary>
-        public bool ShouldCreatePerson { get; private set; } = true;
-
-        /// <summary>
         /// Method invoked when a custom summary calculation is required, allowing you to
         /// perform custom calculations based on the data displayed in the grid.
         /// </summary>
@@ -115,12 +110,17 @@ namespace COMETwebapp.Components.UserManagement
         private void CustomizeEditPerson(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (PersonRowViewModel)e.DataItem;
-            this.ShouldCreatePerson = e.IsNew;
+            this.ViewModel.ShouldCreatePerson = e.IsNew;
 
             if (dataItem == null)
             {
-                e.EditModel = new Person();
-                this.ViewModel.Person = new Person();
+                var newPerson = new Person
+                {
+                    IsActive = true
+                };
+
+                e.EditModel = newPerson;
+                this.ViewModel.Person = newPerson;
                 return;
             }
 
@@ -134,13 +134,7 @@ namespace COMETwebapp.Components.UserManagement
         /// <returns>A <see cref="Task"/></returns>
         private async Task OnEditModelSaving()
         {
-            if (!this.ShouldCreatePerson)
-            {
-                await this.ViewModel.EditingPerson();
-                return;
-            }
-
-            await this.ViewModel.AddingPerson();
+            await this.ViewModel.CreatingOrEditingPerson();
         }
 
         /// <summary>
