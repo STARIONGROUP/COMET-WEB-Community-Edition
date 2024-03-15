@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 {
     using AntDesign;
 
+    using CDP4Common;
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -187,11 +188,34 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
+        /// Method that resets all form fields
+        /// </summary>
+        private void ResetFields()
+        {
+            this.EmailAddress = new EmailAddress();
+            this.TelephoneNumber = new TelephoneNumber();
+        }
+
+        /// <summary>
         /// Tries to edit an existing <see cref="Person"/>
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         public async Task EditingPerson()
         {
+            var thingsToCreate = new List<Thing>();
+
+            if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
+            {
+                this.Person.EmailAddress.Add(this.EmailAddress);
+                thingsToCreate.Add(this.EmailAddress);
+            }
+
+            if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
+            {
+                this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+                thingsToCreate.Add(this.TelephoneNumber);
+            }
+
             if (this.IsDefaultEmail)
             {
                 this.Person.DefaultEmailAddress = this.EmailAddress;
@@ -202,10 +226,9 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                 this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
             }
 
-            this.Person.EmailAddress.Add(this.EmailAddress);
-            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
-
             await this.sessionService.UpdateThing(this.sessionService.GetSiteDirectory(), this.Person);
+            await this.sessionService.CreateThings(this.Person, thingsToCreate);
+            this.ResetFields();
         }
 
         /// <summary>
@@ -214,22 +237,39 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <returns>A <see cref="Task" /></returns>
         public async Task AddingPerson()
         {
+            // try using edit person and if that doesnt work ask help for antoine
             var thingsToCreate = new List<Thing>();
+
+            await this.sessionService.CreateThing(this.sessionService.GetSiteDirectory(), this.Person);
+
+            var personClone = this.Person.Clone(true);
+            personClone.ChangeKind = ChangeKind.Update;
+
+            if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
+            {
+                personClone.EmailAddress.Add(this.EmailAddress);
+                thingsToCreate.Add(this.EmailAddress);
+            }
+
+            if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
+            {
+                personClone.TelephoneNumber.Add(this.TelephoneNumber);
+                thingsToCreate.Add(this.TelephoneNumber);
+            }
 
             if (this.IsDefaultEmail)
             {
-                this.Person.DefaultEmailAddress = this.EmailAddress;
+                personClone.DefaultEmailAddress = this.EmailAddress;
             }
 
             if (this.IsDefaultTelephoneNumber)
             {
-                this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
+                personClone.DefaultTelephoneNumber = this.TelephoneNumber;
             }
 
-            this.Person.EmailAddress.Add(this.EmailAddress);
-            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
-            thingsToCreate.Add(this.Person);
-            await this.sessionService.CreateThings(this.sessionService.GetSiteDirectory(), thingsToCreate);
+            await this.sessionService.UpdateThing(this.sessionService.GetSiteDirectory(), personClone);
+            await this.sessionService.CreateThings(personClone, thingsToCreate);
+            this.ResetFields();
         }
 
         /// <summary>
