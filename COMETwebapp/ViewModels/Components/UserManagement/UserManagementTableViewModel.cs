@@ -87,6 +87,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
+        /// Gets or sets the condition to check if a person should be created
+        /// </summary>
+        public bool ShouldCreatePerson { get; set; } = true;
+
+        /// <summary>
         /// The <see cref="Person" /> to create or edit
         /// </summary>
         public Person Person { get; set; } = new();
@@ -187,34 +192,35 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Tries to edit an existing <see cref="Person"/>
+        /// Method that resets all form fields
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task EditingPerson()
+        private void ResetFields()
         {
-            if (this.IsDefaultEmail)
-            {
-                this.Person.DefaultEmailAddress = this.EmailAddress;
-            }
-
-            if (this.IsDefaultTelephoneNumber)
-            {
-                this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
-            }
-
-            this.Person.EmailAddress.Add(this.EmailAddress);
-            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
-
-            await this.sessionService.UpdateThing(this.sessionService.GetSiteDirectory(), this.Person);
+            this.EmailAddress = new EmailAddress();
+            this.TelephoneNumber = new TelephoneNumber();
+            this.IsDefaultEmail = false;
+            this.IsDefaultTelephoneNumber = false;
         }
 
         /// <summary>
-        /// Tries to create a new <see cref="Person" />
+        /// Tries to create or edit an existing <see cref="Person"/>, based on the <see cref="ShouldCreatePerson"/> property
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingPerson()
+        public async Task CreatingOrEditingPerson()
         {
             var thingsToCreate = new List<Thing>();
+
+            if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
+            {
+                this.Person.EmailAddress.Add(this.EmailAddress);
+                thingsToCreate.Add(this.EmailAddress);
+            }
+
+            if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
+            {
+                this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+                thingsToCreate.Add(this.TelephoneNumber);
+            }
 
             if (this.IsDefaultEmail)
             {
@@ -226,10 +232,17 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                 this.Person.DefaultTelephoneNumber = this.TelephoneNumber;
             }
 
-            this.Person.EmailAddress.Add(this.EmailAddress);
-            this.Person.TelephoneNumber.Add(this.TelephoneNumber);
+            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+
+            if (this.ShouldCreatePerson)
+            {
+                siteDirectoryClone.Person.Add(this.Person);
+                thingsToCreate.Add(siteDirectoryClone);
+            }
+
             thingsToCreate.Add(this.Person);
-            await this.sessionService.CreateThings(this.sessionService.GetSiteDirectory(), thingsToCreate);
+            await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
+            this.ResetFields();
         }
 
         /// <summary>
