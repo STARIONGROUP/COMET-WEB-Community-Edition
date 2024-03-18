@@ -136,18 +136,5 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
             get => this.isAllowedToWrite;
             set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
         }
-
-        /// <summary>
-        /// Update this row view model properties
-        /// </summary>
-        /// <param name="measurementUnitRow">The <see cref="MeasurementUnitRowViewModel" /> to use for updating</param>
-        public void UpdateProperties(MeasurementUnitRowViewModel measurementUnitRow)
-        {
-            this.Name = measurementUnitRow.Name;
-            this.ShortName = measurementUnitRow.ShortName;
-            this.Type = measurementUnitRow.Type;
-            this.ContainerName = measurementUnitRow.ContainerName;
-            this.IsDeprecated = measurementUnitRow.IsDeprecated;
-        }
     }
 }

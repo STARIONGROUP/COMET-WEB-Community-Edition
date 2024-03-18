@@ -139,7 +139,6 @@ namespace COMETwebapp.Components.ReferenceData
             if (!this.ShouldCreateMeasurementUnit)
             {
                 // update measurement unit
-                return;
             }
 
             // create measurement unit

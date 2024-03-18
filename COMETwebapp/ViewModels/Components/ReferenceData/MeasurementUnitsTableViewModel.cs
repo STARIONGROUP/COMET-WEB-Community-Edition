@@ -276,11 +276,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             var updatedPersonRoles = updatedThingsList.OfType<PersonRole>();
             var updatedRdls = updatedThingsList.OfType<ReferenceDataLibrary>();
 
-            foreach (var updatedMeasurementUnit in updatedMeasurementUnits)
+            this.Rows.Edit(action =>
             {
-                var updatedRow = new MeasurementUnitRowViewModel(updatedMeasurementUnit);
-                this.Rows.Items.First(x => x.MeasurementUnit.Iid == updatedMeasurementUnit.Iid).UpdateProperties(updatedRow);
-            }
+                foreach (var updatedMeasurementUnit in updatedMeasurementUnits)
+                {
+                    var updatedRow = new MeasurementUnitRowViewModel(updatedMeasurementUnit);
+                    var rowToUpdate = this.Rows.Items.First(x => x.MeasurementUnit.Iid == updatedMeasurementUnit.Iid);
+                    action.Replace(rowToUpdate, updatedRow);
+                }
+            });
 
             foreach (var rdl in updatedRdls)
             {
@@ -299,7 +303,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
         public void RemoveRows(IEnumerable<Thing> deletedThings)
         {
-            var measurementUnitsIidsToRemove = deletedThings.OfType<MeasurementUnit>().ToList().Select(x => x.Iid);
+            var measurementUnitsIidsToRemove = deletedThings.OfType<MeasurementUnit>().Select(x => x.Iid);
             var rowsToDelete = this.Rows.Items.Where(x => measurementUnitsIidsToRemove.Contains(x.MeasurementUnit.Iid)).ToList();
 
             this.Rows.RemoveMany(rowsToDelete);
