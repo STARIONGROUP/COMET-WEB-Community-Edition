@@ -33,6 +33,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -171,15 +173,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <returns>A <see cref="Task" /></returns>
         public async Task OnConfirmButtonClick()
         {
-            if (this.Person.IsDeprecated)
-            {
-                await this.UnDeprecatingPerson();
-            }
-            else
-            {
-                await this.DeprecatingPerson();
-            }
-
+            await this.DeprecatingOrUndeprecatingPerson();
             this.IsOnDeprecationMode = false;
         }
 
@@ -242,6 +236,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
 
             thingsToCreate.Add(this.Person);
             await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
+            await this.sessionService.RefreshSession();
             this.ResetFields();
         }
 
@@ -263,13 +258,14 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <returns>A <see cref="Task" /></returns>
         public async Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value)
         {
+            var siteDirectoryClone = this.sessionService.GetSiteDirectory().Clone(false);
             var personRow = (PersonRowViewModel)context.DataItem;
-            var personToActivateOrDesactivate = new List<Person>();
             var personToUpdate = personRow.Person;
             var clonedPerson = personToUpdate.Clone(false);
             clonedPerson.IsActive = value;
-            personToActivateOrDesactivate.Add(clonedPerson);
-            await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), personToActivateOrDesactivate);
+
+            await this.sessionService.UpdateThings(siteDirectoryClone, clonedPerson);
+            await this.sessionService.RefreshSession();
         }
 
         /// <summary>
@@ -323,39 +319,22 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             foreach (var person in updatedThings.OfType<Person>())
             {
                 var row = this.Rows.Items.FirstOrDefault(x => x.Person.Iid == person.Iid);
-
-                if (row != null)
-                {
-                    row.UpdateProperties(new PersonRowViewModel(person));
-                }
+                row?.UpdateProperties(new PersonRowViewModel(person));
             }
         }
 
         /// <summary>
-        /// Tries to undeprecate a <see cref="Person" />
+        /// Tries to deprecate or undeprecate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task UnDeprecatingPerson()
+        public async Task DeprecatingOrUndeprecatingPerson()
         {
-            var personToUnDeprecate = new List<Person>();
+            var siteDirectoryClone = this.sessionService.GetSiteDirectory().Clone(false);
             var clonedPerson = this.Person.Clone(false);
-            clonedPerson.IsDeprecated = false;
-            personToUnDeprecate.Add(clonedPerson);
-            await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), personToUnDeprecate);
-            this.IsOnDeprecationMode = false;
-        }
+            clonedPerson.IsDeprecated = !clonedPerson.IsDeprecated;
 
-        /// <summary>
-        /// Tries to deprecate a <see cref="Person" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task DeprecatingPerson()
-        {
-            var personToDeprecate = new List<Person>();
-            var clonedPerson = this.Person.Clone(false);
-            clonedPerson.IsDeprecated = true;
-            personToDeprecate.Add(clonedPerson);
-            await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), personToDeprecate);
+            await this.sessionService.UpdateThings(siteDirectoryClone, clonedPerson);
+            await this.sessionService.RefreshSession();
             this.IsOnDeprecationMode = false;
         }
 
@@ -365,7 +344,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
-            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
+            if (this.AddedThings.Count == 0 && this.DeletedThings.Count == 0 && this.UpdatedThings.Count == 0)
             {
                 return;
             }
@@ -377,16 +356,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
             this.ClearRecordedChanges();
             this.RefreshAccessRight();
             this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// The logic used to check if a change should be recorded an <see cref="ObjectChangedEvent" />
-        /// </summary>
-        /// <param name="objectChangedEvent">The <see cref="ObjectChangedEvent" /></param>
-        /// <returns>true if the change should be recorded, false otherwise</returns>
-        protected override bool ShouldRecordChange(ObjectChangedEvent objectChangedEvent)
-        {
-            return true;
         }
 
         /// <summary>

@@ -156,5 +156,11 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task CreatingOrEditingPerson();
+
+        /// <summary>
+        /// Tries to deprecate or undeprecate a <see cref="UserManagementTableViewModel.Person" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task DeprecatingOrUndeprecatingPerson();
     }
 }
