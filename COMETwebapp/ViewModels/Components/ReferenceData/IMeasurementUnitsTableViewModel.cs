@@ -36,7 +36,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model used to manage <see cref="MeasurementUnit" />s
     /// </summary>
-    public interface IMeasurementUnitsTableViewModel : IApplicationBaseViewModel
+    public interface IMeasurementUnitsTableViewModel : IApplicationBaseViewModel, IHaveReusableRows
     {
         /// <summary>
         /// Gets or sets the data source for the grid control.
@@ -69,13 +69,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         string PopupDialog { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
+        /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        Task OnInitializedAsync();
+        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
         /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="MeasurementUnitsTableViewModel.MeasurementUnit" />
@@ -93,5 +89,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         /// <param name="measurementUnitRow"> The <see cref="MeasurementUnitRowViewModel" /> to deprecate or undeprecate </param>
         void OnDeprecateUnDeprecateButtonClick(MeasurementUnitRowViewModel measurementUnitRow);
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// Override this method if you will perform an asynchronous operation and
+        /// want the component to refresh when that operation is completed.
+        /// </summary>
+        void InitializeViewModel();
+
+        /// <summary>
+        /// Tries to deprecate or undeprecate a <see cref="MeasurementUnitsTableViewModel.MeasurementUnit" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task DeprecatingOrUnDeprecatingMeasurementUnit();
     }
 }

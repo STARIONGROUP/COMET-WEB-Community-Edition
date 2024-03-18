@@ -26,7 +26,12 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using System.Threading.Tasks;
 
+    using CDP4Common.SiteDirectoryData;
+
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
 
@@ -48,7 +53,12 @@ namespace COMETwebapp.Components.ReferenceData
         public IMeasurementUnitsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        ///     Gets or sets the grid control that is being customized.
+        /// Gets or sets the condition to check if a measurement unit should be created
+        /// </summary>
+        public bool ShouldCreateMeasurementUnit { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
 
@@ -82,18 +92,15 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        protected override async Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
-            await this.ViewModel.OnInitializedAsync();
+            base.OnInitialized();
+            this.ViewModel.InitializeViewModel();
 
-            this.Disposables.Add(this.ViewModel.Rows.CountChanged.Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            await base.OnInitializedAsync();
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.WhenAnyValue(x => x.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -121,6 +128,41 @@ namespace COMETwebapp.Components.ReferenceData
                 this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
                 .Subscribe(_ => this.HideOrShowDeprecatedItems()));
             }
+        }
+
+        /// <summary>
+        /// Method that is invoked when the edit/add measurement unit form is being saved
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private void OnEditMeasurementUnitSaving()
+        {
+            if (!this.ShouldCreateMeasurementUnit)
+            {
+                // update measurement unit
+                return;
+            }
+
+            // create measurement unit
+        }
+
+        /// <summary>
+        /// Method invoked when creating a new measurement unit
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
+        private void CustomizeEditMeasurementUnit(GridCustomizeEditModelEventArgs e)
+        {
+            var dataItem = (MeasurementUnitRowViewModel)e.DataItem;
+            this.ShouldCreateMeasurementUnit = e.IsNew;
+
+            if (dataItem == null)
+            {
+                e.EditModel = new SimpleUnit();
+                this.ViewModel.MeasurementUnit = new SimpleUnit();
+                return;
+            }
+
+            e.EditModel = dataItem;
+            this.ViewModel.MeasurementUnit = dataItem.MeasurementUnit.Clone(true);
         }
     }
 }

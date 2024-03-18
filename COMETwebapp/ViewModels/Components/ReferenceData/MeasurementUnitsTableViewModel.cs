@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
-    using System.Reactive.Linq;
-
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -33,7 +31,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -43,6 +40,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using DynamicData;
 
     using ReactiveUI;
+
+    using MeasurementUnit = CDP4Common.SiteDirectoryData.MeasurementUnit;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementUnit" />s
@@ -65,9 +64,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         private bool isOnDeprecationMode;
 
         /// <summary>
-        /// A collection of all <see cref="MeasurementUnitRowViewModel" />
+        /// The <see cref="ILogger{TCategoryName}"/>
         /// </summary>
-        private IEnumerable<MeasurementUnitRowViewModel> allRows = new List<MeasurementUnitRowViewModel>();
+        private readonly ILogger<MeasurementUnitsTableViewModel> logger;
+
+        /// <summary>
+        /// A collection of <see cref="Type" /> used to create <see cref="ObjectChangedEvent" /> subscriptions
+        /// </summary>
+        private static readonly IEnumerable<Type> ObjectChangedTypesOfInterest = new List<Type>
+        {
+            typeof(MeasurementUnit),
+            typeof(PersonRole),
+            typeof(ReferenceDataLibrary)
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementUnitsTableViewModel" /> class.
@@ -75,44 +84,23 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        public MeasurementUnitsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
+        public MeasurementUnitsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, 
+            ILogger<MeasurementUnitsTableViewModel> logger) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
             this.permissionService = sessionService.Session.PermissionService;
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
+            this.logger = logger;
 
-            this.Disposables.Add(
-                this.MessageBus.Listen<ObjectChangedEvent>(typeof(MeasurementUnit))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Added &&
-                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as MeasurementUnit)
-                    .SubscribeAsync(this.AddNewMeasurementUnit));
-
-            this.Disposables.Add(
-                this.MessageBus.Listen<ObjectChangedEvent>(typeof(MeasurementUnit))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as MeasurementUnit)
-                    .SubscribeAsync(this.UpdateMeasurementUnit));
-
-            this.Disposables.Add(
-                this.MessageBus.Listen<ObjectChangedEvent>(typeof(ReferenceDataLibrary))
-                    .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                           objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                    .Select(x => x.ChangedThing as ReferenceDataLibrary)
-                    .SubscribeAsync(this.RefreshContainerName));
-
-            this.Disposables.Add(this.MessageBus.Listen<ObjectChangedEvent>(typeof(PersonRole))
-                .Where(objectChange => objectChange.EventKind == EventKind.Updated &&
-                                       objectChange.ChangedThing.Cache == this.sessionService.Session.Assembler.Cache)
-                .Select(x => x.ChangedThing as PersonRole)
-                .SubscribeAsync(_ => this.RefreshAccessRight()));
+            this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
+            this.RegisterViewModelWithReusableRows(this);
         }
 
         /// <summary>
         /// The <see cref="MeasurementUnit" /> to create or edit
         /// </summary>
-        public MeasurementUnit MeasurementUnit { get; set; }
+        public MeasurementUnit MeasurementUnit { get; set; } = new SimpleUnit();
 
         /// <summary>
         /// Available <see cref="ReferenceDataLibrary" />s
@@ -149,13 +137,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public string PopupDialog { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
+        /// Initializes the <see cref="MeasurementUnitsTableViewModel"/>
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        public async Task OnInitializedAsync()
+        public void InitializeViewModel()
         {
             foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
@@ -163,49 +147,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             }
 
             this.ReferenceDataLibraries = this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
-            await this.UpdateProperties(this.DataSource.Items);
-            await this.RefreshAccessRight();
-        }
-
-        /// <summary>
-        /// Adds a new <see cref="MeasurementUnit" />
-        /// </summary>
-        public Task AddNewMeasurementUnit(MeasurementUnit measurementUnit)
-        {
-            var newRows = new List<MeasurementUnitRowViewModel>(this.allRows)
-            {
-                new(measurementUnit)
-            };
-
-            this.UpdateRows(newRows);
-
-            return this.RefreshAccessRight();
-        }
-
-        /// <summary>
-        /// Updates the <see cref="MeasurementUnit" />
-        /// </summary>
-        public Task UpdateMeasurementUnit(MeasurementUnit measurementUnit)
-        {
-            var updatedRows = new List<MeasurementUnitRowViewModel>(this.allRows);
-            var index = updatedRows.FindIndex(x => x.MeasurementUnit.Iid == measurementUnit.Iid);
-            updatedRows[index] = new MeasurementUnitRowViewModel(measurementUnit);
-            this.UpdateRows(updatedRows);
-
-            return this.RefreshAccessRight();
-        }
-
-        /// <summary>
-        /// Updates this view model properties
-        /// </summary>
-        /// <param name="measurementUnits">A collection of <see cref="MeasurementUnit" /></param>
-        public async Task UpdateProperties(IEnumerable<MeasurementUnit> measurementUnits)
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-            this.allRows = measurementUnits.Select(x => new MeasurementUnitRowViewModel(x));
-            this.UpdateRows(this.allRows);
-            this.IsLoading = false;
+            this.Rows.AddRange(this.DataSource.Items.Select(x => new MeasurementUnitRowViewModel(x)));
+            this.RefreshAccessRight();
         }
 
         /// <summary>
@@ -214,15 +157,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <returns>A <see cref="Task" /></returns>
         public async Task OnConfirmPopupButtonClick()
         {
-            if (this.MeasurementUnit.IsDeprecated)
-            {
-                await this.UnDeprecatingMeasurementUnit();
-            }
-            else
-            {
-                await this.DeprecatingMeasurementUnit();
-            }
-
+            await this.DeprecatingOrUnDeprecatingMeasurementUnit();
             this.IsOnDeprecationMode = false;
         }
 
@@ -249,59 +184,40 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
+        protected override Task OnSessionRefreshed()
         {
+            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
             this.IsLoading = true;
-            await Task.Delay(1);
+            this.UpdateInnerComponents();
+            this.RefreshAccessRight();
+            this.ClearRecordedChanges();
             this.IsLoading = false;
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Tries to undeprecate a <see cref="MeasurementUnit" />
+        /// Tries to deprecate or undeprecate a <see cref="MeasurementUnit" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        private async Task UnDeprecatingMeasurementUnit()
+        public async Task DeprecatingOrUnDeprecatingMeasurementUnit()
         {
-            var measurementUnitsToUnDeprecate = new List<MeasurementUnit>();
+            var siteDirectoryClone = this.sessionService.GetSiteDirectory().Clone(false);
             var clonedMeasurementUnit = this.MeasurementUnit.Clone(false);
-            clonedMeasurementUnit.IsDeprecated = false;
-            measurementUnitsToUnDeprecate.Add(clonedMeasurementUnit);
+            clonedMeasurementUnit.IsDeprecated = !clonedMeasurementUnit.IsDeprecated;
 
             try
             {
-                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), measurementUnitsToUnDeprecate);
+                await this.sessionService.UpdateThings(siteDirectoryClone, clonedMeasurementUnit);
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.Message);
-                throw;
+                this.logger.LogError(exception, "An error has occurred while trying to deprecating or un-deprecating the measurement unit {unitName}", clonedMeasurementUnit.ShortName);
             }
-
-            this.IsOnDeprecationMode = false;
-        }
-
-        /// <summary>
-        /// Tries to deprecate a <see cref="MeasurementUnit" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task DeprecatingMeasurementUnit()
-        {
-            var measurementUnitsToDeprecate = new List<MeasurementUnit>();
-            var clonedMeasurementUnit = this.MeasurementUnit.Clone(false);
-            clonedMeasurementUnit.IsDeprecated = true;
-            measurementUnitsToDeprecate.Add(clonedMeasurementUnit);
-
-            try
-            {
-                await this.sessionService.UpdateThings(this.sessionService.GetSiteDirectory(), measurementUnitsToDeprecate);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                throw;
-            }
-
-            this.IsOnDeprecationMode = false;
         }
 
         /// <summary>
@@ -310,17 +226,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <param name="rdl">
         /// The updated <see cref="ReferenceDataLibrary" />.
         /// </param>
-        private async Task RefreshContainerName(ReferenceDataLibrary rdl)
+        private void RefreshContainerName(ReferenceDataLibrary rdl)
         {
             this.IsLoading = true;
-            await Task.Delay(1);
+            var rowsContainedByUpdatedRdl = this.Rows.Items.Where(x => x.MeasurementUnit.Container.Iid == rdl.Iid);
 
-            foreach (var measurementUnit in this.Rows.Items)
+            foreach (var measurementUnit in rowsContainedByUpdatedRdl)
             {
-                if (measurementUnit.ContainerName != rdl.ShortName)
-                {
-                    measurementUnit.ContainerName = rdl.ShortName;
-                }
+                measurementUnit.ContainerName = rdl.ShortName;
             }
 
             this.IsLoading = false;
@@ -329,10 +242,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Updates the active user access rights
         /// </summary>
-        private async Task RefreshAccessRight()
+        private void RefreshAccessRight()
         {
             this.IsLoading = true;
-            await Task.Delay(1);
 
             foreach (var row in this.Rows.Items)
             {
@@ -343,25 +255,54 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        /// Update the <see cref="Rows" /> collection based on a collection of
-        /// <see cref="MeasurementUnitRowViewModel" /> to display.
+        /// Add rows related to <see cref="Thing" /> that has been added
         /// </summary>
-        /// <param name="rowsToDisplay">A collection of <see cref="MeasurementUnitRowViewModel" /></param>
-        private void UpdateRows(IEnumerable<MeasurementUnitRowViewModel> rowsToDisplay)
+        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
+        public void AddRows(IEnumerable<Thing> addedThings)
         {
-            rowsToDisplay = rowsToDisplay.ToList();
+            var addedMeasurementUnits = addedThings.OfType<MeasurementUnit>().ToList();
+            this.Rows.AddRange(addedMeasurementUnits.Select(x => new MeasurementUnitRowViewModel(x)));
+        }
 
-            var deletedRows = this.Rows.Items.Where(x => rowsToDisplay.All(r => r.MeasurementUnit.Iid != x.MeasurementUnit.Iid)).ToList();
-            var addedRows = rowsToDisplay.Where(x => this.Rows.Items.All(r => r.MeasurementUnit.Iid != x.MeasurementUnit.Iid)).ToList();
-            var existingRows = rowsToDisplay.Where(x => this.Rows.Items.Any(r => r.MeasurementUnit.Iid == x.MeasurementUnit.Iid)).ToList();
+        /// <summary>
+        /// Updates rows related to <see cref="Thing" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
+        public void UpdateRows(IEnumerable<Thing> updatedThings)
+        {
+            var updatedThingsList = updatedThings.ToList();
 
-            this.Rows.RemoveMany(deletedRows);
-            this.Rows.AddRange(addedRows);
+            var updatedMeasurementUnits = updatedThingsList.OfType<MeasurementUnit>();
+            var updatedPersonRoles = updatedThingsList.OfType<PersonRole>();
+            var updatedRdls = updatedThingsList.OfType<ReferenceDataLibrary>();
 
-            foreach (var existingRow in existingRows)
+            foreach (var updatedMeasurementUnit in updatedMeasurementUnits)
             {
-                this.Rows.Items.First(x => x.MeasurementUnit.Iid == existingRow.MeasurementUnit.Iid).UpdateProperties(existingRow);
+                var updatedRow = new MeasurementUnitRowViewModel(updatedMeasurementUnit);
+                this.Rows.Items.First(x => x.MeasurementUnit.Iid == updatedMeasurementUnit.Iid).UpdateProperties(updatedRow);
             }
+
+            foreach (var rdl in updatedRdls)
+            {
+                this.RefreshContainerName(rdl);
+            }
+
+            if (updatedPersonRoles.Any())
+            {
+                this.RefreshAccessRight();
+            }
+        }
+
+        /// <summary>
+        /// Remove rows related to a <see cref="Thing" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
+        public void RemoveRows(IEnumerable<Thing> deletedThings)
+        {
+            var measurementUnitsIidsToRemove = deletedThings.OfType<MeasurementUnit>().ToList().Select(x => x.Iid);
+            var rowsToDelete = this.Rows.Items.Where(x => measurementUnitsIidsToRemove.Contains(x.MeasurementUnit.Iid)).ToList();
+
+            this.Rows.RemoveMany(rowsToDelete);
         }
     }
 }

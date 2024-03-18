@@ -15,6 +15,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@using CDP4Common.SiteDirectoryData
 @inherits DisposableComponent
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
@@ -25,9 +26,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
             ShowAllRows="true"
             SearchBoxNullText="Search for a measurement unit ..."
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Create Measurement Unit"
+            PopupEditFormHeaderText="Create Measurement Unit (UNDER DEV)"
+            CustomizeElement="DisableDeprecatedMeasurementUnit"
             EditMode="GridEditMode.PopupEditForm"
-            CustomizeElement="DisableDeprecatedMeasurementUnit">
+            EditModelSaving="@(this.OnEditMeasurementUnitSaving)"
+            CustomizeEditModel="this.CustomizeEditMeasurementUnit">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
@@ -41,18 +44,42 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 <CellDisplayTemplate>
                     @{
                         var row = (MeasurementUnitRowViewModel)context.DataItem;
+
+                        <DxButton Id="editUnitButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
+
                         if (row.IsDeprecated)
                         {
-                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled=row.IsAllowedToWrite />
+                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled="@(row.IsAllowedToWrite)" />
                         }
                         else
                         {
-                            <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled=row.IsAllowedToWrite />
+                            <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled="@(row.IsAllowedToWrite)" />
                         }
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
+        
+        <EditFormTemplate Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementUnit.ShortName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementUnit.Name" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
+                                TextFieldName="@nameof(ReferenceDataLibrary.Name)"
+                                @bind-Value="@this.ViewModel.MeasurementUnit.Container"
+                                CssClass="cw-480" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.MeasurementUnit.IsDeprecated" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
     </DxGrid>
     
     <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
