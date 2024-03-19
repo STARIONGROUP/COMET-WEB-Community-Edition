@@ -352,7 +352,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 TelephoneNumber = { new TelephoneNumber() }
             };
 
-            await this.viewModel.CreatingOrEditingPerson();
+            await this.viewModel.CreateOrEditPerson();
             this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Added));
 
             Assert.Multiple(() =>

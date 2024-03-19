@@ -52,7 +52,7 @@
                 <CellDisplayTemplate>
                     @{
                         var row = (PersonRowViewModel)context.DataItem;
-                        <DxCheckBox Id="activatePerson" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.ViewModel.ActivatingOrDisactivatingPerson(context, value))" Checked="(bool)context.Value" Enabled="row.IsAllowedToWrite" />
+                        <DxCheckBox Id="activatePerson" CssClass="d-inline-block" CheckedChanged="@((bool value) => this.ViewModel.ActivateOrDeactivatePerson(context, value))" Checked="(bool)context.Value" Enabled="row.IsAllowedToWrite" />
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
