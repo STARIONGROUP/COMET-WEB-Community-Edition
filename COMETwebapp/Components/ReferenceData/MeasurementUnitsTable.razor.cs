@@ -2,7 +2,7 @@
 // <copyright file="MeasurementUnitsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -61,18 +61,6 @@ namespace COMETwebapp.Components.ReferenceData
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
-
-        /// <summary>
-        /// Method invoked to highlight deprecated measurement units
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
-        private static void DisableDeprecatedMeasurementUnit(GridCustomizeElementEventArgs e)
-        {
-            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
-            {
-                e.CssClass = "highlighted-item";
-            }
-        }
 
         /// <summary>
         /// Method invoked to "Show/Hide Deprecated Items" 
@@ -142,6 +130,18 @@ namespace COMETwebapp.Components.ReferenceData
             }
 
             // create measurement unit
+        }
+
+        /// <summary>
+        /// Method invoked to highlight deprecated measurement units
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
+        private static void DisableDeprecatedMeasurementUnit(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
+            {
+                e.CssClass = "highlighted-item";
+            }
         }
 
         /// <summary>

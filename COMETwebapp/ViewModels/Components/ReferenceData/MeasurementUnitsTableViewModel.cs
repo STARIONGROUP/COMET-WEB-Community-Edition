@@ -2,7 +2,7 @@
 // <copyright file="MeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -181,26 +181,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        /// Handles the refresh of the current <see cref="ISession" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed()
-        {
-            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
-            {
-                return Task.CompletedTask;
-            }
-
-            this.IsLoading = true;
-            this.UpdateInnerComponents();
-            this.RefreshAccessRight();
-            this.ClearRecordedChanges();
-            this.IsLoading = false;
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
         /// Tries to deprecate or undeprecate a <see cref="MeasurementUnit" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -218,40 +198,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             {
                 this.logger.LogError(exception, "An error has occurred while trying to deprecating or un-deprecating the measurement unit {unitName}", clonedMeasurementUnit.ShortName);
             }
-        }
-
-        /// <summary>
-        /// Refresh the displayed container name for the measurement unit rows
-        /// </summary>
-        /// <param name="rdl">
-        /// The updated <see cref="ReferenceDataLibrary" />.
-        /// </param>
-        private void RefreshContainerName(ReferenceDataLibrary rdl)
-        {
-            this.IsLoading = true;
-            var rowsContainedByUpdatedRdl = this.Rows.Items.Where(x => x.MeasurementUnit.Container.Iid == rdl.Iid);
-
-            foreach (var measurementUnit in rowsContainedByUpdatedRdl)
-            {
-                measurementUnit.ContainerName = rdl.ShortName;
-            }
-
-            this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// Updates the active user access rights
-        /// </summary>
-        private void RefreshAccessRight()
-        {
-            this.IsLoading = true;
-
-            foreach (var row in this.Rows.Items)
-            {
-                row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.MeasurementUnit, row.MeasurementUnit.Container);
-            }
-
-            this.IsLoading = false;
         }
 
         /// <summary>
@@ -307,6 +253,60 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
             var rowsToDelete = this.Rows.Items.Where(x => measurementUnitsIidsToRemove.Contains(x.MeasurementUnit.Iid)).ToList();
 
             this.Rows.RemoveMany(rowsToDelete);
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnSessionRefreshed()
+        {
+            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            this.IsLoading = true;
+            this.UpdateInnerComponents();
+            this.RefreshAccessRight();
+            this.ClearRecordedChanges();
+            this.IsLoading = false;
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Refresh the displayed container name for the measurement unit rows
+        /// </summary>
+        /// <param name="rdl">
+        /// The updated <see cref="ReferenceDataLibrary" />.
+        /// </param>
+        private void RefreshContainerName(ReferenceDataLibrary rdl)
+        {
+            this.IsLoading = true;
+            var rowsContainedByUpdatedRdl = this.Rows.Items.Where(x => x.MeasurementUnit.Container.Iid == rdl.Iid);
+
+            foreach (var measurementUnit in rowsContainedByUpdatedRdl)
+            {
+                measurementUnit.ContainerName = rdl.ShortName;
+            }
+
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Updates the active user access rights
+        /// </summary>
+        private void RefreshAccessRight()
+        {
+            this.IsLoading = true;
+
+            foreach (var row in this.Rows.Items)
+            {
+                row.IsAllowedToWrite = this.permissionService.CanWrite(ClassKind.MeasurementUnit, row.MeasurementUnit.Container);
+            }
+
+            this.IsLoading = false;
         }
     }
 }
