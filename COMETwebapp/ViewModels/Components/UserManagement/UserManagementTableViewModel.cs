@@ -183,17 +183,6 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         }
 
         /// <summary>
-        /// Method that resets all form fields
-        /// </summary>
-        private void ResetFields()
-        {
-            this.EmailAddress = new EmailAddress();
-            this.TelephoneNumber = new TelephoneNumber();
-            this.IsDefaultEmail = false;
-            this.IsDefaultTelephoneNumber = false;
-        }
-
-        /// <summary>
         /// Tries to create or edit an existing <see cref="Person"/>, based on the <see cref="ShouldCreatePerson"/> property
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -365,6 +354,17 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
                 row.IsAllowedToWrite = row.Person.Iid != this.sessionService.Session.ActivePerson.Iid
                                        && this.permissionService.CanWrite(ClassKind.Person, this.sessionService.GetSiteDirectory());
             }
+        }
+
+        /// <summary>
+        /// Method that resets all form fields
+        /// </summary>
+        private void ResetFields()
+        {
+            this.EmailAddress = new EmailAddress();
+            this.TelephoneNumber = new TelephoneNumber();
+            this.IsDefaultEmail = false;
+            this.IsDefaultTelephoneNumber = false;
         }
     }
 }
