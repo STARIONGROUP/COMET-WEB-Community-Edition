@@ -1,6 +1,6 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023-2024 RHEA System S.A.
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 <DxToolbar ItemClick="@this.OnItemClick">
     <Items>
         <DxToolbarItem Name="ParameterTypes" Text="Parameter Types" Tooltip="Parameter Types" />
+        <DxToolbarItem Name="MeasurementUnits" Text="Measurement Units" Tooltip="Measurement Units" />
         <DxToolbarItem Name="Categories" Text="Categories" Tooltip="Categories" />
     </Items>
 </DxToolbar>
@@ -32,5 +33,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
         break;
     case "Categories":
         <CategoriesTable />
+        break;
+    case "MeasurementUnits":
+        <MeasurementUnitsTable />
         break;
 }

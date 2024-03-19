@@ -1,0 +1,92 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@using CDP4Common.SiteDirectoryData
+@inherits DisposableComponent
+
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            ShowAllRows="true"
+            SearchBoxNullText="Search for a measurement unit ..."
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Create Measurement Unit (UNDER DEV)"
+            CustomizeElement="DisableDeprecatedMeasurementUnit"
+            EditMode="GridEditMode.PopupEditForm"
+            EditModelSaving="@(this.OnEditMeasurementUnitSaving)"
+            CustomizeEditModel="this.CustomizeEditMeasurementUnit">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addMeasurementUnitButton" Text="Add Measurement Unit" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (MeasurementUnitRowViewModel)context.DataItem;
+
+                        <DxButton Id="editUnitButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
+
+                        if (row.IsDeprecated)
+                        {
+                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled="@(row.IsAllowedToWrite)" />
+                        }
+                        else
+                        {
+                            <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled="@(row.IsAllowedToWrite)" />
+                        }
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+        
+        <EditFormTemplate Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementUnit.ShortName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementUnit.Name" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
+                                TextFieldName="@nameof(ReferenceDataLibrary.Name)"
+                                @bind-Value="@this.ViewModel.MeasurementUnit.Container"
+                                CssClass="cw-480" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.MeasurementUnit.IsDeprecated" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
+    
+    <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+        @this.ViewModel.PopupDialog
+        <div class="dxbl-grid-confirm-dialog-buttons">
+            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+        </div>
+    </DxPopup>
+</LoadingComponent>
