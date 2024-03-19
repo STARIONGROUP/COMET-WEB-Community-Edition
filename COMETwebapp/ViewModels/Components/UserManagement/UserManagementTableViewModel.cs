@@ -30,11 +30,8 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using COMET.Web.Common.Enumerations;
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
