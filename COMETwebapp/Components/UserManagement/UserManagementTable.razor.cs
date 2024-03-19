@@ -134,7 +134,7 @@ namespace COMETwebapp.Components.UserManagement
         /// <returns>A <see cref="Task"/></returns>
         private async Task OnEditModelSaving()
         {
-            await this.ViewModel.CreatingOrEditingPerson();
+            await this.ViewModel.CreateOrEditPerson();
         }
 
         /// <summary>

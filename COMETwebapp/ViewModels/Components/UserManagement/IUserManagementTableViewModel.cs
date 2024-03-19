@@ -141,7 +141,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Tries to activate or disactivate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value);
+        Task ActivateOrDeactivatePerson(GridDataColumnCellDisplayTemplateContext context, bool value);
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -155,12 +155,12 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Tries to create or edit an existing <see cref="UserManagementTableViewModel.Person"/>, based on the <see cref="UserManagementTableViewModel.ShouldCreatePerson"/> property
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task CreatingOrEditingPerson();
+        Task CreateOrEditPerson();
 
         /// <summary>
         /// Tries to deprecate or undeprecate a <see cref="UserManagementTableViewModel.Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task DeprecatingOrUndeprecatingPerson();
+        Task DeprecateOrUndeprecatePerson();
     }
 }

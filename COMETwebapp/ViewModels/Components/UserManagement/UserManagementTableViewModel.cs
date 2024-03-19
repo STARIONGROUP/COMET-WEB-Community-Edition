@@ -170,7 +170,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// <returns>A <see cref="Task" /></returns>
         public async Task OnConfirmButtonClick()
         {
-            await this.DeprecatingOrUndeprecatingPerson();
+            await this.DeprecateOrUndeprecatePerson();
             this.IsOnDeprecationMode = false;
         }
 
@@ -186,7 +186,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Tries to create or edit an existing <see cref="Person"/>, based on the <see cref="ShouldCreatePerson"/> property
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task CreatingOrEditingPerson()
+        public async Task CreateOrEditPerson()
         {
             var thingsToCreate = new List<Thing>();
 
@@ -242,7 +242,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Tries to activate or disactivate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task ActivatingOrDisactivatingPerson(GridDataColumnCellDisplayTemplateContext context, bool value)
+        public async Task ActivateOrDeactivatePerson(GridDataColumnCellDisplayTemplateContext context, bool value)
         {
             var siteDirectoryClone = this.sessionService.GetSiteDirectory().Clone(false);
             var personRow = (PersonRowViewModel)context.DataItem;
@@ -313,7 +313,7 @@ namespace COMETwebapp.ViewModels.Components.UserManagement
         /// Tries to deprecate or undeprecate a <see cref="Person" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task DeprecatingOrUndeprecatingPerson()
+        public async Task DeprecateOrUndeprecatePerson()
         {
             var siteDirectoryClone = this.sessionService.GetSiteDirectory().Clone(false);
             var clonedPerson = this.Person.Clone(false);
