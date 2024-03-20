@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementUnitsTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="MeasurementScalesTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -42,20 +42,20 @@ namespace COMETwebapp.Components.ReferenceData
     using ReactiveUI;
 
     /// <summary>
-    /// Support class for the <see cref="MeasurementUnitsTable"/>
+    /// Support class for the <see cref="MeasurementScalesTable"/>
     /// </summary>
-    public partial class MeasurementUnitsTable
+    public partial class MeasurementScalesTable
     {
         /// <summary>
-        /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component
+        /// The <see cref="IMeasurementScalesTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IMeasurementUnitsTableViewModel ViewModel { get; set; }
+        public IMeasurementScalesTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if a measurement unit should be created
+        /// Gets or sets the condition to check if a measurement scale should be created
         /// </summary>
-        public bool ShouldCreateMeasurementUnit { get; private set; }
+        public bool ShouldCreateMeasurementScale { get; private set; }
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
@@ -119,24 +119,24 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add measurement unit form is being saved
+        /// Method that is invoked when the edit/add measurement scale form is being saved
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        private void OnEditMeasurementUnitSaving()
+        private void OnEditMeasurementScaleSaving()
         {
-            if (!this.ShouldCreateMeasurementUnit)
+            if (!this.ShouldCreateMeasurementScale)
             {
-                // update measurement unit
+                // update measurement scale
             }
 
-            // create measurement unit
+            // create measurement scale
         }
 
         /// <summary>
-        /// Method invoked to highlight deprecated measurement units
+        /// Method invoked to highlight deprecated measurement scakes
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs"/> </param>
-        private static void DisableDeprecatedMeasurementUnit(GridCustomizeElementEventArgs e)
+        private static void DisableDeprecatedMeasurementScale(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
@@ -145,23 +145,23 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        /// Method invoked when creating a new measurement unit
+        /// Method invoked when creating a new measurement scale
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditMeasurementUnit(GridCustomizeEditModelEventArgs e)
+        private void CustomizeEditMeasurementScale(GridCustomizeEditModelEventArgs e)
         {
-            var dataItem = (MeasurementUnitRowViewModel)e.DataItem;
-            this.ShouldCreateMeasurementUnit = e.IsNew;
+            var dataItem = (MeasurementScaleRowViewModel)e.DataItem;
+            this.ShouldCreateMeasurementScale = e.IsNew;
 
             if (dataItem == null)
             {
-                e.EditModel = new SimpleUnit();
-                this.ViewModel.MeasurementUnit = new SimpleUnit();
+                e.EditModel = new OrdinalScale();
+                this.ViewModel.MeasurementScale = new OrdinalScale();
                 return;
             }
 
             e.EditModel = dataItem;
-            this.ViewModel.MeasurementUnit = dataItem.MeasurementUnit.Clone(true);
+            this.ViewModel.MeasurementScale = dataItem.MeasurementScale.Clone(true);
         }
     }
 }
