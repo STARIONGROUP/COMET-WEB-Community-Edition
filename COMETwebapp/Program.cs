@@ -34,6 +34,8 @@ namespace COMETwebapp
     using COMETwebapp.Model;
     using COMETwebapp.Shared.TopMenuEntry;
 
+    using Serilog;
+
     /// <summary>
     /// Point of entry of the application
     /// </summary>
@@ -59,6 +61,13 @@ namespace COMETwebapp
 
             builder.Services.RegisterServices();
             builder.Services.RegisterViewModels();
+
+            builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+            {
+                loggerConfiguration.ReadFrom
+                    .Configuration(hostingContext.Configuration)
+                    .WriteTo.Console();
+            });
 
             var app = builder.Build();
             app.UseStaticFiles();
