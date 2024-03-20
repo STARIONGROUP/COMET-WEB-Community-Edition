@@ -21,6 +21,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 <DxToolbar ItemClick="@this.OnItemClick">
     <Items>
         <DxToolbarItem Name="ParameterTypes" Text="Parameter Types" Tooltip="Parameter Types" />
+        <DxToolbarItem Name="MeasurementScales" Text="Measurement Scales" Tooltip="Measurement Scales" />
         <DxToolbarItem Name="MeasurementUnits" Text="Measurement Units" Tooltip="Measurement Units" />
         <DxToolbarItem Name="Categories" Text="Categories" Tooltip="Categories" />
     </Items>
@@ -36,5 +37,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
         break;
     case "MeasurementUnits":
         <MeasurementUnitsTable />
+        break;
+    case "MeasurementScales":
+        <MeasurementScalesTable />
         break;
 }
