@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Extensions
 {
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
