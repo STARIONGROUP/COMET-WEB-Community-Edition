@@ -30,10 +30,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Blazor.Diagrams.Components;
-    using Blazor.Diagrams.Core;
-    using Blazor.Diagrams.Core.Geometry;
-
     using Bunit;
 
     using CDP4Common.CommonData;
