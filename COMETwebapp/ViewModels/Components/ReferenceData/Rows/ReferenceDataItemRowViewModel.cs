@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CategoryRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="ReferenceDataItemRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
@@ -27,14 +27,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Extensions;
-
-    using COMETwebapp.Extensions;
-
     using ReactiveUI;
 
     /// <summary>
-    /// Row View Model for  <see cref="Category" />
+    /// Row View Model for <see cref="T" />
     /// </summary>
     public class ReferenceDataItemRowViewModel<T> : ReactiveObject where T : DefinedThing, IDeprecatableThing
     {
@@ -59,9 +55,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         private string shortName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CategoryRowViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ReferenceDataItemRowViewModel{T}" /> class.
         /// </summary>
-        /// <param name="category">The associated <see cref="Category" /></param>
+        /// <param name="thing">The associated <see cref="T" /></param>
         public ReferenceDataItemRowViewModel(T thing)
         {
             this.Thing = thing;
@@ -78,7 +74,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         public T Thing { get; protected set; }
 
         /// <summary>
-        /// The name of the <see cref="Category" />
+        /// The name of the <see cref="T" />
         /// </summary>
         public string Name
         {
@@ -87,7 +83,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// The short name of the <see cref="Category" />
+        /// The short name of the <see cref="T" />
         /// </summary>
         public string ShortName
         {
@@ -105,7 +101,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Value indicating if the <see cref="Category" /> is deprecated
+        /// Value indicating if the <see cref="T" /> is deprecated
         /// </summary>
         public bool IsDeprecated
         {
@@ -119,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         private bool isAllowedToWrite;
 
         /// <summary>
-        /// Value indicating if the <see cref="Category" /> is deprecated
+        /// Value indicating if the <see cref="T" /> is deprecated
         /// </summary>
         public bool IsAllowedToWrite
         {
@@ -130,13 +126,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// <summary>
         /// Update this row view model properties
         /// </summary>
-        /// <param name="categoryRow">The <see cref="CategoryRowViewModel" /> to use for updating</param>
-        public void UpdateProperties(ReferenceDataItemRowViewModel<T> categoryRow)
+        /// <param name="thingRow">The <see cref="ReferenceDataItemRowViewModel{T}" /> to use for updating</param>
+        public void UpdateProperties(ReferenceDataItemRowViewModel<T> thingRow)
         {
-            this.Name = categoryRow.Name;
-            this.ShortName = categoryRow.ShortName;
-            this.ContainerName = categoryRow.ContainerName;
-            this.IsDeprecated = categoryRow.IsDeprecated;
+            this.Name = thingRow.Name;
+            this.ShortName = thingRow.ShortName;
+            this.ContainerName = thingRow.ContainerName;
+            this.IsDeprecated = thingRow.IsDeprecated;
         }
     }
 }

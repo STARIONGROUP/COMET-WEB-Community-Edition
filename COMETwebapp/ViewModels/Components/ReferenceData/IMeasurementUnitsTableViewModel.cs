@@ -26,26 +26,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementUnit" />s
     /// </summary>
-    public interface IMeasurementUnitsTableViewModel : IReferenceDataItemViewModel<MeasurementUnit>
+    public interface IMeasurementUnitsTableViewModel : IReferenceDataItemViewModel<MeasurementUnit, MeasurementUnitRowViewModel>
     {
         /// <summary>
         /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
-
-        /// <summary>
-        /// A reactive collection of <see cref="MeasurementUnitRowViewModel" />
-        /// </summary>
-        SourceList<MeasurementUnitRowViewModel> Rows { get; }
     }
 }

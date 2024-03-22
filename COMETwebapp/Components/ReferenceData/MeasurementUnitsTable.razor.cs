@@ -28,21 +28,17 @@ namespace COMETwebapp.Components.ReferenceData
 
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Extensions;
-
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
-
-    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Support class for the <see cref="MeasurementUnitsTable"/>
     /// </summary>
-    public partial class MeasurementUnitsTable : SelectedReferenceDataItem<MeasurementUnit>
+    public partial class MeasurementUnitsTable : SelectedReferenceDataItem<MeasurementUnit, MeasurementUnitRowViewModel>
     {
         /// <summary>
         /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component
@@ -64,9 +60,9 @@ namespace COMETwebapp.Components.ReferenceData
         /// Method that is invoked when the edit/add measurement unit form is being saved
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        protected override void OnEditMeasurementUnitSaving()
+        protected override void OnEditThingSaving()
         {
-            if (!this.ShouldCreateMeasurementUnit)
+            if (!this.ShouldCreateThing)
             {
                 // update measurement unit
             }
@@ -78,20 +74,20 @@ namespace COMETwebapp.Components.ReferenceData
         /// Method invoked when creating a new measurement unit
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditMeasurementUnit(GridCustomizeEditModelEventArgs e)
+        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (MeasurementUnitRowViewModel)e.DataItem;
-            this.ShouldCreateMeasurementUnit = e.IsNew;
+            this.ShouldCreateThing = e.IsNew;
 
             if (dataItem == null)
             {
                 e.EditModel = new SimpleUnit();
-                this.ViewModel.MeasurementUnit = new SimpleUnit();
+                this.ViewModel.Thing = new SimpleUnit();
                 return;
             }
 
             e.EditModel = dataItem;
-            this.ViewModel.MeasurementUnit = dataItem.Thing.Clone(true);
+            this.ViewModel.Thing = dataItem.Thing.Clone(true);
         }
     }
 }

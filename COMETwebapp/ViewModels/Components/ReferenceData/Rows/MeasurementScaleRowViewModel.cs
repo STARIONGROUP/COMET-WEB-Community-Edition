@@ -31,28 +31,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     /// <summary>
     /// Row View Model for  <see cref="CDP4Common.SiteDirectoryData.MeasurementScale" />
     /// </summary>
-    public class MeasurementScaleRowViewModel : ReactiveObject
+    public class MeasurementScaleRowViewModel : ReferenceDataItemRowViewModel<MeasurementScale>
     {
-        /// <summary>
-        /// Backing field for <see cref="ContainerName" />
-        /// </summary>
-        private string containerName;
-
-        /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
-
-        /// <summary>
-        /// Backing field for <see cref="Name" />
-        /// </summary>
-        private string name;
-
-        /// <summary>
-        /// Backing field for <see cref="ShortName" />
-        /// </summary>
-        private string shortName;
-
         /// <summary>
         /// Backing field for <see cref="Type" />
         /// </summary>
@@ -72,40 +52,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// Initializes a new instance of the <see cref="MeasurementScaleRowViewModel" /> class.
         /// </summary>
         /// <param name="measurementScale">The associated <see cref="MeasurementScale" /></param>
-        public MeasurementScaleRowViewModel(MeasurementScale measurementScale)
+        public MeasurementScaleRowViewModel(MeasurementScale measurementScale) : base(measurementScale)
         {
-            this.MeasurementScale = measurementScale;
-            this.Name = measurementScale.Name;
-            this.ShortName = measurementScale.ShortName;
             this.Type = measurementScale.ClassKind.ToString();
-            var container = (ReferenceDataLibrary)measurementScale.Container;
-            this.ContainerName = container.ShortName;
             this.NumberSet = measurementScale.NumberSet.ToString();
             this.Unit = measurementScale.Unit.ShortName;
-            this.IsDeprecated = measurementScale.IsDeprecated;
-        }
-
-        /// <summary>
-        /// The associated <see cref="MeasurementScale" />
-        /// </summary>
-        public MeasurementScale MeasurementScale { get; private set; }
-
-        /// <summary>
-        /// The name of the <see cref="MeasurementScale" />
-        /// </summary>
-        public string Name
-        {
-            get => this.name;
-            set => this.RaiseAndSetIfChanged(ref this.name, value);
-        }
-
-        /// <summary>
-        /// The short name of the <see cref="MeasurementScale" />
-        /// </summary>
-        public string ShortName
-        {
-            get => this.shortName;
-            set => this.RaiseAndSetIfChanged(ref this.shortName, value);
         }
 
         /// <summary>
@@ -115,15 +66,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             get => this.type;
             set => this.RaiseAndSetIfChanged(ref this.type, value);
-        }
-
-        /// <summary>
-        /// The <see cref="CDP4Common.SiteDirectoryData.MeasurementScale" /> container name
-        /// </summary>
-        public string ContainerName
-        {
-            get => this.containerName;
-            set => this.RaiseAndSetIfChanged(ref this.containerName, value);
         }
 
         /// <summary>
@@ -142,29 +84,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             get => this.unit;
             set => this.RaiseAndSetIfChanged(ref this.unit, value);
-        }
-
-        /// <summary>
-        /// Value indicating if the <see cref="CDP4Common.SiteDirectoryData.MeasurementScale" /> is deprecated
-        /// </summary>
-        public bool IsDeprecated
-        {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
-        }
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
-        /// Value indicating if the <see cref="CDP4Common.SiteDirectoryData.MeasurementScale" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
         }
     }
 }

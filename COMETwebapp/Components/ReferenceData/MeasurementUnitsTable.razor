@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using CDP4Common.SiteDirectoryData
-@inherits SelectedReferenceDataItem<MeasurementUnit>
+@inherits SelectedReferenceDataItem<MeasurementUnit, MeasurementUnitRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="this.Grid"
@@ -27,10 +27,10 @@ Copyright (c) 2023-2024 RHEA System S.A.
             SearchBoxNullText="Search for a measurement unit ..."
             PopupEditFormCssClass="pw-800"
             PopupEditFormHeaderText="Measurement Unit (UNDER DEV)"
-            CustomizeElement="DisableDeprecatedMeasurementUnit"
+            CustomizeElement="DisableDeprecatedThing"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditMeasurementUnitSaving)"
-            CustomizeEditModel="this.CustomizeEditMeasurementUnit">
+            EditModelSaving="@(this.OnEditThingSaving)"
+            CustomizeEditModel="this.CustomizeEditThing">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
@@ -63,19 +63,19 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <EditFormTemplate Context="EditFormContext">
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementUnit.ShortName" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementUnit.Name" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
                     <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
                                 TextFieldName="@nameof(ReferenceDataLibrary.Name)"
-                                @bind-Value="@this.ViewModel.MeasurementUnit.Container"
+                                @bind-Value="@this.ViewModel.Thing.Container"
                                 CssClass="cw-480" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.MeasurementUnit.IsDeprecated" />
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>

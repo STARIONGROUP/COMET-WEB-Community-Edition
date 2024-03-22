@@ -91,7 +91,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
             this.viewModel.Setup(x => x.IsOnDeprecationMode).Returns(true);
-            this.viewModel.Setup(x => x.MeasurementUnit).Returns(new SimpleUnit());
+            this.viewModel.Setup(x => x.Thing).Returns(new SimpleUnit());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -111,7 +111,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateMeasurementUnit, Is.EqualTo(false));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(renderer.Instance.ViewModel, Is.Not.Null);
                 Assert.That(renderer.Markup, Does.Contain(this.measurementUnit1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.measurementUnit2.Name));
@@ -143,8 +143,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateMeasurementUnit, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.MeasurementUnit, Is.InstanceOf(typeof(MeasurementUnit)));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementUnit)));
             });
             
             var editMeasurementUnitButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editUnitButton");
@@ -152,8 +152,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateMeasurementUnit, Is.EqualTo(false));
-                Assert.That(this.viewModel.Object.MeasurementUnit, Is.InstanceOf(typeof(MeasurementUnit)));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementUnit)));
             });
         }
     }

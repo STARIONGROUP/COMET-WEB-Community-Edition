@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IReferenceDataItemViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -24,21 +24,22 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
-    using CDP4Common.CommonData;
-    using CDP4Common.SiteDirectoryData;
-
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DynamicData;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementUnit" />s
+    /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public interface IReferenceDataItemViewModel<T> : IApplicationBaseViewModel, IHaveReusableRows where T : DefinedThing, IDeprecatableThing
+    public interface IReferenceDataItemViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
     {
+        /// <summary>
+        /// A reactive collection of <see cref="TRow" />s
+        /// </summary>
+        SourceList<TRow> Rows { get; }
+
         /// <summary>
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
         /// </summary>
@@ -55,59 +56,41 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
-        /// The <see cref="MeasurementUnit" /> to create or edit
+        /// The <see cref="T" /> to create or edit
         /// </summary>
-        T MeasurementUnit { get; set; }
+        T Thing { get; set; }
 
         /// <summary>
-        /// popup message dialog
+        /// Gets or sets the popup message dialog
         /// </summary>
         string PopupDialog { get; set; }
 
         /// <summary>
-        /// Initializes the <see cref="MeasurementUnitsTableViewModel"/>
+        /// Initializes the <see cref="ReferenceDataItemViewModel{T,TRow}" />
         /// </summary>
         void InitializeViewModel();
 
         /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="ReferenceDataItemViewModel{T}.MeasurementUnit" />
+        /// Method invoked when confirming the deprecation/un-deprecation of the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task OnConfirmPopupButtonClick();
 
         /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="ReferenceDataItemViewModel{T}.MeasurementUnit" />
+        /// Method invoked when canceling the deprecation/un-deprecation of the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
         /// </summary>
         void OnCancelPopupButtonClick();
 
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        /// <param name="measurementUnitRow"> The <see cref="MeasurementUnitRowViewModel" /> to deprecate or undeprecate </param>
-        void OnDeprecateUnDeprecateButtonClick(ReferenceDataItemRowViewModel<T> measurementUnitRow);
+        /// <param name="thingRow"> The <see cref="TRow" /> to deprecate or undeprecate </param>
+        void OnDeprecateUnDeprecateButtonClick(TRow thingRow);
 
         /// <summary>
-        /// Tries to deprecate or undeprecate a <see cref="ReferenceDataItemViewModel{T}.MeasurementUnit" />
+        /// Tries to deprecate or undeprecate the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task DeprecatingOrUnDeprecatingMeasurementUnit();
-
-        /// <summary>
-        /// Add rows related to <see cref="Thing" /> that has been added
-        /// </summary>
-        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
-        void AddRows(IEnumerable<Thing> addedThings);
-
-        /// <summary>
-        /// Updates rows related to <see cref="Thing" /> that have been updated
-        /// </summary>
-        /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
-        void UpdateRows(IEnumerable<Thing> updatedThings);
-
-        /// <summary>
-        /// Remove rows related to a <see cref="Thing" /> that has been deleted
-        /// </summary>
-        /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
-        void RemoveRows(IEnumerable<Thing> deletedThings);
+        Task DeprecateOrUnDeprecateThing();
     }
 }

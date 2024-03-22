@@ -24,29 +24,21 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
-    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
-    using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using DynamicData;
-
-    using ReactiveUI;
 
     using MeasurementUnit = CDP4Common.SiteDirectoryData.MeasurementUnit;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementUnit" />s
     /// </summary>
-    public class MeasurementUnitsTableViewModel : ReferenceDataItemViewModel<MeasurementUnit>, IMeasurementUnitsTableViewModel
+    public class MeasurementUnitsTableViewModel : ReferenceDataItemViewModel<MeasurementUnit, MeasurementUnitRowViewModel>, IMeasurementUnitsTableViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementUnitsTableViewModel" /> class.
@@ -64,21 +56,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
-
-        /// <summary>
-        /// A reactive collection of <see cref="MeasurementUnitRowViewModel" />
-        /// </summary>
-        public SourceList<MeasurementUnitRowViewModel> Rows { get; } = new();
-
-        protected override void ConvertRowsToSpecificType()
-        {
-            var convertedItems = this.internalRows.Items.Select(x => new MeasurementUnitRowViewModel(x.Thing)
-            {
-                IsAllowedToWrite = x.IsAllowedToWrite
-            });
-
-            this.Rows.EditDiff(convertedItems);
-        }
 
         /// <summary>
         /// Initializes the <see cref="MeasurementUnitsTableViewModel"/>

@@ -187,7 +187,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              Assert.Multiple(() =>
              {
                  Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                 Assert.That(this.viewModel.MeasurementUnit, Is.EqualTo(measurementUnitRow.MeasurementUnit));
+                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementUnitRow.MeasurementUnit));
              });
              
              this.viewModel.OnCancelPopupButtonClick();
@@ -196,7 +196,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementUnit>(c => c.IsDeprecated == true)));
 
-             this.viewModel.MeasurementUnit.IsDeprecated = true;
+             this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementUnit>(c => c.IsDeprecated == false)));
         }

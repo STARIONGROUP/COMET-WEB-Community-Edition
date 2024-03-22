@@ -26,48 +26,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementScale" />s
     /// </summary>
-    public interface IMeasurementScalesTableViewModel : IApplicationBaseViewModel, IHaveReusableRows
+    public interface IMeasurementScalesTableViewModel : IReferenceDataItemViewModel<MeasurementScale, MeasurementScaleRowViewModel>
     {
-        /// <summary>
-        /// Gets or sets the data source for the grid control.
-        /// </summary>
-        SourceList<MeasurementScale> DataSource { get; }
-
-        /// <summary>
-        /// A reactive collection of <see cref="MeasurementScaleRowViewModel" />
-        /// </summary>
-        SourceList<MeasurementScaleRowViewModel> Rows { get; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
-        /// <summary>
-        /// The <see cref="MeasurementScale" /> to create or edit
-        /// </summary>
-        MeasurementScale MeasurementScale { get; set; }
-
-        /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        bool IsOnDeprecationMode { get; set; }
-
-        /// <summary>
-        /// popup message dialog
-        /// </summary>
-        string PopupDialog { get; set; }
-
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
@@ -82,36 +47,5 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// Gets the available <see cref="NumberSetKind" />s
         /// </summary>
         IEnumerable<NumberSetKind> NumberSetKinds { get; }
-
-        /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="MeasurementScalesTableViewModel.MeasurementScale" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task OnConfirmPopupButtonClick();
-
-        /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="MeasurementScalesTableViewModel.MeasurementScale" />
-        /// </summary>
-        void OnCancelPopupButtonClick();
-
-        /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        /// <param name="measurementScaleRow"> The <see cref="MeasurementScaleRowViewModel" /> to deprecate or undeprecate </param>
-        void OnDeprecateUnDeprecateButtonClick(MeasurementScaleRowViewModel measurementScaleRow);
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
-        /// </summary>
-        void InitializeViewModel();
-
-        /// <summary>
-        /// Tries to deprecate or undeprecate a <see cref="MeasurementScalesTableViewModel.MeasurementScale" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task DeprecatingOrUnDeprecatingMeasurementScale();
     }
 }

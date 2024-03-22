@@ -31,26 +31,29 @@ namespace COMETwebapp.Components.ReferenceData
 
     using DevExpress.Blazor;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     using ViewModels.Components.ReferenceData;
+    using ViewModels.Components.ReferenceData.Rows;
 
     /// <summary>
     /// Support class for the <see cref="SelectedReferenceDataItem" />
     /// </summary>
-    public abstract class SelectedReferenceDataItem<T> : DisposableComponent where T : DefinedThing, IDeprecatableThing
+    public abstract class SelectedReferenceDataItem<T, TRow> : DisposableComponent where T : DefinedThing, IDeprecatableThing where TRow : ReferenceDataItemRowViewModel<T>
     {
         /// <summary>
-        /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component
+        /// The <see cref="IReferenceDataItemViewModel{T,TRow}" /> for this component
         /// </summary>
-        private IReferenceDataItemViewModel<T> ViewModel { get; set; }
+        private IReferenceDataItemViewModel<T, TRow> ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if a measurement unit should be created
+        /// Gets or sets the condition to check if a thing should be created
         /// </summary>
-        public bool ShouldCreateMeasurementUnit { get; protected set; }
+        public bool ShouldCreateThing { get; protected set; }
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
@@ -73,15 +76,16 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Method used to initialize the <see cref="ViewModel"/>
         /// </summary>
-        protected void Initialize(IReferenceDataItemViewModel<T> viewModel)
+        protected void Initialize(IReferenceDataItemViewModel<T, TRow> viewModel)
         {
             this.ViewModel = viewModel;
             this.ViewModel.InitializeViewModel();
 
             this.Disposables.Add(this.ViewModel.WhenAnyValue(x => x.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -112,10 +116,10 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        /// Method invoked to highlight deprecated measurement units
+        /// Method invoked to highlight deprecated a thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeElementEventArgs" /> </param>
-        protected static void DisableDeprecatedMeasurementUnit(GridCustomizeElementEventArgs e)
+        protected static void DisableDeprecatedThing(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, "IsDeprecated"))
             {
@@ -124,15 +128,19 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        /// Method invoked when creating a new measurement unit
+        /// Method invoked when creating a new thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected abstract void CustomizeEditMeasurementUnit(GridCustomizeEditModelEventArgs e);
+        protected virtual void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        {
+        }
 
         /// <summary>
-        /// Method that is invoked when the edit/add measurement unit form is being saved
+        /// Method that is invoked when the edit/add thing form is being saved
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected abstract void OnEditMeasurementUnitSaving();
+        protected virtual void OnEditThingSaving()
+        {
+        }
     }
 }
