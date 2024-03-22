@@ -50,6 +50,16 @@ namespace COMETwebapp.Pages.ReferenceData
         };
 
         /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+        }
+
+        /// <summary>
         /// Method invoked to set the selected component from toolbar
         /// </summary>
         /// <param name="e"></param>

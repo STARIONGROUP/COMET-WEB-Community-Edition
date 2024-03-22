@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -36,6 +37,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
+
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -48,6 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private MeasurementScalesTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
+        private Assembler assembler;
         private Mock<ILogger<MeasurementScalesTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
@@ -59,6 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<MeasurementScalesTableViewModel>>();
 
             this.measurementScale = new OrdinalScale()
@@ -82,13 +86,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             siteReferenceDataLibrary.Scale.Add(this.measurementScale);
             siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
 
-            this.permissionService.Setup(x => x.CanWrite(ClassKind.MeasurementScale, this.measurementScale.Container)).Returns(true);
+            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
+            var lazyMeasurementScale = new Lazy<Thing>(this.measurementScale);
+            this.assembler.Cache.TryAdd(new CacheKey(), lazyMeasurementScale);
+
+            this.permissionService.Setup(x => x.CanWrite(this.measurementScale.ClassKind, this.measurementScale.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            this.messageBus = new CDPMessageBus();
 
             this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -168,7 +176,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteReferenceDataLibrary.ShortName));
-                this.permissionService.Verify(x => x.CanWrite(ClassKind.MeasurementScale, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
+                this.permissionService.Verify(x => x.CanWrite(scaleTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
         

@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     ///     Support class for the <see cref="CategoriesTable"/>
     /// </summary>
-    public partial class CategoriesTable : SelectedReferenceDataItem<Category, CategoryRowViewModel>
+    public partial class CategoriesTable : SelectedReferenceDataItemBase<Category, CategoryRowViewModel>
     {
         /// <summary>
         /// The <see cref="ICategoriesTableViewModel" /> for this component

@@ -30,11 +30,16 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Blazor.Diagrams.Components;
+    using Blazor.Diagrams.Core;
+    using Blazor.Diagrams.Core.Geometry;
+
     using Bunit;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -88,6 +93,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private CompoundParameterType sourceParameterType2;
         private Category elementDefinitionCategory1;
         private Category elementDefinitionCategory2;
+        private Category elementDefinitionCategory3;
         private CDPMessageBus messageBus;
 
         [SetUp]
@@ -294,11 +300,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.siteReferenceDataLibrary.ParameterType.Add(this.sourceParameterType2);
 
+            this.elementDefinitionCategory3 = this.elementDefinitionCategory2.Clone(true);
+
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.elementDefinitionCategory1));
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.elementDefinitionCategory2));
+
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
             this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);
             this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
             this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
+
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
         }
 
         [TearDown]
@@ -428,15 +441,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
 
-            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory1)));
+            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory3)));
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory1;
-            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory1.SuperCategory;
-            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.SuperCategory;
+            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
+            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;
+            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory3.SuperCategory;
 
-            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());            
+            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());
 
             Assert.Multiple(() =>
             {

@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using CDP4Common.SiteDirectoryData
-@inherits SelectedReferenceDataItem<MeasurementScale, MeasurementScaleRowViewModel>
+@inherits SelectedReferenceDataItemBase<MeasurementScale, MeasurementScaleRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="this.Grid"
@@ -107,12 +107,12 @@ Copyright (c) 2023-2024 RHEA System S.A.
         </EditFormTemplate>
 
     </DxGrid>
-    
-    <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-        @this.ViewModel.PopupDialog
-        <div class="dxbl-grid-confirm-dialog-buttons">
-            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
-        </div>
-    </DxPopup>
 </LoadingComponent>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @this.ViewModel.PopupDialog
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+    </div>
+</DxPopup>

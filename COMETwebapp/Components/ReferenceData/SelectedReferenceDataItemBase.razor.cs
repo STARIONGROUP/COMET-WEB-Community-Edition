@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SelectedReferenceDataItem.razor.cs" company="RHEA System S.A.">
+// <copyright file="SelectedReferenceDataItemBase.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -41,9 +41,9 @@ namespace COMETwebapp.Components.ReferenceData
     using ViewModels.Components.ReferenceData.Rows;
 
     /// <summary>
-    /// Support class for the <see cref="SelectedReferenceDataItem" />
+    /// Support class for the <see cref="SelectedReferenceDataItemBase{T,TRow}" />
     /// </summary>
-    public abstract class SelectedReferenceDataItem<T, TRow> : DisposableComponent where T : DefinedThing, IDeprecatableThing where TRow : ReferenceDataItemRowViewModel<T>
+    public abstract partial class SelectedReferenceDataItemBase<T, TRow> : DisposableComponent where T : DefinedThing, IDeprecatableThing where TRow : ReferenceDataItemRowViewModel<T>
     {
         /// <summary>
         /// The <see cref="IReferenceDataItemViewModel{T,TRow}" /> for this component

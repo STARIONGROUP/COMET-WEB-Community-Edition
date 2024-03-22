@@ -163,7 +163,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         public void OnDeprecateUnDeprecateButtonClick(TRow thingRow)
         {
             this.Thing = thingRow.Thing;
-            this.PopupDialog = this.Thing.IsDeprecated ? $"You are about to un-deprecate the {typeof(T)}: {thingRow.Name}" : $"You are about to deprecate the {typeof(T)}: {thingRow.Name}";
+            this.PopupDialog = this.Thing.IsDeprecated ? $"You are about to un-deprecate the {typeof(T).Name}: {thingRow.Name}" : $"You are about to deprecate the {typeof(T).Name}: {thingRow.Name}";
             this.IsOnDeprecationMode = true;
         }
 

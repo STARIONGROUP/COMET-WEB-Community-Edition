@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -269,6 +270,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 });
 
             this.siteReferenceDataLibrary.ParameterType.Add(this.sourceParameterType2);
+
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.sourceParameterType1));
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.sourceParameterType2));
 
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
             this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);

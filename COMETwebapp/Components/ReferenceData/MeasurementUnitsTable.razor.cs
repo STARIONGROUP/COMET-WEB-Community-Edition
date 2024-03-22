@@ -36,7 +36,7 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     /// Support class for the <see cref="MeasurementUnitsTable"/>
     /// </summary>
-    public partial class MeasurementUnitsTable : SelectedReferenceDataItem<MeasurementUnit, MeasurementUnitRowViewModel>
+    public partial class MeasurementUnitsTable : SelectedReferenceDataItemBase<MeasurementUnit, MeasurementUnitRowViewModel>
     {
         /// <summary>
         /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component

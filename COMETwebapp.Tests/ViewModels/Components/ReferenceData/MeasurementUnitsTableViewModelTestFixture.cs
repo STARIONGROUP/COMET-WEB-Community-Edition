@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -36,6 +37,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
+
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -49,6 +51,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
         private Mock<ILogger<MeasurementUnitsTableViewModel>> loggerMock;
+        private Assembler assembler;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private MeasurementUnit measurementUnit;
@@ -59,6 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<MeasurementUnitsTableViewModel>>();
 
             this.measurementUnit = new SimpleUnit()
@@ -80,13 +84,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             siteReferenceDataLibrary.Unit.Add(this.measurementUnit);
             siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
 
-            this.permissionService.Setup(x => x.CanWrite(ClassKind.MeasurementUnit, this.measurementUnit.Container)).Returns(true);
+            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
+            var lazyMeasurementUnit = new Lazy<Thing>(this.measurementUnit);
+            this.assembler.Cache.TryAdd(new CacheKey(), lazyMeasurementUnit);
+
+            this.permissionService.Setup(x => x.CanWrite(this.measurementUnit.ClassKind, this.measurementUnit.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            this.messageBus = new CDPMessageBus();
 
             this.viewModel = new MeasurementUnitsTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -140,13 +148,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 ShortName = "newShortname"
             };
 
-            var personTest = new SimpleUnit()
+            var measurementUnitTest = new SimpleUnit()
             {
                 Iid = Guid.NewGuid(),
                 Container = siteReferenceDataLibrary
             };
 
-            this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(measurementUnitTest, EventKind.Added);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
@@ -164,7 +172,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteReferenceDataLibrary.ShortName));
-                this.permissionService.Verify(x => x.CanWrite(ClassKind.MeasurementUnit, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
+                this.permissionService.Verify(x => x.CanWrite(measurementUnitTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
         

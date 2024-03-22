@@ -1,6 +1,6 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023-2024 RHEA System S.A.
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
-@inherits SelectedReferenceDataItem<CDP4Common.SiteDirectoryData.ParameterType, ParameterTypeRowViewModel>
+@inherits SelectedReferenceDataItemBase<CDP4Common.SiteDirectoryData.ParameterType, ParameterTypeRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <DxGrid @ref="this.Grid"
@@ -43,17 +43,22 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 <CellDisplayTemplate>
                     @{
                         var row = (ParameterTypeRowViewModel)context.DataItem;
-                        if (row.IsDeprecated)
-                        {
-                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Enabled=row.IsAllowedToWrite />
-                        }
-                        else
-                        {
-                            <DxButton Id="deprecateButton" Text="Deprecate" Enabled=row.IsAllowedToWrite />
-                        }
+
+                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
+                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
+                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                  Enabled="@(row.IsAllowedToWrite)" />
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
     </DxGrid>
 </LoadingComponent>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @this.ViewModel.PopupDialog
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+    </div>
+</DxPopup>

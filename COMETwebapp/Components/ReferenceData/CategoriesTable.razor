@@ -22,7 +22,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using COMETwebapp.Wrappers
 @using CDP4Common.SiteDirectoryData
-@inherits SelectedReferenceDataItem<Category, CategoryRowViewModel>
+@inherits SelectedReferenceDataItemBase<Category, CategoryRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
 <div style="display: flex; justify-content: space-between; background-color: rgb(176,176,176)" >
@@ -112,6 +112,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <h4>Categories Hierarchy</h4>
         <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel" />
     </div>
+
 <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
     @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">

@@ -34,7 +34,7 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     ///     Support class for the <see cref="ParameterTypeTable"/>
     /// </summary>
-    public partial class ParameterTypeTable : SelectedReferenceDataItem<ParameterType, ParameterTypeRowViewModel>
+    public partial class ParameterTypeTable : SelectedReferenceDataItemBase<ParameterType, ParameterTypeRowViewModel>
     {
         /// <summary>
         /// The <see cref="IParameterTypeTableViewModel" /> for this component
