@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Pages.ReferenceData
 {
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp.Components.ReferenceData;
 
     using DevExpress.Blazor;

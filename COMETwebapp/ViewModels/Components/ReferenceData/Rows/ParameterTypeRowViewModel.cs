@@ -2,7 +2,7 @@
 //  <copyright file="ParameterTypeRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -31,32 +31,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     /// <summary>
     /// Row View Model for  <see cref="ParameterType" />
     /// </summary>
-    public class ParameterTypeRowViewModel : ReactiveObject
+    public class ParameterTypeRowViewModel : ReferenceDataItemRowViewModel<ParameterType>
     {
-        /// <summary>
-        /// Backing field for <see cref="ContainerName" />
-        /// </summary>
-        private string containerName;
-
         /// <summary>
         /// Backing field for <see cref="DefaultScale" />
         /// </summary>
         private string defaultScale;
-
-        /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
-
-        /// <summary>
-        /// Backing field for <see cref="Name" />
-        /// </summary>
-        private string name;
-
-        /// <summary>
-        /// Backing field for <see cref="ShortName" />
-        /// </summary>
-        private string shortName;
 
         /// <summary>
         /// Backing field for <see cref="Symbol" />
@@ -72,41 +52,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// Initializes a new instance of the <see cref="ParameterTypeRowViewModel" /> class.
         /// </summary>
         /// <param name="parameterType">The associated <see cref="ParameterType" /></param>
-        public ParameterTypeRowViewModel(ParameterType parameterType)
+        public ParameterTypeRowViewModel(ParameterType parameterType) : base(parameterType)
         {
-            this.ParameterType = parameterType;
-            this.Name = parameterType.Name;
-            this.ShortName = parameterType.ShortName;
             this.Symbol = parameterType.Symbol;
             var scale = parameterType is QuantityKind quantityKind ? quantityKind.DefaultScale : null;
             this.DefaultScale = scale?.ShortName;
             this.Type = parameterType.ClassKind.ToString();
-            var container = (ReferenceDataLibrary)parameterType.Container;
-            this.ContainerName = container.ShortName;
-            this.IsDeprecated = parameterType.IsDeprecated;
-        }
-
-        /// <summary>
-        /// The associated <see cref="ParameterType" />
-        /// </summary>
-        public ParameterType ParameterType { get; private set; }
-
-        /// <summary>
-        /// The name of the <see cref="ParameterType" />
-        /// </summary>
-        public string Name
-        {
-            get => this.name;
-            set => this.RaiseAndSetIfChanged(ref this.name, value);
-        }
-
-        /// <summary>
-        /// The short name of the <see cref="ParameterType" />
-        /// </summary>
-        public string ShortName
-        {
-            get => this.shortName;
-            set => this.RaiseAndSetIfChanged(ref this.shortName, value);
         }
 
         /// <summary>
@@ -137,50 +88,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// The <see cref="ParameterType" /> container name
-        /// </summary>
-        public string ContainerName
-        {
-            get => this.containerName;
-            set => this.RaiseAndSetIfChanged(ref this.containerName, value);
-        }
-
-        /// <summary>
-        /// Value indicating if the <see cref="ParameterType" /> is deprecated
-        /// </summary>
-        public bool IsDeprecated
-        {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
-        }
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
-        /// Value indicating if the <see cref="ParameterType" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
-        }
-
-        /// <summary>
         /// Update this row view model properties
         /// </summary>
         /// <param name="parameterTypeRow">The <see cref="ParameterTypeRowViewModel" /> to use for updating</param>
         public void UpdateProperties(ParameterTypeRowViewModel parameterTypeRow)
         {
-            this.Name = parameterTypeRow.Name;
-            this.ShortName = parameterTypeRow.ShortName;
+            base.UpdateProperties(parameterTypeRow);
             this.Symbol = parameterTypeRow.Symbol;
             this.DefaultScale = parameterTypeRow.DefaultScale;
             this.Type = parameterTypeRow.Type;
-            this.ContainerName = parameterTypeRow.ContainerName;
-            this.IsDeprecated = parameterTypeRow.IsDeprecated;
         }
     }
 }

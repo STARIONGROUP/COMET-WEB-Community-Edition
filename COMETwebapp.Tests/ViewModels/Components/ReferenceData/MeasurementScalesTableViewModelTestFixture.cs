@@ -35,8 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
-
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -109,7 +108,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().MeasurementScale, Is.EqualTo(this.measurementScale));
+                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.measurementScale));
             });
         }
 
@@ -124,7 +123,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(measurementScaleRow.ContainerName, Is.EqualTo("rdl"));
                 Assert.That(measurementScaleRow.Name, Is.EqualTo(this.measurementScale.Name));
                 Assert.That(measurementScaleRow.ShortName, Is.EqualTo(this.measurementScale.ShortName));
-                Assert.That(measurementScaleRow.MeasurementScale, Is.EqualTo(this.measurementScale));
+                Assert.That(measurementScaleRow.Thing, Is.EqualTo(this.measurementScale));
                 Assert.That(measurementScaleRow.IsAllowedToWrite, Is.EqualTo(true));
                 Assert.That(measurementScaleRow.Type, Is.EqualTo(nameof(OrdinalScale)));
             });
@@ -154,10 +153,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.messageBus.SendObjectChangeEvent(scaleTest, EventKind.Added);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementScale, EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementScale, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
@@ -191,7 +190,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              Assert.Multiple(() =>
              {
                  Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                 Assert.That(this.viewModel.MeasurementScale, Is.EqualTo(measurementScaleRow.MeasurementScale));
+                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementScaleRow.Thing));
              });
              
              this.viewModel.OnCancelPopupButtonClick();
@@ -200,7 +199,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementScale>(c => c.IsDeprecated == true)));
 
-             this.viewModel.MeasurementScale.IsDeprecated = true;
+             this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementScale>(c => c.IsDeprecated == false)));
         }

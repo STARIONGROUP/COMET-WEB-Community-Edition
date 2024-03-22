@@ -35,7 +35,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;

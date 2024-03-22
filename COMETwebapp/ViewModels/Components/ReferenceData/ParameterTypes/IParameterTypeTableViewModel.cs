@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementScalesTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IParameterTypeTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,30 +22,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementScale" />s
+    /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public interface IMeasurementScalesTableViewModel : IReferenceDataItemViewModel<MeasurementScale, MeasurementScaleRowViewModel>
+    public interface IParameterTypeTableViewModel : IReferenceDataItemViewModel<ParameterType, ParameterTypeRowViewModel>
     {
-        /// <summary>
-        /// Gets the available <see cref="ReferenceDataLibrary" />s
-        /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; }
-
-        /// <summary>
-        /// Gets the available <see cref="MeasurementUnit" />s
-        /// </summary>
-        IEnumerable<MeasurementUnit> MeasurementUnits { get; }
-
-        /// <summary>
-        /// Gets the available <see cref="NumberSetKind" />s
-        /// </summary>
-        IEnumerable<NumberSetKind> NumberSetKinds { get; }
     }
 }

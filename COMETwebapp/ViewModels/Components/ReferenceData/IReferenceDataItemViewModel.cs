@@ -36,7 +36,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     public interface IReferenceDataItemViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
     {
         /// <summary>
-        /// A reactive collection of <see cref="TRow" />s
+        /// A reactive collection of things
         /// </summary>
         SourceList<TRow> Rows { get; }
 
@@ -56,7 +56,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
-        /// The <see cref="T" /> to create or edit
+        /// The thing to create or edit
         /// </summary>
         T Thing { get; set; }
 
@@ -84,7 +84,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        /// <param name="thingRow"> The <see cref="TRow" /> to deprecate or undeprecate </param>
+        /// <param name="thingRow"> The thing to deprecate or undeprecate </param>
         void OnDeprecateUnDeprecateButtonClick(TRow thingRow);
 
         /// <summary>

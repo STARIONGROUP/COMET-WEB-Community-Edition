@@ -22,25 +22,25 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using COMETwebapp.Wrappers
 @using CDP4Common.SiteDirectoryData
-@inherits DisposableComponent
+@inherits SelectedReferenceDataItem<Category, CategoryRowViewModel>
 
-<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
 <div style="display: flex; justify-content: space-between; background-color: rgb(176,176,176)" >
-<DxGrid @ref="Grid"
+<DxGrid @ref="this.Grid"
         Data="this.ViewModel.Rows.Items"
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         ShowSearchBox="true"
         ShowAllRows="true"
         SearchBoxNullText="Search for a category..."
-        CustomizeEditModel="CustomizeEditCategory"
+        CustomizeEditModel="this.CustomizeEditThing"
         PopupEditFormCssClass="pw-800"
         PopupEditFormHeaderText="Create Category"
         EditMode="GridEditMode.PopupEditForm"
-        EditModelSaving="this.ViewModel.AddingCategory"
+        EditModelSaving="this.ViewModel.CreateCategory"
         RowClick="((e) =>this.ViewModel.SelectCategory((CategoryRowViewModel)e.Grid.GetDataItem(e.VisibleIndex)))"
         AllowSelectRowByClick="true"
         SelectionMode="GridSelectionMode.Single"
-        CustomizeElement="DisableDeprecatedCategories">
+        CustomizeElement="DisableDeprecatedThing">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.Name)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
@@ -49,7 +49,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
         <DxGridCommandColumn Width="200px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" Click="() => Grid.StartEditNewRowAsync()" />
+                <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -71,33 +71,33 @@ Copyright (c) 2023-2024 RHEA System S.A.
             <DxFormLayoutTabPages>
                 <DxFormLayoutTabPage Caption="Basic">
                     <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                        <DxTextBox @bind-Text="@this.ViewModel.Category.ShortName" />
+                        <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                        <DxTextBox @bind-Text="@this.ViewModel.Category.Name" />
+                        <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Abstract:" ColSpanMd="6">
-                        <DxCheckBox @bind-Checked="@this.ViewModel.Category.IsAbstract" />
+                        <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsAbstract)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                        <DxCheckBox @bind-Checked="@this.ViewModel.Category.IsDeprecated" />
+                        <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
-                        <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
+                        <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
                                     TextFieldName="@nameof(ReferenceDataLibrary.Name)"
-                                    @bind-Value="@this.ViewModel.SelectedReferenceDataLibrary" />
+                                    @bind-Value="@(this.ViewModel.SelectedReferenceDataLibrary)" />
                     </DxFormLayoutItem>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Permissible Classes">
-                    <DxListBox Data="@this.ViewModel.PermissibleClasses"
-                               @bind-Values="@this.ViewModel.SelectedPermissibleClasses"
+                    <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
+                               @bind-Values="@(this.ViewModel.SelectedPermissibleClasses)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
                                ShowCheckboxes="true"/>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Super Categories">
-                    <DxListBox Data="@this.ViewModel.DataSource.Items"
-                               @bind-Values="@this.ViewModel.SelectedSuperCategories"
+                    <DxListBox Data="@(this.ViewModel.DataSource.Items)"
+                               @bind-Values="@(this.ViewModel.SelectedSuperCategories)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                TextFieldName="@nameof(Category.Name)"
                                ShowCheckboxes="true" />
@@ -112,11 +112,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <h4>Categories Hierarchy</h4>
         <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel" />
     </div>
-<DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @this.ViewModel.ConfirmationMessageDialog
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelButtonClick" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmButtonClick" />
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)" />
     </div>
 </DxPopup>
 </LoadingComponent>

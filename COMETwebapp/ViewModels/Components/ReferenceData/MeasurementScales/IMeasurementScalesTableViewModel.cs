@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IParameterTypeTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IMeasurementScalesTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,44 +22,30 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using DynamicData;
-
     /// <summary>
-    /// View model used to manage <see cref="ParameterType" />
+    /// View model used to manage <see cref="MeasurementScale" />s
     /// </summary>
-    public interface IParameterTypeTableViewModel : IApplicationBaseViewModel
+    public interface IMeasurementScalesTableViewModel : IReferenceDataItemViewModel<MeasurementScale, MeasurementScaleRowViewModel>
     {
         /// <summary>
-        /// Gets or sets the data source for the grid control.
+        /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        SourceList<ParameterType> DataSource { get; }
+        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; }
 
         /// <summary>
-        /// A reactive collection of <see cref="ParameterTypeRowViewModel" />
+        /// Gets the available <see cref="MeasurementUnit" />s
         /// </summary>
-        SourceList<ParameterTypeRowViewModel> Rows { get; }
+        IEnumerable<MeasurementUnit> MeasurementUnits { get; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
+        /// Gets the available <see cref="NumberSetKind" />s
         /// </summary>
-        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        Task OnInitializedAsync();
+        IEnumerable<NumberSetKind> NumberSetKinds { get; }
     }
 }

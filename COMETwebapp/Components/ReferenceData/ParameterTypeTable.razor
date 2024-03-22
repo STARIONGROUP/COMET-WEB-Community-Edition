@@ -15,10 +15,10 @@ Copyright (c) 2023-2024 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
-@inherits DisposableComponent
+@inherits SelectedReferenceDataItem<CDP4Common.SiteDirectoryData.ParameterType, ParameterTypeRowViewModel>
 
-<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <DxGrid @ref="Grid"
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
@@ -27,7 +27,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
             PopupEditFormCssClass="pw-800"
             PopupEditFormHeaderText="Create Parameter Type"
             EditMode="GridEditMode.PopupEditForm"
-            CustomizeElement="DisableDeprecatedParameterType">
+            CustomizeElement="DisableDeprecatedThing">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />

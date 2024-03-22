@@ -24,12 +24,12 @@
 
 namespace COMETwebapp.Components.ReferenceData
 {
-    using COMETwebapp.ViewModels.Components.ReferenceData;
-
     using Blazor.Diagrams.Core;
     using Blazor.Diagrams.Core.Models;
 
     using Microsoft.AspNetCore.Components;
+
+    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
 
     /// <summary>
     ///     Support class for the <see cref="ParameterTypeTable"/>

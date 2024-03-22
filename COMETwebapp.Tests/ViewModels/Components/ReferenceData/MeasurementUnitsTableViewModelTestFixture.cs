@@ -35,8 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
-
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -107,7 +106,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().MeasurementUnit, Is.EqualTo(this.measurementUnit));
+                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.measurementUnit));
             });
         }
 
@@ -122,7 +121,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(measurementUnitRow.ContainerName, Is.EqualTo("rdl"));
                 Assert.That(measurementUnitRow.Name, Is.EqualTo(this.measurementUnit.Name));
                 Assert.That(measurementUnitRow.ShortName, Is.EqualTo(this.measurementUnit.ShortName));
-                Assert.That(measurementUnitRow.MeasurementUnit, Is.EqualTo(this.measurementUnit));
+                Assert.That(measurementUnitRow.Thing, Is.EqualTo(this.measurementUnit));
                 Assert.That(measurementUnitRow.IsAllowedToWrite, Is.EqualTo(true));
                 Assert.That(measurementUnitRow.Type, Is.EqualTo(nameof(SimpleUnit)));
             });
@@ -150,10 +149,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementUnit, EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementUnit, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
@@ -187,7 +186,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              Assert.Multiple(() =>
              {
                  Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementUnitRow.MeasurementUnit));
+                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementUnitRow.Thing));
              });
              
              this.viewModel.OnCancelPopupButtonClick();

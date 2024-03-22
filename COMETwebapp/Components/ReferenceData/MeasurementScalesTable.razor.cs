@@ -28,7 +28,7 @@ namespace COMETwebapp.Components.ReferenceData
 
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;

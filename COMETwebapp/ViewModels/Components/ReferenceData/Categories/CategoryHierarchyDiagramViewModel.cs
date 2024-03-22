@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 {
     using Blazor.Diagrams.Core;
     using Blazor.Diagrams.Core.Geometry;

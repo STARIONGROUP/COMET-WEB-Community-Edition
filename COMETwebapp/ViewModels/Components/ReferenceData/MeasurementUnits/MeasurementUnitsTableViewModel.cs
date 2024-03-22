@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementScalesTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="MeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
 {
     using CDP4Common.SiteDirectoryData;
 
@@ -31,44 +31,35 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using MeasurementScale = CDP4Common.SiteDirectoryData.MeasurementScale;
+    using MeasurementUnit = CDP4Common.SiteDirectoryData.MeasurementUnit;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementScale" />s
+    /// View model used to manage <see cref="MeasurementUnit" />s
     /// </summary>
-    public class MeasurementScalesTableViewModel : ReferenceDataItemViewModel<MeasurementScale, MeasurementScaleRowViewModel>, IMeasurementScalesTableViewModel
+    public class MeasurementUnitsTableViewModel : ReferenceDataItemViewModel<MeasurementUnit, MeasurementUnitRowViewModel>, IMeasurementUnitsTableViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MeasurementScalesTableViewModel" /> class.
+        /// Initializes a new instance of the <see cref="MeasurementUnitsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, 
-            ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+        public MeasurementUnitsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
+            ILogger<MeasurementUnitsTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
         }
 
         /// <summary>
-        /// Gets the available <see cref="ReferenceDataLibrary" />s
+        /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
 
         /// <summary>
-        /// Gets the available <see cref="MeasurementUnit" />s
-        /// </summary>
-        public IEnumerable<MeasurementUnit> MeasurementUnits { get; private set; }
-
-        /// <summary>
-        /// Gets the available <see cref="NumberSetKind" />s
-        /// </summary>
-        public IEnumerable<NumberSetKind> NumberSetKinds { get; private set; } = Enum.GetValues<NumberSetKind>();
-
-        /// <summary>
-        /// Initializes the <see cref="MeasurementScalesTableViewModel"/>
+        /// Initializes the <see cref="MeasurementUnitsTableViewModel"/>
         /// </summary>
         public override void InitializeViewModel()
         {

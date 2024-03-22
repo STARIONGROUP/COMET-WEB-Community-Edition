@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using CDP4Common.SiteDirectoryData
-@inherits SelectedReferenceDataItem<MeasurementUnit, MeasurementUnitRowViewModel>
+@inherits SelectedReferenceDataItem<CDP4Common.SiteDirectoryData.MeasurementUnit, COMETwebapp.ViewModels.Components.ReferenceData.Rows.MeasurementUnitRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="this.Grid"

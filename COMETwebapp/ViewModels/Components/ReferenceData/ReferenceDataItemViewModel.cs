@@ -74,10 +74,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Creates a new instance of the <see cref="ReferenceDataItemViewModel{T,TRow}"/>
         /// </summary>
-        /// <param name="sessionService"></param>
-        /// <param name="messageBus"></param>
-        /// <param name="showHideDeprecatedThingsService"></param>
-        /// <param name="logger"></param>
+        /// <param name="sessionService">The <see cref="ISessionService"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService"/></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
         protected ReferenceDataItemViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService,
             ILogger<ReferenceDataItemViewModel<T, TRow>> logger) : base(sessionService, messageBus)
         {
@@ -90,12 +90,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        /// The <see cref="T" /> to create or edit
+        /// The thing to create or edit
         /// </summary>
         public T Thing { get; set; }
 
         /// <summary>
-        /// A reactive collection of <see cref="TRow" />s
+        /// A reactive collection of things
         /// </summary>
         public SourceList<TRow> Rows { get; } = new();
 
@@ -128,10 +128,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// </summary>
         public virtual void InitializeViewModel()
         {
+            this.IsLoading = true;
+
             var listOfThings = this.SessionService.Session.Assembler.Cache.Values.Where(x => x.IsValueCreated).Select(x => x.Value).OfType<T>().ToList();
             this.DataSource.AddRange(listOfThings);
             this.Rows.AddRange(this.DataSource.Items.Select(CreateNewRow));
             this.RefreshAccessRight();
+
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -155,7 +159,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        /// <param name="thingRow"> The <see cref="TRow" /> to deprecate or undeprecate </param>
+        /// <param name="thingRow"> The row to deprecate or undeprecate </param>
         public void OnDeprecateUnDeprecateButtonClick(TRow thingRow)
         {
             this.Thing = thingRow.Thing;
@@ -298,10 +302,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         }
 
         /// <summary>
-        /// Creates a new <see cref="TRow"/> instance based on a given thing
+        /// Creates a new row instance based on a given thing
         /// </summary>
-        /// <param name="thing">The thing of type <see cref="T"/></param>
-        /// <returns>The created <see cref="TRow"/></returns>
+        /// <param name="thing">The thing to create a row</param>
+        /// <returns>The created row</returns>
         private static TRow CreateNewRow(T thing)
         {
             return (TRow)Activator.CreateInstance(typeof(TRow), thing);

@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="ICategoryHierarchyDiagramViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,21 +21,40 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 {
+    using Blazor.Diagrams.Core;
+
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
     /// <summary>
-    /// View model used to manage <see cref="MeasurementUnit" />s
+    ///     Interface definition for <see cref="CategoryHierarchyDiagramViewModel" />
     /// </summary>
-    public interface IMeasurementUnitsTableViewModel : IReferenceDataItemViewModel<MeasurementUnit, MeasurementUnitRowViewModel>
+    public interface ICategoryHierarchyDiagramViewModel
     {
         /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
+        ///     The selected <see cref="Category"/>
         /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        Category SelectedCategory { get; set; }
+
+        /// <summary>
+        /// A collection of <see cref="Category" />
+        /// </summary>
+        IEnumerable<Category> Rows { get; set; }
+
+        /// <summary>
+        /// A collection of <see cref="Category" />
+        /// </summary>
+        IEnumerable<Category> SubCategories { get; set; }
+
+        /// <summary>
+        /// The categories hierarchy <see cref="Diagram" /> to display
+        /// </summary>
+        Diagram Diagram { get; set; }
+
+        /// <summary>
+        /// Create diagram nodes and links
+        /// </summary>
+        void SetupDiagram();
     }
 }

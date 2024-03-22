@@ -37,6 +37,10 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
+    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.UserManagement;
