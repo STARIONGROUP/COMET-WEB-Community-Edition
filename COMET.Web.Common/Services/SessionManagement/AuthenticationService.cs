@@ -95,7 +95,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             if (authenticationDto.SourceAddress != null)
             {
                 var uri = new Uri(authenticationDto.SourceAddress);
-                var dal = new CdpServicesDal(this.httpClient);
+                var dal = new CdpServicesDal();
                 var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
 
                 this.sessionService.Session = new Session(dal, credentials, this.messageBus);
