@@ -35,18 +35,18 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Add rows related to <see cref="Thing" /> that has been added
         /// </summary>
         /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
-        public void AddRows(IEnumerable<Thing> addedThings);
+        void AddRows(IEnumerable<Thing> addedThings);
 
         /// <summary>
         /// Updates rows related to <see cref="Thing" /> that have been updated
         /// </summary>
         /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
-        public void UpdateRows(IEnumerable<Thing> updatedThings);
+        void UpdateRows(IEnumerable<Thing> updatedThings);
 
         /// <summary>
         /// Remove rows related to a <see cref="Thing" /> that has been deleted
         /// </summary>
         /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
-        public void RemoveRows(IEnumerable<Thing> deletedThings);
+        void RemoveRows(IEnumerable<Thing> deletedThings);
     }
 }
