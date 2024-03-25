@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementScalesTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="DomainsOfExpertiseTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
+namespace COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise
 {
     using CDP4Common.SiteDirectoryData;
 
@@ -32,49 +32,24 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using MeasurementScale = CDP4Common.SiteDirectoryData.MeasurementScale;
+    using COMETwebapp.ViewModels.Components.Directory.Rows;
+    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementScale" />s
+    /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>
-    public class MeasurementScalesTableViewModel : DeprecatableDataItemTableViewModel<MeasurementScale, MeasurementScaleRowViewModel>, IMeasurementScalesTableViewModel
+    public class DomainsOfExpertiseTableViewModel : DeprecatableDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>, IDomainsOfExpertiseTableViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MeasurementScalesTableViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
-            ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+        public DomainsOfExpertiseTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<DomainsOfExpertiseTableViewModel> logger)
+            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-        }
-
-        /// <summary>
-        /// Gets the available <see cref="ReferenceDataLibrary" />s
-        /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
-
-        /// <summary>
-        /// Gets the available <see cref="MeasurementUnit" />s
-        /// </summary>
-        public IEnumerable<MeasurementUnit> MeasurementUnits { get; private set; }
-
-        /// <summary>
-        /// Gets the available <see cref="NumberSetKind" />s
-        /// </summary>
-        public IEnumerable<NumberSetKind> NumberSetKinds { get; private set; } = Enum.GetValues<NumberSetKind>();
-
-        /// <summary>
-        /// Initializes the <see cref="MeasurementScalesTableViewModel"/>
-        /// </summary>
-        public override void InitializeViewModel()
-        {
-            base.InitializeViewModel();
-            this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
         }
     }
 }

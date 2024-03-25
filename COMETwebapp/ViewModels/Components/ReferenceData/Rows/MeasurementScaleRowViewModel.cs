@@ -26,12 +26,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.Rows;
+
     using ReactiveUI;
 
     /// <summary>
     /// Row View Model for  <see cref="CDP4Common.SiteDirectoryData.MeasurementScale" />
     /// </summary>
-    public class MeasurementScaleRowViewModel : ReferenceDataItemRowViewModel<MeasurementScale>
+    public class MeasurementScaleRowViewModel : DeprecatableDataItemRowViewModel<MeasurementScale>
     {
         /// <summary>
         /// Backing field for <see cref="Type" />

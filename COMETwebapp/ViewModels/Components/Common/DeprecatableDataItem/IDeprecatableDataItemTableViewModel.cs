@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IReferenceDataItemViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IDeprecatableDataItemTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
 {
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
     /// <summary>
     /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public interface IReferenceDataItemViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
+    public interface IDeprecatableDataItemTableViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
     {
         /// <summary>
         /// A reactive collection of things
@@ -66,18 +66,18 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         string PopupDialog { get; set; }
 
         /// <summary>
-        /// Initializes the <see cref="ReferenceDataItemViewModel{T,TRow}" />
+        /// Initializes the <see cref="DeprecatableDataItemTableViewModel{T,TRow}" />
         /// </summary>
         void InitializeViewModel();
 
         /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
+        /// Method invoked when confirming the deprecation/un-deprecation of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task OnConfirmPopupButtonClick();
 
         /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
+        /// Method invoked when canceling the deprecation/un-deprecation of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
         /// </summary>
         void OnCancelPopupButtonClick();
 
@@ -88,7 +88,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         void OnDeprecateUnDeprecateButtonClick(TRow thingRow);
 
         /// <summary>
-        /// Tries to deprecate or undeprecate the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
+        /// Tries to deprecate or undeprecate the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task DeprecateOrUnDeprecateThing();

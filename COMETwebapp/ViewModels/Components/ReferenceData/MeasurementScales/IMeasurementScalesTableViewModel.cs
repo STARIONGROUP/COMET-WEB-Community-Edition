@@ -26,12 +26,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementScale" />s
     /// </summary>
-    public interface IMeasurementScalesTableViewModel : IReferenceDataItemViewModel<MeasurementScale, MeasurementScaleRowViewModel>
+    public interface IMeasurementScalesTableViewModel : IDeprecatableDataItemTableViewModel<MeasurementScale, MeasurementScaleRowViewModel>
     {
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s

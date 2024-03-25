@@ -26,12 +26,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public interface IParameterTypeTableViewModel : IReferenceDataItemViewModel<ParameterType, ParameterTypeRowViewModel>
+    public interface IParameterTypeTableViewModel : IDeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>
     {
     }
 }

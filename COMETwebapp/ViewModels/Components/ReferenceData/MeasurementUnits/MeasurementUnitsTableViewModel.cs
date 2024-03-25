@@ -31,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using MeasurementUnit = CDP4Common.SiteDirectoryData.MeasurementUnit;
@@ -39,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     /// <summary>
     /// View model used to manage <see cref="MeasurementUnit" />s
     /// </summary>
-    public class MeasurementUnitsTableViewModel : ReferenceDataItemViewModel<MeasurementUnit, MeasurementUnitRowViewModel>, IMeasurementUnitsTableViewModel
+    public class MeasurementUnitsTableViewModel : DeprecatableDataItemTableViewModel<MeasurementUnit, MeasurementUnitRowViewModel>, IMeasurementUnitsTableViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementUnitsTableViewModel" /> class.

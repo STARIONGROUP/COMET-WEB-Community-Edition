@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="DirectoryPage.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,21 +22,47 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
+namespace COMETwebapp.Pages.Directory
 {
-    using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.Components.Directory;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using DevExpress.Blazor;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementUnit" />s
+    /// Support class for the <see cref="DirectoryPage"/>
     /// </summary>
-    public interface IMeasurementUnitsTableViewModel : IDeprecatableDataItemTableViewModel<MeasurementUnit, MeasurementUnitRowViewModel>
+    public partial class DirectoryPage
     {
         /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
+        /// The selected component type
         /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        private Type SelectedComponent { get; set; }
+
+        /// <summary>
+        /// A map with all the available components and their names
+        /// </summary>
+        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
+        {
+            {typeof(DomainsOfExpertiseTable), "Domains"},
+        };
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+        }
+
+        /// <summary>
+        /// Method invoked to set the selected component from toolbar
+        /// </summary>
+        /// <param name="e"></param>
+        private void OnItemClick(ToolbarItemClickEventArgs e)
+        {
+            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+        }
     }
 }

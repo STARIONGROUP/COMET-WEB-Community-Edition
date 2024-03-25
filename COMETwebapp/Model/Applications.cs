@@ -104,6 +104,14 @@ namespace COMETwebapp.Model
                 Description = "Visualize reference data",
                 Url = WebAppConstantValues.ReferenceDataPage
             },
+            new Application
+            {
+                Name = "Directory",
+                Color = "#fc3a1aad",
+                Icon = "folder",
+                Description = "Visualize directory data",
+                Url = WebAppConstantValues.DirectoryPage
+            },
             new Application    
             {
                 Name = "User Management",

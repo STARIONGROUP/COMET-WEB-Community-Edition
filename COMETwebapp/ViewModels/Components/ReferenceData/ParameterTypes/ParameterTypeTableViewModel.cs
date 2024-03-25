@@ -31,13 +31,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public class ParameterTypeTableViewModel : ReferenceDataItemViewModel<ParameterType, ParameterTypeRowViewModel>, IParameterTypeTableViewModel
+    public class ParameterTypeTableViewModel : DeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>, IParameterTypeTableViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.

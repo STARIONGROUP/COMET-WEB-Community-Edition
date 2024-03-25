@@ -36,7 +36,7 @@ namespace COMETwebapp.Tests.Model
         {
             var applications = Applications.ExistingApplications;
 
-            Assert.That(applications, Has.Count.EqualTo(11));
+            Assert.That(applications, Has.Count.EqualTo(12));
 
             foreach (var application in applications)
             {

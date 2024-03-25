@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IDomainsOfExpertiseTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,21 +22,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
+namespace COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise
 {
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.Directory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementUnit" />s
+    /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>
-    public interface IMeasurementUnitsTableViewModel : IDeprecatableDataItemTableViewModel<MeasurementUnit, MeasurementUnitRowViewModel>
+    public interface IDomainsOfExpertiseTableViewModel : IDeprecatableDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
-        /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
-        /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
     }
 }

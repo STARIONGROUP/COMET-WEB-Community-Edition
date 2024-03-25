@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="MeasurementUnitRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="DomainOfExpertiseRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,40 +22,23 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
+namespace COMETwebapp.ViewModels.Components.Directory.Rows
 {
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
-    using ReactiveUI;
-
     /// <summary>
-    /// Row View Model for  <see cref="CDP4Common.SiteDirectoryData.MeasurementUnit" />
+    /// Row View Model for  <see cref="DomainOfExpertise" />
     /// </summary>
-    public class MeasurementUnitRowViewModel : DeprecatableDataItemRowViewModel<MeasurementUnit>
+    public class DomainOfExpertiseRowViewModel : DeprecatableDataItemRowViewModel<DomainOfExpertise>
     {
         /// <summary>
-        /// Backing field for <see cref="Type" />
+        /// Initializes a new instance of the <see cref="DomainOfExpertiseRowViewModel" /> class.
         /// </summary>
-        private string type;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MeasurementUnitRowViewModel" /> class.
-        /// </summary>
-        /// <param name="measurementUnit">The associated <see cref="MeasurementUnit" /></param>
-        public MeasurementUnitRowViewModel(MeasurementUnit measurementUnit) : base(measurementUnit)
+        /// <param name="domainOfExpertise">The associated <see cref="DomainOfExpertise" /></param>
+        public DomainOfExpertiseRowViewModel(DomainOfExpertise domainOfExpertise) : base(domainOfExpertise)
         {
-            this.Type = measurementUnit.ClassKind.ToString();
-        }
-
-        /// <summary>
-        /// The <see cref="CDP4Common.SiteDirectoryData.MeasurementUnit" /> type
-        /// </summary>
-        public string Type
-        {
-            get => this.type;
-            set => this.RaiseAndSetIfChanged(ref this.type, value);
         }
     }
 }
