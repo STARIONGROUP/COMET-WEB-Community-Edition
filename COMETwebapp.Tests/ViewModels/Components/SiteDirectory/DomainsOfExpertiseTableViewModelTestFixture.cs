@@ -200,5 +200,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<DomainOfExpertise>(c => c.IsDeprecated == false)));
         }
+
+        [Test]
+        public async Task VerifyDomainCreateOrEdit()
+        {
+            this.viewModel.InitializeViewModel();
+
+            await this.viewModel.CreateOrEditDomainOfExpertise(false);
+            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+
+            await this.viewModel.CreateOrEditDomainOfExpertise(true);
+            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2)), Times.Once);
+        }
     }
 }
