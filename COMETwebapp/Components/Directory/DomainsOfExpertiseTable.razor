@@ -22,14 +22,18 @@ Copyright (c) 2023-2024 RHEA System S.A.
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
-            ShowAllRows="true"
             SearchBoxNullText="Search for a domain of expertise..."
             PopupEditFormCssClass="pw-800"
             PopupEditFormHeaderText="Domain Of Expertise (UNDER DEV)"
             CustomizeElement="DisableDeprecatedThing"
             CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditThingSaving)">
+            EditModelSaving="@(this.OnEditThingSaving)"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new int[] { 20,35,50 })"
+            PageSizeSelectorAllRowsItemVisible="true">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
