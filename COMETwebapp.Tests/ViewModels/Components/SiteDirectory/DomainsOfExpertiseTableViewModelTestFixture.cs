@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.ViewModels.Components.Directory
+namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
@@ -36,7 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Directory
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
 
     using Microsoft.Extensions.Logging;
 

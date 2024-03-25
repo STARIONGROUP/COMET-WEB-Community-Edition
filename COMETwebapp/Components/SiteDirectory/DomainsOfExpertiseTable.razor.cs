@@ -22,13 +22,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Directory
+namespace COMETwebapp.Components.SiteDirectory
 {
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise;
-    using COMETwebapp.ViewModels.Components.Directory.Rows;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using DevExpress.Blazor;
 

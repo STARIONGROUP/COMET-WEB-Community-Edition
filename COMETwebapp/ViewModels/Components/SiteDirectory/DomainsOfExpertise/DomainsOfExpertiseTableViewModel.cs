@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
 {
     using CDP4Common.SiteDirectoryData;
 
@@ -32,8 +32,8 @@ namespace COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
-    using COMETwebapp.ViewModels.Components.Directory.Rows;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />

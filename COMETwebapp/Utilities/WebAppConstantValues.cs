@@ -112,9 +112,9 @@ namespace COMETwebapp.Utilities
         public const string ReferenceDataPage = "ReferenceData";
 
         /// <summary>
-        /// The page name of the Directory
+        /// The page name of the Site Directory
         /// </summary>
-        public const string DirectoryPage = "Directory";
+        public const string SiteDirectoryPage = "SiteDirectory";
 
         /// <summary>
         /// The page name of the User Management

@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Directory.Rows
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 {
     using CDP4Common.SiteDirectoryData;
 

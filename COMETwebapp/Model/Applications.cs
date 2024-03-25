@@ -106,11 +106,11 @@ namespace COMETwebapp.Model
             },
             new Application
             {
-                Name = "Directory",
+                Name = "Site Directory",
                 Color = "#fc3a1aad",
                 Icon = "folder",
-                Description = "Visualize directory data",
-                Url = WebAppConstantValues.DirectoryPage
+                Description = "Visualize site directory data",
+                Url = WebAppConstantValues.SiteDirectoryPage
             },
             new Application    
             {

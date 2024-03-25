@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.Directory
+namespace COMETwebapp.Tests.Components.SiteDirectory
 {
     using System.Linq;
     using System.Threading.Tasks;
@@ -33,10 +33,10 @@ namespace COMETwebapp.Tests.Components.Directory
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.Directory;
+    using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.Directory.DomainsOfExpertise;
-    using COMETwebapp.ViewModels.Components.Directory.Rows;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using DevExpress.Blazor;
 

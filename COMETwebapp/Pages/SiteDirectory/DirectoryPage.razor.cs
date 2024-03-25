@@ -22,9 +22,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.Directory
+namespace COMETwebapp.Pages.SiteDirectory
 {
-    using COMETwebapp.Components.Directory;
+    using COMETwebapp.Components.SiteDirectory;
 
     using DevExpress.Blazor;
 
