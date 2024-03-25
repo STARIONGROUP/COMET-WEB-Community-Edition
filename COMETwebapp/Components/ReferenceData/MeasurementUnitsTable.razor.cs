@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -36,7 +37,7 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     /// Support class for the <see cref="MeasurementUnitsTable"/>
     /// </summary>
-    public partial class MeasurementUnitsTable : SelectedReferenceDataItemBase<MeasurementUnit, MeasurementUnitRowViewModel>
+    public partial class MeasurementUnitsTable : SelectedDeprecatableDataItemBase<MeasurementUnit, MeasurementUnitRowViewModel>
     {
         /// <summary>
         /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component

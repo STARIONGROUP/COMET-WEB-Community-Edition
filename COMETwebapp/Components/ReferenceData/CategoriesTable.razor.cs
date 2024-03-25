@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
@@ -37,7 +38,7 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     ///     Support class for the <see cref="CategoriesTable"/>
     /// </summary>
-    public partial class CategoriesTable : SelectedReferenceDataItemBase<Category, CategoryRowViewModel>
+    public partial class CategoriesTable : SelectedDeprecatableDataItemBase<Category, CategoryRowViewModel>
     {
         /// <summary>
         /// The <see cref="ICategoriesTableViewModel" /> for this component

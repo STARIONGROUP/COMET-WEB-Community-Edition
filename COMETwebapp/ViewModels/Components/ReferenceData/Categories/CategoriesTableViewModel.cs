@@ -32,14 +32,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public class CategoriesTableViewModel : ReferenceDataItemViewModel<Category, CategoryRowViewModel>, ICategoriesTableViewModel
+    public class CategoriesTableViewModel : DeprecatableDataItemTableViewModel<Category, CategoryRowViewModel>, ICategoriesTableViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CategoriesTableViewModel" /> class.

@@ -22,7 +22,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using COMETwebapp.Wrappers
 @using CDP4Common.SiteDirectoryData
-@inherits SelectedReferenceDataItemBase<Category, CategoryRowViewModel>
+@inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<Category, CategoryRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
 <div style="display: flex; justify-content: space-between; background-color: rgb(176,176,176)" >

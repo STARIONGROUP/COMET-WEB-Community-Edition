@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -34,7 +35,7 @@ namespace COMETwebapp.Components.ReferenceData
     /// <summary>
     ///     Support class for the <see cref="ParameterTypeTable"/>
     /// </summary>
-    public partial class ParameterTypeTable : SelectedReferenceDataItemBase<ParameterType, ParameterTypeRowViewModel>
+    public partial class ParameterTypeTable : SelectedDeprecatableDataItemBase<ParameterType, ParameterTypeRowViewModel>
     {
         /// <summary>
         /// The <see cref="IParameterTypeTableViewModel" /> for this component

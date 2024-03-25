@@ -27,13 +27,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public interface ICategoriesTableViewModel : IReferenceDataItemViewModel<Category, CategoryRowViewModel>
+    public interface ICategoriesTableViewModel : IDeprecatableDataItemTableViewModel<Category, CategoryRowViewModel>
     {
         /// <summary>
         ///    Available <see cref="ReferenceDataLibrary"/>s

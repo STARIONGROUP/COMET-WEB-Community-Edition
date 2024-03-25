@@ -24,14 +24,13 @@
 
 namespace COMETwebapp.Extensions
 {
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.BookEditor;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.ModelEditor;
@@ -92,6 +91,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
             serviceCollection.AddTransient<IMeasurementUnitsTableViewModel, MeasurementUnitsTableViewModel>();
             serviceCollection.AddTransient<IMeasurementScalesTableViewModel, MeasurementScalesTableViewModel>();
+            serviceCollection.AddTransient<IDomainsOfExpertiseTableViewModel, DomainsOfExpertiseTableViewModel>();
         }
     }
 }

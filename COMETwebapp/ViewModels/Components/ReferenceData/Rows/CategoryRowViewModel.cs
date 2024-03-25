@@ -28,12 +28,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.ViewModels.Components.Common.Rows;
+
     using ReactiveUI;
 
     /// <summary>
     /// Row View Model for  <see cref="Category" />
     /// </summary>
-    public class CategoryRowViewModel : ReferenceDataItemRowViewModel<Category>
+    public class CategoryRowViewModel : DeprecatableDataItemRowViewModel<Category>
     {
         /// <summary>
         /// Backing field for <see cref="SuperCategories" />

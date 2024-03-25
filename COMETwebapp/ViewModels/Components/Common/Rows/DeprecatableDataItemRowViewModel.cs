@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ReferenceDataItemRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="DeprecatableDataItemRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,17 +22,16 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
+namespace COMETwebapp.ViewModels.Components.Common.Rows
 {
     using CDP4Common.CommonData;
-    using CDP4Common.SiteDirectoryData;
 
     using ReactiveUI;
 
     /// <summary>
     /// Row View Model for a thing
     /// </summary>
-    public class ReferenceDataItemRowViewModel<T> : ReactiveObject where T : DefinedThing, IDeprecatableThing
+    public abstract class DeprecatableDataItemRowViewModel<T> : ReactiveObject where T : DefinedThing, IDeprecatableThing
     {
         /// <summary>
         /// Backing field for <see cref="ContainerName" />
@@ -55,15 +54,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         private string shortName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReferenceDataItemRowViewModel{T}" /> class.
+        /// Initializes a new instance of the <see cref="DeprecatableDataItemRowViewModel{T}" /> class.
         /// </summary>
         /// <param name="thing">The associated thing</param>
-        public ReferenceDataItemRowViewModel(T thing)
+        protected DeprecatableDataItemRowViewModel(T thing)
         {
             this.Thing = thing;
             this.Name = thing.Name;
             this.ShortName = thing.ShortName;
-            var container = (ReferenceDataLibrary)thing.Container;
+            var container = (IShortNamedThing)thing.Container;
             this.ContainerName = container.ShortName;
             this.IsDeprecated = thing.IsDeprecated;
         }
@@ -126,8 +125,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// <summary>
         /// Update this row view model properties
         /// </summary>
-        /// <param name="thingRow">The <see cref="ReferenceDataItemRowViewModel{T}" /> to use for updating</param>
-        public void UpdateProperties(ReferenceDataItemRowViewModel<T> thingRow)
+        /// <param name="thingRow">The <see cref="DeprecatableDataItemRowViewModel{T}" /> to use for updating</param>
+        public void UpdateProperties(DeprecatableDataItemRowViewModel<T> thingRow)
         {
             this.Name = thingRow.Name;
             this.ShortName = thingRow.ShortName;

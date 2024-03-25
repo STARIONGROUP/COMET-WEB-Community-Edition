@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SelectedReferenceDataItemBase.razor.cs" company="RHEA System S.A.">
+// <copyright file="SelectedDeprecatableDataItemBase.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,12 +22,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.Components.Common
 {
     using CDP4Common.CommonData;
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
+
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DevExpress.Blazor;
 
@@ -37,18 +40,15 @@ namespace COMETwebapp.Components.ReferenceData
 
     using ReactiveUI;
 
-    using ViewModels.Components.ReferenceData;
-    using ViewModels.Components.ReferenceData.Rows;
-
     /// <summary>
-    /// Support class for the <see cref="SelectedReferenceDataItemBase{T,TRow}" />
+    /// Support class for the <see cref="SelectedDeprecatableDataItemBase{T,TRow}" />
     /// </summary>
-    public abstract partial class SelectedReferenceDataItemBase<T, TRow> : DisposableComponent where T : DefinedThing, IDeprecatableThing where TRow : ReferenceDataItemRowViewModel<T>
+    public abstract partial class SelectedDeprecatableDataItemBase<T, TRow> : DisposableComponent where T : DefinedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
     {
         /// <summary>
-        /// The <see cref="IReferenceDataItemViewModel{T,TRow}" /> for this component
+        /// The <see cref="IDeprecatableDataItemTableViewModel{T,TRow}" /> for this component
         /// </summary>
-        private IReferenceDataItemViewModel<T, TRow> ViewModel { get; set; }
+        private IDeprecatableDataItemTableViewModel<T, TRow> ViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if a thing should be created
@@ -78,7 +78,7 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         /// Method used to initialize the <see cref="ViewModel"/>
         /// </summary>
-        protected void Initialize(IReferenceDataItemViewModel<T, TRow> viewModel)
+        protected void Initialize(IDeprecatableDataItemTableViewModel<T, TRow> viewModel)
         {
             this.ViewModel = viewModel;
             this.ViewModel.InitializeViewModel();

@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementScalesTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="DomainsOfExpertiseTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,30 +22,28 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.Components.SiteDirectory
 {
-    using System.Threading.Tasks;
-
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="MeasurementScalesTable"/>
+    ///     Support class for the <see cref="DomainsOfExpertiseTable"/>
     /// </summary>
-    public partial class MeasurementScalesTable : SelectedDeprecatableDataItemBase<MeasurementScale, MeasurementScaleRowViewModel>
+    public partial class DomainsOfExpertiseTable : SelectedDeprecatableDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
         /// <summary>
-        /// The <see cref="IMeasurementScalesTableViewModel" /> for this component
+        /// The <see cref="IDomainsOfExpertiseTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IMeasurementScalesTableViewModel ViewModel { get; set; }
+        public IDomainsOfExpertiseTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -58,32 +56,20 @@ namespace COMETwebapp.Components.ReferenceData
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override void OnEditThingSaving()
-        {
-            if (!this.ShouldCreateThing)
-            {
-                // update measurement scale
-            }
-
-            // create measurement scale
-        }
-
-        /// <summary>
         /// Method invoked when creating a new thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
         protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
         {
-            var dataItem = (MeasurementScaleRowViewModel)e.DataItem;
+            base.CustomizeEditThing(e);
+
+            var dataItem = (DomainOfExpertiseRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
 
             if (dataItem == null)
             {
-                e.EditModel = new OrdinalScale();
-                this.ViewModel.Thing = new OrdinalScale();
+                e.EditModel = new DomainOfExpertise();
+                this.ViewModel.Thing = new DomainOfExpertise();
                 return;
             }
 

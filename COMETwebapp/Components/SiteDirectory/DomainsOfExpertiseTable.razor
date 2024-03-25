@@ -14,35 +14,39 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
-@inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<CDP4Common.SiteDirectoryData.ParameterType, ParameterTypeRowViewModel>
+@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
+@inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<CDP4Common.SiteDirectoryData.DomainOfExpertise, DomainOfExpertiseRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
-            ShowAllRows="true"
-            SearchBoxNullText="Search for a parameter type..."
+            SearchBoxNullText="Search for a domain of expertise..."
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Create Parameter Type"
+            PopupEditFormHeaderText="Domain Of Expertise (UNDER DEV)"
+            CustomizeElement="DisableDeprecatedThing"
+            CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
-            CustomizeElement="DisableDeprecatedThing">
+            EditModelSaving="@(this.OnEditThingSaving)"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new int[] { 20,35,50 })"
+            PageSizeSelectorAllRowsItemVisible="true">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Symbol)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.DefaultScale)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
             <DxGridCommandColumn Width="200px" EditButtonVisible="false">
                 <HeaderTemplate>
-                    <DxButton Id="addParameterButton" Text="Add Parameter Type" IconCssClass="oi oi-plus" />
+                    <DxButton Id="addDomainOfExpertiseButton" Text="Add Domain Of Expertise" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
-                        var row = (ParameterTypeRowViewModel)context.DataItem;
+                        var row = (DomainOfExpertiseRowViewModel)context.DataItem;
+
+                        <DxButton Id="editDomainOfExpertiseButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
 
                         <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
                                   Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
@@ -52,6 +56,21 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
+
+        <EditFormTemplate Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
     </DxGrid>
 </LoadingComponent>
 
