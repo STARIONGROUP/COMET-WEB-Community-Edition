@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -40,9 +41,10 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData;
-
+    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
+    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using Microsoft.Extensions.DependencyInjection;
-
+    using Microsoft.Extensions.Logging;
     using Moq;
 
     using NUnit.Framework;
@@ -58,6 +60,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private Mock<IPermissionService> permissionService;
         private Mock<ISessionService> sessionService;
         private Mock<IShowHideDeprecatedThingsService> showHideDeprecatedThingsService;
+        private Mock<ILogger<ParameterTypeTableViewModel>> logger;
         private Assembler assembler;
         private Participant participant;
         private Participant participant1;
@@ -79,8 +82,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public void SetUp()
         {
             this.context = new TestContext();
-
             this.messageBus = new CDPMessageBus();
+            this.logger = new Mock<ILogger<ParameterTypeTableViewModel>>();
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
             this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
@@ -100,7 +103,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus);
+            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -267,6 +270,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 });
 
             this.siteReferenceDataLibrary.ParameterType.Add(this.sourceParameterType2);
+
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.sourceParameterType1));
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.sourceParameterType2));
 
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
             this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);

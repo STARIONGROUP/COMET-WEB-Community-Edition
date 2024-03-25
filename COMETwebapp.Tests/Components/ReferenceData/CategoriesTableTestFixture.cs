@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -46,13 +47,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -69,6 +71,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private Mock<IPermissionService> permissionService;
         private Mock<ISessionService> sessionService;
         private Mock<IShowHideDeprecatedThingsService> showHideDeprecatedThingsService;
+        private Mock<ILogger<CategoriesTableViewModel>> logger;
         private Assembler assembler;
         private Participant participant;
         private Participant participant1;
@@ -86,6 +89,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private CompoundParameterType sourceParameterType2;
         private Category elementDefinitionCategory1;
         private Category elementDefinitionCategory2;
+        private Category elementDefinitionCategory3;
         private CDPMessageBus messageBus;
 
         [SetUp]
@@ -93,7 +97,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         {
             this.context = new TestContext();
             this.messageBus = new CDPMessageBus();
-
+            this.logger = new Mock<ILogger<CategoriesTableViewModel>>();
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
             this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
@@ -113,7 +117,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new CategoriesTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus);
+            this.viewModel = new CategoriesTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
 
             this.context.Services.AddSingleton(this.viewModel);
 
@@ -292,11 +296,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.siteReferenceDataLibrary.ParameterType.Add(this.sourceParameterType2);
 
+            this.elementDefinitionCategory3 = this.elementDefinitionCategory2.Clone(true);
+
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.elementDefinitionCategory1));
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.elementDefinitionCategory2));
+
             this.session.Setup(x => x.Assembler).Returns(this.assembler);
             this.session.Setup(x => x.OpenIterations).Returns(this.openIteration);
             this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
             this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
+
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
         }
 
         [TearDown]
@@ -336,7 +347,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             });
 
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            var currentCategory = this.viewModel.Category;
+            var currentCategory = this.viewModel.Thing;
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
 
@@ -345,12 +356,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Category, Is.Not.EqualTo(currentCategory));
+                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentCategory));
             });
 
-            this.viewModel.Category = this.elementDefinitionCategory1;
+            this.viewModel.Thing = this.elementDefinitionCategory1;
 
-            this.viewModel.OnConfirmButtonClick();
+            await this.viewModel.OnConfirmPopupButtonClick();
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
@@ -372,7 +383,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             });
 
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            var currentCategory = this.viewModel.Category;
+            var currentCategory = this.viewModel.Thing;
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
 
@@ -381,12 +392,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Category, Is.Not.EqualTo(currentCategory));
+                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentCategory));
             });
 
-            this.viewModel.Category = this.elementDefinitionCategory2;
+            this.viewModel.Thing = this.elementDefinitionCategory2;
 
-            this.viewModel.OnConfirmButtonClick();
+            await this.viewModel.OnConfirmPopupButtonClick();
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
@@ -405,7 +416,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
             });
 
-            this.viewModel.Category = new Category
+            this.viewModel.Thing = new Category
             {
                 Name = "Cat1",
                 ShortName = "TT",
@@ -416,8 +427,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
             this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new (ClassKind.ElementDefinition) };
 
-            await this.viewModel.AddingCategory();
-            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Category, EventKind.Added));
+            await this.viewModel.CreateCategory();
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
         }
 
@@ -426,15 +437,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
 
-            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory1)));
+            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory3)));
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory1;
-            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory1.SuperCategory;
-            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory1.SuperCategory;
+            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
+            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;
+            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory3.SuperCategory;
 
-            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());            
+            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());
 
             Assert.Multiple(() =>
             {

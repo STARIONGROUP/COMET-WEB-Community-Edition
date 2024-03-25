@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -35,7 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
 
     using Microsoft.Extensions.Logging;
 
@@ -50,6 +51,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
         private Mock<ILogger<MeasurementUnitsTableViewModel>> loggerMock;
+        private Assembler assembler;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private MeasurementUnit measurementUnit;
@@ -60,6 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<MeasurementUnitsTableViewModel>>();
 
             this.measurementUnit = new SimpleUnit()
@@ -81,13 +84,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             siteReferenceDataLibrary.Unit.Add(this.measurementUnit);
             siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
 
-            this.permissionService.Setup(x => x.CanWrite(ClassKind.MeasurementUnit, this.measurementUnit.Container)).Returns(true);
+            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
+            var lazyMeasurementUnit = new Lazy<Thing>(this.measurementUnit);
+            this.assembler.Cache.TryAdd(new CacheKey(), lazyMeasurementUnit);
+
+            this.permissionService.Setup(x => x.CanWrite(this.measurementUnit.ClassKind, this.measurementUnit.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            this.messageBus = new CDPMessageBus();
 
             this.viewModel = new MeasurementUnitsTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -107,7 +114,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().MeasurementUnit, Is.EqualTo(this.measurementUnit));
+                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.measurementUnit));
             });
         }
 
@@ -122,7 +129,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(measurementUnitRow.ContainerName, Is.EqualTo("rdl"));
                 Assert.That(measurementUnitRow.Name, Is.EqualTo(this.measurementUnit.Name));
                 Assert.That(measurementUnitRow.ShortName, Is.EqualTo(this.measurementUnit.ShortName));
-                Assert.That(measurementUnitRow.MeasurementUnit, Is.EqualTo(this.measurementUnit));
+                Assert.That(measurementUnitRow.Thing, Is.EqualTo(this.measurementUnit));
                 Assert.That(measurementUnitRow.IsAllowedToWrite, Is.EqualTo(true));
                 Assert.That(measurementUnitRow.Type, Is.EqualTo(nameof(SimpleUnit)));
             });
@@ -141,19 +148,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 ShortName = "newShortname"
             };
 
-            var personTest = new SimpleUnit()
+            var measurementUnitTest = new SimpleUnit()
             {
                 Iid = Guid.NewGuid(),
                 Container = siteReferenceDataLibrary
             };
 
-            this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(measurementUnitTest, EventKind.Added);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementUnit, EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementUnit, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
@@ -165,7 +172,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteReferenceDataLibrary.ShortName));
-                this.permissionService.Verify(x => x.CanWrite(ClassKind.MeasurementUnit, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
+                this.permissionService.Verify(x => x.CanWrite(measurementUnitTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
         
@@ -187,7 +194,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              Assert.Multiple(() =>
              {
                  Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                 Assert.That(this.viewModel.MeasurementUnit, Is.EqualTo(measurementUnitRow.MeasurementUnit));
+                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementUnitRow.Thing));
              });
              
              this.viewModel.OnCancelPopupButtonClick();
@@ -196,7 +203,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementUnit>(c => c.IsDeprecated == true)));
 
-             this.viewModel.MeasurementUnit.IsDeprecated = true;
+             this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementUnit>(c => c.IsDeprecated == false)));
         }

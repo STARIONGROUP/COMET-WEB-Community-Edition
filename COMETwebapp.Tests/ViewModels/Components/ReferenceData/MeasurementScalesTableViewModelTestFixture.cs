@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -35,7 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
 
     using Microsoft.Extensions.Logging;
 
@@ -49,6 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private MeasurementScalesTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
+        private Assembler assembler;
         private Mock<ILogger<MeasurementScalesTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
@@ -60,6 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<MeasurementScalesTableViewModel>>();
 
             this.measurementScale = new OrdinalScale()
@@ -83,13 +86,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             siteReferenceDataLibrary.Scale.Add(this.measurementScale);
             siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
 
-            this.permissionService.Setup(x => x.CanWrite(ClassKind.MeasurementScale, this.measurementScale.Container)).Returns(true);
+            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
+            var lazyMeasurementScale = new Lazy<Thing>(this.measurementScale);
+            this.assembler.Cache.TryAdd(new CacheKey(), lazyMeasurementScale);
+
+            this.permissionService.Setup(x => x.CanWrite(this.measurementScale.ClassKind, this.measurementScale.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            this.messageBus = new CDPMessageBus();
 
             this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -109,7 +116,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().MeasurementScale, Is.EqualTo(this.measurementScale));
+                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.measurementScale));
             });
         }
 
@@ -124,7 +131,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(measurementScaleRow.ContainerName, Is.EqualTo("rdl"));
                 Assert.That(measurementScaleRow.Name, Is.EqualTo(this.measurementScale.Name));
                 Assert.That(measurementScaleRow.ShortName, Is.EqualTo(this.measurementScale.ShortName));
-                Assert.That(measurementScaleRow.MeasurementScale, Is.EqualTo(this.measurementScale));
+                Assert.That(measurementScaleRow.Thing, Is.EqualTo(this.measurementScale));
                 Assert.That(measurementScaleRow.IsAllowedToWrite, Is.EqualTo(true));
                 Assert.That(measurementScaleRow.Type, Is.EqualTo(nameof(OrdinalScale)));
             });
@@ -154,10 +161,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.messageBus.SendObjectChangeEvent(scaleTest, EventKind.Added);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementScale, EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().MeasurementScale, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
@@ -169,7 +176,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteReferenceDataLibrary.ShortName));
-                this.permissionService.Verify(x => x.CanWrite(ClassKind.MeasurementScale, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
+                this.permissionService.Verify(x => x.CanWrite(scaleTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
         
@@ -191,7 +198,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              Assert.Multiple(() =>
              {
                  Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                 Assert.That(this.viewModel.MeasurementScale, Is.EqualTo(measurementScaleRow.MeasurementScale));
+                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementScaleRow.Thing));
              });
              
              this.viewModel.OnCancelPopupButtonClick();
@@ -200,7 +207,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementScale>(c => c.IsDeprecated == true)));
 
-             this.viewModel.MeasurementScale.IsDeprecated = true;
+             this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementScale>(c => c.IsDeprecated == false)));
         }

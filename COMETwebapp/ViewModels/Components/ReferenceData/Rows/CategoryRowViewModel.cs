@@ -2,7 +2,7 @@
 //  <copyright file="CategoryRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -28,35 +28,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 
     using COMET.Web.Common.Extensions;
 
-    using COMETwebapp.Extensions;
-
     using ReactiveUI;
 
     /// <summary>
     /// Row View Model for  <see cref="Category" />
     /// </summary>
-    public class CategoryRowViewModel : ReactiveObject
+    public class CategoryRowViewModel : ReferenceDataItemRowViewModel<Category>
     {
-        /// <summary>
-        /// Backing field for <see cref="ContainerName" />
-        /// </summary>
-        private string containerName;
-
-        /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
-
-        /// <summary>
-        /// Backing field for <see cref="Name" />
-        /// </summary>
-        private string name;
-
-        /// <summary>
-        /// Backing field for <see cref="ShortName" />
-        /// </summary>
-        private string shortName;
-
         /// <summary>
         /// Backing field for <see cref="SuperCategories" />
         /// </summary>
@@ -66,38 +44,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// Initializes a new instance of the <see cref="CategoryRowViewModel" /> class.
         /// </summary>
         /// <param name="category">The associated <see cref="Category" /></param>
-        public CategoryRowViewModel(Category category)
+        public CategoryRowViewModel(Category category) : base(category)
         {
-            this.Category = category;
-            this.Name = category.Name;
-            this.ShortName = category.ShortName;
             this.SuperCategories = category.SuperCategory.Select(x => x.Name).AsCommaSeparated();
-            var container = (ReferenceDataLibrary)category.Container;
-            this.ContainerName = container.ShortName;
-            this.IsDeprecated = category.IsDeprecated;
-        }
-
-        /// <summary>
-        /// The represented <see cref="Category" />
-        /// </summary>
-        public Category Category { get; }
-
-        /// <summary>
-        /// The name of the <see cref="Category" />
-        /// </summary>
-        public string Name
-        {
-            get => this.name;
-            set => this.RaiseAndSetIfChanged(ref this.name, value);
-        }
-
-        /// <summary>
-        /// The short name of the <see cref="Category" />
-        /// </summary>
-        public string ShortName
-        {
-            get => this.shortName;
-            set => this.RaiseAndSetIfChanged(ref this.shortName, value);
         }
 
         /// <summary>
@@ -110,48 +59,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// The <see cref="Category" /> container name
-        /// </summary>
-        public string ContainerName
-        {
-            get => this.containerName;
-            set => this.RaiseAndSetIfChanged(ref this.containerName, value);
-        }
-
-        /// <summary>
-        /// Value indicating if the <see cref="Category" /> is deprecated
-        /// </summary>
-        public bool IsDeprecated
-        {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
-        }
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
-        /// Value indicating if the <see cref="Category" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
-        }
-
-        /// <summary>
         /// Update this row view model properties
         /// </summary>
         /// <param name="categoryRow">The <see cref="CategoryRowViewModel" /> to use for updating</param>
         public void UpdateProperties(CategoryRowViewModel categoryRow)
         {
-            this.Name = categoryRow.Name;
-            this.ShortName = categoryRow.ShortName;
+            base.UpdateProperties(categoryRow);
             this.SuperCategories = categoryRow.SuperCategories;
-            this.ContainerName = categoryRow.ContainerName;
-            this.IsDeprecated = categoryRow.IsDeprecated;
         }
     }
 }

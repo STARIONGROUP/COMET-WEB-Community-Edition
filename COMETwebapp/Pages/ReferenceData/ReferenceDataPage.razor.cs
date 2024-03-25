@@ -24,25 +24,48 @@
 
 namespace COMETwebapp.Pages.ReferenceData
 {
+    using COMETwebapp.Components.ReferenceData;
+
     using DevExpress.Blazor;
 
     /// <summary>
-    ///     Support class for the <see cref="ReferenceDataPage"/>
+    /// Support class for the <see cref="ReferenceDataPage"/>
     /// </summary>
     public partial class ReferenceDataPage
     {
         /// <summary>
-        /// The name of selected component
+        /// The selected component type
         /// </summary>
-        private string selectedComponentName;
+        private Type SelectedComponent { get; set; }
+
+        /// <summary>
+        /// A map with all the available components and their names
+        /// </summary>
+        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
+        {
+            {typeof(ParameterTypeTable), "Parameter Types"},
+            {typeof(MeasurementScalesTable), "Measurement Scales"},
+            {typeof(MeasurementUnitsTable), "Measurement Units"},
+            {typeof(CategoriesTable), "Categories"},
+        };
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+        }
 
         /// <summary>
         /// Method invoked to set the selected component from toolbar
         /// </summary>
         /// <param name="e"></param>
-        void OnItemClick(ToolbarItemClickEventArgs e)
+        private void OnItemClick(ToolbarItemClickEventArgs e)
         {
-            this.selectedComponentName = e.ItemName;
+            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
         }
     }
 }

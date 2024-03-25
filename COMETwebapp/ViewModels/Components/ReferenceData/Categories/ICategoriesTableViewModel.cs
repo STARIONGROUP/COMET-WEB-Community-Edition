@@ -2,7 +2,7 @@
 // <copyright file="ICategoriesTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,44 +22,19 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
-
-    using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="Category" />
     /// </summary>
-    public interface ICategoriesTableViewModel : IApplicationBaseViewModel
+    public interface ICategoriesTableViewModel : IReferenceDataItemViewModel<Category, CategoryRowViewModel>
     {
-        /// <summary>
-        /// The <see cref="Category" /> to create or edit
-        /// </summary>
-        Category Category { get; set; }
-
-        /// <summary>
-        /// Gets or sets the data source for the grid control.
-        /// </summary>
-        SourceList<Category> DataSource { get; }
-
-        /// <summary>
-        /// A reactive collection of <see cref="CategoryRowViewModel" />
-        /// </summary>
-        SourceList<CategoryRowViewModel> Rows { get; }
-
-        /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
         /// <summary>
         ///    Available <see cref="ReferenceDataLibrary"/>s
         /// </summary>
@@ -81,16 +56,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         IEnumerable<Category> SelectedSuperCategories { get; set; }
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        bool IsOnDeprecationMode { get; set; }
-
-        /// <summary>
-        /// popum message dialog
-        /// </summary>
-        string ConfirmationMessageDialog { get; set; }
-
-        /// <summary>
         /// selected container
         /// </summary>
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -101,35 +66,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; }
 
         /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        /// <param name="categoryRow"> The <see cref="CategoryRowViewModel" /> to deprecate or undeprecate </param>
-        void OnDeprecateUnDeprecateButtonClick(CategoryRowViewModel categoryRow);
-
-        /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="Category" />
-        /// </summary>
-        void OnConfirmButtonClick();
-
-        /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="Category" />
-        /// </summary>
-        void OnCancelButtonClick();
-
-        /// <summary>
         /// Tries to create a new <see cref="Category" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task AddingCategory();
-
-        /// <summary>
-        ///     Method invoked when the component is ready to start, having received its
-        ///     initial parameters from its parent in the render tree.
-        ///     Override this method if you will perform an asynchronous operation and
-        ///     want the component to refresh when that operation is completed.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
-        Task OnInitializedAsync();
+        Task CreateCategory();
 
         /// <summary>
         /// set the selected <see cref="CategoryRowViewModel" />

@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
@@ -98,7 +99,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.viewModel.Setup(x => x.ReferenceDataLibraries).Returns([]);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
             this.viewModel.Setup(x => x.IsOnDeprecationMode).Returns(true);
-            this.viewModel.Setup(x => x.MeasurementScale).Returns(new OrdinalScale());
+            this.viewModel.Setup(x => x.Thing).Returns(new OrdinalScale());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -118,7 +119,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateMeasurementScale, Is.EqualTo(false));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(renderer.Instance.ViewModel, Is.Not.Null);
                 Assert.That(renderer.Markup, Does.Contain(this.measurementScale1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.measurementScale2.Name));
@@ -150,8 +151,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateMeasurementScale, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.MeasurementScale, Is.InstanceOf(typeof(MeasurementScale)));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementScale)));
             });
             
             var editMeasurementScaleButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editScaleButton");
@@ -159,8 +160,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateMeasurementScale, Is.EqualTo(false));
-                Assert.That(this.viewModel.Object.MeasurementScale, Is.InstanceOf(typeof(MeasurementScale)));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementScale)));
             });
         }
     }

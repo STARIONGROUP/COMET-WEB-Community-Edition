@@ -31,28 +31,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     /// <summary>
     /// Row View Model for  <see cref="CDP4Common.SiteDirectoryData.MeasurementUnit" />
     /// </summary>
-    public class MeasurementUnitRowViewModel : ReactiveObject
+    public class MeasurementUnitRowViewModel : ReferenceDataItemRowViewModel<MeasurementUnit>
     {
-        /// <summary>
-        /// Backing field for <see cref="ContainerName" />
-        /// </summary>
-        private string containerName;
-
-        /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
-
-        /// <summary>
-        /// Backing field for <see cref="Name" />
-        /// </summary>
-        private string name;
-
-        /// <summary>
-        /// Backing field for <see cref="ShortName" />
-        /// </summary>
-        private string shortName;
-
         /// <summary>
         /// Backing field for <see cref="Type" />
         /// </summary>
@@ -62,38 +42,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// Initializes a new instance of the <see cref="MeasurementUnitRowViewModel" /> class.
         /// </summary>
         /// <param name="measurementUnit">The associated <see cref="MeasurementUnit" /></param>
-        public MeasurementUnitRowViewModel(MeasurementUnit measurementUnit)
+        public MeasurementUnitRowViewModel(MeasurementUnit measurementUnit) : base(measurementUnit)
         {
-            this.MeasurementUnit = measurementUnit;
-            this.Name = measurementUnit.Name;
-            this.ShortName = measurementUnit.ShortName;
             this.Type = measurementUnit.ClassKind.ToString();
-            var container = (ReferenceDataLibrary)measurementUnit.Container;
-            this.ContainerName = container.ShortName;
-            this.IsDeprecated = measurementUnit.IsDeprecated;
-        }
-
-        /// <summary>
-        /// The associated <see cref="MeasurementUnit" />
-        /// </summary>
-        public MeasurementUnit MeasurementUnit { get; private set; }
-
-        /// <summary>
-        /// The name of the <see cref="MeasurementUnit" />
-        /// </summary>
-        public string Name
-        {
-            get => this.name;
-            set => this.RaiseAndSetIfChanged(ref this.name, value);
-        }
-
-        /// <summary>
-        /// The short name of the <see cref="MeasurementUnit" />
-        /// </summary>
-        public string ShortName
-        {
-            get => this.shortName;
-            set => this.RaiseAndSetIfChanged(ref this.shortName, value);
         }
 
         /// <summary>
@@ -103,38 +54,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             get => this.type;
             set => this.RaiseAndSetIfChanged(ref this.type, value);
-        }
-
-        /// <summary>
-        /// The <see cref="CDP4Common.SiteDirectoryData.MeasurementUnit" /> container name
-        /// </summary>
-        public string ContainerName
-        {
-            get => this.containerName;
-            set => this.RaiseAndSetIfChanged(ref this.containerName, value);
-        }
-
-        /// <summary>
-        /// Value indicating if the <see cref="CDP4Common.SiteDirectoryData.MeasurementUnit" /> is deprecated
-        /// </summary>
-        public bool IsDeprecated
-        {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
-        }
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
-        /// Value indicating if the <see cref="CDP4Common.SiteDirectoryData.MeasurementUnit" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
         }
     }
 }

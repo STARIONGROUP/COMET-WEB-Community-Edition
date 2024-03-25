@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementUnitsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IReferenceDataItemViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -24,29 +24,21 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData
 {
-    using CDP4Common.SiteDirectoryData;
-
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DynamicData;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementUnit" />s
+    /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public interface IMeasurementUnitsTableViewModel : IApplicationBaseViewModel, IHaveReusableRows
+    public interface IReferenceDataItemViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
     {
         /// <summary>
-        /// Gets or sets the data source for the grid control.
+        /// A reactive collection of things
         /// </summary>
-        SourceList<MeasurementUnit> DataSource { get; }
-
-        /// <summary>
-        /// A reactive collection of <see cref="MeasurementUnitRowViewModel" />
-        /// </summary>
-        SourceList<MeasurementUnitRowViewModel> Rows { get; }
+        SourceList<TRow> Rows { get; }
 
         /// <summary>
         /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
@@ -54,9 +46,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
-        /// The <see cref="MeasurementUnit" /> to create or edit
+        /// Gets or sets the data source for the grid control.
         /// </summary>
-        MeasurementUnit MeasurementUnit { get; set; }
+        SourceList<T> DataSource { get; }
 
         /// <summary>
         /// Indicates if confirmation popup is visible
@@ -64,44 +56,41 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData
         bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
-        /// popup message dialog
+        /// The thing to create or edit
+        /// </summary>
+        T Thing { get; set; }
+
+        /// <summary>
+        /// Gets or sets the popup message dialog
         /// </summary>
         string PopupDialog { get; set; }
 
         /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
+        /// Initializes the <see cref="ReferenceDataItemViewModel{T,TRow}" />
         /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        void InitializeViewModel();
 
         /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of a <see cref="MeasurementUnitsTableViewModel.MeasurementUnit" />
+        /// Method invoked when confirming the deprecation/un-deprecation of the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task OnConfirmPopupButtonClick();
 
         /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of a <see cref="MeasurementUnitsTableViewModel.MeasurementUnit" />
+        /// Method invoked when canceling the deprecation/un-deprecation of the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
         /// </summary>
         void OnCancelPopupButtonClick();
 
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        /// <param name="measurementUnitRow"> The <see cref="MeasurementUnitRowViewModel" /> to deprecate or undeprecate </param>
-        void OnDeprecateUnDeprecateButtonClick(MeasurementUnitRowViewModel measurementUnitRow);
+        /// <param name="thingRow"> The thing to deprecate or undeprecate </param>
+        void OnDeprecateUnDeprecateButtonClick(TRow thingRow);
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
-        /// </summary>
-        void InitializeViewModel();
-
-        /// <summary>
-        /// Tries to deprecate or undeprecate a <see cref="MeasurementUnitsTableViewModel.MeasurementUnit" />
+        /// Tries to deprecate or undeprecate the <see cref="ReferenceDataItemViewModel{T,TRow}.Thing" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        Task DeprecatingOrUnDeprecatingMeasurementUnit();
+        Task DeprecateOrUnDeprecateThing();
     }
 }

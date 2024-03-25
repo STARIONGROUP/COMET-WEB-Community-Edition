@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterTypeTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="IParameterTypeTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,34 +22,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    ///     Support class for the <see cref="ParameterTypeTable"/>
+    /// View model used to manage <see cref="ParameterType" />
     /// </summary>
-    public partial class ParameterTypeTable : SelectedReferenceDataItemBase<ParameterType, ParameterTypeRowViewModel>
+    public interface IParameterTypeTableViewModel : IReferenceDataItemViewModel<ParameterType, ParameterTypeRowViewModel>
     {
-        /// <summary>
-        /// The <see cref="IParameterTypeTableViewModel" /> for this component
-        /// </summary>
-        [Inject]
-        public IParameterTypeTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.Initialize(this.ViewModel);
-        }
     }
 }

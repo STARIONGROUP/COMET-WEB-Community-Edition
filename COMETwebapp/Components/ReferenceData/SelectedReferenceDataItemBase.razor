@@ -14,24 +14,4 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@attribute [Route(WebAppConstantValues.ReferenceDataPage)]
-@attribute [Authorize]
-@using COMETwebapp.Utilities
-
-<DxToolbar ItemClick="@this.OnItemClick">
-    <Items>
-        @foreach (var mappedValue in this.mapOfComponentsAndNames)
-        {
-            <DxToolbarItem @key="@(mappedValue.Value)"
-                           Name="@(mappedValue.Value)" 
-                           Text="@(mappedValue.Value)" 
-                           Tooltip="@(mappedValue.Value)"
-                           RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
-        }
-    </Items>
-</DxToolbar>
-
-@if (this.SelectedComponent != null)
-{
-    <DynamicComponent Type="@this.SelectedComponent" />
-}
+@inherits DisposableComponent

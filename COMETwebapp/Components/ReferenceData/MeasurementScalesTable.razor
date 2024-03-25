@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using CDP4Common.SiteDirectoryData
-@inherits DisposableComponent
+@inherits SelectedReferenceDataItemBase<MeasurementScale, MeasurementScaleRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="this.Grid"
@@ -27,10 +27,10 @@ Copyright (c) 2023-2024 RHEA System S.A.
             SearchBoxNullText="Search for a measurement scale ..."
             PopupEditFormCssClass="pw-800"
             PopupEditFormHeaderText="Measurement Scale (UNDER DEV)"
-            CustomizeElement="DisableDeprecatedMeasurementScale"
+            CustomizeElement="DisableDeprecatedThing"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditMeasurementScaleSaving)"
-            CustomizeEditModel="this.CustomizeEditMeasurementScale">
+            EditModelSaving="@(this.OnEditThingSaving)"
+            CustomizeEditModel="this.CustomizeEditThing">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
@@ -60,59 +60,59 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <EditFormTemplate Context="EditFormContext">
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementScale.ShortName" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementScale.Name" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
                     <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
                                 TextFieldName="@nameof(ReferenceDataLibrary.ShortName)"
-                                @bind-Value="@this.ViewModel.MeasurementScale.Container"
+                                @bind-Value="@this.ViewModel.Thing.Container"
                                 CssClass="cw-480" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Unit:" ColSpanMd="10">
                     <DxComboBox Data="@this.ViewModel.MeasurementUnits"
                                 TextFieldName="@nameof(MeasurementUnit.ShortName)"
-                                @bind-Value="@this.ViewModel.MeasurementScale.Unit"
+                                @bind-Value="@this.ViewModel.Thing.Unit"
                                 CssClass="cw-480" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Number set:" ColSpanMd="10">
                     <DxComboBox Data="@this.ViewModel.NumberSetKinds"
-                                @bind-Value="@this.ViewModel.MeasurementScale.NumberSet"
+                                @bind-Value="@this.ViewModel.Thing.NumberSet"
                                 CssClass="cw-480" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Maximum Permissible Value:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementScale.MaximumPermissibleValue" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.MaximumPermissibleValue" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Minimum Permissible Value:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementScale.MinimumPermissibleValue" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.MinimumPermissibleValue" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Positive Value Connotation:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementScale.PositiveValueConnotation" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.PositiveValueConnotation" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Negative Value Connotation:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.MeasurementScale.NegativeValueConnotation" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.NegativeValueConnotation" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Minimum Inclusive:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.MeasurementScale.IsMinimumInclusive" />
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsMinimumInclusive" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Maximum Inclusive:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.MeasurementScale.IsMaximumInclusive" />
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsMaximumInclusive" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.MeasurementScale.IsDeprecated" />
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
 
     </DxGrid>
-    
-    <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-        @this.ViewModel.PopupDialog
-        <div class="dxbl-grid-confirm-dialog-buttons">
-            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
-        </div>
-    </DxPopup>
 </LoadingComponent>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @this.ViewModel.PopupDialog
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+    </div>
+</DxPopup>
