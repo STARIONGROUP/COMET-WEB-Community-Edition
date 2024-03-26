@@ -28,7 +28,7 @@ namespace COMETwebapp.Validators
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
 
-    using COMETwebapp.Extensions;
+    using COMET.Web.Common.Extensions;
 
     using FluentValidation;
 

@@ -22,14 +22,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Extensions
+namespace COMET.Web.Common.Extensions
 {
     using CDP4Common.Validation;
 
     using FluentValidation;
 
     /// <summary>
-    /// Static extension methods for <see cref="Validators"/>
+    /// Static extension methods for <see cref="AbstractValidator{T}"/>s
     /// </summary>
     public static class ValidatorExtensions
     {
