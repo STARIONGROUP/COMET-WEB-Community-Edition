@@ -25,6 +25,7 @@
 namespace COMETwebapp.Tests.Validators
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Validation;
 
     using COMETwebapp.Validators;
 
@@ -38,7 +39,8 @@ namespace COMETwebapp.Tests.Validators
         [SetUp]
         public void SetUp()
         {
-            this.validator = new CreateDomainOfExpertiseValidator();
+            var validationService = new ValidationService();
+            this.validator = new CreateDomainOfExpertiseValidator(validationService);
         }
 
         [Test]

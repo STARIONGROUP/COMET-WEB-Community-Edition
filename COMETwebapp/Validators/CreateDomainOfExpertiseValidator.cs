@@ -26,6 +26,9 @@
 namespace COMETwebapp.Validators
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Validation;
+
+    using COMETwebapp.Extensions;
 
     using FluentValidation;
 
@@ -37,26 +40,10 @@ namespace COMETwebapp.Validators
         /// <summary>
         /// Instantiates a new <see cref="CreateDomainOfExpertiseValidator"/>
         /// </summary>
-        public CreateDomainOfExpertiseValidator() : base()
+        public CreateDomainOfExpertiseValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.ShortName).NotEmpty();
-            this.RuleFor(x => x.ShortName).Must(IsShortNameValid).WithMessage("Shortnames should not contain white spaces");
-            this.RuleFor(x => x.Name).NotEmpty();
-        }
-
-        /// <summary>
-        /// Checks if the given shortname is valid
-        /// </summary>
-        /// <param name="shortName">The shortname to check</param>
-        /// <returns>true if the shortname is valid, otherwise false</returns>
-        private static bool IsShortNameValid(string shortName)
-        {
-            if (shortName != null)
-            {
-                return !shortName.Contains(' ');
-            }
-
-            return false;
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(DomainOfExpertise.ShortName));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(DomainOfExpertise.Name));
         }
     }
 }
