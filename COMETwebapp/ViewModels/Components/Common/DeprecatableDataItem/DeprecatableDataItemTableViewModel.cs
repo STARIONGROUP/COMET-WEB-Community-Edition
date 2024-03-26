@@ -44,7 +44,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
     /// <summary>
     /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public abstract class DeprecatableDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IDeprecatableDataItemTableViewModel<T, TRow> where T : DefinedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
+    public abstract class DeprecatableDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IDeprecatableDataItemTableViewModel<T, TRow> where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
@@ -188,7 +188,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
             }
             catch (Exception exception)
             {
-                this.Logger.LogError(exception, "An error has occurred while trying to deprecating or un-deprecating the {thingType} {thingName}", typeof(T), clonedThing.ShortName);
+                this.Logger.LogError(exception, "An error has occurred while trying to deprecating or un-deprecating the {thingType} {thingName}", typeof(T), ((IShortNamedThing)clonedThing).ShortName);
             }
         }
 

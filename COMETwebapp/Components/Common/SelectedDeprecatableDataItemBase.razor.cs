@@ -43,7 +43,7 @@ namespace COMETwebapp.Components.Common
     /// <summary>
     /// Support class for the <see cref="SelectedDeprecatableDataItemBase{T,TRow}" />
     /// </summary>
-    public abstract partial class SelectedDeprecatableDataItemBase<T, TRow> : DisposableComponent where T : DefinedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
+    public abstract partial class SelectedDeprecatableDataItemBase<T, TRow> : DisposableComponent where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
     {
         /// <summary>
         /// The <see cref="IDeprecatableDataItemTableViewModel{T,TRow}" /> for this component
