@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DirectoryPage.razor.cs" company="RHEA System S.A.">
+// <copyright file="OrganizationsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,30 +22,29 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.SiteDirectory
+namespace COMETwebapp.Components.SiteDirectory
 {
-    using COMETwebapp.Components.SiteDirectory;
+    using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.Components.Common;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using DevExpress.Blazor;
 
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// Support class for the <see cref="DirectoryPage"/>
+    ///     Support class for the <see cref="DomainsOfExpertiseTable"/>
     /// </summary>
-    public partial class DirectoryPage
+    public partial class OrganizationsTable : SelectedDeprecatableDataItemBase<Organization, OrganizationRowViewModel>
     {
         /// <summary>
-        /// The selected component type
+        /// The <see cref="IDomainsOfExpertiseTableViewModel" /> for this component
         /// </summary>
-        private Type SelectedComponent { get; set; }
-
-        /// <summary>
-        /// A map with all the available components and their names
-        /// </summary>
-        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
-        {
-            {typeof(DomainsOfExpertiseTable), "Domains"},
-            {typeof(OrganizationsTable), "Organizations"},
-        };
+        [Inject]
+        public IOrganizationsTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -54,16 +53,29 @@ namespace COMETwebapp.Pages.SiteDirectory
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+            this.Initialize(this.ViewModel);
         }
 
         /// <summary>
-        /// Method invoked to set the selected component from toolbar
+        /// Method invoked when creating a new thing
         /// </summary>
-        /// <param name="e"></param>
-        private void OnItemClick(ToolbarItemClickEventArgs e)
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
+        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
         {
-            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+            base.CustomizeEditThing(e);
+
+            var dataItem = (OrganizationRowViewModel)e.DataItem;
+            this.ShouldCreateThing = e.IsNew;
+
+            if (dataItem == null)
+            {
+                this.ViewModel.Thing = new Organization();
+                e.EditModel = this.ViewModel.Thing;
+                return;
+            }
+
+            e.EditModel = dataItem;
+            this.ViewModel.Thing = dataItem.Thing.Clone(true);
         }
     }
 }

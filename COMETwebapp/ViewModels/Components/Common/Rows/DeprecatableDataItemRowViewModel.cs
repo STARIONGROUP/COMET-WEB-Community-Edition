@@ -31,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
     /// <summary>
     /// Row View Model for a thing
     /// </summary>
-    public abstract class DeprecatableDataItemRowViewModel<T> : ReactiveObject where T : DefinedThing, IDeprecatableThing
+    public abstract class DeprecatableDataItemRowViewModel<T> : ReactiveObject where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing
     {
         /// <summary>
         /// Backing field for <see cref="ContainerName" />
