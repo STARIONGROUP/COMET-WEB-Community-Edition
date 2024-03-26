@@ -140,8 +140,9 @@ namespace COMETwebapp.Components.Common
         /// Method that is invoked when the edit/add thing form is being saved
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected virtual void OnEditThingSaving()
+        protected virtual Task OnEditThingSaving()
         {
+            return Task.CompletedTask;
         }
     }
 }

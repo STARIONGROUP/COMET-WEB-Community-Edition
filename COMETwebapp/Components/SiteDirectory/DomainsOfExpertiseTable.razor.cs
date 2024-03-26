@@ -56,6 +56,15 @@ namespace COMETwebapp.Components.SiteDirectory
         }
 
         /// <summary>
+        /// Method that is invoked when the edit/add thing form is being saved
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEditThingSaving()
+        {
+            await this.ViewModel.CreateOrEditDomainOfExpertise(this.ShouldCreateThing);
+        }
+
+        /// <summary>
         /// Method invoked when creating a new thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
@@ -68,8 +77,8 @@ namespace COMETwebapp.Components.SiteDirectory
 
             if (dataItem == null)
             {
-                e.EditModel = new DomainOfExpertise();
                 this.ViewModel.Thing = new DomainOfExpertise();
+                e.EditModel = this.ViewModel.Thing;
                 return;
             }
 

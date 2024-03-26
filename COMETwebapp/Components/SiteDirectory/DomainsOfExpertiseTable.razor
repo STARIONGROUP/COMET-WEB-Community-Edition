@@ -24,11 +24,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
             ShowSearchBox="true"
             SearchBoxNullText="Search for a domain of expertise..."
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Domain Of Expertise (UNDER DEV)"
+            PopupEditFormHeaderText="Domain Of Expertise"
             CustomizeElement="DisableDeprecatedThing"
             CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditThingSaving)"
+            EditModelSaving="@(() => this.OnEditThingSaving())"
             PageSize="20"
             PagerNavigationMode="PagerNavigationMode.Auto"
             PageSizeSelectorVisible="true"
@@ -60,16 +60,21 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <EditFormTemplate Context="EditFormContext">
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
                 </DxFormLayoutItem>
             </DxFormLayout>
+            <ValidationSummary/>
         </EditFormTemplate>
+        
+        <CustomValidators>
+            <FluentValidationValidator />
+        </CustomValidators>
 
     </DxGrid>
 </LoadingComponent>

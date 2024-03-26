@@ -34,5 +34,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
     /// </summary>
     public interface IDomainsOfExpertiseTableViewModel : IDeprecatableDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
+        /// <summary>
+        /// Creates or edits a <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="DomainOfExpertise"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateOrEditDomainOfExpertise(bool shouldCreate);
     }
 }

@@ -29,7 +29,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
             PopupEditFormHeaderText="Measurement Scale (UNDER DEV)"
             CustomizeElement="DisableDeprecatedThing"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditThingSaving)"
+            EditModelSaving="@(() => this.OnEditThingSaving())"
             CustomizeEditModel="this.CustomizeEditThing">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150" />

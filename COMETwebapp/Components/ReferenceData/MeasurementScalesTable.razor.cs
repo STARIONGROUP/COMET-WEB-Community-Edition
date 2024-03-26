@@ -61,7 +61,7 @@ namespace COMETwebapp.Components.ReferenceData
         /// Method that is invoked when the edit/add thing form is being saved
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override void OnEditThingSaving()
+        protected override Task OnEditThingSaving()
         {
             if (!this.ShouldCreateThing)
             {
@@ -69,6 +69,7 @@ namespace COMETwebapp.Components.ReferenceData
             }
 
             // create measurement scale
+            return Task.CompletedTask;
         }
 
         /// <summary>

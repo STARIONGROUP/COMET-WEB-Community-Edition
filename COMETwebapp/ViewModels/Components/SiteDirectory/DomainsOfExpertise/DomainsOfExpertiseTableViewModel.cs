@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -50,6 +51,28 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
         public DomainsOfExpertiseTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<DomainsOfExpertiseTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
+            this.Thing = new DomainOfExpertise();
+        }
+
+        /// <summary>
+        /// Creates or edits a <see cref="DomainOfExpertise"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="DomainOfExpertise"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateOrEditDomainOfExpertise(bool shouldCreate)
+        {
+            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+            var thingsToCreate = new List<Thing>();
+
+            if (shouldCreate)
+            {
+                siteDirectoryClone.Domain.Add(this.Thing);
+                thingsToCreate.Add(siteDirectoryClone);
+            }
+
+            thingsToCreate.Add(this.Thing);
+            await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
+            await this.SessionService.RefreshSession();
         }
     }
 }

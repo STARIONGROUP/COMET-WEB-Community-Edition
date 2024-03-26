@@ -145,7 +145,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
-            
+
             var editDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editDomainOfExpertiseButton");
             await renderer.InvokeAsync(editDomainOfExpertiseButton.Instance.Click.InvokeAsync);
 
@@ -154,6 +154,10 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
+
+            var form = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditDomainOfExpertise(false), Times.Once);
         }
     }
 }
