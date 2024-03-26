@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementUnitsTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="UnitFactorsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -25,9 +25,9 @@
 namespace COMETwebapp.Components.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
@@ -35,59 +35,65 @@ namespace COMETwebapp.Components.ReferenceData
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="MeasurementUnitsTable"/>
+    ///  Support class for the <see cref="UnitFactorsTable"/>
     /// </summary>
-    public partial class MeasurementUnitsTable : SelectedDeprecatableDataItemBase<MeasurementUnit, MeasurementUnitRowViewModel>
+    public partial class UnitFactorsTable
     {
-        /// <summary>
-        /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component
-        /// </summary>
-        [Inject]
-        public IMeasurementUnitsTableViewModel ViewModel { get; set; }
+        [Parameter]
+        public DerivedUnit DerivedUnit { get; set; }
+
+        [Parameter]
+        public EventCallback<DerivedUnit> DerivedUnitChanged { get; set; }
+
+        [Parameter]
+        public IEnumerable<MeasurementUnit> MeasurementUnits { get; set; }
 
         /// <summary>
-        /// Condition to check if the shortname and name fields should be readonly
+        /// Gets or sets the grid control that is being customized.
         /// </summary>
-        private bool ShouldNameAndShortNameBeReadOnly => this.ViewModel.Thing is PrefixedUnit;
+        private IGrid Grid { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Gets or sets the condition to check if a unit factor should be created
         /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.Initialize(this.ViewModel);
-        }
+        public bool ShouldCreateUnitFactor { get; protected set; }
+
+        private List<UnitFactorRowViewModel> Rows => this.DerivedUnit.UnitFactor.Select(x => new UnitFactorRowViewModel(x)).ToList();
+
+        private UnitFactor UnitFactor { get; set; } = new();
 
         /// <summary>
-        /// Method that is invoked when the edit/add measurement unit form is being saved
+        /// Method that is invoked when the edit/add unit factor form is being saved
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        protected override async Task OnEditThingSaving()
+        protected void OnEditUnitFactorSaving()
         {
-            await this.ViewModel.CreateOrEditMeasurementUnit(this.ShouldCreateThing);
+            // 
         }
 
         /// <summary>
         /// Method invoked when creating a new measurement unit
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        protected void CustomizeEditUnitFactor(GridCustomizeEditModelEventArgs e)
         {
-            var dataItem = (MeasurementUnitRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
+            var dataItem = (UnitFactorRowViewModel)e.DataItem;
+            this.ShouldCreateUnitFactor = e.IsNew;
 
             if (dataItem == null)
             {
-                this.ViewModel.Thing = new SimpleUnit();
-                e.EditModel = this.ViewModel.Thing;
+                this.UnitFactor = new UnitFactor();
+                e.EditModel = this.UnitFactor;
                 return;
             }
 
             e.EditModel = dataItem;
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
-            this.ViewModel.SelectedReferenceDataLibrary = (ReferenceDataLibrary)dataItem.Thing.Container;
+            this.UnitFactor = dataItem.UnitFactor;
+        }
+
+        private void RemoveUnitFactor(UnitFactorRowViewModel row)
+        {
+
         }
     }
 }

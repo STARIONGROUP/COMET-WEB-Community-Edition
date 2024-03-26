@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -33,6 +34,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
+
+    using ReactiveUI;
 
     using MeasurementUnit = CDP4Common.SiteDirectoryData.MeasurementUnit;
 
@@ -41,6 +45,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     /// </summary>
     public class MeasurementUnitsTableViewModel : DeprecatableDataItemTableViewModel<MeasurementUnit, MeasurementUnitRowViewModel>, IMeasurementUnitsTableViewModel
     {
+        /// <summary>
+        /// The backing field for <see cref="SelectedMeasurementUnitType"/>
+        /// </summary>
+        private ClassKindWrapper selectedMeasurementUnitType;
+
+        /// <summary>
+        /// FGets the available <see cref="ClassKind"/>s
+        /// </summary>
+        private static readonly IEnumerable<ClassKind> AvailableMeasurementUnitTypes = [ClassKind.SimpleUnit, ClassKind.DerivedUnit, ClassKind.LinearConversionUnit, ClassKind.PrefixedUnit];
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementUnitsTableViewModel" /> class.
         /// </summary>
@@ -54,17 +68,95 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         }
 
         /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
+        /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+
+        /// <summary>
+        /// Gets the available <see cref="MeasurementUnit" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary"/>
+        /// </summary>
+        public IEnumerable<MeasurementUnit> ReferenceUnits => this.SelectedReferenceDataLibrary?.QueryMeasurementUnitsFromChainOfRdls();
+
+        /// <summary>
+        /// Gets the available <see cref="Prefixes" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary"/>
+        /// </summary>
+        public IEnumerable<UnitPrefix> Prefixes => this.SelectedReferenceDataLibrary?.QueryUnitPrefixesFromChainOfRdls();
+
+        /// <summary>
+        /// Gets the available measurement unit types <see cref="ClassKindWrapper" />s
+        /// </summary>
+        public IEnumerable<ClassKindWrapper> MeasurementUnitTypes { get; private set; } = AvailableMeasurementUnitTypes.Select(x => new ClassKindWrapper(x));
+
+        /// <summary>
+        /// Gets or sets the selected reference data library
+        /// </summary>
+        public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected measurement unit type
+        /// </summary>
+        public ClassKindWrapper SelectedMeasurementUnitType
+        {
+            get => this.selectedMeasurementUnitType;
+            set
+            {
+                this.SelectMeasurementUnitType(value);
+                this.RaiseAndSetIfChanged(ref this.selectedMeasurementUnitType, value);
+            }
+        }
 
         /// <summary>
         /// Initializes the <see cref="MeasurementUnitsTableViewModel"/>
         /// </summary>
         public override void InitializeViewModel()
         {
+            this.IsLoading = true;
+
             base.InitializeViewModel();
+
             this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
+            this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
+            this.SelectedMeasurementUnitType = this.MeasurementUnitTypes.First();
+
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Creates or edits a <see cref="MeasurementUnit"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateOrEditMeasurementUnit(bool shouldCreate)
+        {
+            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+            var thingsToCreate = new List<Thing>();
+
+            if (shouldCreate || hasRdlChanged)
+            {
+                rdlClone.Unit.Add(this.Thing);
+                thingsToCreate.Add(rdlClone);
+            }
+
+            thingsToCreate.Add(this.Thing);
+            await this.SessionService.UpdateThings(rdlClone, thingsToCreate);
+            await this.SessionService.RefreshSession();
+        }
+
+        /// <summary>
+        /// Selects a new measurement unit type for the attribute <see cref="SelectedMeasurementUnitType"/>
+        /// </summary>
+        /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementUnitType"/> will be set</param>
+        private void SelectMeasurementUnitType(ClassKindWrapper newKind)
+        {
+            this.Thing = newKind.ClassKind switch
+            {
+                ClassKind.SimpleUnit => new SimpleUnit(),
+                ClassKind.DerivedUnit => new DerivedUnit(),
+                ClassKind.LinearConversionUnit => new LinearConversionUnit(),
+                ClassKind.PrefixedUnit => new PrefixedUnit(),
+                _ => this.Thing
+            };
         }
     }
 }
