@@ -18,7 +18,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 
 <DxGrid @ref="this.Grid"
-        Data="this.Rows"
+        Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Unit Factor"
         EditModelSaving="@(() => this.OnEditUnitFactorSaving())"

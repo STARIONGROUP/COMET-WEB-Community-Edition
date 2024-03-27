@@ -60,11 +60,6 @@ namespace COMETwebapp.Components.ReferenceData
         public bool ShouldCreateUnitFactor { get; private set; }
 
         /// <summary>
-        /// A collection of <see cref="UnitFactorRowViewModel"/>s to display, based on the current <see cref="DerivedUnit"/>'s unit factors
-        /// </summary>
-        private List<UnitFactorRowViewModel> Rows => this.DerivedUnit.UnitFactor.Select(x => new UnitFactorRowViewModel(x)).ToList();
-
-        /// <summary>
         /// The unit factor that will be handled for both edit and add forms
         /// </summary>
         private UnitFactor UnitFactor { get; set; } = new();
@@ -114,6 +109,15 @@ namespace COMETwebapp.Components.ReferenceData
 
             e.EditModel = dataItem;
             this.UnitFactor = dataItem.UnitFactor;
+        }
+
+        /// <summary>
+        /// Method used to retrieve the available rows, given the <see cref="UnitFactor"/> from <see cref="DerivedUnit"/>
+        /// </summary>
+        /// <returns>A collection of <see cref="UnitFactorRowViewModel"/>s to display</returns>
+        private List<UnitFactorRowViewModel> GetRows()
+        {
+            return this.DerivedUnit.UnitFactor.Select(x => new UnitFactorRowViewModel(x)).ToList();
         }
     }
 }
