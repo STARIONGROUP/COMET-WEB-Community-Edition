@@ -57,7 +57,7 @@ namespace COMETwebapp.Components.ReferenceData
         /// <summary>
         /// Gets or sets the condition to check if a unit factor should be created
         /// </summary>
-        public bool ShouldCreateUnitFactor { get; protected set; }
+        public bool ShouldCreateUnitFactor { get; private set; }
 
         /// <summary>
         /// A collection of <see cref="UnitFactorRowViewModel"/>s to display, based on the current <see cref="DerivedUnit"/>'s unit factors

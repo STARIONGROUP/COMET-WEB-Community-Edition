@@ -28,7 +28,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxGridDataColumn FieldName="@nameof(UnitFactorRowViewModel.Exponent)" MinWidth="80" SearchEnabled="false" />
         <DxGridCommandColumn Width="160px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addMeasurementUnitButton" Text="Add Unit Factor" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addUnitFactorButton" Text="Add Unit Factor" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
