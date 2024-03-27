@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DirectoryPage.razor.cs" company="RHEA System S.A.">
+// <copyright file="IDeletableDataItemTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,49 +22,46 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.SiteDirectory
+namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 {
-    using COMETwebapp.Components.SiteDirectory;
-
-    using DevExpress.Blazor;
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
 
     /// <summary>
-    /// Support class for the <see cref="DirectoryPage"/>
+    /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public partial class DirectoryPage
+    public interface IDeletableDataItemTableViewModel<T, TRow> : IBaseDataItemTableViewModel<T, TRow>
     {
         /// <summary>
-        /// The selected component type
+        /// Indicates if confirmation popup is visible
         /// </summary>
-        private Type SelectedComponent { get; set; }
+        bool IsOnDeletionMode { get; set; }
 
         /// <summary>
-        /// A map with all the available components and their names
+        /// Gets or sets the popup message dialog
         /// </summary>
-        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
-        {
-            {typeof(EngineeringModelsTable), "Models"},
-            {typeof(DomainsOfExpertiseTable), "Domains"},
-            {typeof(OrganizationsTable), "Organizations"},
-        };
+        string PopupDialog { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Method invoked when confirming the deletion of the <see cref="DeletableDataItemTableViewModel{T,TRow}"/>
         /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
-        }
+        /// <returns>A <see cref="Task" /></returns>
+        Task OnConfirmPopupButtonClick();
 
         /// <summary>
-        /// Method invoked to set the selected component from toolbar
+        /// Method invoked when canceling the deletion of the <see cref="DeletableDataItemTableViewModel{T,TRow}"/>
         /// </summary>
-        /// <param name="e"></param>
-        private void OnItemClick(ToolbarItemClickEventArgs e)
-        {
-            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
-        }
+        void OnCancelPopupButtonClick();
+
+        /// <summary>
+        /// Action invoked when the delete button is clicked
+        /// </summary>
+        /// <param name="thingRow"> The row to delete </param>
+        void OnDeleteButtonClick(TRow thingRow);
+
+        /// <summary>
+        /// Tries to delete the current thing
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task DeleteThing();
     }
 }

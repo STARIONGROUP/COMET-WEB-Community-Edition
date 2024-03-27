@@ -40,6 +40,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
@@ -94,6 +95,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IMeasurementScalesTableViewModel, MeasurementScalesTableViewModel>();
             serviceCollection.AddTransient<IDomainsOfExpertiseTableViewModel, DomainsOfExpertiseTableViewModel>();
             serviceCollection.AddTransient<IOrganizationsTableViewModel, OrganizationsTableViewModel>();
+            serviceCollection.AddTransient<IEngineeringModelsTableViewModel, EngineeringModelsTableViewModel>();
         }
     }
 }

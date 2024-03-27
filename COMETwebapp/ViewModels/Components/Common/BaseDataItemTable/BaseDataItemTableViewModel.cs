@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DeprecatableDataItemTableViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="BaseDataItemTableViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
+namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
@@ -34,27 +34,20 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
 
-    using ReactiveUI;
-
     /// <summary>
-    /// View model that provides the basic functionalities for a reference data item
+    /// View model that provides the basic functionalities for a base data item
     /// </summary>
-    public abstract class DeprecatableDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IDeprecatableDataItemTableViewModel<T, TRow> where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
+    public abstract class BaseDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IBaseDataItemTableViewModel<T, TRow> where T : Thing, IShortNamedThing, INamedThing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
         /// </summary>
         private readonly IPermissionService permissionService;
-
-        /// <summary>
-        /// Backing field for <see cref="IsOnDeprecationMode" />
-        /// </summary>
-        private bool isOnDeprecationMode;
 
         /// <summary>
         /// A collection of <see cref="Type" /> used to create <see cref="ObjectChangedEvent" /> subscriptions
@@ -69,20 +62,18 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
         /// <summary>
         /// The <see cref="ILogger{TCategoryName}" />
         /// </summary>
-        protected readonly ILogger<DeprecatableDataItemTableViewModel<T, TRow>> Logger;
+        protected readonly ILogger<BaseDataItemTableViewModel<T, TRow>> Logger;
 
         /// <summary>
-        /// Creates a new instance of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
+        /// Creates a new instance of the <see cref="BaseDataItemTableViewModel{T,TRow}"/>
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService"/></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        protected DeprecatableDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService,
-            ILogger<DeprecatableDataItemTableViewModel<T, TRow>> logger) : base(sessionService, messageBus)
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger) 
+            : base(sessionService, messageBus)
         {
             this.permissionService = sessionService.Session.PermissionService;
-            this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
             this.Logger = logger;
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
@@ -100,31 +91,12 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
         public SourceList<TRow> Rows { get; } = new();
 
         /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
-        /// <summary>
         /// Gets or sets the data source for the grid control.
         /// </summary>
         public SourceList<T> DataSource { get; } = new();
 
         /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        public bool IsOnDeprecationMode
-        {
-            get => this.isOnDeprecationMode;
-            set => this.RaiseAndSetIfChanged(ref this.isOnDeprecationMode, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the popup message dialog
-        /// </summary>
-        public string PopupDialog { get; set; }
-
-        /// <summary>
-        /// Initializes the <see cref="DeprecatableDataItemTableViewModel{T,TRow}" />
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
         public virtual void InitializeViewModel()
         {
@@ -136,60 +108,6 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
             this.RefreshAccessRight();
 
             this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}.Thing" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task OnConfirmPopupButtonClick()
-        {
-            await this.DeprecateOrUnDeprecateThing();
-            this.IsOnDeprecationMode = false;
-        }
-
-        /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}.Thing" />
-        /// </summary>
-        public void OnCancelPopupButtonClick()
-        {
-            this.IsOnDeprecationMode = false;
-        }
-
-        /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        /// <param name="thingRow"> The row to deprecate or undeprecate </param>
-        public void OnDeprecateUnDeprecateButtonClick(TRow thingRow)
-        {
-            this.Thing = thingRow.Thing;
-            this.PopupDialog = this.Thing.IsDeprecated ? $"You are about to un-deprecate the {typeof(T).Name}: {thingRow.Name}" : $"You are about to deprecate the {typeof(T).Name}: {thingRow.Name}";
-            this.IsOnDeprecationMode = true;
-        }
-
-        /// <summary>
-        /// Tries to deprecate or undeprecate the <see cref="DeprecatableDataItemTableViewModel{T,TRow}.Thing" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task DeprecateOrUnDeprecateThing()
-        {
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var clonedThing = this.Thing.Clone(false);
-
-            if (clonedThing is IDeprecatableThing deprecatableThing)
-            {
-                deprecatableThing.IsDeprecated = !deprecatableThing.IsDeprecated;
-            }
-
-            try
-            {
-                await this.SessionService.UpdateThings(siteDirectoryClone, clonedThing);
-                await this.SessionService.RefreshSession();
-            }
-            catch (Exception exception)
-            {
-                this.Logger.LogError(exception, "An error has occurred while trying to deprecating or un-deprecating the {thingType} {thingName}", typeof(T), ((IShortNamedThing)clonedThing).ShortName);
-            }
         }
 
         /// <summary>

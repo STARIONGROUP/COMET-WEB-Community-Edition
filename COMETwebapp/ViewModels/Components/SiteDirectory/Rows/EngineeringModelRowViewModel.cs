@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DeprecatableDataItemRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="EngineeringModelRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,48 +22,55 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Common.Rows
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 {
-    using CDP4Common.CommonData;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using ReactiveUI;
 
+    using EngineeringModelSetup = CDP4Common.SiteDirectoryData.EngineeringModelSetup;
+
     /// <summary>
-    /// Row View Model for a thing
+    /// Row View Model for <see cref="CDP4Common.SiteDirectoryData.EngineeringModelSetup" />s
     /// </summary>
-    public abstract class DeprecatableDataItemRowViewModel<T> : BaseDataItemRowViewModel<T> where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing
+    public class EngineeringModelRowViewModel : BaseDataItemRowViewModel<EngineeringModelSetup>
     {
         /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
+        /// Backing field for <see cref="Phase" />
         /// </summary>
-        private bool isDeprecated;
+        private string phase;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeprecatableDataItemRowViewModel{T}" /> class.
+        /// Backing field for <see cref="Kind" />
         /// </summary>
-        /// <param name="thing">The associated thing</param>
-        protected DeprecatableDataItemRowViewModel(T thing) : base(thing)
+        private string kind;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EngineeringModelRowViewModel" /> class.
+        /// </summary>
+        /// <param name="engineeringModel">The associated <see cref="EngineeringModelSetup" /></param>
+        public EngineeringModelRowViewModel(EngineeringModelSetup engineeringModel) : base(engineeringModel)
         {
-            this.IsDeprecated = thing.IsDeprecated;
+            this.Phase = engineeringModel.StudyPhase.ToString();
+            this.Kind = engineeringModel.Kind.ToString();
         }
 
         /// <summary>
-        /// Value indicating if the thing is deprecated
+        /// The study phase value for the current <see cref="EngineeringModelSetup"/>
         /// </summary>
-        public bool IsDeprecated
+        public string Phase
         {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
+            get => this.phase;
+            set => this.RaiseAndSetIfChanged(ref this.phase, value);
         }
 
         /// <summary>
-        /// Update this row view model properties
+        /// The kind value for the current <see cref="EngineeringModelSetup"/>
         /// </summary>
-        /// <param name="thingRow">The <see cref="DeprecatableDataItemRowViewModel{T}" /> to use for updating</param>
-        public void UpdateProperties(DeprecatableDataItemRowViewModel<T> thingRow)
+        public string Kind
         {
-            base.UpdateProperties(thingRow);
-            this.IsDeprecated = thingRow.IsDeprecated;
+            get => this.kind;
+            set => this.RaiseAndSetIfChanged(ref this.kind, value);
         }
     }
 }

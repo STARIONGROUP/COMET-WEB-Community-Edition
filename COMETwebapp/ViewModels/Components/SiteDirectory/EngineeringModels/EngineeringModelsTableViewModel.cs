@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OrganizationsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="EngineeringModelsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,34 +22,55 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
 
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
+    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>
-    public class OrganizationsTableViewModel : DeprecatableDataItemTableViewModel<Organization, OrganizationRowViewModel>, IOrganizationsTableViewModel
+    public class EngineeringModelsTableViewModel : DeletableDataItemTableViewModel<EngineeringModelSetup, EngineeringModelRowViewModel>, IEngineeringModelsTableViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public OrganizationsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<OrganizationsTableViewModel> logger)
-            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+        public EngineeringModelsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<EngineeringModelsTableViewModel> logger) 
+            : base(sessionService, messageBus, logger)
         {
+            this.Thing = new EngineeringModelSetup();
+        }
+
+        /// <summary>
+        /// Creates or edits a <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateOrEditEngineeringModel(bool shouldCreate)
+        {
+            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+            var thingsToCreate = new List<Thing>();
+
+            if (shouldCreate)
+            {
+                siteDirectoryClone.Model.Add(this.Thing);
+                thingsToCreate.Add(siteDirectoryClone);
+            }
+
+            thingsToCreate.Add(this.Thing);
+            await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
+            await this.SessionService.RefreshSession();
         }
     }
 }

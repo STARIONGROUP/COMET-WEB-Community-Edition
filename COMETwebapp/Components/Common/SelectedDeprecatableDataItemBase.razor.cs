@@ -26,15 +26,12 @@ namespace COMETwebapp.Components.Common
 {
     using CDP4Common.CommonData;
 
-    using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DevExpress.Blazor;
-
-    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -43,22 +40,12 @@ namespace COMETwebapp.Components.Common
     /// <summary>
     /// Support class for the <see cref="SelectedDeprecatableDataItemBase{T,TRow}" />
     /// </summary>
-    public abstract partial class SelectedDeprecatableDataItemBase<T, TRow> : DisposableComponent where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
+    public abstract partial class SelectedDeprecatableDataItemBase<T, TRow> : SelectedDataItemBase<T, TRow> where T : Thing, IShortNamedThing, INamedThing, IDeprecatableThing where TRow : DeprecatableDataItemRowViewModel<T>
     {
         /// <summary>
         /// The <see cref="IDeprecatableDataItemTableViewModel{T,TRow}" /> for this component
         /// </summary>
         private IDeprecatableDataItemTableViewModel<T, TRow> ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets or sets the condition to check if a thing should be created
-        /// </summary>
-        public bool ShouldCreateThing { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        protected IGrid Grid { get; set; }
 
         /// <summary>
         /// Method invoked to "Show/Hide Deprecated Items"
@@ -81,12 +68,9 @@ namespace COMETwebapp.Components.Common
         protected void Initialize(IDeprecatableDataItemTableViewModel<T, TRow> viewModel)
         {
             this.ViewModel = viewModel;
-            this.ViewModel.InitializeViewModel();
+            base.Initialize(this.ViewModel);
 
-            this.Disposables.Add(this.ViewModel.WhenAnyValue(x => x.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeprecationMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.Disposables.Add(this.ViewModel.Rows.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-            this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -126,23 +110,6 @@ namespace COMETwebapp.Components.Common
             {
                 e.CssClass = "highlighted-item";
             }
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected virtual void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected virtual Task OnEditThingSaving()
-        {
-            return Task.CompletedTask;
         }
     }
 }
