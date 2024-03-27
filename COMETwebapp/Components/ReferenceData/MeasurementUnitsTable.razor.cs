@@ -32,6 +32,8 @@ namespace COMETwebapp.Components.ReferenceData
 
     using DevExpress.Blazor;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -88,6 +90,23 @@ namespace COMETwebapp.Components.ReferenceData
             e.EditModel = dataItem;
             this.ViewModel.Thing = dataItem.Thing.Clone(true);
             this.ViewModel.SelectedReferenceDataLibrary = (ReferenceDataLibrary)dataItem.Thing.Container;
+        }
+
+        private void OnUnitFactorCreated(UnitFactor unitFactor)
+        {
+            ((DerivedUnit)this.ViewModel.Thing).UnitFactor.Add(unitFactor);
+        }
+
+        private void OnUnitFactorEdited(UnitFactor unitFactor)
+        {
+            var derivedUnit = (DerivedUnit)this.ViewModel.Thing;
+            var indexToUpdate = derivedUnit.UnitFactor.FindIndex(x => x.Iid == unitFactor.Iid);
+            derivedUnit.UnitFactor.SortedItems.SetValueAtIndex(indexToUpdate, unitFactor);
+        }
+
+        private void OnUnitFactorRemoved(UnitFactor unitFactor)
+        {
+            ((DerivedUnit)this.ViewModel.Thing).UnitFactor.Remove(unitFactor);
         }
     }
 }

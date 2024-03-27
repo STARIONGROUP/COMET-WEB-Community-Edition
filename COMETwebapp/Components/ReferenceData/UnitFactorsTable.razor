@@ -44,13 +44,13 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
     <EditFormTemplate Context="EditFormContext">
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+            <DxFormLayoutItem Caption="Measurement Unit:" ColSpanMd="10">
                 <DxComboBox Data="@this.MeasurementUnits"
                             TextFieldName="@nameof(ReferenceDataLibrary.Name)"
                             @bind-Value="@this.UnitFactor.Unit"
                             CssClass="cw-480" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+            <DxFormLayoutItem Caption="Exponent:" ColSpanMd="10">
                 <DxTextBox @bind-Text="@this.UnitFactor.Exponent"/>
             </DxFormLayoutItem>
         </DxFormLayout>

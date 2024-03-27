@@ -139,6 +139,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
             }
 
             thingsToCreate.Add(this.Thing);
+
+            if (this.Thing is DerivedUnit derivedUnit)
+            {
+                thingsToCreate.AddRange(derivedUnit.UnitFactor);
+            }
+
             await this.SessionService.UpdateThings(rdlClone, thingsToCreate);
             await this.SessionService.RefreshSession();
         }

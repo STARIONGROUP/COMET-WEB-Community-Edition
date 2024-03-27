@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Components.ReferenceData
 {
+    using CDP4Common;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -40,10 +41,16 @@ namespace COMETwebapp.Components.ReferenceData
     public partial class UnitFactorsTable
     {
         [Parameter]
-        public DerivedUnit DerivedUnit { get; set; }
+        public OrderedItemList<UnitFactor> UnitFactors { get; set; }
 
         [Parameter]
-        public EventCallback<DerivedUnit> DerivedUnitChanged { get; set; }
+        public EventCallback<UnitFactor> OnUnitFactorCreated { get; set; }
+
+        [Parameter]
+        public EventCallback<UnitFactor> OnUnitFactorEdited { get; set; }
+
+        [Parameter]
+        public EventCallback<UnitFactor> OnUnitFactorRemoved { get; set; }
 
         [Parameter]
         public IEnumerable<MeasurementUnit> MeasurementUnits { get; set; }
@@ -58,7 +65,7 @@ namespace COMETwebapp.Components.ReferenceData
         /// </summary>
         public bool ShouldCreateUnitFactor { get; protected set; }
 
-        private List<UnitFactorRowViewModel> Rows => this.DerivedUnit.UnitFactor.Select(x => new UnitFactorRowViewModel(x)).ToList();
+        private List<UnitFactorRowViewModel> Rows => this.UnitFactors.Select(x => new UnitFactorRowViewModel(x)).ToList();
 
         private UnitFactor UnitFactor { get; set; } = new();
 
@@ -66,16 +73,31 @@ namespace COMETwebapp.Components.ReferenceData
         /// Method that is invoked when the edit/add unit factor form is being saved
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        protected void OnEditUnitFactorSaving()
+        private async Task OnEditUnitFactorSaving()
         {
-            // 
+            if (this.ShouldCreateUnitFactor)
+            {
+                await this.OnUnitFactorCreated.InvokeAsync(this.UnitFactor);
+                return;
+            }
+
+            await this.OnUnitFactorEdited.InvokeAsync(this.UnitFactor);
+        }
+
+        /// <summary>
+        /// Method that is invoked when a unit factor row is being removed
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task RemoveUnitFactor(UnitFactorRowViewModel row)
+        {
+            await this.OnUnitFactorRemoved.InvokeAsync(row.UnitFactor);
         }
 
         /// <summary>
         /// Method invoked when creating a new measurement unit
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected void CustomizeEditUnitFactor(GridCustomizeEditModelEventArgs e)
+        private void CustomizeEditUnitFactor(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (UnitFactorRowViewModel)e.DataItem;
             this.ShouldCreateUnitFactor = e.IsNew;
@@ -83,17 +105,13 @@ namespace COMETwebapp.Components.ReferenceData
             if (dataItem == null)
             {
                 this.UnitFactor = new UnitFactor();
+                this.UnitFactor.ChangeKind = ChangeKind.Create;
                 e.EditModel = this.UnitFactor;
                 return;
             }
 
             e.EditModel = dataItem;
             this.UnitFactor = dataItem.UnitFactor;
-        }
-
-        private void RemoveUnitFactor(UnitFactorRowViewModel row)
-        {
-
         }
     }
 }

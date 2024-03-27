@@ -127,8 +127,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
                                     @bind-Value="@(derivedUnit.UnitFactor)"
                     CssClass="cw-480" />*@
 
-                        <UnitFactorsTable @bind-DerivedUnit="@(derivedUnit)"
-                                          MeasurementUnits="@(this.ViewModel.ReferenceUnits)"/>
+                        <UnitFactorsTable UnitFactors="@(derivedUnit.UnitFactor)"
+                                          MeasurementUnits="@(this.ViewModel.ReferenceUnits)" 
+                                          OnUnitFactorCreated="@(this.OnUnitFactorCreated)"
+                                          OnUnitFactorEdited="@(this.OnUnitFactorEdited)"
+                                          OnUnitFactorRemoved="@(this.OnUnitFactorRemoved)"/>
                     </DxFormLayoutItem>
                 }
             </DxFormLayout>
