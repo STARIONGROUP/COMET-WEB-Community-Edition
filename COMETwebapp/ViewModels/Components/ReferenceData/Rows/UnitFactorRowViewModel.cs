@@ -49,7 +49,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// <param name="unitFactor">The associated <see cref="UnitFactor" /></param>
         public UnitFactorRowViewModel(UnitFactor unitFactor)
         {
-            this.MeasurementUnit = unitFactor.Unit.Name;
+            this.MeasurementUnit = unitFactor.Unit.ShortName;
             this.Exponent = unitFactor.Exponent;
             this.UnitFactor = unitFactor;
         }

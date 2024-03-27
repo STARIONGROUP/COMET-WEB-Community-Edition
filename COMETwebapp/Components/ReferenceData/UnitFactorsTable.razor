@@ -20,12 +20,13 @@ Copyright (c) 2023-2024 RHEA System S.A.
 <DxGrid @ref="this.Grid"
         Data="this.Rows"
         EditMode="GridEditMode.PopupEditForm"
+        PopupEditFormHeaderText="Unit Factor"
         EditModelSaving="@(() => this.OnEditUnitFactorSaving())"
         CustomizeEditModel="this.CustomizeEditUnitFactor">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(UnitFactorRowViewModel.MeasurementUnit)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(UnitFactorRowViewModel.Exponent)" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="160px" EditButtonVisible="false">
             <HeaderTemplate>
                 <DxButton Id="addMeasurementUnitButton" Text="Add Unit Factor" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
             </HeaderTemplate>
@@ -43,17 +44,20 @@ Copyright (c) 2023-2024 RHEA System S.A.
     </Columns>
 
     <EditFormTemplate Context="EditFormContext">
+        <FluentValidationValidator />
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Measurement Unit:" ColSpanMd="10">
                 <DxComboBox Data="@this.MeasurementUnits"
                             TextFieldName="@nameof(ReferenceDataLibrary.Name)"
                             @bind-Value="@this.UnitFactor.Unit"
-                            CssClass="cw-480" />
+                            CssClass="cw-480"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Exponent:" ColSpanMd="10">
                 <DxTextBox @bind-Text="@this.UnitFactor.Exponent"/>
             </DxFormLayoutItem>
         </DxFormLayout>
+        <div class="pt-3"></div>
+        <ValidationSummary />
     </EditFormTemplate>
 
 </DxGrid>

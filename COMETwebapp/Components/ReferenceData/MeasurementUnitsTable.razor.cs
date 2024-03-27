@@ -24,15 +24,15 @@
 
 namespace COMETwebapp.Components.ReferenceData
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
-
-    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -82,7 +82,7 @@ namespace COMETwebapp.Components.ReferenceData
 
             if (dataItem == null)
             {
-                this.ViewModel.Thing = new SimpleUnit();
+                this.ViewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.SimpleUnit);
                 e.EditModel = this.ViewModel.Thing;
                 return;
             }
@@ -90,23 +90,6 @@ namespace COMETwebapp.Components.ReferenceData
             e.EditModel = dataItem;
             this.ViewModel.Thing = dataItem.Thing.Clone(true);
             this.ViewModel.SelectedReferenceDataLibrary = (ReferenceDataLibrary)dataItem.Thing.Container;
-        }
-
-        private void OnUnitFactorCreated(UnitFactor unitFactor)
-        {
-            ((DerivedUnit)this.ViewModel.Thing).UnitFactor.Add(unitFactor);
-        }
-
-        private void OnUnitFactorEdited(UnitFactor unitFactor)
-        {
-            var derivedUnit = (DerivedUnit)this.ViewModel.Thing;
-            var indexToUpdate = derivedUnit.UnitFactor.FindIndex(x => x.Iid == unitFactor.Iid);
-            derivedUnit.UnitFactor.SortedItems.SetValueAtIndex(indexToUpdate, unitFactor);
-        }
-
-        private void OnUnitFactorRemoved(UnitFactor unitFactor)
-        {
-            ((DerivedUnit)this.ViewModel.Thing).UnitFactor.Remove(unitFactor);
         }
     }
 }

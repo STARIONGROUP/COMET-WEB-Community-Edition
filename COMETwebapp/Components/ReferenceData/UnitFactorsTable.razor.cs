@@ -24,11 +24,8 @@
 
 namespace COMETwebapp.Components.ReferenceData
 {
-    using CDP4Common;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
-    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
@@ -40,18 +37,15 @@ namespace COMETwebapp.Components.ReferenceData
     /// </summary>
     public partial class UnitFactorsTable
     {
+        /// <summary>
+        /// The derived unit to be handled
+        /// </summary>
         [Parameter]
-        public OrderedItemList<UnitFactor> UnitFactors { get; set; }
+        public DerivedUnit DerivedUnit { get; set; }
 
-        [Parameter]
-        public EventCallback<UnitFactor> OnUnitFactorCreated { get; set; }
-
-        [Parameter]
-        public EventCallback<UnitFactor> OnUnitFactorEdited { get; set; }
-
-        [Parameter]
-        public EventCallback<UnitFactor> OnUnitFactorRemoved { get; set; }
-
+        /// <summary>
+        /// A collection of measurement units to display for selection
+        /// </summary>
         [Parameter]
         public IEnumerable<MeasurementUnit> MeasurementUnits { get; set; }
 
@@ -65,32 +59,37 @@ namespace COMETwebapp.Components.ReferenceData
         /// </summary>
         public bool ShouldCreateUnitFactor { get; protected set; }
 
-        private List<UnitFactorRowViewModel> Rows => this.UnitFactors.Select(x => new UnitFactorRowViewModel(x)).ToList();
+        /// <summary>
+        /// A collection of <see cref="UnitFactorRowViewModel"/>s to display, based on the current <see cref="DerivedUnit"/>'s unit factors
+        /// </summary>
+        private List<UnitFactorRowViewModel> Rows => this.DerivedUnit.UnitFactor.Select(x => new UnitFactorRowViewModel(x)).ToList();
 
+        /// <summary>
+        /// The unit factor that will be handled for both edit and add forms
+        /// </summary>
         private UnitFactor UnitFactor { get; set; } = new();
 
         /// <summary>
         /// Method that is invoked when the edit/add unit factor form is being saved
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task OnEditUnitFactorSaving()
+        private void OnEditUnitFactorSaving()
         {
             if (this.ShouldCreateUnitFactor)
             {
-                await this.OnUnitFactorCreated.InvokeAsync(this.UnitFactor);
+                this.DerivedUnit.UnitFactor.Add(this.UnitFactor);
                 return;
             }
 
-            await this.OnUnitFactorEdited.InvokeAsync(this.UnitFactor);
+            var indexToUpdate = this.DerivedUnit.UnitFactor.FindIndex(x => x.Iid == this.UnitFactor.Iid);
+            this.DerivedUnit.UnitFactor.SortedItems.SetValueAtIndex(indexToUpdate, this.UnitFactor);
         }
 
         /// <summary>
         /// Method that is invoked when a unit factor row is being removed
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task RemoveUnitFactor(UnitFactorRowViewModel row)
+        private void RemoveUnitFactor(UnitFactorRowViewModel row)
         {
-            await this.OnUnitFactorRemoved.InvokeAsync(row.UnitFactor);
+            this.DerivedUnit.UnitFactor.Remove(row.UnitFactor);
         }
 
         /// <summary>
@@ -104,8 +103,11 @@ namespace COMETwebapp.Components.ReferenceData
 
             if (dataItem == null)
             {
-                this.UnitFactor = new UnitFactor();
-                this.UnitFactor.ChangeKind = ChangeKind.Create;
+                this.UnitFactor = new UnitFactor()
+                {
+                    Iid = Guid.NewGuid()
+                };
+
                 e.EditModel = this.UnitFactor;
                 return;
             }
