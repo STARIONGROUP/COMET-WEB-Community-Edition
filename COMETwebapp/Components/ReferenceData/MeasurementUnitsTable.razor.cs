@@ -24,11 +24,13 @@
 
 namespace COMETwebapp.Components.ReferenceData
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
 
@@ -46,6 +48,11 @@ namespace COMETwebapp.Components.ReferenceData
         public IMeasurementUnitsTableViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Condition to check if the shortname and name fields should be readonly
+        /// </summary>
+        private bool ShouldNameAndShortNameBeReadOnly => this.ViewModel.Thing is PrefixedUnit;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -59,15 +66,9 @@ namespace COMETwebapp.Components.ReferenceData
         /// Method that is invoked when the edit/add measurement unit form is being saved
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        protected override Task OnEditThingSaving()
+        protected override async Task OnEditThingSaving()
         {
-            if (!this.ShouldCreateThing)
-            {
-                // update measurement unit
-            }
-
-            // create measurement unit
-            return Task.CompletedTask;
+            await this.ViewModel.CreateOrEditMeasurementUnit(this.ShouldCreateThing);
         }
 
         /// <summary>
@@ -81,13 +82,14 @@ namespace COMETwebapp.Components.ReferenceData
 
             if (dataItem == null)
             {
-                e.EditModel = new SimpleUnit();
-                this.ViewModel.Thing = new SimpleUnit();
+                this.ViewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.SimpleUnit);
+                e.EditModel = this.ViewModel.Thing;
                 return;
             }
 
             e.EditModel = dataItem;
             this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            this.ViewModel.SelectedReferenceDataLibrary = (ReferenceDataLibrary)dataItem.Thing.Container;
         }
     }
 }

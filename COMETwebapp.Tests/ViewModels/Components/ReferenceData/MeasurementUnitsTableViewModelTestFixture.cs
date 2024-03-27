@@ -37,6 +37,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
+    using COMETwebapp.Wrappers;
 
     using Microsoft.Extensions.Logging;
 
@@ -206,6 +207,45 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<MeasurementUnit>(c => c.IsDeprecated == false)));
+        }
+
+        [Test]
+        public async Task VerifyMeasurementAddOrEdit()
+        {
+            this.viewModel.InitializeViewModel();
+            this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.SimpleUnit);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Thing, Is.TypeOf<SimpleUnit>());
+                Assert.That(this.viewModel.SelectedMeasurementUnitType.ClassKind, Is.EqualTo(ClassKind.SimpleUnit));
+            });
+
+            this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.LinearConversionUnit);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<LinearConversionUnit>());
+
+            this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.PrefixedUnit);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<PrefixedUnit>());
+
+            this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.Person);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<PrefixedUnit>());
+
+            this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.DerivedUnit);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<DerivedUnit>());
+
+            var unitFactor = new UnitFactor()
+            {
+                Unit = new SimpleUnit(),
+                Exponent = "exp"
+            };
+
+            ((DerivedUnit)this.viewModel.Thing).UnitFactor.Add(unitFactor);
+            await this.viewModel.CreateOrEditMeasurementUnit(true);
+
+            this.sessionService.Verify(x => x.UpdateThings(
+                It.IsAny<ReferenceDataLibrary>(), 
+                It.Is<List<Thing>>(c => c.Count == 3)), 
+                Times.Once);
         }
     }
 }

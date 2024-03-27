@@ -16,6 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Wrappers
 @inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<CDP4Common.SiteDirectoryData.MeasurementUnit, COMETwebapp.ViewModels.Components.ReferenceData.Rows.MeasurementUnitRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
@@ -26,11 +27,12 @@ Copyright (c) 2023-2024 RHEA System S.A.
             ShowAllRows="true"
             SearchBoxNullText="Search for a measurement unit ..."
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Measurement Unit (UNDER DEV)"
+            PopupEditFormHeaderText="Measurement Unit"
             CustomizeElement="DisableDeprecatedThing"
             EditMode="GridEditMode.PopupEditForm"
             EditModelSaving="@(() => this.OnEditThingSaving())"
-            CustomizeEditModel="this.CustomizeEditThing">
+            CustomizeEditModel="this.CustomizeEditThing"
+            EditFormButtonsVisible="false">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(MeasurementUnitRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
@@ -46,38 +48,99 @@ Copyright (c) 2023-2024 RHEA System S.A.
                         var row = (MeasurementUnitRowViewModel)context.DataItem;
 
                         <DxButton Id="editUnitButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
-
-                        if (row.IsDeprecated)
-                        {
-                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled="@(row.IsAllowedToWrite)" />
-                        }
-                        else
-                        {
-                            <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((MeasurementUnitRowViewModel)context.DataItem)" Enabled="@(row.IsAllowedToWrite)" />
-                        }
+                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
+                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
+                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                  Enabled="@(row.IsAllowedToWrite)" />
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
         
-        <EditFormTemplate Context="EditFormContext">
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
-                                TextFieldName="@nameof(ReferenceDataLibrary.Name)"
-                                @bind-Value="@this.ViewModel.Thing.Container"
-                                CssClass="cw-480" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
-                </DxFormLayoutItem>
-            </DxFormLayout>
+        <EditFormTemplate Context="editFormTemplateContext">
+            <EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.Grid.SaveChangesAsync)">
+                <FluentValidationValidator />
+
+                <DxFormLayout CssClass="w-100">
+
+                    @if (this.ShouldCreateThing)
+                    {
+                        <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="10">
+                            <DxComboBox Data="@(this.ViewModel.MeasurementUnitTypes)"
+                                        TextFieldName="@(nameof(ClassKindWrapper.ClassKindName))"
+                                        @bind-Value="@(this.ViewModel.SelectedMeasurementUnitType)"
+                                        CssClass="cw-480"/>
+                        </DxFormLayoutItem>
+                    }
+
+                    <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                        <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"
+                                   ReadOnly="@(this.ShouldNameAndShortNameBeReadOnly)"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                        <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"
+                                   ReadOnly="@(this.ShouldNameAndShortNameBeReadOnly)"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+                        <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
+                                    TextFieldName="@nameof(ReferenceDataLibrary.Name)"
+                                    @bind-Value="@this.ViewModel.SelectedReferenceDataLibrary"
+                                    CssClass="cw-480"/>
+                    </DxFormLayoutItem>
+
+
+                    @if (this.ViewModel.Thing is ConversionBasedUnit conversionBasedUnit)
+                    {
+                        <DxFormLayoutItem Caption="Reference Unit:" ColSpanMd="10">
+                            <DxComboBox Data="@this.ViewModel.ReferenceUnits"
+                                        TextFieldName="@nameof(MeasurementUnit.Name)"
+                                        @bind-Value="@(conversionBasedUnit.ReferenceUnit)"
+                                        CssClass="cw-480"/>
+                        </DxFormLayoutItem>
+                    }
+
+                    @if (this.ViewModel.Thing is LinearConversionUnit linearConvertionUnit)
+                    {
+
+                        <DxFormLayoutItem Caption="Conversion Factor:" ColSpanMd="10">
+                            <DxTextBox @bind-Text="@(linearConvertionUnit.ConversionFactor)"/>
+                        </DxFormLayoutItem>
+                    }
+
+                    @if (this.ViewModel.Thing is PrefixedUnit prefixedUnit)
+                    {
+                        <DxFormLayoutItem Caption="Prefix:" ColSpanMd="10">
+                            <DxComboBox Data="@this.ViewModel.Prefixes"
+                                        TextFieldName="@nameof(UnitPrefix.ShortName)"
+                                        @bind-Value="@(prefixedUnit.Prefix)"
+                                        CssClass="cw-480"/>
+                        </DxFormLayoutItem>
+                    }
+
+                    <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
+                    </DxFormLayoutItem>
+
+                    @if (this.ViewModel.Thing is DerivedUnit derivedUnit)
+                    {
+                        <DxFormLayoutItem Caption="Unit Factors:"
+                                          ColSpanMd="12"
+                                          CaptionPosition="CaptionPosition.Vertical">
+                            <UnitFactorsTable DerivedUnit="@(derivedUnit)"
+                                              MeasurementUnits="@(this.ViewModel.ReferenceUnits)"/>
+                        </DxFormLayoutItem>
+                    }
+                </DxFormLayout>
+                <div class="pt-3"></div>
+                <ValidationSummary/>
+                <div class="dxbl-grid-edit-form-buttons">
+                    <DxButton SubmitFormOnClick="true">Save</DxButton>
+                    <DxButton Click="this.Grid.CancelEditAsync"
+                              RenderStyle="ButtonRenderStyle.Secondary">
+                        Cancel
+                    </DxButton>
+                </div>
+            </EditForm>
         </EditFormTemplate>
 
     </DxGrid>

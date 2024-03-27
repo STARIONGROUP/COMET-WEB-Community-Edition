@@ -24,10 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementUnit" />s
@@ -35,8 +37,40 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     public interface IMeasurementUnitsTableViewModel : IDeprecatableDataItemTableViewModel<MeasurementUnit, MeasurementUnitRowViewModel>
     {
         /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
+        /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; }
+
+        /// <summary>
+        /// Gets or sets the selected reference data library
+        /// </summary>
+        ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets the available measurement unit types <see cref="ClassKind" />s
+        /// </summary>
+        IEnumerable<ClassKindWrapper> MeasurementUnitTypes { get; }
+
+        /// <summary>
+        /// Gets or sets the selected measurement unit type
+        /// </summary>
+        ClassKindWrapper SelectedMeasurementUnitType { get; set; }
+
+        /// <summary>
+        /// Gets the available <see cref="MeasurementUnit" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary"/>
+        /// </summary>
+        IEnumerable<MeasurementUnit> ReferenceUnits { get; }
+
+        /// <summary>
+        /// Gets the available <see cref="Prefixes" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary"/>
+        /// </summary>
+        IEnumerable<UnitPrefix> Prefixes { get; }
+
+        /// <summary>
+        /// Creates or edits a <see cref="MeasurementUnit"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateOrEditMeasurementUnit(bool shouldCreate);
     }
 }

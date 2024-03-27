@@ -155,6 +155,10 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementUnit)));
             });
+
+            var form = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditMeasurementUnit(false), Times.Once);
         }
     }
 }
