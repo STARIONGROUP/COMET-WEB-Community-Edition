@@ -38,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
     /// <summary>
     /// View model that provides the basic functionalities for a deletable data item
     /// </summary>
-    public abstract class DeletableDataItemTableViewModel<T, TRow> : BaseDataItemTableViewModel<T, TRow>, IDeletableDataItemTableViewModel<T, TRow> where T : Thing, IShortNamedThing, INamedThing where TRow : BaseDataItemRowViewModel<T>
+    public abstract class DeletableDataItemTableViewModel<T, TRow> : BaseDataItemTableViewModel<T, TRow>, IDeletableDataItemTableViewModel<T, TRow> where T : Thing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
         /// Backing field for <see cref="IsOnDeletionMode" />
@@ -105,17 +105,16 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteThing()
         {
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var clonedThing = this.Thing.Clone(false);
+            var clonedContainer = this.Thing.Container.Clone(false);
 
             try
             {
-                await this.SessionService.DeleteThings(siteDirectoryClone, clonedThing);
+                await this.SessionService.DeleteThings(clonedContainer, this.Thing);
                 await this.SessionService.RefreshSession();
             }
             catch (Exception exception)
             {
-                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} {thingName}", typeof(T), ((IShortNamedThing)clonedThing).ShortName);
+                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} {thingName}", typeof(T), this.Thing.UserFriendlyShortName);
             }
         }
     }

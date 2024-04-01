@@ -41,7 +41,7 @@ namespace COMETwebapp.Components.Common
     /// <summary>
     /// Support class for the <see cref="SelectedDataItemBase{T,TRow}" />
     /// </summary>
-    public abstract partial class SelectedDataItemBase<T, TRow> : DisposableComponent where T : Thing, IShortNamedThing, INamedThing where TRow : BaseDataItemRowViewModel<T>
+    public abstract partial class SelectedDataItemBase<T, TRow> : DisposableComponent where T : Thing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
         /// The <see cref="IBaseDataItemTableViewModel{T,TRow}" /> for this component

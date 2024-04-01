@@ -15,16 +15,16 @@ Copyright (c) 2023-2024 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
-@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.EngineeringModelSetup, EngineeringModelRowViewModel>
+@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.Participant, ParticipantRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
-            SearchBoxNullText="Search for a model..."
+            SearchBoxNullText="Search for a participant..."
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Engineering Model"
+            PopupEditFormHeaderText="Participant (UNDER DEV)"
             CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
             EditModelSaving="@(() => this.OnEditThingSaving())"
@@ -34,26 +34,26 @@ Copyright (c) 2023-2024 RHEA System S.A.
             PageSizeSelectorItems="@(new int[] { 20,35,50 })"
             PageSizeSelectorAllRowsItemVisible="true">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.Phase)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.Kind)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Organization)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Role)" MinWidth="80" SearchEnabled="false" />
             <DxGridCommandColumn Width="200px" EditButtonVisible="false">
                 <HeaderTemplate>
-                    <DxButton Id="addEngineeringModelButton" Text="Add Model" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                    <DxButton Id="addParticipantButton" Text="Add Participant" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
-                        var row = (EngineeringModelRowViewModel)context.DataItem;
+                        var row = (ParticipantRowViewModel)context.DataItem;
 
-                        <DxButton Id="editEngineeringModelButton" 
+                        <DxButton Id="editParticipantButton"
                                   Text="Edit"
-                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" 
-                                  Enabled="@(row.IsAllowedToWrite)" />
+                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
+                                  Enabled="@(row.IsAllowedToWrite)"/>
 
-                        <DxButton Id="deleteEngineeringModelButton"
+                        <DxButton Id="deleteParticipantButton"
                                   Text="Delete"
-                                  Click="() => this.ViewModel.DeleteThing()"
-                                  Enabled="@(row.IsAllowedToWrite)" />
+                                  Click="() => this.ViewModel.OnDeleteButtonClick(row)"
+                                  Enabled="@(row.IsAllowedToWrite)"/>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -62,10 +62,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <EditFormTemplate Context="EditFormContext">
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Person.Name"/>
                 </DxFormLayoutItem>
             </DxFormLayout>
             <ValidationSummary/>

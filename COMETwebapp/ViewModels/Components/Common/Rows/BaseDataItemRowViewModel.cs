@@ -31,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
     /// <summary>
     /// Row View Model for a thing
     /// </summary>
-    public abstract class BaseDataItemRowViewModel<T> : ReactiveObject where T : Thing, IShortNamedThing, INamedThing
+    public abstract class BaseDataItemRowViewModel<T> : ReactiveObject where T : Thing
     {
         /// <summary>
         /// Backing field for <see cref="ContainerName" />
@@ -55,8 +55,8 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
         protected BaseDataItemRowViewModel(T thing)
         {
             this.Thing = thing;
-            this.Name = thing.Name;
-            this.ShortName = thing.ShortName;
+            this.Name = thing.UserFriendlyName;
+            this.ShortName = thing.UserFriendlyShortName;
             var container = (IShortNamedThing)thing.Container;
             this.ContainerName = container.ShortName;
         }

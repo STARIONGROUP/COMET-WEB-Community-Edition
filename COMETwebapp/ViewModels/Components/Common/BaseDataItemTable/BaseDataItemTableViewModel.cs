@@ -34,7 +34,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
@@ -42,7 +41,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     /// <summary>
     /// View model that provides the basic functionalities for a base data item
     /// </summary>
-    public abstract class BaseDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IBaseDataItemTableViewModel<T, TRow> where T : Thing, IShortNamedThing, INamedThing where TRow : BaseDataItemRowViewModel<T>
+    public abstract class BaseDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IBaseDataItemTableViewModel<T, TRow> where T : Thing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />

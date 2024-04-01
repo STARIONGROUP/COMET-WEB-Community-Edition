@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.SiteDirectory
+namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
     using CDP4Common.SiteDirectoryData;
 
@@ -46,6 +46,29 @@ namespace COMETwebapp.Components.SiteDirectory
         public IEngineeringModelsTableViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// The selected component type
+        /// </summary>
+        private Type SelectedComponent { get; set; }
+
+        /// <summary>
+        /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
+        /// </summary>
+        private Dictionary<string, object> parameters = new();
+
+        /// <summary>
+        /// Gets or sets the value to check if a model has been selected
+        /// </summary>
+        private bool IsModelSelected { get; set; }
+
+        /// <summary>
+        /// A map with all the available components and their names
+        /// </summary>
+        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
+        {
+            {typeof(ParticipantsTable), "Participants"},
+        };
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -53,6 +76,7 @@ namespace COMETwebapp.Components.SiteDirectory
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
+            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
         }
 
         /// <summary>
@@ -84,6 +108,26 @@ namespace COMETwebapp.Components.SiteDirectory
 
             e.EditModel = dataItem;
             this.ViewModel.Thing = dataItem.Thing.Clone(true);
+        }
+
+        /// <summary>
+        /// Metgid invoked everytime a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        private void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
+        {
+            this.ViewModel.Thing = row.Thing;
+            this.IsModelSelected = true;
+            this.parameters[nameof(EngineeringModelSetup)] = row.Thing;
+        }
+
+        /// <summary>
+        /// Method invoked to set the selected component from toolbar
+        /// </summary>
+        /// <param name="e"></param>
+        private void OnDetailsItemClick(ToolbarItemClickEventArgs e)
+        {
+            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
         }
     }
 }

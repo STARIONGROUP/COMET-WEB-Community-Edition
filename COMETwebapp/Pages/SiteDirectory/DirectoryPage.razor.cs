@@ -25,8 +25,11 @@
 namespace COMETwebapp.Pages.SiteDirectory
 {
     using COMETwebapp.Components.SiteDirectory;
+    using COMETwebapp.Components.SiteDirectory.EngineeringModel;
 
     using DevExpress.Blazor;
+
+    using DomainsOfExpertiseTable = COMETwebapp.Components.SiteDirectory.DomainsOfExpertiseTable;
 
     /// <summary>
     /// Support class for the <see cref="DirectoryPage"/>
