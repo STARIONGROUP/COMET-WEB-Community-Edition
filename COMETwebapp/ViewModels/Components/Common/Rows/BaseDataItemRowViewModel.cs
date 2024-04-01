@@ -55,10 +55,9 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
         protected BaseDataItemRowViewModel(T thing)
         {
             this.Thing = thing;
-            this.Name = thing.UserFriendlyName;
-            this.ShortName = thing.UserFriendlyShortName;
-            var container = (IShortNamedThing)thing.Container;
-            this.ContainerName = container.ShortName;
+            this.ShortName = thing is IShortNamedThing shortNamedThing ? shortNamedThing.ShortName : thing.UserFriendlyShortName;
+            this.Name = thing is INamedThing namedThing ? namedThing.Name : thing.UserFriendlyName;
+            this.ContainerName = thing.Container is IShortNamedThing shortNamedContainer ? shortNamedContainer.ShortName : thing.Container.UserFriendlyShortName;
         }
 
         /// <summary>

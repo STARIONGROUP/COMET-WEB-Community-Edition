@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="EngineeringModelsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="OrganizationalParticipantsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -35,40 +35,30 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="Participant" />
+    /// View model used to manage <see cref="OrganizationalParticipant" />
     /// </summary>
-    public class ParticipantsTableViewModel : DeletableDataItemTableViewModel<Participant, ParticipantRowViewModel>, IParticipantsTableViewModel
+    public class OrganizationalParticipantsTableViewModel : DeletableDataItemTableViewModel<OrganizationalParticipant, OrganizationalParticipantRowViewModel>, IOrganizationalParticipantsTableViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ParticipantsTableViewModel" /> class.
+        /// Initializes a new instance of the <see cref="OrganizationalParticipantsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public ParticipantsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<ParticipantsTableViewModel> logger) 
+        public OrganizationalParticipantsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<OrganizationalParticipantsTableViewModel> logger) 
             : base(sessionService, messageBus, logger)
         {
         }
 
         /// <summary>
-        /// Gets a collection of all the available <see cref="Person"/>s
+        /// Gets a collection of all the available <see cref="Organization"/>s
         /// </summary>
-        public IEnumerable<Person> Persons { get; private set; }
+        public IEnumerable<Organization> Organizations { get; private set; }
 
         /// <summary>
-        /// Gets a collection of all the available <see cref="ParticipantRole"/>s
+        /// Gets or sets a collection of all the participating <see cref="Organization"/>s for the organizational participant creation
         /// </summary>
-        public IEnumerable<ParticipantRole> ParticipantRoles { get; private set; }
-
-        /// <summary>
-        /// Gets a collection of all the available <see cref="DomainOfExpertise"/>s
-        /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
-
-        /// <summary>
-        /// Gets or sets a collection of all the selected <see cref="DomainOfExpertise"/>s for the participant creation
-        /// </summary>
-        public IEnumerable<DomainOfExpertise> SelectedDomains { get; set; }
+        public IEnumerable<Organization> ParticipatingOrganizations { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
@@ -78,13 +68,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             base.InitializeViewModel();
 
             var siteDirectory = this.SessionService.GetSiteDirectory();
-            this.Persons = siteDirectory.Person;
-            this.ParticipantRoles = siteDirectory.ParticipantRole;
-            this.DomainsOfExpertise = siteDirectory.Domain;
+            this.Organizations = siteDirectory.Organization;
         }
 
         /// <summary>
-        /// Sets the model and filters the current Rows, keeping only the participants associated with the given engineering model
+        /// Sets the model and filters the current Rows, keeping only the organizational participants associated with the given engineering model
         /// </summary>
         /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
         public void SetEngineeringModel(EngineeringModelSetup model)
@@ -94,20 +82,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             this.Rows.Edit(action =>
             {
                 action.Clear();
-                action.AddRange(participantsAssociatedWithModel.Select(x => new ParticipantRowViewModel(x)));
+                action.AddRange(participantsAssociatedWithModel.Select(x => new OrganizationalParticipantRowViewModel(x)));
             });
 
             this.RefreshAccessRight();
-        }
-
-        /// <summary>
-        /// Selects the current participant
-        /// </summary>
-        /// <param name="participant">The <see cref="Participant"/> to select</param>
-        public void SelectThing(Participant participant)
-        {
-            this.Thing = participant.Clone(true);
-            this.SelectedDomains = this.Thing.Domain;
+            this.ParticipatingOrganizations = model.OrganizationalParticipant.Select(x => x.Organization);
         }
     }
 }

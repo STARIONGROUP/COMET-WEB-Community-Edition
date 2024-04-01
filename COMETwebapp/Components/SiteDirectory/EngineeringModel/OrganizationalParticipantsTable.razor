@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 @using CDP4Common.SiteDirectoryData
-@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.Participant, ParticipantRowViewModel>
+@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.OrganizationalParticipant, OrganizationalParticipantRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <DxGrid @ref="this.Grid"
@@ -24,30 +24,23 @@ Copyright (c) 2023-2024 RHEA System S.A.
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
             ShowAllRows="true"
-            SearchBoxNullText="Search for a participant..."
+            SearchBoxNullText="Search for an organizational participant..."
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Participant (UNDER DEV)"
+            PopupEditFormHeaderText="Organizational Participant (UNDER DEV)"
             CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
             EditModelSaving="@(() => this.OnEditThingSaving())">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Organization)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Role)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.Name)" MinWidth="150" />
             <DxGridCommandColumn Width="200px" EditButtonVisible="false">
                 <HeaderTemplate>
-                    <DxButton Id="addParticipantButton" Text="Add Participant" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                    <DxButton Id="editOrganizationalParticipantsButton" Text="Edit Organizational Participants" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
-                        var row = (ParticipantRowViewModel)context.DataItem;
+                        var row = (OrganizationalParticipantRowViewModel)context.DataItem;
 
-                        <DxButton Id="editParticipantButton"
-                                  Text="Edit"
-                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
-                                  Enabled="@(row.IsAllowedToWrite)"/>
-
-                        <DxButton Id="deleteParticipantButton"
+                        <DxButton Id="deleteOrganizationalParticipantButton"
                                   Text="Delete"
                                   Click="() => this.ViewModel.OnDeleteButtonClick(row)"
                                   Enabled="@(row.IsAllowedToWrite)"/>
@@ -58,33 +51,18 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
         <EditFormTemplate Context="EditFormContext">
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Person:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.Persons"
-                                TextFieldName="@nameof(Person.Name)"
-                                @bind-Value="@this.ViewModel.Thing.Person"
-                                CssClass="cw-480"/>
-                </DxFormLayoutItem>
                 
-                <DxFormLayoutItem Caption="Participant Role:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.ParticipantRoles"
-                                TextFieldName="@nameof(ParticipantRole.Name)"
-                                @bind-Value="@this.ViewModel.Thing.Role"
-                                CssClass="cw-480"/>
-                </DxFormLayoutItem>
-                
-                <DxFormLayoutItem Caption="Domain of Expertise:" ColSpanMd="10">
-                    <DxListBox TValue="DomainOfExpertise"
-                               TData="DomainOfExpertise"
-                               Data="@this.ViewModel.DomainsOfExpertise"
-                               TextFieldName="@nameof(DomainOfExpertise.Name)"
+                <DxFormLayoutItem Caption="Participating Organizations:" 
+                                  CaptionPosition="CaptionPosition.Vertical"
+                                  ColSpanMd="12">
+                    <DxListBox TValue="Organization"
+                               TData="Organization"
+                               Data="@this.ViewModel.Organizations"
+                               TextFieldName="@nameof(Organization.Name)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                ShowCheckboxes="true"
-                               @bind-Values="@this.ViewModel.SelectedDomains"
+                               @bind-Values="@this.ViewModel.ParticipatingOrganizations"
                                CssClass="cw-480"/>
-                </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsActive" />
                 </DxFormLayoutItem>
             </DxFormLayout>
             <ValidationSummary/>

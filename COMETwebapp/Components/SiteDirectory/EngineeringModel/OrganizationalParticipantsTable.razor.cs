@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="EngineeringModelsTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="ParticipantsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -35,40 +35,21 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="EngineeringModelsTable"/>
+    /// Support class for the <see cref="OrganizationalParticipantsTable"/>
     /// </summary>
-    public partial class EngineeringModelsTable : SelectedDataItemBase<EngineeringModelSetup, EngineeringModelRowViewModel>
+    public partial class OrganizationalParticipantsTable : SelectedDataItemBase<OrganizationalParticipant, OrganizationalParticipantRowViewModel>
     {
         /// <summary>
-        /// The <see cref="IEngineeringModelsTableViewModel" /> for this component
+        /// The <see cref="IOrganizationalParticipantsTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IEngineeringModelsTableViewModel ViewModel { get; set; }
+        public IOrganizationalParticipantsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The selected component type
+        /// Gets or sets the <see cref="EngineeringModelSetup"/>
         /// </summary>
-        private Type SelectedComponent { get; set; }
-
-        /// <summary>
-        /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
-        /// </summary>
-        private readonly Dictionary<string, object> parameters = [];
-
-        /// <summary>
-        /// Gets or sets the value to check if a model has been selected
-        /// </summary>
-        private bool IsModelSelected { get; set; }
-
-        /// <summary>
-        /// A map with all the available components and their names
-        /// </summary>
-        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
-        {
-            {typeof(ParticipantsTable), "Participants"},
-            {typeof(OrganizationalParticipantsTable), "Organizations"},
-            {typeof(IterationsTable), "Iterations"},
-        };
+        [Parameter]
+        public EngineeringModelSetup EngineeringModelSetup { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -78,16 +59,16 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
-            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
+        protected override void OnParametersSet()
         {
-            await this.ViewModel.CreateOrEditEngineeringModel(this.ShouldCreateThing);
+            base.OnParametersSet();
+            this.ViewModel.SetEngineeringModel(this.EngineeringModelSetup);
         }
 
         /// <summary>
@@ -98,38 +79,18 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.CustomizeEditThing(e);
 
-            var dataItem = (EngineeringModelRowViewModel)e.DataItem;
+            var dataItem = (OrganizationalParticipantRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
 
             if (dataItem == null)
             {
-                this.ViewModel.Thing = new EngineeringModelSetup();
+                this.ViewModel.Thing = new OrganizationalParticipant();
                 e.EditModel = this.ViewModel.Thing;
                 return;
             }
 
             e.EditModel = dataItem;
             this.ViewModel.Thing = dataItem.Thing.Clone(true);
-        }
-
-        /// <summary>
-        /// Metgid invoked everytime a row is selected
-        /// </summary>
-        /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
-        {
-            this.ViewModel.Thing = row.Thing;
-            this.IsModelSelected = true;
-            this.parameters[nameof(EngineeringModelSetup)] = row.Thing;
-        }
-
-        /// <summary>
-        /// Method invoked to set the selected component from toolbar
-        /// </summary>
-        /// <param name="e">The <see cref="ToolbarItemClickEventArgs"/></param>
-        private void OnDetailsItemClick(ToolbarItemClickEventArgs e)
-        {
-            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
         }
     }
 }

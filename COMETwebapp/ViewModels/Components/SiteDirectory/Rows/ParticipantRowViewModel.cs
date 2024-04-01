@@ -36,11 +36,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
     public class ParticipantRowViewModel : BaseDataItemRowViewModel<Participant>
     {
         /// <summary>
-        /// Backing field for <see cref="Name" />
-        /// </summary>
-        private string name;
-
-        /// <summary>
         /// Backing field for <see cref="Organization" />
         /// </summary>
         private string organization;
@@ -58,16 +53,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
         {
             this.Name = participant.Person.Name;
             this.Organization = participant.Person.Organization.Name;
-            this.Role = participant.Role.ToString();
-        }
-
-        /// <summary>
-        /// The name value for the current <see cref="Participant"/>
-        /// </summary>
-        public new string Name
-        {
-            get => this.name;
-            set => this.RaiseAndSetIfChanged(ref this.name, value);
+            this.Role = participant.Role.Name;
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IParticipantsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IIterationsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -24,47 +24,21 @@
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
-    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="Participant" />
+    /// View model used to list <see cref="Iteration" />s
     /// </summary>
-    public interface IParticipantsTableViewModel : IDeletableDataItemTableViewModel<Participant, ParticipantRowViewModel>
+    public interface IIterationsTableViewModel : IBaseDataItemTableViewModel<Iteration, IterationRowViewModel>
     {
         /// <summary>
-        /// Filters the current Rows, keeping only the participants associated with the given engineering model
+        /// Sets the model and filters the current Rows, keeping only the iterations associated with the given engineering model
         /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its iterations</param>
         void SetEngineeringModel(EngineeringModelSetup model);
-
-        /// <summary>
-        /// Gets a collection of all the available <see cref="Person"/>s
-        /// </summary>
-        IEnumerable<Person> Persons { get; }
-
-        /// <summary>
-        /// Gets a collection of all the available <see cref="ParticipantRole"/>s
-        /// </summary>
-        IEnumerable<ParticipantRole> ParticipantRoles { get; }
-
-        /// <summary>
-        /// Gets a collection of all the available <see cref="DomainOfExpertise"/>s
-        /// </summary>
-        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
-
-        /// <summary>
-        /// Gets or sets a collection of all the selected <see cref="DomainOfExpertise"/>s for the participant creation
-        /// </summary>
-        IEnumerable<DomainOfExpertise> SelectedDomains { get; set; }
-
-        /// <summary>
-        /// Selects the current participant
-        /// </summary>
-        /// <param name="participant">The <see cref="Participant"/> to select</param>
-        void SelectThing(Participant participant);
     }
 }

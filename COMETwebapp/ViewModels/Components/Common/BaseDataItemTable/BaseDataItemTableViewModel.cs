@@ -135,8 +135,14 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
             {
                 foreach (var updatedThing in updatedThingOfTypeT)
                 {
+                    var rowToUpdate = this.Rows.Items.FirstOrDefault(x => x.Thing.Iid == updatedThing.Iid);
+
+                    if (rowToUpdate == null)
+                    {
+                        continue;
+                    }
+
                     var updatedRow = CreateNewRow(updatedThing);
-                    var rowToUpdate = this.Rows.Items.First(x => x.Thing.Iid == updatedThing.Iid);
                     action.Replace(rowToUpdate, updatedRow);
                 }
             });

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParticipantsTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="IterationsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,26 +24,25 @@
 
 namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ParticipantsTable"/>
+    /// Support class for the <see cref="IterationsTable"/>
     /// </summary>
-    public partial class ParticipantsTable : SelectedDataItemBase<Participant, ParticipantRowViewModel>
+    public partial class IterationsTable : SelectedDataItemBase<Iteration, IterationRowViewModel>
     {
         /// <summary>
-        /// The <see cref="IParticipantsTableViewModel" /> for this component
+        /// The <see cref="IIterationsTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IParticipantsTableViewModel ViewModel { get; set; }
+        public IIterationsTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="EngineeringModelSetup"/>
@@ -69,28 +68,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.OnParametersSet();
             this.ViewModel.SetEngineeringModel(this.EngineeringModelSetup);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (ParticipantRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                this.ViewModel.SelectThing(new Participant());
-                e.EditModel = this.ViewModel.Thing;
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.SelectThing(dataItem.Thing);
         }
     }
 }
