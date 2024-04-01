@@ -1,0 +1,70 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
+@inherits COMETwebapp.Components.Common.SelectedDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            ShowAllRows="true"
+            SearchBoxNullText="Search for an active domain...">
+        
+        <ToolbarTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+                <DxToolbarItem Text="Edit Active Domains" 
+                               Click="(() => this.IsEditPopupVisible = true)" 
+                               RenderStyle="ButtonRenderStyle.Info"
+                               Enabled="true" />
+            </DxToolbar>
+        </ToolbarTemplate>
+
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80"/>
+        </Columns>
+
+        <CustomValidators>
+            <FluentValidationValidator/>
+        </CustomValidators>
+
+    </DxGrid>
+    
+    <DxPopup @bind-Visible="@this.IsEditPopupVisible"
+             HeaderText="Active Domains">
+        
+        <DxListBox TValue="DomainOfExpertise"
+                   TData="DomainOfExpertise"
+                   Data="@this.ViewModel.DomainsOfExpertise"
+                   TextFieldName="@nameof(DomainOfExpertise.Name)"
+                   SelectionMode="ListBoxSelectionMode.Multiple"
+                   ShowCheckboxes="true"
+                   @bind-Values="@this.ViewModel.SelectedDomainsOfExpertise"
+                   CssClass="cw-480 active-domains-listbox" />
+
+        <div class="dxbl-grid-edit-form-buttons">
+            <DxButton SubmitFormOnClick="true">Save</DxButton>
+            <DxButton Click="(() => this.IsEditPopupVisible = false)"
+                      RenderStyle="ButtonRenderStyle.Secondary">
+                Cancel
+            </DxButton>
+        </div>
+    </DxPopup>
+
+</LoadingComponent>

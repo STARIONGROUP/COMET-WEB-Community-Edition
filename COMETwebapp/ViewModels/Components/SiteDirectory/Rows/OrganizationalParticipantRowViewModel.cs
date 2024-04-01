@@ -40,6 +40,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
         public OrganizationalParticipantRowViewModel(OrganizationalParticipant organizationalParticipant) : base(organizationalParticipant)
         {
             this.Name = organizationalParticipant.Organization.Name;
+            this.ShortName = organizationalParticipant.Organization.ShortName;
         }
     }
 }

@@ -46,6 +46,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
         private string role;
 
         /// <summary>
+        /// Backing field for <see cref="AssignedDomains" />
+        /// </summary>
+        private string assignedDomains;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ParticipantRowViewModel" /> class.
         /// </summary>
         /// <param name="participant">The associated <see cref="Participant" /></param>
@@ -54,7 +59,13 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
             this.Name = participant.Person.Name;
             this.Organization = participant.Person.Organization.Name;
             this.Role = participant.Role.Name;
+            this.AssignedDomains = string.Join(Separator, participant.Domain.Select(x => x.Name));
         }
+
+        /// <summary>
+        /// Gets the separator used to join the participant domains of expertise
+        /// </summary>
+        public static string Separator = ",";
 
         /// <summary>
         /// The organization value for the current <see cref="Participant"/>
@@ -72,6 +83,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
         {
             get => this.role;
             set => this.RaiseAndSetIfChanged(ref this.role, value);
+        }
+
+        /// <summary>
+        /// The assigned domains value for the current <see cref="Participant"/>
+        /// </summary>
+        public string AssignedDomains
+        {
+            get => this.assignedDomains;
+            set => this.RaiseAndSetIfChanged(ref this.assignedDomains, value);
         }
     }
 }

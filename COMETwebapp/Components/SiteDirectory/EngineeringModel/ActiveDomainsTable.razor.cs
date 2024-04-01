@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParticipantsTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="ActiveDomainsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -30,20 +30,18 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ParticipantsTable"/>
+    /// Support class for the <see cref="ActiveDomainsTable"/>
     /// </summary>
-    public partial class ParticipantsTable : SelectedDataItemBase<Participant, ParticipantRowViewModel>
+    public partial class ActiveDomainsTable : SelectedDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
         /// <summary>
-        /// The <see cref="IParticipantsTableViewModel" /> for this component
+        /// The <see cref="IActiveDomainsTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public IParticipantsTableViewModel ViewModel { get; set; }
+        public IActiveDomainsTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="EngineeringModelSetup"/>
@@ -52,14 +50,9 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public EngineeringModelSetup EngineeringModelSetup { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if the active domains details popup is open
+        /// Gets or sets the condition to check if the edit popup is visible
         /// </summary>
-        private bool IsActiveDomainsDetailsOpen { get; set; }
-
-        /// <summary>
-        /// Gets or sets the active domains details text
-        /// </summary>
-        private string AssignedDomainsPopupText { get; set; }
+        private bool IsEditPopupVisible { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -68,7 +61,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Initialize(this.ViewModel);
+            this.ViewModel.InitializeViewModel();
         }
 
         /// <summary>
@@ -79,38 +72,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.OnParametersSet();
             this.ViewModel.SetEngineeringModel(this.EngineeringModelSetup);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (ParticipantRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                this.ViewModel.SelectThing(new Participant());
-                e.EditModel = this.ViewModel.Thing;
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.SelectThing(dataItem.Thing);
-        }
-
-        /// <summary>
-        /// Opens the assigned domain details popup
-        /// </summary>
-        /// <param name="text">The text to show inside the popup</param>
-        private void OpenAssignedDomainDetailsPopup(string text)
-        {
-            this.AssignedDomainsPopupText = text; 
-            this.IsActiveDomainsDetailsOpen = true;
         }
     }
 }

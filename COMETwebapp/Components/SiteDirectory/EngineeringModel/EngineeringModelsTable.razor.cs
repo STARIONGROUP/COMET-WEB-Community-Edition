@@ -68,6 +68,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
             {typeof(ParticipantsTable), "Participants"},
             {typeof(OrganizationalParticipantsTable), "Organizations"},
             {typeof(IterationsTable), "Iterations"},
+            {typeof(ActiveDomainsTable), "Active Domains"},
         };
 
         /// <summary>

@@ -32,6 +32,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
             EditModelSaving="@(() => this.OnEditThingSaving())">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.ShortName)" MinWidth="150" />
             <DxGridCommandColumn Width="200px" EditButtonVisible="false">
                 <HeaderTemplate>
                     <DxButton Id="editOrganizationalParticipantsButton" Text="Edit Organizational Participants" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
