@@ -1,0 +1,125 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Extensions
+@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.Participant, ParticipantRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            ShowAllRows="true"
+            SearchBoxNullText="Search for a participant..."
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Participant (UNDER DEV)"
+            CustomizeEditModel="this.CustomizeEditThing"
+            EditMode="GridEditMode.PopupEditForm"
+            EditModelSaving="@(() => this.OnEditThingSaving())">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Organization)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Role)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.AssignedDomains)" MinWidth="100" SearchEnabled="false">
+                <CellDisplayTemplate Context="assignedDomainsContext">
+                    <a @onclick="() => this.OpenAssignedDomainDetailsPopup(assignedDomainsContext.DisplayText)"
+                       style="max-width: fit-content; white-space: nowrap;">
+                      @assignedDomainsContext.DisplayText
+                    </a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addParticipantButton" Text="Add Participant" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (ParticipantRowViewModel)context.DataItem;
+
+                        <DxButton Id="editParticipantButton"
+                                  Text="Edit"
+                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
+                                  Enabled="@(row.IsAllowedToWrite)"/>
+
+                        <DxButton Id="deleteParticipantButton"
+                                  Text="Delete"
+                                  Click="() => this.ViewModel.OnDeleteButtonClick(row)"
+                                  Enabled="@(row.IsAllowedToWrite)"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+
+        <EditFormTemplate Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Person:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.Persons"
+                                TextFieldName="@nameof(Person.Name)"
+                                @bind-Value="@this.ViewModel.Thing.Person"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                
+                <DxFormLayoutItem Caption="Participant Role:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.ParticipantRoles"
+                                TextFieldName="@nameof(ParticipantRole.Name)"
+                                @bind-Value="@this.ViewModel.Thing.Role"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                
+                <DxFormLayoutItem Caption="Domain of Expertise:" ColSpanMd="10">
+                    <DxListBox TValue="DomainOfExpertise"
+                               TData="DomainOfExpertise"
+                               Data="@this.ViewModel.DomainsOfExpertise"
+                               TextFieldName="@nameof(DomainOfExpertise.Name)"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               ShowCheckboxes="true"
+                               @bind-Values="@this.ViewModel.SelectedDomains"
+                               CssClass="cw-480"/>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsActive" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+            <ValidationSummary/>
+        </EditFormTemplate>
+        
+        <CustomValidators>
+            <FluentValidationValidator />
+        </CustomValidators>
+
+    </DxGrid>
+</LoadingComponent>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @this.ViewModel.PopupDialog
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@this.IsActiveDomainsDetailsOpen"
+         HeaderText="Assigned Domains">
+    <ul>
+        @foreach (var assignedDomain in this.AssignedDomainsPopupText.Split(ParticipantRowViewModel.Separator))
+        {
+            <li>@assignedDomain</li>
+        }
+    </ul>
+</DxPopup>

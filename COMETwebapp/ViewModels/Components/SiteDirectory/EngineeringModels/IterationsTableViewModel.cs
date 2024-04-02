@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OrganizationsTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IterationsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,34 +22,47 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
 
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
-    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="DomainOfExpertise" />
+    /// View model used to list <see cref="Iteration" />s
     /// </summary>
-    public class OrganizationsTableViewModel : DeprecatableDataItemTableViewModel<Organization, OrganizationRowViewModel>, IOrganizationsTableViewModel
+    public class IterationsTableViewModel : BaseDataItemTableViewModel<Iteration, IterationRowViewModel>, IIterationsTableViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ParticipantsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public OrganizationsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<OrganizationsTableViewModel> logger)
-            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+        public IterationsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<IterationsTableViewModel> logger) 
+            : base(sessionService, messageBus, logger)
         {
+        }
+
+        /// <summary>
+        /// Sets the model and filters the current Rows, keeping only the iterations associated with the given engineering model
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its iterations</param>
+        public void SetEngineeringModel(EngineeringModelSetup model)
+        {
+            var iterationsAssociatedWithModel = this.DataSource.Items.Where(x => ((EngineeringModel)x.Container).EngineeringModelSetup.Iid == model.Iid);
+
+            this.Rows.Edit(action =>
+            {
+                action.Clear();
+                action.AddRange(iterationsAssociatedWithModel.Select(x => new IterationRowViewModel(x)));
+            });
         }
     }
 }

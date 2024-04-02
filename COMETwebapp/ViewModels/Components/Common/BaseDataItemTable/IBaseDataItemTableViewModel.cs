@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IDeprecatableDataItemTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IBaseDataItemTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,18 +22,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
+namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 {
     using COMET.Web.Common.ViewModels.Components.Applications;
-
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
 
     using DynamicData;
 
     /// <summary>
     /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public interface IDeprecatableDataItemTableViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
+    public interface IBaseDataItemTableViewModel<T, TRow> : IApplicationBaseViewModel, IHaveReusableRows
     {
         /// <summary>
         /// A reactive collection of things
@@ -41,19 +39,9 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
         SourceList<TRow> Rows { get; }
 
         /// <summary>
-        /// Injected property to get access to <see cref="IShowHideDeprecatedThingsService" />
-        /// </summary>
-        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
-
-        /// <summary>
         /// Gets or sets the data source for the grid control.
         /// </summary>
         SourceList<T> DataSource { get; }
-
-        /// <summary>
-        /// Indicates if confirmation popup is visible
-        /// </summary>
-        bool IsOnDeprecationMode { get; set; }
 
         /// <summary>
         /// The thing to create or edit
@@ -61,36 +49,8 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem
         T Thing { get; set; }
 
         /// <summary>
-        /// Gets or sets the popup message dialog
-        /// </summary>
-        string PopupDialog { get; set; }
-
-        /// <summary>
-        /// Initializes the <see cref="DeprecatableDataItemTableViewModel{T,TRow}" />
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
         void InitializeViewModel();
-
-        /// <summary>
-        /// Method invoked when confirming the deprecation/un-deprecation of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task OnConfirmPopupButtonClick();
-
-        /// <summary>
-        /// Method invoked when canceling the deprecation/un-deprecation of the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
-        /// </summary>
-        void OnCancelPopupButtonClick();
-
-        /// <summary>
-        /// Action invoked when the deprecate or undeprecate button is clicked
-        /// </summary>
-        /// <param name="thingRow"> The thing to deprecate or undeprecate </param>
-        void OnDeprecateUnDeprecateButtonClick(TRow thingRow);
-
-        /// <summary>
-        /// Tries to deprecate or undeprecate the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task DeprecateOrUnDeprecateThing();
     }
 }

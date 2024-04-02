@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DirectoryPage.razor.cs" company="RHEA System S.A.">
+// <copyright file="IterationsTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,34 +22,33 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.SiteDirectory
+namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
-    using COMETwebapp.Components.SiteDirectory;
-    using COMETwebapp.Components.SiteDirectory.EngineeringModel;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-    using DevExpress.Blazor;
+    using COMETwebapp.Components.Common;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DomainsOfExpertiseTable = COMETwebapp.Components.SiteDirectory.DomainsOfExpertiseTable;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="DirectoryPage"/>
+    /// Support class for the <see cref="IterationsTable"/>
     /// </summary>
-    public partial class DirectoryPage
+    public partial class IterationsTable : SelectedDataItemBase<Iteration, IterationRowViewModel>
     {
         /// <summary>
-        /// The selected component type
+        /// The <see cref="IIterationsTableViewModel" /> for this component
         /// </summary>
-        private Type SelectedComponent { get; set; }
+        [Inject]
+        public IIterationsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// A map with all the available components and their names
+        /// Gets or sets the <see cref="EngineeringModelSetup"/>
         /// </summary>
-        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
-        {
-            {typeof(EngineeringModelsTable), "Models"},
-            {typeof(DomainsOfExpertiseTable), "Domains"},
-            {typeof(OrganizationsTable), "Organizations"},
-        };
+        [Parameter]
+        public EngineeringModelSetup EngineeringModelSetup { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -58,16 +57,17 @@ namespace COMETwebapp.Pages.SiteDirectory
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+            this.Initialize(this.ViewModel);
         }
 
         /// <summary>
-        /// Method invoked to set the selected component from toolbar
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
-        /// <param name="e"></param>
-        private void OnItemClick(ToolbarItemClickEventArgs e)
+        protected override void OnParametersSet()
         {
-            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+            base.OnParametersSet();
+            this.ViewModel.SetEngineeringModel(this.EngineeringModelSetup);
         }
     }
 }

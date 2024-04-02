@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DeprecatableDataItemRowViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="OrganizationalParticipantRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,48 +22,25 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.Common.Rows
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 {
-    using CDP4Common.CommonData;
+    using CDP4Common.SiteDirectoryData;
 
-    using ReactiveUI;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
     /// <summary>
-    /// Row View Model for a thing
+    /// Row View Model for <see cref="CDP4Common.SiteDirectoryData.OrganizationalParticipant" />s
     /// </summary>
-    public abstract class DeprecatableDataItemRowViewModel<T> : BaseDataItemRowViewModel<T> where T : Thing, IDeprecatableThing
+    public class OrganizationalParticipantRowViewModel : BaseDataItemRowViewModel<OrganizationalParticipant>
     {
         /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
+        /// Initializes a new instance of the <see cref="OrganizationalParticipantRowViewModel" /> class.
         /// </summary>
-        private bool isDeprecated;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeprecatableDataItemRowViewModel{T}" /> class.
-        /// </summary>
-        /// <param name="thing">The associated thing</param>
-        protected DeprecatableDataItemRowViewModel(T thing) : base(thing)
+        /// <param name="organizationalParticipant">The associated <see cref="OrganizationalParticipant" /></param>
+        public OrganizationalParticipantRowViewModel(OrganizationalParticipant organizationalParticipant) : base(organizationalParticipant)
         {
-            this.IsDeprecated = thing.IsDeprecated;
-        }
-
-        /// <summary>
-        /// Value indicating if the thing is deprecated
-        /// </summary>
-        public bool IsDeprecated
-        {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
-        }
-
-        /// <summary>
-        /// Update this row view model properties
-        /// </summary>
-        /// <param name="thingRow">The <see cref="DeprecatableDataItemRowViewModel{T}" /> to use for updating</param>
-        public void UpdateProperties(DeprecatableDataItemRowViewModel<T> thingRow)
-        {
-            base.UpdateProperties(thingRow);
-            this.IsDeprecated = thingRow.IsDeprecated;
+            this.Name = organizationalParticipant.Organization.Name;
+            this.ShortName = organizationalParticipant.Organization.ShortName;
         }
     }
 }

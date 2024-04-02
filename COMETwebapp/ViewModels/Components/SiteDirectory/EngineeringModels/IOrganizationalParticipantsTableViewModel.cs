@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IParameterTypeTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IOrganizationalParticipantsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,17 +22,32 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="ParameterType" />
+    /// View model used to manage <see cref="OrganizationalParticipant" />
     /// </summary>
-    public interface IParameterTypeTableViewModel : IDeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>
+    public interface IOrganizationalParticipantsTableViewModel : IDeletableDataItemTableViewModel<OrganizationalParticipant, OrganizationalParticipantRowViewModel>
     {
+        /// <summary>
+        /// Filters the current Rows, keeping only the organizational participants associated with the given engineering model
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        void SetEngineeringModel(EngineeringModelSetup model);
+
+        /// <summary>
+        /// Gets a collection of all the available <see cref="Organization"/>s
+        /// </summary>
+        IEnumerable<Organization> Organizations { get; }
+
+        /// <summary>
+        /// Gets or sets a collection of all the participating <see cref="Organization"/>s for the organizational participant creation
+        /// </summary>
+        IEnumerable<Organization> ParticipatingOrganizations { get; set; }
     }
 }

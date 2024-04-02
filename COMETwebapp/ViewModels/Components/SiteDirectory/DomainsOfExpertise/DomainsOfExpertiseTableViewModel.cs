@@ -32,7 +32,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 

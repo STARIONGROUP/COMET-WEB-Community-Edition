@@ -14,4 +14,19 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits SelectedDataItemBase
+@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
+@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.EngineeringModelData.Iteration, IterationRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            ShowAllRows="true"
+            SearchBoxNullText="Search for an iteration...">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(IterationRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(IterationRowViewModel.Number)" MinWidth="80" SearchEnabled="false" />
+        </Columns>
+    </DxGrid>
+</LoadingComponent>

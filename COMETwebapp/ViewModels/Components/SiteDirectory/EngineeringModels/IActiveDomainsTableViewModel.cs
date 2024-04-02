@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IParameterTypeTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IActiveDomainsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,17 +22,32 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="ParameterType" />
+    /// View model used to manage active <see cref="DomainOfExpertise" /> related to an engineering model
     /// </summary>
-    public interface IParameterTypeTableViewModel : IDeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>
+    public interface IActiveDomainsTableViewModel : IBaseDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
+        /// <summary>
+        /// Filters the current Rows, keeping only the Domains of Expertise associated with the given engineering model
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        void SetEngineeringModel(EngineeringModelSetup model);
+
+        /// <summary>
+        /// Gets a collection of all the available <see cref="DomainOfExpertise"/>s
+        /// </summary>
+        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
+
+        /// <summary>
+        /// Gets or sets a collection of all the selected active <see cref="DomainOfExpertise"/>s for the engineering model
+        /// </summary>
+        IEnumerable<DomainOfExpertise> SelectedDomainsOfExpertise { get; set; }
     }
 }

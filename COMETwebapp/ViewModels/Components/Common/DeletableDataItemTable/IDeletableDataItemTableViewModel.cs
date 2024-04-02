@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IMeasurementScalesTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IDeletableDataItemTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,31 +22,46 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
+namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 {
-    using CDP4Common.SiteDirectoryData;
-
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
 
     /// <summary>
-    /// View model used to manage <see cref="MeasurementScale" />s
+    /// View model that provides the basic functionalities for a reference data item
     /// </summary>
-    public interface IMeasurementScalesTableViewModel : IDeprecatableDataItemTableViewModel<MeasurementScale, MeasurementScaleRowViewModel>
+    public interface IDeletableDataItemTableViewModel<T, TRow> : IBaseDataItemTableViewModel<T, TRow>
     {
         /// <summary>
-        /// Gets the available <see cref="ReferenceDataLibrary" />s
+        /// Indicates if confirmation popup is visible
         /// </summary>
-        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; }
+        bool IsOnDeletionMode { get; set; }
 
         /// <summary>
-        /// Gets the available <see cref="MeasurementUnit" />s
+        /// Gets or sets the popup message dialog
         /// </summary>
-        IEnumerable<MeasurementUnit> MeasurementUnits { get; }
+        string PopupDialog { get; set; }
 
         /// <summary>
-        /// Gets the available <see cref="NumberSetKind" />s
+        /// Method invoked when confirming the deletion of the <see cref="DeletableDataItemTableViewModel{T,TRow}"/>
         /// </summary>
-        IEnumerable<NumberSetKind> NumberSetKinds { get; }
+        /// <returns>A <see cref="Task" /></returns>
+        Task OnConfirmPopupButtonClick();
+
+        /// <summary>
+        /// Method invoked when canceling the deletion of the <see cref="DeletableDataItemTableViewModel{T,TRow}"/>
+        /// </summary>
+        void OnCancelPopupButtonClick();
+
+        /// <summary>
+        /// Action invoked when the delete button is clicked
+        /// </summary>
+        /// <param name="thingRow"> The row to delete </param>
+        void OnDeleteButtonClick(TRow thingRow);
+
+        /// <summary>
+        /// Tries to delete the current thing
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task DeleteThing();
     }
 }

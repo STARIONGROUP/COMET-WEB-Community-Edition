@@ -31,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using MeasurementScale = CDP4Common.SiteDirectoryData.MeasurementScale;

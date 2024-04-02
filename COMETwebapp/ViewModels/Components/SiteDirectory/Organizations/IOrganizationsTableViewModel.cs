@@ -26,7 +26,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItem;
+    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>

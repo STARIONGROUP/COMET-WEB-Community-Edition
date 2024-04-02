@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IParameterTypeTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IIterationsTableViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,17 +22,23 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="ParameterType" />
+    /// View model used to list <see cref="Iteration" />s
     /// </summary>
-    public interface IParameterTypeTableViewModel : IDeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>
+    public interface IIterationsTableViewModel : IBaseDataItemTableViewModel<Iteration, IterationRowViewModel>
     {
+        /// <summary>
+        /// Sets the model and filters the current Rows, keeping only the iterations associated with the given engineering model
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its iterations</param>
+        void SetEngineeringModel(EngineeringModelSetup model);
     }
 }
