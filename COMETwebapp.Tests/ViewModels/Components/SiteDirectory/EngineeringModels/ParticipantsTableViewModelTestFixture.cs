@@ -79,7 +79,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.model = new EngineeringModelSetup()
             {
                 Name = "model",
-                ShortName = "model"
+                ShortName = "model",
+                ActiveDomain = { new DomainOfExpertise() }
             };
 
             this.model.Participant.Add(this.participant);
@@ -89,7 +90,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 ShortName = "siteDirectory",
                 Person = { new Person() },
                 ParticipantRole = { new ParticipantRole() },
-                Domain = { new DomainOfExpertise() }
             };
 
             siteDirectory.Model.Add(this.model);
