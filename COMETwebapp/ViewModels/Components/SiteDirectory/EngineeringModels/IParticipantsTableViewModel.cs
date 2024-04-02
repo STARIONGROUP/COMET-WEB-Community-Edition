@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 

@@ -34,7 +34,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="OrganizationalParticipant" />
+    /// View model used to manage active <see cref="DomainOfExpertise" /> related to an engineering model
     /// </summary>
     public class ActiveDomainsTableViewModel : BaseDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>, IActiveDomainsTableViewModel
     {
@@ -66,8 +66,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         {
             base.InitializeViewModel();
 
-            var siteDirectory = this.SessionService.GetSiteDirectory();
-            this.DomainsOfExpertise = siteDirectory.Domain;
+            this.DomainsOfExpertise = this.SessionService.GetSiteDirectory().Domain;
         }
 
         /// <summary>

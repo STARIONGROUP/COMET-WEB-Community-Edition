@@ -67,8 +67,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         {
             base.InitializeViewModel();
 
-            var siteDirectory = this.SessionService.GetSiteDirectory();
-            this.Organizations = siteDirectory.Organization;
+            this.Organizations = this.SessionService.GetSiteDirectory().Organization;
         }
 
         /// <summary>

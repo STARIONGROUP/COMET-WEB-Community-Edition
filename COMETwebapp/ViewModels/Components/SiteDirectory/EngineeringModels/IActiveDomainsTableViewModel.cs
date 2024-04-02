@@ -30,7 +30,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage active <see cref="DomainOfExpertise" />s of an engineering model
+    /// View model used to manage active <see cref="DomainOfExpertise" /> related to an engineering model
     /// </summary>
     public interface IActiveDomainsTableViewModel : IBaseDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
