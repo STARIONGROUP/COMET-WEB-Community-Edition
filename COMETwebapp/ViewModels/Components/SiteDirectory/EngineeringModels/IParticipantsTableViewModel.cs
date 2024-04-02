@@ -65,5 +65,17 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// </summary>
         /// <param name="participant">The <see cref="Participant"/> to select</param>
         void SelectThing(Participant participant);
+
+        /// <summary>
+        /// Creates or edits the current participant
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="Participant"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateOrEditParticipant(bool shouldCreate);
+
+        /// <summary>
+        /// Updates the current participant domains with the <see cref="ParticipantsTableViewModel.SelectedDomains"/>
+        /// </summary>
+        void UpdateSelectedDomains();
     }
 }

@@ -62,6 +62,11 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         private string AssignedDomainsPopupText { get; set; }
 
         /// <summary>
+        /// Gets the available persons. If the user is editing an existing participant, only the selected person should be retrieved
+        /// </summary>
+        private IEnumerable<Person> Persons => this.ShouldCreateThing ? this.ViewModel.Persons : [this.ViewModel.Thing.Person];
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -82,6 +87,15 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         }
 
         /// <summary>
+        /// Method that is invoked when the edit/add thing form is being saved
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEditThingSaving()
+        {
+            await this.ViewModel.CreateOrEditParticipant(this.ShouldCreateThing);
+        }
+
+        /// <summary>
         /// Method invoked when creating a new thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
@@ -99,8 +113,8 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
                 return;
             }
 
-            e.EditModel = dataItem;
             this.ViewModel.SelectThing(dataItem.Thing);
+            e.EditModel = this.ViewModel.Thing;
         }
 
         /// <summary>
@@ -111,6 +125,16 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             this.AssignedDomainsPopupText = text; 
             this.IsActiveDomainsDetailsOpen = true;
+        }
+
+        /// <summary>
+        /// Sets the selected values for the <see cref="Participant"/> creation and submits the form
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task SetSelectedValuesAndSubmit()
+        {
+            this.ViewModel.UpdateSelectedDomains();
+            await this.Grid.SaveChangesAsync();
         }
     }
 }

@@ -57,7 +57,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
         public ParticipantRowViewModel(Participant participant) : base(participant)
         {
             this.Name = participant.Person.Name;
-            this.Organization = participant.Person.Organization.Name;
+            this.Organization = participant.Person.Organization?.Name;
             this.Role = participant.Role.Name;
             this.AssignedDomains = string.Join(Separator, participant.Domain.Select(x => x.Name));
         }

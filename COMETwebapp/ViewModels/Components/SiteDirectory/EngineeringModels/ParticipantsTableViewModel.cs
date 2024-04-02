@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -40,6 +41,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public class ParticipantsTableViewModel : DeletableDataItemTableViewModel<Participant, ParticipantRowViewModel>, IParticipantsTableViewModel
     {
         /// <summary>
+        /// Gets or sets the current <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        private EngineeringModelSetup CurrentModel { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ParticipantsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -48,6 +54,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         public ParticipantsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<ParticipantsTableViewModel> logger) 
             : base(sessionService, messageBus, logger)
         {
+            this.Thing = new Participant();
         }
 
         /// <summary>
@@ -80,7 +87,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             var siteDirectory = this.SessionService.GetSiteDirectory();
             this.Persons = siteDirectory.Person;
             this.ParticipantRoles = siteDirectory.ParticipantRole;
-            this.DomainsOfExpertise = siteDirectory.Domain;
         }
 
         /// <summary>
@@ -89,7 +95,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
         public void SetEngineeringModel(EngineeringModelSetup model)
         {
-            var participantsAssociatedWithModel = this.DataSource.Items.Where(x => x.Container.Iid == model.Iid);
+            this.CurrentModel = model;
+            var participantsAssociatedWithModel = this.DataSource.Items.Where(x => x.Container.Iid == this.CurrentModel.Iid);
 
             this.Rows.Edit(action =>
             {
@@ -97,6 +104,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
                 action.AddRange(participantsAssociatedWithModel.Select(x => new ParticipantRowViewModel(x)));
             });
 
+            this.DomainsOfExpertise = this.CurrentModel.ActiveDomain;
             this.RefreshAccessRight();
         }
 
@@ -106,8 +114,51 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="participant">The <see cref="Participant"/> to select</param>
         public void SelectThing(Participant participant)
         {
-            this.Thing = participant.Clone(true);
+            this.Thing = participant.Clone(false);
             this.SelectedDomains = this.Thing.Domain;
+        }
+
+        /// <summary>
+        /// Updates the current participant domains with the <see cref="SelectedDomains"/>
+        /// </summary>
+        public void UpdateSelectedDomains()
+        {
+            this.Thing.Domain = this.SelectedDomains.ToList();
+        }
+
+        /// <summary>
+        /// Creates or edits the current participant
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="Participant"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateOrEditParticipant(bool shouldCreate)
+        {
+            this.IsLoading = true;
+
+            try
+            {
+                var modelClone = this.CurrentModel.Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                this.UpdateSelectedDomains();
+                this.Thing.SelectedDomain = this.SelectedDomains.FirstOrDefault();
+
+                if (shouldCreate)
+                {
+                    modelClone.Participant.Add(this.Thing);
+                    thingsToCreate.Add(modelClone);
+                }
+
+                thingsToCreate.Add(this.Thing);
+                await this.SessionService.UpdateThings(modelClone, thingsToCreate);
+                await this.SessionService.RefreshSession();
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "An error has occurred while creating or editing the model participants");
+            }
+
+            this.IsLoading = false;
         }
     }
 }
