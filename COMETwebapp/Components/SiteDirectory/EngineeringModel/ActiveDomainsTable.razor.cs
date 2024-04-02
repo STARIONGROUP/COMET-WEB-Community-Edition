@@ -52,7 +52,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <summary>
         /// Gets or sets the condition to check if the edit popup is visible
         /// </summary>
-        private bool IsEditPopupVisible { get; set; }
+        public bool IsEditPopupVisible { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -72,6 +72,15 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.OnParametersSet();
             this.ViewModel.SetEngineeringModel(this.EngineeringModelSetup);
+        }
+
+        /// <summary>
+        /// Sets the edit active domains popup visibility
+        /// </summary>
+        /// <param name="visible">The visibility of the popup</param>
+        private void SetEditPopupVisibility(bool visible)
+        {
+            this.IsEditPopupVisible = visible;
         }
     }
 }

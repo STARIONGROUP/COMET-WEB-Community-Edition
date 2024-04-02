@@ -46,6 +46,11 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public IEngineeringModelsTableViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the value to check if a model has been selected
+        /// </summary>
+        public bool IsModelSelected { get; private set; }
+
+        /// <summary>
         /// The selected component type
         /// </summary>
         private Type SelectedComponent { get; set; }
@@ -54,11 +59,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
         /// </summary>
         private readonly Dictionary<string, object> parameters = [];
-
-        /// <summary>
-        /// Gets or sets the value to check if a model has been selected
-        /// </summary>
-        private bool IsModelSelected { get; set; }
 
         /// <summary>
         /// A map with all the available components and their names

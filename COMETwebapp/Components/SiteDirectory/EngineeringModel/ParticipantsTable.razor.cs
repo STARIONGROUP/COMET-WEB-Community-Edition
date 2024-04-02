@@ -54,7 +54,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <summary>
         /// Gets or sets the condition to check if the active domains details popup is open
         /// </summary>
-        private bool IsActiveDomainsDetailsOpen { get; set; }
+        public bool IsActiveDomainsDetailsOpen { get; private set; }
 
         /// <summary>
         /// Gets or sets the active domains details text

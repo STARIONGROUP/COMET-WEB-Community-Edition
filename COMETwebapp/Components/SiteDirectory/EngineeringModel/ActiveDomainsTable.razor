@@ -29,7 +29,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <ToolbarTemplate>
             <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
                 <DxToolbarItem Text="Edit Active Domains" 
-                               Click="(() => this.IsEditPopupVisible = true)" 
+                               Click="(() => this.SetEditPopupVisibility(true))" 
                                RenderStyle="ButtonRenderStyle.Info"
                                Enabled="true" />
             </DxToolbar>
@@ -59,8 +59,12 @@ Copyright (c) 2023-2024 RHEA System S.A.
                    CssClass="cw-480 active-domains-listbox" />
 
         <div class="dxbl-grid-edit-form-buttons">
-            <DxButton SubmitFormOnClick="true">Save</DxButton>
-            <DxButton Click="(() => this.IsEditPopupVisible = false)"
+            <DxButton Id="saveActiveDomainsButton"
+                      SubmitFormOnClick="true">
+                Save
+            </DxButton>
+            <DxButton Id="cancelActiveDomainsButton" 
+                      Click="(() => this.SetEditPopupVisibility(false))"
                       RenderStyle="ButtonRenderStyle.Secondary">
                 Cancel
             </DxButton>
