@@ -24,9 +24,6 @@
 
 namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.EngineeringModelData;

@@ -91,21 +91,5 @@ namespace COMETwebapp.Extensions
         {
             return $"{pageName}-body".ToLower();
         }
-
-        /// <summary>
-        /// Takes the first <see cref="numberOfCharacters"/> characters from a string
-        /// </summary>
-        /// <param name="input">The string to take characters of</param>
-        /// <param name="numberOfCharacters">The number of characters to take</param>
-        /// <returns>A string containing the characters taken</returns>
-        public static string TakeString(this string input, int numberOfCharacters)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return input;
-            }
-
-            return input.Length <= numberOfCharacters ? input : input[..numberOfCharacters];
-        }
     }
 }
