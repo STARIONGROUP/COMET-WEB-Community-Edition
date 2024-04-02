@@ -177,5 +177,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 Assert.That(this.viewModel.SelectedDomainsOfExpertise.ToList(), Has.Count.EqualTo(1));
             });
         }
+
+        [Test]
+        public async Task VerifyActiveDomainsEdit()
+        {
+            this.viewModel.InitializeViewModel();
+            this.viewModel.SetEngineeringModel(this.model);
+
+            await this.viewModel.EditActiveDomains();
+            this.sessionService.Verify(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<EngineeringModelSetup>()), Times.Never);
+
+            this.viewModel.SelectedDomainsOfExpertise = [this.domain, this.domain.Clone(true)];
+            await this.viewModel.EditActiveDomains();
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<EngineeringModelSetup>()), Times.Once);
+                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+            });
+
+            this.sessionService.Setup(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<EngineeringModelSetup>())).Throws(new Exception());
+            await this.viewModel.EditActiveDomains();
+            this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+        }
     }
 }

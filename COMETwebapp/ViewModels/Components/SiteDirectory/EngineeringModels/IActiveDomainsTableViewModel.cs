@@ -49,5 +49,16 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// Gets or sets a collection of all the selected active <see cref="DomainOfExpertise"/>s for the engineering model
         /// </summary>
         IEnumerable<DomainOfExpertise> SelectedDomainsOfExpertise { get; set; }
+
+        /// <summary>
+        /// Edit the active domains related with the <see cref="ActiveDomainsTableViewModel.CurrentModel"/>, using the <see cref="ActiveDomainsTableViewModel.SelectedDomainsOfExpertise"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        Task EditActiveDomains();
+
+        /// <summary>
+        /// Resets the <see cref="ActiveDomainsTableViewModel.SelectedDomainsOfExpertise"/> value based on the <see cref="ActiveDomainsTableViewModel.CurrentModel"/>
+        /// </summary>
+        void ResetSelectedDomainsOfExpertise();
     }
 }

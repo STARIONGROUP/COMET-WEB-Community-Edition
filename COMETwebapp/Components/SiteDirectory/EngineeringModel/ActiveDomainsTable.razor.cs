@@ -82,5 +82,24 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             this.IsEditPopupVisible = visible;
         }
+
+        /// <summary>
+        /// Saves the active domains changes
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task SaveChanges()
+        {
+            await this.ViewModel.EditActiveDomains();
+            this.SetEditPopupVisibility(false);
+        }
+
+        /// <summary>
+        /// Cancels the active domains changes
+        /// </summary>
+        private void CancelChanges()
+        {
+            this.ViewModel.ResetSelectedDomainsOfExpertise();
+            this.SetEditPopupVisibility(false);
+        }
     }
 }

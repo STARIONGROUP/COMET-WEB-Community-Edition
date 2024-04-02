@@ -39,6 +39,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public class ActiveDomainsTableViewModel : BaseDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>, IActiveDomainsTableViewModel
     {
         /// <summary>
+        /// Gets or sets the current <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        private EngineeringModelSetup CurrentModel { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActiveDomainsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -75,7 +80,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>
         public void SetEngineeringModel(EngineeringModelSetup model)
         {
-            var domainsAssociatedWithModel = this.DataSource.Items.Where(x => model.ActiveDomain.Contains(x));
+            this.CurrentModel = model;
+            var domainsAssociatedWithModel = this.DataSource.Items.Where(x => this.CurrentModel.ActiveDomain.Contains(x));
 
             this.Rows.Edit(action =>
             {
@@ -84,7 +90,44 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             });
 
             this.RefreshAccessRight();
-            this.SelectedDomainsOfExpertise = model.ActiveDomain;
+            this.ResetSelectedDomainsOfExpertise();
+        }
+
+        /// <summary>
+        /// Resets the <see cref="SelectedDomainsOfExpertise"/> value based on the <see cref="CurrentModel"/>
+        /// </summary>
+        public void ResetSelectedDomainsOfExpertise()
+        {
+            this.SelectedDomainsOfExpertise = this.CurrentModel.ActiveDomain;
+        }
+
+        /// <summary>
+        /// Edit the active domains related with the <see cref="CurrentModel"/>, using the <see cref="SelectedDomainsOfExpertise"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task EditActiveDomains()
+        {
+            if (this.CurrentModel.ActiveDomain.SequenceEqual(this.SelectedDomainsOfExpertise))
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+
+            try
+            {
+                var modelClone = this.CurrentModel.Clone(false);
+                modelClone.ActiveDomain = this.SelectedDomainsOfExpertise.ToList();
+
+                await this.SessionService.UpdateThing(modelClone.Container.Clone(false), modelClone);
+                await this.SessionService.RefreshSession();
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "An error has occurred while saving the active domains");
+            }
+
+            this.IsLoading = false;
         }
     }
 }

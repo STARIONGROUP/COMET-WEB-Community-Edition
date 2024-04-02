@@ -48,7 +48,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
     
     <DxPopup @bind-Visible="@this.IsEditPopupVisible"
              HeaderText="Active Domains">
-        
+
         <DxListBox TValue="DomainOfExpertise"
                    TData="DomainOfExpertise"
                    Data="@this.ViewModel.DomainsOfExpertise"
@@ -56,15 +56,16 @@ Copyright (c) 2023-2024 RHEA System S.A.
                    SelectionMode="ListBoxSelectionMode.Multiple"
                    ShowCheckboxes="true"
                    @bind-Values="@this.ViewModel.SelectedDomainsOfExpertise"
-                   CssClass="cw-480 active-domains-listbox" />
+                   CssClass="cw-480"
+                   style="height: 40vh;"/>
 
         <div class="dxbl-grid-edit-form-buttons">
             <DxButton Id="saveActiveDomainsButton"
-                      SubmitFormOnClick="true">
+                      Click="@(this.SaveChanges)">
                 Save
             </DxButton>
             <DxButton Id="cancelActiveDomainsButton" 
-                      Click="(() => this.SetEditPopupVisibility(false))"
+                      Click="@(this.CancelChanges)"
                       RenderStyle="ButtonRenderStyle.Secondary">
                 Cancel
             </DxButton>
