@@ -53,6 +53,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         private Mock<ILogger<EngineeringModelsTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private EngineeringModelSetup engineeringModel;
+        private SiteDirectory siteDirectory;
 
         [SetUp]
         public void Setup()
@@ -68,12 +69,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 Name = "model 1",
             };
 
-            var siteDirectory = new SiteDirectory()
+            this.siteDirectory = new SiteDirectory()
             {
-                ShortName = "siteDirectory"
+                ShortName = "siteDirectory",
+                SiteReferenceDataLibrary = { new SiteReferenceDataLibrary() },
+                Domain = { new DomainOfExpertise() },
+                Organization = { new Organization() }
             };
 
-            siteDirectory.Model.Add(this.engineeringModel);
+            this.siteDirectory.Model.Add(this.engineeringModel);
 
             this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
             var lazyModel = new Lazy<Thing>(this.engineeringModel);
@@ -83,9 +87,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.Assembler).Returns(this.assembler);
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
 
             this.viewModel = new EngineeringModelsTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -106,6 +110,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
                 Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.engineeringModel));
+                Assert.That(this.viewModel.DomainsOfExpertise, Is.EqualTo(this.siteDirectory.Domain));
+                Assert.That(this.viewModel.EngineeringModels, Is.EqualTo(this.siteDirectory.Model));
+                Assert.That(this.viewModel.Organizations, Is.EqualTo(this.siteDirectory.Organization));
+                Assert.That(this.viewModel.SiteRdls, Is.EqualTo(this.siteDirectory.SiteReferenceDataLibrary));
+                Assert.That(this.viewModel.ModelKinds, Is.Not.Empty);
+                Assert.That(this.viewModel.StudyPhases, Is.Not.Empty);
             });
         }
 
@@ -133,15 +143,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            var siteDirectory = new SiteDirectory()
-            {
-                ShortName = "newShortname"
-            };
-
             var engineeringModelTest = new EngineeringModelSetup()
             {
                 Iid = Guid.NewGuid(),
-                Container = siteDirectory,
+                Container = this.siteDirectory,
             };
 
             this.messageBus.SendObjectChangeEvent(engineeringModelTest, EventKind.Added);
@@ -155,13 +160,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            this.messageBus.SendObjectChangeEvent(siteDirectory, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.siteDirectory, EventKind.Updated);
             this.messageBus.SendObjectChangeEvent(new PersonRole(), EventKind.Updated);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteDirectory.ShortName));
+                Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(this.siteDirectory.ShortName));
                 this.permissionService.Verify(x => x.CanWrite(engineeringModelTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
@@ -199,15 +204,33 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         }
 
         [Test]
-        public async Task VerifyModelCreateOrEdit()
+        public async Task VerifyModelCreation()
         {
             this.viewModel.InitializeViewModel();
 
-            await this.viewModel.CreateOrEditEngineeringModel(false);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+            var testOrganization = this.siteDirectory.Organization.First();
+            this.viewModel.SelectedOrganizations = [testOrganization];
+            this.viewModel.SelectedModelAdminOrganization = testOrganization;
 
-            await this.viewModel.CreateOrEditEngineeringModel(true);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2)), Times.Once);
+            this.viewModel.SelectedActiveDomains = [this.siteDirectory.Domain.First()];
+            this.viewModel.SelectedSiteRdl = this.siteDirectory.SiteReferenceDataLibrary.First();
+            this.viewModel.SelectedSourceModel = this.siteDirectory.Model.First();
+
+            this.viewModel.SetupEngineeringModelWithSelectedValues();
+            await this.viewModel.CreateEngineeringModel();
+
+            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
+
+            this.viewModel.ResetSelectedValues();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedActiveDomains, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.SelectedOrganizations, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.SelectedModelAdminOrganization, Is.Null);
+                Assert.That(this.viewModel.SelectedSiteRdl, Is.Null);
+                Assert.That(this.viewModel.SelectedSourceModel, Is.Null);
+            });
         }
     }
 }

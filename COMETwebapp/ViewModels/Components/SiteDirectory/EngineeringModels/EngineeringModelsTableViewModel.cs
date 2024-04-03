@@ -31,9 +31,12 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
+
+    using ReactiveUI;
 
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />
@@ -53,24 +56,147 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         }
 
         /// <summary>
-        /// Creates or edits a <see cref="EngineeringModelSetup"/>
+        /// Gets a collection of the available engineering models
         /// </summary>
-        /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
-        /// <returns>A <see cref="Task"/></returns>
-        public async Task CreateOrEditEngineeringModel(bool shouldCreate)
-        {
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var thingsToCreate = new List<Thing>();
+        public IEnumerable<EngineeringModelSetup> EngineeringModels { get; private set; }
 
-            if (shouldCreate)
+        /// <summary>
+        /// Gets a collection of all the possible model kinds
+        /// </summary>
+        public IEnumerable<EngineeringModelKind> ModelKinds { get; private set; } = Enum.GetValues<EngineeringModelKind>();
+
+        /// <summary>
+        /// Gets a collection of all the possible study phase kinds
+        /// </summary>
+        public IEnumerable<StudyPhaseKind> StudyPhases { get; private set; } = Enum.GetValues<StudyPhaseKind>();
+
+        /// <summary>
+        /// Gets a collection of the available site reference data libraries
+        /// </summary>
+        public IEnumerable<SiteReferenceDataLibrary> SiteRdls { get; private set; }
+
+        /// <summary>
+        /// Gets a collection of the available domains of expertise
+        /// </summary>
+        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
+
+        /// <summary>
+        /// Gets a collection of the available organizations
+        /// </summary>
+        public IEnumerable<Organization> Organizations { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the selected site reference data library
+        /// </summary>
+        public SiteReferenceDataLibrary SelectedSiteRdl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the collection of selected active domains
+        /// </summary>
+        public IEnumerable<DomainOfExpertise> SelectedActiveDomains { get; set; } = Enumerable.Empty<DomainOfExpertise>();
+
+        /// <summary>
+        /// Gets or sets the collection of selected organizations
+        /// </summary>
+        public IEnumerable<Organization> SelectedOrganizations { get; set; } = Enumerable.Empty<Organization>();
+
+        /// <summary>
+        /// Gets or sets the selected model admin organization
+        /// </summary>
+        public Organization SelectedModelAdminOrganization { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected source <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        public EngineeringModelSetup SelectedSourceModel { get; set; }
+
+        /// <summary>
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
+        /// </summary>
+        public override void InitializeViewModel()
+        {
+            base.InitializeViewModel();
+
+            var siteDirectory = this.SessionService.GetSiteDirectory();
+            this.EngineeringModels = siteDirectory.Model.OrderBy(x => x.Name);
+            this.SiteRdls = siteDirectory.SiteReferenceDataLibrary.OrderBy(x => x.Name);
+            this.DomainsOfExpertise = siteDirectory.Domain.OrderBy(x => x.Name);
+            this.Organizations = siteDirectory.Organization.OrderBy(x => x.Name);
+        }
+
+        /// <summary>
+        /// Resets the selected values
+        /// </summary>
+        public void ResetSelectedValues()
+        {
+            this.SelectedActiveDomains = Enumerable.Empty<DomainOfExpertise>();
+            this.SelectedOrganizations = Enumerable.Empty<Organization>();
+            this.SelectedModelAdminOrganization = null;
+            this.SelectedSiteRdl = null;
+            this.SelectedSourceModel = null;
+        }
+
+        /// <summary>
+        /// Updates the current thing with the selected properties
+        /// </summary>
+        public void SetupEngineeringModelWithSelectedValues()
+        {
+            this.Thing.ActiveDomain = this.SelectedActiveDomains?.ToList();
+            this.Thing.SourceEngineeringModelSetupIid = this.SelectedSourceModel?.Iid;
+            this.Thing.OrganizationalParticipant.Clear();
+            this.Thing.RequiredRdl.Clear();
+
+            if (this.SelectedOrganizations != null)
             {
-                siteDirectoryClone.Model.Add(this.Thing);
-                thingsToCreate.Add(siteDirectoryClone);
+                this.Thing.OrganizationalParticipant.AddRange(this.SelectedOrganizations.Select(org => new OrganizationalParticipant()
+                {
+                    Organization = org
+                }));
+
+                this.Thing.DefaultOrganizationalParticipant = this.Thing.OrganizationalParticipant.FirstOrDefault(x => x.Organization == this.SelectedModelAdminOrganization);
             }
 
+            if (this.SelectedSiteRdl != null)
+            {
+                this.Thing.RequiredRdl.Add(new ModelReferenceDataLibrary()
+                {
+                    RequiredRdl = this.SelectedSiteRdl,
+                    Name = $"{this.Thing.Name} Model RDL",
+                    ShortName = $"{this.Thing.ShortName}MRDL"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateEngineeringModel()
+        {
+            this.IsLoading = true;
+
+            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+            var thingsToCreate = new List<Thing>();
+            this.Thing.EngineeringModelIid = Guid.NewGuid();
+
+            if (this.Thing.OrganizationalParticipant.Count > 0)
+            {
+                thingsToCreate.AddRange(this.Thing.OrganizationalParticipant);
+            }
+
+            if (this.Thing.RequiredRdl.Count > 0)
+            {
+                thingsToCreate.AddRange(this.Thing.RequiredRdl);
+            }
+            
+            siteDirectoryClone.Model.Add(this.Thing);
+            thingsToCreate.Add(siteDirectoryClone);
             thingsToCreate.Add(this.Thing);
+
             await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
             await this.SessionService.RefreshSession();
+
+            this.IsLoading = false;
         }
     }
 }

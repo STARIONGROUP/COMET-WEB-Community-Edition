@@ -35,10 +35,74 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public interface IEngineeringModelsTableViewModel : IDeletableDataItemTableViewModel<EngineeringModelSetup, EngineeringModelRowViewModel>
     {
         /// <summary>
-        /// Creates or edits a <see cref="EngineeringModelSetup"/>
+        /// Gets a collection of the available engineering models
         /// </summary>
-        /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
+        IEnumerable<EngineeringModelSetup> EngineeringModels { get; }
+
+        /// <summary>
+        /// Gets a collection of all the possible model kinds
+        /// </summary>
+        IEnumerable<EngineeringModelKind> ModelKinds { get; }
+
+        /// <summary>
+        /// Gets a collection of all the possible study phase kinds
+        /// </summary>
+        IEnumerable<StudyPhaseKind> StudyPhases { get; }
+
+        /// <summary>
+        /// Gets a collection of the available site reference data libraries
+        /// </summary>
+        IEnumerable<SiteReferenceDataLibrary> SiteRdls { get; }
+
+        /// <summary>
+        /// Gets a collection of the available domains of expertise
+        /// </summary>
+        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
+
+        /// <summary>
+        /// Gets a collection of the available organizations
+        /// </summary>
+        IEnumerable<Organization> Organizations { get; }
+
+        /// <summary>
+        /// Gets or sets the collection of selected organizations
+        /// </summary>
+        IEnumerable<Organization> SelectedOrganizations { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected model admin organization
+        /// </summary>
+        Organization SelectedModelAdminOrganization { get; set; }
+
+        /// <summary>
+        /// Gets or sets the collection of selected active domains
+        /// </summary>
+        IEnumerable<DomainOfExpertise> SelectedActiveDomains { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected site reference data library
+        /// </summary>
+        SiteReferenceDataLibrary SelectedSiteRdl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected source <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        EngineeringModelSetup SelectedSourceModel { get; set; }
+
+        /// <summary>
+        /// Updates the current thing with the selected properties
+        /// </summary>
+        void SetupEngineeringModelWithSelectedValues();
+
+        /// <summary>
+        /// Creates a new <see cref="EngineeringModelSetup"/>
+        /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        Task CreateOrEditEngineeringModel(bool shouldCreate);
+        Task CreateEngineeringModel();
+
+        /// <summary>
+        /// Resets the current <see cref="EngineeringModelSetup"/> values
+        /// </summary>
+        void ResetSelectedValues();
     }
 }
