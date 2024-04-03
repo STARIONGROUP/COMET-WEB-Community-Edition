@@ -16,7 +16,6 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 @using CDP4Common.SiteDirectoryData
-@using COMETwebapp.Extensions
 @inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.Participant, ParticipantRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
@@ -30,7 +29,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
             PopupEditFormHeaderText="Participant (UNDER DEV)"
             CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(() => this.OnEditThingSaving())">
+            EditModelSaving="@(() => this.OnEditThingSaving())"
+            EditFormButtonsVisible="false">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Organization)" MinWidth="80" SearchEnabled="false" />
@@ -68,7 +68,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <EditFormTemplate Context="EditFormContext">
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Person:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.Persons"
+                    <DxComboBox Data="@this.Persons"
                                 TextFieldName="@nameof(Person.Name)"
                                 @bind-Value="@this.ViewModel.Thing.Person"
                                 CssClass="cw-480"/>
@@ -95,8 +95,21 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsActive" />
                 </DxFormLayoutItem>
+
             </DxFormLayout>
+            <div class="pt-3"></div>
             <ValidationSummary/>
+            <div class="dxbl-grid-edit-form-buttons">
+                <DxButton Id="saveParticipantsButton" 
+                          Click="@this.SetSelectedValuesAndSubmit">
+                    Save
+                </DxButton>
+                <DxButton Id="cancelParticipantsButton" 
+                          Click="this.Grid.CancelEditAsync"
+                          RenderStyle="ButtonRenderStyle.Secondary">
+                    Cancel
+                </DxButton>
+            </div>
         </EditFormTemplate>
         
         <CustomValidators>

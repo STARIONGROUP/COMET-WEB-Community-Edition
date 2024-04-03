@@ -79,7 +79,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.model = new EngineeringModelSetup()
             {
                 Name = "model",
-                ShortName = "model"
+                ShortName = "model",
+                ActiveDomain = { new DomainOfExpertise() }
             };
 
             this.model.Participant.Add(this.participant);
@@ -89,7 +90,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 ShortName = "siteDirectory",
                 Person = { new Person() },
                 ParticipantRole = { new ParticipantRole() },
-                Domain = { new DomainOfExpertise() }
             };
 
             siteDirectory.Model.Add(this.model);
@@ -127,7 +127,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.participant));
                 Assert.That(this.viewModel.Persons, Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.ParticipantRoles, Has.Count.EqualTo(1));
-                Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.DomainsOfExpertise, Is.Null);
                 Assert.That(this.viewModel.SelectedDomains, Is.Null);
             });
         }
@@ -225,6 +225,34 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             {
                 Assert.That(this.viewModel.Thing.Iid, Is.EqualTo(this.participant.Iid));
                 Assert.That(this.viewModel.SelectedDomains, Is.EqualTo(this.participant.Domain));
+                Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public async Task VerifyParticipantsActions()
+        {
+            this.viewModel.InitializeViewModel();
+            this.viewModel.SetEngineeringModel(this.model);
+
+            await this.viewModel.CreateOrEditParticipant(false);
+            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IEnumerable<Thing>>()), Times.Never);
+
+            this.viewModel.SelectedDomains = [this.participant.Domain.First(), this.participant.Domain.First().Clone(true)];
+            await this.viewModel.CreateOrEditParticipant(false);
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.UpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IEnumerable<Thing>>(c => c.Count() == 1)), Times.Once);
+                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+            });
+
+            await this.viewModel.CreateOrEditParticipant(true);
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.UpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IEnumerable<Thing>>(c => c.Count() == 2)), Times.Once);
+                this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
             });
         }
     }

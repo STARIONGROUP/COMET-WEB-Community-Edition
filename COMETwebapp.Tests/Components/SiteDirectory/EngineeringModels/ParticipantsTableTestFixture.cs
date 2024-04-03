@@ -165,8 +165,9 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Participant)));
             });
 
-            var form = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            var saveParticipantsButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveParticipantsButton");
+            await this.renderer.InvokeAsync(saveParticipantsButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditParticipant(It.IsAny<bool>()), Times.Once);
         }
     }
 }
