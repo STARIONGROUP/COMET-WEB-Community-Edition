@@ -50,7 +50,7 @@ namespace COMETwebapp.Pages.SiteDirectory
             {typeof(EngineeringModelsTable), "Models"},
             {typeof(DomainsOfExpertiseTable), "Domains"},
             {typeof(OrganizationsTable), "Organizations"},
-            {typeof(ParticipantRolesTable), "Roles"},
+            {typeof(RolesTables), "Roles"},
         };
 
         /// <summary>

@@ -16,30 +16,49 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 
-<DxFormLayout CssClass="w-100 overflow-auto max-height-50vh">
-    <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-        <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-        <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
-    </DxFormLayoutItem>
-
-    @foreach (var permission in this.ViewModel.Thing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
-    {
-        <DxFormLayoutItem Caption="@(permission.ObjectClass.ToString())"
-                          ColSpanMd="12">
-            <DxComboBox Data="@this.ViewModel.ParticipantAccessKinds"
-                        @bind-Value="@permission.AccessRight"
-                        CssClass="cw-480"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+    <FluentValidationValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
+            <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
         </DxFormLayoutItem>
-    }
-</DxFormLayout>
+        <DxFormLayoutItem Caption="Name:" ColSpanMd="12">
+            <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
+        </DxFormLayoutItem>
 
-<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @(this.ViewModel.PopupDialog)
-    <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
+        <DxFormLayoutGroup Caption="Permissions"
+                           CssClass="overflow-auto max-height-50vh pb-3">
+
+            @foreach (var permission in this.ViewModel.Thing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
+            {
+                <DxFormLayoutItem Caption="@(permission.ObjectClass.ToString())"
+                                  ColSpanMd="12">
+                    <DxComboBox Data="@this.ViewModel.ParticipantAccessKinds"
+                                @bind-Value="@permission.AccessRight"
+                                CssClass="cw-480"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+                </DxFormLayoutItem>
+            }
+
+        </DxFormLayoutGroup>
+
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary/>
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton SubmitFormOnClick="true">
+            Save
+        </DxButton>
+        @if (this.OnCancel != null)
+        {
+            <DxButton Click="this.OnCancel"
+                      RenderStyle="ButtonRenderStyle.Secondary">
+                Cancel
+            </DxButton>
+        }
     </div>
-</DxPopup>
+
+</EditForm>

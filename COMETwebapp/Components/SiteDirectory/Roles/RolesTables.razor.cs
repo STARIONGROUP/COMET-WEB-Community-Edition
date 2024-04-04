@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParticipantRoleDetails.razor.cs" company="RHEA System S.A.">
+// <copyright file="RolesTables.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,49 +24,57 @@
 
 namespace COMETwebapp.Components.SiteDirectory.Roles
 {
-    using System.ComponentModel.DataAnnotations;
+    using CDP4Common.CommonData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
+
+    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ParticipantRoleDetails"/>
+    /// Support class for the <see cref="RolesTables"/>
     /// </summary>
-    public partial class ParticipantRoleDetails : DisposableComponent
+    public partial class RolesTables : DisposableComponent
     {
         /// <summary>
         /// The <see cref="IParticipantRolesTableViewModel" /> for this component
         /// </summary>
-        [Parameter, Required]
-        public IParticipantRolesTableViewModel ViewModel { get; set; }
+        [Inject]
+        public IParticipantRolesTableViewModel ParticipantRolesViewModel { get; set; }
 
         /// <summary>
-        /// Method that is executed when the current edit form is submitted
+        /// The selected component type
         /// </summary>
-        [Parameter]
-        public Action OnSubmit { get; set; }
+        private Type SelectedComponent { get; set; }
 
         /// <summary>
-        /// Method that is executed when the current edit form is canceled
+        /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
         /// </summary>
-        [Parameter]
-        public Action OnCancel { get; set; }
+        private readonly Dictionary<string, object> parameters = [];
 
         /// <summary>
-        /// Method that executes the default creation method in case the property <see cref="OnSubmit"/> is not set
+        /// A map with all the available detail components and their names
         /// </summary>
-        private async Task OnValidSubmit()
+        private Dictionary<Type, (Type, object)> mapOfRolesAndDetailsData => new()
         {
-            if (this.OnSubmit != null)
-            {
-                this.OnSubmit.Invoke();
-                return;
-            }
+            {typeof(ParticipantRole), (typeof(ParticipantRoleDetails), this.ParticipantRolesViewModel)},
+        };
 
-            await this.ViewModel.CreateOrEditParticipantRole(false);
+        /// <summary>
+        /// Method that is executed everytime a role is selected
+        /// </summary>
+        /// <param name="role"></param>
+        private void OnRoleSelected(Thing role)
+        {
+            var tupleOfDetailsData = this.mapOfRolesAndDetailsData.FirstOrDefault(x => x.Key == role.GetType()).Value;
+
+            this.parameters["ViewModel"] = tupleOfDetailsData.Item2;
+            this.SelectedComponent = tupleOfDetailsData.Item1;
         }
     }
 }

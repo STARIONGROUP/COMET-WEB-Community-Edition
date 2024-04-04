@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.SiteDirectory.Roles
 {
+    using System.ComponentModel.DataAnnotations;
+
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
@@ -42,8 +44,14 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// <summary>
         /// The <see cref="IParticipantRolesTableViewModel" /> for this component
         /// </summary>
-        [Inject]
+        [Parameter, Required]
         public IParticipantRolesTableViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// The callback for when a participant role is selected
+        /// </summary>
+        [Parameter]
+        public EventCallback<ParticipantRole> OnRoleSelected { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -82,7 +90,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
                 return;
             }
 
-            this.ViewModel.Thing = dataItem.Thing.Clone(false);
+            this.ViewModel.Thing = dataItem.Thing.Clone(true);
             e.EditModel = this.ViewModel.Thing;
         }
 
@@ -90,18 +98,10 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// Metgid invoked everytime a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(ParticipantRoleRowViewModel row)
+        private async Task OnSelectedDataItemChanged(ParticipantRoleRowViewModel row)
         {
-            // do something
-        }
-
-        /// <summary>
-        /// Sets the selected values for the <see cref="Participant"/> creation and submits the form
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task SetSelectedValuesAndSubmit()
-        {
-            await this.Grid.SaveChangesAsync();
+            this.ViewModel.Thing = row.Thing.Clone(true);
+            await this.OnRoleSelected.InvokeAsync(row.Thing);
         }
     }
 }

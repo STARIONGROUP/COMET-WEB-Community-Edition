@@ -17,20 +17,20 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits SelectedDeprecatableDataItemBase<ParticipantRole, ParticipantRoleRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div style="display: flex; justify-content: space-between;">
         <DxGrid @ref="this.Grid"
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                 ShowSearchBox="true"
                 SearchBoxNullText="Search for a participant role..."
                 AllowSelectRowByClick="true"
-                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
+                SelectedDataItemChanged="@(async row => await this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
                 PopupEditFormCssClass="pw-800"
                 PopupEditFormHeaderText="Participant Role"
                 CustomizeElement="DisableDeprecatedThing"
                 CustomizeEditModel="this.CustomizeEditThing"
                 EditMode="GridEditMode.PopupEditForm"
                 EditModelSaving="@(() => this.OnEditThingSaving())"
+                EditFormButtonsVisible="false"
                 PageSize="20"
                 PagerNavigationMode="PagerNavigationMode.Auto"
                 PageSizeSelectorVisible="true"
@@ -49,34 +49,9 @@ Copyright (c) 2023-2024 RHEA System S.A.
             </Columns>
 
             <EditFormTemplate Context="EditFormContext">
-                <DxFormLayout CssClass="w-100">                    
-                    <DxFormLayoutTabPages>
-
-                        <DxFormLayoutTabPage Caption="Basic">
-                            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
-                            </DxFormLayoutItem>
-                        </DxFormLayoutTabPage>
-
-                        <DxFormLayoutTabPage Caption="Permissions" CssClass="overflow-auto max-height-50vh">
-                            @foreach (var permission in this.ViewModel.Thing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
-                            {
-                                <DxFormLayoutItem Caption="@(permission.ObjectClass.ToString())"
-                                                  ColSpanMd="12">
-                                    <DxComboBox Data="@this.ViewModel.ParticipantAccessKinds"
-                                                @bind-Value="@permission.AccessRight"
-                                                CssClass="cw-480"
-                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
-                                </DxFormLayoutItem>
-                            }
-                        </DxFormLayoutTabPage>
-
-                    </DxFormLayoutTabPages>
-                </DxFormLayout>
-                <ValidationSummary/>
+                <ParticipantRoleDetails ViewModel="@this.ViewModel"
+                                        OnSubmit="@(() => this.Grid.SaveChangesAsync())"
+                                        OnCancel="@(() => this.Grid.CancelEditAsync())"/>
             </EditFormTemplate>
 
             <CustomValidators>
@@ -84,7 +59,6 @@ Copyright (c) 2023-2024 RHEA System S.A.
             </CustomValidators>
 
         </DxGrid>
-    </div>
     <div class="pb-3"></div>
 </LoadingComponent>
 
