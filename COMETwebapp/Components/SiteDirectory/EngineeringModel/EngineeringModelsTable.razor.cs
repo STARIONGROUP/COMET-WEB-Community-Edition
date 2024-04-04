@@ -51,6 +51,11 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public bool IsModelSelected { get; private set; }
 
         /// <summary>
+        /// Gets the condition to check if the source model was selected in creation form
+        /// </summary>
+        private bool IsSourceModelSelected => this.ViewModel.SelectedSourceModel is not null;
+
+        /// <summary>
         /// The selected component type
         /// </summary>
         private Type SelectedComponent { get; set; }
@@ -88,7 +93,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnEditThingSaving()
         {
-            await this.ViewModel.CreateOrEditEngineeringModel(this.ShouldCreateThing);
+            await this.ViewModel.CreateEngineeringModel();
         }
 
         /// <summary>
@@ -99,18 +104,9 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.CustomizeEditThing(e);
 
-            var dataItem = (EngineeringModelRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                this.ViewModel.Thing = new EngineeringModelSetup();
-                e.EditModel = this.ViewModel.Thing;
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            this.ViewModel.Thing = new EngineeringModelSetup();
+            this.ViewModel.ResetSelectedValues();
+            e.EditModel = this.ViewModel.Thing;
         }
 
         /// <summary>
@@ -131,6 +127,16 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         private void OnDetailsItemClick(ToolbarItemClickEventArgs e)
         {
             this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+        }
+
+        /// <summary>
+        /// Sets the selected values for the <see cref="Participant"/> creation and submits the form
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task SetSelectedValuesAndSubmit()
+        {
+            this.ViewModel.SetupEngineeringModelWithSelectedValues();
+            await this.Grid.SaveChangesAsync();
         }
     }
 }

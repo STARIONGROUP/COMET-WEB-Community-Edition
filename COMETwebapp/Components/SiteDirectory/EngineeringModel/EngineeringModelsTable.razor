@@ -15,6 +15,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
+@using CDP4Common.SiteDirectoryData
 @inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.EngineeringModelSetup, COMETwebapp.ViewModels.Components.SiteDirectory.Rows.EngineeringModelRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
@@ -31,6 +32,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 CustomizeEditModel="this.CustomizeEditThing"
                 EditMode="GridEditMode.PopupEditForm"
                 EditModelSaving="@(() => this.OnEditThingSaving())"
+                EditFormButtonsVisible="false"
                 PageSize="20"
                 PagerNavigationMode="PagerNavigationMode.Auto"
                 PageSizeSelectorVisible="true"
@@ -50,11 +52,6 @@ Copyright (c) 2023-2024 RHEA System S.A.
                         @{
                             var row = (EngineeringModelRowViewModel)context.DataItem;
 
-                            <DxButton Id="editEngineeringModelButton"
-                                      Text="Edit"
-                                      Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
-                                      Enabled="@(row.IsAllowedToWrite)"/>
-
                             <DxButton Id="deleteEngineeringModelButton"
                                       Text="Delete"
                                       Click="() => this.ViewModel.OnDeleteButtonClick(row)"
@@ -65,15 +62,97 @@ Copyright (c) 2023-2024 RHEA System S.A.
             </Columns>
 
             <EditFormTemplate Context="EditFormContext">
-                <DxFormLayout CssClass="w-100">
-                    <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                        <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                        <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
-                    </DxFormLayoutItem>
+                <DxFormLayout CssClass="w-100">                    
+                    <DxFormLayoutTabPages>
+
+                        <DxFormLayoutTabPage Caption="Basic">
+                            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                                <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                                <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Source Model:" ColSpanMd="10">
+                                <DxComboBox Data="@this.ViewModel.EngineeringModels"
+                                            TextFieldName="@nameof(EngineeringModelSetup.Name)"
+                                            @bind-Value="@this.ViewModel.SelectedSourceModel"
+                                            CssClass="cw-480"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Model Kind:" ColSpanMd="10">
+                                <DxComboBox Data="@this.ViewModel.ModelKinds"
+                                            @bind-Value="@this.ViewModel.Thing.Kind"
+                                            CssClass="cw-480"/>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Study Phase:" ColSpanMd="10">
+                                <DxComboBox Data="@this.ViewModel.StudyPhases"
+                                            @bind-Value="@this.ViewModel.Thing.StudyPhase"
+                                            CssClass="cw-480"/>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Site RDL:" ColSpanMd="10">
+                                <DxComboBox Data="@this.ViewModel.SiteRdls"
+                                            TextFieldName="@nameof(ModelReferenceDataLibrary.Name)"
+                                            @bind-Value="@this.ViewModel.SelectedSiteRdl"
+                                            CssClass="cw-480"
+                                            Enabled="@(!this.IsSourceModelSelected)"/>
+                            </DxFormLayoutItem>
+                        </DxFormLayoutTabPage>
+
+                        <DxFormLayoutTabPage Caption="Active Domain" 
+                                             Visible="@(!this.IsSourceModelSelected)">
+                            <DxFormLayoutItem ColSpanMd="12">
+                                <DxListBox TValue="DomainOfExpertise"
+                                           TData="DomainOfExpertise"
+                                           Data="@this.ViewModel.DomainsOfExpertise"
+                                           TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                           SelectionMode="ListBoxSelectionMode.Multiple"
+                                           ShowCheckboxes="true"
+                                           @bind-Values="@this.ViewModel.SelectedActiveDomains"
+                                           style="height: 40vh;"/>
+                            </DxFormLayoutItem>
+                        </DxFormLayoutTabPage>
+
+                        <DxFormLayoutTabPage Caption="Organizations" 
+                                             Visible="@(!this.IsSourceModelSelected)">
+                            <DxFormLayoutItem Caption="Participating Organizations" 
+                                              CaptionPosition="CaptionPosition.Vertical"
+                                              ColSpanMd="12">
+                                <DxListBox TValue="Organization"
+                                           TData="Organization"
+                                           Data="@this.ViewModel.Organizations"
+                                           TextFieldName="@nameof(Organization.Name)"
+                                           SelectionMode="ListBoxSelectionMode.Multiple"
+                                           ShowCheckboxes="true"
+                                           @bind-Values="@this.ViewModel.SelectedOrganizations"
+                                           CssClass="cw-480"
+                                           style="height: 30vh;"/>
+                            </DxFormLayoutItem>
+                            
+                            <DxFormLayoutItem Caption="Model Admin Organization:" ColSpanMd="10">
+                                <DxComboBox Data="@this.ViewModel.SelectedOrganizations"
+                                            TextFieldName="@nameof(Organization.Name)"
+                                            @bind-Value="@this.ViewModel.SelectedModelAdminOrganization"
+                                            CssClass="cw-480"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </DxFormLayoutItem>
+
+                        </DxFormLayoutTabPage>
+
+                    </DxFormLayoutTabPages>
                 </DxFormLayout>
+                <div class="pt-3"></div>
                 <ValidationSummary/>
+                <div class="dxbl-grid-edit-form-buttons">
+                    <DxButton Id="saveEngineeringModelButton" 
+                              Click="@this.SetSelectedValuesAndSubmit">
+                        Save
+                    </DxButton>
+                    <DxButton Id="cancelEngineeringModelButton" 
+                              Click="this.Grid.CancelEditAsync"
+                              RenderStyle="ButtonRenderStyle.Secondary">
+                        Cancel
+                    </DxButton>
+                </div>
             </EditFormTemplate>
 
             <CustomValidators>

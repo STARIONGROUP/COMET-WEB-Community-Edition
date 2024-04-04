@@ -121,29 +121,21 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         }
 
         [Test]
-        public async Task VerifyAddingOrEditingEngineeringModel()
+        public async Task VerifyAddEngineeringModel()
         {
             var addEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addEngineeringModelButton");
             await this.renderer.InvokeAsync(addEngineeringModelButton.Instance.Click.InvokeAsync);
+            var grid = this.renderer.FindComponent<DxGrid>();
+            Assert.That(grid.Instance.IsEditing(), Is.EqualTo(true));
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(EngineeringModelSetup)));
-            });
+            var cancelEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelEngineeringModelButton");
+            await this.renderer.InvokeAsync(cancelEngineeringModelButton.Instance.Click.InvokeAsync);
+            Assert.That(grid.Instance.IsEditing(), Is.EqualTo(false));
 
-            var editEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editEngineeringModelButton");
-            await this.renderer.InvokeAsync(editEngineeringModelButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(EngineeringModelSetup)));
-            });
-
-            var form = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
-            this.viewModel.Verify(x => x.CreateOrEditEngineeringModel(false), Times.Once);
+            await this.renderer.InvokeAsync(addEngineeringModelButton.Instance.Click.InvokeAsync);
+            var saveEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveEngineeringModelButton");
+            await this.renderer.InvokeAsync(saveEngineeringModelButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateEngineeringModel(), Times.Once);
         }
 
         [Test]
