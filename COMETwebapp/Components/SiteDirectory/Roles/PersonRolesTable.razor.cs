@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RolesTables.razor.cs" company="RHEA System S.A.">
+// <copyright file="PersonRolesTable.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,11 +24,11 @@
 
 namespace COMETwebapp.Components.SiteDirectory.Roles
 {
-    using CDP4Common.CommonData;
+    using System.ComponentModel.DataAnnotations;
+
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Components;
-
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -37,36 +37,21 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="RolesTables"/>
+    /// Support class for the <see cref="PersonRolesTable"/>
     /// </summary>
-    public partial class RolesTables : DisposableComponent
+    public partial class PersonRolesTable : SelectedDeprecatableDataItemBase<PersonRole, PersonRoleRowViewModel>
     {
-        /// <summary>
-        /// The <see cref="IParticipantRolesTableViewModel" /> for this component
-        /// </summary>
-        [Inject]
-        public IParticipantRolesTableViewModel ParticipantRolesViewModel { get; set; }
-
         /// <summary>
         /// The <see cref="IPersonRolesTableViewModel" /> for this component
         /// </summary>
-        [Inject]
-        public IPersonRolesTableViewModel PersonRolesViewModel { get; set; }
+        [Parameter, Required]
+        public IPersonRolesTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The selected component type
+        /// The callback for when a person role is selected
         /// </summary>
-        private Type SelectedComponent { get; set; }
-
-        /// <summary>
-        /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
-        /// </summary>
-        private readonly Dictionary<string, object> parameters = [];
-
-        /// <summary>
-        /// A map with all the available detail components and their names
-        /// </summary>
-        private readonly Dictionary<Type, (Type, object)> mapOfRolesAndDetailsData = [];
+        [Parameter]
+        public EventCallback<PersonRole> OnRoleSelected { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -75,28 +60,48 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         protected override void OnInitialized()
         {
             base.OnInitialized();
-
-            this.mapOfRolesAndDetailsData.Clear();
-            this.mapOfRolesAndDetailsData.Add(typeof(ParticipantRole), (typeof(ParticipantRoleDetails), this.ParticipantRolesViewModel));
-            this.mapOfRolesAndDetailsData.Add(typeof(PersonRole), (typeof(PersonRoleDetails), this.PersonRolesViewModel));
+            this.Initialize(this.ViewModel);
         }
 
         /// <summary>
-        /// Method that is executed everytime a role is selected
+        /// Method that is invoked when the edit/add thing form is being saved
         /// </summary>
-        /// <param name="role"></param>
-        private void OnRoleSelected(Thing role)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEditThingSaving()
         {
-            var tupleOfDetailsData = this.mapOfRolesAndDetailsData.FirstOrDefault(x => x.Key == role.GetType()).Value;
-            this.parameters["ViewModel"] = tupleOfDetailsData.Item2;
+            await this.ViewModel.CreateOrEditPersonRole(this.ShouldCreateThing);
+        }
 
-            this.parameters["OnCancel"] = new EventCallbackFactory().Create(this, async () =>
+        /// <summary>
+        /// Method invoked when creating a new thing
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
+        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        {
+            base.CustomizeEditThing(e);
+
+            var dataItem = (PersonRoleRowViewModel)e.DataItem;
+            this.ShouldCreateThing = e.IsNew;
+
+            if (dataItem == null)
             {
-                this.SelectedComponent = null;
-                await this.InvokeAsync(this.StateHasChanged);
-            });
+                this.ViewModel.Thing = new PersonRole();
+                e.EditModel = this.ViewModel.Thing;
+                return;
+            }
 
-            this.SelectedComponent = tupleOfDetailsData.Item1;
+            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            e.EditModel = this.ViewModel.Thing;
+        }
+
+        /// <summary>
+        /// Metgid invoked everytime a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        private async Task OnSelectedDataItemChanged(PersonRoleRowViewModel row)
+        {
+            this.ViewModel.Thing = row.Thing.Clone(true);
+            await this.OnRoleSelected.InvokeAsync(row.Thing);
         }
     }
 }

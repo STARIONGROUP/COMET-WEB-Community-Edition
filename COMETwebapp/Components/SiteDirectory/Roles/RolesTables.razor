@@ -17,12 +17,18 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits DisposableComponent
 
 <div style="display: flex; justify-content: space-between;">
-    <ParticipantRolesTable ViewModel="@this.ParticipantRolesViewModel" 
-                           OnRoleSelected="@(this.OnRoleSelected)"/>
+    <div style="display: grid; width: fit-content;" class="d-grid pt-3">
+        <ParticipantRolesTable ViewModel="@this.ParticipantRolesViewModel"
+                               OnRoleSelected="@(this.OnRoleSelected)"/>
+        
+        <PersonRolesTable ViewModel="@this.PersonRolesViewModel"
+                          OnRoleSelected="@(this.OnRoleSelected)"/>
+    </div>
+    
 
     @if (this.SelectedComponent != null)
     {
-        <div style="width: 70%; padding: 30px;">
+        <div style="width: 70%; padding: 30px; padding-top: 55px;">
             <DynamicComponent Type="@this.SelectedComponent" Parameters="this.parameters"/>
         </div>
     }

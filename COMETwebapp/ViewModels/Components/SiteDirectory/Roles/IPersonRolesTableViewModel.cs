@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
@@ -40,5 +41,10 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         /// <param name="shouldCreate">The value to check if a new <see cref="PersonRole"/> should be created</param>
         /// <returns>A <see cref="Task"/></returns>
         Task CreateOrEditPersonRole(bool shouldCreate);
+
+        /// <summary>
+        /// Gets the person permission access kinds
+        /// </summary>
+        IEnumerable<PersonAccessRightKind> PersonAccessKinds { get; }
     }
 }

@@ -32,12 +32,12 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxFormLayoutGroup Caption="Permissions"
                            CssClass="overflow-auto max-height-50vh pb-3">
 
-            @foreach (var permission in this.ViewModel.Thing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
+            @foreach (var permission in this.ViewModel.Thing.PersonPermission.OrderBy(x => x.ObjectClass.ToString()))
             {
                 <DxFormLayoutItem @key="permission.ObjectClass.ToString()" 
                                   Caption="@(permission.ObjectClass.ToString())"
                                   ColSpanMd="12">
-                    <DxComboBox Data="@this.ViewModel.ParticipantAccessKinds"
+                    <DxComboBox Data="@this.ViewModel.PersonAccessKinds"
                                 @bind-Value="@permission.AccessRight"
                                 CssClass="cw-480"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>

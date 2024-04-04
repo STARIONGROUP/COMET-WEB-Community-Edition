@@ -14,19 +14,19 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits SelectedDeprecatableDataItemBase<ParticipantRole, ParticipantRoleRowViewModel>
+@inherits SelectedDeprecatableDataItemBase<PersonRole, PersonRoleRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <h3>Participant Roles</h3>
+    <h3>Person Roles</h3>
     <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
-            SearchBoxNullText="Search for a participant role..."
+            SearchBoxNullText="Search for a person role..."
             AllowSelectRowByClick="true"
-            SelectedDataItemChanged="@(async row => await this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
+            SelectedDataItemChanged="@(async row => await this.OnSelectedDataItemChanged((PersonRoleRowViewModel)row))"
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Participant Role"
+            PopupEditFormHeaderText="Person Role"
             CustomizeElement="DisableDeprecatedThing"
             CustomizeEditModel="this.CustomizeEditThing"
             EditMode="GridEditMode.PopupEditForm"
@@ -39,20 +39,20 @@ Copyright (c) 2023-2024 RHEA System S.A.
             PageSizeSelectorAllRowsItemVisible="true"
             CssClass="d-inline">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
+            <DxGridDataColumn FieldName="@nameof(PersonRoleRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(PersonRoleRowViewModel.ShortName)" MinWidth="80"/>
+            <DxGridDataColumn FieldName="@nameof(PersonRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
             <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
                 <HeaderTemplate>
-                    <DxButton Id="addParticipantRoleButton" Text="Add Participant Role" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    <DxButton Id="addPersonRoleButton" Text="Add Person Role" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
                 </HeaderTemplate>
             </DxGridCommandColumn>
         </Columns>
 
         <EditFormTemplate Context="EditFormContext">
-            <ParticipantRoleDetails ViewModel="@this.ViewModel"
-                                    OnSubmit="@(async () => await this.Grid.SaveChangesAsync())"
-                                    OnCancel="@(async () => await this.Grid.CancelEditAsync())"/>
+            <PersonRoleDetails ViewModel="@this.ViewModel"
+                               OnSubmit="@(async () => await this.Grid.SaveChangesAsync())"
+                               OnCancel="@(async () => await this.Grid.CancelEditAsync())"/>
         </EditFormTemplate>
 
         <CustomValidators>

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParticipantRoleDetails.razor.cs" company="RHEA System S.A.">
+// <copyright file="PersonRoleDetails.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -33,15 +33,15 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ParticipantRoleDetails"/>
+    /// Support class for the <see cref="PersonRoleDetails"/>
     /// </summary>
-    public partial class ParticipantRoleDetails : DisposableComponent
+    public partial class PersonRoleDetails : DisposableComponent
     {
         /// <summary>
-        /// The <see cref="IParticipantRolesTableViewModel" /> for this component
+        /// The <see cref="IPersonRolesTableViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
-        public IParticipantRolesTableViewModel ViewModel { get; set; }
+        public IPersonRolesTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method that is executed when the current edit form is submitted
@@ -66,7 +66,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
                 return;
             }
 
-            await this.ViewModel.CreateOrEditParticipantRole(false);
+            await this.ViewModel.CreateOrEditPersonRole(false);
         }
     }
 }

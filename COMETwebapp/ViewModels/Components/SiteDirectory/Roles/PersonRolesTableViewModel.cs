@@ -54,14 +54,27 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         }
 
         /// <summary>
+        /// Gets the person permission access kinds
+        /// </summary>
+        public IEnumerable<PersonAccessRightKind> PersonAccessKinds { get; private set; } = 
+        [
+            PersonAccessRightKind.NONE, PersonAccessRightKind.MODIFY, PersonAccessRightKind.MODIFY_IF_PARTICIPANT, PersonAccessRightKind.MODIFY_OWN_PERSON, 
+            PersonAccessRightKind.READ, PersonAccessRightKind.READ_IF_PARTICIPANT
+        ];
+
+        /// <summary>
         /// Creates or edits a <see cref="PersonRole"/>
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="PersonRole"/> should be created</param>
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreateOrEditPersonRole(bool shouldCreate)
         {
+            this.IsLoading = true;
+
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
             var thingsToCreate = new List<Thing>();
+
+            thingsToCreate.AddRange(this.Thing.PersonPermission);
 
             if (shouldCreate)
             {
@@ -72,6 +85,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
             thingsToCreate.Add(this.Thing);
             await this.SessionService.UpdateThings(siteDirectoryClone, thingsToCreate);
             await this.SessionService.RefreshSession();
+
+            this.IsLoading = false;
         }
     }
 }
