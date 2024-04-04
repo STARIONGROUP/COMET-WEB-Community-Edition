@@ -26,6 +26,7 @@ namespace COMETwebapp.Pages.SiteDirectory
 {
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
+    using COMETwebapp.Components.SiteDirectory.Roles;
 
     using DevExpress.Blazor;
 
@@ -49,6 +50,7 @@ namespace COMETwebapp.Pages.SiteDirectory
             {typeof(EngineeringModelsTable), "Models"},
             {typeof(DomainsOfExpertiseTable), "Domains"},
             {typeof(OrganizationsTable), "Organizations"},
+            {typeof(ParticipantRolesTable), "Roles"},
         };
 
         /// <summary>
