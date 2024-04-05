@@ -115,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <param name="addedThings">A collection of added <see cref="CDP4Common.CommonData.Thing" /></param>
         public void AddRows(IEnumerable<Thing> addedThings)
         {
-            var addedThingOfTypeT = addedThings.OfType<T>().ToList();
+            var addedThingOfTypeT = addedThings.OfType<T>().DistinctBy(x => x.Iid).ToList();
             this.Rows.AddRange(addedThingOfTypeT.Select(CreateNewRow));
         }
 

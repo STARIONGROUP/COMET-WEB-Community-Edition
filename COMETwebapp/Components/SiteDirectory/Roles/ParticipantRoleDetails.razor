@@ -1,0 +1,67 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits DisposableComponent
+
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+    <FluentValidationValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
+            <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Name:" ColSpanMd="12">
+            <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
+        </DxFormLayoutItem>
+
+        <DxFormLayoutGroup Caption="Permissions"
+                           CssClass="overflow-auto max-height-50vh pb-3">
+
+            @foreach (var permission in this.ViewModel.Thing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
+            {
+                <DxFormLayoutItem @key="permission.ObjectClass.ToString()" 
+                                  Caption="@(permission.ObjectClass.ToString())"
+                                  ColSpanMd="12">
+                    <DxComboBox Data="@this.ViewModel.ParticipantAccessKinds"
+                                @bind-Value="@permission.AccessRight"
+                                CssClass="cw-480"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+                </DxFormLayoutItem>
+            }
+
+        </DxFormLayoutGroup>
+
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary/>
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="saveParticipantRoleButton"  
+                  SubmitFormOnClick="true">
+            Save
+        </DxButton>
+        @if (this.OnCancel.HasDelegate)
+        {
+            <DxButton Id="cancelParticipantRoleButton" 
+                      Click="@(() => this.OnCancel.InvokeAsync())"
+                      RenderStyle="ButtonRenderStyle.Secondary">
+                Cancel
+            </DxButton>
+        }
+    </div>
+
+</EditForm>

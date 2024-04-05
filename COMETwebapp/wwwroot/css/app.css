@@ -99,6 +99,8 @@ html, body, #app {
 
 .m-right-10px { margin-right: 10px; }
 
+.max-height-50vh { max-height: 50vh; }
+
 @media (min-width: 721px) {
     .refresh-button-popover { display: none; }
 }

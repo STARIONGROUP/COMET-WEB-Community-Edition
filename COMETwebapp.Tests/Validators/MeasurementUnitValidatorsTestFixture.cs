@@ -26,11 +26,8 @@ namespace COMETwebapp.Tests.Validators
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
-
-    using COMETwebapp.Validators;
+    
     using COMETwebapp.Validators.MeasurementUnits;
-
-    using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 
     using NUnit.Framework;
 

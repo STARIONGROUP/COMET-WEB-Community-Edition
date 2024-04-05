@@ -1,0 +1,72 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits SelectedDeprecatableDataItemBase<ParticipantRole, ParticipantRoleRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <h3>Participant Roles</h3>
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for a participant role..."
+            AllowSelectRowByClick="true"
+            SelectedDataItemChanged="@(async row => await this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Participant Role"
+            CustomizeElement="DisableDeprecatedThing"
+            CustomizeEditModel="this.CustomizeEditThing"
+            EditMode="GridEditMode.PopupEditForm"
+            EditModelSaving="@(() => this.OnEditThingSaving())"
+            EditFormButtonsVisible="false"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            CssClass="d-inline">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addParticipantRoleButton" Text="Add Participant Role" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                </HeaderTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+
+        <EditFormTemplate Context="EditFormContext">
+            <ParticipantRoleDetails ViewModel="@this.ViewModel"
+                                    OnSubmit="@(async () => await this.Grid.SaveChangesAsync())"
+                                    OnCancel="@(async () => await this.Grid.CancelEditAsync())"/>
+        </EditFormTemplate>
+
+        <CustomValidators>
+            <FluentValidationValidator/>
+        </CustomValidators>
+
+    </DxGrid>
+    <div class="pb-3"></div>
+</LoadingComponent>
+
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
+    </div>
+</DxPopup>

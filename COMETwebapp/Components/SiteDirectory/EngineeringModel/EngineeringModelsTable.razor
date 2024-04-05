@@ -14,9 +14,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
-@using CDP4Common.SiteDirectoryData
-@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.EngineeringModelSetup, COMETwebapp.ViewModels.Components.SiteDirectory.Rows.EngineeringModelRowViewModel>
+@inherits SelectedDataItemBase<EngineeringModelSetup, EngineeringModelRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <div style="display: flex; justify-content: space-between;">
