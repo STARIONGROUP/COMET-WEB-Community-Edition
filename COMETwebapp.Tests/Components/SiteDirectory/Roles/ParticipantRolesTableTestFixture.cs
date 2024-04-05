@@ -42,7 +42,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -77,8 +76,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.Thing).Returns(this.participantRole1);
-
-            this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
             this.renderer = this.context.RenderComponent<ParticipantRolesTable>(parameters =>

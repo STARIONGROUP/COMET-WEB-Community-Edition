@@ -40,7 +40,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
-    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -69,8 +68,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
             };
 
             this.viewModel.Setup(x => x.Thing).Returns(this.participantRole);
-
-            this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
         }
 

@@ -53,7 +53,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// <summary>
         /// The selected component type
         /// </summary>
-        private Type SelectedComponent { get; set; }
+        public Type SelectedComponent { get; private set; }
 
         /// <summary>
         /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />

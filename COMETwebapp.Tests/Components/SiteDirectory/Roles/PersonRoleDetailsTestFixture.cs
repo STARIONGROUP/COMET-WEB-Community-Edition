@@ -69,8 +69,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
             };
 
             this.viewModel.Setup(x => x.Thing).Returns(this.personRole);
-
-            this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
         }
 

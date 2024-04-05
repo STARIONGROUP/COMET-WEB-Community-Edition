@@ -18,11 +18,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
 <div style="display: flex; justify-content: space-between;">
     <div style="display: grid; width: fit-content;" class="d-grid pt-3">
-        <ParticipantRolesTable ViewModel="@this.ParticipantRolesViewModel"
-                               OnRoleSelected="@(this.OnRoleSelected)"/>
-        
         <PersonRolesTable ViewModel="@this.PersonRolesViewModel"
                           OnRoleSelected="@(this.OnRoleSelected)"/>
+
+        <ParticipantRolesTable ViewModel="@this.ParticipantRolesViewModel"
+                               OnRoleSelected="@(this.OnRoleSelected)"/>
     </div>
     
 
