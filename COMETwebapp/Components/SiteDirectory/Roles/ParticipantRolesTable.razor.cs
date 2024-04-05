@@ -69,7 +69,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnEditThingSaving()
         {
-            await this.ViewModel.CreateOrEditParticipantRole(this.ShouldCreateThing);
+            await this.ViewModel.CreateOrEditParticipantRole(true);
         }
 
         /// <summary>
@@ -80,17 +80,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         {
             base.CustomizeEditThing(e);
 
-            var dataItem = (ParticipantRoleRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                this.ViewModel.Thing = new ParticipantRole();
-                e.EditModel = this.ViewModel.Thing;
-                return;
-            }
-
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            this.ViewModel.Thing = new ParticipantRole();
             e.EditModel = this.ViewModel.Thing;
         }
 

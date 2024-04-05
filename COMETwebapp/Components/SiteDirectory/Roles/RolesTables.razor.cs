@@ -30,9 +30,6 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
     using COMET.Web.Common.Components;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 

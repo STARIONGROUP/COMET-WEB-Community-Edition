@@ -50,12 +50,14 @@ Copyright (c) 2023-2024 RHEA System S.A.
     <div class="pt-3"></div>
     <ValidationSummary/>
     <div class="dxbl-grid-edit-form-buttons">
-        <DxButton SubmitFormOnClick="true">
+        <DxButton Id="saveParticipantRoleButton"  
+                  SubmitFormOnClick="true">
             Save
         </DxButton>
         @if (this.OnCancel.HasDelegate)
         {
-            <DxButton Click="@(() => this.OnCancel.InvokeAsync())"
+            <DxButton Id="cancelParticipantRoleButton" 
+                      Click="@(() => this.OnCancel.InvokeAsync())"
                       RenderStyle="ButtonRenderStyle.Secondary">
                 Cancel
             </DxButton>
