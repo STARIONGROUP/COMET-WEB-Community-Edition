@@ -1,0 +1,88 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.EngineeringModel.Rows
+@inherits SelectedDataItemBase<CDP4Common.EngineeringModelData.Option, COMETwebapp.ViewModels.Components.EngineeringModel.Rows.OptionRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for an option..."
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Option"
+            CustomizeElement="@(HighlightDefaultOptionRow)"
+            CustomizeEditModel="this.CustomizeEditThing"
+            EditMode="GridEditMode.PopupEditForm"
+            EditModelSaving="@(() => this.OnEditThingSaving())"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new int[] { 20,35,50 })"
+            PageSizeSelectorAllRowsItemVisible="true">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.Name)" MinWidth="150" />
+            <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.IsDefault)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Default" MinWidth="80" SearchEnabled="false" />
+            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addOptionButton" Text="Add Option" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (OptionRowViewModel)context.DataItem;
+
+                        <DxButton Id="editDomainOfExpertiseButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
+
+                        <DxButton Id="deleteButton"
+                                  Text="Delete"
+                                  Click="@(() => this.ViewModel.DeleteThing())"
+                                  Enabled="@(row.IsAllowedToWrite)" />
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+
+        <EditFormTemplate Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Default:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.SelectedIsDefaultValue"/>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+            <ValidationSummary/>
+        </EditFormTemplate>
+        
+        <CustomValidators>
+            <FluentValidationValidator />
+        </CustomValidators>
+
+    </DxGrid>
+</LoadingComponent>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @this.ViewModel.PopupDialog
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+    </div>
+</DxPopup>

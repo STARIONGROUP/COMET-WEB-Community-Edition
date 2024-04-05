@@ -112,6 +112,14 @@ namespace COMETwebapp.Model
                 Description = "Visualize site directory data",
                 Url = WebAppConstantValues.SiteDirectoryPage
             },
+            new Application
+            {
+                Name = "Engineering Model",
+                Color = "#c3cffd",
+                Icon = "cog",
+                Description = "Visualize the engineering model data",
+                Url = WebAppConstantValues.EngineeringModelPage
+            },
             new Application    
             {
                 Name = "User Management",
