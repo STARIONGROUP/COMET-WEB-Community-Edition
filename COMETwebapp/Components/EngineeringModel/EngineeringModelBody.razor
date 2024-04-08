@@ -19,8 +19,25 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.EngineeringModel.IEngineeringModelBodyViewModel>
+@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.EngineeringModel.IEngineeringModelBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <OptionsTable ViewModel="@(this.ViewModel.OptionsTableViewModel)"/>
+    <DxToolbar ItemClick="@this.OnItemClick">
+        <Items>
+            @foreach (var mappedValue in this.MapOfComponentsAndParameters)
+            {
+                <DxToolbarItem @key="@(mappedValue.Value.Item2)"
+                               Name="@(mappedValue.Value.Item2)"
+                               Text="@(mappedValue.Value.Item2)" 
+                               Tooltip="@(mappedValue.Value.Item2)"
+                               RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
+            }
+        </Items>
+    </DxToolbar>
+
+    @if (this.SelectedComponent != null)
+    {
+        <DynamicComponent Type="@this.SelectedComponent" 
+                          Parameters="this.dynamicComponentParameters"/>
+    }
 </LoadingComponent>

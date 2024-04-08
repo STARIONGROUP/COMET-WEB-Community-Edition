@@ -1,5 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParticipantValidator.cs" company="RHEA System S.A.">
+﻿
+// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="LinearConversionUnitValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.EngineeringModel
+namespace COMETwebapp.Validators.ReferenceData.MeasurementUnits
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
@@ -32,22 +33,18 @@ namespace COMETwebapp.Validators.EngineeringModel
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="Participant"/>
+    /// A class to validate the <see cref="LinearConversionUnit"/>
     /// </summary>
-    public class ParticipantValidator : AbstractValidator<Participant>
+    public class LinearConversionUnitValidator : AbstractValidator<LinearConversionUnit>
     {
         /// <summary>
-        /// Instantiates a new <see cref="ParticipantValidator"/>
+        /// Instantiates a new <see cref="LinearConversionUnitValidator"/>
         /// </summary>
-        public ParticipantValidator(IValidationService validationService) : base()
+        public LinearConversionUnitValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.Role).NotEmpty().Validate(validationService, nameof(Participant.Role));
-            this.RuleFor(x => x.Person).NotEmpty().Validate(validationService, nameof(Participant.Person));
-
-            this.RuleFor(x => x.Domain)
-                .Must(x => x.Count > 0)
-                .WithMessage("The participant should have at least one Domain of Expertise selected")
-                .Validate(validationService, nameof(Participant.Domain));
+            this.Include(new MeasurementUnitValidator(validationService));
+            this.RuleFor(x => x.ReferenceUnit).NotEmpty().Validate(validationService, nameof(LinearConversionUnit.ReferenceUnit));
+            this.RuleFor(x => x.ConversionFactor).Validate(validationService, nameof(LinearConversionUnit.ConversionFactor));
         }
     }
 }

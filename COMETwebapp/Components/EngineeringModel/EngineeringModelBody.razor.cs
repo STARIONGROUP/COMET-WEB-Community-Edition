@@ -26,6 +26,10 @@ namespace COMETwebapp.Components.EngineeringModel
 {
     using COMET.Web.Common.Extensions;
 
+    using DevExpress.Blazor;
+
+    using Microsoft.AspNetCore.Components;
+
     using ReactiveUI;
 
     /// <summary>
@@ -33,6 +37,24 @@ namespace COMETwebapp.Components.EngineeringModel
     /// </summary>
     public partial class EngineeringModelBody
     {
+        /// <summary>
+        /// The selected component type
+        /// </summary>
+        private Type SelectedComponent { get; set; }
+
+        /// <summary>
+        /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
+        /// </summary>
+        private readonly Dictionary<string, object> dynamicComponentParameters = [];
+
+        /// <summary>
+        /// A map with all the available components and their parameters => view model and name
+        /// </summary>
+        private Dictionary<Type, (object, string)> MapOfComponentsAndParameters => new()
+        {
+            {typeof(OptionsTable), (this.ViewModel.OptionsTableViewModel, "Options")},
+        };
+
         /// <summary>
         /// Initializes values of the component and of the ViewModel based on parameters provided from the url
         /// </summary>
@@ -49,6 +71,28 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             base.OnInitialized();
             this.Disposables.Add(this.ViewModel.WhenAnyValue(x => x.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.SelectComponent(this.MapOfComponentsAndParameters.First().Key);
+        }
+
+        /// <summary>
+        /// Method invoked to set the selected component from toolbar
+        /// </summary>
+        /// <param name="e">The <see cref="ToolbarItemClickEventArgs"/></param>
+        private void OnItemClick(ToolbarItemClickEventArgs e)
+        {
+            var selectedComponentAndParametersKvp = this.MapOfComponentsAndParameters.FirstOrDefault(x => x.Value.Item2 == e.ItemName);
+            this.SelectComponent(selectedComponentAndParametersKvp.Key);
+        }
+
+        /// <summary>
+        /// Selects a component to display and loads its parameters
+        /// </summary>
+        /// <param name="selectedComponent">The selected component</param>
+        private void SelectComponent(Type selectedComponent)
+        {
+            this.SelectedComponent = selectedComponent;
+            this.dynamicComponentParameters["ViewModel"] = this.MapOfComponentsAndParameters[this.SelectedComponent].Item1;
         }
     }
 }

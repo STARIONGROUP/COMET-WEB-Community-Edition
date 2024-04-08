@@ -1,6 +1,6 @@
 ﻿
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="PrefixedUnitValidator.cs" company="RHEA System S.A.">
+//  <copyright file="UnitFactorValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.MeasurementUnits
+namespace COMETwebapp.Validators.ReferenceData.MeasurementUnits
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
@@ -33,17 +33,17 @@ namespace COMETwebapp.Validators.MeasurementUnits
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="PrefixedUnit"/>
+    /// A class to validate the <see cref="UnitFactor"/>
     /// </summary>
-    public class PrefixedUnitValidator : AbstractValidator<PrefixedUnit>
+    public class UnitFactorValidator : AbstractValidator<UnitFactor>
     {
         /// <summary>
-        /// Instantiates a new <see cref="PrefixedUnitValidator"/>
+        /// Instantiates a new <see cref="UnitFactorValidator"/>
         /// </summary>
-        public PrefixedUnitValidator(IValidationService validationService) : base()
+        public UnitFactorValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.Prefix).NotEmpty().Validate(validationService, nameof(PrefixedUnit.Prefix));
-            this.RuleFor(x => x.ReferenceUnit).NotEmpty().Validate(validationService, nameof(PrefixedUnit.ReferenceUnit));
+            this.RuleFor(x => x.Unit).NotEmpty().Validate(validationService, nameof(UnitFactor.Unit));
+            this.RuleFor(x => x.Exponent).Validate(validationService, nameof(UnitFactor.Exponent));
         }
     }
 }

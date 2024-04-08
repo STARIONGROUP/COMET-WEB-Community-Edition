@@ -1,6 +1,6 @@
 ﻿
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="MeasurementUnitValidator.cs" company="RHEA System S.A.">
+//  <copyright file="PrefixedUnitValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.MeasurementUnits
+namespace COMETwebapp.Validators.ReferenceData.MeasurementUnits
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
@@ -33,17 +33,17 @@ namespace COMETwebapp.Validators.MeasurementUnits
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="MeasurementUnit"/>
+    /// A class to validate the <see cref="PrefixedUnit"/>
     /// </summary>
-    public class MeasurementUnitValidator : AbstractValidator<MeasurementUnit>
+    public class PrefixedUnitValidator : AbstractValidator<PrefixedUnit>
     {
         /// <summary>
-        /// Instantiates a new <see cref="MeasurementUnitValidator"/>
+        /// Instantiates a new <see cref="PrefixedUnitValidator"/>
         /// </summary>
-        public MeasurementUnitValidator(IValidationService validationService) : base()
+        public PrefixedUnitValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(MeasurementUnit.ShortName));
-            this.RuleFor(x => x.Name).Validate(validationService, nameof(MeasurementUnit.Name));
+            this.RuleFor(x => x.Prefix).NotEmpty().Validate(validationService, nameof(PrefixedUnit.Prefix));
+            this.RuleFor(x => x.ReferenceUnit).NotEmpty().Validate(validationService, nameof(PrefixedUnit.ReferenceUnit));
         }
     }
 }

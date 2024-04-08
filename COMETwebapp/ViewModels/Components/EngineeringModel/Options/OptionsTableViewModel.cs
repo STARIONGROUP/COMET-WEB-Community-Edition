@@ -98,6 +98,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreateOrEditOption(bool shouldCreate)
         {
+            this.IsLoading = true;
+
             var iterationClone = this.CurrentIteration.Clone(false);
             var thingsToCreate = new List<Thing>();
             var originalOption = (Option)this.Thing.Original;
@@ -117,8 +119,17 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
             thingsToCreate.Add(iterationClone);
             thingsToCreate.Add(this.Thing);
 
-            await this.SessionService.UpdateThings(this.CurrentIteration.Container.Clone(true), thingsToCreate);
-            await this.SessionService.RefreshSession();
+            try
+            {
+                await this.SessionService.UpdateThings(this.CurrentIteration.Container.Clone(true), thingsToCreate);
+                await this.SessionService.RefreshSession();
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "An error has occurred while creating or editing an Option");
+            }
+            
+            this.IsLoading = false;
         }
 
         /// <summary>

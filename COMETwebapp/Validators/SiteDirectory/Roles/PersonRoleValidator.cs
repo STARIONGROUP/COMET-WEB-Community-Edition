@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.Roles
+namespace COMETwebapp.Validators.SiteDirectory.Roles
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;

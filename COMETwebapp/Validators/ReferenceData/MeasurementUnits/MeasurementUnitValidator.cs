@@ -1,5 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CreateDomainOfExpertiseValidatorTestFixture.cs" company="RHEA System S.A.">
+﻿
+// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="MeasurementUnitValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,41 +23,27 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators
+namespace COMETwebapp.Validators.ReferenceData.MeasurementUnits
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
-    using COMETwebapp.Validators.SiteDirectory;
-    using NUnit.Framework;
 
-    [TestFixture]
-    public class CreateDomainOfExpertiseValidatorTestFixture
+    using COMET.Web.Common.Extensions;
+
+    using FluentValidation;
+
+    /// <summary>
+    /// A class to validate the <see cref="MeasurementUnit"/>
+    /// </summary>
+    public class MeasurementUnitValidator : AbstractValidator<MeasurementUnit>
     {
-        private CreateDomainOfExpertiseValidator validator;
-
-        [SetUp]
-        public void SetUp()
+        /// <summary>
+        /// Instantiates a new <see cref="MeasurementUnitValidator"/>
+        /// </summary>
+        public MeasurementUnitValidator(IValidationService validationService) : base()
         {
-            var validationService = new ValidationService();
-            this.validator = new CreateDomainOfExpertiseValidator(validationService);
-        }
-
-        [Test]
-        public void VerifyValidationScenarios()
-        {
-            var domain = new DomainOfExpertise();
-            Assert.That(this.validator.Validate(domain).IsValid, Is.EqualTo(false));
-
-            domain = new DomainOfExpertise()
-            {
-                Name = "updated Domain",
-                ShortName = "updated Domain"
-            };
-
-            Assert.That(this.validator.Validate(domain).IsValid, Is.EqualTo(false));
-
-            domain.ShortName = "updatedDomain";
-            Assert.That(this.validator.Validate(domain).IsValid, Is.EqualTo(true));
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(MeasurementUnit.ShortName));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(MeasurementUnit.Name));
         }
     }
 }

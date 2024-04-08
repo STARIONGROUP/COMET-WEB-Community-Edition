@@ -26,9 +26,7 @@ namespace COMETwebapp.Tests.Validators
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
-
-    using COMETwebapp.Validators.Roles;
-
+    using COMETwebapp.Validators.SiteDirectory.Roles;
     using NUnit.Framework;
 
     [TestFixture]

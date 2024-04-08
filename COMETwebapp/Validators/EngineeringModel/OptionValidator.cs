@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParticipantRoleValidator.cs" company="RHEA System S.A.">
+//  <copyright file="OptionValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,9 +22,9 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.Roles
+namespace COMETwebapp.Validators.EngineeringModel
 {
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.Validation;
 
     using COMET.Web.Common.Extensions;
@@ -32,18 +32,17 @@ namespace COMETwebapp.Validators.Roles
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="ParticipantRole"/>
+    /// A class to validate the <see cref="Option"/>
     /// </summary>
-    public class ParticipantRoleValidator : AbstractValidator<ParticipantRole>
+    public class OptionValidator : AbstractValidator<Option>
     {
         /// <summary>
-        /// Instantiates a new <see cref="ParticipantRoleValidator"/>
+        /// Instantiates a new <see cref="OptionValidator"/>
         /// </summary>
-        public ParticipantRoleValidator(IValidationService validationService) : base()
+        public OptionValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.Name).Validate(validationService, nameof(ParticipantRole.Name));
-            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(ParticipantRole.ShortName));
-            this.RuleFor(x => x.ParticipantPermission).Validate(validationService, nameof(ParticipantRole.ParticipantPermission));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(Option.Name));
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(Option.ShortName));
         }
     }
 }

@@ -37,10 +37,15 @@ namespace COMETwebapp.Components.EngineeringModel
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    ///     Support class for the <see cref="OptionsTable"/>
+    /// Support class for the <see cref="OptionsTable"/>
     /// </summary>
     public partial class OptionsTable : SelectedDataItemBase<Option, OptionRowViewModel>
     {
+        /// <summary>
+        /// Gets or sets the value to check if component is on edit mode
+        /// </summary>
+        private bool IsOnEditMode { get; set; }
+
         /// <summary>
         /// The <see cref="IOptionsTableViewModel" /> for this component
         /// </summary>
@@ -58,15 +63,6 @@ namespace COMETwebapp.Components.EngineeringModel
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
-        {
-            await this.ViewModel.CreateOrEditOption(this.ShouldCreateThing);
-        }
-
-        /// <summary>
         /// Method invoked when creating a new thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
@@ -75,9 +71,29 @@ namespace COMETwebapp.Components.EngineeringModel
             base.CustomizeEditThing(e);
 
             var dataItem = (OptionRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
             this.ViewModel.SetCurrentOption(dataItem == null ? new Option() : dataItem.Thing);
             e.EditModel = this.ViewModel.Thing;
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        private void OnSelectedDataItemChanged(OptionRowViewModel row)
+        {
+            this.ViewModel.SetCurrentOption(row.Thing);
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Method invoked when the deletion popup is confirmed
+        /// </summary>
+        /// <returns></returns>
+        private async Task OnConfirmDelete()
+        {
+            await this.ViewModel.OnConfirmPopupButtonClick();
+            this.IsOnEditMode = false;
         }
 
         /// <summary>

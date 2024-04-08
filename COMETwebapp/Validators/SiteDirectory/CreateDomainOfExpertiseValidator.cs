@@ -1,6 +1,6 @@
 ﻿
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="UnitFactorValidator.cs" company="RHEA System S.A.">
+//  <copyright file="CreateDomainOfExpertiseValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.MeasurementUnits
+namespace COMETwebapp.Validators.SiteDirectory
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
@@ -33,17 +33,17 @@ namespace COMETwebapp.Validators.MeasurementUnits
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="UnitFactor"/>
+    /// A class to validate the <see cref="DomainOfExpertise"/>
     /// </summary>
-    public class UnitFactorValidator : AbstractValidator<UnitFactor>
+    public class CreateDomainOfExpertiseValidator : AbstractValidator<DomainOfExpertise>
     {
         /// <summary>
-        /// Instantiates a new <see cref="UnitFactorValidator"/>
+        /// Instantiates a new <see cref="CreateDomainOfExpertiseValidator"/>
         /// </summary>
-        public UnitFactorValidator(IValidationService validationService) : base()
+        public CreateDomainOfExpertiseValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.Unit).NotEmpty().Validate(validationService, nameof(UnitFactor.Unit));
-            this.RuleFor(x => x.Exponent).Validate(validationService, nameof(UnitFactor.Exponent));
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(DomainOfExpertise.ShortName));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(DomainOfExpertise.Name));
         }
     }
 }
