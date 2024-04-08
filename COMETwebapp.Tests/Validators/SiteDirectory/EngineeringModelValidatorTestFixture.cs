@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParticipantValidatorTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="EngineeringModelValidatorTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,41 +22,58 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators.EngineeringModel
+namespace COMETwebapp.Tests.Validators.SiteDirectory
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
+
     using COMETwebapp.Validators.SiteDirectory.EngineeringModel;
+
     using NUnit.Framework;
 
     [TestFixture]
-    public class ParticipantValidatorTestFixture
+    public class EngineeringModelValidatorTestFixture
     {
-        private ParticipantValidator validator;
+        private EngineeringModelValidator validator;
 
         [SetUp]
         public void SetUp()
         {
             var validationService = new ValidationService();
-            this.validator = new ParticipantValidator(validationService);
+            this.validator = new EngineeringModelValidator(validationService);
         }
 
         [Test]
         public void VerifyValidationScenarios()
         {
-            var participant = new Participant();
-            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(false));
+            var model = new EngineeringModelSetup();
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(false));
 
-            participant = new Participant()
+            model = new EngineeringModelSetup()
             {
-                Role = new ParticipantRole(),
-                Person = new Person()
+                Name = "name",
+                ShortName = "short"
             };
 
-            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(false));
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(false));
 
-            participant.Domain = [new DomainOfExpertise()];
-            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(true));
+            model.SourceEngineeringModelSetupIid = Guid.NewGuid();
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(true));
+
+            // Verifies the inputs for when the site rdl is set
+            model.SourceEngineeringModelSetupIid = null;
+            model.RequiredRdl.Add(new ModelReferenceDataLibrary());
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(false));
+
+            model.ActiveDomain = [new DomainOfExpertise()];
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(true));
+
+            // Verifies the organization input validation
+            model.OrganizationalParticipant.Add(new OrganizationalParticipant());
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(false));
+
+            model.DefaultOrganizationalParticipant = model.OrganizationalParticipant.First();
+            Assert.That(this.validator.Validate(model).IsValid, Is.EqualTo(true));
         }
     }
 }

@@ -22,11 +22,11 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators
+namespace COMETwebapp.Tests.Validators.ReferenceData
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
-    
+
     using COMETwebapp.Validators.ReferenceData.MeasurementUnits;
 
     using NUnit.Framework;
@@ -100,8 +100,8 @@ namespace COMETwebapp.Tests.Validators
 
             prefixedUnit = new PrefixedUnit()
             {
-                Prefix = new UnitPrefix(){ ShortName = "pre" },
-                ReferenceUnit = new SimpleUnit(){ ShortName = "ref" }
+                Prefix = new UnitPrefix() { ShortName = "pre" },
+                ReferenceUnit = new SimpleUnit() { ShortName = "ref" }
             };
 
             Assert.Multiple(() =>

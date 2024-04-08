@@ -56,11 +56,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed()
-        {
-            return Task.CompletedTask;
-        }
-
+        protected override Task OnSessionRefreshed() => Task.CompletedTask;
+        
         /// <summary>
         /// Update this view model properties
         /// </summary>
