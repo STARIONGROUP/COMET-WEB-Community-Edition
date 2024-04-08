@@ -22,14 +22,13 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
+namespace COMETwebapp.ViewModels.Components.Common.Rows
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Extensions;
-
-    using COMETwebapp.Extensions;
 
     using ReactiveUI;
 
@@ -93,6 +92,26 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows
         /// The name of the <see cref="ParameterOrOverrideBase" />
         /// </summary>
         public string ParameterName => this.Parameter.ParameterType.Name;
+
+        /// <summary>
+        /// The model code of the <see cref="Parameter"/>
+        /// </summary>
+        public string ParameterModelCode => this.Parameter.ModelCode();
+
+        /// <summary>
+        /// The shortname of the <see cref="DomainOfExpertise" /> owner of the current <see cref="Parameter"/>
+        /// </summary>
+        public string OwnerDomainShortName => this.Parameter.Owner.ShortName;
+
+        /// <summary>
+        /// The published value of the <see cref="Parameter"/>
+        /// </summary>
+        public string PublishedValue => ((ParameterValueSetBase)this.Parameter.ValueSets.FirstOrDefault())?.Published.ToString();
+
+        /// <summary>
+        /// The published value of the <see cref="Parameter"/>
+        /// </summary>
+        public string ActualValue => this.Parameter.ValueSets.First().ActualValue.ToString();
 
         /// <summary>
         /// The <see cref="ElementBase" /> container of the <see cref="ParameterOrOverrideBase" />

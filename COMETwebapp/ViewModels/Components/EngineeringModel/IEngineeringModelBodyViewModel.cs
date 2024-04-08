@@ -27,6 +27,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
 
     /// <summary>
     /// View Model that handle the logic for the Engineering model body application
@@ -37,5 +38,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
         /// Gets or sets the <see cref="IOptionsTableViewModel"/>
         /// </summary>
         IOptionsTableViewModel OptionsTableViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IPublicationsTableViewModel"/>
+        /// </summary>
+        IPublicationsTableViewModel PublicationsTableViewModel { get; }
     }
 }

@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
 
     /// <summary>
     /// View Model that handle the logic for the Engineering model body application
@@ -42,14 +43,22 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
         public IOptionsTableViewModel OptionsTableViewModel { get; private set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="IPublicationsTableViewModel"/>
+        /// </summary>
+        public IPublicationsTableViewModel PublicationsTableViewModel { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EngineeringModelBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="optionsTableViewModel">The <see cref="IOptionsTableViewModel"/></param>
-        public EngineeringModelBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IOptionsTableViewModel optionsTableViewModel) : base(sessionService, messageBus)
+        /// <param name="publicationsTableViewModel">The <see cref="IPublicationsTableViewModel"/></param>
+        public EngineeringModelBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IOptionsTableViewModel optionsTableViewModel, IPublicationsTableViewModel publicationsTableViewModel) 
+            : base(sessionService, messageBus)
         {
             this.OptionsTableViewModel = optionsTableViewModel;
+            this.PublicationsTableViewModel = publicationsTableViewModel;
         }
 
         /// <summary>
@@ -67,6 +76,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
             await base.OnThingChanged();
 
             this.OptionsTableViewModel.SetCurrentIteration(this.CurrentThing);
+            this.PublicationsTableViewModel.SetCurrentIteration(this.CurrentThing);
             this.IsLoading = false;
         }
     }
