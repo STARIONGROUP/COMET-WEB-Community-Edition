@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.EngineeringModel
+namespace COMETwebapp.Validators.SiteDirectory.EngineeringModel
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;

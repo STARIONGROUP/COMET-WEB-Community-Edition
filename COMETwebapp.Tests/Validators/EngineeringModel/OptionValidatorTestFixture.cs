@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RolesValidatorsTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="OptionValidatorTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,57 +22,43 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators
+namespace COMETwebapp.Tests.Validators.EngineeringModel
 {
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.Validation;
 
-    using COMETwebapp.Validators.Roles;
+    using COMETwebapp.Validators.EngineeringModel;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class RolesValidatorsTestFixture
+    public class OptionValidatorTestFixture
     {
-        private ParticipantRoleValidator participantRoleValidator;
-        private PersonRoleValidator personRoleValidator;
+        private OptionValidator validator;
 
         [SetUp]
         public void SetUp()
         {
             var validationService = new ValidationService();
-            this.participantRoleValidator = new ParticipantRoleValidator(validationService);
-            this.personRoleValidator = new PersonRoleValidator(validationService);
+            this.validator = new OptionValidator(validationService);
         }
 
         [Test]
-        public void VerifyParticipantRoleValidation()
+        public void VerifyValidationScenarios()
         {
-            var participantRole = new ParticipantRole();
-            Assert.That(this.participantRoleValidator.Validate(participantRole).IsValid, Is.EqualTo(false));
+            var option = new Option();
+            Assert.That(this.validator.Validate(option).IsValid, Is.EqualTo(false));
 
-            participantRole = new ParticipantRole()
+            option = new Option()
             {
-                Name = "updated Participant Role",
-                ShortName = "updatedPartRole"
+                Name = "name1",
+                ShortName = "short name"
             };
 
-            Assert.That(this.participantRoleValidator.Validate(participantRole).IsValid, Is.EqualTo(true));
-        }
+            Assert.That(this.validator.Validate(option).IsValid, Is.EqualTo(false));
 
-        [Test]
-        public void VerifyPersonRoleValidation()
-        {
-            var personRole = new PersonRole();
-            Assert.That(this.personRoleValidator.Validate(personRole).IsValid, Is.EqualTo(false));
-
-            personRole = new PersonRole()
-            {
-                Name = "updated Person Role",
-                ShortName = "updatedPersonRole"
-            };
-
-            Assert.That(this.personRoleValidator.Validate(personRole).IsValid, Is.EqualTo(true));
+            option.ShortName = "shortName";
+            Assert.That(this.validator.Validate(option).IsValid, Is.EqualTo(true));
         }
     }
 }

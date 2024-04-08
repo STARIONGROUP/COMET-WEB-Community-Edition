@@ -1,6 +1,5 @@
-﻿
-// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CreateDomainOfExpertiseValidator.cs" company="RHEA System S.A.">
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="ParticipantValidatorTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -23,27 +22,43 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators
+namespace COMETwebapp.Tests.Validators.SiteDirectory
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
 
-    using COMET.Web.Common.Extensions;
+    using COMETwebapp.Validators.SiteDirectory.EngineeringModel;
 
-    using FluentValidation;
+    using NUnit.Framework;
 
-    /// <summary>
-    /// A class to validate the <see cref="DomainOfExpertise"/>
-    /// </summary>
-    public class CreateDomainOfExpertiseValidator : AbstractValidator<DomainOfExpertise>
+    [TestFixture]
+    public class ParticipantValidatorTestFixture
     {
-        /// <summary>
-        /// Instantiates a new <see cref="CreateDomainOfExpertiseValidator"/>
-        /// </summary>
-        public CreateDomainOfExpertiseValidator(IValidationService validationService) : base()
+        private ParticipantValidator validator;
+
+        [SetUp]
+        public void SetUp()
         {
-            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(DomainOfExpertise.ShortName));
-            this.RuleFor(x => x.Name).Validate(validationService, nameof(DomainOfExpertise.Name));
+            var validationService = new ValidationService();
+            this.validator = new ParticipantValidator(validationService);
+        }
+
+        [Test]
+        public void VerifyValidationScenarios()
+        {
+            var participant = new Participant();
+            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(false));
+
+            participant = new Participant()
+            {
+                Role = new ParticipantRole(),
+                Person = new Person()
+            };
+
+            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(false));
+
+            participant.Domain = [new DomainOfExpertise()];
+            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(true));
         }
     }
 }

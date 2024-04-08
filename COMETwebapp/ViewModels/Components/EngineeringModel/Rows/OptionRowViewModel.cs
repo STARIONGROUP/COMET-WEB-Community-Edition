@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="PersonRoleValidator.cs" company="RHEA System S.A.">
+//  <copyright file="OptionRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,28 +22,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.Roles
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
 {
-    using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Validation;
+    using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.Extensions;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
-    using FluentValidation;
+    using ReactiveUI;
 
     /// <summary>
-    /// A class to validate the <see cref="PersonRole"/>
+    /// Row View Model for  <see cref="Option" />
     /// </summary>
-    public class PersonRoleValidator : AbstractValidator<PersonRole>
+    public class OptionRowViewModel : BaseDataItemRowViewModel<Option>
     {
         /// <summary>
-        /// Instantiates a new <see cref="PersonRoleValidator"/>
+        /// The backing field for <see cref="IsDefault"/>
         /// </summary>
-        public PersonRoleValidator(IValidationService validationService) : base()
+        private bool isDefault;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OptionRowViewModel" /> class.
+        /// </summary>
+        /// <param name="option">The associated <see cref="Option" /></param>
+        public OptionRowViewModel(Option option) : base(option)
         {
-            this.RuleFor(x => x.Name).Validate(validationService, nameof(PersonRole.Name));
-            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(PersonRole.ShortName));
-            this.RuleFor(x => x.PersonPermission).Validate(validationService, nameof(PersonRole.PersonPermission));
+            this.IsDefault = option.IsDefault;
+        }
+
+        /// <summary>
+        /// The value to check if the current option is default
+        /// </summary>
+        public bool IsDefault
+        {
+            get => this.isDefault;
+            set => this.RaiseAndSetIfChanged(ref this.isDefault, value);
         }
     }
 }

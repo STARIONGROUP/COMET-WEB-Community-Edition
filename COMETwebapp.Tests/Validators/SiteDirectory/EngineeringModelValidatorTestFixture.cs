@@ -22,12 +22,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators.EngineeringModel
+namespace COMETwebapp.Tests.Validators.SiteDirectory
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
 
-    using COMETwebapp.Validators.EngineeringModel;
+    using COMETwebapp.Validators.SiteDirectory.EngineeringModel;
 
     using NUnit.Framework;
 

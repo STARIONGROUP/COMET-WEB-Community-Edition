@@ -30,12 +30,13 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.BookEditor;
+    using COMETwebapp.ViewModels.Components.EngineeringModel;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
-    using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
@@ -103,6 +104,8 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IActiveDomainsTableViewModel, ActiveDomainsTableViewModel>();
             serviceCollection.AddTransient<IParticipantRolesTableViewModel, ParticipantRolesTableViewModel>();
             serviceCollection.AddTransient<IPersonRolesTableViewModel, PersonRolesTableViewModel>();
+            serviceCollection.AddTransient<IEngineeringModelBodyViewModel, EngineeringModelBodyViewModel>();
+            serviceCollection.AddTransient<IOptionsTableViewModel, OptionsTableViewModel>();
         }
     }
 }

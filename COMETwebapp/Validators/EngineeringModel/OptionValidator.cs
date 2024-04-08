@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParticipantValidatorTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="OptionValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,43 +22,27 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators.EngineeringModel
+namespace COMETwebapp.Validators.EngineeringModel
 {
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.Validation;
 
-    using COMETwebapp.Validators.EngineeringModel;
+    using COMET.Web.Common.Extensions;
 
-    using NUnit.Framework;
+    using FluentValidation;
 
-    [TestFixture]
-    public class ParticipantValidatorTestFixture
+    /// <summary>
+    /// A class to validate the <see cref="Option"/>
+    /// </summary>
+    public class OptionValidator : AbstractValidator<Option>
     {
-        private ParticipantValidator validator;
-
-        [SetUp]
-        public void SetUp()
+        /// <summary>
+        /// Instantiates a new <see cref="OptionValidator"/>
+        /// </summary>
+        public OptionValidator(IValidationService validationService) : base()
         {
-            var validationService = new ValidationService();
-            this.validator = new ParticipantValidator(validationService);
-        }
-
-        [Test]
-        public void VerifyValidationScenarios()
-        {
-            var participant = new Participant();
-            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(false));
-
-            participant = new Participant()
-            {
-                Role = new ParticipantRole(),
-                Person = new Person()
-            };
-
-            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(false));
-
-            participant.Domain = [new DomainOfExpertise()];
-            Assert.That(this.validator.Validate(participant).IsValid, Is.EqualTo(true));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(Option.Name));
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(Option.ShortName));
         }
     }
 }

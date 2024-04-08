@@ -1,6 +1,5 @@
-﻿
-// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="MeasurementUnitValidator.cs" company="RHEA System S.A.">
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="ParticipantRoleValidator.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -23,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.MeasurementUnits
+namespace COMETwebapp.Validators.SiteDirectory.Roles
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
@@ -33,17 +32,18 @@ namespace COMETwebapp.Validators.MeasurementUnits
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="MeasurementUnit"/>
+    /// A class to validate the <see cref="ParticipantRole"/>
     /// </summary>
-    public class MeasurementUnitValidator : AbstractValidator<MeasurementUnit>
+    public class ParticipantRoleValidator : AbstractValidator<ParticipantRole>
     {
         /// <summary>
-        /// Instantiates a new <see cref="MeasurementUnitValidator"/>
+        /// Instantiates a new <see cref="ParticipantRoleValidator"/>
         /// </summary>
-        public MeasurementUnitValidator(IValidationService validationService) : base()
+        public ParticipantRoleValidator(IValidationService validationService) : base()
         {
-            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(MeasurementUnit.ShortName));
-            this.RuleFor(x => x.Name).Validate(validationService, nameof(MeasurementUnit.Name));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(ParticipantRole.Name));
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(ParticipantRole.ShortName));
+            this.RuleFor(x => x.ParticipantPermission).Validate(validationService, nameof(ParticipantRole.ParticipantPermission));
         }
     }
 }

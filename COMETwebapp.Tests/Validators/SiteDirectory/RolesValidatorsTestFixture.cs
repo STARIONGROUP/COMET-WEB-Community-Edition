@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CreateDomainOfExpertiseValidatorTestFixture.cs" company="RHEA System S.A.">
+//  <copyright file="RolesValidatorsTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,43 +22,57 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Validators
+namespace COMETwebapp.Tests.Validators.SiteDirectory
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
 
-    using COMETwebapp.Validators;
+    using COMETwebapp.Validators.SiteDirectory.Roles;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class CreateDomainOfExpertiseValidatorTestFixture
+    public class RolesValidatorsTestFixture
     {
-        private CreateDomainOfExpertiseValidator validator;
+        private ParticipantRoleValidator participantRoleValidator;
+        private PersonRoleValidator personRoleValidator;
 
         [SetUp]
         public void SetUp()
         {
             var validationService = new ValidationService();
-            this.validator = new CreateDomainOfExpertiseValidator(validationService);
+            this.participantRoleValidator = new ParticipantRoleValidator(validationService);
+            this.personRoleValidator = new PersonRoleValidator(validationService);
         }
 
         [Test]
-        public void VerifyValidationScenarios()
+        public void VerifyParticipantRoleValidation()
         {
-            var domain = new DomainOfExpertise();
-            Assert.That(this.validator.Validate(domain).IsValid, Is.EqualTo(false));
+            var participantRole = new ParticipantRole();
+            Assert.That(this.participantRoleValidator.Validate(participantRole).IsValid, Is.EqualTo(false));
 
-            domain = new DomainOfExpertise()
+            participantRole = new ParticipantRole()
             {
-                Name = "updated Domain",
-                ShortName = "updated Domain"
+                Name = "updated Participant Role",
+                ShortName = "updatedPartRole"
             };
 
-            Assert.That(this.validator.Validate(domain).IsValid, Is.EqualTo(false));
+            Assert.That(this.participantRoleValidator.Validate(participantRole).IsValid, Is.EqualTo(true));
+        }
 
-            domain.ShortName = "updatedDomain";
-            Assert.That(this.validator.Validate(domain).IsValid, Is.EqualTo(true));
+        [Test]
+        public void VerifyPersonRoleValidation()
+        {
+            var personRole = new PersonRole();
+            Assert.That(this.personRoleValidator.Validate(personRole).IsValid, Is.EqualTo(false));
+
+            personRole = new PersonRole()
+            {
+                Name = "updated Person Role",
+                ShortName = "updatedPersonRole"
+            };
+
+            Assert.That(this.personRoleValidator.Validate(personRole).IsValid, Is.EqualTo(true));
         }
     }
 }
