@@ -48,7 +48,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         void SetCurrentIteration(Iteration iteration);
 
         /// <summary>
-        /// Gets or sets the value to check if the option to create is the default option for the <see cref="CurrentIteration"/>
+        /// Gets or sets the value to check if the option to create is the default option for the <see cref="OptionsTableViewModel.CurrentIteration"/>
         /// </summary>
         bool SelectedIsDefaultValue { get; set; }
 

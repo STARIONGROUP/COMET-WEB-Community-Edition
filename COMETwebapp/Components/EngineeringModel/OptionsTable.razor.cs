@@ -42,15 +42,15 @@ namespace COMETwebapp.Components.EngineeringModel
     public partial class OptionsTable : SelectedDataItemBase<Option, OptionRowViewModel>
     {
         /// <summary>
-        /// Gets or sets the value to check if component is on edit mode
-        /// </summary>
-        private bool IsOnEditMode { get; set; }
-
-        /// <summary>
         /// The <see cref="IOptionsTableViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
         public IOptionsTableViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets the value to check if component is on edit mode
+        /// </summary>
+        public bool IsOnEditMode { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

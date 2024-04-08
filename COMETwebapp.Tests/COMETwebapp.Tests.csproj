@@ -38,8 +38,4 @@
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\EngineeringModel\" />
-  </ItemGroup>
-
 </Project>
