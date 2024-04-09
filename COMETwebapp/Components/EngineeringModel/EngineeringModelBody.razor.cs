@@ -54,6 +54,7 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             {typeof(OptionsTable), (this.ViewModel.OptionsTableViewModel, "Options")},
             {typeof(PublicationsTable), (this.ViewModel.PublicationsTableViewModel, "Publications")},
+            {typeof(CommonFileStoresTable), (this.ViewModel.CommonFileStoreTableViewModel, "Common File Store")},
         };
 
         /// <summary>

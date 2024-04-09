@@ -31,6 +31,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.BookEditor;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
@@ -108,6 +109,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IEngineeringModelBodyViewModel, EngineeringModelBodyViewModel>();
             serviceCollection.AddTransient<IOptionsTableViewModel, OptionsTableViewModel>();
             serviceCollection.AddTransient<IPublicationsTableViewModel, PublicationsTableViewModel>();
+            serviceCollection.AddTransient<ICommonFileStoreTableViewModel, CommonFileStoreTableViewModel>();
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IEngineeringModelBodyViewModel.cs" company="RHEA System S.A.">
+//  <copyright file="CommonFileStoreRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,32 +22,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
 {
-    using COMET.Web.Common.ViewModels.Components.Applications;
+    using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
+
+    using ReactiveUI;
 
     /// <summary>
-    /// View Model that handle the logic for the Engineering model body application
+    /// Row View Model for  <see cref="CommonFileStore" />
     /// </summary>
-    public interface IEngineeringModelBodyViewModel : ISingleIterationApplicationBaseViewModel
+    public class CommonFileStoreRowViewModel : BaseDataItemRowViewModel<CommonFileStore>
     {
         /// <summary>
-        /// Gets or sets the <see cref="IOptionsTableViewModel"/>
+        /// The backing field for <see cref="CreatedOn"/>
         /// </summary>
-        IOptionsTableViewModel OptionsTableViewModel { get; }
+        private string createdOn;
 
         /// <summary>
-        /// Gets or sets the <see cref="IPublicationsTableViewModel"/>
+        /// Initializes a new instance of the <see cref="CommonFileStoreRowViewModel" /> class.
         /// </summary>
-        IPublicationsTableViewModel PublicationsTableViewModel { get; }
+        /// <param name="commonFileStore">The associated <see cref="CommonFileStore" /></param>
+        public CommonFileStoreRowViewModel(CommonFileStore commonFileStore) : base(commonFileStore)
+        {
+            this.CreatedOn = commonFileStore.CreatedOn.ToString("dd/MM/yyyy HH:mm:ss");
+        }
 
         /// <summary>
-        /// Gets or sets the <see cref="ICommonFileStoreTableViewModel"/>
+        /// The date and time when the <see cref="CommonFileStore"/> was created, as a <see cref="string"/>
         /// </summary>
-        ICommonFileStoreTableViewModel CommonFileStoreTableViewModel { get; }
+        public string CreatedOn
+        {
+            get => this.createdOn;
+            set => this.RaiseAndSetIfChanged(ref this.createdOn, value);
+        }
     }
 }

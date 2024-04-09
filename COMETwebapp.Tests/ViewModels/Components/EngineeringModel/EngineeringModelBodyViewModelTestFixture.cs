@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
 
@@ -46,6 +47,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         private CDPMessageBus messageBus;
         private Mock<IOptionsTableViewModel> optionsTableViewModel;
         private Mock<IPublicationsTableViewModel> publicationsTableViewModel;
+        private Mock<ICommonFileStoreTableViewModel> commonFileStoreTableViewModel;
 
         [SetUp]
         public void Setup()
@@ -53,9 +55,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.sessionService = new Mock<ISessionService>();
             this.optionsTableViewModel = new Mock<IOptionsTableViewModel>();
             this.publicationsTableViewModel = new Mock<IPublicationsTableViewModel>();
+            this.commonFileStoreTableViewModel = new Mock<ICommonFileStoreTableViewModel>();
             this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new EngineeringModelBodyViewModel(this.sessionService.Object, this.messageBus, this.optionsTableViewModel.Object, this.publicationsTableViewModel.Object);
+            this.viewModel = new EngineeringModelBodyViewModel(this.sessionService.Object, this.messageBus, this.optionsTableViewModel.Object, this.publicationsTableViewModel.Object, 
+                this.commonFileStoreTableViewModel.Object);
         }
 
         [TearDown]

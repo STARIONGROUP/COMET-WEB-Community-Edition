@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OptionsForm.razor.cs" company="RHEA System S.A.">
+// <copyright file="CommonFileStoresForm.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -27,20 +27,20 @@ namespace COMETwebapp.Components.EngineeringModel
     using System.ComponentModel.DataAnnotations;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="OptionsForm"/>
+    /// Support class for the <see cref="CommonFileStoresForm"/>
     /// </summary>
-    public partial class OptionsForm : SelectedDataItemForm
+    public partial class CommonFileStoresForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The <see cref="IOptionsTableViewModel" /> for this component
+        /// The <see cref="ICommonFileStoreTableViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
-        public IOptionsTableViewModel ViewModel { get; set; }
+        public ICommonFileStoreTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method that is executed when there is a valid submit
@@ -48,7 +48,7 @@ namespace COMETwebapp.Components.EngineeringModel
         /// <returns>A <see cref="Task"/></returns>
         protected override async Task OnValidSubmit()
         {
-            await this.ViewModel.CreateOrEditOption(this.ShouldCreate);
+            await this.ViewModel.CreateOrEditCommonFileStore(this.ShouldCreate);
             await base.OnValidSubmit();
         }
     }

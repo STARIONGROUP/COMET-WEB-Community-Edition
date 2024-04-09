@@ -14,33 +14,4 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits SelectedDataItemForm
-
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
-    <FluentValidationValidator />
-    <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Is Default:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.SelectedIsDefaultValue"/>
-        </DxFormLayoutItem>
-    </DxFormLayout>
-    <div class="pt-3"></div>
-    <ValidationSummary />
-    <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="saveParticipantRoleButton"
-                  SubmitFormOnClick="true">
-            Save
-        </DxButton>
-        
-        <DxButton Id="cancelOptionsButton"
-                  Click="@(() => this.OnCancel())"
-                  RenderStyle="ButtonRenderStyle.Secondary">
-            Cancel
-        </DxButton>
-    </div>
-</EditForm>
+@inherits DisposableComponent
