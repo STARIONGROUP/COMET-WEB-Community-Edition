@@ -106,12 +106,12 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
         /// <summary>
         /// The published value of the <see cref="Parameter"/>
         /// </summary>
-        public string PublishedValue => ((ParameterValueSetBase)this.Parameter.ValueSets.FirstOrDefault())?.Published.ToString();
+        public string PublishedValue => string.Join(" | ", this.Parameter.ValueSets.Cast<ParameterValueSetBase>().Select(x => x.Published));
 
         /// <summary>
-        /// The published value of the <see cref="Parameter"/>
+        /// The actual value of the <see cref="Parameter"/>
         /// </summary>
-        public string ActualValue => this.Parameter.ValueSets.First().ActualValue.ToString();
+        public string ActualValue => string.Join(" | ", this.Parameter.ValueSets.Select(x => x.ActualValue));
 
         /// <summary>
         /// The <see cref="ElementBase" /> container of the <see cref="ParameterOrOverrideBase" />
@@ -122,6 +122,11 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
         /// The name of the <see cref="ElementBase" />
         /// </summary>
         public string ElementName => this.Element.Name;
+
+        /// <summary>
+        /// The shortname of the <see cref="ElementBase" />
+        /// </summary>
+        public string ElementShortName => this.Element.ShortName;
 
         /// <summary>
         /// Value indicating if the <see cref="ParameterOrOverrideBase" /> is <see cref="ActualFiniteState" /> dependent

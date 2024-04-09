@@ -31,7 +31,6 @@ namespace COMETwebapp.Components.EngineeringModel
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.Common.Rows;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
@@ -85,7 +84,7 @@ namespace COMETwebapp.Components.EngineeringModel
         /// <summary>
         /// Method used to publish the selected parameters
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/></returns>
         private async Task PublishSelectedParameters()
         {
            await this.ViewModel.CreatePublication();

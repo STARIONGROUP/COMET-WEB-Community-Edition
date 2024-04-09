@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
 {
-    using System.Globalization;
-
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.ViewModels.Components.Common.Rows;

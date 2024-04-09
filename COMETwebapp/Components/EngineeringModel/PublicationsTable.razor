@@ -19,45 +19,57 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits SelectedDataItemBase<CDP4Common.EngineeringModelData.Publication, PublicationRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxGrid Data="@(this.ViewModel.GetParametersThatCanBePublished())"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowAllRows="true"
-            @bind-SelectedDataItems="@(this.ViewModel.SelectedParameterRowsToPublish)"
-            KeyFieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterModelCode)"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-        <Columns>
-            <DxGridSelectionColumn Width="104px" />
-            <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.OwnerDomainShortName)" Caption="Domain" GroupInterval="GridColumnGroupInterval.DisplayText" GroupIndex="0" AllowGroup="true"/>
-            <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterName)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ActualValue)" MinWidth="80"/>
-            <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.PublishedValue)" MinWidth="80"/>
-            <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterModelCode)" MinWidth="80"/>
-            <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ElementName)" MinWidth="80"/>
-        </Columns>
-    </DxGrid>
-    
-    <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Publish" RenderStyle="ButtonRenderStyle.Primary" Click="@this.PublishSelectedParameters" />
-    </div>
 
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items.OrderByDescending(x => x.CreatedOn)"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            SearchBoxNullText="Search for an option..."
-            AllowSelectRowByClick="true"
-            SelectionMode="GridSelectionMode.Single"
-            SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((PublicationRowViewModel)row))"
-            PageSize="20"
-            PagerNavigationMode="PagerNavigationMode.Auto"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
-            PageSizeSelectorAllRowsItemVisible="true">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.CreatedOn)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domains)" MinWidth="80"/>
-        </Columns>
-    </DxGrid>
+    <div style="display: grid;" class="pt-3">
+        
+        <h3>Publishable Parameters</h3>
+        <DxGrid Data="@(this.ViewModel.GetParametersThatCanBePublished())"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowAllRows="true"
+                AutoExpandAllGroupRows="true"
+                @bind-SelectedDataItems="@(this.ViewModel.SelectedParameterRowsToPublish)"
+                KeyFieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterModelCode)"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+            <Columns>
+                <DxGridSelectionColumn Width="104px"/>
+                <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.OwnerDomainShortName)" Caption="Domain" GroupInterval="GridColumnGroupInterval.DisplayText" GroupIndex="0" AllowGroup="true"/>
+                <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterName)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ActualValue)" Caption="New Value" MinWidth="80"/>
+                <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.PublishedValue)" Caption="Old Value" MinWidth="80"/>
+                <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ParameterModelCode)" MinWidth="80"/>
+                <DxGridDataColumn FieldName="@nameof(OwnedParameterOrOverrideBaseRowViewModel.ElementShortName)" MinWidth="80"/>
+            </Columns>
+        </DxGrid>
+
+        <div class="p-3">
+            <DxButton Id="addPublicationButton" 
+                      Text="Publish" 
+                      RenderStyle="ButtonRenderStyle.Primary" 
+                      Click="@this.PublishSelectedParameters"
+                      CssClass="float-end"/>
+        </div>
+        
+        <h3>Publications</h3>
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items.OrderByDescending(x => x.CreatedOn)"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for an option..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((PublicationRowViewModel)row))"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.CreatedOn)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domains)" MinWidth="80"/>
+            </Columns>
+        </DxGrid>
+
+    </div>
 
 </LoadingComponent>
 

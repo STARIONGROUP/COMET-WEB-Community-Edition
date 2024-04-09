@@ -28,7 +28,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
@@ -61,7 +60,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
         /// <summary>
         /// Gets or sets the collection of selected rows
         /// </summary>
-        public IReadOnlyList<object> SelectedParameterRowsToPublish { get; set; }
+        public IReadOnlyList<object> SelectedParameterRowsToPublish { get; set; } = [];
 
         /// <summary>
         /// Sets the <see cref="CurrentIteration"/> value
@@ -99,6 +98,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreatePublication()
         {
+            if (this.SelectedParameterRowsToPublish.Count == 0)
+            {
+                return;
+            }
+
             this.IsLoading = true;
 
             var thingsToCreate = new List<Thing>();
@@ -111,7 +115,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
                 .ToList();
 
             iterationClone.Publication.Add(publication);
-
             thingsToCreate.Add(iterationClone);
             thingsToCreate.Add(publication);
 
