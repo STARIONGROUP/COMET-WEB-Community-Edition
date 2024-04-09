@@ -33,8 +33,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SubscriptionDashboard;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
-    using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
 
     using DevExpress.Blazor;
 

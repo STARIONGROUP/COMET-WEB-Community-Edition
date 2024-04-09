@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.SubscriptionDashboard.Rows;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
 

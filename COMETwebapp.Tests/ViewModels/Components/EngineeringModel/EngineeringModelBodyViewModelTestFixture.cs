@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
 
     using Moq;
 
@@ -44,15 +45,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         private Mock<ISessionService> sessionService;
         private CDPMessageBus messageBus;
         private Mock<IOptionsTableViewModel> optionsTableViewModel;
+        private Mock<IPublicationsTableViewModel> publicationsTableViewModel;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
             this.optionsTableViewModel = new Mock<IOptionsTableViewModel>();
+            this.publicationsTableViewModel = new Mock<IPublicationsTableViewModel>();
             this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new EngineeringModelBodyViewModel(this.sessionService.Object, this.messageBus, this.optionsTableViewModel.Object);
+            this.viewModel = new EngineeringModelBodyViewModel(this.sessionService.Object, this.messageBus, this.optionsTableViewModel.Object, this.publicationsTableViewModel.Object);
         }
 
         [TearDown]

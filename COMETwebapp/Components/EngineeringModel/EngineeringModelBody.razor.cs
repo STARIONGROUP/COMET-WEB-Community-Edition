@@ -53,6 +53,7 @@ namespace COMETwebapp.Components.EngineeringModel
         private Dictionary<Type, (object, string)> MapOfComponentsAndParameters => new()
         {
             {typeof(OptionsTable), (this.ViewModel.OptionsTableViewModel, "Options")},
+            {typeof(PublicationsTable), (this.ViewModel.PublicationsTableViewModel, "Publications")},
         };
 
         /// <summary>
