@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.EngineeringModel
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
@@ -45,19 +46,51 @@ namespace COMETwebapp.Components.EngineeringModel
         public IFolderFileStructureViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets the selected file from the <see cref="TreeView"/>
+        /// </summary>
+        public File SelectedFile { get; private set; }
+
+        /// <summary>
+        /// Gets the selected folder from the <see cref="TreeView"/>
+        /// </summary>
+        public Folder SelectedFolder { get; private set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="DxTreeView"/> used to display the folder-file structure
         /// </summary>
         private DxTreeView TreeView { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected file from the <see cref="TreeView"/>
+        /// Method that is triggered every time a node is clicked
         /// </summary>
-        private File SelectedFile { get; set; }
+        /// <param name="e">The <see cref="TreeViewNodeClickEventArgs"/></param>
+        public void OnNodeClick(ITreeViewNodeInfo e)
+        {
+            var dataItem = (FileFolderNodeViewModel)e.DataItem;
+
+            if (dataItem.Thing is not File file)
+            {
+                return;
+            }
+
+            this.ViewModel.File = file;
+            this.SelectedFile = this.ViewModel.File;
+        }
 
         /// <summary>
-        /// Gets or sets the selected folder from the <see cref="TreeView"/>
+        /// Method that is triggered every time the edit folder icon is clicked
         /// </summary>
-        private Folder SelectedFolder { get; set; }
+        /// <param name="row">The selected row</param>
+        public void OnEditFolderClick(FileFolderNodeViewModel row)
+        {
+            if (row.Thing is not Folder folder)
+            {
+                return;
+            }
+
+            this.ViewModel.Folder = folder;
+            this.SelectedFolder = this.ViewModel.Folder;
+        }
 
         /// <summary>
         /// Method invoked after each time the component has rendered interactively and the UI has finished
@@ -83,27 +116,6 @@ namespace COMETwebapp.Components.EngineeringModel
             if (firstRender)
             {
                 this.TreeView.SetNodeExpanded(x => x.Visible, true);
-            }
-        }
-
-        /// <summary>
-        /// Method that is triggered every time a node is clicked
-        /// </summary>
-        /// <param name="e">The <see cref="TreeViewNodeClickEventArgs"/></param>
-        private void OnNodeClick(TreeViewNodeClickEventArgs e)
-        {
-            var dataItem = (FileFolderNodeViewModel)e.NodeInfo.DataItem;
-
-            switch (dataItem.Thing)
-            {
-                case File file:
-                    this.ViewModel.File = file;
-                    this.SelectedFile = this.ViewModel.File;
-                    break;
-                case Folder folder:
-                    this.ViewModel.Folder = folder;
-                    this.SelectedFolder = this.ViewModel.Folder;
-                    break;
             }
         }
 

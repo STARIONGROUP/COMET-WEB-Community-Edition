@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.File)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Folder)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Locked By:" ColSpanMd="6">
@@ -25,7 +25,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
             <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
                         TextFieldName="@nameof(DomainOfExpertise.Name)"
-                        @bind-Value="@this.ViewModel.File.Owner"
+                        @bind-Value="@this.ViewModel.Folder.Owner"
                         CssClass="cw-480" />
         </DxFormLayoutItem>
     </DxFormLayout>

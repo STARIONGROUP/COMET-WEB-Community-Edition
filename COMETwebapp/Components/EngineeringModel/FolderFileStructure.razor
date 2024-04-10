@@ -21,12 +21,27 @@ Copyright (c) 2023-2024 RHEA System S.A.
             Data="@this.ViewModel.Structure"
             AnimationType="LayoutAnimationType.Slide"
             style="height: 40vh;"
-            NodeClick="this.OnNodeClick">
+            NodeClick="(e) => this.OnNodeClick(e.NodeInfo)">
     <DataMappings>
         <DxTreeViewDataMapping Children="Content"
                                Text="@nameof(FileFolderNodeViewModel.Name)"
                                IconCssClass="@nameof(FileFolderNodeViewModel.IconCssClass)" />
     </DataMappings>
+    <NodeTextTemplate Context="nodeContext">
+        @nodeContext.Text
+        @{
+            var row = (FileFolderNodeViewModel)nodeContext.DataItem;
+
+            if (row.Thing is Folder)
+            {
+                <DxButton Id="editFolderButton"
+                          IconCssClass="oi oi-pencil"
+                          Click="@(() => this.OnEditFolderClick(row))"
+                          SizeMode="SizeMode.Small"
+                          CssClass="float-end" />
+            }
+        }
+    </NodeTextTemplate>
 </DxTreeView>
 
 <DxPopup Visible="@(this.SelectedFile != null)"
@@ -39,7 +54,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 </DxPopup>
 
 <DxPopup Visible="@(this.SelectedFolder != null)"
-         HeaderText="File"
+         HeaderText="Folder"
          CloseOnOutsideClick="false"
          Closed="@(this.OnClosedFormPopup)"
          CssClass="pw-800">

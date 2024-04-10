@@ -33,10 +33,14 @@ Copyright (c) 2023-2024 RHEA System S.A.
     <div class="pt-3"></div>
     <ValidationSummary />
     <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Click="@(() => this.DownloadFile())">
+            Download
+        </DxButton>
+
         <DxButton SubmitFormOnClick="true">
             Save
         </DxButton>
-        
+
         <DxButton Id="cancelFileButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
@@ -44,7 +48,3 @@ Copyright (c) 2023-2024 RHEA System S.A.
         </DxButton>
     </div>
 </EditForm>
-
-<DxButton Click="@(() => this.DownloadFile())">
-    Download
-</DxButton>
