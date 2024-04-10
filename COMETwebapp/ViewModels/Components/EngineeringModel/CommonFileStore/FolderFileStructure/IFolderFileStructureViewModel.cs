@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ICommonFileStoreTableViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IFolderFileStructureViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,51 +22,45 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
-
     /// <summary>
-    /// View model used to manage <see cref="CommonFileStore" />
+    /// View model used to manage the folder file structure
     /// </summary>
-    public interface ICommonFileStoreTableViewModel : IDeletableDataItemTableViewModel<CommonFileStore, CommonFileStoreRowViewModel>
+    public interface IFolderFileStructureViewModel
     {
         /// <summary>
-        /// Creates or edits a <see cref="CommonFileStore"/>
+        /// Initializes the current <see cref="FolderFileStructureViewModel"/>
         /// </summary>
-        /// <param name="shouldCreate">The value to check if a new <see cref="CommonFileStore"/> should be created</param>
-        /// <returns>A <see cref="Task"/></returns>
-        Task CreateOrEditCommonFileStore(bool shouldCreate);
+        /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
+        void InitializeViewModel(FileStore fileStore);
 
         /// <summary>
-        /// Sets the <see cref="CommonFileStoreTableViewModel.CurrentIteration"/> value
+        /// The folder-file hierarchically structured
         /// </summary>
-        /// <param name="iteration">The iteration to be set</param>
-        void SetCurrentIteration(Iteration iteration);
+        List<FileFolderNodeViewModel> Structure { get; set; }
 
         /// <summary>
-        /// Gets a collection of all the available <see cref="DomainOfExpertise"/>
+        /// Gets or sets the file to be created/edited
+        /// </summary>
+        File File { get; set; }
+
+        /// <summary>
+        /// Gets or sets the folder to be created/edited
+        /// </summary>
+        Folder Folder { get; set; }
+
+        /// <summary>
+        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
         /// </summary>
         IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
 
         /// <summary>
-        /// Gets or sets the value to verify if the <see cref="CommonFileStore"/> to create is private
+        /// Gets or sets the condition to check if the file or folder to be created is locked
         /// </summary>
-        bool IsPrivate { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="IFolderFileStructureViewModel"/>
-        /// </summary>
-        IFolderFileStructureViewModel FolderFileStructureViewModel { get; }
-
-        /// <summary>
-        /// Loads the file structure handled by the <see cref="CommonFileStoreTableViewModel.FolderFileStructureViewModel"/>
-        /// </summary>
-        void LoadFileStructure();
+        bool IsLocked { get; set; }
     }
 }

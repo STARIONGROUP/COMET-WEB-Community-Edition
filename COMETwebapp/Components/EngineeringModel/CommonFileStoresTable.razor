@@ -71,6 +71,9 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 <CommonFileStoresForm ViewModel="@this.ViewModel"
                                       @bind-IsVisible="@this.IsOnEditMode"
                                       ShouldCreate="false"/>
+                <DxButton Click="this.OnSeeFolderFileStructureClick">
+                    See Folder-File Structure
+                </DxButton>
             </div>
         }
         
@@ -83,4 +86,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.OnConfirmDelete" />
     </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@this.IsFolderFileStructureVisible" HeaderText="Folder-File Structure" Width="50%" CloseOnOutsideClick="false">
+    <FolderFileStructure ViewModel="@this.ViewModel.FolderFileStructureViewModel"/>
 </DxPopup>

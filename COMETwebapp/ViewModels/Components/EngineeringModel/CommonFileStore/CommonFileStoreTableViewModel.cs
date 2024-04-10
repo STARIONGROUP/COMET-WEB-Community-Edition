@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
     /// <summary>
@@ -51,11 +52,18 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public CommonFileStoreTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<CommonFileStoreTableViewModel> logger)
+        /// <param name="folderFileStructureViewModel">The <see cref="IFolderFileStructureViewModel"/></param>
+        public CommonFileStoreTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<CommonFileStoreTableViewModel> logger, IFolderFileStructureViewModel folderFileStructureViewModel)
             : base(sessionService, messageBus, logger)
         {
+            this.FolderFileStructureViewModel = folderFileStructureViewModel;
             this.Thing = new CommonFileStore();
         }
+
+        /// <summary>
+        /// Gets the <see cref="IFolderFileStructureViewModel"/>
+        /// </summary>
+        public IFolderFileStructureViewModel FolderFileStructureViewModel { get; private set; }
 
         /// <summary>
         /// Gets or sets the value to verify if the <see cref="CommonFileStore"/> to create is private
@@ -83,6 +91,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         public void SetCurrentIteration(Iteration iteration)
         {
             this.CurrentIteration = iteration;
+        }
+
+        /// <summary>
+        /// Loads the file structure handled by the <see cref="FolderFileStructureViewModel"/>
+        /// </summary>
+        public void LoadFileStructure()
+        {
+            this.FolderFileStructureViewModel.InitializeViewModel(this.Thing);
         }
 
         /// <summary>

@@ -53,6 +53,11 @@ namespace COMETwebapp.Components.EngineeringModel
         public bool IsOnEditMode { get; private set; }
 
         /// <summary>
+        /// Gets the value to check if the folder file structure component is visible
+        /// </summary>
+        public bool IsFolderFileStructureVisible { get; private set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -94,6 +99,15 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             await this.ViewModel.OnConfirmPopupButtonClick();
             this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Method invoked when the see folder file structure button is clicked
+        /// </summary>
+        private void OnSeeFolderFileStructureClick()
+        {
+            this.ViewModel.LoadFileStructure();
+            this.IsFolderFileStructureVisible = true;
         }
     }
 }
