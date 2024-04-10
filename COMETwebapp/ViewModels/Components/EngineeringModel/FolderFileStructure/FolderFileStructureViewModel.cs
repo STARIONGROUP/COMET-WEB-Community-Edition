@@ -22,12 +22,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-
-    using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -50,9 +48,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.Fol
         /// Initializes a new instance of the <see cref="FolderFileStructureViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public FolderFileStructureViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FolderFileStructureViewModel> logger)
+        public FolderFileStructureViewModel(ISessionService sessionService)
         {
             this.sessionService = sessionService;
         }

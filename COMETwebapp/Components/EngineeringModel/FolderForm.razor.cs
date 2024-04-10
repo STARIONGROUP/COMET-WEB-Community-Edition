@@ -25,8 +25,8 @@
 namespace COMETwebapp.Components.EngineeringModel
 {
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure;
-
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    
     using Microsoft.AspNetCore.Components;
 
     using System.ComponentModel.DataAnnotations;

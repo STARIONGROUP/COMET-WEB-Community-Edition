@@ -28,8 +28,7 @@ namespace COMETwebapp.Components.EngineeringModel
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure;
-
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;

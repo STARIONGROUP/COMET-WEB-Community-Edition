@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;

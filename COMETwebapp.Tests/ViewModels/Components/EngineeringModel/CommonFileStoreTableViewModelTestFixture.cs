@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
 
     using Microsoft.Extensions.Logging;
 
@@ -47,6 +48,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     {
         private CommonFileStoreTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private Mock<IFolderFileStructureViewModel> folderFileStructureViewModel;
         private Mock<IPermissionService> permissionService;
         private Assembler assembler;
         private Mock<ILogger<CommonFileStoreTableViewModel>> loggerMock;
@@ -59,6 +61,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         {
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
+            this.folderFileStructureViewModel = new Mock<IFolderFileStructureViewModel>();
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<CommonFileStoreTableViewModel>>();
 
@@ -99,7 +102,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
-            this.viewModel = new CommonFileStoreTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object);
+            this.viewModel = new CommonFileStoreTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object, this.folderFileStructureViewModel.Object);
         }
 
         [TearDown]

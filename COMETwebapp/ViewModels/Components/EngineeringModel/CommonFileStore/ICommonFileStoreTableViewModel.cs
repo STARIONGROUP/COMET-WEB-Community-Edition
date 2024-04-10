@@ -28,7 +28,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
     /// <summary>

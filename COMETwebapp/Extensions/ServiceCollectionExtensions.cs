@@ -32,7 +32,6 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.BookEditor;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore.FolderFileStructure;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
@@ -52,6 +51,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.UserManagement;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
