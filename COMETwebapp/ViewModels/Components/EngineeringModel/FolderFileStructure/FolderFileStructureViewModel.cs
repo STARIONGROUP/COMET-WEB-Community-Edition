@@ -24,15 +24,19 @@
 
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     /// <summary>
     /// View model used to manage the folder file structure
     /// </summary>
-    public class FolderFileStructureViewModel : IFolderFileStructureViewModel
+    public class FolderFileStructureViewModel : ApplicationBaseViewModel, IFolderFileStructureViewModel
     {
         /// <summary>
         /// Gets or sets the current <see cref="FileStore"/>
@@ -48,9 +52,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         /// Initializes a new instance of the <see cref="FolderFileStructureViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public FolderFileStructureViewModel(ISessionService sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public FolderFileStructureViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
+            this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
         }
 
         /// <summary>
@@ -86,10 +92,91 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         {
             this.CurrentFileStore = fileStore;
             this.DomainsOfExpertise = this.sessionService.GetSiteDirectory().Domain;
+            this.CreateStructureTree();
+        }
+
+        /// <summary>
+        /// Moves a file to a target folder
+        /// </summary>
+        /// <param name="fileNode">The file to be moved</param>
+        /// <param name="targetFolderNode"></param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task MoveFile(FileFolderNodeViewModel fileNode, FileFolderNodeViewModel targetFolderNode)
+        {
+            this.IsLoading = true;
+
+            var file = (File)fileNode.Thing;
+            var targetFolder = (Folder)targetFolderNode.Thing;
+
+            var fileClone = file.Clone(true);
+            var newFileRevision = fileClone.CurrentFileRevision.Clone(true);
+
+            newFileRevision.Iid = Guid.NewGuid();
+            newFileRevision.CreatedOn = DateTime.UtcNow;
+            newFileRevision.ContainingFolder = targetFolder;
+
+            fileClone.FileRevision.Add(newFileRevision);
+
+            var result = await this.sessionService.UpdateThings(this.CurrentFileStore.Clone(true), fileClone, newFileRevision);
+            await this.sessionService.RefreshSession();
+
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnSessionRefreshed()
+        {
+            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            this.IsLoading = true;
+
+            var rootNode = this.Structure.First();
+            var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
+
+            foreach (var updatedThing in this.UpdatedThings)
+            {
+                var nodeToUpdate = flatListOfNodes.First(x => x.Thing?.Iid == updatedThing?.Iid);
+                var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, updatedThing);
+
+                rootNode.RemoveChildNode(nodeToUpdate);
+                nodeToUpdate.UpdateThing(updatedThing);
+                parentNode.Content.Add(nodeToUpdate);
+            }
+
+            foreach (var nodeToDelete in this.DeletedThings.Select(deletedThing => flatListOfNodes.First(x => x.Thing?.Iid == deletedThing?.Iid)))
+            {
+                rootNode.RemoveChildNode(nodeToDelete);
+            }
+
+            foreach (var addedThing in this.AddedThings)
+            {
+                var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, addedThing);
+                var nodeToAdd = new FileFolderNodeViewModel(addedThing);
+                parentNode.Content.Add(nodeToAdd);
+            }
+
+            this.ClearRecordedChanges();
+            this.IsLoading = false;
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Creates the structure tree, present in <see cref="Structure"/>
+        /// </summary>
+        private void CreateStructureTree()
+        {
             this.Structure = [];
 
             var rootNode = new FileFolderNodeViewModel();
             this.LoadFolderContent(rootNode);
+
             this.Structure.Add(rootNode);
         }
 
@@ -116,6 +203,31 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
             {
                 this.LoadFolderContent(nestedFolder);
             }
+        }
+
+        /// <summary>
+        /// Gets the containing folder node for a given node, search in a given flat list of nodes
+        /// </summary>
+        /// <param name="listOfNodes">The collection of nodes to search for the containing folder node</param>
+        /// <param name="node">The node for which the containing folder will be searched for</param>
+        /// <returns>The containing folder node</returns>
+        private static FileFolderNodeViewModel GetContainingFolderNodeFromList(IEnumerable<FileFolderNodeViewModel> listOfNodes, Thing node)
+        {
+            FileFolderNodeViewModel parentNode;
+
+            switch (node)
+            {
+                case File file:
+                    parentNode = listOfNodes.First(x => x.Thing?.Iid == file.CurrentContainingFolder?.Iid);
+                    break;
+                case Folder folder:
+                    parentNode = listOfNodes.First(x => x.Thing?.Iid == folder.ContainingFolder?.Iid);
+                    break;
+                default:
+                    return null;
+            }
+
+            return parentNode;
         }
     }
 }

@@ -28,11 +28,15 @@ namespace COMETwebapp.Components.EngineeringModel
 
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="FolderFileStructure"/>
@@ -54,6 +58,11 @@ namespace COMETwebapp.Components.EngineeringModel
         /// Gets the selected folder from the <see cref="TreeView"/>
         /// </summary>
         public Folder SelectedFolder { get; private set; }
+
+        /// <summary>
+        /// Gets the dragged node used in drag and drop interactions
+        /// </summary>
+        public FileFolderNodeViewModel DraggedNode { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DxTreeView"/> used to display the folder-file structure
@@ -93,6 +102,16 @@ namespace COMETwebapp.Components.EngineeringModel
         }
 
         /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
         /// Method invoked after each time the component has rendered interactively and the UI has finished
         /// updating (for example, after elements have been added to the browser DOM). Any <see cref="T:Microsoft.AspNetCore.Components.ElementReference" />
         /// fields will be populated by the time this runs.
@@ -126,6 +145,16 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             this.SelectedFile = null;
             this.SelectedFolder = null;
+        }
+
+        private void OnDragNode(FileFolderNodeViewModel node)
+        {
+            this.DraggedNode = node;
+        }
+
+        private async Task OnDropNode(FileFolderNodeViewModel targetNode)
+        {
+            await this.ViewModel.MoveFile(this.DraggedNode, targetNode);
         }
     }
 }

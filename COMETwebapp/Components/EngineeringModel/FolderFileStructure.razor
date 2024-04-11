@@ -28,18 +28,25 @@ Copyright (c) 2023-2024 RHEA System S.A.
                                IconCssClass="@nameof(FileFolderNodeViewModel.IconCssClass)" />
     </DataMappings>
     <NodeTextTemplate Context="nodeContext">
-        @nodeContext.Text
         @{
             var row = (FileFolderNodeViewModel)nodeContext.DataItem;
+            <div draggable="true"
+                 dropzone="move"
+                 ondragover="event.preventDefault();"
+                 @ondragstart="@(() => this.OnDragNode(row))"
+                 @ondrop="@(() => this.OnDropNode(row))">
 
-            if (row.Thing is Folder)
-            {
-                <DxButton Id="editFolderButton"
-                          IconCssClass="oi oi-pencil"
-                          Click="@(() => this.OnEditFolderClick(row))"
-                          SizeMode="SizeMode.Small"
-                          CssClass="float-end" />
-            }
+                @nodeContext.Text
+
+                @if (row.Thing is Folder)
+                {
+                    <DxButton Id="editFolderButton"
+                              IconCssClass="oi oi-pencil"
+                              Click="@(() => this.OnEditFolderClick(row))"
+                              SizeMode="SizeMode.Small"
+                              CssClass="float-end"/>
+                }
+            </div>
         }
     </NodeTextTemplate>
 </DxTreeView>

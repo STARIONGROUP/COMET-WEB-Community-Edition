@@ -27,10 +27,12 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.ViewModels.Components.Applications;
+
     /// <summary>
     /// View model used to manage the folder file structure
     /// </summary>
-    public interface IFolderFileStructureViewModel
+    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel
     {
         /// <summary>
         /// Initializes the current <see cref="FolderFileStructureViewModel"/>
@@ -62,5 +64,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         /// Gets or sets the condition to check if the file or folder to be created is locked
         /// </summary>
         bool IsLocked { get; set; }
+
+        /// <summary>
+        /// Moves a file to a target folder
+        /// </summary>
+        /// <param name="fileNode">The file to be moved</param>
+        /// <param name="targetFolderNode"></param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task MoveFile(FileFolderNodeViewModel fileNode, FileFolderNodeViewModel targetFolderNode);
     }
 }
