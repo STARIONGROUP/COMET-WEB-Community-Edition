@@ -82,8 +82,8 @@ namespace COMETwebapp.Components.EngineeringModel
                 return;
             }
 
-            this.ViewModel.File = file;
-            this.SelectedFile = this.ViewModel.File;
+            this.ViewModel.FileHandlerViewModel.SelectFile(file);
+            this.SelectedFile = this.ViewModel.FileHandlerViewModel.File;
         }
 
         /// <summary>
@@ -97,8 +97,8 @@ namespace COMETwebapp.Components.EngineeringModel
                 return;
             }
 
-            this.ViewModel.Folder = folder;
-            this.SelectedFolder = this.ViewModel.Folder;
+            this.ViewModel.FolderHandlerViewModel.SelectFolder(folder);
+            this.SelectedFolder = this.ViewModel.FolderHandlerViewModel.Folder;
         }
 
         /// <summary>
@@ -147,14 +147,38 @@ namespace COMETwebapp.Components.EngineeringModel
             this.SelectedFolder = null;
         }
 
+        /// <summary>
+        /// Method invoked when a node is dragged
+        /// </summary>
+        /// <param name="node">The dragged node</param>
         private void OnDragNode(FileFolderNodeViewModel node)
         {
             this.DraggedNode = node;
         }
 
+        /// <summary>
+        /// Method invoked when a node is dropped
+        /// </summary>
+        /// <param name="targetNode">The target node where the <see cref="DraggedNode"/> has been dropped</param>
+        /// <returns>A <see cref="Task"/></returns>
         private async Task OnDropNode(FileFolderNodeViewModel targetNode)
         {
-            await this.ViewModel.MoveFile(this.DraggedNode, targetNode);
+            if (targetNode.Thing is not Folder and not null)
+            {
+                return;
+            }
+
+            var targetFolder = (Folder)targetNode.Thing;
+
+            switch (this.DraggedNode.Thing)
+            {
+                case File file:
+                    await this.ViewModel.FileHandlerViewModel.MoveFile(file, targetFolder);
+                    break;
+                case Folder folder:
+                    await this.ViewModel.FolderHandlerViewModel.MoveFolder(folder, targetFolder);
+                    break;
+            }
         }
     }
 }

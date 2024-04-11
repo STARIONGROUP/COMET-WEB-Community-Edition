@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.EngineeringModel
 {
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
 
     using Microsoft.AspNetCore.Components;
 
@@ -37,13 +38,13 @@ namespace COMETwebapp.Components.EngineeringModel
     public partial class FileForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The <see cref="IFolderFileStructureViewModel" /> for this component
+        /// The <see cref="IFileHandlerViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
-        public IFolderFileStructureViewModel ViewModel { get; set; }
+        public IFileHandlerViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Downloads a the selected file from <see cref="IFolderFileStructureViewModel.File"/>
+        /// Downloads a the selected file from <see cref="IFileHandlerViewModel.File"/>
         /// </summary>
         public void DownloadFile()
         {

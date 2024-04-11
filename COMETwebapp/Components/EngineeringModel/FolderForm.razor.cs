@@ -25,8 +25,8 @@
 namespace COMETwebapp.Components.EngineeringModel
 {
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
-    
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler;
+
     using Microsoft.AspNetCore.Components;
 
     using System.ComponentModel.DataAnnotations;
@@ -37,9 +37,19 @@ namespace COMETwebapp.Components.EngineeringModel
     public partial class FolderForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The <see cref="IFolderFileStructureViewModel" /> for this component
+        /// The <see cref="IFolderHandlerViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
-        public IFolderFileStructureViewModel ViewModel { get; set; }
+        public IFolderHandlerViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Method that is executed when there is a valid submit
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnValidSubmit()
+        {
+            await this.ViewModel.CreateOrEditFolder(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
     }
 }

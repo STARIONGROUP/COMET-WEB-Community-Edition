@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFolderFileStructureViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IFileHandlerViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,39 +22,59 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler;
-
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// View model used to manage the files in Filestores
     /// </summary>
-    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel
+    public interface IFileHandlerViewModel : IApplicationBaseViewModel
     {
         /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel"/>
+        /// Initializes the current <see cref="FileHandlerViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
         void InitializeViewModel(FileStore fileStore);
 
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// Gets or sets the file to be created/edited
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
+        File File { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel"/>
+        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
         /// </summary>
-        IFileHandlerViewModel FileHandlerViewModel { get; }
+        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
 
         /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel"/>
+        /// Gets or sets the condition to check if the file or folder to be created is locked
         /// </summary>
-        IFolderHandlerViewModel FolderHandlerViewModel { get; }
+        bool IsLocked { get; set; }
+
+        /// <summary>
+        /// Moves a file to a target folder
+        /// </summary>
+        /// <param name="file">The file to be moved</param>
+        /// <param name="targetFolder">The target folder</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task MoveFile(File file, Folder targetFolder);
+
+        /// <summary>
+        /// Creates a file into a target folder
+        /// </summary>
+        /// <param name="targetFolder">The target folder</param>
+        /// <param name="localFilePath">The local file path for the file revision</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateFile(Folder targetFolder, string localFilePath);
+
+        /// <summary>
+        /// Selects the current <see cref="FileHandlerViewModel.File"/>
+        /// </summary>
+        /// <param name="file">The file to be set</param>
+        void SelectFile(File file);
     }
 }

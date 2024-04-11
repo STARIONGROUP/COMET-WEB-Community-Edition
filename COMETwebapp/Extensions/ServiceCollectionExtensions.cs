@@ -52,6 +52,8 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
@@ -112,6 +114,8 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IPublicationsTableViewModel, PublicationsTableViewModel>();
             serviceCollection.AddTransient<ICommonFileStoreTableViewModel, CommonFileStoreTableViewModel>();
             serviceCollection.AddTransient<IFolderFileStructureViewModel, FolderFileStructureViewModel>();
+            serviceCollection.AddTransient<IFileHandlerViewModel, FileHandlerViewModel>();
+            serviceCollection.AddTransient<IFolderHandlerViewModel, FolderHandlerViewModel>();
         }
     }
 }

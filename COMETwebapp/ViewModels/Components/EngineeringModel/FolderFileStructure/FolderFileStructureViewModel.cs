@@ -26,12 +26,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
+
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler;
 
     /// <summary>
     /// View model used to manage the folder file structure
@@ -44,45 +46,34 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         private FileStore CurrentFileStore { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISessionService"/>
-        /// </summary>
-        private readonly ISessionService sessionService;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="FolderFileStructureViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        public FolderFileStructureViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="fileHandlerViewModel">The <see cref="IFileHandlerViewModel"/></param>
+        /// <param name="folderHandlerViewModel">The <see cref="IFolderHandlerViewModel"/></param>
+        public FolderFileStructureViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IFileHandlerViewModel fileHandlerViewModel, IFolderHandlerViewModel folderHandlerViewModel) 
+            : base(sessionService, messageBus)
         {
-            this.sessionService = sessionService;
+            this.FileHandlerViewModel = fileHandlerViewModel;
+            this.FolderHandlerViewModel = folderHandlerViewModel;
             this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
         }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
+        /// Gets the <see cref="IFileHandlerViewModel"/>
         /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
+        public IFileHandlerViewModel FileHandlerViewModel { get; private set; }
+
+        /// <summary>
+        /// Gets the <see cref="IFolderHandlerViewModel"/>
+        /// </summary>
+        public IFolderHandlerViewModel FolderHandlerViewModel { get; private set; }
 
         /// <summary>
         /// The folder-file hierarchically structured
         /// </summary>
         public List<FileFolderNodeViewModel> Structure { get; set; } = [];
-
-        /// <summary>
-        /// Gets or sets the file to be created/edited
-        /// </summary>
-        public File File { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the folder to be created/edited
-        /// </summary>
-        public Folder Folder { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the condition to check if the file or folder to be created is locked
-        /// </summary>
-        public bool IsLocked { get; set; }
 
         /// <summary>
         /// Initializes the current <see cref="FolderFileStructureViewModel"/>
@@ -91,36 +82,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         public void InitializeViewModel(FileStore fileStore)
         {
             this.CurrentFileStore = fileStore;
-            this.DomainsOfExpertise = this.sessionService.GetSiteDirectory().Domain;
+            this.FileHandlerViewModel.InitializeViewModel(this.CurrentFileStore);
+            this.FolderHandlerViewModel.InitializeViewModel(this.CurrentFileStore);
             this.CreateStructureTree();
-        }
-
-        /// <summary>
-        /// Moves a file to a target folder
-        /// </summary>
-        /// <param name="fileNode">The file to be moved</param>
-        /// <param name="targetFolderNode"></param>
-        /// <returns>A <see cref="Task"/></returns>
-        public async Task MoveFile(FileFolderNodeViewModel fileNode, FileFolderNodeViewModel targetFolderNode)
-        {
-            this.IsLoading = true;
-
-            var file = (File)fileNode.Thing;
-            var targetFolder = (Folder)targetFolderNode.Thing;
-
-            var fileClone = file.Clone(true);
-            var newFileRevision = fileClone.CurrentFileRevision.Clone(true);
-
-            newFileRevision.Iid = Guid.NewGuid();
-            newFileRevision.CreatedOn = DateTime.UtcNow;
-            newFileRevision.ContainingFolder = targetFolder;
-
-            fileClone.FileRevision.Add(newFileRevision);
-
-            var result = await this.sessionService.UpdateThings(this.CurrentFileStore.Clone(true), fileClone, newFileRevision);
-            await this.sessionService.RefreshSession();
-
-            this.IsLoading = false;
         }
 
         /// <summary>
