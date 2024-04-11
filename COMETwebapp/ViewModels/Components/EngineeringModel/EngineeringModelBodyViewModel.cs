@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
 
@@ -48,17 +49,24 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
         public IPublicationsTableViewModel PublicationsTableViewModel { get; private set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ICommonFileStoreTableViewModel"/>
+        /// </summary>
+        public ICommonFileStoreTableViewModel CommonFileStoreTableViewModel { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EngineeringModelBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="optionsTableViewModel">The <see cref="IOptionsTableViewModel"/></param>
         /// <param name="publicationsTableViewModel">The <see cref="IPublicationsTableViewModel"/></param>
-        public EngineeringModelBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IOptionsTableViewModel optionsTableViewModel, IPublicationsTableViewModel publicationsTableViewModel) 
-            : base(sessionService, messageBus)
+        /// <param name="commonFileStoreTableViewModel">The <see cref="ICommonFileStoreTableViewModel"/></param>
+        public EngineeringModelBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IOptionsTableViewModel optionsTableViewModel, IPublicationsTableViewModel publicationsTableViewModel, 
+            ICommonFileStoreTableViewModel commonFileStoreTableViewModel) : base(sessionService, messageBus)
         {
             this.OptionsTableViewModel = optionsTableViewModel;
             this.PublicationsTableViewModel = publicationsTableViewModel;
+            this.CommonFileStoreTableViewModel = commonFileStoreTableViewModel;
         }
 
         /// <summary>
@@ -77,6 +85,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel
 
             this.OptionsTableViewModel.SetCurrentIteration(this.CurrentThing);
             this.PublicationsTableViewModel.SetCurrentIteration(this.CurrentThing);
+            this.CommonFileStoreTableViewModel.SetCurrentIteration(this.CurrentThing);
             this.IsLoading = false;
         }
     }

@@ -16,28 +16,32 @@ Copyright (c) 2023-2024 RHEA System S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.File)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
+        <DxFormLayoutItem Caption="Is Locked:" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@this.ViewModel.IsLocked" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Is Default:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.SelectedIsDefaultValue"/>
+        <DxFormLayoutItem Caption="@($"Locked By: {this.ViewModel.File.LockedBy?.Name}")" ColSpanMd="6"/>
+        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+            <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
+                        TextFieldName="@nameof(DomainOfExpertise.Name)"
+                        @bind-Value="@this.ViewModel.File.Owner"
+                        CssClass="cw-480" />
         </DxFormLayoutItem>
     </DxFormLayout>
     <div class="pt-3"></div>
     <ValidationSummary />
     <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="saveParticipantRoleButton"
-                  SubmitFormOnClick="true">
+        <DxButton Click="@(() => this.DownloadFile())">
+            Download
+        </DxButton>
+
+        <DxButton SubmitFormOnClick="true">
             Save
         </DxButton>
-        
-        <DxButton Id="cancelOptionsButton"
+
+        <DxButton Id="cancelFileButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
             Cancel

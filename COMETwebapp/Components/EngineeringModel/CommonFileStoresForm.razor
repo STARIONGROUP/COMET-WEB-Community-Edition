@@ -19,25 +19,28 @@ Copyright (c) 2023-2024 RHEA System S.A.
 <EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
-        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
             <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+            <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
+                        TextFieldName="@nameof(DomainOfExpertise.Name)"
+                        @bind-Value="@this.ViewModel.Thing.Owner"
+                        CssClass="cw-480" />
+        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Is Default:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.SelectedIsDefaultValue"/>
+            <DxCheckBox @bind-Checked="@this.ViewModel.IsPrivate"/>
         </DxFormLayoutItem>
     </DxFormLayout>
     <div class="pt-3"></div>
     <ValidationSummary />
     <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="saveParticipantRoleButton"
+        <DxButton Id="saveCommonFileStoreButton"
                   SubmitFormOnClick="true">
             Save
         </DxButton>
         
-        <DxButton Id="cancelOptionsButton"
+        <DxButton Id="cancelCommonFileStoreButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
             Cancel

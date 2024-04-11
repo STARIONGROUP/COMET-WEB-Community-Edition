@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OptionsForm.razor.cs" company="RHEA System S.A.">
+// <copyright file="FolderForm.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,32 +24,22 @@
 
 namespace COMETwebapp.Components.EngineeringModel
 {
-    using System.ComponentModel.DataAnnotations;
-
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
-
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    
     using Microsoft.AspNetCore.Components;
 
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
-    /// Support class for the <see cref="OptionsForm"/>
+    /// Support class for the <see cref="FolderForm"/>
     /// </summary>
-    public partial class OptionsForm : SelectedDataItemForm
+    public partial class FolderForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The <see cref="IOptionsTableViewModel" /> for this component
+        /// The <see cref="IFolderFileStructureViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
-        public IOptionsTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Method that is executed when there is a valid submit
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        protected override async Task OnValidSubmit()
-        {
-            await this.ViewModel.CreateOrEditOption(this.ShouldCreate);
-            await base.OnValidSubmit();
-        }
+        public IFolderFileStructureViewModel ViewModel { get; set; }
     }
 }
