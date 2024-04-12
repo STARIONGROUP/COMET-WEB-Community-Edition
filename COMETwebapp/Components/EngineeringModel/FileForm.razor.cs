@@ -25,7 +25,6 @@
 namespace COMETwebapp.Components.EngineeringModel
 {
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
 
     using Microsoft.AspNetCore.Components;
@@ -44,11 +43,29 @@ namespace COMETwebapp.Components.EngineeringModel
         public IFileHandlerViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Downloads a the selected file from <see cref="IFileHandlerViewModel.File"/>
+        /// Gets or sets the value to check if the deletion popup is visible
         /// </summary>
-        public void DownloadFile()
+        private bool IsDeletePopupVisible { get; set; }
+
+        /// <summary>
+        /// Method that is executed when there is a valid submit
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnValidSubmit()
         {
-            // downloads a file => to be done
+            await this.ViewModel.CreateOrEditFile(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
+
+        /// <summary>
+        /// Method that is executed when a deletion is done
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnDelete()
+        {
+            this.IsDeletePopupVisible = false;
+            await this.ViewModel.DeleteFile();
+            await base.OnCancel();
         }
     }
 }

@@ -149,7 +149,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
             switch (thing)
             {
                 case File file:
-                    this.Name = file.CurrentFileRevision.Name;
+                    this.Name = file.CurrentFileRevision?.Name;
                     this.IconCssClass = "oi oi-file";
                     break;
                 case Folder folder:

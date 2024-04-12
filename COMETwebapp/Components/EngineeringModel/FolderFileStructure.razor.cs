@@ -50,14 +50,24 @@ namespace COMETwebapp.Components.EngineeringModel
         public IFolderFileStructureViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the selected file from the <see cref="TreeView"/>
+        /// Gets the condition to verify if a file should be created
         /// </summary>
-        public File SelectedFile { get; private set; }
+        public bool ShouldCreateFile { get; private set; }
 
         /// <summary>
-        /// Gets the selected folder from the <see cref="TreeView"/>
+        /// Gets the condition to check the visibility of the file form
         /// </summary>
-        public Folder SelectedFolder { get; private set; }
+        public bool IsFileFormVisibile { get; private set; }
+
+        /// <summary>
+        /// Gets the condition to verify if a folder should be created
+        /// </summary>
+        public bool ShouldCreateFolder { get; private set; }
+
+        /// <summary>
+        /// Gets the condition to check the visibility of the folder form
+        /// </summary>
+        public bool IsFolderFormVisibile { get; private set; }
 
         /// <summary>
         /// Gets the dragged node used in drag and drop interactions
@@ -76,29 +86,39 @@ namespace COMETwebapp.Components.EngineeringModel
         public void OnNodeClick(ITreeViewNodeInfo e)
         {
             var dataItem = (FileFolderNodeViewModel)e.DataItem;
-
-            if (dataItem.Thing is not File file)
-            {
-                return;
-            }
-
-            this.ViewModel.FileHandlerViewModel.SelectFile(file);
-            this.SelectedFile = this.ViewModel.FileHandlerViewModel.File;
+            this.OnEditFileClick(dataItem);
         }
 
         /// <summary>
-        /// Method that is triggered every time the edit folder icon is clicked
+        /// Method that is triggered every time the edit folder is clicked
         /// </summary>
         /// <param name="row">The selected row</param>
-        public void OnEditFolderClick(FileFolderNodeViewModel row)
+        public void OnEditFolderClick(FileFolderNodeViewModel row = null)
         {
-            if (row.Thing is not Folder folder)
+            if (row is { Thing: not Folder })
             {
                 return;
             }
 
-            this.ViewModel.FolderHandlerViewModel.SelectFolder(folder);
-            this.SelectedFolder = this.ViewModel.FolderHandlerViewModel.Folder;
+            this.ViewModel.FolderHandlerViewModel.SelectFolder(row == null ? new Folder() : (Folder)row.Thing);
+            this.ShouldCreateFolder = row == null;
+            this.IsFolderFormVisibile = true;
+        }
+
+        /// <summary>
+        /// Method that is triggered every time the edit file is clicked
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        public void OnEditFileClick(FileFolderNodeViewModel row = null)
+        {
+            if (row is { Thing: not File })
+            {
+                return;
+            }
+
+            this.ViewModel.FileHandlerViewModel.SelectFile(row == null ? new File() : (File)row.Thing);
+            this.ShouldCreateFile = row == null;
+            this.IsFileFormVisibile = true;
         }
 
         /// <summary>
@@ -143,8 +163,8 @@ namespace COMETwebapp.Components.EngineeringModel
         /// </summary>
         private void OnClosedFormPopup()
         {
-            this.SelectedFile = null;
-            this.SelectedFolder = null;
+            this.IsFileFormVisibile = false;
+            this.IsFolderFormVisibile = false;
         }
 
         /// <summary>

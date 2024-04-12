@@ -56,6 +56,26 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         bool IsLocked { get; set; }
 
         /// <summary>
+        /// Gets a collection of the available <see cref="Folder"/>s
+        /// </summary>
+        IEnumerable<Folder> Folders { get; }
+
+        /// <summary>
+        /// Gets or sets the selected folder to create a file revision
+        /// </summary>
+        Folder SelectedFolder { get; set; }
+
+        /// <summary>
+        /// Gets or sets a collection of the file revisions to be created/edited
+        /// </summary>
+        IEnumerable<FileRevision> FileRevisions { get; set; }
+
+        /// <summary>
+        /// Gets a collection of the available <see cref="FileType"/>
+        /// </summary>
+        IEnumerable<FileType> FileTypes { get; }
+
+        /// <summary>
         /// Moves a file to a target folder
         /// </summary>
         /// <param name="file">The file to be moved</param>
@@ -66,15 +86,27 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         /// <summary>
         /// Creates a file into a target folder
         /// </summary>
-        /// <param name="targetFolder">The target folder</param>
-        /// <param name="localFilePath">The local file path for the file revision</param>
+        /// <param name="shouldCreate"></param>
         /// <returns>A <see cref="Task"/></returns>
-        Task CreateFile(Folder targetFolder, string localFilePath);
+        Task CreateOrEditFile(bool shouldCreate);
 
         /// <summary>
         /// Selects the current <see cref="FileHandlerViewModel.File"/>
         /// </summary>
         /// <param name="file">The file to be set</param>
         void SelectFile(File file);
+
+        /// <summary>
+        /// Deletes the current file
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        Task DeleteFile();
+
+        /// <summary>
+        /// Downloads a file revision
+        /// </summary>
+        /// <param name="fileRevision">the file revision</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task DownloadFileRevision(FileRevision fileRevision);
     }
 }

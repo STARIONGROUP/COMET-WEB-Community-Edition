@@ -59,6 +59,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
 
         /// <summary>
+        /// Gets a collection of the available <see cref="Folder"/>s
+        /// </summary>
+        public IEnumerable<Folder> Folders { get; private set; }
+
+        /// <summary>
         /// Gets or sets the folder to be created/edited
         /// </summary>
         public Folder Folder { get; set; } = new();
@@ -71,6 +76,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         {
             this.CurrentFileStore = fileStore;
             this.DomainsOfExpertise = this.SessionService.GetSiteDirectory().Domain;
+
+            var folders = this.CurrentFileStore.Folder.ToList();
+            folders.Add(null);
+            this.Folders = folders;
         }
 
         /// <summary>
@@ -111,20 +120,35 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
             this.IsLoading = true;
 
             var thingsToCreate = new List<Thing>();
-            var fileStoreClone = this.CurrentFileStore.Clone(true);
+            var fileStoreClone = this.CurrentFileStore.Clone(false);
 
             if (shouldCreate)
             {
+                var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
+                this.Folder.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
+
                 fileStoreClone.Folder.Add(this.Folder);
                 thingsToCreate.Add(fileStoreClone);
             }
 
             thingsToCreate.Add(this.Folder);
 
-            await this.SessionService.UpdateThings(this.CurrentFileStore.Clone(true), thingsToCreate);
+            await this.SessionService.UpdateThings(fileStoreClone, thingsToCreate);
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Deletes the current folder
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task DeleteFolder()
+        {
+            var clonedContainer = this.Folder.Container.Clone(false);
+
+            await this.SessionService.DeleteThing(clonedContainer, this.Folder);
+            await this.SessionService.RefreshSession();
         }
 
         /// <summary>

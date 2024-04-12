@@ -31,6 +31,8 @@ namespace COMETwebapp.Components.EngineeringModel
 
     using System.ComponentModel.DataAnnotations;
 
+    using CDP4Common.EngineeringModelData;
+
     /// <summary>
     /// Support class for the <see cref="FolderForm"/>
     /// </summary>
@@ -43,6 +45,11 @@ namespace COMETwebapp.Components.EngineeringModel
         public IFolderHandlerViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the value to check if the deletion popup is visible
+        /// </summary>
+        private bool IsDeletePopupVisible { get; set; }
+
+        /// <summary>
         /// Method that is executed when there is a valid submit
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
@@ -50,6 +57,17 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             await this.ViewModel.CreateOrEditFolder(this.ShouldCreate);
             await base.OnValidSubmit();
+        }
+
+        /// <summary>
+        /// Method that is executed when a deletion is done
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnDelete()
+        {
+            this.IsDeletePopupVisible = false;
+            await this.ViewModel.DeleteFolder();
+            await base.OnCancel();
         }
     }
 }

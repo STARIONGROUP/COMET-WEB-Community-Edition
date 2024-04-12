@@ -51,6 +51,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         Folder Folder { get; set; }
 
         /// <summary>
+        /// Gets a collection of the available <see cref="Folder"/>s
+        /// </summary>
+        IEnumerable<Folder> Folders { get; }
+
+        /// <summary>
         /// Selects the current <see cref="Folder"/>
         /// </summary>
         /// <param name="folder">The folder to be set</param>
@@ -70,5 +75,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         /// <param name="targetFolder">the target folders</param>
         /// <returns>A <see cref="Task"/></returns>
         Task MoveFolder(Folder folder, Folder targetFolder);
+
+        /// <summary>
+        /// Deletes the current folder
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        Task DeleteFolder();
     }
 }

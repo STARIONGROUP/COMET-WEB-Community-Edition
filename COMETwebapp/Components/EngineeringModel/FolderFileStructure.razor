@@ -17,6 +17,16 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 @inherits DisposableComponent
 
+<DxButton Id="createFolderButton"
+          Click="@(() => this.OnEditFolderClick())">
+    Create Folder
+</DxButton>
+
+<DxButton Id="createFileButton"
+          Click="@(() => this.OnEditFileClick())">
+    Create File
+</DxButton>
+
 <DxTreeView @ref="@this.TreeView"
             Data="@this.ViewModel.Structure"
             AnimationType="LayoutAnimationType.Slide"
@@ -51,20 +61,24 @@ Copyright (c) 2023-2024 RHEA System S.A.
     </NodeTextTemplate>
 </DxTreeView>
 
-<DxPopup Visible="@(this.SelectedFile != null)"
+<DxPopup @bind-Visible="@(this.IsFileFormVisibile)"
          HeaderText="File"
          CloseOnOutsideClick="false"
          Closed="@(this.OnClosedFormPopup)"
-         CssClass="pw-800">
+         Width="40%">
     <FileForm ViewModel="@(this.ViewModel.FileHandlerViewModel)" 
-              OnCanceled="@(this.OnClosedFormPopup)"/>
+              OnCanceled="@(this.OnClosedFormPopup)"
+              OnSaved="@(this.OnClosedFormPopup)"
+              ShouldCreate="@(this.ShouldCreateFile)" />
 </DxPopup>
 
-<DxPopup Visible="@(this.SelectedFolder != null)"
+<DxPopup @bind-Visible="@(this.IsFolderFormVisibile)"
          HeaderText="Folder"
          CloseOnOutsideClick="false"
          Closed="@(this.OnClosedFormPopup)"
-         CssClass="pw-800">
+         Width="40%">
     <FolderForm ViewModel="@(this.ViewModel.FolderHandlerViewModel)"
-              OnCanceled="@(this.OnClosedFormPopup)" />
+                OnCanceled="@(this.OnClosedFormPopup)"
+                OnSaved="@(this.OnClosedFormPopup)"
+                ShouldCreate="@(this.ShouldCreateFolder)"/>
 </DxPopup>

@@ -14,28 +14,51 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Extensions
 @inherits SelectedDataItemForm
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.Folder)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Locked By:" ColSpanMd="6">
-            <DxTextBox @bind-Text="@(this.ViewModel.Folder.Name)"/>
+        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+            <DxTextBox @bind-Text="@this.ViewModel.Folder.Name" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
             <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
                         TextFieldName="@nameof(DomainOfExpertise.Name)"
                         @bind-Value="@this.ViewModel.Folder.Owner"
-                        CssClass="cw-480" />
+                        CssClass="cw-480"/>
         </DxFormLayoutItem>
+        
+        @if (this.ShouldCreate)
+        {
+            <DxFormLayoutItem Caption="Containing Folder:" ColSpanMd="10">
+                <DxComboBox Data="@this.ViewModel.Folders"
+                            TextFieldName="@nameof(Folder.Name)"
+                            NullText="root"
+                            @bind-Value="@this.ViewModel.Folder.ContainingFolder"
+                            CssClass="cw-480">
+                    <ItemTemplate Context="itemTemplateContext">
+                        @itemTemplateContext.GetFolderPath()
+                    </ItemTemplate>
+                </DxComboBox>
+            </DxFormLayoutItem>
+        }
+        
     </DxFormLayout>
     <div class="pt-3"></div>
     <ValidationSummary />
     <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="deleteFolderButton"
+                  Click="@(() => this.IsDeletePopupVisible = true)"
+                  RenderStyle="ButtonRenderStyle.Danger">
+            Delete
+        </DxButton>
+
         <DxButton SubmitFormOnClick="true">
             Save
         </DxButton>
-        
+
         <DxButton Id="cancelFolderButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
@@ -43,3 +66,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
         </DxButton>
     </div>
 </EditForm>
+
+<DxPopup @bind-Visible="@this.IsDeletePopupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    You are about to delete the Folder: @(this.ViewModel.Folder.Name)
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(() => this.IsDeletePopupVisible = false)" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" />
+    </div>
+</DxPopup>

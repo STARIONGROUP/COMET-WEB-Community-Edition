@@ -1,0 +1,67 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@inherits DisposableComponent
+
+<DxGrid @ref="this.Grid"
+        Data="this.GetRows()"
+        EditMode="GridEditMode.PopupEditForm"
+        PopupEditFormHeaderText="File Revision"
+        EditModelSaving="@(() => this.OnEditFileRevisionSaving())"
+        CustomizeEditModel="this.CustomizeEditFileRevision">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.Name)" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.Path)" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false" />
+        <DxGridCommandColumn Width="160px" EditButtonVisible="false">
+            <HeaderTemplate>
+                <DxButton Id="addFileRevisionButton" Text="Add File Revision" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+            </HeaderTemplate>
+            <CellDisplayTemplate>
+                @{
+                    var row = (FileRevisionRowViewModel)context.DataItem;
+
+                    <DxButton Id="downloadFileRevisionButton"
+                              Text="Download"
+                              Click="() => this.DownloadFileRevision.Invoke(row.Thing)" />
+                    <DxButton Id="removeFileRevisionButton"
+                              Text="Remove"
+                              Click="() => this.RemoveFileRevision(row)"/>
+                }
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+
+    <EditFormTemplate Context="EditFormContext">
+        <FluentValidationValidator />
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="File:" ColSpanMd="10">
+                <InputFile OnChange="this.OnFileUpload" id="inputGroupFile" class="form-control" accept="@(string.Join(", ", this.AcceptableFileExtensions.Select(x => $".{x.Extension}")))"></InputFile>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Path:" ColSpanMd="10">
+                <DxTextBox @bind-Text="@this.FileRevision.Path" 
+                           Enabled="false"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                <DxTextBox @bind-Text="@this.FileRevision.Name"/>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+        <div class="pt-3"></div>
+        <ValidationSummary />
+    </EditFormTemplate>
+
+</DxGrid>
