@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
     using System.ComponentModel.DataAnnotations;
 
@@ -30,7 +30,7 @@ namespace COMETwebapp.Components.EngineeringModel
 
     using COMET.Web.Common.Extensions;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
 
     using DevExpress.Blazor;
 

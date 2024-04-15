@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -32,8 +32,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
 
     /// <summary>
     /// View model used to manage the folder file structure

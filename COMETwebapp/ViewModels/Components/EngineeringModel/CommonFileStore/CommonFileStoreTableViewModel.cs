@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
     /// <summary>

@@ -18,7 +18,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits DisposableComponent
 
 <DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
+        Data="this.GetRows().OrderBy(x => x.CreatedOn)"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="File Revision"
         EditModelSaving="@(() => this.OnEditFileRevisionSaving())"
@@ -36,10 +36,10 @@ Copyright (c) 2023-2024 RHEA System S.A.
                     var row = (FileRevisionRowViewModel)context.DataItem;
 
                     <DxButton Id="downloadFileRevisionButton"
-                              Text="Download"
-                              Click="() => this.DownloadFileRevision.Invoke(row.Thing)" />
+                              IconCssClass="oi oi-data-transfer-download"
+                              Click="() => this.ViewModel.DownloadFileRevision(row.Thing)" />
                     <DxButton Id="removeFileRevisionButton"
-                              Text="Remove"
+                              IconCssClass="oi oi-trash"
                               Click="() => this.RemoveFileRevision(row)"/>
                 }
             </CellDisplayTemplate>
@@ -50,14 +50,20 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <FluentValidationValidator />
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="File:" ColSpanMd="10">
-                <InputFile OnChange="this.OnFileUpload" id="inputGroupFile" class="form-control" accept="@(string.Join(", ", this.AcceptableFileExtensions.Select(x => $".{x.Extension}")))"></InputFile>
+                <InputFile OnChange="this.OnFileUpload" id="inputGroupFile" class="form-control" accept="@(string.Join(", ", this.ViewModel.FileTypes.Select(x => $".{x.Extension}")))"></InputFile>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Path:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@this.FileRevision.Path" 
+                <DxTextBox @bind-Text="@this.ViewModel.FileRevision.Path" 
                            Enabled="false"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@this.FileRevision.Name"/>
+                <DxTextBox @bind-Text="@this.ViewModel.FileRevision.Name" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="File Types:" 
+                              ColSpanMd="12"
+                              CaptionPosition="CaptionPosition.Vertical">
+                <FileTypesTable @bind-SelectedFileTypes="@this.ViewModel.FileRevision.FileType"
+                                FileTypes="@this.ViewModel.FileTypes" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

@@ -17,7 +17,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @using COMETwebapp.Extensions
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.File)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.File)" OnValidSubmit="@(async () => await this.OnValidSubmit())">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Is Locked:" ColSpanMd="6">
@@ -49,10 +49,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxFormLayoutItem Caption="File Revisions:"
                           ColSpanMd="12"
                           CaptionPosition="CaptionPosition.Vertical">
-            <FileRevisionsTable File="@(this.ViewModel.File)"
-                                @bind-FileRevisions="@(this.ViewModel.FileRevisions)"
-                                DownloadFileRevision="@((fileRevision) => this.ViewModel.DownloadFileRevision(fileRevision))"
-                                AcceptableFileExtensions="@(this.ViewModel.FileTypes)"/>
+            <FileRevisionsTable @bind-FileRevisions="@(this.ViewModel.FileRevisions)"
+                                ViewModel="@(this.ViewModel.FileRevisionHandlerViewModel)"/>
         </DxFormLayoutItem>
 
     </DxFormLayout>

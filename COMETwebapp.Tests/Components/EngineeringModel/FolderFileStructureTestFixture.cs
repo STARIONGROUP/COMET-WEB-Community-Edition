@@ -33,8 +33,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.EngineeringModel;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMETwebapp.Components.EngineeringModel.FileStore;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
 
     using DevExpress.Blazor;
 

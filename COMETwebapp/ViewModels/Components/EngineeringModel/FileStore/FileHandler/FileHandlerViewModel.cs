@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -34,8 +34,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.Interoperability;
-
-    using Microsoft.AspNetCore.Routing.Constraints;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
     /// <summary>
     /// View model used to manage the files in Filestores
@@ -57,14 +56,23 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
         /// <param name="jsUtilitiesService">The <see cref="JsUtilitiesService"/></param>
-        public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IJsUtilitiesService jsUtilitiesService) 
-            : base(sessionService, messageBus)
+        /// <param name="fileRevisionHandlerViewModel">The <see cref="IFileRevisionHandlerViewModel"/></param>
+        public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IJsUtilitiesService jsUtilitiesService, 
+            IFileRevisionHandlerViewModel fileRevisionHandlerViewModel) : base(sessionService, messageBus)
         {
             this.JsUtilitiesService = jsUtilitiesService;
             this.logger = logger;
+            this.FileRevisionHandlerViewModel = fileRevisionHandlerViewModel;
+
             this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
         }
+
+        /// <summary>
+        /// Gets the <see cref="IFileRevisionHandlerViewModel"/>
+        /// </summary>
+        public IFileRevisionHandlerViewModel FileRevisionHandlerViewModel { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IJsUtilitiesService"/>
@@ -130,6 +138,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
             this.File = file.Clone(true);
             this.IsLocked = this.File.LockedBy is not null;
             this.FileRevisions = this.File.FileRevision;
+            this.FileRevisionHandlerViewModel.SetFile(this.File);
         }
 
         /// <summary>
@@ -157,11 +166,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
             this.IsLoading = false;
         }
 
-        public void SetupFileWithNewFileRevisions()
-        {
-
-        }
-
         /// <summary>
         /// Creates or edits a file
         /// </summary>
@@ -173,7 +177,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 
             var thingsToCreate = new List<Thing>();
             var fileStoreClone = this.CurrentFileStore.Clone(false);
-            var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
 
             this.File.LockedBy = this.IsLocked switch
             {
@@ -182,18 +185,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
                _ => this.File.LockedBy
             };
 
+            var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
             var newFileRevisions = this.FileRevisions.Where(x => !this.File.FileRevision.Contains(x));
 
             foreach (var fileRevision in newFileRevisions)
             {
-                var fileExtension = Path.GetExtension(fileRevision.Name);
-                var fileType = engineeringModel.RequiredRdls.SelectMany(x => x.FileType).First(x => $".{x.Extension}" == fileExtension);
-
-                fileRevision.FileType.Add(fileType);
-                fileRevision.Name = Path.GetFileNameWithoutExtension(fileRevision.Name);
                 fileRevision.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
                 fileRevision.CreatedOn = DateTime.UtcNow;
-                fileRevision.ContentHash = CalculateContentHash(fileRevision.LocalPath);
 
                 this.File.FileRevision.Add(fileRevision);
                 thingsToCreate.Add(fileRevision);
@@ -209,9 +207,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
 
             await this.SessionService.UpdateThings(fileStoreClone, thingsToCreate);
             await this.SessionService.RefreshSession();
-
-            // delete all stored files
-
+            
             this.IsLoading = false;
         }
 
@@ -228,48 +224,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         }
 
         /// <summary>
-        /// Downloads a file revision
-        /// </summary>
-        /// <param name="fileRevision">the file revision</param>
-        /// <returns>A <see cref="Task"/></returns>
-        public async Task DownloadFileRevision(FileRevision fileRevision)
-        {
-            this.logger.LogInformation("Starting File Revision download...");
-            var fileRevisionNameWithExtension = $"{fileRevision.Name}.{fileRevision.FileType.First().Extension}";
-
-            try
-            {
-               var bytes = await this.SessionService.Session.ReadFile(fileRevision);
-               var stream = new MemoryStream(bytes);
-               await this.JsUtilitiesService.DownloadFileFromStreamAsync(stream, fileRevisionNameWithExtension);
-               this.logger.LogInformation("Downloading PDF...");
-            }
-            catch (Exception ex)
-            {
-               this.logger.LogError(ex,"File Revision could not be downloaded") ;
-            }
-        }
-
-        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed() => Task.CompletedTask;
-
-        /// <summary>
-        /// Calculates the hash of the file's content
-        /// </summary>
-        /// <param name="filePath">the path to the file</param>
-        /// <returns>the hash of the content</returns>
-        private static string CalculateContentHash(string filePath)
-        {
-            if (filePath == null)
-            {
-                return null;
-            }
-
-            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            return StreamToHashComputer.CalculateSha1HashFromStream(fileStream);
-        }
     }
 }

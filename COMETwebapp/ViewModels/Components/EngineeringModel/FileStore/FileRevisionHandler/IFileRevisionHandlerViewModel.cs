@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFolderHandlerViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IFileRevisionHandlerViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,64 +22,63 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using Microsoft.AspNetCore.Components.Forms;
+
     /// <summary>
-    /// View model used to manage the folders in Filestores
+    /// View model used to manage the files revisions in Filestores
     /// </summary>
-    public interface IFolderHandlerViewModel : IApplicationBaseViewModel
+    public interface IFileRevisionHandlerViewModel : IApplicationBaseViewModel
     {
         /// <summary>
-        /// Initializes the current <see cref="FolderHandlerViewModel"/>
+        /// Sets the file for the <see cref="FileRevisionHandlerViewModel"/>
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        void InitializeViewModel(FileStore fileStore);
+        /// <param name="file">The <see cref="File"/> to be set</param>
+        void SetFile(File file);
 
         /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
+        /// Gets a collection of the selected <see cref="FileType"/>
         /// </summary>
-        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
+        IEnumerable<FileType> SelectedFileTypes { get; }
 
         /// <summary>
-        /// Gets or sets the folder to be created/edited
+        /// The file revision that will be handled for both edit and add forms
         /// </summary>
-        Folder Folder { get; set; }
+        FileRevision FileRevision { get; set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="Folder"/>s
+        /// Gets a collection of the available <see cref="FileType"/>s
         /// </summary>
-        IEnumerable<Folder> Folders { get; }
+        IEnumerable<FileType> FileTypes { get; }
 
         /// <summary>
-        /// Selects the current <see cref="Folder"/>
+        /// Gets or sets the error message that is displayed in the component
         /// </summary>
-        /// <param name="folder">The folder to be set</param>
-        public void SelectFolder(Folder folder);
+        string ErrorMessage { get; }
 
         /// <summary>
-        /// Creates or edits a folder
+        /// Gets or sets the current <see cref="File"/>
         /// </summary>
-        /// <param name="shouldCreate">the value to check if the <see cref="FolderHandlerViewModel.Folder"/> should be created or edited</param>
+        File CurrentFile { get; }
+
+        /// <summary>
+        /// Downloads a file revision
+        /// </summary>
+        /// <param name="fileRevision">the file revision</param>
         /// <returns>A <see cref="Task"/></returns>
-        Task CreateOrEditFolder(bool shouldCreate);
+        Task DownloadFileRevision(FileRevision fileRevision);
 
         /// <summary>
-        /// Moves a folder to a target folder
+        /// Uploads a file to server and creates a file revision
         /// </summary>
-        /// <param name="folder">The folder to be moved</param>
-        /// <param name="targetFolder">the target folders</param>
+        /// <param name="file">The file to upload</param>
         /// <returns>A <see cref="Task"/></returns>
-        Task MoveFolder(Folder folder, Folder targetFolder);
-
-        /// <summary>
-        /// Deletes the current folder
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        Task DeleteFolder();
+        Task UploadFile(IBrowserFile file);
     }
 }

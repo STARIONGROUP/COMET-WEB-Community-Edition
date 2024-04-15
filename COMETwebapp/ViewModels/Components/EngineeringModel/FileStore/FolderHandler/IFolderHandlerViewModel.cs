@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFolderFileStructureViewModel.cs" company="RHEA System S.A.">
+// <copyright file="IFolderHandlerViewModel.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,39 +22,64 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FolderHandler;
-
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// View model used to manage the folders in Filestores
     /// </summary>
-    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel
+    public interface IFolderHandlerViewModel : IApplicationBaseViewModel
     {
         /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel"/>
+        /// Initializes the current <see cref="FolderHandlerViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
         void InitializeViewModel(FileStore fileStore);
 
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
+        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
 
         /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel"/>
+        /// Gets or sets the folder to be created/edited
         /// </summary>
-        IFileHandlerViewModel FileHandlerViewModel { get; }
+        Folder Folder { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel"/>
+        /// Gets a collection of the available <see cref="Folder"/>s
         /// </summary>
-        IFolderHandlerViewModel FolderHandlerViewModel { get; }
+        IEnumerable<Folder> Folders { get; }
+
+        /// <summary>
+        /// Selects the current <see cref="Folder"/>
+        /// </summary>
+        /// <param name="folder">The folder to be set</param>
+        public void SelectFolder(Folder folder);
+
+        /// <summary>
+        /// Creates or edits a folder
+        /// </summary>
+        /// <param name="shouldCreate">the value to check if the <see cref="FolderHandlerViewModel.Folder"/> should be created or edited</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateOrEditFolder(bool shouldCreate);
+
+        /// <summary>
+        /// Moves a folder to a target folder
+        /// </summary>
+        /// <param name="folder">The folder to be moved</param>
+        /// <param name="targetFolder">the target folders</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task MoveFolder(Folder folder, Folder targetFolder);
+
+        /// <summary>
+        /// Deletes the current folder
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        Task DeleteFolder();
     }
 }

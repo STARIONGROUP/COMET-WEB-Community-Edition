@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="FileExtensions.cs" company="RHEA System S.A.">
+//  <copyright file="FileTypeRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,29 +22,41 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Extensions
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
 {
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.ViewModels.Components.Common.Rows;
+
+    using ReactiveUI;
+
     /// <summary>
-    ///  Extension class for File
+    /// Row View Model for  <see cref="FileType" />
     /// </summary>
-    public static class FileExtensions
+    public class FileTypeRowViewModel : BaseDataItemRowViewModel<FileType>
     {
         /// <summary>
-        /// Tries to delete a file in the given file path
+        /// The backing field for <see cref="Extension"/>
         /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <returns>true if the file was deleted, otherwise false</returns>
-        public static bool TryDelete(string filePath)
+        private string extension;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileTypeRowViewModel" /> class.
+        /// </summary>
+        /// <param name="fileType">The associated <see cref="FileType" /></param>
+        public FileTypeRowViewModel(FileType fileType) : base(fileType)
         {
-            try
-            {
-                File.Delete(filePath);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            this.Extension = fileType.Extension;
+        }
+
+        /// <summary>
+        /// The file type extension
+        /// </summary>
+        public string Extension
+        {
+            get => this.extension;
+            set => this.RaiseAndSetIfChanged(ref this.extension, value);
         }
     }
 }

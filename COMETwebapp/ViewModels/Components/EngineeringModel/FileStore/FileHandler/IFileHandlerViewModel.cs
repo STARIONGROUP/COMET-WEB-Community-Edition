@@ -22,12 +22,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure.FileHandler
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
+
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
     /// <summary>
     /// View model used to manage the files in Filestores
@@ -76,6 +78,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         IEnumerable<FileType> FileTypes { get; }
 
         /// <summary>
+        /// Gets the <see cref="IFileRevisionHandlerViewModel"/>
+        /// </summary>
+        IFileRevisionHandlerViewModel FileRevisionHandlerViewModel { get; }
+
+        /// <summary>
         /// Moves a file to a target folder
         /// </summary>
         /// <param name="file">The file to be moved</param>
@@ -101,12 +108,5 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
         Task DeleteFile();
-
-        /// <summary>
-        /// Downloads a file revision
-        /// </summary>
-        /// <param name="fileRevision">the file revision</param>
-        /// <returns>A <see cref="Task"/></returns>
-        Task DownloadFileRevision(FileRevision fileRevision);
     }
 }
