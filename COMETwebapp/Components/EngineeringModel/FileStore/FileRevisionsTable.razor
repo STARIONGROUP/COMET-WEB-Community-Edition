@@ -18,7 +18,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits DisposableComponent
 
 <DxGrid @ref="this.Grid"
-        Data="this.GetRows().OrderBy(x => x.CreatedOn)"
+        Data="this.GetRows().OrderByDescending(x => x.CreatedOn)"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="File Revision"
         EditModelSaving="@(() => this.OnEditFileRevisionSaving())"

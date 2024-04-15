@@ -49,7 +49,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
         <DxFormLayoutItem Caption="File Revisions:"
                           ColSpanMd="12"
                           CaptionPosition="CaptionPosition.Vertical">
-            <FileRevisionsTable @bind-FileRevisions="@(this.ViewModel.FileRevisions)"
+            <FileRevisionsTable @bind-FileRevisions="@(this.ViewModel.SelectedFileRevisions)"
                                 ViewModel="@(this.ViewModel.FileRevisionHandlerViewModel)"/>
         </DxFormLayoutItem>
 
@@ -63,7 +63,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
             Delete
         </DxButton>
         <DxButton SubmitFormOnClick="true"
-                  Enabled="@(this.ViewModel.FileRevisions.Any())">
+                  Enabled="@(this.ViewModel.SelectedFileRevisions.Any())">
             Save
         </DxButton>
 

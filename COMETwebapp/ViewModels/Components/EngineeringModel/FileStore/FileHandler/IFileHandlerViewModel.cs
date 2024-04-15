@@ -70,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <summary>
         /// Gets or sets a collection of the file revisions to be created/edited
         /// </summary>
-        IEnumerable<FileRevision> FileRevisions { get; set; }
+        IEnumerable<FileRevision> SelectedFileRevisions { get; set; }
 
         /// <summary>
         /// Gets a collection of the available <see cref="FileType"/>

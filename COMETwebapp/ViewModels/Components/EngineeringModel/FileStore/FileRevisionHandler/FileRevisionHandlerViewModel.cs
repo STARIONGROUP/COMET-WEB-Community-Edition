@@ -60,6 +60,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
         private readonly string uploadsDirectory;
 
         /// <summary>
+        /// Gets or sets the current file store
+        /// </summary>
+        private FileStore CurrentFileStore { get; set; }
+
+        /// <summary>
         /// The maximum file size to upload in megabytes
         /// </summary>
         private double MaxUploadFileSizeInMb => double.Parse(this.configuration.GetSection(Constants.MaxUploadFileSizeInMbConfigurationKey).Value!, CultureInfo.InvariantCulture);
@@ -81,6 +86,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
 
             this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
             this.uploadsDirectory = $"wwwroot/uploads/{Guid.NewGuid()}";
+
+            if (!Directory.Exists(this.uploadsDirectory))
+            {
+                Directory.CreateDirectory(this.uploadsDirectory);
+            }
         }
 
         /// <summary>
@@ -114,12 +124,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
         public string ErrorMessage { get; private set; }
 
         /// <summary>
-        /// Sets the file for the <see cref="FileRevisionHandlerViewModel"/>
+        /// Initializes the current <see cref="FileRevisionHandlerViewModel"/>
         /// </summary>
         /// <param name="file">The <see cref="File"/> to be set</param>
-        public void SetFile(File file)
+        /// <param name="fileStore"></param>
+        public void InitializeViewModel(File file, FileStore fileStore)
         {
             this.CurrentFile = file;
+            this.CurrentFileStore = fileStore;
             this.FileTypes = this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.FileType);
         }
 
@@ -162,17 +174,20 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             }
 
             var uploadedFilePath = Path.Combine(this.uploadsDirectory, Guid.NewGuid().ToString());
-            Directory.CreateDirectory(this.uploadsDirectory);
 
             await using (var fileStream = new FileStream(uploadedFilePath, FileMode.Create))
             {
                 await file.OpenReadStream(maxUploadFileSizeInBytes).CopyToAsync(fileStream);
             }
 
+            var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
+
             this.FileRevision.Name = Path.GetFileNameWithoutExtension(file.Name);
             this.FileRevision.LocalPath = uploadedFilePath;
-            this.FileRevision.ContentHash = CalculateContentHash(uploadedFilePath);
-            
+            this.FileRevision.ContentHash = CalculateContentHash(this.FileRevision.LocalPath);
+            this.FileRevision.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
+            this.FileRevision.CreatedOn = DateTime.UtcNow;
+
             var fileExtension = Path.GetExtension(file.Name);
             var fileType = this.FileTypes.FirstOrDefault(x => $".{x.Extension}" == fileExtension);
 
@@ -198,7 +213,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
 
             if (Directory.Exists(this.uploadsDirectory))
             {
-                Directory.Delete(this.uploadsDirectory, true);
+                // Directory.Delete(this.uploadsDirectory, true);
             }
         }
 

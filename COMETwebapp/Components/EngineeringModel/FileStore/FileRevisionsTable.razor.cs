@@ -79,9 +79,13 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <summary>
         /// Method that is invoked when a file revision row is being removed
         /// </summary>
-        private void RemoveFileRevision(FileRevisionRowViewModel row)
+        private async Task RemoveFileRevision(FileRevisionRowViewModel row)
         {
-            this.ViewModel.CurrentFile.FileRevision.Remove(row.Thing);
+            var listOfFileRevisions = this.FileRevisions.ToList();
+            listOfFileRevisions.Remove(row.Thing);
+
+            this.FileRevisions = listOfFileRevisions;
+            await this.FileRevisionsChanged.InvokeAsync(this.FileRevisions);
         }
 
         /// <summary>
@@ -90,9 +94,11 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
         private void CustomizeEditFileRevision(GridCustomizeEditModelEventArgs e)
         {
-            var dataItem = (FileRevisionRowViewModel)e.DataItem;
-            this.ViewModel.FileRevision = dataItem == null ? new FileRevision() : dataItem.Thing;
-            this.ViewModel.FileRevision.ContainingFolder = this.ViewModel.CurrentFile.CurrentContainingFolder;
+            this.ViewModel.FileRevision = new FileRevision
+            {
+                ContainingFolder = this.ViewModel.CurrentFile.CurrentContainingFolder
+            };
+
             e.EditModel = this.ViewModel.FileRevision;
         }
 

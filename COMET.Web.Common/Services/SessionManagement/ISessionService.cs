@@ -239,5 +239,14 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// in.
         /// </remarks>
         Task<Result> ReadEngineeringModels(IEnumerable<EngineeringModelSetup> engineeringModelSetups);
+
+        /// <summary>
+        /// Creates a new file revision, uploading its physical file to the File Store
+        /// </summary>
+        /// <param name="fileStore">The <see cref="FileStore"/> that will store the created file</param>
+        /// <param name="file">The <see cref="File"/> that will contain the file revision</param>
+        /// <param name="fileRevision">The <see cref="FileRevision"/> that will be created</param>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
+        Task<Result> CreateFileRevision(FileStore fileStore, File file, FileRevision fileRevision);
     }
 }

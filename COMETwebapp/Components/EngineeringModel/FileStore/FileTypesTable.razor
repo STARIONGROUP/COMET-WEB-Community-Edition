@@ -22,7 +22,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="File Type"
         EditModelSaving="@(() => this.OnEditFileTypesSaving())"
-        CustomizeEditModel="this.CustomizeEditFileType">
+        CustomizeEditModel="this.CustomizeEditFileType"
+        EditFormButtonsVisible="false">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.Name)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
@@ -56,16 +57,31 @@ Copyright (c) 2023-2024 RHEA System S.A.
     </Columns>
 
     <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator />
+        <EditForm Context="editFormContext" Model="@(this.FileType)" OnValidSubmit="@(async () => await this.Grid.SaveChangesAsync())">
+
+        <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
                 <DxComboBox Data="@this.FileTypes.Where(x => !this.SelectedFileTypes.Contains(x))"
                             TextFieldName="@nameof(CDP4Common.SiteDirectoryData.FileType.Name)"
                             @bind-Value="@this.FileType"
-                            CssClass="cw-480" />
+                            CssClass="cw-480"/>
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>
-        <ValidationSummary />
+        <ValidationSummary/>
+        <div class="dxbl-grid-edit-form-buttons">
+            <DxButton SubmitFormOnClick="true"
+                      Enabled="@(this.FileTypes.Any())">
+                Save
+            </DxButton>
+
+            <DxButton Id="cancelFileButton"
+                      Click="@(() => this.Grid.CancelEditAsync())"
+                      RenderStyle="ButtonRenderStyle.Secondary">
+                Cancel
+            </DxButton>
+        </div>
+        </EditForm>
     </EditFormTemplate>
 </DxGrid>

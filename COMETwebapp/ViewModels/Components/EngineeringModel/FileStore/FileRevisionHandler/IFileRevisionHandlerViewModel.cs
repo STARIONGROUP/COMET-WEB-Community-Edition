@@ -40,7 +40,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
         /// Sets the file for the <see cref="FileRevisionHandlerViewModel"/>
         /// </summary>
         /// <param name="file">The <see cref="File"/> to be set</param>
-        void SetFile(File file);
+        /// <param name="fileStore"></param>
+        void InitializeViewModel(File file, FileStore fileStore);
 
         /// <summary>
         /// Gets a collection of the selected <see cref="FileType"/>

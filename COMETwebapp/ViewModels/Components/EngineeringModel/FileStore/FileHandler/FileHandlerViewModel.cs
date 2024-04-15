@@ -33,7 +33,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
     /// <summary>
@@ -57,12 +56,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        /// <param name="jsUtilitiesService">The <see cref="JsUtilitiesService"/></param>
         /// <param name="fileRevisionHandlerViewModel">The <see cref="IFileRevisionHandlerViewModel"/></param>
-        public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IJsUtilitiesService jsUtilitiesService, 
-            IFileRevisionHandlerViewModel fileRevisionHandlerViewModel) : base(sessionService, messageBus)
+        public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IFileRevisionHandlerViewModel fileRevisionHandlerViewModel) 
+            : base(sessionService, messageBus)
         {
-            this.JsUtilitiesService = jsUtilitiesService;
             this.logger = logger;
             this.FileRevisionHandlerViewModel = fileRevisionHandlerViewModel;
 
@@ -73,11 +70,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Gets the <see cref="IFileRevisionHandlerViewModel"/>
         /// </summary>
         public IFileRevisionHandlerViewModel FileRevisionHandlerViewModel { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IJsUtilitiesService"/>
-        /// </summary>
-        public IJsUtilitiesService JsUtilitiesService { get; private set; }
 
         /// <summary>
         /// Gets a collection of the available <see cref="DomainOfExpertise"/>
@@ -102,7 +94,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <summary>
         /// Gets or sets a collection of the file revisions to be created/edited
         /// </summary>
-        public IEnumerable<FileRevision> FileRevisions { get; set; }
+        public IEnumerable<FileRevision> SelectedFileRevisions { get; set; }
 
         /// <summary>
         /// Gets or sets the selected folder to create a file revision
@@ -135,10 +127,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <param name="file">The file to be set</param>
         public void SelectFile(File file)
         {
-            this.File = file.Clone(true);
+            this.File = file.Iid != Guid.Empty ? file.Clone(true) : file;
             this.IsLocked = this.File.LockedBy is not null;
-            this.FileRevisions = this.File.FileRevision;
-            this.FileRevisionHandlerViewModel.SetFile(this.File);
+            this.SelectedFileRevisions = this.File.FileRevision;
+            this.FileRevisionHandlerViewModel.InitializeViewModel(this.File, this.CurrentFileStore);
         }
 
         /// <summary>
@@ -175,8 +167,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         {
             this.IsLoading = true;
 
-            var thingsToCreate = new List<Thing>();
-            var fileStoreClone = this.CurrentFileStore.Clone(false);
+            var thingsToUpdate = new List<Thing>();
+            var fileStoreClone = this.CurrentFileStore.Clone(true);
 
             this.File.LockedBy = this.IsLocked switch
             {
@@ -185,29 +177,32 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
                _ => this.File.LockedBy
             };
 
-            var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
-            var newFileRevisions = this.FileRevisions.Where(x => !this.File.FileRevision.Contains(x));
+            var fileRevisionsToRemove = this.File.FileRevision.Where(x => !this.SelectedFileRevisions.Contains(x)).ToList();
 
-            foreach (var fileRevision in newFileRevisions)
+            foreach (var fileRevisionToRemove in fileRevisionsToRemove)
             {
-                fileRevision.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
-                fileRevision.CreatedOn = DateTime.UtcNow;
-
-                this.File.FileRevision.Add(fileRevision);
-                thingsToCreate.Add(fileRevision);
+                this.File.FileRevision.Remove(fileRevisionToRemove);
+                thingsToUpdate.Add(fileRevisionToRemove);
             }
 
             if (shouldCreate)
             {
                 fileStoreClone.File.Add(this.File);
-                thingsToCreate.Add(fileStoreClone);
+                thingsToUpdate.Add(fileStoreClone);
             }
 
-            thingsToCreate.Add(this.File);
+            var newFileRevisions = this.SelectedFileRevisions.Where(x => !this.File.FileRevision.Contains(x)).ToList();
 
-            await this.SessionService.UpdateThings(fileStoreClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
+            foreach (var fileRevision in newFileRevisions)
+            {
+                await this.SessionService.CreateFileRevision(fileStoreClone, this.File, fileRevision);
+            }
             
+            thingsToUpdate.Add(this.File);
+
+            await this.SessionService.UpdateThings(fileStoreClone, thingsToUpdate);
+            await this.SessionService.RefreshSession();
+
             this.IsLoading = false;
         }
 
