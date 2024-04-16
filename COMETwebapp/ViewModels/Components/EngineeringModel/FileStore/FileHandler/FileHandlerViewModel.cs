@@ -177,6 +177,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
                _ => this.File.LockedBy
             };
 
+            var newFileRevisions = this.SelectedFileRevisions.Where(x => !this.File.FileRevision.Contains(x)).ToList();
+
+            foreach (var fileRevision in newFileRevisions)
+            {
+                this.File.FileRevision.Add(fileRevision);
+                thingsToUpdate.Add(fileRevision);
+            }
+
             var fileRevisionsToRemove = this.File.FileRevision.Where(x => !this.SelectedFileRevisions.Contains(x)).ToList();
 
             foreach (var fileRevisionToRemove in fileRevisionsToRemove)
@@ -191,16 +199,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
                 thingsToUpdate.Add(fileStoreClone);
             }
 
-            var newFileRevisions = this.SelectedFileRevisions.Where(x => !this.File.FileRevision.Contains(x)).ToList();
-
-            foreach (var fileRevision in newFileRevisions)
-            {
-                await this.SessionService.CreateFileRevision(fileStoreClone, this.File, fileRevision);
-            }
-            
             thingsToUpdate.Add(this.File);
 
-            await this.SessionService.UpdateThings(fileStoreClone, thingsToUpdate);
+            await this.SessionService.UpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath));
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;

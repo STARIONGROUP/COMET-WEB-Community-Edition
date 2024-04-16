@@ -27,7 +27,6 @@ namespace COMET.Web.Common.Services.SessionManagement
 {
     using System.Diagnostics;
 
-    using CDP4Common;
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -320,52 +319,60 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Creates a new file revision, uploading its physical file to the File Store
+        /// Write updated Things in an <see cref="Iteration" /> and uploads the given files to the filestore
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore"/> that will store the created file</param>
-        /// <param name="file">The <see cref="File"/> that will contain the file revision</param>
-        /// <param name="fileRevision">The <see cref="FileRevision"/> that will be created</param>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        /// <param name="files">>A collection of file paths for files to be send to the file store</param>
         /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public async Task<Result> CreateFileRevision(FileStore fileStore, File file, FileRevision fileRevision)
+        public async Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate, IEnumerable<string> files)
         {
             var result = new Result();
 
+            if (thingsToUpdate == null)
+            {
+                result.Errors.Add(new Error("The things to update can't be null"));
+                return result;
+            }
+
+            var sw = Stopwatch.StartNew();
+
+            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
+            var thingClone = container;
+
+            if (container.Original == null)
+            {
+                thingClone = container.Clone(false);
+            }
+
+            // set the context of the transaction to the thing changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(thingClone);
+            var transaction = new ThingTransaction(context);
+
+            // register all updates with the transaction.
+            thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
+
+            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes to the Thing object.
+            var operationContainer = transaction.FinalizeTransaction();
+            result = new Result();
+
             try
             {
-                // search for the file in the file store
-                var transaction = (ThingTransaction)null;
-                var fileExists = fileStore.File.Any(x => x.Iid == file.Iid);
-                file.FileRevision.Add(fileRevision);
-
-                if (fileExists)
-                {
-                    // if the file doesnt exist, include it in the transaction
-                    transaction = this.CreateTransactionForThings(fileStore, [file]);
-                }
-
-                this.logger.LogInformation("Uploading PDF to File Store");
-
-                // create transaction for the file revision creation and execute it
-                transaction = this.CreateTransactionForThings(file, [fileRevision], transaction);
-                var transactionResult = await this.ExecuteTransaction(transaction, [fileRevision.LocalPath]);
-
-                if (transactionResult.IsFailed)
-                {
-                    var message = string.Join(". ", transactionResult.Reasons.Select(x => x.Message));
-                    this.logger.LogError("The PDF can't be uploaded to the File Store. {error}", message);
-                    return transactionResult;
-                }
-
-                result.WithSuccess(new Success("The PDF was uploaded"));
-                return result;
+                await this.Session.Write(operationContainer, files);
+                this.logger.LogInformation("Update writing done in {swElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
+                result.Successes.Add(new Success($"Update writing done in {sw.ElapsedMilliseconds} [ms]"));
             }
-            
-            catch (Exception ex)
+            catch (DalWriteException ex)
             {
-                this.logger.LogError(ex, "An error ocurred while uploading the PDF to the File Store");
-                result.WithError(new Error(ex.Message));
-                return result;
+                this.logger.LogError("The update operation failed: {exMessage}", ex.Message);
+                result.Errors.Add(new Error($"The update operation failed: {ex.Message}"));
             }
+            finally
+            {
+                sw.Stop();
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -610,57 +617,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             return this.OpenIterations.Items.Select(x => (EngineeringModel)x.Container)
                 .DistinctBy(x => x.Iid).ToList();
-        }
-
-        /// <summary>
-        /// Creates a transaction for the things and the container of those things
-        /// </summary>
-        /// <param name="container">the container of the things to create</param>
-        /// <param name="thingsToCreate">the things to create</param>
-        /// <param name="parentTransaction">the parent transaction, if null a new transaction is created</param>
-        /// <returns>the <see cref="ThingTransaction"/></returns>
-        private ThingTransaction CreateTransactionForThings(Thing container, IEnumerable<Thing> thingsToCreate, ThingTransaction parentTransaction = null)
-        {
-            var containerClone = container;
-
-            if (container.Original == null)
-            {
-                containerClone = container.Clone(false);
-            }
-
-            if (parentTransaction == null)
-            {
-                var context = TransactionContextResolver.ResolveContext(containerClone);
-                parentTransaction = new ThingTransaction(context);
-            }
-
-            thingsToCreate.ToList().ForEach(x => { parentTransaction.Create(x, containerClone); });
-            return parentTransaction;
-        }
-
-        /// <summary>
-        /// Executes and finalizes a transaction. The result is an OperationContainer that the session uses to write the changes
-        /// </summary>
-        /// <param name="transaction">the transaction to execute</param>
-        /// <param name="files">the collection of files</param>
-        /// <returns>an asynchronous operation</returns>
-        private async Task<Result> ExecuteTransaction(ThingTransaction transaction, IEnumerable<string> files = null)
-        {
-            var operationContainer = transaction.FinalizeTransaction();
-            var result = new Result();
-
-            try
-            {
-                await this.Session.Write(operationContainer, files);
-                this.logger.LogInformation("Writing done!");
-                return result;
-            }
-            catch (DalWriteException ex)
-            {
-                this.logger.LogError("The transaction operation failed: {error}", ex);
-                result.WithError(new Error(ex.Message));
-                return result;
-            }
         }
     }
 }
