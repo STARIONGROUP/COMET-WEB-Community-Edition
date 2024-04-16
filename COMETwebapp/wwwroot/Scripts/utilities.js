@@ -3,7 +3,7 @@
  * @param {string} fileName
  * @param {any} contentStreamReference
  */
-var DownloadFileFromStream = async (fileName, contentStreamReference) => {
+const DownloadFileFromStream = async (fileName, contentStreamReference) => {
 
     const arrayBuffer = await contentStreamReference.arrayBuffer();
     const blob = new Blob([arrayBuffer], { type: 'text/plain;charset=utf-8' });

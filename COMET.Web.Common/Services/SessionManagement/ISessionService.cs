@@ -171,6 +171,15 @@ namespace COMET.Web.Common.Services.SessionManagement
         Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate);
 
         /// <summary>
+        /// Write updated Things in an <see cref="Iteration" /> and uploads the given files to the filestore
+        /// </summary>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        /// <param name="files">>A collection of file paths for files to be send to the file store</param>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
+        Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate, IEnumerable<string> files);
+
+        /// <summary>
         /// Deletes a <see cref="Thing"/> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>
@@ -239,14 +248,5 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// in.
         /// </remarks>
         Task<Result> ReadEngineeringModels(IEnumerable<EngineeringModelSetup> engineeringModelSetups);
-
-        /// <summary>
-        /// Write updated Things in an <see cref="Iteration" /> and uploads the given files to the filestore
-        /// </summary>
-        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
-        /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <param name="files">>A collection of file paths for files to be send to the file store</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate, IEnumerable<string> files);
     }
 }

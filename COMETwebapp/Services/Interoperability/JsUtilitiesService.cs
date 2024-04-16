@@ -47,11 +47,31 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>an asynchronous operation</returns>
         public async Task DownloadFileFromStreamAsync(Stream stream, string fileName)
         {
-            ArgumentNullException.ThrowIfNull(stream);
-            ArgumentNullException.ThrowIfNull(fileName);
+            ValidateDownloadParameters(stream, fileName);
 
             using var streamRef = new DotNetStreamReference(stream: stream);
+            await this.DownloadFileAsync(fileName, streamRef);
+        }
 
+        /// <summary>
+        /// Validates the download file parameters
+        /// </summary>
+        /// <param name="stream">the stream</param>
+        /// <param name="fileName">the file name</param>
+        private static void ValidateDownloadParameters(Stream stream, string fileName)
+        {
+            ArgumentNullException.ThrowIfNull(stream, nameof(stream));
+            ArgumentNullException.ThrowIfNull(fileName, nameof(fileName));
+        }
+
+        /// <summary>
+        /// Effectively downloads the file
+        /// </summary>
+        /// <param name="fileName">the file name</param>
+        /// <param name="streamRef">the stream</param>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task DownloadFileAsync(string fileName, DotNetStreamReference streamRef)
+        {
             await this.JsRuntime.InvokeVoidAsync("DownloadFileFromStream", fileName, streamRef);
         }
     }

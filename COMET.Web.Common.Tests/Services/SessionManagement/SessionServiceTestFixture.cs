@@ -326,7 +326,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public async Task VerifyUpdateThings()
+        public void VerifyUpdateThings()
         {
             var thingsToUpdate = new List<ElementDefinition>();
             this.sessionService.IsSessionOpen = true;

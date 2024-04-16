@@ -165,6 +165,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         public async Task CreateOrEditFile(bool shouldCreate)
         {
             this.IsLoading = true;
+            this.logger.LogInformation("Creating or editing file");
 
             var thingsToUpdate = new List<Thing>();
             var fileStoreClone = this.CurrentFileStore.Clone(true);
@@ -208,6 +209,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             await this.SessionService.UpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath));
             await this.SessionService.RefreshSession();
 
+            this.logger.LogInformation("File with iid {iid} updated successfully", this.File.Iid);
             this.IsLoading = false;
         }
 
