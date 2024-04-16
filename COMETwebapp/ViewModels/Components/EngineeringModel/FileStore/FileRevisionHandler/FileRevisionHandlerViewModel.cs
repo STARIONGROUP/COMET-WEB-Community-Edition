@@ -83,8 +83,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             this.JsUtilitiesService = jsUtilitiesService;
             this.logger = logger;
             this.configuration = configuration;
-
-            this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
         }
 
         /// <summary>

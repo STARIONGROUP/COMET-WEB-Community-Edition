@@ -45,9 +45,9 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         public IFolderHandlerViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the value to check if the deletion popup is visible
+        /// Gets the value to check if the deletion popup is visible
         /// </summary>
-        private bool IsDeletePopupVisible { get; set; }
+        public bool IsDeletePopupVisible { get; private set; }
 
         /// <summary>
         /// Method that is executed when there is a valid submit

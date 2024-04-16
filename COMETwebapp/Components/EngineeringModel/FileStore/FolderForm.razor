@@ -71,6 +71,6 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You are about to delete the Folder: @(this.ViewModel.Folder.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(() => this.IsDeletePopupVisible = false)" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" />
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" Id="deleteFolderPopupButton" />
     </div>
 </DxPopup>

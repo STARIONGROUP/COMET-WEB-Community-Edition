@@ -48,7 +48,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
                               IconCssClass="oi oi-arrow-bottom"
                               Click="() => this.MoveDown(row)"
                               Enabled="@(this.SelectedFileTypes.LastOrDefault() != row.Thing)" />
-                    <DxButton Id="moveUpButton"
+                    <DxButton Id="removeFileTypeButton"
                               IconCssClass="oi oi-trash"
                               Click="() => this.RemoveFileType(row)" />
                 }
