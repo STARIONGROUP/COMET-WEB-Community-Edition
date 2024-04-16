@@ -67,6 +67,10 @@ Copyright (c) 2023-2024 RHEA System S.A.
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>
+        @if (!string.IsNullOrWhiteSpace(this.ViewModel.ErrorMessage))
+        {
+            <span class="text-danger">@this.ViewModel.ErrorMessage</span>
+        }
         <ValidationSummary />
     </EditFormTemplate>
 

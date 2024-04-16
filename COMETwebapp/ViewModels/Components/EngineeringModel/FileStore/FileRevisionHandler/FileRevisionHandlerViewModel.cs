@@ -127,6 +127,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             this.CurrentFile = file;
             this.CurrentFileStore = fileStore;
             this.FileTypes = this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.FileType);
+            this.ErrorMessage = string.Empty;
 
             this.UploadsDirectory = $"wwwroot/uploads/{Guid.NewGuid()}";
 
@@ -166,6 +167,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
         /// <returns>A <see cref="Task"/></returns>
         public async Task UploadFile(IBrowserFile file)
         {
+            this.ErrorMessage = string.Empty;
             var maxUploadFileSizeInBytes = (long)(this.MaxUploadFileSizeInMb * 1024 * 1024);
 
             if (file.Size > maxUploadFileSizeInBytes)

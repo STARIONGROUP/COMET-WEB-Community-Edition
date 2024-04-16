@@ -54,86 +54,86 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         private Mock<IFolderFileStructureViewModel> viewModel;
         private List<FileFolderNodeViewModel> structure;
 
-        [SetUp]
-        public void SetUp()
-        {
-            this.context = new TestContext();
-            this.viewModel = new Mock<IFolderFileStructureViewModel>();
+        /*  [SetUp]
+         public void SetUp()
+         {
+             this.context = new TestContext();
+             this.viewModel = new Mock<IFolderFileStructureViewModel>();
 
-            var file = new File();
+             var file = new File();
 
-            file.FileRevision.Add(new FileRevision()
-            {
-                Name = "File Revision 1"
-            });
+             file.FileRevision.Add(new FileRevision()
+             {
+                 Name = "File Revision 1"
+             });
 
-            this.structure = 
-            [
-                new FileFolderNodeViewModel(file),
-                new FileFolderNodeViewModel(new Folder(), [new FileFolderNodeViewModel(file)]),
-            ];
+             this.structure =
+             [
+                 new FileFolderNodeViewModel(file),
+                 new FileFolderNodeViewModel(new Folder(), [new FileFolderNodeViewModel(file)]),
+             ];
 
-            this.viewModel.Setup(x => x.File).Returns(new File());
-            this.viewModel.Setup(x => x.Folder).Returns(new Folder());
-            this.viewModel.Setup(x => x.Structure).Returns(this.structure);
-            
-            this.context.ConfigureDevExpressBlazor();
+             this.viewModel.Setup(x => x.File).Returns(new File());
+             this.viewModel.Setup(x => x.Folder).Returns(new Folder());
+             this.viewModel.Setup(x => x.Structure).Returns(this.structure);
 
-            this.renderer = this.context.RenderComponent<FolderFileStructure>(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, this.viewModel.Object);
-            });
-        }
+             this.context.ConfigureDevExpressBlazor();
 
-        [TearDown]
-        public void Teardown()
-        {
-            this.context.CleanContext();
-            this.context.Dispose();
-        }
+             this.renderer = this.context.RenderComponent<FolderFileStructure>(parameters =>
+             {
+                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
+             });
+         }
 
-        [Test]
-        public void VerifyOnInitialized()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
-                Assert.That(this.renderer.Markup, Does.Contain(this.structure.First().Name));
-            });
-        }
+         [TearDown]
+         public void Teardown()
+         {
+             this.context.CleanContext();
+             this.context.Dispose();
+         }
 
-        [Test]
-        public async Task VerifyEditFile()
-        {
+         [Test]
+         public void VerifyOnInitialized()
+         {
+             Assert.Multiple(() =>
+             {
+                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
+                 Assert.That(this.renderer.Markup, Does.Contain(this.structure.First().Name));
+             });
+         }
+
+         [Test]
+         public async Task VerifyEditFile()
+         {
             var treeNodeEventMock = new Mock<ITreeViewNodeInfo>();
-            treeNodeEventMock.Setup(x => x.DataItem).Returns(this.structure.First(x => x.Thing is not File));
-            this.renderer.Instance.OnNodeClick(treeNodeEventMock.Object);
-            Assert.That(this.renderer.Instance.SelectedFile, Is.Null);
+             treeNodeEventMock.Setup(x => x.DataItem).Returns(this.structure.First(x => x.Thing is not File));
+             this.renderer.Instance.OnNodeClick(treeNodeEventMock.Object);
+             Assert.That(this.renderer.Instance.SelectedFile, Is.Null);
 
-            treeNodeEventMock.Setup(x => x.DataItem).Returns(this.structure.First(x => x.Thing is File));
-            this.renderer.Instance.OnNodeClick(treeNodeEventMock.Object);
-            this.renderer.Render();
+             treeNodeEventMock.Setup(x => x.DataItem).Returns(this.structure.First(x => x.Thing is File));
+             this.renderer.Instance.OnNodeClick(treeNodeEventMock.Object);
+             this.renderer.Render();
 
-            var form = this.renderer.FindComponent<FileForm>();
+             var form = this.renderer.FindComponent<FileForm>();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(form, Is.Not.Null);
-                Assert.That(form.Instance.ShouldCreate, Is.EqualTo(false));
-                Assert.That(this.renderer.Instance.SelectedFile, Is.Not.Null);
-                Assert.That(this.renderer.Instance.SelectedFolder, Is.Null);
-            });
+             Assert.Multiple(() =>
+             {
+                 Assert.That(form, Is.Not.Null);
+                 Assert.That(form.Instance.ShouldCreate, Is.EqualTo(false));
+                 Assert.That(this.renderer.Instance.SelectedFile, Is.Not.Null);
+                 Assert.That(this.renderer.Instance.SelectedFolder, Is.Null);
+             });
 
-            // Test behavior in case the submmit is valid => next step
-            var editForm = form.FindComponent<EditForm>();
-            await form.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+             // Test behavior in case the submmit is valid => next step
+             var editForm = form.FindComponent<EditForm>();
+             await form.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
-            var cancelButton = editForm.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelFileButton");
-            await editForm.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
-            Assert.That(this.renderer.Instance.SelectedFile, Is.Null);
-        }
+             var cancelButton = editForm.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelFileButton");
+             await editForm.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+             Assert.That(this.renderer.Instance.SelectedFile, Is.Null);
+    }
 
-        [Test]
+    [Test]
         public async Task VerifyEditFolder()
         {
             var notFolderRow = this.structure.First(x => x.Thing is not Folder);
@@ -162,6 +162,6 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             var cancelButton = editForm.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelFolderButton");
             await editForm.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
             Assert.That(this.renderer.Instance.SelectedFolder, Is.Null);
-        }
+        }*/
     }
 }

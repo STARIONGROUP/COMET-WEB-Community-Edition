@@ -33,6 +33,8 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using CDP4Dal.Exceptions;
+    using CDP4Dal.Operations;
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
@@ -324,7 +326,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public void VerifyUpdateThings()
+        public async Task VerifyUpdateThings()
         {
             var thingsToUpdate = new List<ElementDefinition>();
             this.sessionService.IsSessionOpen = true;
@@ -335,10 +337,23 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 Owner = this.sessionService.GetDomainOfExpertise(this.iteration)
             };
 
+            this.iteration.Element.Add(element);
+
             var clone = element.Clone(false);
             clone.Name = "Satellite";
             thingsToUpdate.Add(clone);
-            Assert.DoesNotThrow(() => this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
+            Assert.DoesNotThrowAsync(async() => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
+
+            var filesToUpload = new List<string> { this.uri.LocalPath };
+
+            Assert.Multiple(() =>
+            {
+                Assert.DoesNotThrowAsync(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate, filesToUpload));
+                this.session.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+            });
+
+            this.session.Setup(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>())).Throws(new DalWriteException());
+            Assert.DoesNotThrowAsync(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate, filesToUpload));
         }
 
         [Test]

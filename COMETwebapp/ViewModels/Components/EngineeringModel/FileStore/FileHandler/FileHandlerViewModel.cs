@@ -62,8 +62,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         {
             this.logger = logger;
             this.FileRevisionHandlerViewModel = fileRevisionHandlerViewModel;
-
-            this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
         }
 
         /// <summary>
@@ -131,6 +129,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             this.IsLocked = this.File.LockedBy is not null;
             this.SelectedFileRevisions = this.File.FileRevision;
             this.FileRevisionHandlerViewModel.InitializeViewModel(this.File, this.CurrentFileStore);
+            this.SelectedFolder = null;
         }
 
         /// <summary>
@@ -181,6 +180,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             foreach (var fileRevision in newFileRevisions)
             {
+                if (shouldCreate)
+                {
+                    fileRevision.ContainingFolder = this.SelectedFolder;
+                }
+
                 this.File.FileRevision.Add(fileRevision);
                 thingsToUpdate.Add(fileRevision);
             }

@@ -50,7 +50,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         public FolderHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
-            this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
         }
 
         /// <summary>
