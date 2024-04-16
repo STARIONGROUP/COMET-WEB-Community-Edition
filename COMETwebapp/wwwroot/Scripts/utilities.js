@@ -3,19 +3,20 @@
  * @param {string} fileName
  * @param {any} contentStreamReference
  */
-const DownloadFileFromStream = async (fileName, contentStreamReference) => {
+function DownloadFileFromStream(fileName, contentStreamReference) {
+    (async () => {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        const blob = new Blob([arrayBuffer], { type: 'text/plain;charset=utf-8' });
 
-    const arrayBuffer = await contentStreamReference.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
 
-    const url = URL.createObjectURL(blob);
+        const anchorElement = document.createElement('a');
 
-    const anchorElement = document.createElement('a');
-
-    anchorElement.href = url;
-    anchorElement.download = fileName ?? '';
-    anchorElement.target = "_blank";
-    anchorElement.click();
-    anchorElement.remove();
-    URL.revokeObjectURL(url);
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.target = "_blank";
+        anchorElement.click();
+        anchorElement.remove();
+        URL.revokeObjectURL(url);
+    })();
 }

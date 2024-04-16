@@ -60,8 +60,8 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="fileName">the file name</param>
         private static void ValidateDownloadParameters(Stream stream, string fileName)
         {
-            ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-            ArgumentNullException.ThrowIfNull(fileName, nameof(fileName));
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(fileName);
         }
 
         /// <summary>

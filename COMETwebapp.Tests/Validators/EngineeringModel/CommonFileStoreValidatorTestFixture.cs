@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="FileValidator.cs" company="RHEA System S.A.">
+//  <copyright file="CommonFileStoreValidatorTestFixture.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
@@ -22,27 +22,41 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.EngineeringModel
+namespace COMETwebapp.Tests.Validators.EngineeringModel
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
 
-    using COMET.Web.Common.Extensions;
+    using COMETwebapp.Validators.EngineeringModel;
 
-    using FluentValidation;
+    using NUnit.Framework;
 
-    /// <summary>
-    /// A class to validate the <see cref="FileValidator"/>
-    /// </summary>
-    public class FileValidator : AbstractValidator<File>
+    [TestFixture]
+    public class CommonFileStoreValidatorTestFixture
     {
-        /// <summary>
-        /// Instantiates a new <see cref="FileValidator"/>
-        /// </summary>
-        public FileValidator(IValidationService validationService) : base()
+        private CommonFileStoreValidator validator;
+
+        [SetUp]
+        public void SetUp()
         {
-            this.RuleFor(x => x.Owner).NotEmpty().Validate(validationService, nameof(File.Owner));
-            this.RuleFor(x => x.LockedBy).Validate(validationService, nameof(File.LockedBy));
+            var validationService = new ValidationService();
+            this.validator = new CommonFileStoreValidator(validationService);
+        }
+
+        [Test]
+        public void VerifyValidationScenarios()
+        {
+            var commonFileStore = new CommonFileStore();
+            Assert.That(this.validator.Validate(commonFileStore).IsValid, Is.EqualTo(false));
+
+            commonFileStore = new CommonFileStore()
+            {
+                Name = "name1",
+                Owner = new DomainOfExpertise()
+            };
+
+            Assert.That(this.validator.Validate(commonFileStore).IsValid, Is.EqualTo(true));
         }
     }
 }
