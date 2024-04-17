@@ -38,8 +38,7 @@ namespace COMETwebapp.Extensions
         /// <returns>The path</returns>
         public static string GetFolderPath(this Folder folder)
         {
-            var path = $"{folder.Path}/{folder.Name}/";
-            return path;
+            return Path.Combine(folder.Path, folder.Name);
         }
     }
 }

@@ -342,18 +342,18 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             var clone = element.Clone(false);
             clone.Name = "Satellite";
             thingsToUpdate.Add(clone);
-            Assert.DoesNotThrowAsync(async() => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate));
+            Assert.That(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate), Throws.Nothing);
 
             var filesToUpload = new List<string> { this.uri.LocalPath };
 
             Assert.Multiple(() =>
             {
-                Assert.DoesNotThrowAsync(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate, filesToUpload));
+                Assert.That(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate, filesToUpload), Throws.Nothing);
                 this.session.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Once);
             });
 
             this.session.Setup(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>())).Throws(new DalWriteException());
-            Assert.DoesNotThrowAsync(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate, filesToUpload));
+            Assert.That(async () => await this.sessionService.UpdateThings(this.iteration, thingsToUpdate, filesToUpload), Throws.Nothing);
         }
 
         [Test]

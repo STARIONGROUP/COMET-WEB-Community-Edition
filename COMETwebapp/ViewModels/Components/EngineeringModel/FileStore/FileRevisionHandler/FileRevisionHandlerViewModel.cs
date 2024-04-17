@@ -126,8 +126,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             this.CurrentFileStore = fileStore;
             this.FileTypes = this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.FileType);
             this.ErrorMessage = string.Empty;
-
-            this.UploadsDirectory = $"wwwroot/uploads/{Guid.NewGuid()}";
+            this.UploadsDirectory = Path.Combine("wwwroot", "uploads", Guid.NewGuid().ToString());
 
             if (!Directory.Exists(this.UploadsDirectory))
             {

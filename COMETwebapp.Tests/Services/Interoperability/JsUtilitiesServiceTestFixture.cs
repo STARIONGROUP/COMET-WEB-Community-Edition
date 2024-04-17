@@ -48,9 +48,12 @@ namespace COMETwebapp.Tests.Services.Interoperability
         [Test]
         public async Task VerifyFileDownloadUtility()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await this.service.DownloadFileFromStreamAsync(null, null));
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await this.service.DownloadFileFromStreamAsync(new MemoryStream(), null));
-
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.service.DownloadFileFromStreamAsync(null, null), Throws.ArgumentNullException);
+                Assert.That(async () => await this.service.DownloadFileFromStreamAsync(new MemoryStream(), null), Throws.ArgumentNullException);
+            });
+            
             await this.service.DownloadFileFromStreamAsync(new MemoryStream(), "fileTest");
             Assert.That(this.jsRuntimeMock.Invocations.Count, Is.EqualTo(1));
         }
