@@ -2,7 +2,7 @@
 //  <copyright file="PersonRowViewModel.cs" company="RHEA System S.A.">
 //     Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,16 +22,18 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
+namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 {
     using CDP4Common.SiteDirectoryData;
+
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using ReactiveUI;
 
     /// <summary>
     /// Row View Model for  <see cref="CDP4Common.SiteDirectoryData.Person" />
     /// </summary>
-    public class PersonRowViewModel : ReactiveObject
+    public class PersonRowViewModel : DeprecatableDataItemRowViewModel<Person>
     {
         /// <summary>
         /// Backing field for <see cref="IsActive" />
@@ -39,24 +41,9 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
         private bool isActive;
 
         /// <summary>
-        /// Backing field for <see cref="IsDeprecated" />
-        /// </summary>
-        private bool isDeprecated;
-
-        /// <summary>
         /// Backing field for <see cref="PersonEmailAddress" />
         /// </summary>
         private string personEmailAddress;
-
-        /// <summary>
-        /// Backing field for <see cref="PersonName" />
-        /// </summary>
-        private string personName;
-
-        /// <summary>
-        /// Backing field for <see cref="PersonShortName" />
-        /// </summary>
-        private string personShortName;
 
         /// <summary>
         /// Backing field for <see cref="PersonTelephoneNumber" />
@@ -71,40 +58,13 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
         /// <summary>
         /// Initializes a new instance of the <see cref="PersonRowViewModel" /> class.
         /// </summary>
-        /// <param name="person">The associated <see cref="CDP4Common.SiteDirectoryData.Person" /></param>
-        public PersonRowViewModel(Person person)
+        /// <param name="thing">The associated <see cref="CDP4Common.SiteDirectoryData.Person" /></param>
+        public PersonRowViewModel(Person thing) : base(thing)
         {
-            this.Person = person;
-            this.PersonName = person.Name;
-            this.PersonShortName = person.ShortName;
-            this.Role = person.Role?.Name;
-            this.PersonEmailAddress = person.DefaultEmailAddress?.Value;
-            this.PersonTelephoneNumber = person.DefaultTelephoneNumber?.Value;
-            this.IsActive = person.IsActive;
-            this.IsDeprecated = person.IsDeprecated;
-        }
-
-        /// <summary>
-        /// The associated <see cref="Person" />
-        /// </summary>
-        public Person Person { get; private set; }
-
-        /// <summary>
-        /// The name of the <see cref="CDP4Common.SiteDirectoryData.Person" />
-        /// </summary>
-        public string PersonName
-        {
-            get => this.personName;
-            set => this.RaiseAndSetIfChanged(ref this.personName, value);
-        }
-
-        /// <summary>
-        /// The short name of the <see cref="CDP4Common.SiteDirectoryData.Person" />
-        /// </summary>
-        public string PersonShortName
-        {
-            get => this.personShortName;
-            set => this.RaiseAndSetIfChanged(ref this.personShortName, value);
+            this.Role = thing.Role?.Name;
+            this.PersonEmailAddress = thing.DefaultEmailAddress?.Value;
+            this.PersonTelephoneNumber = thing.DefaultTelephoneNumber?.Value;
+            this.IsActive = thing.IsActive;
         }
 
         /// <summary>
@@ -144,41 +104,17 @@ namespace COMETwebapp.ViewModels.Components.UserManagement.Rows
         }
 
         /// <summary>
-        /// Value indicating if the <see cref="CDP4Common.SiteDirectoryData.Person" /> is deprecated
-        /// </summary>
-        public bool IsDeprecated
-        {
-            get => this.isDeprecated;
-            set => this.RaiseAndSetIfChanged(ref this.isDeprecated, value);
-        }
-
-        /// <summary>
-        /// Backing field for <see cref="IsAllowedToWrite" />
-        /// </summary>
-        private bool isAllowedToWrite;
-
-        /// <summary>
-        /// Value indicating if the <see cref="Person" /> is deprecated
-        /// </summary>
-        public bool IsAllowedToWrite
-        {
-            get => this.isAllowedToWrite;
-            set => this.RaiseAndSetIfChanged(ref this.isAllowedToWrite, value);
-        }
-
-        /// <summary>
         /// Update this row view model properties
         /// </summary>
         /// <param name="person">The <see cref="PersonRowViewModel" /> to use for updating</param>
         public void UpdateProperties(PersonRowViewModel person)
         {
-            this.PersonName = person.PersonName;
-            this.PersonShortName = person.PersonShortName;
+            base.UpdateProperties(person);
+
             this.PersonEmailAddress = person.PersonEmailAddress;
             this.PersonTelephoneNumber = person.PersonTelephoneNumber;
             this.Role = person.Role;
             this.IsActive = person.IsActive;
-            this.IsDeprecated = person.IsDeprecated;
         }
     }
 }

@@ -27,7 +27,6 @@ namespace COMETwebapp.Components.SiteDirectory
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -41,7 +40,7 @@ namespace COMETwebapp.Components.SiteDirectory
     public partial class OrganizationsTable : SelectedDeprecatableDataItemBase<Organization, OrganizationRowViewModel>
     {
         /// <summary>
-        /// The <see cref="IDomainsOfExpertiseTableViewModel" /> for this component
+        /// The <see cref="IOrganizationsTableViewModel" /> for this component
         /// </summary>
         [Inject]
         public IOrganizationsTableViewModel ViewModel { get; set; }

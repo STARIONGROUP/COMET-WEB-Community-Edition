@@ -48,7 +48,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
     using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.UserManagement;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;

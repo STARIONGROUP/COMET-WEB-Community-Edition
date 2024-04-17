@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 RHEA System S.A.
 //
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //     This file is part of CDP4-COMET WEB Community Edition
 //      The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -19,32 +19,30 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.UserManagement.Rows
-@using CDP4Common.SiteDirectoryData
-@inherits COMET.Web.Common.Components.Applications.ApplicationBase<COMETwebapp.ViewModels.Components.UserManagement.IUserManagementTableViewModel>
+@inherits SelectedDeprecatableDataItemBase<Person, PersonRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ShowSearchBox="true"
             SearchBoxNullText="Search for a person..."
-            PageSize="12"
+            PageSize="15"
             ValidationEnabled="false"
             CustomSummary="CustomSummary"
             CustomizeSummaryDisplayText="CustomizeSummaryDisplayText"
-            CustomizeEditModel="this.CustomizeEditPerson"
+            CustomizeEditModel="this.CustomizeEditThing"
             PopupEditFormCssClass="pw-800"
             PopupEditFormHeaderText="Create Person"
             EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditModelSaving)"
-            CustomizeElement="DisableDeprecatedPerson">
+            EditModelSaving="@(this.OnEditThingSaving)"
+            CustomizeElement="DisableDeprecatedThing">
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="IsActive" ValueDisplayFormat="{0} Total" />
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Custom" Name="Inactive" FieldName="IsActive" />
         </TotalSummary>
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.PersonName)" MinWidth="80" />
-            <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.PersonShortName)" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.Name)" MinWidth="80" />
+            <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
             <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.PersonEmailAddress)" MinWidth="80" SearchEnabled="false" />
             <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.PersonTelephoneNumber)" MinWidth="80" SearchEnabled="false" />
             <DxGridDataColumn FieldName="@nameof(PersonRowViewModel.Role)" Caption="Role" MinWidth="80" SearchEnabled="false" />
@@ -67,14 +65,10 @@
 
                         <DxButton Id="editPersonButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="row.IsAllowedToWrite" />
 
-                        if (row.IsDeprecated)
-                        {
-                            <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />
-                        }
-                        else
-                        {
-                            <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" Enabled="row.IsAllowedToWrite" />
-                        }
+                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
+                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
+                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                  Enabled="@(row.IsAllowedToWrite)" />
                     }  
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -84,40 +78,40 @@
                 <DxFormLayoutTabPages>
                     <DxFormLayoutTabPage Caption="Basic">
                         <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.Person.ShortName" />
+                            <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Given Name:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.Person.GivenName" />
+                            <DxTextBox @bind-Text="@this.ViewModel.Thing.GivenName" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Surname:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.Person.Surname" />
+                            <DxTextBox @bind-Text="@this.ViewModel.Thing.Surname" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Organizational Unit:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.Person.OrganizationalUnit" />
+                            <DxTextBox @bind-Text="@this.ViewModel.Thing.OrganizationalUnit" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Organization:" ColSpanMd="10">
                             <DxComboBox Data="@this.ViewModel.AvailableOrganizations"
                                         TextFieldName="@nameof(Organization.Name)"
-                                        @bind-Value="@this.ViewModel.Person.Organization"
+                                        @bind-Value="@this.ViewModel.Thing.Organization"
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Person Role:" ColSpanMd="10">
                             <DxComboBox Data="@this.ViewModel.AvailablePersonRoles"
                                         TextFieldName="@nameof(PersonRole.Name)"
-                                        @bind-Value="@this.ViewModel.Person.Role"
+                                        @bind-Value="@this.ViewModel.Thing.Role"
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Default Domain:" ColSpanMd="10">
                             <DxComboBox Data="@this.ViewModel.AvailableDomains"
                                         TextFieldName="@nameof(DomainOfExpertise.Name)"
-                                        @bind-Value="@this.ViewModel.Person.DefaultDomain"
+                                        @bind-Value="@this.ViewModel.Thing.DefaultDomain"
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
-                            <DxCheckBox @bind-Checked="@this.ViewModel.Person.IsActive" />
+                            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsActive" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                            <DxCheckBox @bind-Checked="@this.ViewModel.Person.IsDeprecated" />
+                            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
                         </DxFormLayoutItem>
                     </DxFormLayoutTabPage>
                     <DxFormLayoutTabPage Caption="E-Mail">
@@ -149,8 +143,8 @@
     <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
         @this.ViewModel.PopupDialog
         <div class="dxbl-grid-confirm-dialog-buttons">
-            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelButtonClick" />
-            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmButtonClick" />
+            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
         </div>
     </DxPopup>
 </LoadingComponent>
