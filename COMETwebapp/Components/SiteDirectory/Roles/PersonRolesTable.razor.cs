@@ -44,14 +44,13 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// <summary>
         /// The <see cref="IPersonRolesTableViewModel" /> for this component
         /// </summary>
-        [Parameter, Required]
+        [Inject]
         public IPersonRolesTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The callback for when a person role is selected
+        /// Gets the value to check if a role has been selected
         /// </summary>
-        [Parameter]
-        public EventCallback<PersonRole> OnRoleSelected { get; set; }
+        public bool IsRoleSelected { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -85,13 +84,13 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         }
 
         /// <summary>
-        /// Metgid invoked everytime a row is selected
+        /// Method invoked everytime a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private async Task OnSelectedDataItemChanged(PersonRoleRowViewModel row)
+        private void OnSelectedDataItemChanged(PersonRoleRowViewModel row)
         {
             this.ViewModel.Thing = row.Thing.Clone(true);
-            await this.OnRoleSelected.InvokeAsync(row.Thing);
+            this.IsRoleSelected = true;
         }
     }
 }
