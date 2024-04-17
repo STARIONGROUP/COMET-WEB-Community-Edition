@@ -106,7 +106,7 @@ namespace COMETwebapp.Model
             },
             new Application
             {
-                Name = "Site Directory",
+                Name = "Server Administration",
                 Color = "#fc3a1aad",
                 Icon = "folder",
                 Description = "Visualize site directory data",
@@ -119,14 +119,6 @@ namespace COMETwebapp.Model
                 Icon = "cog",
                 Description = "Visualize the engineering model data",
                 Url = WebAppConstantValues.EngineeringModelPage
-            },
-            new Application    
-            {
-                Name = "User Management",
-                Color = "#76fd98",
-                Icon = "people",
-                Description = "Manage users",
-                Url = WebAppConstantValues.UserManagementPage
             },
             new Application
             {

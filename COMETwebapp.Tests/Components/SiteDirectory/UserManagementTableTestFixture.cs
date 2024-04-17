@@ -22,8 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-#pragma warning disable BL0005
-namespace COMETwebapp.Tests.Components.UserManagement
+namespace COMETwebapp.Tests.Components.SiteDirectory
 {
     using System.Collections.Concurrent;
 
@@ -32,6 +31,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.DAL;
@@ -44,13 +44,14 @@ namespace COMETwebapp.Tests.Components.UserManagement
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.UserManagement;
+    using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.UserManagement;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
 
     using DevExpress.Blazor;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -62,8 +63,9 @@ namespace COMETwebapp.Tests.Components.UserManagement
     public class UserManagementTableTestFixture
     {
         private TestContext context;
-        private IUserManagementTableViewModel viewModel;
+        private UserManagementTableViewModel viewModel;
         private Mock<ISession> session;
+        private Mock<ILogger<UserManagementTableViewModel>> logger;
         private Mock<IPermissionService> permissionService;
         private Mock<ISessionService> sessionService;
         private Mock<IShowHideDeprecatedThingsService> showHideDeprecatedThingsService;
@@ -88,30 +90,23 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
+            this.logger = new Mock<ILogger<UserManagementTableViewModel>>();
             this.showHideDeprecatedThingsService = new Mock<IShowHideDeprecatedThingsService>();
-            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.permissionService = new Mock<IPermissionService>();
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
-
+            this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             this.showHideDeprecatedThingsService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
-            this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
-
-            this.context.Services.AddSingleton(this.sessionService);
-            this.context.ConfigureDevExpressBlazor();
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
-            this.context.Services.AddSingleton(configuration.Object);
             this.messageBus = new CDPMessageBus();
 
             this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
-
-            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus);
-
-            this.context.Services.AddSingleton(this.viewModel);
+            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
@@ -239,6 +234,9 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Model = { this.engineeringSetup }
             };
 
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.person));
+            this.assembler.Cache.TryAdd(new CacheKey(Guid.NewGuid(), null), new Lazy<Thing>(this.person1));
+
             this.siteDirectory.Person.Add(this.person);
             this.siteDirectory.Person.Add(this.person1);
             this.siteDirectory.Domain.Add(this.domain);
@@ -249,6 +247,11 @@ namespace COMETwebapp.Tests.Components.UserManagement
             this.session.Setup(x => x.Credentials).Returns(new Credentials("admin", "pass", this.uri));
             this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
+
+            this.context.Services.AddSingleton<IUserManagementTableViewModel>(this.viewModel);
+            this.context.Services.AddSingleton(this.sessionService);
+            this.context.Services.AddSingleton(configuration.Object);
+            this.context.ConfigureDevExpressBlazor();
         }
 
         [TearDown]
@@ -256,6 +259,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
         {
             this.context.CleanContext();
             this.messageBus.ClearSubscriptions();
+            this.viewModel.Dispose();
         }
 
         [Test]
@@ -279,19 +283,19 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Person.Name?.Trim(), Is.Empty);
-                Assert.That(this.viewModel.ShouldCreatePerson, Is.EqualTo(true));
+                Assert.That(this.viewModel.Thing.Name?.Trim(), Is.Empty);
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
             });
 
             await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Contains(this.viewModel.Person))), Times.Once);
+            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Contains(this.viewModel.Thing))), Times.Once);
 
             await grid.InvokeAsync(editPersonButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Person.Name, Is.EqualTo(this.viewModel.Rows.Items.First().PersonName));
-                Assert.That(this.viewModel.ShouldCreatePerson, Is.EqualTo(false));
+                Assert.That(this.viewModel.Thing.Name, Is.EqualTo(this.viewModel.Rows.Items.First().Name));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
             });
 
             await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
@@ -315,14 +319,12 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             Assert.Multiple(() =>
             {
-                Assert.That(checkBox.Instance.Checked, Is.True);
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
 
-            await renderer.InvokeAsync(() => checkBox.Instance.Checked = false);
-
-            Assert.Multiple(() => { Assert.That(checkBox.Instance.Checked, Is.False); });
+            await renderer.InvokeAsync(() => checkBox.Instance.CheckedChanged.InvokeAsync(false));
+            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<Person>()), Times.Once);
         }
 
         [Test]
@@ -341,7 +343,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
 
-            this.viewModel.Person = new Person
+            this.viewModel.Thing = new Person
             {
                 GivenName = "Test",
                 Surname = "Test",
@@ -352,8 +354,8 @@ namespace COMETwebapp.Tests.Components.UserManagement
                 TelephoneNumber = { new TelephoneNumber() }
             };
 
-            await this.viewModel.CreateOrEditPerson();
-            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Person, EventKind.Added));
+            await this.viewModel.CreateOrEditPerson(true);
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
 
             Assert.Multiple(() =>
             {
@@ -364,7 +366,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
         [Test]
         public async Task VerifyDeprecatingPerson()
-        { 
+        {
             var renderer = this.context.RenderComponent<UserManagementTable>();
 
             Assert.Multiple(() =>
@@ -375,7 +377,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             });
 
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            var currentPerson = this.viewModel.Person;
+            var currentPerson = this.viewModel.Thing;
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
 
@@ -384,12 +386,12 @@ namespace COMETwebapp.Tests.Components.UserManagement
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Person, Is.Not.EqualTo(currentPerson));
+                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentPerson));
             });
 
-            this.viewModel.Person = this.person;
+            this.viewModel.Thing = this.person;
 
-            await this.viewModel.OnConfirmButtonClick();
+            await this.viewModel.OnConfirmPopupButtonClick();
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
@@ -420,7 +422,7 @@ namespace COMETwebapp.Tests.Components.UserManagement
             });
 
             var undeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            var currentPerson = this.viewModel.Person;
+            var currentPerson = this.viewModel.Thing;
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
 
@@ -429,12 +431,12 @@ namespace COMETwebapp.Tests.Components.UserManagement
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Person, Is.Not.EqualTo(currentPerson));
+                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentPerson));
             });
 
-            this.viewModel.Person = this.person1;
+            this.viewModel.Thing = this.person1;
 
-            await this.viewModel.OnConfirmButtonClick();
+            await this.viewModel.OnConfirmPopupButtonClick();
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
@@ -449,16 +451,17 @@ namespace COMETwebapp.Tests.Components.UserManagement
 
             var personTest = new Person()
             {
-                Iid = Guid.NewGuid()
+                Iid = Guid.NewGuid(),
+                Container = this.siteDirectory
             };
 
             this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Removed);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Person, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
             this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));

@@ -44,11 +44,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     public abstract class BaseDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IBaseDataItemTableViewModel<T, TRow> where T : Thing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
-        /// Injected property to get access to <see cref="IPermissionService" />
-        /// </summary>
-        private readonly IPermissionService permissionService;
-
-        /// <summary>
         /// A collection of <see cref="Type" /> used to create <see cref="ObjectChangedEvent" /> subscriptions
         /// </summary>
         private static readonly IEnumerable<Type> ObjectChangedTypesOfInterest = new List<Type>
@@ -57,6 +52,11 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
             typeof(PersonRole),
             typeof(ReferenceDataLibrary)
         };
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IPermissionService" />
+        /// </summary>
+        protected readonly IPermissionService PermissionService;
 
         /// <summary>
         /// The <see cref="ILogger{TCategoryName}" />
@@ -72,7 +72,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger) 
             : base(sessionService, messageBus)
         {
-            this.permissionService = sessionService.Session.PermissionService;
+            this.PermissionService = sessionService.Session.PermissionService;
             this.Logger = logger;
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
@@ -196,13 +196,13 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <summary>
         /// Updates the active user access rights
         /// </summary>
-        protected void RefreshAccessRight()
+        protected virtual void RefreshAccessRight()
         {
             this.IsLoading = true;
 
             foreach (var row in this.Rows.Items)
             {
-                row.IsAllowedToWrite = this.permissionService.CanWrite(row.Thing.ClassKind, row.Thing.Container);
+                row.IsAllowedToWrite = this.PermissionService.CanWrite(row.Thing.ClassKind, row.Thing.Container);
             }
 
             this.IsLoading = false;
