@@ -397,6 +397,63 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
+        /// Write updated Things in an <see cref="Iteration" /> and uploads the given files to the filestore
+        /// </summary>
+        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
+        /// <param name="thingsToUpdate">List of Things to update in the session</param>
+        /// <param name="files">>A collection of file paths for files to be send to the file store</param>
+        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
+        public async Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate, IEnumerable<string> files)
+        {
+            var result = new Result();
+
+            if (thingsToUpdate == null)
+            {
+                result.Errors.Add(new Error("The things to update can't be null"));
+                return result;
+            }
+
+            var sw = Stopwatch.StartNew();
+
+            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
+            var thingClone = container;
+
+            if (container.Original == null)
+            {
+                thingClone = container.Clone(false);
+            }
+
+            // set the context of the transaction to the thing changes need to be added to.
+            var context = TransactionContextResolver.ResolveContext(thingClone);
+            var transaction = new ThingTransaction(context);
+
+            // register all updates with the transaction.
+            thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
+
+            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes to the Thing object.
+            var operationContainer = transaction.FinalizeTransaction();
+            result = new Result();
+
+            try
+            {
+                await this.Session.Write(operationContainer, files);
+                this.logger.LogInformation("Update writing done in {swElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
+                result.Successes.Add(new Success($"Update writing done in {sw.ElapsedMilliseconds} [ms]"));
+            }
+            catch (DalWriteException ex)
+            {
+                this.logger.LogError("The update operation failed: {exMessage}", ex.Message);
+                result.Errors.Add(new Error($"The update operation failed: {ex.Message}"));
+            }
+            finally
+            {
+                sw.Stop();
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Deletes a <see cref="Thing" /> from it's container
         /// </summary>
         /// <param name="containerClone">the container clone of the thing to delete</param>

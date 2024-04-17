@@ -1,0 +1,87 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@inherits DisposableComponent
+
+<DxGrid @ref="this.Grid"
+        Data="this.GetRows()"
+        EditMode="GridEditMode.PopupEditForm"
+        PopupEditFormHeaderText="File Type"
+        EditModelSaving="@(() => this.OnEditFileTypesSaving())"
+        CustomizeEditModel="this.CustomizeEditFileType"
+        EditFormButtonsVisible="false">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.Name)" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.Extension)" MinWidth="80" SearchEnabled="false" />
+        <DxGridCommandColumn Width="160px" EditButtonVisible="false">
+            <HeaderTemplate>
+                <DxButton Id="addFileTypeButton" 
+                          Text="Add File Type" 
+                          IconCssClass="oi oi-plus" 
+                          Click="() => this.Grid.StartEditNewRowAsync()" 
+                          Enabled="@(this.SelectedFileTypes.Count != this.FileTypes.Count())"/>
+            </HeaderTemplate>
+            <CellDisplayTemplate>
+                @{
+                    var row = (FileTypeRowViewModel)context.DataItem;
+
+                    <DxButton Id="moveUpButton"
+                              IconCssClass="oi oi-arrow-top"
+                              Click="() => this.MoveUp(row)" 
+                              Enabled="@(this.SelectedFileTypes.IndexOf(row.Thing) > 0)"/>
+                    <DxButton Id="moveDownButton"
+                              IconCssClass="oi oi-arrow-bottom"
+                              Click="() => this.MoveDown(row)"
+                              Enabled="@(this.SelectedFileTypes.LastOrDefault() != row.Thing)" />
+                    <DxButton Id="removeFileTypeButton"
+                              IconCssClass="oi oi-trash"
+                              Click="() => this.RemoveFileType(row)" />
+                }
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+
+    <EditFormTemplate Context="EditFormContext">
+        <EditForm Context="editFormContext" Model="@(this.FileType)" OnValidSubmit="@(async () => await this.Grid.SaveChangesAsync())">
+
+        <FluentValidationValidator/>
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                <DxComboBox Data="@this.FileTypes.Where(x => !this.SelectedFileTypes.Contains(x))"
+                            TextFieldName="@nameof(CDP4Common.SiteDirectoryData.FileType.Name)"
+                            @bind-Value="@this.FileType"
+                            CssClass="cw-480"/>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+        <div class="pt-3"></div>
+        <ValidationSummary/>
+        <div class="dxbl-grid-edit-form-buttons">
+            <DxButton SubmitFormOnClick="true"
+                      Enabled="@(this.FileTypes.Any())">
+                Save
+            </DxButton>
+
+            <DxButton Id="cancelFileButton"
+                      Click="@(() => this.Grid.CancelEditAsync())"
+                      RenderStyle="ButtonRenderStyle.Secondary">
+                Cancel
+            </DxButton>
+        </div>
+        </EditForm>
+    </EditFormTemplate>
+</DxGrid>

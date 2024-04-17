@@ -14,8 +14,18 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
+@using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
 @inherits DisposableComponent
+
+<DxButton Id="createFolderButton"
+          Click="@(() => this.OnEditFolderClick())">
+    Create Folder
+</DxButton>
+
+<DxButton Id="createFileButton"
+          Click="@(() => this.OnEditFileClick())">
+    Create File
+</DxButton>
 
 <DxTreeView @ref="@this.TreeView"
             Data="@this.ViewModel.Structure"
@@ -28,36 +38,47 @@ Copyright (c) 2023-2024 RHEA System S.A.
                                IconCssClass="@nameof(FileFolderNodeViewModel.IconCssClass)" />
     </DataMappings>
     <NodeTextTemplate Context="nodeContext">
-        @nodeContext.Text
         @{
             var row = (FileFolderNodeViewModel)nodeContext.DataItem;
+            <div draggable="true"
+                 dropzone="move"
+                 ondragover="event.preventDefault();"
+                 @ondragstart="@(() => this.OnDragNode(row))"
+                 @ondrop="@(() => this.OnDropNode(row))">
 
-            if (row.Thing is Folder)
-            {
-                <DxButton Id="editFolderButton"
-                          IconCssClass="oi oi-pencil"
-                          Click="@(() => this.OnEditFolderClick(row))"
-                          SizeMode="SizeMode.Small"
-                          CssClass="float-end" />
-            }
+                @nodeContext.Text
+
+                @if (row.Thing is Folder)
+                {
+                    <DxButton Id="editFolderButton"
+                              IconCssClass="oi oi-pencil"
+                              Click="@(() => this.OnEditFolderClick(row))"
+                              SizeMode="SizeMode.Small"
+                              CssClass="float-end"/>
+                }
+            </div>
         }
     </NodeTextTemplate>
 </DxTreeView>
 
-<DxPopup Visible="@(this.SelectedFile != null)"
+<DxPopup @bind-Visible="@(this.IsFileFormVisibile)"
          HeaderText="File"
          CloseOnOutsideClick="false"
          Closed="@(this.OnClosedFormPopup)"
-         CssClass="pw-800">
-    <FileForm ViewModel="@(this.ViewModel)" 
-              OnCanceled="@(this.OnClosedFormPopup)"/>
+         Width="40%">
+    <FileForm ViewModel="@(this.ViewModel.FileHandlerViewModel)" 
+              OnCanceled="@(this.OnClosedFormPopup)"
+              OnSaved="@(this.OnClosedFormPopup)"
+              ShouldCreate="@(this.ShouldCreateFile)" />
 </DxPopup>
 
-<DxPopup Visible="@(this.SelectedFolder != null)"
+<DxPopup @bind-Visible="@(this.IsFolderFormVisibile)"
          HeaderText="Folder"
          CloseOnOutsideClick="false"
          Closed="@(this.OnClosedFormPopup)"
-         CssClass="pw-800">
-    <FolderForm ViewModel="@(this.ViewModel)"
-              OnCanceled="@(this.OnClosedFormPopup)" />
+         Width="40%">
+    <FolderForm ViewModel="@(this.ViewModel.FolderHandlerViewModel)"
+                OnCanceled="@(this.OnClosedFormPopup)"
+                OnSaved="@(this.OnClosedFormPopup)"
+                ShouldCreate="@(this.ShouldCreateFolder)"/>
 </DxPopup>

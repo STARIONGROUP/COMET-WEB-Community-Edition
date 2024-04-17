@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FolderForm.razor.cs" company="RHEA System S.A.">
+// <copyright file="FileForm.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,24 +22,50 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
-    
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
+
     using Microsoft.AspNetCore.Components;
 
     using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    /// Support class for the <see cref="FolderForm"/>
+    /// Support class for the <see cref="FileForm"/>
     /// </summary>
-    public partial class FolderForm : SelectedDataItemForm
+    public partial class FileForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The <see cref="IFolderFileStructureViewModel" /> for this component
+        /// The <see cref="IFileHandlerViewModel" /> for this component
         /// </summary>
         [Parameter, Required]
-        public IFolderFileStructureViewModel ViewModel { get; set; }
+        public IFileHandlerViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets the value to check if the deletion popup is visible
+        /// </summary>
+        public bool IsDeletePopupVisible { get; private set; }
+
+        /// <summary>
+        /// Method that is executed when there is a valid submit
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnValidSubmit()
+        {
+            await this.ViewModel.CreateOrEditFile(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
+
+        /// <summary>
+        /// Method that is executed when a deletion is done
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnDelete()
+        {
+            this.IsDeletePopupVisible = false;
+            await this.ViewModel.DeleteFile();
+            await base.OnCancel();
+        }
     }
 }

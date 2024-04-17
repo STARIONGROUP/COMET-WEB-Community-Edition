@@ -35,7 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
 
     using Microsoft.Extensions.Logging;
 

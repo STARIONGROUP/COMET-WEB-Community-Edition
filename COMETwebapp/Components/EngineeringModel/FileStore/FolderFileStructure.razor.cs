@@ -22,17 +22,21 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
     using System.ComponentModel.DataAnnotations;
 
     using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
+    using COMET.Web.Common.Extensions;
+
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="FolderFileStructure"/>
@@ -46,14 +50,29 @@ namespace COMETwebapp.Components.EngineeringModel
         public IFolderFileStructureViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the selected file from the <see cref="TreeView"/>
+        /// Gets the condition to verify if a file should be created
         /// </summary>
-        public File SelectedFile { get; private set; }
+        public bool ShouldCreateFile { get; private set; }
 
         /// <summary>
-        /// Gets the selected folder from the <see cref="TreeView"/>
+        /// Gets the condition to check the visibility of the file form
         /// </summary>
-        public Folder SelectedFolder { get; private set; }
+        public bool IsFileFormVisibile { get; private set; }
+
+        /// <summary>
+        /// Gets the condition to verify if a folder should be created
+        /// </summary>
+        public bool ShouldCreateFolder { get; private set; }
+
+        /// <summary>
+        /// Gets the condition to check the visibility of the folder form
+        /// </summary>
+        public bool IsFolderFormVisibile { get; private set; }
+
+        /// <summary>
+        /// Gets the dragged node used in drag and drop interactions
+        /// </summary>
+        public FileFolderNodeViewModel DraggedNode { get; private set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DxTreeView"/> used to display the folder-file structure
@@ -67,29 +86,49 @@ namespace COMETwebapp.Components.EngineeringModel
         public void OnNodeClick(ITreeViewNodeInfo e)
         {
             var dataItem = (FileFolderNodeViewModel)e.DataItem;
-
-            if (dataItem.Thing is not File file)
-            {
-                return;
-            }
-
-            this.ViewModel.File = file;
-            this.SelectedFile = this.ViewModel.File;
+            this.OnEditFileClick(dataItem);
         }
 
         /// <summary>
-        /// Method that is triggered every time the edit folder icon is clicked
+        /// Method that is triggered every time the edit folder is clicked
         /// </summary>
         /// <param name="row">The selected row</param>
-        public void OnEditFolderClick(FileFolderNodeViewModel row)
+        public void OnEditFolderClick(FileFolderNodeViewModel row = null)
         {
-            if (row.Thing is not Folder folder)
+            if (row is { Thing: not Folder })
             {
                 return;
             }
 
-            this.ViewModel.Folder = folder;
-            this.SelectedFolder = this.ViewModel.Folder;
+            this.ViewModel.FolderHandlerViewModel.SelectFolder(row == null ? new Folder() : (Folder)row.Thing);
+            this.ShouldCreateFolder = row == null;
+            this.IsFolderFormVisibile = true;
+        }
+
+        /// <summary>
+        /// Method that is triggered every time the edit file is clicked
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        public void OnEditFileClick(FileFolderNodeViewModel row = null)
+        {
+            if (row is { Thing: not File })
+            {
+                return;
+            }
+
+            this.ViewModel.FileHandlerViewModel.SelectFile(row == null ? new File() : (File)row.Thing);
+            this.ShouldCreateFile = row == null;
+            this.IsFileFormVisibile = true;
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -124,8 +163,42 @@ namespace COMETwebapp.Components.EngineeringModel
         /// </summary>
         private void OnClosedFormPopup()
         {
-            this.SelectedFile = null;
-            this.SelectedFolder = null;
+            this.IsFileFormVisibile = false;
+            this.IsFolderFormVisibile = false;
+        }
+
+        /// <summary>
+        /// Method invoked when a node is dragged
+        /// </summary>
+        /// <param name="node">The dragged node</param>
+        private void OnDragNode(FileFolderNodeViewModel node)
+        {
+            this.DraggedNode = node;
+        }
+
+        /// <summary>
+        /// Method invoked when a node is dropped
+        /// </summary>
+        /// <param name="targetNode">The target node where the <see cref="DraggedNode"/> has been dropped</param>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnDropNode(FileFolderNodeViewModel targetNode)
+        {
+            if (targetNode.Thing is not Folder and not null)
+            {
+                return;
+            }
+
+            var targetFolder = (Folder)targetNode.Thing;
+
+            switch (this.DraggedNode.Thing)
+            {
+                case File file:
+                    await this.ViewModel.FileHandlerViewModel.MoveFile(file, targetFolder);
+                    break;
+                case Folder folder:
+                    await this.ViewModel.FolderHandlerViewModel.MoveFolder(folder, targetFolder);
+                    break;
+            }
         }
     }
 }

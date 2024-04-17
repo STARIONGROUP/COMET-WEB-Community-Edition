@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IFolderFileStructureViewModel.cs" company="RHEA System S.A.">
+// <copyright file="FolderForm.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,45 +22,52 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure
+namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
+    using COMETwebapp.Components.Common;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+
+    using Microsoft.AspNetCore.Components;
+
+    using System.ComponentModel.DataAnnotations;
+
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// Support class for the <see cref="FolderForm"/>
     /// </summary>
-    public interface IFolderFileStructureViewModel
+    public partial class FolderForm : SelectedDataItemForm
     {
         /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel"/>
+        /// The <see cref="IFolderHandlerViewModel" /> for this component
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        void InitializeViewModel(FileStore fileStore);
+        [Parameter, Required]
+        public IFolderHandlerViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// Gets the value to check if the deletion popup is visible
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
+        public bool IsDeletePopupVisible { get; private set; }
 
         /// <summary>
-        /// Gets or sets the file to be created/edited
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        File File { get; set; }
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnValidSubmit()
+        {
+            await this.ViewModel.CreateOrEditFolder(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
 
         /// <summary>
-        /// Gets or sets the folder to be created/edited
+        /// Method that is executed when a deletion is done
         /// </summary>
-        Folder Folder { get; set; }
-
-        /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
-        /// </summary>
-        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
-
-        /// <summary>
-        /// Gets or sets the condition to check if the file or folder to be created is locked
-        /// </summary>
-        bool IsLocked { get; set; }
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnDelete()
+        {
+            this.IsDeletePopupVisible = false;
+            await this.ViewModel.DeleteFolder();
+            await base.OnCancel();
+        }
     }
 }

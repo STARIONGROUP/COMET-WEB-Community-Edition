@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FileForm.razor.cs" company="RHEA System S.A.">
+// <copyright file="IJsUtilitiesService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -22,32 +22,19 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.Services.Interoperability
 {
-    using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FolderFileStructure;
-
-    using Microsoft.AspNetCore.Components;
-
-    using System.ComponentModel.DataAnnotations;
-
     /// <summary>
-    /// Support class for the <see cref="FileForm"/>
+    /// The service used to provide js utilities
     /// </summary>
-    public partial class FileForm : SelectedDataItemForm
+    public interface IJsUtilitiesService
     {
         /// <summary>
-        /// The <see cref="IFolderFileStructureViewModel" /> for this component
+        /// Downloads a file from a stream asynchronously
         /// </summary>
-        [Parameter, Required]
-        public IFolderFileStructureViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Downloads a the selected file from <see cref="IFolderFileStructureViewModel.File"/>
-        /// </summary>
-        public void DownloadFile()
-        {
-            // downloads a file => to be done
-        }
+        /// <param name="stream">the stream</param>
+        /// <param name="fileName">the file name</param>
+        /// <returns>an asynchronous operation</returns>
+        Task DownloadFileFromStreamAsync(Stream stream, string fileName);
     }
 }
