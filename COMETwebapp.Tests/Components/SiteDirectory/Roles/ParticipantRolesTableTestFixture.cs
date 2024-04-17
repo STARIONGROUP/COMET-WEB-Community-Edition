@@ -41,7 +41,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
 
     using DynamicData;
 
-    using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -56,7 +56,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
         private IRenderedComponent<ParticipantRolesTable> renderer;
         private Mock<IParticipantRolesTableViewModel> viewModel;
         private ParticipantRole participantRole1;
-        private bool wasRoleSelected;
 
         [SetUp]
         public void SetUp()
@@ -76,17 +75,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.Thing).Returns(this.participantRole1);
+
+            this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<ParticipantRolesTable>(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, this.viewModel.Object);
-
-                parameters.Add(p => p.OnRoleSelected, new EventCallbackFactory().Create<ParticipantRole>(this, () =>
-                {
-                    this.wasRoleSelected = true;
-                }));
-            });
+            this.renderer = this.context.RenderComponent<ParticipantRolesTable>();
         }
 
         [TearDown]
@@ -124,13 +117,20 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
         [Test]
         public async Task VerifyRowClick()
         {
-            Assert.That(this.wasRoleSelected, Is.EqualTo(false));
+            Assert.That(this.renderer.Instance.IsRoleSelected, Is.EqualTo(false));
 
             var firstRow = this.viewModel.Object.Rows.Items.First();
             var grid = this.renderer.FindComponent<DxGrid>();
             await this.renderer.InvokeAsync(async () => await grid.Instance.SelectedDataItemChanged.InvokeAsync(firstRow));
 
-            Assert.That(this.wasRoleSelected, Is.EqualTo(true));
+            Assert.That(this.renderer.Instance.IsRoleSelected, Is.EqualTo(true));
+
+            var details = this.renderer.FindComponent<ParticipantRoleDetails>();
+            await this.renderer.InvokeAsync(details.Instance.OnSubmit.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditParticipantRole(false), Times.Once);
+
+            await this.renderer.InvokeAsync(details.Instance.OnCancel.InvokeAsync);
+            Assert.That(this.renderer.Instance.IsRoleSelected, Is.EqualTo(false));
         }
     }
 }

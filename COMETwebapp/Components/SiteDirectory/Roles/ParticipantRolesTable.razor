@@ -17,50 +17,59 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits SelectedDeprecatableDataItemBase<ParticipantRole, ParticipantRoleRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <h3>Participant Roles</h3>
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            SearchBoxNullText="Search for a participant role..."
-            AllowSelectRowByClick="true"
-            SelectedDataItemChanged="@(async row => await this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Participant Role"
-            CustomizeElement="DisableDeprecatedThing"
-            CustomizeEditModel="this.CustomizeEditThing"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(() => this.OnEditThingSaving())"
-            EditFormButtonsVisible="false"
-            PageSize="20"
-            PagerNavigationMode="PagerNavigationMode.Auto"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
-            PageSizeSelectorAllRowsItemVisible="true"
-            CssClass="d-inline">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
-            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
-                <HeaderTemplate>
-                    <DxButton Id="addParticipantRoleButton" Text="Add Participant Role" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
-                </HeaderTemplate>
-            </DxGridCommandColumn>
-        </Columns>
+    <div style="display: flex; justify-content: space-between;">
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for a participant role..."
+                AllowSelectRowByClick="true"
+                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
+                PopupEditFormCssClass="pw-800"
+                PopupEditFormHeaderText="Participant Role"
+                CustomizeElement="DisableDeprecatedThing"
+                CustomizeEditModel="this.CustomizeEditThing"
+                EditMode="GridEditMode.PopupEditForm"
+                EditModelSaving="@(() => this.OnEditThingSaving())"
+                EditFormButtonsVisible="false"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                CssClass="d-inline">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
+                <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
+                <DxGridCommandColumn Width="200px" EditButtonVisible="false" DeleteButtonVisible="false">
+                    <HeaderTemplate>
+                        <DxButton Id="addParticipantRoleButton" Text="Add Participant Role" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    </HeaderTemplate>
+                </DxGridCommandColumn>
+            </Columns>
 
-        <EditFormTemplate Context="EditFormContext">
-            <ParticipantRoleDetails ViewModel="@this.ViewModel"
-                                    OnSubmit="@(async () => await this.Grid.SaveChangesAsync())"
-                                    OnCancel="@(async () => await this.Grid.CancelEditAsync())"/>
-        </EditFormTemplate>
+            <EditFormTemplate Context="EditFormContext">
+                <ParticipantRoleDetails ViewModel="@this.ViewModel"
+                                        OnSubmit="@(async () => await this.Grid.SaveChangesAsync())"
+                                        OnCancel="@(async () => await this.Grid.CancelEditAsync())"/>
+            </EditFormTemplate>
 
-        <CustomValidators>
-            <FluentValidationValidator/>
-        </CustomValidators>
+            <CustomValidators>
+                <FluentValidationValidator/>
+            </CustomValidators>
 
-    </DxGrid>
-    <div class="pb-3"></div>
+        </DxGrid>
+        
+        @if (this.IsRoleSelected)
+        {
+            <div style="width: 70%; padding: 30px;">
+                <ParticipantRoleDetails ViewModel="@this.ViewModel"
+                                        OnCancel="@(() => this.IsRoleSelected = false)"
+                                        OnSubmit="@(() => this.ViewModel.CreateOrEditParticipantRole(false))"/>
+            </div>
+        }
+    </div>
 </LoadingComponent>
 
 <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
