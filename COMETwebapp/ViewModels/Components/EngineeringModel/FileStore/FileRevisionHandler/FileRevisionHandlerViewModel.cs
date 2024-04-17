@@ -127,11 +127,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             this.FileTypes = this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.FileType);
             this.ErrorMessage = string.Empty;
             this.UploadsDirectory = Path.Combine("wwwroot", "uploads", Guid.NewGuid().ToString());
-
-            if (!Directory.Exists(this.UploadsDirectory))
-            {
-                Directory.CreateDirectory(this.UploadsDirectory);
-            }
         }
 
         /// <summary>
@@ -171,6 +166,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             {
                 this.ErrorMessage = $"The max file size is {this.MaxUploadFileSizeInMb} MB";
                 return;
+            }
+
+            if (!Directory.Exists(this.UploadsDirectory))
+            {
+                Directory.CreateDirectory(this.UploadsDirectory);
             }
 
             var uploadedFilePath = Path.Combine(this.UploadsDirectory, Guid.NewGuid().ToString());
