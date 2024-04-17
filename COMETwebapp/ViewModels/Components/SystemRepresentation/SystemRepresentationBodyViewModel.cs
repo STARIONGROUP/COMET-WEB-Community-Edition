@@ -126,8 +126,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <param name="selectedOption">the selected <see cref="Option" /></param>
         public void OnOptionFilterChange(Option selectedOption)
         {
-            this.Elements.Clear();
-
             var nestedElements = this.CurrentThing.QueryNestedElements(selectedOption).ToList();
 
             var associatedElements = new List<ElementUsage>();
