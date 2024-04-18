@@ -1,0 +1,10 @@
+﻿.data-item-details-section {
+    width: 50%;
+    padding: 30px;
+}
+
+.data-item-details-image {
+    margin: auto;
+    display: block;
+    width: 300px;
+}

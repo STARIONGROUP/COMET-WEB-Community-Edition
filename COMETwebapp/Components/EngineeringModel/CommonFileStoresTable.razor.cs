@@ -48,11 +48,6 @@ namespace COMETwebapp.Components.EngineeringModel
         public ICommonFileStoreTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the value to check if component is on edit mode
-        /// </summary>
-        public bool IsOnEditMode { get; private set; }
-
-        /// <summary>
         /// Gets the value to check if the folder file structure component is visible
         /// </summary>
         public bool IsFolderFileStructureVisible { get; private set; }

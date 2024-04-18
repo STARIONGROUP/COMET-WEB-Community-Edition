@@ -117,20 +117,20 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
         [Test]
         public async Task VerifyRowClick()
         {
-            Assert.That(this.renderer.Instance.IsRoleSelected, Is.EqualTo(false));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(false));
 
             var firstRow = this.viewModel.Object.Rows.Items.First();
             var grid = this.renderer.FindComponent<DxGrid>();
             await this.renderer.InvokeAsync(async () => await grid.Instance.SelectedDataItemChanged.InvokeAsync(firstRow));
 
-            Assert.That(this.renderer.Instance.IsRoleSelected, Is.EqualTo(true));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
 
             var details = this.renderer.FindComponent<ParticipantRoleDetails>();
             await this.renderer.InvokeAsync(details.Instance.OnSubmit.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditParticipantRole(false), Times.Once);
 
             await this.renderer.InvokeAsync(details.Instance.OnCancel.InvokeAsync);
-            Assert.That(this.renderer.Instance.IsRoleSelected, Is.EqualTo(false));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(false));
         }
     }
 }

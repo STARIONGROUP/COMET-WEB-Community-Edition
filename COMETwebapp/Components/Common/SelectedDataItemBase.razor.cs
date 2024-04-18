@@ -54,6 +54,11 @@ namespace COMETwebapp.Components.Common
         public bool ShouldCreateThing { get; protected set; }
 
         /// <summary>
+        /// Gets or sets the condition to check if the current component is on edit mode
+        /// </summary>
+        public bool IsOnEditMode { get; protected set; }
+
+        /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         protected IGrid Grid { get; set; }

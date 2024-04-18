@@ -51,6 +51,8 @@ html, body, #app {
 
 .width-fit-content { width: fit-content; }
 
+.height-fit-content { height: fit-content; }
+
 .max-width-40 { max-width: 40%; }
 
 .margin-top-120 { margin-top: 120px; }

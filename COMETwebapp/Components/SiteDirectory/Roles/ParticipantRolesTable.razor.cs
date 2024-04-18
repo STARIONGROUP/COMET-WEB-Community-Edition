@@ -46,11 +46,6 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         public IParticipantRolesTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the value to check if a role has been selected
-        /// </summary>
-        public bool IsRoleSelected { get; private set; }
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -88,7 +83,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         private void OnSelectedDataItemChanged(ParticipantRoleRowViewModel row)
         {
             this.ViewModel.Thing = row.Thing.Clone(true);
-            this.IsRoleSelected = true;
+            this.IsOnEditMode = true;
         }
     }
 }

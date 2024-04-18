@@ -73,7 +73,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
 </LoadingComponent>
 
-<DxPopup @bind-Visible="@this.IsPublicationDetailsPopupOpen" HeaderText="Published Parameters" Width="60%" CloseOnOutsideClick="false">
+<DxPopup @bind-Visible="@this.IsOnEditMode" HeaderText="Published Parameters" Width="60%" CloseOnOutsideClick="false">
     <DxGrid Data="@(this.ViewModel.GetPublishedParametersRows(this.SelectedRow.Thing))"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowAllRows="true">

@@ -85,5 +85,15 @@ namespace COMETwebapp.Components.SiteDirectory
             e.EditModel = dataItem;
             this.ViewModel.Thing = dataItem.Thing.Clone(true);
         }
+
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        private void OnSelectedDataItemChanged(DomainOfExpertiseRowViewModel row)
+        {
+            this.ViewModel.Thing = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
     }
 }

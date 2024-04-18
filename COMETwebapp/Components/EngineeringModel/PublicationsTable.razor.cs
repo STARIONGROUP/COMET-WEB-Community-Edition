@@ -55,11 +55,6 @@ namespace COMETwebapp.Components.EngineeringModel
         public PublicationRowViewModel SelectedRow { get; private set; }
 
         /// <summary>
-        /// Gets the value to check if the publication details popup is open
-        /// </summary>
-        public bool IsPublicationDetailsPopupOpen { get; private set; }
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -78,7 +73,7 @@ namespace COMETwebapp.Components.EngineeringModel
         private void OnSelectedDataItemChanged(PublicationRowViewModel row)
         {
             this.SelectedRow = row;
-            this.IsPublicationDetailsPopupOpen = true;
+            this.IsOnEditMode = true;
         }
 
         /// <summary>

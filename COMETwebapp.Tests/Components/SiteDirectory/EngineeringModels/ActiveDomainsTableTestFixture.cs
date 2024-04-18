@@ -120,12 +120,12 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [Test]
         public async Task VerifyEditActiveDomains()
         {
-            Assert.That(this.renderer.Instance.IsEditPopupVisible, Is.EqualTo(false));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(false));
 
             var editActiveDomainsClickableItem = this.renderer.FindComponent<DxToolbarItem>();
             await this.renderer.InvokeAsync(editActiveDomainsClickableItem.Instance.Click.InvokeAsync);
 
-            Assert.That(this.renderer.Instance.IsEditPopupVisible, Is.EqualTo(true));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
 
             var saveActiveDomainsButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveActiveDomainsButton");
             await this.renderer.InvokeAsync(saveActiveDomainsButton.Instance.Click.InvokeAsync);
@@ -140,7 +140,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             Assert.Multiple(() =>
             {
                 this.viewModel.Verify(x => x.ResetSelectedDomainsOfExpertise(), Times.Once);
-                Assert.That(this.renderer.Instance.IsEditPopupVisible, Is.EqualTo(false));
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(false));
             });
         }
     }

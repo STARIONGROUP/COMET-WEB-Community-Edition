@@ -14,12 +14,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
 @using COMETwebapp.Components.EngineeringModel.FileStore
 @inherits SelectedDataItemBase<CommonFileStore, CommonFileStoreRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div style="display: flex; justify-content: space-between;">
+    <div class="d-flex justify-content-between">
         <DxGrid @ref="this.Grid"
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -37,7 +36,8 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 PagerNavigationMode="PagerNavigationMode.Auto"
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true">
+                PageSizeSelectorAllRowsItemVisible="true"
+                CssClass="height-fit-content">
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.Name)" MinWidth="150" />
                 <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false" />
@@ -67,18 +67,14 @@ Copyright (c) 2023-2024 RHEA System S.A.
             </EditFormTemplate>
         </DxGrid>
         
-        @if (this.IsOnEditMode)
-        {
-            <div style="width: 70%; padding: 30px;">
-                <CommonFileStoresForm ViewModel="@this.ViewModel"
-                                      @bind-IsVisible="@this.IsOnEditMode"
-                                      ShouldCreate="false"/>
-                <DxButton Click="this.OnSeeFolderFileStructureClick">
-                    See Folder-File Structure
-                </DxButton>
-            </div>
-        }
-        
+        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+            <CommonFileStoresForm ViewModel="@this.ViewModel"
+                                  @bind-IsVisible="@this.IsOnEditMode"
+                                  ShouldCreate="false"/>
+            <DxButton Click="this.OnSeeFolderFileStructureClick">
+                See Folder-File Structure
+            </DxButton>
+        </DataItemDetailsComponent>
     </div>
 </LoadingComponent>
 
