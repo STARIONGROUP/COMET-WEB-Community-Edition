@@ -141,13 +141,13 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [Test]
         public async Task VerifyRowClick()
         {
-            Assert.That(this.renderer.Instance.IsModelSelected, Is.EqualTo(false));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(false));
 
             var firstRow = this.viewModel.Object.Rows.Items.First();
             var grid = this.renderer.FindComponent<DxGrid>();
             await this.renderer.InvokeAsync(async () => await grid.Instance.SelectedDataItemChanged.InvokeAsync(firstRow));
 
-            Assert.That(this.renderer.Instance.IsModelSelected, Is.EqualTo(true));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
         }
     }
 }

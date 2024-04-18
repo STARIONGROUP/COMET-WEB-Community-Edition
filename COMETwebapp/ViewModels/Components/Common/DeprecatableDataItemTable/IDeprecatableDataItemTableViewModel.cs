@@ -27,8 +27,6 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
 
-    using DynamicData;
-
     /// <summary>
     /// View model that provides the basic functionalities for a reference data item
     /// </summary>

@@ -74,16 +74,18 @@ namespace COMETwebapp.Components.SiteDirectory
 
             var dataItem = (DomainOfExpertiseRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
+            this.ViewModel.Thing = dataItem == null ? new DomainOfExpertise() : dataItem.Thing.Clone(true);
+            e.EditModel = this.ViewModel.Thing;
+        }
 
-            if (dataItem == null)
-            {
-                this.ViewModel.Thing = new DomainOfExpertise();
-                e.EditModel = this.ViewModel.Thing;
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        private void OnSelectedDataItemChanged(DomainOfExpertiseRowViewModel row)
+        {
+            this.ViewModel.Thing = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
         }
     }
 }

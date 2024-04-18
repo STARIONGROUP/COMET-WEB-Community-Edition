@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Components.SiteDirectory.Roles
 {
-    using System.ComponentModel.DataAnnotations;
-
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
@@ -46,11 +44,6 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// </summary>
         [Inject]
         public IPersonRolesTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets the value to check if a role has been selected
-        /// </summary>
-        public bool IsRoleSelected { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -90,7 +83,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         private void OnSelectedDataItemChanged(PersonRoleRowViewModel row)
         {
             this.ViewModel.Thing = row.Thing.Clone(true);
-            this.IsRoleSelected = true;
+            this.IsOnEditMode = true;
         }
     }
 }

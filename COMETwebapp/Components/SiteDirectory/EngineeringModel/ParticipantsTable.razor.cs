@@ -52,11 +52,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public EngineeringModelSetup EngineeringModelSetup { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if the active domains details popup is open
-        /// </summary>
-        public bool IsActiveDomainsDetailsOpen { get; private set; }
-
-        /// <summary>
         /// Gets or sets the active domains details text
         /// </summary>
         private string AssignedDomainsPopupText { get; set; }
@@ -124,7 +119,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         private void OpenAssignedDomainDetailsPopup(string text)
         {
             this.AssignedDomainsPopupText = text; 
-            this.IsActiveDomainsDetailsOpen = true;
+            this.IsOnEditMode = true;
         }
 
         /// <summary>

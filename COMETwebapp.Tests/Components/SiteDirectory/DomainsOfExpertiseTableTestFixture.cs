@@ -42,6 +42,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -142,16 +143,21 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(false));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
 
-            var editDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editDomainOfExpertiseButton");
-            await renderer.InvokeAsync(editDomainOfExpertiseButton.Instance.Click.InvokeAsync);
+            var domainsGrid = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(() => domainsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new DomainOfExpertiseRowViewModel(this.domainOfExpertise1)));
+            Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
+
+            var domainsForm = renderer.FindComponents<DomainsOfExpertiseForm>()[1];
+            var domainsEditForm = domainsForm.FindComponent<EditForm>();
+            await domainsForm.InvokeAsync(domainsEditForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                this.viewModel.Verify(x => x.CreateOrEditDomainOfExpertise(false), Times.Once);
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
 

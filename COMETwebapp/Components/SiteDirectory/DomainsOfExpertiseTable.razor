@@ -18,65 +18,65 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<CDP4Common.SiteDirectoryData.DomainOfExpertise, DomainOfExpertiseRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            SearchBoxNullText="Search for a domain of expertise..."
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Domain Of Expertise"
-            CustomizeElement="DisableDeprecatedThing"
-            CustomizeEditModel="this.CustomizeEditThing"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(() => this.OnEditThingSaving())"
-            PageSize="20"
-            PagerNavigationMode="PagerNavigationMode.Auto"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorItems="@(new int[] { 20,35,50 })"
-            PageSizeSelectorAllRowsItemVisible="true">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                <HeaderTemplate>
-                    <DxButton Id="addDomainOfExpertiseButton" Text="Add Domain Of Expertise" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
-                </HeaderTemplate>
-                <CellDisplayTemplate>
-                    @{
-                        var row = (DomainOfExpertiseRowViewModel)context.DataItem;
+    <div class="d-flex justify-content-between">
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for a domain of expertise..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((DomainOfExpertiseRowViewModel)row))"
+                PopupEditFormCssClass="pw-800"
+                PopupEditFormHeaderText="Domain Of Expertise"
+                CustomizeElement="DisableDeprecatedThing"
+                CustomizeEditModel="this.CustomizeEditThing"
+                EditMode="GridEditMode.PopupEditForm"
+                EditModelSaving="@(() => this.OnEditThingSaving())"
+                EditFormButtonsVisible="false"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                CssClass="height-fit-content">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+                <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+                    <HeaderTemplate>
+                        <DxButton Id="addDomainOfExpertiseButton" Text="Add Domain Of Expertise" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    </HeaderTemplate>
+                    <CellDisplayTemplate>
+                        @{
+                            var row = (DomainOfExpertiseRowViewModel)context.DataItem;
 
-                        <DxButton Id="editDomainOfExpertiseButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
+                            <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
+                                      Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
+                                      Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                      Enabled="@(row.IsAllowedToWrite)"/>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridCommandColumn>
+            </Columns>
 
-                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
-                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
-                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
-                                  Enabled="@(row.IsAllowedToWrite)" />
-                    }
-                </CellDisplayTemplate>
-            </DxGridCommandColumn>
-        </Columns>
-
-        <EditFormTemplate Context="EditFormContext">
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
-                </DxFormLayoutItem>
-            </DxFormLayout>
-            <ValidationSummary/>
-        </EditFormTemplate>
+            <EditFormTemplate Context="EditFormContext">
+                <DomainsOfExpertiseForm ViewModel="@this.ViewModel"
+                                        IsVisible="true"
+                                        ShouldCreate="true"
+                                        OnSaved="@(() => this.Grid.CancelEditAsync())"
+                                        OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
+            </EditFormTemplate>
+        </DxGrid>
         
-        <CustomValidators>
-            <FluentValidationValidator />
-        </CustomValidators>
+        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+            <DomainsOfExpertiseForm ViewModel="@this.ViewModel"
+                                    @bind-IsVisible="@this.IsOnEditMode"
+                                    ShouldCreate="false"/>
+        </DataItemDetailsComponent>
 
-    </DxGrid>
+    </div>
 </LoadingComponent>
 
 <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">

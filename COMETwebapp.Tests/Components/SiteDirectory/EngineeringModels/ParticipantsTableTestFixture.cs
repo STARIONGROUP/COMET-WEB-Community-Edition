@@ -133,7 +133,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             var details = this.renderer.Find("a");
             details.ClickAsync(new MouseEventArgs());
 
-            Assert.That(this.renderer.Instance.IsActiveDomainsDetailsOpen, Is.EqualTo(true));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
         }
 
         [Test]

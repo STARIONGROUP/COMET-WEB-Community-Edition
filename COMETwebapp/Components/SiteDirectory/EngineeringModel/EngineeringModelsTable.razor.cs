@@ -46,11 +46,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public IEngineeringModelsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the value to check if a model has been selected
-        /// </summary>
-        public bool IsModelSelected { get; private set; }
-
-        /// <summary>
         /// Gets the condition to check if the source model was selected in creation form
         /// </summary>
         private bool IsSourceModelSelected => this.ViewModel.SelectedSourceModel is not null;
@@ -116,7 +111,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         private void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
         {
             this.ViewModel.Thing = row.Thing;
-            this.IsModelSelected = true;
+            this.IsOnEditMode = true;
             this.parameters[nameof(EngineeringModelSetup)] = row.Thing;
         }
 

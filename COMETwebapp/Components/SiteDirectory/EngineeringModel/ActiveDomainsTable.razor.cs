@@ -50,11 +50,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public EngineeringModelSetup EngineeringModelSetup { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if the edit popup is visible
-        /// </summary>
-        public bool IsEditPopupVisible { get; private set; }
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -80,7 +75,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <param name="visible">The visibility of the popup</param>
         private void SetEditPopupVisibility(bool visible)
         {
-            this.IsEditPopupVisible = visible;
+            this.IsOnEditMode = visible;
         }
 
         /// <summary>

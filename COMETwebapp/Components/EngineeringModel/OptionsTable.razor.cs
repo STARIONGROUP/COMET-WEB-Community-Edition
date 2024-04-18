@@ -48,11 +48,6 @@ namespace COMETwebapp.Components.EngineeringModel
         public IOptionsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the value to check if component is on edit mode
-        /// </summary>
-        public bool IsOnEditMode { get; private set; }
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>

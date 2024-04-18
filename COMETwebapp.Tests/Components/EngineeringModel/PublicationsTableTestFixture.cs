@@ -144,7 +144,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.IsPublicationDetailsPopupOpen, Is.EqualTo(true));
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
                 Assert.That(this.renderer.Instance.SelectedRow, Is.EqualTo(this.viewModel.Object.Rows.Items.First()));
             });
         }

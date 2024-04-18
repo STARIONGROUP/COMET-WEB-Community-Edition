@@ -17,7 +17,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits SelectedDeprecatableDataItemBase<ParticipantRole, ParticipantRoleRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div style="display: flex; justify-content: space-between;">
+    <div class="d-flex justify-content-between">
         <DxGrid @ref="this.Grid"
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -37,7 +37,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
                 PageSizeSelectorAllRowsItemVisible="true"
-                CssClass="d-inline">
+                CssClass="d-inline height-fit-content">
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
                 <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
@@ -46,6 +46,16 @@ Copyright (c) 2023-2024 RHEA System S.A.
                     <HeaderTemplate>
                         <DxButton Id="addParticipantRoleButton" Text="Add Participant Role" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
                     </HeaderTemplate>
+                    <CellDisplayTemplate>
+                        @{
+                            var row = (ParticipantRoleRowViewModel)context.DataItem;
+
+                            <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
+                                      Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
+                                      Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                      Enabled="@(row.IsAllowedToWrite)" />
+                        }
+                    </CellDisplayTemplate>
                 </DxGridCommandColumn>
             </Columns>
 
@@ -61,14 +71,11 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
         </DxGrid>
         
-        @if (this.IsRoleSelected)
-        {
-            <div style="width: 70%; padding: 30px;">
-                <ParticipantRoleDetails ViewModel="@this.ViewModel"
-                                        OnCancel="@(() => this.IsRoleSelected = false)"
-                                        OnSubmit="@(() => this.ViewModel.CreateOrEditParticipantRole(false))"/>
-            </div>
-        }
+        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+            <ParticipantRoleDetails ViewModel="@this.ViewModel"
+                                    OnCancel="@(() => this.IsOnEditMode = false)"
+                                    OnSubmit="@(() => this.ViewModel.CreateOrEditParticipantRole(false))"/>
+        </DataItemDetailsComponent>
     </div>
 </LoadingComponent>
 
