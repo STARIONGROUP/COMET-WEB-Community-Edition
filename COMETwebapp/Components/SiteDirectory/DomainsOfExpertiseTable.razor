@@ -33,6 +33,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 CustomizeEditModel="this.CustomizeEditThing"
                 EditMode="GridEditMode.PopupEditForm"
                 EditModelSaving="@(() => this.OnEditThingSaving())"
+                EditFormButtonsVisible="false"
                 PageSize="20"
                 PagerNavigationMode="PagerNavigationMode.Auto"
                 PageSizeSelectorVisible="true"
@@ -50,8 +51,6 @@ Copyright (c) 2023-2024 RHEA System S.A.
                     <CellDisplayTemplate>
                         @{
                             var row = (DomainOfExpertiseRowViewModel)context.DataItem;
-
-                            <DxButton Id="editDomainOfExpertiseButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)"/>
 
                             <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
                                       Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"

@@ -36,7 +36,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
                 PageSizeSelectorAllRowsItemVisible="true"
-                CssClass="d-inline">
+                CssClass="d-inline height-fit-content">
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.Name)" MinWidth="150"/>
                 <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.ShortName)" MinWidth="80"/>
@@ -159,29 +159,25 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
         </DxGrid>
         
-        @if (this.IsModelSelected)
-        {
-            <div style="width: 70%;">
-                <DxToolbar ItemClick="@this.OnDetailsItemClick">
-                    <Items>
-                        @foreach (var mappedValue in this.mapOfComponentsAndNames)
-                        {
-                            <DxToolbarItem @key="@(mappedValue.Value)"
-                                           Name="@(mappedValue.Value)" 
-                                           Text="@(mappedValue.Value)" 
-                                           Tooltip="@(mappedValue.Value)"
-                                           RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
-                        }
-                    </Items>
-                </DxToolbar>
+        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+            <DxToolbar ItemClick="@this.OnDetailsItemClick">
+                <Items>
+                    @foreach (var mappedValue in this.mapOfComponentsAndNames)
+                    {
+                        <DxToolbarItem @key="@(mappedValue.Value)"
+                                       Name="@(mappedValue.Value)" 
+                                       Text="@(mappedValue.Value)" 
+                                       Tooltip="@(mappedValue.Value)"
+                                       RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
+                    }
+                </Items>
+            </DxToolbar>
 
-                @if (this.SelectedComponent != null)
-                {
-                    <DynamicComponent Type="@this.SelectedComponent" Parameters="this.parameters"/>
-                }
-
-            </div>
-        }
+            @if (this.SelectedComponent != null)
+            {
+                <DynamicComponent Type="@this.SelectedComponent" Parameters="this.parameters"/>
+            }
+        </DataItemDetailsComponent>
     </div>
     <div class="pb-3"></div>
 </LoadingComponent>
