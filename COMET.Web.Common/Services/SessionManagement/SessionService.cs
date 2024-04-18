@@ -2,7 +2,7 @@
 //  <copyright file="SessionService.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25
@@ -26,6 +26,7 @@
 namespace COMET.Web.Common.Services.SessionManagement
 {
     using System.Diagnostics;
+    using System.Net;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -34,6 +35,9 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Dal;
     using CDP4Dal.Exceptions;
     using CDP4Dal.Operations;
+    using CDP4Dal.Utilities;
+
+    using CDP4Web.Extensions;
 
     using COMET.Web.Common.Enumerations;
 
@@ -49,7 +53,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     /// The purpose of the <see cref="SessionService" /> is to provide access to
     /// an instance of <see cref="ISession" />
     /// </summary>
-    public class SessionService : ReactiveObject, ISessionService
+    public class SessionService : CDP4Web.Services.SessionService.SessionService, ISessionService
     {
         /// <summary>
         /// The <see cref="ILogger{T}" />
@@ -66,7 +70,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="logger">the <see cref="ILogger{TCategoryName}" /></param>
         /// <param name="messageBus">The <see cref="IMessageBus" /></param>
-        public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus)
+        public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus) : base(logger, messageBus)
         {
             this.logger = logger;
             this.messageBus = messageBus;
@@ -78,44 +82,9 @@ namespace COMET.Web.Common.Services.SessionManagement
         public IReadOnlyCollection<EngineeringModel> OpenEngineeringModels => this.QueryOpenEngineeringModels();
 
         /// <summary>
-        /// Gets or sets the <see cref="ISession" />
-        /// </summary>
-        public ISession Session { get; set; }
-
-        /// <summary>
         /// A reactive collection of opened <see cref="Iteration" />
         /// </summary>
         public SourceList<Iteration> OpenIterations { get; private set; } = new();
-
-        /// <summary>
-        /// True if the <see cref="ISession" /> is opened
-        /// </summary>
-        public bool IsSessionOpen { get; set; }
-
-        /// <summary>
-        /// Retrieves the <see cref="SiteDirectory" /> that is loaded in the <see cref="ISession" />
-        /// </summary>
-        /// <returns>The <see cref="SiteDirectory" /></returns>
-        public SiteDirectory GetSiteDirectory()
-        {
-            return this.Session.RetrieveSiteDirectory();
-        }
-
-        /// <summary>
-        /// Close the ISession
-        /// </summary>
-        /// <returns>a <see cref="Task" /></returns>
-        public async Task Close()
-        {
-            if (!this.IsSessionOpen)
-            {
-                return;
-            }
-
-            await this.Session.Close();
-            this.IsSessionOpen = false;
-            this.CloseIterations();
-        }
 
         /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
@@ -163,47 +132,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Close all the opened <see cref="Iteration" />
-        /// </summary>
-        public void CloseIterations()
-        {
-            this.logger.LogInformation("Closing all the opened iterations");
-
-            foreach (var iteration in this.OpenIterations.Items.ToList())
-            {
-                this.CloseIteration(iteration);
-            }
-        }
-
-        /// <summary>
-        /// Closes an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /></param>
-        public void CloseIteration(Iteration iteration)
-        {
-            this.logger.LogInformation("Closing iteration with id {iterationId}", iteration.Iid);
-            this.Session.CloseIterationSetup(iteration.IterationSetup);
-            this.OpenIterations.Remove(this.OpenIterations.Items.First(x => x.Iid == iteration.Iid));
-        }
-
-        /// <summary>
-        /// Get <see cref="EngineeringModelSetup" /> available for the ActivePerson
-        /// </summary>
-        /// <returns>
-        /// A container of <see cref="EngineeringModelSetup" />
-        /// </returns>
-        public IEnumerable<EngineeringModelSetup> GetParticipantModels()
-        {
-            if (this.IsSessionOpen)
-            {
-                return this.GetSiteDirectory().Model
-                    .Where(m => m.Participant.Exists(p => p.Person.Name.Equals(this.Session.ActivePerson.Name)));
-            }
-
-            return Enumerable.Empty<EngineeringModelSetup>();
-        }
-
-        /// <summary>
         /// Get <see cref="DomainOfExpertise" /> available for the active person in the selected
         /// <see cref="EngineeringModelSetup" />
         /// </summary>
@@ -219,345 +147,34 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Refresh the ISession object
+        /// Creates or updates <see cref="Thing" />s
         /// </summary>
-        public async Task RefreshSession()
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        public Task<Result> CreateOrUpdateThings(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files)
         {
-            var sw = Stopwatch.StartNew();
-            this.messageBus.SendMessage(SessionStateKind.Refreshing);
+            Guard.ThrowIfNotValidForTransaction(topContainer);
+            Guard.ThrowIfNullOrEmpty(toUpdateOrCreate, nameof(toUpdateOrCreate));
 
-            await this.Session.Refresh();
-
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
-
-            this.logger.LogInformation("Session refreshed in {ElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
-        }
-
-        /// <summary>
-        /// Switches the current domain for an opened iteration
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /></param>
-        /// <param name="domainOfExpertise">The domain</param>
-        public void SwitchDomain(Iteration iteration, DomainOfExpertise domainOfExpertise)
-        {
-            this.Session.SwitchDomain(iteration.Iid, domainOfExpertise);
-        }
-
-        /// <summary>
-        /// Write a new Thing in an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="container">the <see cref="Thing" /> container where the <paramref name="thingToCreate" /> should be created </param>
-        /// <param name="thingToCreate">the thing to create in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public Task<Result> CreateThing(Thing container, Thing thingToCreate)
-        {
-            return this.CreateThings(container, new List<Thing> { thingToCreate });
-        }
-
-        /// <summary>
-        /// Write new Things in an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="container">
-        /// the <see cref="Thing" /> container where the
-        /// <paramref name="thingsToCreate" />
-        /// should be created
-        /// </param>
-        /// <param name="thingsToCreate">the things to create in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public Task<Result> CreateThings(Thing container, params Thing[] thingsToCreate)
-        {
-            return this.CreateThings(container, thingsToCreate.ToList());
-        }
-
-        /// <summary>
-        /// Write new Things in an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be created</param>
-        /// <param name="thingsToCreate">List of Things to create in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public async Task<Result> CreateThings(Thing container, IEnumerable<Thing> thingsToCreate)
-        {
-            var result = new Result();
-
-            if (thingsToCreate == null)
+            if (!this.IsSessionOpen)
             {
-                result.Errors.Add(new Error("The things to create can't be null"));
-                return result;
+                this.logger.LogError("Trying to Create or update Thing(s) while the Session is not open");
+                throw new InvalidOperationException("Cannot Create or update Thing(s) while the Session is not open");
             }
 
-            var thingClone = container;
-
-            if (container.Original == null)
-            {
-                thingClone = container.Clone(false);
-            }
-
-            // set the context of the transaction to the thing changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(thingClone);
+            var context = TransactionContextResolver.ResolveContext(topContainer);
             var transaction = new ThingTransaction(context);
 
-            // register new Things and the container Thing (clone) with the transaction.
-            thingsToCreate.ToList().ForEach(x => { transaction.Create(x, thingClone); });
+            foreach (var thing in toUpdateOrCreate)
+            {
+                transaction.CreateOrUpdate(thing);
+            }
 
-            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the Thing object.
             var operationContainer = transaction.FinalizeTransaction();
-
-            try
-            {
-                await this.Session.Write(operationContainer);
-                this.logger.LogInformation("Writing done!");
-                result.Successes.Add(new Success("Writing done!"));
-            }
-            catch (DalWriteException ex)
-            {
-                this.logger.LogError("The create operation failed: {exMessage}", ex.Message);
-                result.Errors.Add(new Error($"The create operation failed: {ex.Message}"));
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Write updated Thing in an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
-        /// <param name="thingToUpdate">the thing to update in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public Task<Result> UpdateThing(Thing container, Thing thingToUpdate)
-        {
-            return this.UpdateThings(container, new List<Thing> { thingToUpdate });
-        }
-
-        /// <summary>
-        /// Write updated Things in an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
-        /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public Task<Result> UpdateThings(Thing container, params Thing[] thingsToUpdate)
-        {
-            return this.UpdateThings(container, thingsToUpdate.ToList());
-        }
-
-        /// <summary>
-        /// Write updated Things in an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
-        /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public async Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate)
-        {
-            var result = new Result();
-
-            if (thingsToUpdate == null)
-            {
-                result.Errors.Add(new Error("The things to update can't be null"));
-                return result;
-            }
-
-            var sw = Stopwatch.StartNew();
-
-            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
-            var thingClone = container;
-
-            if (container.Original == null)
-            {
-                thingClone = container.Clone(false);
-            }
-
-            // set the context of the transaction to the thing changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(thingClone);
-            var transaction = new ThingTransaction(context);
-
-            // register all updates with the transaction.
-            thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
-
-            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the Thing object.
-            var operationContainer = transaction.FinalizeTransaction();
-
-            try
-            {
-                await this.Session.Write(operationContainer);
-                this.logger.LogInformation("Update writing done in {swElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
-                result.Successes.Add(new Success($"Update writing done in {sw.ElapsedMilliseconds} [ms]"));
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError("The update operation failed: {exMessage}", ex.Message);
-                result.Errors.Add(new Error($"The update operation failed: {ex.Message}"));
-            }
-            finally
-            {
-                sw.Stop();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Write updated Things in an <see cref="Iteration" /> and uploads the given files to the filestore
-        /// </summary>
-        /// <param name="container">The <see cref="Thing" /> where the <see cref="Thing" />s should be updated</param>
-        /// <param name="thingsToUpdate">List of Things to update in the session</param>
-        /// <param name="files">>A collection of file paths for files to be send to the file store</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public async Task<Result> UpdateThings(Thing container, IEnumerable<Thing> thingsToUpdate, IEnumerable<string> files)
-        {
-            var result = new Result();
-
-            if (thingsToUpdate == null)
-            {
-                result.Errors.Add(new Error("The things to update can't be null"));
-                return result;
-            }
-
-            var sw = Stopwatch.StartNew();
-
-            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
-            var thingClone = container;
-
-            if (container.Original == null)
-            {
-                thingClone = container.Clone(false);
-            }
-
-            // set the context of the transaction to the thing changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(thingClone);
-            var transaction = new ThingTransaction(context);
-
-            // register all updates with the transaction.
-            thingsToUpdate.ToList().ForEach(transaction.CreateOrUpdate);
-
-            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes to the Thing object.
-            var operationContainer = transaction.FinalizeTransaction();
-            result = new Result();
-
-            try
-            {
-                await this.Session.Write(operationContainer, files);
-                this.logger.LogInformation("Update writing done in {swElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
-                result.Successes.Add(new Success($"Update writing done in {sw.ElapsedMilliseconds} [ms]"));
-            }
-            catch (DalWriteException ex)
-            {
-                this.logger.LogError("The update operation failed: {exMessage}", ex.Message);
-                result.Errors.Add(new Error($"The update operation failed: {ex.Message}"));
-            }
-            finally
-            {
-                sw.Stop();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Deletes a <see cref="Thing" /> from it's container
-        /// </summary>
-        /// <param name="containerClone">the container clone of the thing to delete</param>
-        /// <param name="thingToDelete">the cloned thing to delete in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public Task<Result> DeleteThing(Thing containerClone, Thing thingToDelete)
-        {
-            return this.DeleteThings(containerClone, new List<Thing> { thingToDelete });
-        }
-
-        /// <summary>
-        /// Deletes a collection of <see cref="Thing" /> from it's container
-        /// </summary>
-        /// <param name="containerClone">the container clone of the thing to delete</param>
-        /// <param name="thingsToDelete">the cloned things to delete in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public Task<Result> DeleteThings(Thing containerClone, params Thing[] thingsToDelete)
-        {
-            return this.DeleteThings(containerClone, thingsToDelete.ToList());
-        }
-
-        /// <summary>
-        /// Deletes a collection <see cref="Thing" /> from it's container
-        /// </summary>
-        /// <param name="containerClone">the container clone of the thing to delete</param>
-        /// <param name="thingsToDelete">the cloned things to delete in the session</param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public async Task<Result> DeleteThings(Thing containerClone, IEnumerable<Thing> thingsToDelete)
-        {
-            var result = new Result();
-
-            if (thingsToDelete == null)
-            {
-                result.Errors.Add(new Error("The things to delete can't be null"));
-                return result;
-            }
-
-            var sw = Stopwatch.StartNew();
-
-            // CreateThings a shallow clone of the thing. The cached Thing object should not be changed, so we record the change on a clone.
-            var thingClone = containerClone;
-
-            if (containerClone.Original == null)
-            {
-                thingClone = containerClone.Clone(false);
-            }
-
-            // set the context of the transaction to the thing changes need to be added to.
-            var context = TransactionContextResolver.ResolveContext(thingClone);
-            var transaction = new ThingTransaction(context);
-
-            // register all deletes with the transaction.
-            foreach (var thingToDelete in thingsToDelete)
-            {
-                var thingToDeleteClone = thingToDelete.Clone(false);
-                transaction.Delete(thingToDeleteClone, containerClone);
-            }
-
-            // finalize the transaction, the result is an OperationContainer that the session class uses to write the changes
-            // to the Thing object.
-            var operationContainer = transaction.FinalizeTransaction();
-
-            try
-            {
-                await this.Session.Write(operationContainer);
-                this.logger.LogInformation("Delete done in {ElapsedMilliseconds} [ms]", sw.ElapsedMilliseconds);
-                result.Successes.Add(new Success($"Delete done in {sw.ElapsedMilliseconds} [ms]"));
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, $"The delete operation failed");
-                result.Errors.Add(new Error($"The delete operation failed: {ex.Message}"));
-            }
-            finally
-            {
-                sw.Stop();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="ParticipantRole" /> inside an iteration
-        /// </summary>
-        public Participant GetParticipant(Iteration iteration)
-        {
-            return this.GetSiteDirectory().Model.Find(m => m.IterationSetup.Contains(iteration.IterationSetup))?
-                .Participant.Find(p => p.Person.Iid == this.Session.ActivePerson.Iid);
-        }
-
-        /// <summary>
-        /// Gets the <see cref="DomainOfExpertise" /> for an <see cref="Iteration" />
-        /// </summary>
-        /// <param name="iteration">The <see cref="Iteration" /></param>
-        /// <returns>The <see cref="DomainOfExpertise" /></returns>
-        /// <exception cref="ArgumentException">If the <see cref="Iteration" /> is not opened</exception>
-        public DomainOfExpertise GetDomainOfExpertise(Iteration iteration)
-        {
-            if (!this.Session.OpenIterations.TryGetValue(iteration, out var participantInformation))
-            {
-                throw new ArgumentException("The requested iteration is not opened");
-            }
-
-            return participantInformation.Item1;
+            return this.WriteTransaction(operationContainer, files);
         }
 
         /// <summary>
@@ -607,6 +224,46 @@ namespace COMET.Web.Common.Services.SessionManagement
         public Task<Result> ReadEngineeringModels(IEnumerable<EngineeringModelSetup> engineeringModelSetups)
         {
             return this.ReadEngineeringModels(engineeringModelSetups.Select(x => x.EngineeringModelIid));
+        }
+
+        /// <summary>
+        /// Writes an <see cref="OperationContainer" /> to the <see cref="ISession" />
+        /// </summary>
+        /// <param name="operationContainer">The <see cref="OperationContainer" /> to write</param>
+        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        public async Task<Result> WriteTransaction(OperationContainer operationContainer, IReadOnlyCollection<string> files)
+        {
+            Guard.ThrowIfNull(operationContainer, nameof(operationContainer));
+
+            if (!this.IsSessionOpen)
+            {
+                this.logger.LogError("Trying to write a transaction while the Session is not open");
+                throw new InvalidOperationException("Cannot write a transaction while the Session is not open");
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+
+            try
+            {
+                await this.Session.Write(operationContainer, files);
+                this.logger.LogInformation("Transaction done in {swElapsedMilliseconds} [ms]", stopWatch.ElapsedMilliseconds);
+                return Result.Ok();
+            }
+            catch (InvalidOperationException ex)
+            {
+                this.logger.LogError("Transaction failed: {exception}", ex.Message);
+                return Result.Fail(new ExceptionalError("Transaction failed", ex).AddReasonIdentifier(HttpStatusCode.Unauthorized));
+            }
+            catch (DalWriteException ex)
+            {
+                this.logger.LogError("Transaction failed: {exception}", ex.Message);
+                return Result.Fail(new ExceptionalError("Transaction failed", ex).AddReasonIdentifier(HttpStatusCode.BadRequest));
+            }
+            finally
+            {
+                stopWatch.Stop();
+            }
         }
 
         /// <summary>
