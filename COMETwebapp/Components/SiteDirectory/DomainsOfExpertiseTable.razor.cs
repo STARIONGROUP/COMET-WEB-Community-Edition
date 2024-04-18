@@ -74,16 +74,8 @@ namespace COMETwebapp.Components.SiteDirectory
 
             var dataItem = (DomainOfExpertiseRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                this.ViewModel.Thing = new DomainOfExpertise();
-                e.EditModel = this.ViewModel.Thing;
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            this.ViewModel.Thing = dataItem == null ? new DomainOfExpertise() : dataItem.Thing.Clone(true);
+            e.EditModel = this.ViewModel.Thing;
         }
 
         /// <summary>
