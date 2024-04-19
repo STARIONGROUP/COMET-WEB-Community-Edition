@@ -81,5 +81,14 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
                     x => x.ViewModel.NotificationService.NotificationCount)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
+
+        /// <summary>
+        /// Method executed everytime the refresh button is clicked
+        /// </summary>
+        /// <returns></returns>
+        private async Task OnRefreshClick()
+        {
+            await this.ViewModel.RefreshSession();
+        }
     }
 }

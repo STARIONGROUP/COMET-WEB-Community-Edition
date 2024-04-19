@@ -56,7 +56,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// Backing field for <see cref="AuthenticationResult" />
         /// </summary>
-        private Result authenticationResult;
+        private Result authenticationResult = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.

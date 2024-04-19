@@ -151,7 +151,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             fileClone.FileRevision.Add(newFileRevision);
 
-            await this.SessionService.UpdateThings(this.CurrentFileStore.Clone(true), fileClone, newFileRevision);
+            await this.SessionService.CreateOrUpdateThings(this.CurrentFileStore.Clone(true), [fileClone, newFileRevision]);
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;

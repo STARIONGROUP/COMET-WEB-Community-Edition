@@ -62,7 +62,7 @@
                 sec
             </div>
             <div class="session__buttons">
-                <DxButton Id="refresh-button" CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@this.ViewModel.RefreshSession"/>
+                <DxButton Id="refresh-button" CssClass="btn btn-connect right-margin" Text="@this.RefreshButtonText" Enabled="@(!this.ViewModel.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
                 <DxButton Id="logout-button" CssClass="btn btn-connect left-margin" Text="Log out" Click="@this.Logout"/>
             </div>
         </div>

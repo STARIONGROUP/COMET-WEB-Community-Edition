@@ -37,9 +37,8 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Dal.Operations;
     using CDP4Dal.Utilities;
 
+    using CDP4Web.Enumerations;
     using CDP4Web.Extensions;
-
-    using COMET.Web.Common.Enumerations;
 
     using DynamicData;
 
@@ -117,7 +116,7 @@ namespace COMET.Web.Common.Services.SessionManagement
                 var openedIteration = this.Session.OpenIterations.FirstOrDefault(x => x.Key.Iid == iterationSetup.IterationIid).Key;
                 this.OpenIterations.Add(openedIteration);
 
-                this.messageBus.SendMessage(SessionStateKind.IterationOpened);
+                this.messageBus.SendMessage(SessionServiceEvent.IterationOpened);
                 this.logger.LogInformation("Iteration opened successfully");
                 result.Successes.Add(new Success("Iteration opened successfully"));
             }

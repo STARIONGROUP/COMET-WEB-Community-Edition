@@ -25,11 +25,9 @@
 
 namespace COMET.Web.Common.Components
 {
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Web;
 
     using ReactiveUI;
 

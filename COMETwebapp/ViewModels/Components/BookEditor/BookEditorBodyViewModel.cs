@@ -370,7 +370,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             var thingContainer = this.ThingToEdit.Container;
             var thingContainerClone = thingContainer.Clone(false);
 
-            await this.SessionService.UpdateThing(thingContainerClone, this.ThingToEdit.Clone(false));
+            await this.SessionService.CreateOrUpdateThings(thingContainerClone, [this.ThingToEdit.Clone(false)]);
 
             this.ThingToEdit = null;
             this.EditorPopupViewModel.IsVisible = false;

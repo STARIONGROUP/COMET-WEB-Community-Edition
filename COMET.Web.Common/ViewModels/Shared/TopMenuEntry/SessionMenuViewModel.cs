@@ -27,7 +27,8 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 {
     using CDP4Dal;
 
-    using COMET.Web.Common.Enumerations;
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
@@ -57,7 +58,7 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
             this.AutoRefreshService = autoRefreshService;
             this.NotificationService = notificationService;
 
-            this.Disposables.Add(messageBus.Listen<SessionStateKind>()
+            this.Disposables.Add(messageBus.Listen<SessionServiceEvent>(this.SessionService.Session)
                 .Subscribe(this.HandleSessionStateKind));
         }
 
@@ -95,25 +96,27 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         public ISessionService SessionService { get; }
 
         /// <summary>
-        /// Handles the change of <see cref="SessionStateKind" />
+        /// Handles the change of <see cref="SessionServiceEvent" />
         /// </summary>
-        /// <param name="sessionState">The new <see cref="SessionStateKind" /></param>
-        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionStateKind" /> is unknowned</exception>
-        private void HandleSessionStateKind(SessionStateKind sessionState)
+        /// <param name="sessionServiceEvent">The new <see cref="SessionServiceEvent" /></param>
+        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionServiceEvent" /> is unknowned</exception>
+        private void HandleSessionStateKind(SessionServiceEvent sessionServiceEvent)
         {
-            switch (sessionState)
+            switch (sessionServiceEvent)
             {
-                case SessionStateKind.Refreshing:
+                case SessionServiceEvent.SessionRefreshing:
                     this.IsRefreshing = true;
                     return;
-                case SessionStateKind.RefreshEnded:
+                case SessionServiceEvent.SessionRefreshed:
                     this.IsRefreshing = false;
                     return;
-                case SessionStateKind.IterationClosed:
-                case SessionStateKind.IterationOpened:
+                case SessionServiceEvent.IterationClosed:
+                case SessionServiceEvent.IterationOpened:
+                case SessionServiceEvent.SessionReloaded:
+                case SessionServiceEvent.SessionReloading:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(sessionState), $"Unknowned SessionStateKind {sessionState}");
+                    throw new ArgumentOutOfRangeException(nameof(sessionServiceEvent), $"Unknowned SessionStateKind {sessionServiceEvent}");
             }
         }
     }

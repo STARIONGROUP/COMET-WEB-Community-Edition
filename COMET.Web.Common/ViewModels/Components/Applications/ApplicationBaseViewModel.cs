@@ -30,7 +30,8 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMET.Web.Common.Enumerations;
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.HaveObjectChangedTracking;
@@ -53,6 +54,11 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         private bool isRefreshing;
 
         /// <summary>
+        /// Backing field for <see cref="IsReloading" />
+        /// </summary>
+        private bool isReloading;
+
+        /// <summary>
         /// Initialize a new instance of <see cref="ApplicationBaseViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -61,7 +67,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         {
             this.SessionService = sessionService;
 
-            this.Disposables.Add(this.MessageBus.Listen<SessionStateKind>()
+            this.Disposables.Add(this.MessageBus.Listen<SessionServiceEvent>(this.SessionService.Session)
                 .SubscribeAsync(this.HandleSessionStateKind));
 
             this.Disposables.Add(this.MessageBus.Listen<SessionEvent>()
@@ -76,6 +82,15 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         {
             get => this.isRefreshing;
             private set => this.RaiseAndSetIfChanged(ref this.isRefreshing, value);
+        }
+
+        /// <summary>
+        /// Gets the assert that the current session is reloading
+        /// </summary>
+        public bool IsReloading
+        {
+            get => this.isReloading;
+            private set => this.RaiseAndSetIfChanged(ref this.isReloading, value);
         }
 
         /// <summary>
@@ -149,26 +164,32 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         protected abstract Task OnSessionRefreshed();
 
         /// <summary>
-        /// Handles the change of the <see cref="SessionStateKind" />
+        /// Handles the change of the <see cref="SessionServiceEvent" />
         /// </summary>
-        /// <param name="sessionState">The new <see cref="SessionStateKind" /></param>
+        /// <param name="sessionServiceEvent">The new <see cref="SessionServiceEvent" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionStateKind"/> is unknowned</exception>
-        private Task HandleSessionStateKind(SessionStateKind sessionState)
+        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionServiceEvent"/> is unknowned</exception>
+        private Task HandleSessionStateKind(SessionServiceEvent sessionServiceEvent)
         {
-            switch (sessionState)
+            switch (sessionServiceEvent)
             {
-                case SessionStateKind.RefreshEnded:
+                case SessionServiceEvent.SessionRefreshed:
                     this.IsRefreshing = false;
                     return this.OnSessionRefreshed();
-                case SessionStateKind.Refreshing:
+                case SessionServiceEvent.SessionRefreshing:
                     this.IsRefreshing = true;
                     break;
-                case SessionStateKind.IterationClosed:
-                case SessionStateKind.IterationOpened:
+                case SessionServiceEvent.SessionReloaded:
+                    this.IsReloading = false;
+                    break;
+                case SessionServiceEvent.SessionReloading:
+                    this.IsReloading = true;
+                    break;
+                case SessionServiceEvent.IterationClosed:
+                case SessionServiceEvent.IterationOpened:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(sessionState), $"Unknowned SessionStateKind {sessionState}");
+                    throw new ArgumentOutOfRangeException(nameof(sessionServiceEvent), $"Unknowned SessionServiceEvent {sessionServiceEvent}");
             }
 
             return Task.CompletedTask;

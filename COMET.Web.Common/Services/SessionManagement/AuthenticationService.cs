@@ -35,6 +35,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     using FluentResults;
 
     using Microsoft.AspNetCore.Components.Authorization;
+
     using System.Net;
 
     /// <summary>
@@ -90,6 +91,11 @@ namespace COMET.Web.Common.Services.SessionManagement
             var uri = new Uri(authenticationDto.SourceAddress);
             var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri); 
             result = await this.sessionService.OpenSession(credentials);
+
+            if (result.IsSuccess)
+            {
+                ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
+            }
 
             return result;
         }
