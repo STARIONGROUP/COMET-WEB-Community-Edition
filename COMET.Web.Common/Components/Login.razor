@@ -87,11 +87,16 @@
         }
     </ul>
 
-	@if (!string.IsNullOrEmpty(this.ErrorMessage))
+	@if (this.ErrorMessages.Any())
 	{
-		<div class="form-group row m-top-10px">
-			<label class="text-danger">@this.ErrorMessage</label>
-		</div>
+        <div class="form-group row m-top-10px text-danger">
+            <ul>
+                @foreach (var errrorMessage in this.ErrorMessages)
+                {
+                    <li>@errrorMessage</li>
+                }
+            </ul>
+        </div>
 	}
 
 	<div class="modal-footer">

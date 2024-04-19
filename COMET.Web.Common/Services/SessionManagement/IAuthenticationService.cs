@@ -25,8 +25,9 @@
 
 namespace COMET.Web.Common.Services.SessionManagement
 {
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
+
+    using FluentResults;
 
     /// <summary>
     /// The purpose of the <see cref="IAuthenticationService" /> is to authenticate against
@@ -41,9 +42,9 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// The authentication information with data source, username and password
         /// </param>
         /// <returns>
-        /// True when the authentication is done
+        /// The <see cref="Result"/> of the request
         /// </returns>
-        Task<AuthenticationStateKind> Login(AuthenticationDto authenticationDto);
+        Task<Result> Login(AuthenticationDto authenticationDto);
 
         /// <summary>
         /// Logout from the data source

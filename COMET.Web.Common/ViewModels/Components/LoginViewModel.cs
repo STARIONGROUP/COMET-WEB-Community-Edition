@@ -25,10 +25,12 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
+
+    using FluentResults;
+
     using ReactiveUI;
 
     /// <summary>
@@ -47,9 +49,14 @@ namespace COMET.Web.Common.ViewModels.Components
         public IConfigurationService serverConnectionService { get; }
 
         /// <summary>
-        /// Backing field for <see cref="AuthenticationState" />
+        /// Backing field for <see cref="isLoading" />
         /// </summary>
-        private AuthenticationStateKind authenticationState;
+        private bool isLoading;
+
+        /// <summary>
+        /// Backing field for <see cref="AuthenticationResult" />
+        /// </summary>
+        private Result authenticationResult;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
@@ -63,12 +70,21 @@ namespace COMET.Web.Common.ViewModels.Components
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="AuthenticationStateKind" />
+        /// Gets or sets the loading state
         /// </summary>
-        public AuthenticationStateKind AuthenticationState
+        public bool IsLoading
         {
-            get => this.authenticationState;
-            set => this.RaiseAndSetIfChanged(ref this.authenticationState, value);
+            get => this.isLoading;
+            set => this.RaiseAndSetIfChanged(ref this.isLoading, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Result" /> of an authentication
+        /// </summary>
+        public Result AuthenticationResult
+        {
+            get => this.authenticationResult;
+            set => this.RaiseAndSetIfChanged(ref this.authenticationResult, value);
         }
 
         /// <summary>
@@ -82,19 +98,21 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <returns>A <see cref="Task" /></returns>
         public async Task ExecuteLogin()
         {
-            this.AuthenticationState = AuthenticationStateKind.Authenticating;
+            this.IsLoading = true;
 
             if(!string.IsNullOrEmpty(this.serverConnectionService.ServerConfiguration.ServerAddress))
             {
                 this.AuthenticationDto.SourceAddress = this.serverConnectionService.ServerConfiguration.ServerAddress;
             }
 
-            this.AuthenticationState = await this.authenticationService.Login(this.AuthenticationDto);
+            this.AuthenticationResult = await this.authenticationService.Login(this.AuthenticationDto);
 
-            if (this.authenticationState == AuthenticationStateKind.Success)
+            if (this.AuthenticationResult.IsSuccess)
             {
                 this.AuthenticationDto = new AuthenticationDto();
             }
+
+            this.IsLoading = false;
         }
     }
 }

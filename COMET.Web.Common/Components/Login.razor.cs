@@ -68,9 +68,9 @@ namespace COMET.Web.Common.Components
         public string LoginButtonDisplayText { get; private set; }
 
         /// <summary>
-        /// An error message to display after a login failure
+        /// The error messages to display after a login failure
         /// </summary>
-        public string ErrorMessage { get; private set; }
+        public IEnumerable<string> ErrorMessages { get; private set; }
 
         /// <summary>
         /// Value indicating if the login button is enabled or not
@@ -97,8 +97,8 @@ namespace COMET.Web.Common.Components
                 { "Password", false }
             };
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.AuthenticationState)
-                .Subscribe(_ => this.ComputeDisplayProperties()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.AuthenticationResult).Subscribe(_ => this.ComputeDisplayProperties()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading).Subscribe(_ => this.ComputeDisplayProperties()));
         }
 
         /// <summary>
@@ -113,24 +113,19 @@ namespace COMET.Web.Common.Components
         }
 
         /// <summary>
-        /// Compute display properties based on the <see cref="ILoginViewModel.AuthenticationState" />
+        /// Compute display properties based on the <see cref="ILoginViewModel.AuthenticationResult" />
         /// </summary>
         private void ComputeDisplayProperties()
         {
-            this.LoginButtonDisplayText = this.ViewModel.AuthenticationState switch
+            this.LoginButtonDisplayText = this.ViewModel.IsLoading switch
             {
-                AuthenticationStateKind.None => "Connect",
-                AuthenticationStateKind.Authenticating => "Connecting",
-                AuthenticationStateKind.ServerFail or AuthenticationStateKind.Fail => "Retry",
+                true => "Connecting",
+                false when this.ViewModel.AuthenticationResult.IsSuccess => "Connect",
+                false when this.ViewModel.AuthenticationResult.IsFailed => "Retry",
                 _ => this.LoginButtonDisplayText
             };
 
-            this.ErrorMessage = this.ViewModel.AuthenticationState switch
-            {
-                AuthenticationStateKind.ServerFail => "The server could not be reached",
-                AuthenticationStateKind.Fail => "Login failed.",
-                _ => string.Empty
-            };
+            this.ErrorMessages = this.ViewModel.AuthenticationResult.Errors.Select(x => x.Message);
 
             this.InvokeAsync(this.StateHasChanged);
         }

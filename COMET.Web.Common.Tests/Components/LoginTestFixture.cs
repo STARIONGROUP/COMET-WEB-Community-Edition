@@ -36,6 +36,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
 
+    using FluentResults;
+
     using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
@@ -143,8 +145,7 @@ namespace COMET.Web.Common.Tests.Components
             var renderer = this.context.RenderComponent<Login>();
             var editForm = renderer.FindComponent<EditForm>();
 
-            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>()))
-                .ReturnsAsync(AuthenticationStateKind.ServerFail);
+            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Ok);
 
             Assert.That(renderer.Instance.FieldsFocusedStatus, Is.EqualTo(new Dictionary<string, bool>()
             {
@@ -158,22 +159,20 @@ namespace COMET.Web.Common.Tests.Components
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Retry"));
-                Assert.That(renderer.Instance.ErrorMessage, Is.Not.Null);
+                Assert.That(renderer.Instance.ErrorMessages, Is.Not.Null);
             });
 
-            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>()))
-                .ReturnsAsync(AuthenticationStateKind.Fail);
+            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Ok);
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Retry"));
-                Assert.That(renderer.Instance.ErrorMessage, Is.Not.Null);
+                Assert.That(renderer.Instance.ErrorMessages, Is.Not.Null);
             });
 
-            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>()))
-                .ReturnsAsync(AuthenticationStateKind.Success);
+            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Ok);
 
             this.viewModel.AuthenticationDto.SourceAddress = "http://localhost.com";
             this.viewModel.AuthenticationDto.UserName = "user";
@@ -184,7 +183,7 @@ namespace COMET.Web.Common.Tests.Components
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Connecting"));
-                Assert.That(renderer.Instance.ErrorMessage, Is.Empty);
+                Assert.That(renderer.Instance.ErrorMessages, Is.Empty);
             });
         }
     }
