@@ -195,7 +195,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
 
             publication.PublishedParameter = parametersToPublish;
 
-            await this.SessionService.CreateThing(iteration, publication);
+            await this.SessionService.CreateOrUpdateThings(iteration, [publication]);
 
             this.RemovePublishedData(rowsToPublish, parametersToPublish);
         }

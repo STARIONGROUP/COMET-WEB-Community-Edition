@@ -176,7 +176,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                     var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                     var valueSetNewValue = valueSet.ActualValue;
                     clonedParameterValueSet.Manual = valueSetNewValue;
-                    this.SessionService.UpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
+                    this.SessionService.CreateOrUpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
                 }
             }
 

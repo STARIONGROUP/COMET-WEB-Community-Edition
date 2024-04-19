@@ -173,7 +173,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
             var clonedPerson = personToUpdate.Clone(false);
             clonedPerson.IsActive = value;
 
-            await this.SessionService.UpdateThings(siteDirectoryClone, clonedPerson);
+            await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, [clonedPerson]);
             await this.SessionService.RefreshSession();
         }
 

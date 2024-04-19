@@ -226,7 +226,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
             try
             {
-                await this.sessionService.CreateThings(clonedIteration, thingsToCreate);
+                await this.sessionService.CreateOrUpdateThings(clonedIteration, thingsToCreate);
                 this.IsOnCreationMode = false;
             }
             catch (Exception exception)

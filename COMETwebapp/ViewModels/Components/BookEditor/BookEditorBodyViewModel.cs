@@ -313,7 +313,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                     return;
             }
 
-            await this.SessionService.CreateThing(thingContainer.Clone(false), this.ThingToCreate);
+            await this.SessionService.CreateOrUpdateThings(thingContainer.Clone(false), [this.ThingToCreate]);
 
             this.ThingToCreate = null;
             this.EditorPopupViewModel.IsVisible = false;
@@ -405,7 +405,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             var thingContainer = this.ThingToDelete.Container;
             var thingContainerClone = thingContainer.Clone(false);
 
-            await this.SessionService.DeleteThing(thingContainerClone, this.ThingToDelete.Clone(false));
+            await this.SessionService.DeleteThings(thingContainerClone, [this.ThingToDelete.Clone(false)]);
             
             this.ThingToDelete = null;
         }

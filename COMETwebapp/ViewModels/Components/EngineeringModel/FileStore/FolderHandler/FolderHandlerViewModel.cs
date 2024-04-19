@@ -103,7 +103,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             var folderClone = folder.Clone(true);
             folderClone.ContainingFolder = targetFolder;
 
-            await this.SessionService.UpdateThings(this.CurrentFileStore.Clone(true), folderClone);
+            await this.SessionService.CreateOrUpdateThings(this.CurrentFileStore.Clone(true), [folderClone]);
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
