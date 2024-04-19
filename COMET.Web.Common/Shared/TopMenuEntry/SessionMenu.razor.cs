@@ -53,12 +53,17 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         /// <summary>
         /// The display text of the refresh button
         /// </summary>
-        public string RefreshButtonText => this.ViewModel.IsRefreshing ? "Refreshing" : "Refresh";
+        public string RefreshButtonText => this.IsRefreshing ? "Refreshing" : "Refresh";
 
         /// <summary>
         /// Value indicating if the menu is expanded or not
         /// </summary>
         public bool Expanded { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value to check if the session is being refresh
+        /// </summary>
+        public bool IsRefreshing { get; private set; }
 
         /// <summary>
         /// Logs out to the current <see cref="ISession" />
@@ -77,18 +82,19 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsRefreshing,
-                    x => x.ViewModel.NotificationService.NotificationCount)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.NotificationService.NotificationCount)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
         /// Method executed everytime the refresh button is clicked
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/></returns>
         private async Task OnRefreshClick()
         {
+            this.IsRefreshing = true;
             await this.ViewModel.RefreshSession();
+            this.IsRefreshing = false;
         }
     }
 }

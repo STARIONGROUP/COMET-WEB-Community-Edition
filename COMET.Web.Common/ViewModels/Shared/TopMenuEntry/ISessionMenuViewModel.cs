@@ -47,11 +47,6 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         IAutoRefreshService AutoRefreshService { get; }
 
         /// <summary>
-        /// Value indiciating that the <see cref="ISession" /> is currently refreshing
-        /// </summary>
-        bool IsRefreshing { get; set; }
-
-        /// <summary>
         /// The <see cref="INotificationService" />
         /// </summary>
         INotificationService NotificationService { get; }
