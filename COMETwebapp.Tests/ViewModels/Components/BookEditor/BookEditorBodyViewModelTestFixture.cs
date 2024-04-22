@@ -31,7 +31,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.BookEditor;
@@ -39,6 +38,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using Moq;
 
     using NUnit.Framework;
+
     using System.Collections.Generic;
 
     using CDP4Web.Enumerations;
@@ -162,16 +162,52 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             //Try to create a thing when the thing to create has not been set
             Assert.That(() => this.viewModel.OnCreateThing(), Throws.InvalidOperationException);
 
-            var section = new Section();
-            this.viewModel.SelectedBook = new Book();
-            this.viewModel.SetThingToCreate(section);
+            this.viewModel.CurrentThing = new EngineeringModel()
+            {
+                EngineeringModelSetup = new EngineeringModelSetup()
+            };
 
-            Assert.That(() => this.viewModel.OnCreateThing(), Throws.Nothing);
-
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            var book = new Book();
+            this.viewModel.SetThingToCreate(book);
 
             Assert.Multiple(() =>
             {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Book)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(1));
+            });
+
+            var section = new Section();
+            this.viewModel.SelectedBook = book;
+            this.viewModel.SetThingToCreate(section);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Section)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(2));
+            });
+
+            var page = new Page();
+            this.viewModel.SelectedSection = section;
+            this.viewModel.SetThingToCreate(page);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Page)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(3));
+            });
+
+            var note = new TextualNote();
+            this.viewModel.SelectedPage = page;
+            this.viewModel.SetThingToCreate(note);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Note)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(4));
                 Assert.That(this.viewModel.ThingToCreate, Is.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.False);
             });
