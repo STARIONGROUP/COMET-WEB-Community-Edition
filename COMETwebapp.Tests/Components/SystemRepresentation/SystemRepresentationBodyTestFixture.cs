@@ -85,11 +85,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
-          /*  this.sessionService = new SessionService(logger.Object, this.messageBus)
-            {
-               // Session = this.session.Object
-            };*/
-
             this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddAntDesign();

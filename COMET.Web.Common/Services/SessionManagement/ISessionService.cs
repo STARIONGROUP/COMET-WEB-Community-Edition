@@ -56,8 +56,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
-        /// <returns>An asynchronous operation with a <see cref="Result"/></returns>
-        Task<Result> ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
+        /// <returns>An asynchronous operation with a <see cref="Result" /> that contains the iteration, if succeeded</returns>
+        Task<Result<Iteration>> ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain);
 
         /// <summary>
         /// Get <see cref="DomainOfExpertise" /> available for the active person in the selected

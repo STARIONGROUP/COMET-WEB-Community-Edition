@@ -60,11 +60,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ILogger<SessionService> logger;
 
         /// <summary>
-        /// Gets the injected <see cref="ICDPMessageBus" />
-        /// </summary>
-        private readonly ICDPMessageBus messageBus;
-
-        /// <summary>
         /// Creates a new instance of type <see cref="SessionService" />
         /// </summary>
         /// <param name="logger">the <see cref="ILogger{TCategoryName}" /></param>
@@ -72,7 +67,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus) : base(logger, messageBus)
         {
             this.logger = logger;
-            this.messageBus = messageBus;
         }
 
         /// <summary>
@@ -86,45 +80,29 @@ namespace COMET.Web.Common.Services.SessionManagement
         public SourceList<Iteration> OpenIterations { get; private set; } = new();
 
         /// <summary>
+        /// Closes an <see cref="Iteration" />
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /> that needs to be closed</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public new async Task CloseIteration(Iteration iteration)
+        {
+            await base.CloseIteration(iteration);
+            this.OpenIterations.Remove(iteration);
+        }
+
+        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /></param>
-        /// <returns>An asynchronous operation with a <see cref="Result" /></returns>
-        public async Task<Result> ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain)
+        /// <returns>An asynchronous operation with a <see cref="Result" /> that contains the iteration, if succeeded</returns>
+        public async Task<Result<Iteration>> ReadIteration(IterationSetup iterationSetup, DomainOfExpertise domain)
         {
-            var result = new Result();
+            var result = await this.OpenIteration(iterationSetup, domain);
 
-            this.logger.LogInformation("Opening iteration");
-            var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
-            var model = new EngineeringModel(modelSetup.EngineeringModelIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri);
-
-            var iteration = new Iteration(iterationSetup.IterationIid, this.Session.Assembler.Cache, this.Session.Credentials.Uri)
+            if (result.IsSuccess)
             {
-                Container = model
-            };
-
-            try
-            {
-                await this.Session.Read(iteration, domain);
-
-                if (this.Session.OpenIterations.All(x => x.Key.Iid != iterationSetup.IterationIid))
-                {
-                    throw new InvalidOperationException("The requested iteration could not be opened");
-                }
-
-                var openedIteration = this.Session.OpenIterations.FirstOrDefault(x => x.Key.Iid == iterationSetup.IterationIid).Key;
-                this.OpenIterations.Add(openedIteration);
-
-                this.messageBus.SendMessage(SessionServiceEvent.IterationOpened);
-                this.logger.LogInformation("Iteration opened successfully");
-                result.Successes.Add(new Success("Iteration opened successfully"));
-            }
-            catch (Exception exception)
-            {
-                this.logger.LogError(exception, "During read operation an error has occured");
-                result.Errors.Add(new Error($"During read operation an error has occured: {exception.Message}"));
-                throw;
+                this.OpenIterations.Add(result.Value);
             }
 
             return result;

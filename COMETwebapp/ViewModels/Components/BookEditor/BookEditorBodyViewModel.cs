@@ -251,7 +251,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         {
             ValidateThing(thing);
 
-            this.ThingToCreate = thing;
+            this.ThingToCreate = thing.Clone(true);
 
             var header = "";
 
@@ -295,17 +295,21 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             switch (this.ThingToCreate)
             {
-                case Book: 
-                    thingContainer = this.CurrentThing;
+                case Book bookToCreate:
+                    thingContainer = this.CurrentThing.Clone(false);
+                    ((EngineeringModel)thingContainer).Book.Add(bookToCreate);
                     break;
-                case Section: 
-                    thingContainer = this.SelectedBook;
+                case Section sectionToCreate:
+                    thingContainer = this.SelectedBook.Clone(false);
+                    ((Book)thingContainer).Section.Add(sectionToCreate);
                     break;
-                case Page: 
-                    thingContainer = this.SelectedSection;
+                case Page pageToCreate:
+                    thingContainer = this.SelectedSection.Clone(false);
+                    ((Section)thingContainer).Page.Add(pageToCreate);
                     break;
-                case Note: 
-                    thingContainer = this.SelectedPage;
+                case Note noteToCreate:
+                    thingContainer = this.SelectedPage.Clone(false);
+                    ((Page)thingContainer).Note.Add(noteToCreate);
                     break;
 
                 default:
@@ -313,7 +317,8 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                     return;
             }
 
-            await this.SessionService.CreateOrUpdateThings(thingContainer.Clone(false), [this.ThingToCreate]);
+            await this.SessionService.CreateOrUpdateThings(thingContainer, [thingContainer, this.ThingToCreate]);
+            await this.SessionService.RefreshSession();
 
             this.ThingToCreate = null;
             this.EditorPopupViewModel.IsVisible = false;
@@ -327,7 +332,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         {
             ValidateThing(thing);
 
-            this.ThingToEdit = thing;
+            this.ThingToEdit = thing.Clone(true);
 
             var header = "";
 
@@ -371,6 +376,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             var thingContainerClone = thingContainer.Clone(false);
 
             await this.SessionService.CreateOrUpdateThings(thingContainerClone, [this.ThingToEdit.Clone(false)]);
+            await this.SessionService.RefreshSession();
 
             this.ThingToEdit = null;
             this.EditorPopupViewModel.IsVisible = false;
@@ -406,7 +412,8 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             var thingContainerClone = thingContainer.Clone(false);
 
             await this.SessionService.DeleteThings(thingContainerClone, [this.ThingToDelete.Clone(false)]);
-            
+            await this.SessionService.RefreshSession();
+
             this.ThingToDelete = null;
         }
     }

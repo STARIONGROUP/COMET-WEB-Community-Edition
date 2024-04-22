@@ -218,7 +218,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             if (!this.IsReadOnly && value.valueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                await this.sessionService.CreateOrUpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing>{parameterValueSetBase});
+                await this.sessionService.CreateOrUpdateThings(this.Parameter.GetContainerOfType<Iteration>().Clone(false), new List<Thing>{parameterValueSetBase});
                 this.IsPublishable = !parameterValueSetBase.Published.First().SequenceEqual(parameterValueSetBase.ActualValue.First());
             }
         }
@@ -245,7 +245,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             {
                 var clonedParameterValueSet = parameterValueSetBase.Clone(false);
                 clonedParameterValueSet.ValueSwitch = this.ParameterSwitchKindSelectorViewModel.SwitchValue;
-                await this.sessionService.CreateOrUpdateThings(this.Parameter.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
+                await this.sessionService.CreateOrUpdateThings(this.Parameter.GetContainerOfType<Iteration>().Clone(false), new List<Thing> { clonedParameterValueSet });
             }
         }
     }
