@@ -27,14 +27,16 @@ namespace COMET.Web.Common.Services.SessionManagement
 {
     using CDP4Dal;
     using CDP4Dal.DAL;
-    using CDP4Dal.Exceptions;
 
-    using CDP4ServicesDal;
+    using CDP4Web.Extensions;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
 
+    using FluentResults;
+
     using Microsoft.AspNetCore.Components.Authorization;
+
+    using System.Net;
 
     /// <summary>
     /// The purpose of the <see cref="AuthenticationService" /> is to authenticate against
@@ -53,11 +55,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// Gets the injected <see cref="ICDPMessageBus"/>
-        /// </summary>
-        private readonly ICDPMessageBus messageBus;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService" /> class.
         /// </summary>
         /// <param name="sessionService">
@@ -66,10 +63,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationStateProvider">
         /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, ICDPMessageBus messageBus)
+        public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider)
         {
-            this.messageBus = messageBus;
             this.authStateProvider = authenticationStateProvider;
             this.sessionService = sessionService;
         }
@@ -81,41 +76,28 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// The authentication information with data source, username and password
         /// </param>
         /// <returns>
-        /// <see cref="AuthenticationStateKind.Success" /> when the authentication is done and the ISession opened
+        /// The <see cref="Result"/> of the request
         /// </returns>
-        public async Task<AuthenticationStateKind> Login(AuthenticationDto authenticationDto)
+        public async Task<Result> Login(AuthenticationDto authenticationDto)
         {
-            if (authenticationDto.SourceAddress != null)
-            {
-                var uri = new Uri(authenticationDto.SourceAddress);
-                var dal = new CdpServicesDal();
-                var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri);
+            var result = new Result();
 
-                this.sessionService.Session = new Session(dal, credentials, this.messageBus);
-            }
-            else
+            if (authenticationDto.SourceAddress == null)
             {
-                return AuthenticationStateKind.Fail;
+                result.Reasons.Add(new Error("The source address should not be empty").AddReasonIdentifier(HttpStatusCode.BadRequest));
+                return result;
             }
 
-            try
+            var uri = new Uri(authenticationDto.SourceAddress);
+            var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri); 
+            result = await this.sessionService.OpenSession(credentials);
+
+            if (result.IsSuccess)
             {
-                await this.sessionService.Session.Open();
-                this.sessionService.IsSessionOpen = this.sessionService.GetSiteDirectory() != null;
                 ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
+            }
 
-                return this.sessionService.IsSessionOpen ? AuthenticationStateKind.Success : AuthenticationStateKind.Fail;
-            }
-            catch (DalReadException)
-            {
-                this.sessionService.IsSessionOpen = false;
-                return AuthenticationStateKind.Fail;
-            }
-            catch (HttpRequestException)
-            {
-                this.sessionService.IsSessionOpen = false;
-                return AuthenticationStateKind.ServerFail;
-            }
+            return result;
         }
 
         /// <summary>
@@ -128,7 +110,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             if (this.sessionService.Session != null)
             {
-                await this.sessionService.Close();
+                await this.sessionService.CloseSession();
             }
 
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();

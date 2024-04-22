@@ -25,6 +25,7 @@
 
 namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
@@ -167,14 +168,14 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Publications
             this.VerifyUpdateProperties();
             await this.viewModel.ExecutePublish();
 
-            this.sessionService.Verify(x=>x.CreateThing(It.IsAny<Iteration>(), It.IsAny<Publication>()), Times.Never);
+            this.sessionService.Verify(x=>x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             this.viewModel.CanPublish = true;
             this.viewModel.SelectedDataItems = new List<object>() { new PublicationRowViewModel(this.parameter, this.parameter.ValueSets.First()) };
 
             await this.viewModel.ExecutePublish();
 
-            this.sessionService.Verify(x => x.CreateThing(It.IsAny<Iteration>(), It.IsAny<Publication>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
     }
 }

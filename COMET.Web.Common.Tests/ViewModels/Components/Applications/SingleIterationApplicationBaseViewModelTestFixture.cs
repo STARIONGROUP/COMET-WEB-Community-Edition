@@ -31,7 +31,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMET.Web.Common.Enumerations;
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -134,30 +135,39 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
-                Assert.That(this.viewModel.IsRefreshing, Is.False);
+                Assert.That(this.viewModel.IsRefreshing, Is.EqualTo(false));
+                Assert.That(this.viewModel.IsReloading, Is.EqualTo(false));
             });
             
-            this.messageBus.SendMessage(SessionStateKind.Refreshing);
+            // Verify session refresh
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshing);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
-                Assert.That(this.viewModel.IsRefreshing, Is.True);
+                Assert.That(this.viewModel.IsRefreshing, Is.EqualTo(true));
             });
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(1));
-                Assert.That(this.viewModel.IsRefreshing, Is.False);
+                Assert.That(this.viewModel.IsRefreshing, Is.EqualTo(false));
             });
+
+            // Verify session reload
+            this.messageBus.SendMessage(SessionServiceEvent.SessionReloading);
+            Assert.That(this.viewModel.IsReloading, Is.EqualTo(true));
+
+            this.messageBus.SendMessage(SessionServiceEvent.SessionReloaded);
+            Assert.That(this.viewModel.IsReloading, Is.EqualTo(false));
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationClosed), Throws.Nothing);
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationOpened), Throws.Nothing);
-                Assert.That(() => this.messageBus.SendMessage((SessionStateKind)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
+                Assert.That(() => this.messageBus.SendMessage(SessionServiceEvent.IterationClosed), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage(SessionServiceEvent.IterationOpened), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage((SessionServiceEvent)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
             });
         }
 

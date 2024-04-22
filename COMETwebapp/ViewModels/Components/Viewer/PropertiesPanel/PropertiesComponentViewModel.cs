@@ -35,6 +35,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer;
@@ -171,13 +172,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
             foreach (var valueSet in this.ChangedParameterValueSetRelations.Select(keyValue => keyValue.Value))
             {
-                if (valueSet is ParameterValueSetBase parameterValueSetBase)
+                if (valueSet is not ParameterValueSetBase parameterValueSetBase)
                 {
-                    var clonedParameterValueSet = parameterValueSetBase.Clone(false);
-                    var valueSetNewValue = valueSet.ActualValue;
-                    clonedParameterValueSet.Manual = valueSetNewValue;
-                    this.SessionService.UpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>(), new List<Thing> { clonedParameterValueSet });
+                    continue;
                 }
+
+                var clonedParameterValueSet = parameterValueSetBase.Clone(false);
+                var valueSetNewValue = valueSet.ActualValue;
+                clonedParameterValueSet.Manual = valueSetNewValue;
+                this.SessionService.CreateOrUpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>().Clone(false), new List<Thing> { clonedParameterValueSet });
             }
 
             this.ParameterHaveChanges = false;

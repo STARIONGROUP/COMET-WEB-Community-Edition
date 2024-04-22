@@ -81,7 +81,7 @@ namespace COMET.Web.Common.Extensions
             var clone = elementDefinition.Clone(false);
             clone.Parameter.Add(parameter);
 
-            return await sessionService.CreateThing(clone, parameter);
+            return await sessionService.CreateOrUpdateThings(clone, [parameter]);
         }
     }
 }

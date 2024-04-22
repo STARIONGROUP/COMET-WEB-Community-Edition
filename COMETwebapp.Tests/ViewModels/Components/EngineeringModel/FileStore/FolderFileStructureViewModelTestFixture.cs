@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -132,12 +134,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             var rootNodeContent = this.viewModel.Structure.First().Content;
             Assert.That(rootNodeContent, Has.Count.EqualTo(2));
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(rootNodeContent, Has.Count.EqualTo(2));
 
             var newFile = new File();
             this.messageBus.SendObjectChangeEvent(newFile, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.Multiple(() =>
             {
@@ -148,7 +150,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             var existingFile = this.commonFileStore.File.First();
             existingFile.LockedBy = new Person() { ShortName = "locker" };
             this.messageBus.SendObjectChangeEvent(newFile, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.Multiple(() =>
             {
@@ -157,7 +159,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             });
 
             this.messageBus.SendObjectChangeEvent(newFile, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.Multiple(() =>
             {

@@ -123,7 +123,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
 
             try
             {
-                await this.SessionService.UpdateThings(siteDirectoryClone, clonedThing);
+                await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, [clonedThing]);
                 await this.SessionService.RefreshSession();
             }
             catch (Exception exception)

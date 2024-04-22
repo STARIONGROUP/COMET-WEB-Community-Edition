@@ -39,6 +39,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -303,19 +305,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.iteration.Element.Add(elementDefinition);
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.session.Object);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.AddRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
 
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.session.Object);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.UpdateRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
 
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.session.Object);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
@@ -325,7 +327,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Container = new Iteration()
             }, EventKind.Removed);
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.session.Object);
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);

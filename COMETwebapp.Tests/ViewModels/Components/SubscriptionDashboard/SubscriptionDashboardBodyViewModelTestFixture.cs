@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -88,7 +90,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         [Test]
         public void VerifySessionRefresh()
         {
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), null), Times.Once);

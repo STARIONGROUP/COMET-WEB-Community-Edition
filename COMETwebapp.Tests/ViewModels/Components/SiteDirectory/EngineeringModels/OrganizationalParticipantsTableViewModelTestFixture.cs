@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -145,7 +147,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         {
             this.viewModel.InitializeViewModel();
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
             var organizationalParticipantTest = new OrganizationalParticipant()
@@ -160,13 +162,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             };
 
             this.messageBus.SendObjectChangeEvent(organizationalParticipantTest, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
         }
@@ -194,7 +196,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.DeleteThing(It.IsAny<EngineeringModelSetup>(), It.IsAny<OrganizationalParticipant>()), Times.Once);
+                this.sessionService.Verify(x => x.DeleteThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
                 this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
             });
         }

@@ -27,23 +27,15 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 {
     using CDP4Dal;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
-
-    using ReactiveUI;
 
     /// <summary>
     /// View model that handles the menu entry related to the <see cref="ISession" />
     /// </summary>
     public class SessionMenuViewModel : DisposableObject, ISessionMenuViewModel
     {
-        /// <summary>
-        /// Backing field for <see cref="IsRefreshing" />
-        /// </summary>
-        private bool isRefreshing;
-
         /// <summary>
         /// Initializes a <see cref="SessionMenuViewModel" />
         /// </summary>
@@ -56,33 +48,12 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
             this.SessionService = sessionService;
             this.AutoRefreshService = autoRefreshService;
             this.NotificationService = notificationService;
-
-            this.Disposables.Add(messageBus.Listen<SessionStateKind>()
-                .Subscribe(this.HandleSessionStateKind));
         }
 
         /// <summary>
         /// The <see cref="INotificationService" />
         /// </summary>
         public INotificationService NotificationService { get; }
-
-        /// <summary>
-        /// Value indiciating that the <see cref="ISession" /> is currently refreshing
-        /// </summary>
-        public bool IsRefreshing
-        {
-            get => this.isRefreshing;
-            set => this.RaiseAndSetIfChanged(ref this.isRefreshing, value);
-        }
-
-        /// <summary>
-        /// Refreshes the current <see cref="ISession" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public Task RefreshSession()
-        {
-            return this.SessionService.RefreshSession();
-        }
 
         /// <summary>
         /// Gets the <see cref="IAutoRefreshService" />
@@ -95,26 +66,12 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         public ISessionService SessionService { get; }
 
         /// <summary>
-        /// Handles the change of <see cref="SessionStateKind" />
+        /// Refreshes the current <see cref="ISession" />
         /// </summary>
-        /// <param name="sessionState">The new <see cref="SessionStateKind" /></param>
-        /// <exception cref="ArgumentOutOfRangeException">If the <see cref="SessionStateKind" /> is unknowned</exception>
-        private void HandleSessionStateKind(SessionStateKind sessionState)
+        /// <returns>A <see cref="Task" /></returns>
+        public Task RefreshSession()
         {
-            switch (sessionState)
-            {
-                case SessionStateKind.Refreshing:
-                    this.IsRefreshing = true;
-                    return;
-                case SessionStateKind.RefreshEnded:
-                    this.IsRefreshing = false;
-                    return;
-                case SessionStateKind.IterationClosed:
-                case SessionStateKind.IterationOpened:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(sessionState), $"Unknowned SessionStateKind {sessionState}");
-            }
+            return this.SessionService.RefreshSession();
         }
     }
 }

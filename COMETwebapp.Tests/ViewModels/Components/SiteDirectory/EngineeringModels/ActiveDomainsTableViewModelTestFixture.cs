@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -142,7 +144,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         {
             this.viewModel.InitializeViewModel();
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
             var domainTest = new DomainOfExpertise()
@@ -154,13 +156,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             };
 
             this.messageBus.SendObjectChangeEvent(domainTest, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
         }
@@ -185,18 +187,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.SetEngineeringModel(this.model);
 
             await this.viewModel.EditActiveDomains();
-            this.sessionService.Verify(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<EngineeringModelSetup>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             this.viewModel.SelectedDomainsOfExpertise = [this.domain, this.domain.Clone(true)];
             await this.viewModel.EditActiveDomains();
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<EngineeringModelSetup>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
                 this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
             });
 
-            this.sessionService.Setup(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<EngineeringModelSetup>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             await this.viewModel.EditActiveDomains();
             this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
         }

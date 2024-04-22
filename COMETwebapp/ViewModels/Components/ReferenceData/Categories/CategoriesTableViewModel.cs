@@ -121,7 +121,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 
             try
             {
-                await this.SessionService.CreateThings(clonedRDL, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThings(clonedRDL, thingsToCreate);
                 await this.SessionService.RefreshSession();
             }
             catch (Exception exception)

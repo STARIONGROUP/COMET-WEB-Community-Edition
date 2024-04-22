@@ -27,7 +27,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
 {
     using CDP4Dal;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
@@ -71,7 +70,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
                 Assert.That(this.viewModel.AutoRefreshService, Is.EqualTo(this.autoRefreshService.Object));
                 Assert.That(this.viewModel.SessionService, Is.EqualTo(this.sessionService.Object));
                 Assert.That(this.viewModel.NotificationService, Is.EqualTo(this.notificationService.Object));
-                Assert.That(this.viewModel.IsRefreshing, Is.False);
             });
         }
 
@@ -80,22 +78,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
         {
             await this.viewModel.RefreshSession();
             this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-        }
-
-        [Test]
-        public void VerifyMessageBusSubscriptions()
-        {
-            this.messageBus.SendMessage(SessionStateKind.Refreshing);
-            Assert.That(this.viewModel.IsRefreshing, Is.True);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
-            Assert.That(this.viewModel.IsRefreshing, Is.False);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationClosed), Throws.Nothing);
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationOpened), Throws.Nothing);
-                Assert.That(() => this.messageBus.SendMessage((SessionStateKind)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
-            });
         }
     }
 }

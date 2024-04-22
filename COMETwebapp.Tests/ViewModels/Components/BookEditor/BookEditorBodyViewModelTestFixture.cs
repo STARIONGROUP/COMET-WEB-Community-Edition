@@ -31,7 +31,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.BookEditor;
@@ -39,6 +38,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using Moq;
 
     using NUnit.Framework;
+
+    using System.Collections.Generic;
+
+    using CDP4Web.Enumerations;
 
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
@@ -144,7 +147,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ThingToCreate, Is.Not.Null);
-                Assert.That(this.viewModel.ThingToCreate, Is.EqualTo(book));
+                Assert.That(this.viewModel.ThingToCreate, Is.TypeOf(typeof(Book)));
+                Assert.That(this.viewModel.ThingToCreate.Original, Is.EqualTo(book));
                 Assert.That(this.viewModel.EditorPopupViewModel.HeaderText, Is.EqualTo("Create a new Book"));
                 Assert.That(this.viewModel.EditorPopupViewModel.OnConfirmClick, Is.Not.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.OnCancelClick, Is.Not.Null);
@@ -158,16 +162,52 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             //Try to create a thing when the thing to create has not been set
             Assert.That(() => this.viewModel.OnCreateThing(), Throws.InvalidOperationException);
 
-            var section = new Section();
-            this.viewModel.SelectedBook = new Book();
-            this.viewModel.SetThingToCreate(section);
+            this.viewModel.CurrentThing = new EngineeringModel()
+            {
+                EngineeringModelSetup = new EngineeringModelSetup()
+            };
 
-            Assert.That(() => this.viewModel.OnCreateThing(), Throws.Nothing);
-
-            this.sessionService.Verify(x => x.CreateThing(It.IsAny<Thing>(), It.IsAny<Thing>()), Times.Once);
+            var book = new Book();
+            this.viewModel.SetThingToCreate(book);
 
             Assert.Multiple(() =>
             {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Book)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(1));
+            });
+
+            var section = new Section();
+            this.viewModel.SelectedBook = book;
+            this.viewModel.SetThingToCreate(section);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Section)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(2));
+            });
+
+            var page = new Page();
+            this.viewModel.SelectedSection = section;
+            this.viewModel.SetThingToCreate(page);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Page)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(3));
+            });
+
+            var note = new TextualNote();
+            this.viewModel.SelectedPage = page;
+            this.viewModel.SetThingToCreate(note);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ThingToCreate, Is.InstanceOf(typeof(Note)));
+                Assert.That(this.viewModel.OnCreateThing, Throws.Nothing);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(4));
                 Assert.That(this.viewModel.ThingToCreate, Is.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.False);
             });
@@ -185,7 +225,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ThingToEdit, Is.Not.Null);
-                Assert.That(this.viewModel.ThingToEdit, Is.EqualTo(book));
+                Assert.That(this.viewModel.ThingToEdit, Is.TypeOf(typeof(Book)));
+                Assert.That(this.viewModel.ThingToEdit.Original, Is.EqualTo(book));
                 Assert.That(this.viewModel.EditorPopupViewModel.HeaderText, Is.EqualTo("Edit the Book"));
                 Assert.That(this.viewModel.EditorPopupViewModel.OnConfirmClick, Is.Not.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.OnCancelClick, Is.Not.Null);
@@ -205,7 +246,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
             Assert.That(() => this.viewModel.OnEditThing(), Throws.Nothing);
 
-            this.sessionService.Verify(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<Thing>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             Assert.Multiple(() =>
             {
@@ -243,7 +284,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
             Assert.That(() => this.viewModel.OnDeleteThing(), Throws.Nothing);
 
-            this.sessionService.Verify(x => x.DeleteThing(It.IsAny<Thing>(), It.IsAny<Thing>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             Assert.Multiple(() =>
             {
@@ -302,7 +343,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
                 EngineeringModelSetup = new EngineeringModelSetup()
             };
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.CurrentThing, Is.Not.Null);
         }
     }

@@ -60,7 +60,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         private TestContext context;
         private ISystemRepresentationBodyViewModel viewModel;
         private Mock<ISession> session;
-        private ISessionService sessionService;
+        private Mock<ISessionService> sessionService;
         private Assembler assembler;
         private Participant participant;
         private Person person;
@@ -82,10 +82,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.session = new Mock<ISession>();
             this.messageBus = new CDPMessageBus();
 
-            this.sessionService = new SessionService(logger.Object, this.messageBus)
-            {
-                Session = this.session.Object
-            };
+            this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
             this.context.Services.AddSingleton(this.sessionService);
             this.context.ConfigureDevExpressBlazor();
@@ -98,8 +96,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
-            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService, this.messageBus);
-
+            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService.Object, this.messageBus);
             this.context.Services.AddSingleton(this.viewModel);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);

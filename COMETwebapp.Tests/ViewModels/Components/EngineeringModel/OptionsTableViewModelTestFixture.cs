@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -134,7 +136,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 
             this.iteration.DefaultOption = this.option;
             this.messageBus.SendObjectChangeEvent(this.iteration, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows.Items.First().IsDefault, Is.EqualTo(true));
         }
@@ -151,11 +153,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.UpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IEnumerable<Thing>>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
                 this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
             });
 
-            this.sessionService.Setup(x => x.UpdateThings(It.IsAny<Thing>(), It.IsAny<IEnumerable<Thing>>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             this.viewModel.SetCurrentOption(new Option());
             this.viewModel.SelectedIsDefaultValue = true;
 

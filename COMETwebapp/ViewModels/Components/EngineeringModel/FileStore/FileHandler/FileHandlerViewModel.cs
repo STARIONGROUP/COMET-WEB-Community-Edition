@@ -151,7 +151,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             fileClone.FileRevision.Add(newFileRevision);
 
-            await this.SessionService.UpdateThings(this.CurrentFileStore.Clone(true), fileClone, newFileRevision);
+            await this.SessionService.CreateOrUpdateThings(this.CurrentFileStore.Clone(true), [fileClone, newFileRevision]);
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
@@ -206,7 +206,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             thingsToUpdate.Add(this.File);
 
-            await this.SessionService.UpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath));
+            await this.SessionService.CreateOrUpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath).ToList());
             await this.SessionService.RefreshSession();
 
             this.logger.LogInformation("File with iid {iid} updated successfully", this.File.Iid);
@@ -221,7 +221,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         {
             var clonedContainer = this.File.Container.Clone(false);
 
-            await this.SessionService.DeleteThing(clonedContainer, this.File);
+            await this.SessionService.DeleteThings(clonedContainer, [this.File]);
             await this.SessionService.RefreshSession();
         }
 

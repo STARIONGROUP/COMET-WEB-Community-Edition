@@ -244,10 +244,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             });
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
-            this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(this.iteration, It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync((parameterRow.Parameter.ValueSets.First(),0));
-            this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(this.iteration, It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
 
@@ -255,7 +255,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             parameterRow = this.viewModel.Rows.Items.First();
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
-            this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(this.iteration, It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             Assert.Multiple(() =>
             {
@@ -264,13 +264,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             });
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
-            this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync();
-            this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync((parameterRow.Parameter.ValueSets.First(),0));
-            this.sessionService.Verify(x => x.UpdateThings(this.iteration, It.IsAny<IEnumerable<Thing>>()), Times.Exactly(2));
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(2));
         }
 
         [Test]

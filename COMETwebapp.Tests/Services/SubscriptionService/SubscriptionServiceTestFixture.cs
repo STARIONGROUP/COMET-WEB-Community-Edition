@@ -33,7 +33,9 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
 
     using CDP4Dal;
     using CDP4Dal.Events;
-   
+
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -205,7 +207,7 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
             Assert.Multiple(() =>
             {
                 Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(1));
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.Refreshing), Throws.Nothing);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
                 Assert.That(() =>this.subscriptionService.TrackedSubscriptions[iteration.Iid][0].QueryChangedValueSet(new TrackedParameterSubscription(new ParameterSubscription())),
                     Throws.ArgumentException);

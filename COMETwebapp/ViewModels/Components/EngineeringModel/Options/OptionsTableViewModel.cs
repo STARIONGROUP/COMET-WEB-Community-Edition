@@ -121,7 +121,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
 
             try
             {
-                await this.SessionService.UpdateThings(this.CurrentIteration.Container.Clone(true), thingsToCreate);
+                await this.SessionService.CreateOrUpdateThings(this.CurrentIteration.Container.Clone(true), thingsToCreate);
                 await this.SessionService.RefreshSession();
             }
             catch (Exception ex)

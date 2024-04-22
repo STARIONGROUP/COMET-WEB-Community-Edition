@@ -103,7 +103,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             var folderClone = folder.Clone(true);
             folderClone.ContainingFolder = targetFolder;
 
-            await this.SessionService.UpdateThings(this.CurrentFileStore.Clone(true), folderClone);
+            await this.SessionService.CreateOrUpdateThings(this.CurrentFileStore.Clone(true), [folderClone]);
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
@@ -132,7 +132,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
 
             thingsToCreate.Add(this.Folder);
 
-            await this.SessionService.UpdateThings(fileStoreClone, thingsToCreate);
+            await this.SessionService.CreateOrUpdateThings(fileStoreClone, thingsToCreate);
             await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
@@ -146,7 +146,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         {
             var clonedContainer = this.Folder.Container.Clone(false);
 
-            await this.SessionService.DeleteThing(clonedContainer, this.Folder);
+            await this.SessionService.DeleteThings(clonedContainer, [this.Folder]);
             await this.SessionService.RefreshSession();
         }
 

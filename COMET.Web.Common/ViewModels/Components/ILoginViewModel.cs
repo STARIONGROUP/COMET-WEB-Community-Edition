@@ -25,9 +25,10 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
+
+    using FluentResults;
 
     /// <summary>
     /// View Model that enables the user to login against a COMET Server
@@ -40,9 +41,14 @@ namespace COMET.Web.Common.ViewModels.Components
         IConfigurationService serverConnectionService { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="AuthenticationStateKind" />
+        /// Gets or sets the loading state
         /// </summary>
-        AuthenticationStateKind AuthenticationState { get; set; }
+        bool IsLoading { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Result" /> of an authentication
+        /// </summary>
+        Result AuthenticationResult { get; }
 
         /// <summary>
         /// The <see cref="AuthenticationDto" /> used for perfoming a login

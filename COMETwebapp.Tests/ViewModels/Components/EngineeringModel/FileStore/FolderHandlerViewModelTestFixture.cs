@@ -130,11 +130,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         {
             this.viewModel.InitializeViewModel(this.commonFileStore);
             await this.viewModel.MoveFolder(this.commonFileStore.Folder[0], this.commonFileStore.Folder[1]);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<FileStore>(), It.IsAny<Folder>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             this.viewModel.SelectFolder(this.commonFileStore.Folder[0]);
             await this.viewModel.DeleteFolder();
-            this.sessionService.Verify(x => x.DeleteThing(It.IsAny<FileStore>(), It.IsAny<Folder>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]
@@ -143,10 +143,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.viewModel.InitializeViewModel(this.commonFileStore);
             this.viewModel.SelectFolder(this.commonFileStore.Folder[0]);
             await this.viewModel.CreateOrEditFolder(false);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<FileStore>(), It.Is<IEnumerable<Thing>>(c => !c.OfType<FileStore>().Any())), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => !c.OfType<FileStore>().Any())), Times.Once);
 
             await this.viewModel.CreateOrEditFolder(true);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<FileStore>(), It.Is<IEnumerable<Thing>>(c => c.OfType<FileStore>().Any())), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => c.OfType<FileStore>().Any())), Times.Once);
         }
     }
 }

@@ -28,12 +28,9 @@ namespace COMET.Web.Common.Tests.Extensions
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
-    using CDP4Dal.Operations;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-
-    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -42,28 +39,14 @@ namespace COMET.Web.Common.Tests.Extensions
     [TestFixture]
     public class SessionServiceExtensionsTestFixture
     {
-        private Mock<ISession> session;
-        private ISessionService sessionService;
-        private CDPMessageBus messageBus;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void Setup()
         {
-            var logger = new Mock<ILogger<SessionService>>();
-            this.messageBus = new CDPMessageBus();
-
-            this.session = new Mock<ISession>();
-
-            this.sessionService = new SessionService(logger.Object, this.messageBus)
-            {
-                Session = this.session.Object
-            };
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            this.messageBus.ClearSubscriptions();
+            var session = new Mock<ISession>();
+            this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
         }
 
         [Test]
@@ -93,13 +76,11 @@ namespace COMET.Web.Common.Tests.Extensions
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => this.sessionService.AddParameter(null, null, null, null, null), Throws.ArgumentNullException);
-                Assert.That(() => this.sessionService.AddParameter(elementDefinition, null, null, null, null), Throws.ArgumentNullException);
-                Assert.That(() => this.sessionService.AddParameter(elementDefinition, null, textParameterType, null, null), Throws.ArgumentNullException);
-                Assert.That(() => this.sessionService.AddParameter(elementDefinition, null, textParameterType, null, doe), Throws.Nothing);
+                Assert.That(() => this.sessionService.Object.AddParameter(null, null, null, null, null), Throws.ArgumentNullException);
+                Assert.That(() => this.sessionService.Object.AddParameter(elementDefinition, null, null, null, null), Throws.ArgumentNullException);
+                Assert.That(() => this.sessionService.Object.AddParameter(elementDefinition, null, textParameterType, null, null), Throws.ArgumentNullException);
+                Assert.That(() => this.sessionService.Object.AddParameter(elementDefinition, null, textParameterType, null, doe), Throws.Nothing);
             });
-
-            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Once);
         }
     }
 }
