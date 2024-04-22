@@ -32,8 +32,6 @@ namespace COMET.Web.Common.Tests.Extensions
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
-    using Microsoft.Extensions.Logging;
-
     using Moq;
 
     using NUnit.Framework;
@@ -42,23 +40,13 @@ namespace COMET.Web.Common.Tests.Extensions
     public class SessionServiceExtensionsTestFixture
     {
         private Mock<ISessionService> sessionService;
-        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
-            var logger = new Mock<ILogger<SessionService>>();
-            this.messageBus = new CDPMessageBus();
-
             var session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -88,7 +76,6 @@ namespace COMET.Web.Common.Tests.Extensions
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => this.sessionService.Object.AddParameter(null, null, null, null, null), Throws.ArgumentNullException);
                 Assert.That(() => this.sessionService.Object.AddParameter(null, null, null, null, null), Throws.ArgumentNullException);
                 Assert.That(() => this.sessionService.Object.AddParameter(elementDefinition, null, null, null, null), Throws.ArgumentNullException);
                 Assert.That(() => this.sessionService.Object.AddParameter(elementDefinition, null, textParameterType, null, null), Throws.ArgumentNullException);
