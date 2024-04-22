@@ -135,15 +135,17 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
-                Assert.That(this.viewModel.IsRefreshing, Is.False);
+                Assert.That(this.viewModel.IsRefreshing, Is.EqualTo(false));
+                Assert.That(this.viewModel.IsReloading, Is.EqualTo(false));
             });
             
+            // Verify session refresh
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshing);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(0));
-                Assert.That(this.viewModel.IsRefreshing, Is.True);
+                Assert.That(this.viewModel.IsRefreshing, Is.EqualTo(true));
             });
 
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed);
@@ -151,8 +153,15 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.OnSessionRefreshCount, Is.EqualTo(1));
-                Assert.That(this.viewModel.IsRefreshing, Is.False);
+                Assert.That(this.viewModel.IsRefreshing, Is.EqualTo(false));
             });
+
+            // Verify session reload
+            this.messageBus.SendMessage(SessionServiceEvent.SessionReloading);
+            Assert.That(this.viewModel.IsReloading, Is.EqualTo(true));
+
+            this.messageBus.SendMessage(SessionServiceEvent.SessionReloaded);
+            Assert.That(this.viewModel.IsReloading, Is.EqualTo(false));
 
             Assert.Multiple(() =>
             {

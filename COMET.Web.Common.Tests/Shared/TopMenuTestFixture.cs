@@ -155,13 +155,15 @@ namespace COMET.Web.Common.Tests.Shared
             var sessionMenuEntry = authorizedMenuEntries[2];
             var sessionMenuInstance = (SessionMenu)sessionMenuEntry.Instance;
             sessionMenuInstance.Expanded = true;
+            await renderer.InvokeAsync(sessionMenuInstance.OnRefreshClick);
             await renderer.InvokeAsync(sessionMenuInstance.Logout);
             var navigationManager = this.context.Services.GetService<NavigationManager>()!;
 
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Does.EndWith("Logout"));
-                Assert.That(sessionMenuInstance.Expanded, Is.False);
+                Assert.That(sessionMenuInstance.Expanded, Is.EqualTo(false));
+                Assert.That(sessionMenuInstance.IsRefreshing, Is.EqualTo(false));
             });
 
             var iteration = new Iteration

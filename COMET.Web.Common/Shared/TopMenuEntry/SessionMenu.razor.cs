@@ -75,6 +75,17 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         }
 
         /// <summary>
+        /// Method executed everytime the refresh button is clicked
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task OnRefreshClick()
+        {
+            this.IsRefreshing = true;
+            await this.ViewModel.RefreshSession();
+            this.IsRefreshing = false;
+        }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -84,17 +95,6 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.NotificationService.NotificationCount)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
-        /// <summary>
-        /// Method executed everytime the refresh button is clicked
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task OnRefreshClick()
-        {
-            this.IsRefreshing = true;
-            await this.ViewModel.RefreshSession();
-            this.IsRefreshing = false;
         }
     }
 }

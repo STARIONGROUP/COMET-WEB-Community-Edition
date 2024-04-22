@@ -25,9 +25,14 @@
 
 namespace COMET.Web.Common.Tests.Services.SessionManagement
 {
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+
+    using DynamicData;
 
     using Microsoft.Extensions.Logging;
 
@@ -48,6 +53,9 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             var logger = new Mock<ILogger<SessionService>>();
             this.messageBus = new CDPMessageBus();
             this.sessionService = new SessionService(logger.Object, this.messageBus);
+
+            var engineeringModel = new EngineeringModel();
+            this.sessionService.OpenIterations.Add(new Iteration(){ Container = engineeringModel});
         }
 
         [TearDown]
@@ -57,9 +65,27 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public void VerifyGetParticipantModels()
+        public void VerifyQueryOpenEngineeringModels()
         {
-            Assert.That(this.sessionService.GetParticipantModels(), Is.Not.Null);
+            var openEngineeringModels = this.sessionService.OpenEngineeringModels;
+            Assert.That(openEngineeringModels, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyCreateOrUpdateThings()
+        {
+            var siteDirectory = new SiteDirectory();
+            var domain = new DomainOfExpertise();
+            siteDirectory.Domain.Add(domain);
+
+            Assert.That(async () => await this.sessionService.CreateOrUpdateThings(siteDirectory, [domain], ["file A"]), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public async Task VerifyReadEngineeringModel()
+        {
+            var readingResult = await this.sessionService.ReadEngineeringModels([new EngineeringModelSetup()]);
+            Assert.That(readingResult.IsSuccess, Is.EqualTo(false));
         }
     }
 }
