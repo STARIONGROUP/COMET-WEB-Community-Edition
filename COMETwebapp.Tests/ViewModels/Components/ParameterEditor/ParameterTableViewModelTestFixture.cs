@@ -264,13 +264,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             });
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(this.iteration, It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync();
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(this.iteration, It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             await parameterRow.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync((parameterRow.Parameter.ValueSets.First(),0));
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(this.iteration, It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(2));
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(2));
         }
 
         [Test]

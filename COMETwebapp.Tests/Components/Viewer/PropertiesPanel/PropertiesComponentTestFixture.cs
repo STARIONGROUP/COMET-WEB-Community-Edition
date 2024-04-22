@@ -158,6 +158,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Iid = Guid.NewGuid(),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
                 Manual = new ValueArray<string>(compoundValues),
+                Container = new Iteration()
             };
 
             Assert.Multiple(() =>

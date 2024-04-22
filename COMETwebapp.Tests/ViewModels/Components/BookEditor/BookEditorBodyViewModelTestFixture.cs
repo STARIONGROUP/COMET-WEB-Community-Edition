@@ -147,7 +147,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ThingToCreate, Is.Not.Null);
-                Assert.That(this.viewModel.ThingToCreate, Is.EqualTo(book));
+                Assert.That(this.viewModel.ThingToCreate, Is.TypeOf(typeof(Book)));
+                Assert.That(this.viewModel.ThingToCreate.Original, Is.EqualTo(book));
                 Assert.That(this.viewModel.EditorPopupViewModel.HeaderText, Is.EqualTo("Create a new Book"));
                 Assert.That(this.viewModel.EditorPopupViewModel.OnConfirmClick, Is.Not.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.OnCancelClick, Is.Not.Null);
@@ -188,7 +189,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ThingToEdit, Is.Not.Null);
-                Assert.That(this.viewModel.ThingToEdit, Is.EqualTo(book));
+                Assert.That(this.viewModel.ThingToEdit, Is.TypeOf(typeof(Book)));
+                Assert.That(this.viewModel.ThingToEdit.Original, Is.EqualTo(book));
                 Assert.That(this.viewModel.EditorPopupViewModel.HeaderText, Is.EqualTo("Edit the Book"));
                 Assert.That(this.viewModel.EditorPopupViewModel.OnConfirmClick, Is.Not.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.OnCancelClick, Is.Not.Null);
