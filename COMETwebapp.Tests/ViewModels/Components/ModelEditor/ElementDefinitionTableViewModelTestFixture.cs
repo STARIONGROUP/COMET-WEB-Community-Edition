@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -131,7 +133,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         [Test]
         public void VerifyRecordChange()
         {
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
 
             var elementDefinition = new ElementDefinition()
@@ -141,13 +143,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
             this.iteration.Element.Add(elementDefinition);
             this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
         }

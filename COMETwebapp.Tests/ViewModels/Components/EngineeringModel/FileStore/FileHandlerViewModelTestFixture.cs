@@ -137,11 +137,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         {
             this.viewModel.InitializeViewModel(this.commonFileStore);
             await this.viewModel.MoveFile(this.commonFileStore.File[0], this.commonFileStore.Folder[0]);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<FileStore>(), It.IsAny<File>(), It.IsAny<FileRevision>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             this.viewModel.SelectFile(this.commonFileStore.File[0]);
             await this.viewModel.DeleteFile();
-            this.sessionService.Verify(x => x.DeleteThing(It.IsAny<FileStore>(), It.IsAny<File>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.viewModel.SelectFile(this.commonFileStore.File[0]);
 
             await this.viewModel.CreateOrEditFile(false);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<FileStore>(), It.Is<IEnumerable<Thing>>(c => !c.OfType<FileStore>().Any()), It.IsAny<IEnumerable<string>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => !c.OfType<FileStore>().Any()), It.IsAny<IReadOnlyCollection<string>>()), Times.Once);
 
             this.viewModel.SelectedFileRevisions = [new FileRevision(){ LocalPath = "/localpath" }];
             this.viewModel.IsLocked = true;
@@ -159,10 +159,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.UpdateThings(
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(
                     It.IsAny<FileStore>(), 
-                    It.Is<IEnumerable<Thing>>(c => c.OfType<FileStore>().Any()),
-                    It.Is<IEnumerable<string>>(c => c.Contains("/localpath")))
+                    It.Is<IReadOnlyCollection<Thing>>(c => c.OfType<FileStore>().Any()),
+                    It.Is<IReadOnlyCollection<string>>(c => c.Contains("/localpath")))
                 , Times.Once);
 
                 Assert.That(this.viewModel.File.LockedBy, Is.Not.Null);

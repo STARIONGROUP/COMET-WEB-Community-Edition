@@ -158,11 +158,11 @@ namespace COMET.Web.Common.Tests.Components
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Retry"));
+                Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Connect"));
                 Assert.That(renderer.Instance.ErrorMessages, Is.Not.Null);
             });
 
-            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Ok);
+            this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Fail(["error"]));
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
@@ -171,6 +171,8 @@ namespace COMET.Web.Common.Tests.Components
                 Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Retry"));
                 Assert.That(renderer.Instance.ErrorMessages, Is.Not.Null);
             });
+
+            renderer.Render();
 
             this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Ok);
 
@@ -179,12 +181,7 @@ namespace COMET.Web.Common.Tests.Components
             this.viewModel.AuthenticationDto.Password = "user1";
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderer.Instance.LoginButtonDisplayText, Is.EqualTo("Connecting"));
-                Assert.That(renderer.Instance.ErrorMessages, Is.Empty);
-            });
+            Assert.That(renderer.Instance.ErrorMessages, Is.Empty);
         }
     }
 }

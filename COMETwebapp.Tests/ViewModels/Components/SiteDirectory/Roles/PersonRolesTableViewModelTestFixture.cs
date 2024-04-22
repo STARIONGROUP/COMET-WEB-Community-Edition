@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -138,7 +140,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
         {
             this.viewModel.InitializeViewModel();
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
             var personRoleTest = new PersonRole()
@@ -148,19 +150,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
             };
 
             this.messageBus.SendObjectChangeEvent(personRoleTest, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
             this.messageBus.SendObjectChangeEvent(this.siteDirectory, EventKind.Updated);
             this.messageBus.SendObjectChangeEvent(new PersonRole(), EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.Multiple(() =>
             {
@@ -174,7 +176,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
         {
             this.viewModel.InitializeViewModel();
 
-            this.sessionService.Setup(x => x.DeleteThing(It.IsAny<Thing>(), It.IsAny<Thing>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             await this.viewModel.DeprecateOrUnDeprecateThing();
             this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
         }
@@ -185,7 +187,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
             this.viewModel.InitializeViewModel();
             await this.viewModel.CreateOrEditPersonRole(true);
 
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<IEnumerable<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
     }
 }

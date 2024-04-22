@@ -139,11 +139,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.UpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IEnumerable<Thing>>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
                 this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
             });
 
-            this.sessionService.Setup(x => x.UpdateThings(It.IsAny<Thing>(), It.IsAny<IEnumerable<Thing>>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             this.viewModel.Thing = new CommonFileStore();
 
             await this.viewModel.CreateOrEditCommonFileStore(false);

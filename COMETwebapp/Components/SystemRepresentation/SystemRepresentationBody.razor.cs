@@ -22,15 +22,16 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using COMET.Web.Common.Extensions;
-using COMET.Web.Common.Utilities;
-using COMETwebapp.Utilities;
-
-using ReactiveUI;
-
 namespace COMETwebapp.Components.SystemRepresentation
 {
     using Microsoft.AspNetCore.Components;
+
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
+
+    using COMETwebapp.Utilities;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Core component for the System Representation application

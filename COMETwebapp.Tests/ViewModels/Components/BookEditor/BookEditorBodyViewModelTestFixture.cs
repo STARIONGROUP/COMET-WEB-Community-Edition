@@ -39,6 +39,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using Moq;
 
     using NUnit.Framework;
+    using System.Collections.Generic;
+
+    using CDP4Web.Enumerations;
 
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
@@ -164,7 +167,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
             Assert.That(() => this.viewModel.OnCreateThing(), Throws.Nothing);
 
-            this.sessionService.Verify(x => x.CreateThing(It.IsAny<Thing>(), It.IsAny<Thing>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             Assert.Multiple(() =>
             {
@@ -205,7 +208,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
             Assert.That(() => this.viewModel.OnEditThing(), Throws.Nothing);
 
-            this.sessionService.Verify(x => x.UpdateThing(It.IsAny<Thing>(), It.IsAny<Thing>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             Assert.Multiple(() =>
             {
@@ -243,7 +246,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
             Assert.That(() => this.viewModel.OnDeleteThing(), Throws.Nothing);
 
-            this.sessionService.Verify(x => x.DeleteThing(It.IsAny<Thing>(), It.IsAny<Thing>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             Assert.Multiple(() =>
             {
@@ -302,7 +305,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
                 EngineeringModelSetup = new EngineeringModelSetup()
             };
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.CurrentThing, Is.Not.Null);
         }
     }

@@ -31,7 +31,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMET.Web.Common.Enumerations;
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -137,7 +138,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
                 Assert.That(this.viewModel.IsRefreshing, Is.False);
             });
             
-            this.messageBus.SendMessage(SessionStateKind.Refreshing);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshing);
 
             Assert.Multiple(() =>
             {
@@ -145,7 +146,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
                 Assert.That(this.viewModel.IsRefreshing, Is.True);
             });
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed);
 
             Assert.Multiple(() =>
             {
@@ -155,9 +156,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
 
             Assert.Multiple(() =>
             {
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationClosed), Throws.Nothing);
-                Assert.That(() => this.messageBus.SendMessage(SessionStateKind.IterationOpened), Throws.Nothing);
-                Assert.That(() => this.messageBus.SendMessage((SessionStateKind)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
+                Assert.That(() => this.messageBus.SendMessage(SessionServiceEvent.IterationClosed), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage(SessionServiceEvent.IterationOpened), Throws.Nothing);
+                Assert.That(() => this.messageBus.SendMessage((SessionServiceEvent)10), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
             });
         }
 

@@ -38,6 +38,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -288,7 +290,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             });
 
             await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Contains(this.viewModel.Thing))), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Contains(this.viewModel.Thing))), Times.Once);
 
             await grid.InvokeAsync(editPersonButton.Instance.Click.InvokeAsync);
 
@@ -299,7 +301,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             });
 
             await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
         }
 
         [Test]
@@ -324,7 +326,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             });
 
             await renderer.InvokeAsync(() => checkBox.Instance.CheckedChanged.InvokeAsync(false));
-            this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<Person>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]
@@ -359,7 +361,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.UpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
                 Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
             });
         }
@@ -446,7 +448,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         {
             this.context.RenderComponent<UserManagementTable>();
 
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
 
             var personTest = new Person()
@@ -456,13 +458,13 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             };
 
             this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionStateKind.RefreshEnded);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
         }
