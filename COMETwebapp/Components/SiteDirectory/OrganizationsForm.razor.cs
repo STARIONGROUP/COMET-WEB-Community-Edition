@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OrganizationsTable.razor.cs" company="RHEA System S.A.">
+// <copyright file="OrganizationsForm.razor.cs" company="RHEA System S.A.">
 //    Copyright (c) 2023-2024 RHEA System S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,59 +24,32 @@
 
 namespace COMETwebapp.Components.SiteDirectory
 {
-    using CDP4Common.SiteDirectoryData;
+    using System.ComponentModel.DataAnnotations;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    ///     Support class for the <see cref="DomainsOfExpertiseTable"/>
+    /// Support class for the <see cref="OrganizationsForm"/>
     /// </summary>
-    public partial class OrganizationsTable : SelectedDeprecatableDataItemBase<Organization, OrganizationRowViewModel>
+    public partial class OrganizationsForm : SelectedDataItemForm
     {
         /// <summary>
         /// The <see cref="IOrganizationsTableViewModel" /> for this component
         /// </summary>
-        [Inject]
+        [Parameter, Required]
         public IOrganizationsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        protected override void OnInitialized()
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnValidSubmit()
         {
-            base.OnInitialized();
-            this.Initialize(this.ViewModel);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (OrganizationRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.Thing = dataItem == null ? new Organization() : dataItem.Thing.Clone(true);
-            e.EditModel = this.ViewModel.Thing;
-        }
-
-        /// <summary>
-        /// Method invoked every time a row is selected
-        /// </summary>
-        /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(OrganizationRowViewModel row)
-        {
-            this.ViewModel.Thing = row.Thing.Clone(true);
-            this.IsOnEditMode = true;
+            await this.ViewModel.CreateOrEditOrganization(this.ShouldCreate);
+            await base.OnValidSubmit();
         }
     }
 }
