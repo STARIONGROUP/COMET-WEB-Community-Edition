@@ -18,26 +18,33 @@ Copyright (c) 2023-2024 RHEA System S.A.
 @inherits SelectedDeprecatableDataItemBase<MeasurementScale, MeasurementScaleRowViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div class="d-flex justify-content-between">
+
     <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
             ShowAllRows="true"
             SearchBoxNullText="Search for a measurement scale ..."
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
             PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Measurement Scale (UNDER DEV)"
+            PopupEditFormHeaderText="Measurement Scale"
+            EditFormButtonsVisible="false"
             CustomizeElement="DisableDeprecatedThing"
             EditMode="GridEditMode.PopupEditForm"
             EditModelSaving="@(() => this.OnEditThingSaving())"
-            CustomizeEditModel="this.CustomizeEditThing">
+            CustomizeEditModel="this.CustomizeEditThing"
+            CssClass="height-fit-content">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" Caption="Number Set" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" Caption="Unit" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" Caption="Number Set" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" Caption="Unit" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
             <DxGridCommandColumn Width="200px" EditButtonVisible="false">
                 <HeaderTemplate>
                     <DxButton Id="addMeasurementScaleButton" Text="Add Measurement Scale" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
@@ -46,109 +53,30 @@ Copyright (c) 2023-2024 RHEA System S.A.
                     @{
                         var row = (MeasurementScaleRowViewModel)context.DataItem;
 
-                        <DxButton Id="editScaleButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
                         <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
                                   Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
-                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)" 
-                                  Enabled="@(row.IsAllowedToWrite)" />
+                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                  Enabled="@(row.IsAllowedToWrite)"/>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
-        
+
         <EditFormTemplate Context="EditFormContext">
-            <EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.Grid.SaveChangesAsync)">
-                <FluentValidationValidator />
-                <DxFormLayout CssClass="w-100">
-                    <DxFormLayoutTabPages>
-                        <DxFormLayoutTabPage Caption="Basic">
-                            @if (this.ShouldCreateThing)
-                            {
-                                <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="10">
-                                    <DxComboBox Data="@(this.ViewModel.MeasurementScaleTypes)"
-                                                TextFieldName="@(nameof(ClassKindWrapper.ClassKindName))"
-                                                @bind-Value="@(this.ViewModel.SelectedMeasurementScaleType)"
-                                                CssClass="cw-480"/>
-                                </DxFormLayoutItem>
-                            }
-
-                            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
-                                <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
-                                            TextFieldName="@nameof(ReferenceDataLibrary.ShortName)"
-                                            @bind-Value="@this.ViewModel.SelectedReferenceDataLibrary"
-                                            Enabled="@(this.ShouldCreateThing)"
-                                            CssClass="cw-480"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Unit:" ColSpanMd="10">
-                                <DxComboBox Data="@this.ViewModel.MeasurementUnits"
-                                            TextFieldName="@nameof(MeasurementUnit.ShortName)"
-                                            @bind-Value="@this.ViewModel.Thing.Unit"
-                                            CssClass="cw-480"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Number set:" ColSpanMd="10">
-                                <DxComboBox Data="@this.ViewModel.NumberSetKinds"
-                                            @bind-Value="@this.ViewModel.Thing.NumberSet"
-                                            CssClass="cw-480"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Maximum Permissible Value:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@this.ViewModel.Thing.MaximumPermissibleValue"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Minimum Permissible Value:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@this.ViewModel.Thing.MinimumPermissibleValue"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Positive Value Connotation:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@this.ViewModel.Thing.PositiveValueConnotation"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Negative Value Connotation:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@this.ViewModel.Thing.NegativeValueConnotation"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Minimum Inclusive:" ColSpanMd="10">
-                                <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsMinimumInclusive"/>
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Maximum Inclusive:" ColSpanMd="10">
-                                <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsMaximumInclusive"/>
-                            </DxFormLayoutItem>
-
-                            @if (this.ViewModel.Thing is CyclicRatioScale ciclicRatioScale)
-                            {
-
-                                <DxFormLayoutItem Caption="Modulus:" ColSpanMd="10">
-                                    <DxTextBox @bind-Text="@(ciclicRatioScale.Modulus)"/>
-                                </DxFormLayoutItem>
-                            }
-
-                            @if (this.ViewModel.Thing is OrdinalScale ordinalScale)
-                            {
-
-                                <DxFormLayoutItem Caption="Use Shortname Values:" ColSpanMd="10">
-                                    <DxCheckBox @bind-Checked="@(ordinalScale.UseShortNameValues)"/>
-                                </DxFormLayoutItem>
-                            }
-
-                            <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
-                                <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
-                            </DxFormLayoutItem>
-                        </DxFormLayoutTabPage>
-                        <DxFormLayoutTabPage Caption="Value Definition">
-                            <ScaleValueDefinitionsTable @bind-ScaleValueDefinitions="@this.ViewModel.SelectedScaleValueDefinitions"/>
-                        </DxFormLayoutTabPage>
-                        <DxFormLayoutTabPage Caption="Mappings">
-                            <MappingToReferenceScalesTable @bind-MappingToReferenceScales="@this.ViewModel.SelectedMappingToReferenceScale"
-                                                           DependentScaleValueDefinitions="@this.ViewModel.SelectedScaleValueDefinitions"
-                                                           ReferenceScaleValueDefinitions="@this.ViewModel.ReferenceScaleValueDefinitions"/>
-                        </DxFormLayoutTabPage>
-                    </DxFormLayoutTabPages>
-                </DxFormLayout>
-            </EditForm>
+            <MeasurementScalesForm ViewModel="@this.ViewModel"
+                                   IsVisible="true"
+                                   ShouldCreate="true"
+                                   OnSaved="@(() => this.Grid.CancelEditAsync())"
+                                   OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
         </EditFormTemplate>
-
     </DxGrid>
+
+    <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+        <MeasurementScalesForm ViewModel="@this.ViewModel"
+                               @bind-IsVisible="@this.IsOnEditMode"
+                               ShouldCreate="false"/>
+    </DataItemDetailsComponent>
+    </div>
 </LoadingComponent>
 
 <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">

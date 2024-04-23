@@ -122,7 +122,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// <returns>A collection of <see cref="ScaleValueDefinitionRowViewModel"/>s to display</returns>
         private List<ScaleValueDefinitionRowViewModel> GetRows()
         {
-            return this.ScaleValueDefinitions.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
+            return this.ScaleValueDefinitions?.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
         }
     }
 }

@@ -71,12 +71,18 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
             this.Thing = new OrdinalScale();
+            this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();
         }
 
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+
+        /// <summary>
+        /// Gets the available reference <see cref="QuantityKind" />s
+        /// </summary>
+        public IEnumerable<QuantityKind> ReferenceQuantityKinds { get; private set; }
 
         /// <summary>
         /// Gets the available <see cref="ScaleValueDefinition" />s for reference scale value selection
@@ -91,6 +97,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public IEnumerable<MeasurementUnit> MeasurementUnits => this.SelectedReferenceDataLibrary?.QueryMeasurementUnitsFromChainOfRdls();
 
         /// <summary>
+        /// Gets the available <see cref="MeasurementScale" />s
+        /// </summary>
+        public IEnumerable<MeasurementScale> MeasurementScales => this.SelectedReferenceDataLibrary?.QueryMeasurementScalesFromChainOfRdls();
+
+        /// <summary>
         /// Gets the available measurement scale types <see cref="ClassKindWrapper" />s
         /// </summary>
         public IEnumerable<ClassKindWrapper> MeasurementScaleTypes { get; private set; } = AvailableMeasurementScaleTypes.Select(x => new ClassKindWrapper(x));
@@ -101,9 +112,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public IEnumerable<NumberSetKind> NumberSetKinds { get; private set; } = Enum.GetValues<NumberSetKind>();
 
         /// <summary>
+        /// Gets the available <see cref="LogarithmBaseKind" />s
+        /// </summary>
+        public IEnumerable<LogarithmBaseKind> LogarithmBaseKinds { get; private set; } = Enum.GetValues<LogarithmBaseKind>();
+
+        /// <summary>
         /// Gets or sets the selected reference data library
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected reference quantity value
+        /// </summary>
+        public ScaleReferenceQuantityValue SelectedReferenceQuantityValue { get; set; }
 
         /// <summary>
         /// Gets the selected <see cref="ScaleValueDefinition" />s
@@ -139,6 +160,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             this.SelectedScaleValueDefinitions = measurementScale.ValueDefinition;
             this.SelectedMappingToReferenceScale = measurementScale.MappingToReferenceScale;
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)measurementScale.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+
+            if (measurementScale is LogarithmicScale logarithmicScale)
+            {
+                this.SelectedReferenceQuantityValue = logarithmicScale.ReferenceQuantityValue.FirstOrDefault() ?? new ScaleReferenceQuantityValue();
+            }
         }
 
         /// <summary>
@@ -148,10 +174,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         {
             base.InitializeViewModel();
 
-            this.ReferenceDataLibraries = this.SessionService
-                .GetSiteDirectory()
-                .AvailableReferenceDataLibraries()
-                .Where(x => x.Unit.Count > 0);
+            var siteDirectory = this.SessionService.GetSiteDirectory();
+
+            this.ReferenceDataLibraries = siteDirectory.AvailableReferenceDataLibraries().Where(x => x.Unit.Count > 0);
+            this.ReferenceQuantityKinds = siteDirectory.SiteReferenceDataLibrary.SelectMany(x => x.ParameterType).OfType<QuantityKind>().DistinctBy(x => x.Iid);
 
             this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
             this.SelectedMeasurementScaleType = this.MeasurementScaleTypes.First();
@@ -164,6 +190,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreateOrEditMeasurementScale(bool shouldCreate)
         {
+            this.IsLoading = true;
+
             var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
             var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
             var thingsToCreate = new List<Thing>();
@@ -172,6 +200,24 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             {
                 rdlClone.Scale.Add(this.Thing);
                 thingsToCreate.Add(rdlClone);
+            }
+
+            if (this.Thing is LogarithmicScale logarithmicScale)
+            {
+                switch (logarithmicScale.ReferenceQuantityValue.Count)
+                {
+                    case 0 when !string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
+                        logarithmicScale.ReferenceQuantityValue.Add(this.SelectedReferenceQuantityValue);
+                        thingsToCreate.Add(this.SelectedReferenceQuantityValue);
+                        break;
+                    case > 0 when string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
+                        logarithmicScale.ReferenceQuantityValue.Clear();
+                        break;
+                    case > 0 when !string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
+                        logarithmicScale.ReferenceQuantityValue[0] = this.SelectedReferenceQuantityValue;
+                        thingsToCreate.Add(this.SelectedReferenceQuantityValue);
+                        break;
+                }
             }
 
             var scaleValueDefinitionsToCreate = this.SelectedScaleValueDefinitions.Where(x => !this.Thing.ValueDefinition.Contains(x)).ToList();
@@ -192,8 +238,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 
             thingsToCreate.Add(this.Thing);
 
-            var result = await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
+            await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
             await this.SessionService.RefreshSession();
+
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -211,6 +259,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
                 ClassKind.RatioScale => new RatioScale(),
                 _ => this.Thing
             };
+
+            if (newKind.ClassKind == ClassKind.LogarithmicScale)
+            {
+                this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();
+            }
         }
     }
 }

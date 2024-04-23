@@ -1,0 +1,159 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 RHEA System S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using COMETwebapp.Wrappers
+@inherits SelectedDataItemForm
+
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+    <FluentValidationValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                @if (this.ShouldCreate)
+                {
+                    <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="10">
+                        <DxComboBox Data="@(this.ViewModel.MeasurementScaleTypes)"
+                                    TextFieldName="@(nameof(ClassKindWrapper.ClassKindName))"
+                                    @bind-Value="@(this.ViewModel.SelectedMeasurementScaleType)"
+                                    CssClass="cw-480" />
+                    </DxFormLayoutItem>
+                }
+
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
+                                TextFieldName="@nameof(ReferenceDataLibrary.ShortName)"
+                                @bind-Value="@this.ViewModel.SelectedReferenceDataLibrary"
+                                Enabled="@(this.ShouldCreate)"
+                                CssClass="cw-480" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.MeasurementUnits"
+                                TextFieldName="@nameof(MeasurementUnit.ShortName)"
+                                @bind-Value="@this.ViewModel.Thing.Unit"
+                                CssClass="cw-480" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Number set:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.NumberSetKinds"
+                                @bind-Value="@this.ViewModel.Thing.NumberSet"
+                                CssClass="cw-480" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Maximum Permissible Value:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.MaximumPermissibleValue" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Minimum Permissible Value:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.MinimumPermissibleValue" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Positive Value Connotation:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.PositiveValueConnotation" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Negative Value Connotation:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.Thing.NegativeValueConnotation" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Minimum Inclusive:" ColSpanMd="10">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsMinimumInclusive" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Maximum Inclusive:" ColSpanMd="10">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsMaximumInclusive" />
+                </DxFormLayoutItem>
+
+                @if (this.ViewModel.Thing is CyclicRatioScale ciclicRatioScale)
+                {
+                    <DxFormLayoutItem Caption="Modulus:" ColSpanMd="10">
+                        <DxTextBox @bind-Text="@(ciclicRatioScale.Modulus)" />
+                    </DxFormLayoutItem>
+                }
+
+                @if (this.ViewModel.Thing is OrdinalScale ordinalScale)
+                {
+                    <DxFormLayoutItem Caption="Use Shortname Values:" ColSpanMd="10">
+                        <DxCheckBox @bind-Checked="@(ordinalScale.UseShortNameValues)" />
+                    </DxFormLayoutItem>
+                }
+
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+
+            @if (this.ViewModel.Thing is LogarithmicScale logarithmicScale)
+            {
+                <DxFormLayoutTabPage Caption="Logarithm">
+                    <DxFormLayoutItem Caption="Logarithmic Base:" ColSpanMd="10">
+                        <DxComboBox Data="@this.ViewModel.LogarithmBaseKinds"
+                                    @bind-Value="@(logarithmicScale.LogarithmBase)"
+                                    CssClass="cw-480" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Factor:" ColSpanMd="10">
+                        <DxTextBox @bind-Text="@(logarithmicScale.Factor)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Exponent:" ColSpanMd="10">
+                        <DxTextBox @bind-Text="@(logarithmicScale.Exponent)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Reference QuantityKind:" ColSpanMd="10">
+                        <DxComboBox Data="@this.ViewModel.ReferenceQuantityKinds"
+                                    TextFieldName="@(nameof(QuantityKind.Name))"
+                                    @bind-Value="@(logarithmicScale.ReferenceQuantityKind)"
+                                    CssClass="cw-480" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutGroup Caption="Reference QuantityValue">
+                        <DxFormLayoutItem Caption="Scale:" ColSpanMd="10">
+                            <DxComboBox Data="@this.ViewModel.MeasurementScales"
+                                        TextFieldName="@(nameof(MeasurementScale.Name))"
+                                        @bind-Value="@(this.ViewModel.SelectedReferenceQuantityValue.Scale)"
+                                        CssClass="cw-480" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Value:" ColSpanMd="10">
+                            <DxTextBox @bind-Text="@(this.ViewModel.SelectedReferenceQuantityValue.Value)" />
+                        </DxFormLayoutItem>
+                        <DxButton Id="clearReferenceQuantityValue"
+                                  Click="@(this.ClearReferenceQuantityValue)">
+                            Clear
+                        </DxButton>
+                    </DxFormLayoutGroup>
+                </DxFormLayoutTabPage>
+            }
+
+            <DxFormLayoutTabPage Caption="Value Definition">
+                <ScaleValueDefinitionsTable @bind-ScaleValueDefinitions="@this.ViewModel.SelectedScaleValueDefinitions" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Mappings">
+                <MappingToReferenceScalesTable @bind-MappingToReferenceScales="@this.ViewModel.SelectedMappingToReferenceScale"
+                                               DependentScaleValueDefinitions="@this.ViewModel.SelectedScaleValueDefinitions"
+                                               ReferenceScaleValueDefinitions="@this.ViewModel.ReferenceScaleValueDefinitions" />
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary />
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="saveParticipantRoleButton"
+                  SubmitFormOnClick="true">
+            Save
+        </DxButton>
+
+        <DxButton Id="cancelOptionsButton"
+                  Click="@(() => this.OnCancel())"
+                  RenderStyle="ButtonRenderStyle.Secondary">
+            Cancel
+        </DxButton>
+    </div>
+</EditForm>

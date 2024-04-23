@@ -26,12 +26,12 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
 {
     using System.Threading.Tasks;
 
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
@@ -74,8 +74,24 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         {
             var dataItem = (MeasurementScaleRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.SelectMeasurementScale(dataItem == null ? new OrdinalScale() : dataItem.Thing.Clone(true));
+
+            if (this.ShouldCreateThing)
+            {
+                this.ViewModel.SelectedMeasurementScaleType = this.ViewModel.MeasurementScaleTypes.First(x => x.ClassKind == ClassKind.CyclicRatioScale);
+            }
+
+            this.ViewModel.SelectMeasurementScale(dataItem == null ? new CyclicRatioScale() : dataItem.Thing.Clone(true));
             e.EditModel = this.ViewModel.Thing;
+        }
+
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        protected override void OnSelectedDataItemChanged(MeasurementScaleRowViewModel row)
+        {
+            base.OnSelectedDataItemChanged(row);
+            this.ViewModel.SelectMeasurementScale(row.Thing.Clone(true));
         }
     }
 }

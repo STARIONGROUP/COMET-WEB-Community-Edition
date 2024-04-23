@@ -132,7 +132,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// <returns>A collection of <see cref="MappingToReferenceScaleRowViewModel"/>s to display</returns>
         private List<MappingToReferenceScaleRowViewModel> GetRows()
         {
-            return this.MappingToReferenceScales.Select(x => new MappingToReferenceScaleRowViewModel(x)).ToList();
+            return this.MappingToReferenceScales?.Select(x => new MappingToReferenceScaleRowViewModel(x)).ToList();
         }
     }
 }

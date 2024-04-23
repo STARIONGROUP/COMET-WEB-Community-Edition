@@ -59,6 +59,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// <param name="mappingToReferenceScale">The associated <see cref="MappingToReferenceScale" /></param>
         public MappingToReferenceScaleRowViewModel(MappingToReferenceScale mappingToReferenceScale)
         {
+            this.MappingToReferenceScale = mappingToReferenceScale;
             this.Reference = mappingToReferenceScale.ReferenceScaleValue.ShortName;
             this.ReferenceValue = mappingToReferenceScale.ReferenceScaleValue.Value;
             this.Dependent = mappingToReferenceScale.DependentScaleValue.ShortName;

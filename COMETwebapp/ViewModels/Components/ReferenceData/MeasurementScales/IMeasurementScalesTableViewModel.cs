@@ -81,6 +81,26 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         IEnumerable<ScaleValueDefinition> ReferenceScaleValueDefinitions { get; }
 
         /// <summary>
+        /// Gets the available <see cref="LogarithmBaseKind" />s
+        /// </summary>
+        IEnumerable<LogarithmBaseKind> LogarithmBaseKinds { get; }
+
+        /// <summary>
+        /// Gets the available reference <see cref="QuantityKind" />s
+        /// </summary>
+        IEnumerable<QuantityKind> ReferenceQuantityKinds { get; }
+
+        /// <summary>
+        /// Gets the available <see cref="MeasurementScale" />s
+        /// </summary>
+        IEnumerable<MeasurementScale> MeasurementScales { get; }
+
+        /// <summary>
+        /// Gets or sets the selected reference quantity value
+        /// </summary>
+        ScaleReferenceQuantityValue SelectedReferenceQuantityValue { get; set; }
+
+        /// <summary>
         /// Selects the current <see cref="MeasurementScale"/>
         /// </summary>
         /// <param name="measurementScale">The measurement scale to be set</param>
