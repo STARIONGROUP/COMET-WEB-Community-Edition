@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
 
     /// <summary>
     /// View model used to manage <see cref="MeasurementScale" />s
@@ -48,5 +49,48 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// Gets the available <see cref="NumberSetKind" />s
         /// </summary>
         IEnumerable<NumberSetKind> NumberSetKinds { get; }
+
+        /// <summary>
+        /// Gets the available measurement scale types <see cref="ClassKindWrapper" />s
+        /// </summary>
+        IEnumerable<ClassKindWrapper> MeasurementScaleTypes { get; }
+
+        /// <summary>
+        /// Gets or sets the selected measurement scale type
+        /// </summary>
+        ClassKindWrapper SelectedMeasurementScaleType { get; set; }
+
+        /// <summary>
+        /// Gets the selected <see cref="ScaleValueDefinition" />s
+        /// </summary>
+        IEnumerable<ScaleValueDefinition> SelectedScaleValueDefinitions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected reference data library
+        /// </summary>
+        ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets the selected <see cref="MappingToReferenceScale" />s
+        /// </summary>
+        IEnumerable<MappingToReferenceScale> SelectedMappingToReferenceScale { get; set; }
+
+        /// <summary>
+        /// Gets the available <see cref="ScaleValueDefinition" />s for reference scale value selection
+        /// </summary>
+        IEnumerable<ScaleValueDefinition> ReferenceScaleValueDefinitions { get; }
+
+        /// <summary>
+        /// Selects the current <see cref="MeasurementScale"/>
+        /// </summary>
+        /// <param name="measurementScale">The measurement scale to be set</param>
+        void SelectMeasurementScale(MeasurementScale measurementScale);
+
+        /// <summary>
+        /// Creates or edits a <see cref="MeasurementScale"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementScale"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateOrEditMeasurementScale(bool shouldCreate);
     }
 }

@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.Components.ReferenceData.MeasurementScales
 {
     using System.Threading.Tasks;
 
@@ -61,15 +61,9 @@ namespace COMETwebapp.Components.ReferenceData
         /// Method that is invoked when the edit/add thing form is being saved
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnEditThingSaving()
+        protected override async Task OnEditThingSaving()
         {
-            if (!this.ShouldCreateThing)
-            {
-                // update measurement scale
-            }
-
-            // create measurement scale
-            return Task.CompletedTask;
+            await this.ViewModel.CreateOrEditMeasurementScale(this.ShouldCreateThing);
         }
 
         /// <summary>
@@ -80,16 +74,8 @@ namespace COMETwebapp.Components.ReferenceData
         {
             var dataItem = (MeasurementScaleRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                e.EditModel = new OrdinalScale();
-                this.ViewModel.Thing = new OrdinalScale();
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            this.ViewModel.SelectMeasurementScale(dataItem == null ? new OrdinalScale() : dataItem.Thing.Clone(true));
+            e.EditModel = this.ViewModel.Thing;
         }
     }
 }

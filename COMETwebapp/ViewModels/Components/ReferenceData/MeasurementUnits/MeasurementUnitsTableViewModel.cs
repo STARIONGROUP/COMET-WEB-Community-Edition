@@ -51,7 +51,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         private ClassKindWrapper selectedMeasurementUnitType;
 
         /// <summary>
-        /// FGets the available <see cref="ClassKind"/>s
+        /// Gets the available <see cref="ClassKind"/>s
         /// </summary>
         private static readonly IEnumerable<ClassKind> AvailableMeasurementUnitTypes = [ClassKind.SimpleUnit, ClassKind.DerivedUnit, ClassKind.LinearConversionUnit, ClassKind.PrefixedUnit];
 

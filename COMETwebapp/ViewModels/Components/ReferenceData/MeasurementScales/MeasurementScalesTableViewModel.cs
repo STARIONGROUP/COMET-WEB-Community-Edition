@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -33,6 +34,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
+
+    using DynamicData;
+
+    using ReactiveUI;
 
     using MeasurementScale = CDP4Common.SiteDirectoryData.MeasurementScale;
 
@@ -41,6 +47,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
     /// </summary>
     public class MeasurementScalesTableViewModel : DeprecatableDataItemTableViewModel<MeasurementScale, MeasurementScaleRowViewModel>, IMeasurementScalesTableViewModel
     {
+        /// <summary>
+        /// The backing field for <see cref="SelectedMeasurementScaleType"/>
+        /// </summary>
+        private ClassKindWrapper selectedMeasurementScaleType;
+
+        /// <summary>
+        /// Gets the available <see cref="ClassKind"/>s
+        /// </summary>
+        private static readonly IEnumerable<ClassKind> AvailableMeasurementScaleTypes =
+        [
+            ClassKind.CyclicRatioScale, ClassKind.IntervalScale, ClassKind.LogarithmicScale, ClassKind.OrdinalScale, ClassKind.RatioScale
+        ];
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementScalesTableViewModel" /> class.
         /// </summary>
@@ -51,6 +70,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
             ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
+            this.Thing = new OrdinalScale();
         }
 
         /// <summary>
@@ -59,9 +79,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
 
         /// <summary>
+        /// Gets the available <see cref="ScaleValueDefinition" />s for reference scale value selection
+        /// </summary>
+        public IEnumerable<ScaleValueDefinition> ReferenceScaleValueDefinitions => this.SelectedReferenceDataLibrary?.Scale
+            .SelectMany(x => x.ValueDefinition)
+            .Where(x => this.SelectedScaleValueDefinitions.All(selected => selected.ShortName != x.ShortName));
+
+        /// <summary>
         /// Gets the available <see cref="MeasurementUnit" />s
         /// </summary>
-        public IEnumerable<MeasurementUnit> MeasurementUnits { get; private set; }
+        public IEnumerable<MeasurementUnit> MeasurementUnits => this.SelectedReferenceDataLibrary?.QueryMeasurementUnitsFromChainOfRdls();
+
+        /// <summary>
+        /// Gets the available measurement scale types <see cref="ClassKindWrapper" />s
+        /// </summary>
+        public IEnumerable<ClassKindWrapper> MeasurementScaleTypes { get; private set; } = AvailableMeasurementScaleTypes.Select(x => new ClassKindWrapper(x));
 
         /// <summary>
         /// Gets the available <see cref="NumberSetKind" />s
@@ -69,12 +101,116 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public IEnumerable<NumberSetKind> NumberSetKinds { get; private set; } = Enum.GetValues<NumberSetKind>();
 
         /// <summary>
+        /// Gets or sets the selected reference data library
+        /// </summary>
+        public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets the selected <see cref="ScaleValueDefinition" />s
+        /// </summary>
+        public IEnumerable<ScaleValueDefinition> SelectedScaleValueDefinitions { get; set; }
+
+        /// <summary>
+        /// Gets the selected <see cref="MappingToReferenceScale" />s
+        /// </summary>
+        public IEnumerable<MappingToReferenceScale> SelectedMappingToReferenceScale { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected measurement scale type
+        /// </summary>
+        public ClassKindWrapper SelectedMeasurementScaleType
+        {
+            get => this.selectedMeasurementScaleType;
+            set
+            {
+                this.SelectMeasurementScaleType(value);
+                this.RaiseAndSetIfChanged(ref this.selectedMeasurementScaleType, value);
+            }
+        }
+
+        /// <summary>
+        /// Selects the current <see cref="MeasurementScale"/>
+        /// </summary>
+        /// <param name="measurementScale">The measurement scale to be set</param>
+        public void SelectMeasurementScale(MeasurementScale measurementScale)
+        {
+            this.Thing = measurementScale;
+
+            this.SelectedScaleValueDefinitions = measurementScale.ValueDefinition;
+            this.SelectedMappingToReferenceScale = measurementScale.MappingToReferenceScale;
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)measurementScale.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+        }
+
+        /// <summary>
         /// Initializes the <see cref="MeasurementScalesTableViewModel"/>
         /// </summary>
         public override void InitializeViewModel()
         {
             base.InitializeViewModel();
-            this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
+
+            this.ReferenceDataLibraries = this.SessionService
+                .GetSiteDirectory()
+                .AvailableReferenceDataLibraries()
+                .Where(x => x.Unit.Count > 0);
+
+            this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
+            this.SelectedMeasurementScaleType = this.MeasurementScaleTypes.First();
+        }
+
+        /// <summary>
+        /// Creates or edits a <see cref="MeasurementScale"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementScale"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateOrEditMeasurementScale(bool shouldCreate)
+        {
+            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+            var thingsToCreate = new List<Thing>();
+
+            if (shouldCreate || hasRdlChanged)
+            {
+                rdlClone.Scale.Add(this.Thing);
+                thingsToCreate.Add(rdlClone);
+            }
+
+            var scaleValueDefinitionsToCreate = this.SelectedScaleValueDefinitions.Where(x => !this.Thing.ValueDefinition.Contains(x)).ToList();
+            this.Thing.ValueDefinition.AddRange(scaleValueDefinitionsToCreate);
+            thingsToCreate.AddRange(scaleValueDefinitionsToCreate);
+
+            var scaleValueDefinitionsToRemove = this.Thing.ValueDefinition.Where(x => !this.SelectedScaleValueDefinitions.Contains(x)).ToList();
+            this.Thing.ValueDefinition.RemoveMany(scaleValueDefinitionsToRemove);
+            thingsToCreate.AddRange(scaleValueDefinitionsToRemove);
+
+            var mappingToReferenceScalesToCreate = this.SelectedMappingToReferenceScale.Where(x => !this.Thing.MappingToReferenceScale.Contains(x)).ToList();
+            this.Thing.MappingToReferenceScale.AddRange(mappingToReferenceScalesToCreate);
+            thingsToCreate.AddRange(mappingToReferenceScalesToCreate);
+
+            var mappingToReferenceScalesToRemove = this.Thing.MappingToReferenceScale.Where(x => !this.SelectedMappingToReferenceScale.Contains(x)).ToList();
+            this.Thing.MappingToReferenceScale.RemoveMany(mappingToReferenceScalesToRemove);
+            thingsToCreate.AddRange(mappingToReferenceScalesToRemove);
+
+            thingsToCreate.Add(this.Thing);
+
+            var result = await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
+            await this.SessionService.RefreshSession();
+        }
+
+        /// <summary>
+        /// Selects a new measurement scale type for the attribute <see cref="SelectedMeasurementScaleType"/>
+        /// </summary>
+        /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementScaleType"/> will be set</param>
+        private void SelectMeasurementScaleType(ClassKindWrapper newKind)
+        {
+            this.Thing = newKind.ClassKind switch
+            {
+                ClassKind.CyclicRatioScale => new CyclicRatioScale(),
+                ClassKind.IntervalScale => new IntervalScale(),
+                ClassKind.LogarithmicScale => new LogarithmicScale(),
+                ClassKind.OrdinalScale => new OrdinalScale(),
+                ClassKind.RatioScale => new RatioScale(),
+                _ => this.Thing
+            };
         }
     }
 }
