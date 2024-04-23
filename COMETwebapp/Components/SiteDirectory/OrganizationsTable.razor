@@ -14,64 +14,66 @@ Copyright (c) 2023-2024 RHEA System S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
 @inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<CDP4Common.SiteDirectoryData.Organization, OrganizationRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            SearchBoxNullText="Search for an organization..."
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Organization (UNDER DEV)"
-            CustomizeElement="DisableDeprecatedThing"
-            CustomizeEditModel="this.CustomizeEditThing"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(this.OnEditThingSaving)"
-            PageSize="20"
-            PagerNavigationMode="PagerNavigationMode.Auto"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorItems="@(new int[] { 20,35,50 })"
-            PageSizeSelectorAllRowsItemVisible="true">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-            <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                <HeaderTemplate>
-                    <DxButton Id="addOrganizationButton" Text="Add Organization" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
-                </HeaderTemplate>
-                <CellDisplayTemplate>
-                    @{
-                        var row = (OrganizationRowViewModel)context.DataItem;
+    <div class="d-flex justify-content-between">
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for an organization..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((OrganizationRowViewModel)row))"
+                PopupEditFormCssClass="pw-800"
+                PopupEditFormHeaderText="Organization"
+                CustomizeElement="DisableDeprecatedThing"
+                CustomizeEditModel="this.CustomizeEditThing"
+                EditMode="GridEditMode.PopupEditForm"
+                EditModelSaving="@(this.OnEditThingSaving)"
+                EditFormButtonsVisible="false"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+                <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+                    <HeaderTemplate>
+                        <DxButton Id="addOrganizationButton" Text="Add Organization" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    </HeaderTemplate>
+                    <CellDisplayTemplate>
+                        @{
+                            var row = (OrganizationRowViewModel)context.DataItem;
 
-                        <DxButton Id="editOrganizationButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
+                            <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
+                                      Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
+                                      Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                      Enabled="@(row.IsAllowedToWrite)"/>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridCommandColumn>
+            </Columns>
 
-                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
-                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
-                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
-                                  Enabled="@(row.IsAllowedToWrite)" />
-                    }
-                </CellDisplayTemplate>
-            </DxGridCommandColumn>
-        </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                <OrganizationsForm ViewModel="@this.ViewModel"
+                                   IsVisible="true"
+                                   ShouldCreate="true"
+                                   OnSaved="@(() => this.Grid.CancelEditAsync())"
+                                   OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
+            </EditFormTemplate>
 
-        <EditFormTemplate Context="EditFormContext">
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
-                </DxFormLayoutItem>
-            </DxFormLayout>
-        </EditFormTemplate>
-
-    </DxGrid>
+        </DxGrid>
+        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+            <OrganizationsForm ViewModel="@this.ViewModel"
+                               @bind-IsVisible="@this.IsOnEditMode"
+                               ShouldCreate="false"/>
+        </DataItemDetailsComponent>
+    </div>
 </LoadingComponent>
 
 <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">

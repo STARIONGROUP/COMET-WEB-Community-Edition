@@ -34,5 +34,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
     /// </summary>
     public interface IOrganizationsTableViewModel : IDeprecatableDataItemTableViewModel<Organization, OrganizationRowViewModel>
     {
+        /// <summary>
+        /// Creates or edits an <see cref="Organization"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="Organization"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task CreateOrEditOrganization(bool shouldCreate);
     }
 }

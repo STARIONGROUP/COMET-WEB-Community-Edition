@@ -34,7 +34,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -201,6 +200,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
              this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<IReadOnlyCollection<Thing>>(c => ((IDeprecatableThing)c.First()).IsDeprecated == false)));
+        }
+
+        [Test]
+        public async Task VerifyCreateOrEditOrganization()
+        {
+            this.viewModel.InitializeViewModel();
+
+            await this.viewModel.CreateOrEditOrganization(false);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+
+            await this.viewModel.CreateOrEditOrganization(true);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2)), Times.Once);
         }
     }
 }

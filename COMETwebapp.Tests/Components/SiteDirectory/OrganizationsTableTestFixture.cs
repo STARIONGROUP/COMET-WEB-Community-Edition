@@ -42,6 +42,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -142,18 +143,27 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(false));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Organization)));
             });
-            
-            var editORganizationButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editOrganizationButton");
-            await renderer.InvokeAsync(editORganizationButton.Instance.Click.InvokeAsync);
+
+            var organizationsGrid = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(() => organizationsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new OrganizationRowViewModel(this.organization1)));
+            Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
+
+            var organizationsForm = renderer.FindComponents<OrganizationsForm>()[1];
+            var organizationsEditForm = organizationsForm.FindComponent<EditForm>();
+            await organizationsForm.InvokeAsync(organizationsEditForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                this.viewModel.Verify(x => x.CreateOrEditOrganization(false), Times.Once);
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Organization)));
             });
+
+            var form = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditOrganization(false), Times.Once);
         }
     }
 }

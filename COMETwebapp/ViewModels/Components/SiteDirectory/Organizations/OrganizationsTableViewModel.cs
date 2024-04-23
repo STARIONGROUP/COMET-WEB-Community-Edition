@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -32,16 +33,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
-    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// View model used to manage <see cref="DomainOfExpertise" />
+    /// View model used to manage <see cref="Organization" />
     /// </summary>
     public class OrganizationsTableViewModel : DeprecatableDataItemTableViewModel<Organization, OrganizationRowViewModel>, IOrganizationsTableViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
+        /// Initializes a new instance of the <see cref="OrganizationsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
@@ -50,6 +50,32 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
         public OrganizationsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<OrganizationsTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
+            this.Thing = new Organization();
+        }
+
+        /// <summary>
+        /// Creates or edits an <see cref="Organization"/>
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="Organization"/> should be created</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task CreateOrEditOrganization(bool shouldCreate)
+        {
+            this.IsLoading = true;
+
+            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+            var thingsToCreate = new List<Thing>();
+
+            if (shouldCreate)
+            {
+                siteDirectoryClone.Organization.Add(this.Thing);
+                thingsToCreate.Add(siteDirectoryClone);
+            }
+
+            thingsToCreate.Add(this.Thing);
+            await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToCreate);
+            await this.SessionService.RefreshSession();
+
+            this.IsLoading = false;
         }
     }
 }
