@@ -1,32 +1,29 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementScalesTableTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2023-2024 RHEA System S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="MeasurementScalesTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.CommonData;
@@ -71,22 +68,22 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
             this.showHideService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
-            this.measurementScale1 = new LogarithmicScale()
+            this.measurementScale1 = new LogarithmicScale
             {
                 Name = "A name",
                 ShortName = "AName",
-                Container = new SiteReferenceDataLibrary() { ShortName = "rdl" },
-                Unit = new SimpleUnit() { ShortName = "unit1" },
+                Container = new SiteReferenceDataLibrary { ShortName = "rdl" },
+                Unit = new SimpleUnit { ShortName = "unit1" },
                 NumberSet = NumberSetKind.NATURAL_NUMBER_SET,
                 IsDeprecated = false
             };
 
-            this.measurementScale2 = new OrdinalScale()
+            this.measurementScale2 = new OrdinalScale
             {
                 Name = "B name",
                 ShortName = "BName",
-                Container = new SiteReferenceDataLibrary() { ShortName = "rdl" },
-                Unit = new SimpleUnit() { ShortName = "unit2" },
+                Container = new SiteReferenceDataLibrary { ShortName = "rdl" },
+                Unit = new SimpleUnit { ShortName = "unit2" },
                 NumberSet = NumberSetKind.INTEGER_NUMBER_SET,
                 IsDeprecated = true
             };
@@ -115,35 +112,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             this.context.CleanContext();
             this.context.Dispose();
-        }
-
-        [Test]
-        public void VerifyOnInitialized()
-        {
-            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(renderer.Instance.ViewModel, Is.Not.Null);
-                Assert.That(renderer.Markup, Does.Contain(this.measurementScale1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.measurementScale2.Name));
-                this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
-            });
-        }
-
-        [Test]
-        public async Task VerifyDeprecatingAndUndeprecatingMeasurementScale()
-        {
-            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScaleRowViewModel>()), Times.Once);
-
-            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScaleRowViewModel>()), Times.Exactly(2));
         }
 
         [Test]
@@ -177,6 +145,35 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             var form = renderer.FindComponent<DxGrid>();
             await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditMeasurementScale(false), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyDeprecatingAndUndeprecatingMeasurementScale()
+        {
+            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
+
+            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
+            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScaleRowViewModel>()), Times.Once);
+
+            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
+            await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScaleRowViewModel>()), Times.Exactly(2));
+        }
+
+        [Test]
+        public void VerifyOnInitialized()
+        {
+            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                Assert.That(renderer.Instance.ViewModel, Is.Not.Null);
+                Assert.That(renderer.Markup, Does.Contain(this.measurementScale1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.measurementScale2.Name));
+                this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
+            });
         }
     }
 }

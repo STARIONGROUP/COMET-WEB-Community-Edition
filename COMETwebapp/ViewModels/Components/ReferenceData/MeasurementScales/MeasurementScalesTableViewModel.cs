@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementScalesTableViewModel.cs" company="RHEA System S.A.">
-//    Copyright (c) 2023-2024 RHEA System S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="MeasurementScalesTableViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 {
@@ -48,12 +48,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
     public class MeasurementScalesTableViewModel : DeprecatableDataItemTableViewModel<MeasurementScale, MeasurementScaleRowViewModel>, IMeasurementScalesTableViewModel
     {
         /// <summary>
-        /// The backing field for <see cref="SelectedMeasurementScaleType"/>
-        /// </summary>
-        private ClassKindWrapper selectedMeasurementScaleType;
-
-        /// <summary>
-        /// Gets the available <see cref="ClassKind"/>s
+        /// Gets the available <see cref="ClassKind" />s
         /// </summary>
         private static readonly IEnumerable<ClassKind> AvailableMeasurementScaleTypes =
         [
@@ -61,12 +56,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         ];
 
         /// <summary>
+        /// The backing field for <see cref="SelectedMeasurementScaleType" />
+        /// </summary>
+        private ClassKindWrapper selectedMeasurementScaleType;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementScalesTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
             ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
@@ -150,7 +150,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Selects the current <see cref="MeasurementScale"/>
+        /// Selects the current <see cref="MeasurementScale" />
         /// </summary>
         /// <param name="measurementScale">The measurement scale to be set</param>
         public void SelectMeasurementScale(MeasurementScale measurementScale)
@@ -168,7 +168,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Initializes the <see cref="MeasurementScalesTableViewModel"/>
+        /// Initializes the <see cref="MeasurementScalesTableViewModel" />
         /// </summary>
         public override void InitializeViewModel()
         {
@@ -184,10 +184,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Creates or edits a <see cref="MeasurementScale"/>
+        /// Creates or edits a <see cref="MeasurementScale" />
         /// </summary>
-        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementScale"/> should be created</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementScale" /> should be created</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditMeasurementScale(bool shouldCreate)
         {
             this.IsLoading = true;
@@ -245,9 +245,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Selects a new measurement scale type for the attribute <see cref="SelectedMeasurementScaleType"/>
+        /// Selects a new measurement scale type for the attribute <see cref="SelectedMeasurementScaleType" />
         /// </summary>
-        /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementScaleType"/> will be set</param>
+        /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementScaleType" /> will be set</param>
         private void SelectMeasurementScaleType(ClassKindWrapper newKind)
         {
             this.Thing = newKind.ClassKind switch

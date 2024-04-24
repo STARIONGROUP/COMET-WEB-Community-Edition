@@ -1,19 +1,18 @@
-﻿
-// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="MeasurementScaleValidator.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="MeasurementScaleValidator.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -33,14 +32,14 @@ namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="MeasurementScale"/>
+    /// A class to validate the <see cref="MeasurementScale" />
     /// </summary>
     public class MeasurementScaleValidator : AbstractValidator<MeasurementScale>
     {
         /// <summary>
-        /// Instantiates a new <see cref="MeasurementScaleValidator"/>
+        /// Instantiates a new <see cref="MeasurementScaleValidator" />
         /// </summary>
-        public MeasurementScaleValidator(IValidationService validationService) : base()
+        public MeasurementScaleValidator(IValidationService validationService)
         {
             this.RuleFor(x => x.ShortName).Validate(validationService, nameof(MeasurementScale.ShortName));
             this.RuleFor(x => x.Name).Validate(validationService, nameof(MeasurementScale.Name));

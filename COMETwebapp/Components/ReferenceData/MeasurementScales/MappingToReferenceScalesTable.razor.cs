@@ -1,26 +1,26 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MappingToReferenceScalesTable.razor.cs" company="RHEA System S.A.">
-//    Copyright (c) 2023-2024 RHEA System S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="MappingToReferenceScalesTable.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Components.ReferenceData.MeasurementScales
 {
@@ -33,7 +33,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    ///  Support class for the <see cref="MappingToReferenceScalesTable"/>
+    /// Support class for the <see cref="MappingToReferenceScalesTable" />
     /// </summary>
     public partial class MappingToReferenceScalesTable
     {
@@ -120,16 +120,16 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
             this.ShouldCreate = e.IsNew;
 
             this.MappingToReferenceScale = dataItem == null
-                ? new MappingToReferenceScale() { Iid = Guid.NewGuid() }
+                ? new MappingToReferenceScale { Iid = Guid.NewGuid() }
                 : dataItem.MappingToReferenceScale.Clone(true);
 
             e.EditModel = this.MappingToReferenceScale;
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="MappingToReferenceScales"/>
+        /// Method used to retrieve the available rows, given the <see cref="MappingToReferenceScales" />
         /// </summary>
-        /// <returns>A collection of <see cref="MappingToReferenceScaleRowViewModel"/>s to display</returns>
+        /// <returns>A collection of <see cref="MappingToReferenceScaleRowViewModel" />s to display</returns>
         private List<MappingToReferenceScaleRowViewModel> GetRows()
         {
             return this.MappingToReferenceScales?.Select(x => new MappingToReferenceScaleRowViewModel(x)).ToList();

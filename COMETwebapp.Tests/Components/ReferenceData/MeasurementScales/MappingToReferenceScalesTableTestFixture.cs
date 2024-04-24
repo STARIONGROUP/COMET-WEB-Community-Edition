@@ -1,32 +1,29 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MappingToReferenceScalesTableTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2023-2024 RHEA System S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="MappingToReferenceScalesTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.SiteDirectoryData;
@@ -53,12 +50,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            var mappingToReferenceScale = new MappingToReferenceScale()
+            var mappingToReferenceScale = new MappingToReferenceScale
             {
                 ReferenceScaleValue = new ScaleValueDefinition(),
                 DependentScaleValue = new ScaleValueDefinition()
             };
-            
+
             this.renderer = this.context.RenderComponent<MappingToReferenceScalesTable>(parameters =>
             {
                 parameters.Add(p => p.MappingToReferenceScales, [mappingToReferenceScale]);
@@ -91,10 +88,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             var timesMappingToReferenceScalesChanged = 0;
 
-            this.renderer.SetParametersAndRender(p =>
-            {
-                p.Add(parameters => parameters.MappingToReferenceScalesChanged, () => { timesMappingToReferenceScalesChanged++; });
-            });
+            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.MappingToReferenceScalesChanged, () => { timesMappingToReferenceScalesChanged++; }); });
 
             var editMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editMappingToReferenceScaleButton");
             await this.renderer.InvokeAsync(editMappingToReferenceScaleButton.Instance.Click.InvokeAsync);
