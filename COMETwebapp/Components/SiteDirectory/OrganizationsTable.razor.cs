@@ -73,10 +73,10 @@ namespace COMETwebapp.Components.SiteDirectory
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(OrganizationRowViewModel row)
+        protected override void OnSelectedDataItemChanged(OrganizationRowViewModel row)
         {
+            base.OnSelectedDataItemChanged(row);
             this.ViewModel.Thing = row.Thing.Clone(true);
-            this.IsOnEditMode = true;
         }
     }
 }
