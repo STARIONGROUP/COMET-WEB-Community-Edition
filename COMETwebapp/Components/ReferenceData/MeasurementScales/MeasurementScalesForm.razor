@@ -96,7 +96,7 @@ Copyright (c) 2023-2024 RHEA System S.A.
 
             @if (this.ViewModel.Thing is LogarithmicScale logarithmicScale)
             {
-                <DxFormLayoutTabPage Caption="Logarithm">
+                <DxFormLayoutTabPage Id="LogarithmTab" Caption="Logarithm">
                     <DxFormLayoutItem Caption="Logarithmic Base:" ColSpanMd="10">
                         <DxComboBox Data="@this.ViewModel.LogarithmBaseKinds"
                                     @bind-Value="@(logarithmicScale.LogarithmBase)"

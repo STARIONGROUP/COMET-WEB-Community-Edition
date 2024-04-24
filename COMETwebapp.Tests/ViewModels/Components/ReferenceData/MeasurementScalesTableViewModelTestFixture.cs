@@ -34,11 +34,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.Wrappers;
 
     using Microsoft.Extensions.Logging;
 
@@ -57,6 +57,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private MeasurementScale measurementScale;
+        private SiteDirectory siteDirectory;
 
         [SetUp]
         public void Setup()
@@ -78,15 +79,24 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             var siteReferenceDataLibrary = new SiteReferenceDataLibrary()
             {
                 ShortName = "rdl",
+                Unit = { new SimpleUnit() },
+                ParameterType = { new SimpleQuantityKind() },
+                Scale =
+                {
+                    new OrdinalScale()
+                    {
+                        ValueDefinition = { new ScaleValueDefinition(){ Iid = Guid.NewGuid() } }
+                    }
+                }
             };
 
-            var siteDirectory = new SiteDirectory()
+            this.siteDirectory = new SiteDirectory()
             {
                 ShortName = "siteDirectory"
             };
 
             siteReferenceDataLibrary.Scale.Add(this.measurementScale);
-            siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
+            this.siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
 
             this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
             var lazyMeasurementScale = new Lazy<Thing>(this.measurementScale);
@@ -96,9 +106,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.Assembler).Returns(this.assembler);
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
 
             this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -114,11 +124,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         public void VerifyInitializeViewModel()
         {
             this.viewModel.InitializeViewModel();
+            this.viewModel.SelectedScaleValueDefinitions = [new ScaleValueDefinition()];
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
                 Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.measurementScale));
+                Assert.That(this.viewModel.ReferenceDataLibraries, Is.EqualTo(this.siteDirectory.SiteReferenceDataLibrary));
+                Assert.That(this.viewModel.ReferenceQuantityKinds.Count(), Is.EqualTo(1));
+                Assert.That(this.viewModel.ReferenceScaleValueDefinitions.Count(), Is.EqualTo(1));
+                Assert.That(this.viewModel.MeasurementScales.Count(), Is.EqualTo(2));
+                Assert.That(this.viewModel.MeasurementUnits.Count(), Is.EqualTo(1));
+                Assert.That(this.viewModel.NumberSetKinds.Count(), Is.EqualTo(Enum.GetValues<NumberSetKind>().Length));
+                Assert.That(this.viewModel.LogarithmBaseKinds.Count(), Is.EqualTo(Enum.GetValues<LogarithmBaseKind>().Length));
             });
         }
 
@@ -212,6 +230,99 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
              this.viewModel.Thing.IsDeprecated = true;
              await this.viewModel.OnConfirmPopupButtonClick();
              this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<IReadOnlyCollection<Thing>>(c => ((IDeprecatableThing)c.First()).IsDeprecated == false)));
+        }
+
+        [Test]
+        public void VerifyMeasurementScaleSelection()
+        {
+            this.viewModel.InitializeViewModel();
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.OrdinalScale);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Thing, Is.TypeOf<OrdinalScale>());
+                Assert.That(this.viewModel.SelectedMeasurementScaleType.ClassKind, Is.EqualTo(ClassKind.OrdinalScale));
+            });
+
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.CyclicRatioScale);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<CyclicRatioScale>());
+
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.IntervalScale);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<IntervalScale>());
+
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.RatioScale);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<RatioScale>());
+
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.LogarithmicScale);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<LogarithmicScale>());
+
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.SimpleUnit);
+            Assert.That(this.viewModel.Thing, Is.TypeOf<LogarithmicScale>());
+
+            var measurementScaleToSet = new LogarithmicScale();
+            this.viewModel.SelectMeasurementScale(measurementScaleToSet);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Thing, Is.EqualTo(measurementScaleToSet));
+                Assert.That(this.viewModel.SelectedScaleValueDefinitions, Is.EqualTo(measurementScaleToSet.ValueDefinition));
+                Assert.That(this.viewModel.SelectedMappingToReferenceScale, Is.EqualTo(measurementScaleToSet.MappingToReferenceScale));
+            });
+        }
+
+        [Test]
+        public async Task VerifyMeasurementScaleAddOrEdit()
+        {
+            this.viewModel.InitializeViewModel();
+            this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.LogarithmicScale);
+
+            var scaleValueDefinition = new ScaleValueDefinition()
+            {
+                ShortName = "valueDefinition",
+                Value = "val"
+            };
+
+            var mappingToReferenceScale = new MappingToReferenceScale()
+            {
+                DependentScaleValue = scaleValueDefinition,
+                ReferenceScaleValue = new ScaleValueDefinition()
+            };
+
+            this.viewModel.Thing.ValueDefinition.Add(scaleValueDefinition);
+            this.viewModel.Thing.MappingToReferenceScale.Add(mappingToReferenceScale);
+            this.viewModel.SelectedReferenceQuantityValue.Value = "value";
+            this.viewModel.SelectedReferenceQuantityValue.Scale = new OrdinalScale();
+            this.viewModel.SelectedScaleValueDefinitions = [new ScaleValueDefinition()];
+            this.viewModel.SelectedMappingToReferenceScale = [new MappingToReferenceScale()];
+            Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(0));
+
+            await this.viewModel.CreateOrEditMeasurementScale(true);
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Once);
+                Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
+            });
+
+            this.viewModel.SelectedReferenceQuantityValue.Value = string.Empty;
+            await this.viewModel.CreateOrEditMeasurementScale(true);
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(2));
+                Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(0));
+            });
+            
+            ((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue.Add(new ScaleReferenceQuantityValue(){ Value = "val" });
+            this.viewModel.SelectedReferenceQuantityValue.Value = "value";
+            this.viewModel.SelectedReferenceQuantityValue.Scale = new OrdinalScale();
+            await this.viewModel.CreateOrEditMeasurementScale(true);
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
+                Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
+            });
         }
     }
 }

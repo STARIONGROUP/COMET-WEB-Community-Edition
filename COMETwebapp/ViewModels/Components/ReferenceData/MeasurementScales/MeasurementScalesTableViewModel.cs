@@ -89,7 +89,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// </summary>
         public IEnumerable<ScaleValueDefinition> ReferenceScaleValueDefinitions => this.SelectedReferenceDataLibrary?.Scale
             .SelectMany(x => x.ValueDefinition)
-            .Where(x => this.SelectedScaleValueDefinitions.All(selected => selected.ShortName != x.ShortName));
+            .Where(x => this.SelectedScaleValueDefinitions.All(selected => selected.Iid != x.Iid));
 
         /// <summary>
         /// Gets the available <see cref="MeasurementUnit" />s
@@ -129,12 +129,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <summary>
         /// Gets the selected <see cref="ScaleValueDefinition" />s
         /// </summary>
-        public IEnumerable<ScaleValueDefinition> SelectedScaleValueDefinitions { get; set; }
+        public IEnumerable<ScaleValueDefinition> SelectedScaleValueDefinitions { get; set; } = Enumerable.Empty<ScaleValueDefinition>();
 
         /// <summary>
         /// Gets the selected <see cref="MappingToReferenceScale" />s
         /// </summary>
-        public IEnumerable<MappingToReferenceScale> SelectedMappingToReferenceScale { get; set; }
+        public IEnumerable<MappingToReferenceScale> SelectedMappingToReferenceScale { get; set; } = Enumerable.Empty<MappingToReferenceScale>();
 
         /// <summary>
         /// Gets or sets the selected measurement scale type

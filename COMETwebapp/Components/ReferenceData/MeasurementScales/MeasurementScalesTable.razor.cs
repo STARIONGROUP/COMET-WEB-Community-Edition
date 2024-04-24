@@ -32,6 +32,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;

@@ -22,26 +22,29 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.ReferenceData
+namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 {
     using System.Linq;
     using System.Threading.Tasks;
 
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -68,11 +71,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
             this.showHideService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
-            this.measurementScale1 = new OrdinalScale()
+            this.measurementScale1 = new LogarithmicScale()
             {
                 Name = "A name",
                 ShortName = "AName",
-                Container = new SiteReferenceDataLibrary(){ ShortName = "rdl" },
+                Container = new SiteReferenceDataLibrary() { ShortName = "rdl" },
                 Unit = new SimpleUnit() { ShortName = "unit1" },
                 NumberSet = NumberSetKind.NATURAL_NUMBER_SET,
                 IsDeprecated = false
@@ -83,7 +86,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Name = "B name",
                 ShortName = "BName",
                 Container = new SiteReferenceDataLibrary() { ShortName = "rdl" },
-                Unit = new SimpleUnit(){ ShortName = "unit2" },
+                Unit = new SimpleUnit() { ShortName = "unit2" },
                 NumberSet = NumberSetKind.INTEGER_NUMBER_SET,
                 IsDeprecated = true
             };
@@ -92,13 +95,16 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             rows.Add(new MeasurementScaleRowViewModel(this.measurementScale1));
             rows.Add(new MeasurementScaleRowViewModel(this.measurementScale2));
 
+            var availableMeasurementScaleTypes = new List<ClassKind> { ClassKind.CyclicRatioScale, ClassKind.IntervalScale, ClassKind.LogarithmicScale, ClassKind.OrdinalScale, ClassKind.RatioScale };
+
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.MeasurementUnits).Returns([]);
             this.viewModel.Setup(x => x.NumberSetKinds).Returns([]);
             this.viewModel.Setup(x => x.ReferenceDataLibraries).Returns([]);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
             this.viewModel.Setup(x => x.IsOnDeprecationMode).Returns(true);
-            this.viewModel.Setup(x => x.Thing).Returns(new OrdinalScale());
+            this.viewModel.Setup(x => x.MeasurementScaleTypes).Returns(availableMeasurementScaleTypes.Select(x => new ClassKindWrapper(x)));
+            this.viewModel.Setup(x => x.Thing).Returns(new LogarithmicScale());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -153,15 +159,24 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementScale)));
             });
-            
-            var editMeasurementScaleButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editScaleButton");
-            await renderer.InvokeAsync(editMeasurementScaleButton.Instance.Click.InvokeAsync);
+
+            var measurementScalesGrid = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(() => measurementScalesGrid.Instance.SelectedDataItemChanged.InvokeAsync(new MeasurementScaleRowViewModel(this.measurementScale1)));
+            Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
+
+            var measurementScalesForm = renderer.FindComponents<MeasurementScalesForm>()[1];
+            var measurementScalesEditForm = measurementScalesForm.FindComponent<EditForm>();
+            await measurementScalesForm.InvokeAsync(measurementScalesEditForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementScale)));
+                this.viewModel.Verify(x => x.CreateOrEditMeasurementScale(false), Times.Once);
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(LogarithmicScale)));
             });
+
+            var form = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditMeasurementScale(false), Times.Once);
         }
     }
 }

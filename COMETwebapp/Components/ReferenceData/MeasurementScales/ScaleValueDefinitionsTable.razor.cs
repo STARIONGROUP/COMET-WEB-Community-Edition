@@ -30,8 +30,6 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
 
     using DevExpress.Blazor;
 
-    using DynamicData;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -59,7 +57,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// <summary>
         /// The scale value definition that will be handled for both edit and add forms
         /// </summary>
-        private ScaleValueDefinition ScaleValueDefinition { get; set; } = new();
+        public ScaleValueDefinition ScaleValueDefinition { get; private set; } = new();
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
