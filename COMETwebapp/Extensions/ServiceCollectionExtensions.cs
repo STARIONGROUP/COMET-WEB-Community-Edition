@@ -55,6 +55,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
@@ -119,6 +120,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IFileHandlerViewModel, FileHandlerViewModel>();
             serviceCollection.AddTransient<IFolderHandlerViewModel, FolderHandlerViewModel>();
             serviceCollection.AddTransient<IFileRevisionHandlerViewModel, FileRevisionHandlerViewModel>();
+            serviceCollection.AddTransient<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
         }
     }
 }

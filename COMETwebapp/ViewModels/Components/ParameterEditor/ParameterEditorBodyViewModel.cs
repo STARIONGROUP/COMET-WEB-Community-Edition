@@ -36,6 +36,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.SubscriptionService;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using ReactiveUI;
 
@@ -66,11 +67,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="subscriptionService">the <see cref="ISubscriptionService" /></param>
         /// <param name="parameterTableView">The <see cref="IParameterTableViewModel" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        /// <param name="batchParameterEditorViewModel">The <see cref="IBatchParameterEditorViewModel"/></param>
         public ParameterEditorBodyViewModel(ISessionService sessionService, ISubscriptionService subscriptionService,
-            IParameterTableViewModel parameterTableView, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+            IParameterTableViewModel parameterTableView, ICDPMessageBus messageBus, IBatchParameterEditorViewModel batchParameterEditorViewModel) : base(sessionService, messageBus)
         {
             this.SubscriptionService = subscriptionService;
             this.ParameterTableViewModel = parameterTableView;
+            this.BatchParameterEditorViewModel = batchParameterEditorViewModel;
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ElementSelector.SelectedElementBase,
                 x => x.OptionSelector.SelectedOption,
@@ -114,6 +117,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         public IParameterTableViewModel ParameterTableViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IBatchParameterEditorViewModel" />
+        /// </summary>
+        public IBatchParameterEditorViewModel BatchParameterEditorViewModel { get; set; }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
@@ -168,6 +176,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.ElementSelector.CurrentIteration = this.CurrentThing;
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
+            this.BatchParameterEditorViewModel.SetCurrentIteration(this.CurrentThing);
             await this.InitializeTable();
         }
 

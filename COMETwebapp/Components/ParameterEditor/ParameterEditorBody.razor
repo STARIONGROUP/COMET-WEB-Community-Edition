@@ -21,6 +21,8 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
+@using COMETwebapp.Components.ParameterEditor.BatchParameterEditor
+
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
@@ -51,6 +53,7 @@
             </div>
         </div>
         <div class="row">
+            <BatchParameterEditor ViewModel="@(this.ViewModel.BatchParameterEditorViewModel)"/>
             <ParameterTable ViewModel="this.ViewModel.ParameterTableViewModel"/>
         </div>
     </div>
