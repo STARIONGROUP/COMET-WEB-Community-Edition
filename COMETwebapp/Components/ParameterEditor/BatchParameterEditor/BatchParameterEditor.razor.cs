@@ -1,18 +1,18 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BatchParameterEditor.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="BatchParameterEditor.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,9 +24,9 @@
 
 namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
 {
-    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
+    using COMET.Web.Common.Extensions;
 
-    using DevExpress.Blazor;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -44,9 +44,9 @@ namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
         public IBatchParameterEditorViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid control that is being customized.
+        /// Gets the condition to check if the apply button should be enabled
         /// </summary>
-        private IGrid Grid { get; set; }
+        private bool IsApplyButtonEnabled => this.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType != null;
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -55,7 +55,7 @@ namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ParameterTypeSelector.SelectedParameterType).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

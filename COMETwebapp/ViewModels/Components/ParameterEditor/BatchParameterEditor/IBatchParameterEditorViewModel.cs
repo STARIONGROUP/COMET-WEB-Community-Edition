@@ -1,11 +1,11 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IBatchParameterEditorViewModel.cs" company="RHEA System S.A.">
-//     Copyright (c) 2024 RHEA System S.A.
+//  <copyright file="IBatchParameterEditorViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
 //     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
 //     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -42,7 +43,22 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
-        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+        IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" />
+        /// </summary>
+        IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the visibility of the current component
+        /// </summary>
+        bool IsVisible { get; set; }
+
+        /// <summary>
+        /// Gets or sets the loading value
+        /// </summary>
+        bool IsLoading { get; set; }
 
         /// <summary>
         /// Sets the current iteration
@@ -51,4 +67,3 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         void SetCurrentIteration(Iteration iteration);
     }
 }
-

@@ -116,6 +116,11 @@ namespace COMETwebapp.Components.ParameterEditor
                     e.CssClass = "font-weight-bold";
                 }
             }
+
+            if (e.ElementType == GridElementType.DataCell && e.Column.Caption == "Value")
+            {
+                e.CssClass = "overflow-visible";
+            }
         }
     }
 }

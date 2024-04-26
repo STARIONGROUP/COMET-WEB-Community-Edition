@@ -39,26 +39,25 @@
 }
 else
 {
-    <div class="parameter-row-text">
-        <Tooltip MarginBottom="text-align-center" 
-                 Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
-                 CssClass="position-absolute">
-            <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
-                       InputCssClass="text-prameter-editor"
-                       CssClass="parameter-input"
-                       ReadOnly="true">
-                <Buttons>
-                    <DxEditorButton IconCssClass="icon icon-edit"
-                                    Tooltip="Open Multiline editor"
-                                    Click="this.OpenMemoPopup" />
-                </Buttons>
-            </DxTextBox>
-        </Tooltip>     
-        @if (this.ViewModel.Parameter?.Scale != null)
-        {
-            <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
-        }
-    </div>
+    <Tooltip MarginBottom="text-align-center" 
+             Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]">
+        <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
+                   InputCssClass="text-prameter-editor"
+                   CssClass="parameter-input"
+                   ReadOnly="true">
+            <Buttons>
+                <DxEditorButton IconCssClass="icon icon-edit"
+                                Tooltip="Open Multiline editor"
+                                Click="this.OpenMemoPopup" />
+            </Buttons>
+        </DxTextBox>
+    </Tooltip>   
+
+    @if (this.ViewModel.Parameter?.Scale != null)
+    {
+        <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
+    }
+
     <DxPopup @bind-Visible="@this.IsOnEditMode" HeaderText="@this.ViewModel.ParameterType.Name" Shown="OnShown" Width="auto" CloseOnOutsideClick="true" MaxHeight="1000" MaxWidth="900" MinWidth="400">
         <DxMemo @ref="this.multiLineEditor"
                 BindValueMode="@this.BindValueMode"

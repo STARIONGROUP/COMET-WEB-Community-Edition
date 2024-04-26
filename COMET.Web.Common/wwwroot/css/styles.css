@@ -333,7 +333,7 @@
 
 .tooltip-wrapper {
     position: relative;
-    display: inline-block;
+    display: inline;
     cursor: help;
 }
 
@@ -492,7 +492,7 @@
 #sfpt-table{
     max-height: 750px;
     max-width: 1000px;
-    overflow: auto;
+    overflow: unset;
     display: block;
 }
 

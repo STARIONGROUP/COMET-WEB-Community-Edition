@@ -73,6 +73,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         {
             var dataItem = (MeasurementScaleRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
+            this.IsOnEditMode = !this.ShouldCreateThing;
 
             if (this.ShouldCreateThing)
             {
