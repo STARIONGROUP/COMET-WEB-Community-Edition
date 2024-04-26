@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -33,7 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
     /// <summary>
     /// ViewModel used to apply batch operations for a parameter
     /// </summary>
-    public interface IBatchParameterEditorViewModel
+    public interface IBatchParameterEditorViewModel : IBelongsToIterationSelectorViewModel
     {
         /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
@@ -59,11 +57,5 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// Gets or sets the loading value
         /// </summary>
         bool IsLoading { get; set; }
-
-        /// <summary>
-        /// Sets the current iteration
-        /// </summary>
-        /// <param name="iteration">The iteration to be set</param>
-        void SetCurrentIteration(Iteration iteration);
     }
 }

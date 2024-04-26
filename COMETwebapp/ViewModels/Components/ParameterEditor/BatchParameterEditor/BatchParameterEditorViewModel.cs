@@ -26,13 +26,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -44,7 +44,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
     /// <summary>
     /// ViewModel used to apply batch operations for a parameter
     /// </summary>
-    public class BatchParameterEditorViewModel : DisposableObject, IBatchParameterEditorViewModel
+    public class BatchParameterEditorViewModel : BelongsToIterationSelectorViewModel, IBatchParameterEditorViewModel
     {
         /// <summary>
         /// Gets the <see cref="ILogger{TCategoryName}" />
@@ -57,6 +57,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         private bool isLoading;
 
         /// <summary>
+        /// Gets or sets the selected <see cref="IValueSet" />
+        /// </summary>
+        private IValueSet SelectedValueSet { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="ICDPMessageBus"/>
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="BatchParameterEditorViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -65,6 +75,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         public BatchParameterEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BatchParameterEditorViewModel> logger)
         {
             this.SessionService = sessionService;
+            this.messageBus = messageBus;
             this.logger = logger;
             var eventCallbackFactory = new EventCallbackFactory();
 
@@ -76,30 +87,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
                 HeaderText = "Apply Changes"
             };
 
-            var defaultParameterValueSet = new ParameterValueSet
-            {
-                ValueSwitch = ParameterSwitchKind.MANUAL,
-                Manual = new ValueArray<string>(["-"])
-            };
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ParameterTypeSelectorViewModel.SelectedParameterType).Subscribe(selectedParameterType =>
-            {
-                this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(selectedParameterType, defaultParameterValueSet, false, messageBus)
-                {
-                    ParameterValueChanged = new EventCallbackFactory().Create<(IValueSet, int)>(this, callbackValueSet => { this.SelectedValueSet = callbackValueSet.Item1; })
-                };
-            }));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ParameterTypeSelectorViewModel.SelectedParameterType).Subscribe(this.OnSelectedParameterTypeChange));
         }
-
-        /// <summary>
-        /// Gets or sets the selected <see cref="IValueSet" />
-        /// </summary>
-        private IValueSet SelectedValueSet { get; set; }
-
-        /// <summary>
-        /// Gets the current <see cref="Iteration" />
-        /// </summary>
-        public Iteration CurrentIteration { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ISessionService" />
@@ -136,13 +125,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; private set; }
 
         /// <summary>
-        /// Sets the current iteration
+        /// Updates this view model properties
         /// </summary>
-        /// <param name="iteration">The iteration to be set</param>
-        public void SetCurrentIteration(Iteration iteration)
+        protected override void UpdateProperties()
         {
-            this.CurrentIteration = iteration;
-            this.ParameterTypeSelectorViewModel.CurrentIteration = iteration;
+            this.ParameterTypeSelectorViewModel.CurrentIteration = this.CurrentIteration;
         }
 
         /// <summary>
@@ -181,6 +168,26 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             await this.SessionService.CreateOrUpdateThings(this.CurrentIteration.Clone(false), thingsToUpdate);
             await this.SessionService.RefreshSession();
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Method executed everytime the selected parameter type has changed
+        /// </summary>
+        /// <param name="selectedParameterType">The newly selected parameter type</param>
+        private void OnSelectedParameterTypeChange(ParameterType selectedParameterType)
+        {
+            var defaultParameterValueSet = new ParameterValueSet
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["-"])
+            };
+
+            this.SelectedValueSet = defaultParameterValueSet;
+
+            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(selectedParameterType, defaultParameterValueSet, false, this.messageBus)
+            {
+                ParameterValueChanged = new EventCallbackFactory().Create<(IValueSet, int)>(this, callbackValueSet => { this.SelectedValueSet = callbackValueSet.Item1; })
+            };
         }
     }
 }

@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterEditorTestFixture.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="ParameterEditorTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -47,6 +47,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMETwebapp.Pages.ParameterEditor;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using DevExpress.Blazor;
 
@@ -84,18 +85,18 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.viewModel = new SingleIterationApplicationTemplateViewModel(this.sessionService.Object, new IterationSelectorViewModel());
             this.session = new Mock<ISession>();
             this.session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
-            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Iid = Guid.NewGuid() });
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory { Iid = Guid.NewGuid() });
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
-            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Iid = Guid.NewGuid() });
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise { Iid = Guid.NewGuid() });
 
-            this.firstIteration = new Iteration()
+            this.firstIteration = new Iteration
             {
                 Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
                     Iid = Guid.NewGuid(),
                     IterationNumber = 1,
-                    Container = new EngineeringModelSetup()
+                    Container = new EngineeringModelSetup
                     {
                         Iid = Guid.NewGuid(),
                         Name = "EnVision"
@@ -103,21 +104,21 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
                 }
             };
 
-            this.secondIteration = new Iteration()
+            this.secondIteration = new Iteration
             {
                 Iid = Guid.NewGuid(),
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
                     Iid = Guid.NewGuid(),
                     IterationNumber = 4,
-                    Container = new EngineeringModelSetup()
+                    Container = new EngineeringModelSetup
                     {
                         Iid = Guid.NewGuid(),
                         Name = "Loft"
                     }
                 }
             };
-            
+
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.messageBus = new CDPMessageBus();
@@ -127,6 +128,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
+            this.context.Services.AddSingleton<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
@@ -146,16 +148,26 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         }
 
         [Test]
-        public void VerifyOpenModelPresent()
+        public void VerifyIterationPreselection()
         {
-            var renderer = this.context.RenderComponent<ParameterEditor>();
-            Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
-        }
+            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
 
-        [TearDown]
-        public void TearDown()
-        {
-            this.context.CleanContext();
+            this.context.RenderComponent<ParameterEditor>(parameters => { parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid()); });
+
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
+                Assert.That(navigation.Uri.Contains("server"), Is.True);
+                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
+            });
+
+            this.viewModel.SelectedThing = null;
+
+            this.context.RenderComponent<ParameterEditor>(parameters => { parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid()); });
+
+            Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }
 
         [Test]
@@ -181,32 +193,10 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         }
 
         [Test]
-        public void VerifyIterationPreselection()
+        public void VerifyOpenModelPresent()
         {
-            this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
-
-            this.context.RenderComponent<ParameterEditor>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid());
-            });
-
-            var navigation = this.context.Services.GetService<NavigationManager>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
-                Assert.That(navigation.Uri.Contains("server"), Is.True);
-                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
-            });
-
-            this.viewModel.SelectedThing = null;
-
-            this.context.RenderComponent<ParameterEditor>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
-            });
-
-            Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
+            var renderer = this.context.RenderComponent<ParameterEditor>();
+            Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
         }
     }
 }

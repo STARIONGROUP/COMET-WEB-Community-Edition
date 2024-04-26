@@ -176,7 +176,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.ElementSelector.CurrentIteration = this.CurrentThing;
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
-            this.BatchParameterEditorViewModel.SetCurrentIteration(this.CurrentThing);
+            this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
             await this.InitializeTable();
         }
 
