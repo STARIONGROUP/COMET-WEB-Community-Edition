@@ -28,6 +28,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+
+    using DynamicData;
+
     /// <summary>
     /// ViewModel used to apply batch operations for a parameter
     /// </summary>
@@ -57,5 +61,15 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// Gets or sets the loading value
         /// </summary>
         bool IsLoading { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// </summary>
+        IOptionSelectorViewModel OptionSelectorViewModel { get; }
+
+        /// <summary>
+        /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel"/>s
+        /// </summary>
+        SourceList<ParameterValueSetBaseRowViewModel> Rows { get; }
     }
 }

@@ -39,6 +39,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
         /// <param name="valueSet">The <see cref="ParameterValueSetBase" /></param>
         public ParameterValueSetBaseRowViewModel(ParameterValueSetBase valueSet)
         {
+            this.ParameterValueSetBase = valueSet;
             this.ElementName = ((ElementBase)valueSet.Container.Container).Name;
             var parameter = (ParameterOrOverrideBase)valueSet.Container;
             this.ParameterName = parameter.ParameterType.Name;
@@ -57,6 +58,11 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
             this.Owner = valueSet.Owner.ShortName;
             this.Scale = parameter.Scale;
         }
+
+        /// <summary>
+        /// The <see cref="ParameterValueSetBase" />
+        /// </summary>
+        public ParameterValueSetBase ParameterValueSetBase { get; }
 
         /// <summary>
         /// The <see cref="MeasurementScale" />

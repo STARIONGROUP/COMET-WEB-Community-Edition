@@ -20,6 +20,8 @@ Copyright (c) 2024 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
+@using COMETwebapp.ViewModels.Components.ParameterEditor
+@using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
 @inherits DisposableComponent
 
 <DxButton Id="openBatchParameterEditorButton" 
@@ -28,20 +30,38 @@ Copyright (c) 2024 Starion Group S.A.
           SizeMode="SizeMode.Medium"/>
 
 <DxPopup @bind-Visible="@(this.ViewModel.IsVisible)"
-         HeaderText="Batch Update">
+         HeaderText="Batch Update"
+         Width="70vw">
 
     <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
                            DisplayText="Select a parameter type:"/>
+                           
+    <OptionSelector ViewModel="this.ViewModel.OptionSelectorViewModel"/>
 
     @if (this.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType != null)
     {
         <div class="pt-3"></div>
-        <h6>Select a value</h6>
+        <h6>Select a value:</h6>
         <ParameterTypeEditorSelector BindValueMode="BindValueMode.OnDelayedInput"
                                      IsOnEditMode="false"
                                      ViewModel="@(this.ViewModel.ParameterTypeEditorSelectorViewModel)"/>
     }
-    
+
+    <DxGrid Data="@this.ViewModel.Rows.Items"
+            ShowAllRows="true">
+        <Columns>
+            <DxGridSelectionColumn Width="100px" />
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ElementName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.OptionName)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualFiniteStateName)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualValue)" Caption="@("Value")" AllowGroup="false"/>
+            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+
+        </Columns>
+    </DxGrid>
+
     <div class="pt-3"></div>
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="okButton"

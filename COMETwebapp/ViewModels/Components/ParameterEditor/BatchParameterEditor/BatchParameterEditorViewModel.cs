@@ -37,9 +37,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
+
+    //TODO
+    // Need to make the user select the value sets available to update for each parameter/element definition, because it depends on the actual state and the option
+    // Use a grid to display the selection => filters with options and 
+    // Exclude the parameter types SFPT, Array and Compound
 
     /// <summary>
     /// ViewModel used to apply batch operations for a parameter
@@ -65,6 +74,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// Gets the <see cref="ICDPMessageBus"/>
         /// </summary>
         private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
+        /// Gets the excluded <see cref="ParameterType"/>s for applying the batch updates
+        /// </summary>
+        private IEnumerable<ClassKind> excludedParameterTypes = [ClassKind.SampledFunctionParameterType, ClassKind.ArrayParameterType, ClassKind.CompoundParameterType];
 
         /// <summary>
         /// Creates a new instance of type <see cref="BatchParameterEditorViewModel" />
@@ -120,9 +134,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         public IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; private set; } = new ParameterTypeSelectorViewModel();
 
         /// <summary>
+        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// </summary>
+        public IOptionSelectorViewModel OptionSelectorViewModel { get; private set; } = new OptionSelectorViewModel();
+
+        /// <summary>
         /// Gets the <see cref="IConfirmCancelPopupViewModel" />
         /// </summary>
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; private set; }
+
+        /// <summary>
+        /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel"/>s
+        /// </summary>
+        public SourceList<ParameterValueSetBaseRowViewModel> Rows { get; private set; } = new();
 
         /// <summary>
         /// Updates this view model properties
@@ -150,17 +174,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.IsVisible = false;
 
             this.logger.LogInformation("Applying manual value {value} to all parameters types with iid {iid}", this.SelectedValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
-
-            var parameters = this.CurrentIteration
-                .QueryParameterAndOverrideBases()
-                .Where(x => x.ParameterType.Iid == this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
-
             var thingsToUpdate = new List<Thing>();
 
-            foreach (var parameter in parameters)
+            foreach (var parameterValueSet in this.Rows.Items.Select(x => x.ParameterValueSetBase))
             {
-                var valueSet = (ParameterValueSetBase)parameter.ValueSets.First();
-                var valueSetClone = valueSet.Clone(true);
+                var valueSetClone = parameterValueSet.Clone(true);
                 valueSetClone.Manual = this.SelectedValueSet.Manual;
                 thingsToUpdate.Add(valueSetClone);
             }
@@ -183,6 +201,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             };
 
             this.SelectedValueSet = defaultParameterValueSet;
+
+            var parameterValueSets = this.CurrentIteration?
+                .QueryParameterAndOverrideBases()
+                .Where(x => x.ParameterType.Iid == selectedParameterType.Iid)
+                .Cast<Parameter>()
+                .SelectMany(x => x.ValueSet);
+
+            this.Rows.Edit(action =>
+            {
+                action.Clear();
+                action.AddRange(parameterValueSets?.Select(x => new ParameterValueSetBaseRowViewModel(x)) ?? Array.Empty<ParameterValueSetBaseRowViewModel>());
+            });
 
             this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(selectedParameterType, defaultParameterValueSet, false, this.messageBus)
             {
