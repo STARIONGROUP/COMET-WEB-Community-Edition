@@ -34,7 +34,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;

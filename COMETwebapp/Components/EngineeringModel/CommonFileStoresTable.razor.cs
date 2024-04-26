@@ -80,10 +80,10 @@ namespace COMETwebapp.Components.EngineeringModel
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(CommonFileStoreRowViewModel row)
+        protected override void OnSelectedDataItemChanged(CommonFileStoreRowViewModel row)
         {
+            base.OnSelectedDataItemChanged(row);
             this.ViewModel.Thing = row.Thing.Clone(true);
-            this.IsOnEditMode = true;
         }
 
         /// <summary>

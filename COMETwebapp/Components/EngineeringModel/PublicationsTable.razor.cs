@@ -70,10 +70,10 @@ namespace COMETwebapp.Components.EngineeringModel
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(PublicationRowViewModel row)
+        protected override void OnSelectedDataItemChanged(PublicationRowViewModel row)
         {
+            base.OnSelectedDataItemChanged(row);
             this.SelectedRow = row;
-            this.IsOnEditMode = true;
         }
 
         /// <summary>

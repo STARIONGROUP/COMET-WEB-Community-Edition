@@ -80,10 +80,10 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         /// Method invoked everytime a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(ParticipantRoleRowViewModel row)
+        protected override void OnSelectedDataItemChanged(ParticipantRoleRowViewModel row)
         {
+            base.OnSelectedDataItemChanged(row);
             this.ViewModel.Thing = row.Thing.Clone(true);
-            this.IsOnEditMode = true;
         }
     }
 }

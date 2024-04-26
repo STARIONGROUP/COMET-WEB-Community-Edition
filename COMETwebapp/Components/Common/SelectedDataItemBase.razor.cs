@@ -31,9 +31,7 @@ namespace COMETwebapp.Components.Common
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.Rows;
-
     using DevExpress.Blazor;
-
     using DynamicData;
 
     using ReactiveUI;
@@ -91,6 +89,15 @@ namespace COMETwebapp.Components.Common
         protected virtual Task OnEditThingSaving()
         {
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        protected virtual void OnSelectedDataItemChanged(TRow row)
+        {
+            this.IsOnEditMode = true;
         }
     }
 }

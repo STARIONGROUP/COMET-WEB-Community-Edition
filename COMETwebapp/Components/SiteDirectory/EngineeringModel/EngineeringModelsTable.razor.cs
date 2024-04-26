@@ -108,10 +108,10 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// Metgid invoked everytime a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
+        protected override void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
         {
+            base.OnSelectedDataItemChanged(row);
             this.ViewModel.Thing = row.Thing;
-            this.IsOnEditMode = true;
             this.parameters[nameof(EngineeringModelSetup)] = row.Thing;
         }
 

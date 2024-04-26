@@ -57,7 +57,7 @@ namespace COMETwebapp.ViewModels.Components.Common.Rows
             this.Thing = thing;
             this.ShortName = thing is IShortNamedThing shortNamedThing ? shortNamedThing.ShortName : thing.UserFriendlyShortName;
             this.Name = thing is INamedThing namedThing ? namedThing.Name : thing.UserFriendlyName;
-            this.ContainerName = thing.Container is IShortNamedThing shortNamedContainer ? shortNamedContainer.ShortName : thing.Container.UserFriendlyShortName;
+            this.ContainerName = thing.Container is IShortNamedThing shortNamedContainer ? shortNamedContainer.ShortName : thing.Container?.UserFriendlyShortName;
         }
 
         /// <summary>

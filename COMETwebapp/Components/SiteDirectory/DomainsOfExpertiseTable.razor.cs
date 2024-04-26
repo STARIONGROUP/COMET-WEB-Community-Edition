@@ -82,7 +82,7 @@ namespace COMETwebapp.Components.SiteDirectory
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        private void OnSelectedDataItemChanged(DomainOfExpertiseRowViewModel row)
+        protected override void OnSelectedDataItemChanged(DomainOfExpertiseRowViewModel row)
         {
             this.ViewModel.Thing = row.Thing.Clone(true);
             this.IsOnEditMode = true;
