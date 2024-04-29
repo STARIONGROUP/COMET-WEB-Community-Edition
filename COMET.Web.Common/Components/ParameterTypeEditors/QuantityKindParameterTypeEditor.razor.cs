@@ -28,6 +28,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using DevExpress.Blazor;
@@ -70,7 +71,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
 
         this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
                 x => x.ViewModel.ValueArray)
-            .Subscribe(_ => this.StateHasChanged()));
+            .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
     }
     }
 }

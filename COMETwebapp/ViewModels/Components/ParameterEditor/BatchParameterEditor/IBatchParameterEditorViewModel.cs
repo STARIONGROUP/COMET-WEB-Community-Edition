@@ -71,5 +71,20 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel"/>s
         /// </summary>
         SourceList<ParameterValueSetBaseRowViewModel> Rows { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// </summary>
+        IFiniteStateSelectorViewModel FiniteStateSelectorViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the collection of selected rows
+        /// </summary>
+        IReadOnlyList<object> SelectedValueSetsRowsToUpdate { get; set; }
+
+        /// <summary>
+        /// Method invoked for opening the batch update popup
+        /// </summary>
+        void OpenPopup();
     }
 }

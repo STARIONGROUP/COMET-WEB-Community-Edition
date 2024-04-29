@@ -45,11 +45,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
 
     using ReactiveUI;
 
-    //TODO
-    // Need to make the user select the value sets available to update for each parameter/element definition, because it depends on the actual state and the option
-    // Use a grid to display the selection => filters with options and 
-    // Exclude the parameter types SFPT, Array and Compound
-
     /// <summary>
     /// ViewModel used to apply batch operations for a parameter
     /// </summary>
@@ -61,16 +56,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         private readonly ILogger<BatchParameterEditorViewModel> logger;
 
         /// <summary>
-        /// The backing field for <see cref="IsLoading" />
-        /// </summary>
-        private bool isLoading;
-
-        /// <summary>
-        /// Gets or sets the selected <see cref="IValueSet" />
-        /// </summary>
-        private IValueSet SelectedValueSet { get; set; }
-
-        /// <summary>
         /// Gets the <see cref="ICDPMessageBus"/>
         /// </summary>
         private readonly ICDPMessageBus messageBus;
@@ -78,7 +63,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// <summary>
         /// Gets the excluded <see cref="ParameterType"/>s for applying the batch updates
         /// </summary>
-        private IEnumerable<ClassKind> excludedParameterTypes = [ClassKind.SampledFunctionParameterType, ClassKind.ArrayParameterType, ClassKind.CompoundParameterType];
+        private readonly IEnumerable<ClassKind> excludedParameterTypes = [ClassKind.SampledFunctionParameterType, ClassKind.ArrayParameterType, ClassKind.CompoundParameterType];
+
+        /// <summary>
+        /// The backing field for <see cref="IsLoading" />
+        /// </summary>
+        private bool isLoading;
 
         /// <summary>
         /// Creates a new instance of type <see cref="BatchParameterEditorViewModel" />
@@ -102,6 +92,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterTypeSelectorViewModel.SelectedParameterType).Subscribe(this.OnSelectedParameterTypeChange));
+           
+            this.Disposables.Add(this.WhenAnyValue(
+                x => x.OptionSelectorViewModel.SelectedOption, 
+                x => x.FiniteStateSelectorViewModel.SelectedActualFiniteState)
+                .Subscribe(_ => this.ApplyFilters()));
         }
 
         /// <summary>
@@ -139,6 +134,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         public IOptionSelectorViewModel OptionSelectorViewModel { get; private set; } = new OptionSelectorViewModel();
 
         /// <summary>
+        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// </summary>
+        public IFiniteStateSelectorViewModel FiniteStateSelectorViewModel { get; private set; } = new FiniteStateSelectorViewModel();
+
+        /// <summary>
         /// Gets the <see cref="IConfirmCancelPopupViewModel" />
         /// </summary>
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; private set; }
@@ -149,11 +149,38 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         public SourceList<ParameterValueSetBaseRowViewModel> Rows { get; private set; } = new();
 
         /// <summary>
+        /// Gets or sets the collection of selected rows
+        /// </summary>
+        public IReadOnlyList<object> SelectedValueSetsRowsToUpdate { get; set; } = [];
+
+        /// <summary>
+        /// Method invoked for opening the batch update popup
+        /// </summary>
+        public void OpenPopup()
+        {
+            this.ParameterTypeSelectorViewModel.SelectedParameterType = null;
+            this.OptionSelectorViewModel.SelectedOption = null;
+            this.FiniteStateSelectorViewModel.SelectedActualFiniteState = null;
+            this.SelectedValueSetsRowsToUpdate = [];
+            this.IsVisible = true;
+        }
+
+        /// <summary>
         /// Updates this view model properties
         /// </summary>
         protected override void UpdateProperties()
         {
             this.ParameterTypeSelectorViewModel.CurrentIteration = this.CurrentIteration;
+            this.OptionSelectorViewModel.CurrentIteration = this.CurrentIteration;
+            this.FiniteStateSelectorViewModel.CurrentIteration = this.CurrentIteration;
+
+            var availableParameterTypeIids = this.CurrentIteration?
+                .QueryParameterAndOverrideBases()
+                .Select(x => x.ParameterType)
+                .Where(x => !this.excludedParameterTypes.Contains(x.ClassKind))
+                .Select(x => x.Iid);
+
+            this.ParameterTypeSelectorViewModel.FilterAvailableParameterTypes(availableParameterTypeIids);
         }
 
         /// <summary>
@@ -167,24 +194,26 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// <summary>
         /// Method executed everytime the <see cref="ConfirmCancelPopupViewModel" /> is confirmed
         /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
         private async Task OnConfirmPopup()
         {
             this.IsLoading = true;
             this.ConfirmCancelPopupViewModel.IsVisible = false;
             this.IsVisible = false;
 
-            this.logger.LogInformation("Applying manual value {value} to all parameters types with iid {iid}", this.SelectedValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
+            this.logger.LogInformation("Applying manual value {value} to all parameters types with iid {iid}", this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
             var thingsToUpdate = new List<Thing>();
 
-            foreach (var parameterValueSet in this.Rows.Items.Select(x => x.ParameterValueSetBase))
+            foreach (var parameterValueSetRow in this.SelectedValueSetsRowsToUpdate.Cast<ParameterValueSetBaseRowViewModel>())
             {
-                var valueSetClone = parameterValueSet.Clone(true);
-                valueSetClone.Manual = this.SelectedValueSet.Manual;
+                var valueSetClone = parameterValueSetRow.ParameterValueSetBase.Clone(true);
+                valueSetClone.Manual = this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual;
                 thingsToUpdate.Add(valueSetClone);
             }
 
             await this.SessionService.CreateOrUpdateThings(this.CurrentIteration.Clone(false), thingsToUpdate);
             await this.SessionService.RefreshSession();
+            this.SelectedValueSetsRowsToUpdate = [];
             this.IsLoading = false;
         }
 
@@ -200,24 +229,46 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
                 Manual = new ValueArray<string>(["-"])
             };
 
-            this.SelectedValueSet = defaultParameterValueSet;
+            this.ApplyFilters();
+            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(selectedParameterType, defaultParameterValueSet, false, this.messageBus);
+        }
 
-            var parameterValueSets = this.CurrentIteration?
-                .QueryParameterAndOverrideBases()
-                .Where(x => x.ParameterType.Iid == selectedParameterType.Iid)
-                .Cast<Parameter>()
+        /// <summary>
+        /// Applies the selected filters for the <see cref="Rows"/>
+        /// </summary>
+        private void ApplyFilters()
+        {
+            var parameterAndOverrideBases = this.CurrentIteration?.QueryParameterAndOverrideBases();
+
+            if (parameterAndOverrideBases == null)
+            {
+                return;
+            }
+
+            if (this.ParameterTypeSelectorViewModel.SelectedParameterType != null)
+            {
+                parameterAndOverrideBases = parameterAndOverrideBases.Where(x => x.ParameterType.Iid == this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
+            }
+
+            var parameterValueSets = parameterAndOverrideBases
+                .OfType<Parameter>()
                 .SelectMany(x => x.ValueSet);
+
+            if (this.OptionSelectorViewModel.SelectedOption != null)
+            {
+                parameterValueSets = parameterValueSets.Where(x => x.ActualOption?.Iid == this.OptionSelectorViewModel.SelectedOption.Iid);
+            }
+
+            if (this.FiniteStateSelectorViewModel.SelectedActualFiniteState != null)
+            {
+                parameterValueSets = parameterValueSets.Where(x => x.ActualState?.Iid == this.FiniteStateSelectorViewModel.SelectedActualFiniteState.Iid);
+            }
 
             this.Rows.Edit(action =>
             {
                 action.Clear();
-                action.AddRange(parameterValueSets?.Select(x => new ParameterValueSetBaseRowViewModel(x)) ?? Array.Empty<ParameterValueSetBaseRowViewModel>());
+                action.AddRange(parameterValueSets.Select(x => new ParameterValueSetBaseRowViewModel(x)));
             });
-
-            this.ParameterTypeEditorSelectorViewModel = new ParameterTypeEditorSelectorViewModel(selectedParameterType, defaultParameterValueSet, false, this.messageBus)
-            {
-                ParameterValueChanged = new EventCallbackFactory().Create<(IValueSet, int)>(this, callbackValueSet => { this.SelectedValueSet = callbackValueSet.Item1; })
-            };
         }
     }
 }

@@ -25,55 +25,75 @@ Copyright (c) 2024 Starion Group S.A.
 @inherits DisposableComponent
 
 <DxButton Id="openBatchParameterEditorButton" 
-          Click="(() => this.ViewModel.IsVisible = true)"
+          Click="(this.ViewModel.OpenPopup)"
           Text="Batch Update"
           SizeMode="SizeMode.Medium"/>
 
 <DxPopup @bind-Visible="@(this.ViewModel.IsVisible)"
          HeaderText="Batch Update"
-         Width="70vw">
+         Width="60vw">
+    <div class="px-3">
+        <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
+                               DisplayText="Select a parameter type:"/>
 
-    <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
-                           DisplayText="Select a parameter type:"/>
-                           
-    <OptionSelector ViewModel="this.ViewModel.OptionSelectorViewModel"/>
+        @if (this.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType != null)
+        {
+            <div class="row pt-2">
+                <div class="col">
+                    <OptionSelector ViewModel="this.ViewModel.OptionSelectorViewModel"/>
+                </div>
+                <div class="col">
+                    <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelectorViewModel"/>
+                </div>
+            </div>
 
-    @if (this.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType != null)
-    {
+            <div class="row pt-3">
+                <h6>Select a value:</h6>
+                <ParameterTypeEditorSelector BindValueMode="BindValueMode.OnDelayedInput"
+                                             IsOnEditMode="false"
+                                             ViewModel="@(this.ViewModel.ParameterTypeEditorSelectorViewModel)"/>
+            </div>
+
+            <DxGrid @ref="this.Grid" 
+                    Data="@this.ViewModel.Rows.Items"
+                    ShowAllRows="true"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    @bind-SelectedDataItems="@(this.ViewModel.SelectedValueSetsRowsToUpdate)"
+                    CssClass="mt-3">
+                <Columns>
+                    <DxGridSelectionColumn Width="100px" AllowSelectAll="true" />
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ElementName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.OptionName)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualFiniteStateName)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualValue)" Caption="@("Value")" AllowGroup="false"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+                </Columns>
+                
+                <DataColumnGroupRowTemplate Context="context">
+                    <DxCheckBox style="margin-left: 7px; margin-right: 4px;"
+                                AllowIndeterminateStateByClick="false"
+                                Checked="this.GetGroupCheckBoxChecked(context)"
+                                CheckedChanged="(bool? value) => this.GroupCheckBox_CheckedChanged(value, context)">
+                        @context.DisplayText
+                    </DxCheckBox>
+                </DataColumnGroupRowTemplate>
+            </DxGrid>
+        }
+
         <div class="pt-3"></div>
-        <h6>Select a value:</h6>
-        <ParameterTypeEditorSelector BindValueMode="BindValueMode.OnDelayedInput"
-                                     IsOnEditMode="false"
-                                     ViewModel="@(this.ViewModel.ParameterTypeEditorSelectorViewModel)"/>
-    }
+        <div class="dxbl-grid-edit-form-buttons">
+            <DxButton Id="okButton"
+                      Text="Apply Changes"
+                      Click="(() => this.ViewModel.ConfirmCancelPopupViewModel.IsVisible = true)"
+                      Enabled="@this.IsApplyButtonEnabled"/>
 
-    <DxGrid Data="@this.ViewModel.Rows.Items"
-            ShowAllRows="true">
-        <Columns>
-            <DxGridSelectionColumn Width="100px" />
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ElementName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.OptionName)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualFiniteStateName)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualValue)" Caption="@("Value")" AllowGroup="false"/>
-            <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
-
-        </Columns>
-    </DxGrid>
-
-    <div class="pt-3"></div>
-    <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="okButton"
-                  Text="Apply Changes"
-                  Click="(() => this.ViewModel.ConfirmCancelPopupViewModel.IsVisible = true)"
-                  Enabled="@this.IsApplyButtonEnabled"/>
-
-        <DxButton Id="closeButton"
-                  Text="Close"
-                  Click="(() => this.ViewModel.IsVisible = false)"
-                  RenderStyle="ButtonRenderStyle.Secondary"/>
+            <DxButton Id="closeButton"
+                      Text="Close"
+                      Click="(() => this.ViewModel.IsVisible = false)"
+                      RenderStyle="ButtonRenderStyle.Secondary"/>
+        </div>
     </div>
-
     <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelPopupViewModel)"></ConfirmCancelPopup>
 </DxPopup>
