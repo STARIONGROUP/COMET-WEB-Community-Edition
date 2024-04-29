@@ -50,6 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private Mock<ILogger<BatchParameterEditorViewModel>> loggerMock;
         private Iteration iteration;
         private CDPMessageBus messageBus;
+        private static readonly ValueArray<string> defaultValueArray = new(["-"]);
 
         [SetUp]
         public void Setup()
@@ -85,11 +86,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                     new ParameterValueSet
                     {
                         Iid = Guid.NewGuid(),
-                        Manual = new ValueArray<string>(new[] { "-" }),
-                        Published = new ValueArray<string>(new[] { "-" }),
-                        Formula = new ValueArray<string>(new[] { "-" }),
-                        ValueSwitch = ParameterSwitchKind.MANUAL
-                    }
+                        Manual = defaultValueArray,
+                        Published = defaultValueArray,
+                        ValueSwitch = ParameterSwitchKind.MANUAL,
+                        ActualOption = new Option()
+                    },
+                    new ParameterValueSet
+                    {
+                        Iid = Guid.NewGuid(),
+                        Manual = defaultValueArray,
+                        Published = defaultValueArray,
+                        ValueSwitch = ParameterSwitchKind.MANUAL,
+                        ActualState = new ActualFiniteState { Container = new ActualFiniteStateList() }
+                    },
+                    new ParameterValueSet
+                    {
+                        Iid = Guid.NewGuid(),
+                        Manual = defaultValueArray,
+                        Published = defaultValueArray,
+                        ValueSwitch = ParameterSwitchKind.MANUAL,
+                        ActualState = new ActualFiniteState { Container = new ActualFiniteStateList() },
+                        ActualOption = new Option()
+                    },
                 }
             };
 
@@ -117,24 +135,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         }
 
         [Test]
-        public void VerifyViewModelSetIteration()
-        {
-            this.viewModel.CurrentIteration = this.iteration;
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.CurrentIteration, Is.EqualTo(this.iteration));
-                Assert.That(this.viewModel.ParameterTypeSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
-            });
-        }
-
-        [Test]
         public async Task VerifyCancelConfirmBehavior()
         {
             this.viewModel.CurrentIteration = this.iteration;
             Assert.That(async () => await this.viewModel.ConfirmCancelPopupViewModel.OnConfirm.InvokeAsync(), Throws.Exception);
 
             this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType = this.iteration.QueryParameterAndOverrideBases().First().ParameterType;
+            this.viewModel.SelectedValueSetsRowsToUpdate = [this.viewModel.Rows.Items.First()];
 
             Assert.Multiple(() =>
             {
@@ -152,6 +159,48 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Assert.That(this.viewModel.IsVisible, Is.EqualTo(false));
                 Assert.That(async () => await this.viewModel.ParameterTypeEditorSelectorViewModel.ParameterValueChanged.InvokeAsync((new ParameterValueSet(), 0)), Throws.Nothing);
                 Assert.That(this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType, Is.Not.Null);
+            });
+        }
+
+        [Test]
+        public void VerifyOpenAndFiltering()
+        {
+            this.viewModel.CurrentIteration = this.iteration;
+            this.viewModel.OpenPopup();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType, Is.Null);
+                Assert.That(this.viewModel.OptionSelectorViewModel.SelectedOption, Is.Null);
+                Assert.That(this.viewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState, Is.Null);
+                Assert.That(this.viewModel.SelectedValueSetsRowsToUpdate, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.IsVisible, Is.EqualTo(true));
+                Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(0));
+            });
+
+            var firstTopElementParameter = this.iteration.TopElement.Parameter[0];
+            this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType = firstTopElementParameter.ParameterType;
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(3));
+
+            this.viewModel.OptionSelectorViewModel.SelectedOption = firstTopElementParameter.ValueSet[0].ActualOption;
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(2));
+
+            this.viewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState = firstTopElementParameter.ValueSet[1].ActualState;
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyViewModelSetIteration()
+        {
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(0));
+            this.viewModel.CurrentIteration = this.iteration;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CurrentIteration, Is.EqualTo(this.iteration));
+                Assert.That(this.viewModel.ParameterTypeSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
+                Assert.That(this.viewModel.OptionSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
+                Assert.That(this.viewModel.FiniteStateSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
             });
         }
     }

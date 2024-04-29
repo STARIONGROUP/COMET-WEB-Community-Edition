@@ -201,7 +201,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.ConfirmCancelPopupViewModel.IsVisible = false;
             this.IsVisible = false;
 
-            this.logger.LogInformation("Applying manual value {value} to all parameters types with iid {iid}", this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
+            this.logger.LogInformation("Applying manual value {value} to all selected parameters types with iid {iid}", this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
             var thingsToUpdate = new List<Thing>();
 
             foreach (var parameterValueSetRow in this.SelectedValueSetsRowsToUpdate.Cast<ParameterValueSetBaseRowViewModel>())

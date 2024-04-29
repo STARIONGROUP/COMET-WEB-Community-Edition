@@ -26,6 +26,9 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 {
     using Bunit;
 
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Test.Helpers;
@@ -34,9 +37,12 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ParameterEditor.BatchParameterEditor;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using DevExpress.Blazor;
+
+    using DynamicData;
 
     using Moq;
 
@@ -59,19 +65,44 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             var parameterTypeSelectorViewModel = new Mock<IParameterTypeSelectorViewModel>();
             var parameterTypeEditorSelectorViewModel = new Mock<IParameterTypeEditorSelectorViewModel>();
+            var finiteStateSelectorViewModel = new Mock<IFiniteStateSelectorViewModel>();
+            var optionSelectorViewModel = new Mock<IOptionSelectorViewModel>();
             var confirmCancelPopupViewModel = new Mock<IConfirmCancelPopupViewModel>();
 
+            var parameter = new Parameter
+            {
+                Container = new ElementDefinition { Name = "containerName" },
+                ParameterType = new TextParameterType(),
+                Owner = new DomainOfExpertise()
+            };
+
+            var parameterValueSet = new ParameterValueSet
+            {
+                Container = parameter
+            };
+
+            var parameterValueSet2 = new ParameterValueSet
+            {
+                Container = parameter
+            };
+
+            var rows = new SourceList<ParameterValueSetBaseRowViewModel>();
+            rows.Add(new ParameterValueSetBaseRowViewModel(parameterValueSet));
+            rows.Add(new ParameterValueSetBaseRowViewModel(parameterValueSet2));
+
+            parameterTypeSelectorViewModel.Setup(x => x.SelectedParameterType).Returns(parameter.ParameterType);
             this.viewModel = new Mock<IBatchParameterEditorViewModel>();
 
             this.viewModel.Setup(x => x.IsVisible).Returns(true);
+            this.viewModel.Setup(x => x.Rows).Returns(rows);
+            this.viewModel.Setup(x => x.SelectedValueSetsRowsToUpdate).Returns([]);
             this.viewModel.Setup(x => x.ConfirmCancelPopupViewModel).Returns(confirmCancelPopupViewModel.Object);
             this.viewModel.Setup(x => x.ParameterTypeSelectorViewModel).Returns(parameterTypeSelectorViewModel.Object);
+            this.viewModel.Setup(x => x.FiniteStateSelectorViewModel).Returns(finiteStateSelectorViewModel.Object);
+            this.viewModel.Setup(x => x.OptionSelectorViewModel).Returns(optionSelectorViewModel.Object);
             this.viewModel.Setup(x => x.ParameterTypeEditorSelectorViewModel).Returns(parameterTypeEditorSelectorViewModel.Object);
 
-            this.renderer = this.context.RenderComponent<BatchParameterEditor>(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, this.viewModel.Object);
-            });
+            this.renderer = this.context.RenderComponent<BatchParameterEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
         }
 
         [TearDown]
@@ -79,6 +110,18 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         {
             this.context.Dispose();
             this.context.CleanContext();
+        }
+
+        [Test]
+        public async Task VerifyCheckBoxes()
+        {
+            var checkbox = this.renderer.FindComponent<DxCheckBox<bool?>>();
+
+            await this.renderer.InvokeAsync(() => checkbox.Instance.CheckedChanged.InvokeAsync(false));
+            Assert.That(checkbox.Instance.Checked, Is.EqualTo(false));
+
+            await this.renderer.InvokeAsync(() => checkbox.Instance.CheckedChanged.InvokeAsync(true));
+            Assert.That(checkbox.Instance.Checked, Is.EqualTo(true));
         }
 
         [Test]

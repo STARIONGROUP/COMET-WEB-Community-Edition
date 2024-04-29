@@ -49,7 +49,7 @@ namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
         /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
-        protected IGrid Grid { get; set; }
+        private IGrid Grid { get; set; }
 
         /// <summary>
         /// Gets the condition to check if the apply button should be enabled
