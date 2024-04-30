@@ -27,8 +27,6 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Extensions;
-
     using ReactiveUI;
 
     /// <summary>

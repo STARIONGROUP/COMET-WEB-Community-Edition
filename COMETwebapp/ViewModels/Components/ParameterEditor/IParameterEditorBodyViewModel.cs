@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.SubscriptionService;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     /// <summary>
     /// View Model that handle the logic for the Parameter Editor application
@@ -63,5 +64,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         public IParameterTableViewModel ParameterTableViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IBatchParameterEditorViewModel" />
+        /// </summary>
+        IBatchParameterEditorViewModel BatchParameterEditorViewModel { get; set; }
     }
 }

@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterEditorBodyTestFixture.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="ParameterEditorBodyTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,10 +24,6 @@
 
 namespace COMETwebapp.Tests.Components.ParameterEditor
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
     using Bunit;
 
     using CDP4Common.CommonData;
@@ -45,16 +41,18 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Components.ParameterEditor.BatchParameterEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using DevExpress.Blazor;
-    
+
     using DynamicData;
-    
+
     using Microsoft.Extensions.DependencyInjection;
-    
+
     using Moq;
-    
+
     using NUnit.Framework;
 
     using TestContext = Bunit.TestContext;
@@ -84,9 +82,9 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             var parameterEditorViewModel = new Mock<IParameterEditorBodyViewModel>();
 
             var elements = new SourceList<ElementBase>();
-            elements.Add(new ElementDefinition() { Name = "Element1" });
-            elements.Add(new ElementDefinition() { Name = "Element2" });
-            elements.Add(new ElementDefinition() { Name = "Element3" });
+            elements.Add(new ElementDefinition { Name = "Element1" });
+            elements.Add(new ElementDefinition { Name = "Element2" });
+            elements.Add(new ElementDefinition { Name = "Element3" });
 
             parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
@@ -102,41 +100,45 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             var rowViewModels = new SourceList<ParameterBaseRowViewModel>();
 
-            var parameter = new Parameter()
+            var parameter = new Parameter
             {
-                ParameterType = new ArrayParameterType() { Name = "Orientation", ShortName = "orient" },
-                Owner = new DomainOfExpertise() { Name = "DoE1", ShortName = "doe1" },
-                Container = elements.Items.First(),
+                ParameterType = new ArrayParameterType { Name = "Orientation", ShortName = "orient" },
+                Owner = new DomainOfExpertise { Name = "DoE1", ShortName = "doe1" },
+                Container = elements.Items.First()
             };
 
-            var actualFiniteStateList = new ActualFiniteStateList()
+            var actualFiniteStateList = new ActualFiniteStateList
             {
                 Iid = Guid.NewGuid()
             };
 
             var possibleFiniteStateList = new List<PossibleFiniteState> { new() { Iid = Guid.NewGuid(), Name = "State1" }, new() { Iid = Guid.NewGuid(), Name = "State2" } };
 
-            actualFiniteStateList.PossibleFiniteStateList.Add(new PossibleFiniteStateList()
+            actualFiniteStateList.PossibleFiniteStateList.Add(new PossibleFiniteStateList
             {
                 PossibleState = { possibleFiniteStateList[0], possibleFiniteStateList[1] }
             });
 
-            actualFiniteStateList.ActualState.Add(new ActualFiniteState() { Iid = Guid.NewGuid(), PossibleState = { possibleFiniteStateList[0] } });
-            actualFiniteStateList.ActualState.Add(new ActualFiniteState() { Iid = Guid.NewGuid(), PossibleState = { possibleFiniteStateList[1] } });
+            actualFiniteStateList.ActualState.Add(new ActualFiniteState { Iid = Guid.NewGuid(), PossibleState = { possibleFiniteStateList[0] } });
+            actualFiniteStateList.ActualState.Add(new ActualFiniteState { Iid = Guid.NewGuid(), PossibleState = { possibleFiniteStateList[1] } });
 
             var iteration = new Iteration();
             iteration.Option.Add(new Option());
             iteration.ActualFiniteStateList.Add(actualFiniteStateList);
-            
+
             var valueSet = new Mock<IValueSet>();
             valueSet.Setup(x => x.ValueSwitch).Returns(ParameterSwitchKind.MANUAL);
             valueSet.Setup(x => x.ActualState).Returns(actualFiniteStateList.ActualState[0]);
-            valueSet.Setup(x => x.ActualOption).Returns(new Option() { Name = "option" });
-            
+            valueSet.Setup(x => x.ActualOption).Returns(new Option { Name = "option" });
+
             rowViewModels.Add(new ParameterBaseRowViewModel(sessionService.Object, false, parameter, valueSet.Object, this.messageBus));
 
             parameterTableViewModelMock.Setup(x => x.Rows).Returns(rowViewModels);
             this.context.Services.AddSingleton(parameterTableViewModelMock.Object);
+
+            var batchParameterEditorViewModelMock = new Mock<IBatchParameterEditorViewModel>();
+            parameterEditorViewModel.Setup(x => x.BatchParameterEditorViewModel).Returns(batchParameterEditorViewModelMock.Object);
+            this.context.Services.AddSingleton(batchParameterEditorViewModelMock.Object);
 
             this.renderedComponent = this.context.RenderComponent<ParameterEditorBody>();
             this.editor = this.renderedComponent.Instance;
@@ -161,7 +163,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         }
 
         [Test]
-        public void VerifyComponentUI()
+        public void VerifyComponentUi()
         {
             var elementFilterCombo = this.renderedComponent.FindComponent<ElementBaseSelector>();
             var parameterFilterCombo = this.renderedComponent.FindComponent<ParameterTypeSelector>();
@@ -169,6 +171,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             var isOwnedCheckbox = this.renderedComponent.FindComponent<DxCheckBox<bool>>();
             var parameterTable = this.renderedComponent.FindComponent<ParameterTable>();
+            var batchParameterEditor = this.renderedComponent.FindComponent<BatchParameterEditor>();
 
             Assert.Multiple(() =>
             {
@@ -177,6 +180,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(optionFilterCombo, Is.Not.Null);
                 Assert.That(isOwnedCheckbox, Is.Not.Null);
                 Assert.That(parameterTable, Is.Not.Null);
+                Assert.That(batchParameterEditor, Is.Not.Null);
             });
         }
     }

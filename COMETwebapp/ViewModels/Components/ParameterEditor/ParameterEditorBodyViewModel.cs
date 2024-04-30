@@ -1,18 +1,18 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterEditorBodyViewModel.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="ParameterEditorBodyViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -36,6 +36,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.SubscriptionService;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using ReactiveUI;
 
@@ -45,19 +46,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     public class ParameterEditorBodyViewModel : SingleIterationApplicationBaseViewModel, IParameterEditorBodyViewModel
     {
         /// <summary>
-        /// Backing field for the <see cref="IsOwnedParameters" />
-        /// </summary>
-        private bool isOwnedParameters;
-
-        /// <summary>
         /// A collection of <see cref="Type" /> used to create <see cref="ObjectChangedEvent" /> subscriptions
         /// </summary>
         private static readonly IEnumerable<Type> ObjectChangedTypesOfInterest = new List<Type>
         {
             typeof(ElementBase),
             typeof(ParameterOrOverrideBase),
-            typeof(ParameterValueSetBase),
+            typeof(ParameterValueSetBase)
         };
+
+        /// <summary>
+        /// Backing field for the <see cref="IsOwnedParameters" />
+        /// </summary>
+        private bool isOwnedParameters;
 
         /// <summary>
         /// Creates a new instance of <see cref="ParameterEditorBodyViewModel" />
@@ -65,12 +66,14 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="subscriptionService">the <see cref="ISubscriptionService" /></param>
         /// <param name="parameterTableView">The <see cref="IParameterTableViewModel" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="batchParameterEditorViewModel">The <see cref="IBatchParameterEditorViewModel" /></param>
         public ParameterEditorBodyViewModel(ISessionService sessionService, ISubscriptionService subscriptionService,
-            IParameterTableViewModel parameterTableView, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+            IParameterTableViewModel parameterTableView, ICDPMessageBus messageBus, IBatchParameterEditorViewModel batchParameterEditorViewModel) : base(sessionService, messageBus)
         {
             this.SubscriptionService = subscriptionService;
             this.ParameterTableViewModel = parameterTableView;
+            this.BatchParameterEditorViewModel = batchParameterEditorViewModel;
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ElementSelector.SelectedElementBase,
                 x => x.OptionSelector.SelectedOption,
@@ -114,6 +117,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         public IParameterTableViewModel ParameterTableViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IBatchParameterEditorViewModel" />
+        /// </summary>
+        public IBatchParameterEditorViewModel BatchParameterEditorViewModel { get; set; }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
@@ -168,6 +176,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.ElementSelector.CurrentIteration = this.CurrentThing;
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
+            this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
             await this.InitializeTable();
         }
 

@@ -1,0 +1,99 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2024 Starion Group S.A.
+
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.ViewModels.Components.ParameterEditor
+@using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
+@inherits DisposableComponent
+
+<DxButton Id="openBatchParameterEditorButton" 
+          Click="(this.ViewModel.OpenPopup)"
+          Text="Batch Update"
+          SizeMode="SizeMode.Medium"/>
+
+<DxPopup @bind-Visible="@(this.ViewModel.IsVisible)"
+         HeaderText="Batch Update"
+         Width="60vw">
+    <div class="px-3">
+        <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
+                               DisplayText="Select a parameter type:"/>
+
+        @if (this.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType != null)
+        {
+            <div class="row pt-2">
+                <div class="col">
+                    <OptionSelector ViewModel="this.ViewModel.OptionSelectorViewModel"/>
+                </div>
+                <div class="col">
+                    <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelectorViewModel"/>
+                </div>
+            </div>
+
+            <div class="row pt-3">
+                <h6>Select a value:</h6>
+                <ParameterTypeEditorSelector BindValueMode="BindValueMode.OnDelayedInput"
+                                             IsOnEditMode="false"
+                                             ViewModel="@(this.ViewModel.ParameterTypeEditorSelectorViewModel)"/>
+            </div>
+
+            <DxGrid @ref="this.Grid" 
+                    Data="@this.ViewModel.Rows.Items"
+                    ShowAllRows="true"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    @bind-SelectedDataItems="@(this.ViewModel.SelectedValueSetsRowsToUpdate)"
+                    CssClass="mt-3">
+                <Columns>
+                    <DxGridSelectionColumn Width="100px" AllowSelectAll="true" />
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ElementName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.OptionName)" Caption="@("Option")" AllowGroup="false" AllowSort="true"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualFiniteStateName)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ActualValue)" Caption="@("Value")" AllowGroup="false"/>
+                    <DxGridDataColumn FieldName="@nameof(ParameterValueSetBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
+                </Columns>
+                
+                <DataColumnGroupRowTemplate Context="context">
+                    <DxCheckBox style="margin-left: 7px; margin-right: 4px;"
+                                AllowIndeterminateStateByClick="false"
+                                Checked="this.GetGroupCheckBoxChecked(context)"
+                                CheckedChanged="(bool? value) => this.GroupCheckBox_CheckedChanged(value, context)">
+                        @context.DisplayText
+                    </DxCheckBox>
+                </DataColumnGroupRowTemplate>
+            </DxGrid>
+        }
+
+        <div class="pt-3"></div>
+        <div class="dxbl-grid-edit-form-buttons">
+            <DxButton Id="okButton"
+                      Text="Apply Changes"
+                      Click="(() => this.ViewModel.ConfirmCancelPopupViewModel.IsVisible = true)"
+                      Enabled="@this.IsApplyButtonEnabled"/>
+
+            <DxButton Id="closeButton"
+                      Text="Close"
+                      Click="(() => this.ViewModel.IsVisible = false)"
+                      RenderStyle="ButtonRenderStyle.Secondary"/>
+        </div>
+    </div>
+    <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelPopupViewModel)"></ConfirmCancelPopup>
+</DxPopup>

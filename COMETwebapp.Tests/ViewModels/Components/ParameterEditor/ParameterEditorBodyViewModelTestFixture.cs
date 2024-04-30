@@ -1,18 +1,18 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterEditorBodyViewModelTestFixture.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="ParameterEditorBodyViewModelTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Miguel Serra
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,11 +24,7 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -41,12 +37,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
+    using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
 
     using Moq;
 
@@ -57,6 +53,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     {
         private ParameterEditorBodyViewModel viewModel;
         private Mock<IParameterTableViewModel> tableViewModel;
+        private Mock<IBatchParameterEditorViewModel> batchParameterEditorViewModel;
         private Iteration iteration;
         private Mock<ISession> session;
         private CDPMessageBus messageBus;
@@ -66,7 +63,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             var uri = new Uri("http://localhost");
-            var domain = new DomainOfExpertise() { Iid = Guid.NewGuid() };
+            var domain = new DomainOfExpertise { Iid = Guid.NewGuid() };
             var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
             var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
             var elementUsage3 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element3" };
@@ -88,11 +85,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                         },
                         ValueSet =
                         {
-                            new ParameterValueSet()
+                            new ParameterValueSet
                             {
                                 Iid = Guid.NewGuid(),
-                                Computed = new ValueArray<string>(new []{"-"}),
-                                Formula = new ValueArray<string>(new []{"-"})
+                                Computed = new ValueArray<string>(new[] { "-" }),
+                                Formula = new ValueArray<string>(new[] { "-" })
                             }
                         }
                     }
@@ -112,11 +109,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                         ParameterType = new EnumerationParameterType { Name = "enumParamType" },
                         ValueSet =
                         {
-                            new ParameterValueSet()
+                            new ParameterValueSet
                             {
                                 Iid = Guid.NewGuid(),
-                                Computed = new ValueArray<string>(new []{"-"}),
-                                Formula = new ValueArray<string>(new []{"-"})
+                                Computed = new ValueArray<string>(new[] { "-" }),
+                                Formula = new ValueArray<string>(new[] { "-" })
                             }
                         }
                     }
@@ -136,11 +133,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                         ParameterType = new CompoundParameterType { Name = "compoundParamType" },
                         ValueSet =
                         {
-                            new ParameterValueSet()
+                            new ParameterValueSet
                             {
                                 Iid = Guid.NewGuid(),
-                                Computed = new ValueArray<string>(new []{"-"}),
-                                Formula = new ValueArray<string>(new []{"-"})
+                                Computed = new ValueArray<string>(new[] { "-" }),
+                                Formula = new ValueArray<string>(new[] { "-" })
                             }
                         }
                     }
@@ -160,11 +157,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                         ParameterType = new BooleanParameterType { Name = "booleanParamType" },
                         ValueSet =
                         {
-                            new ParameterValueSet()
+                            new ParameterValueSet
                             {
                                 Iid = Guid.NewGuid(),
-                                Computed = new ValueArray<string>(new []{"-"}),
-                                Formula = new ValueArray<string>(new []{"-"})
+                                Computed = new ValueArray<string>(new[] { "-" }),
+                                Formula = new ValueArray<string>(new[] { "-" })
                             }
                         }
                     }
@@ -176,7 +173,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             elementUsage3.ElementDefinition = elementDefinition3;
             elementUsage4.ElementDefinition = elementDefinition4;
 
-            var topElement = new ElementDefinition()
+            var topElement = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
                 Name = "topElement",
@@ -186,14 +183,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                     {
                         Iid = Guid.NewGuid(),
                         Owner = domain,
-                        ParameterType = new TextParameterType {Name = "textParamType"},
+                        ParameterType = new TextParameterType { Name = "textParamType" },
                         ValueSet =
                         {
-                            new ParameterValueSet()
+                            new ParameterValueSet
                             {
                                 Iid = Guid.NewGuid(),
-                                Computed = new ValueArray<string>(new []{"-"}),
-                                Formula = new ValueArray<string>(new []{"-"})
+                                Computed = new ValueArray<string>(new[] { "-" }),
+                                Formula = new ValueArray<string>(new[] { "-" })
                             }
                         }
                     }
@@ -222,9 +219,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             var subscriptionService = new Mock<ISubscriptionService>();
             this.tableViewModel = new Mock<IParameterTableViewModel>();
+            this.batchParameterEditorViewModel = new Mock<IBatchParameterEditorViewModel>();
             this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object, this.tableViewModel.Object, this.messageBus)
+            this.viewModel = new ParameterEditorBodyViewModel(sessionService.Object, subscriptionService.Object, this.tableViewModel.Object, this.messageBus, this.batchParameterEditorViewModel.Object)
             {
                 CurrentThing = this.iteration
             };
@@ -235,20 +233,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             this.viewModel.Dispose();
             this.messageBus.ClearSubscriptions();
-        }
-
-        [Test]
-        public void VerifyComponent()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.SubscriptionService, Is.Not.Null);
-                Assert.That(this.viewModel.ElementSelector, Is.Not.Null);
-                Assert.That(this.viewModel.ParameterTypeSelector, Is.Not.Null);
-                Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
-                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
-                Assert.That(this.viewModel.IsOwnedParameters, Is.True);
-            });
         }
 
         [Test]
@@ -287,10 +271,24 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         }
 
         [Test]
+        public void VerifyComponent()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SubscriptionService, Is.Not.Null);
+                Assert.That(this.viewModel.ElementSelector, Is.Not.Null);
+                Assert.That(this.viewModel.ParameterTypeSelector, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
+                Assert.That(this.viewModel.IsOwnedParameters, Is.True);
+            });
+        }
+
+        [Test]
         public async Task VerifyRefresh()
         {
             this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
-            
+
             Assert.Multiple(() =>
             {
                 this.tableViewModel.Verify(x => x.AddRows(It.IsAny<IEnumerable<Thing>>()), Times.Never);
@@ -298,7 +296,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 this.tableViewModel.Verify(x => x.UpdateRows(It.IsAny<IEnumerable<Thing>>()), Times.Never);
             });
 
-            var elementDefinition = new ElementDefinition()
+            var elementDefinition = new ElementDefinition
             {
                 Iid = Guid.NewGuid()
             };
@@ -322,7 +320,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
 
-            this.messageBus.SendObjectChangeEvent(new ElementDefinition()
+            this.messageBus.SendObjectChangeEvent(new ElementDefinition
             {
                 Container = new Iteration()
             }, EventKind.Removed);
