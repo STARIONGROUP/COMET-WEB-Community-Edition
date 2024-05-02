@@ -1,25 +1,25 @@
-<img src="https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/raw/development/COMET-Community-Edition.png" width="250">
+<img src="https://github.com/STARIOMGROUP/COMET-WEB-Community-Edition/raw/development/COMET-Community-Edition.png" width="250">
 
-The CDP4-COMET-WEB Community Editition (CE) is the RHEA Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C. The solution provides the following items:
+The CDP4-COMET-WEB Community Editition (CE) is the Starion Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C. The solution provides the following items:
   - COMET.Web.Common: A Common Library for any Blazor based application related to ECSS-E-TM-10-25. This can be used to develop various ECSS-E-TM-10-25 web applications and is distributed with the APACHE 2.0 license.
   - COMET.Web.Common.Test: A Common Library that includes DevExpress Blazor and Tasks test helpers and is distributed with the APACHE 2.0 license.
   - COMETwebapp: The CDP4-COMET web application which depends on `COMET.Web.Common` and is distributed with the AGPL version 3.0 license.
 
 A demo version of the web application is available at https://comet-web.cdp4.org
 
-![GitHub issues](https://img.shields.io/github/issues/RHEAGROUP/COMET-WEB-Community-Edition.svg)
+![GitHub issues](https://img.shields.io/github/issues/STARIONGROUP/COMET-WEB-Community-Edition.svg)
 
-[![Publish Docker Container](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml/badge.svg)](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=coverage)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=RHEAGROUP_COMET-WEB-Community-Edition&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=RHEAGROUP_COMET-WEB-Community-Edition)
+[![Publish Docker Container](https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml/badge.svg)](https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=coverage)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=STARIONGROUP_COMET-WEB-Community-Edition&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=STARIONGROUP_COMET-WEB-Community-Edition)
 
 ## Build Status
 
@@ -27,10 +27,10 @@ GitHub actions are used to build and test the software
 
 Branch | Build Status
 ------- | :------------
-Master | ![Build Status](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=master)
-Development | ![Build Status](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=development)
+Master | ![Build Status](https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=master)
+Development | ![Build Status](https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/actions/workflows/CodeQuality.yml/badge.svg?branch=development)
 
-> The CDP4-COMET-WEB SPA is automaticaly deployed to https://comet-web.cdp4.org using a [Github action](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
+> The CDP4-COMET-WEB SPA is automaticaly deployed to https://comet-web.cdp4.org using a [Github action](https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
 
 ## Concurrent Design
 
@@ -66,11 +66,11 @@ $ ./solutionfolder# docker push rheagroup/comet-web-community-edition:latest
 $ ./solutionfolder# docker push rheagroup/comet-web-community-edition:<specific-version>
 ```
 
-> The CDP4-COMET-WEB SPA is automaticaly deployed to https://comet-web.cdp4.org using a [Github action](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
+> The CDP4-COMET-WEB SPA is automaticaly deployed to https://comet-web.cdp4.org using a [Github action](https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/actions/workflows/publish-docker-container.yml)
 
 ## COMET-SDK
 
-The CDP4-COMET-WEB Community Edition make use of the [COMET-SDK](https://github.com/RHEAGROUP/COMET-SDK-Community-Edition).
+The CDP4-COMET-WEB Community Edition make use of the [COMET-SDK](https://github.com/STARIONGROUP/COMET-SDK-Community-Edition).
 
 # License
 
@@ -78,8 +78,8 @@ The CDP4-COMET-WEB Community Edition is provided to the community under the GNU 
 
 The COMET.WEB.Common and COMET.WEB.Common.Test libraries (nuget packages) are provided to the community under the APACHE 2.0 License.
 
-The [RHEA Group](https://www.rheagroup.com) also provides the [CDP4-COMET Web Services Enterprise Edition](https://github.com/RHEAGROUP/CDP4-WebServices-Community-Edition/wiki/CDP4-Web-Services-Enterprise-Edition) which comes with commercial support and more features. [Contact](https://www.rheagroup.com/contact) us for more details.
+The [Starion Group](https://www.stariongroup.eu) also provides the [CDP4-COMET Web Services Enterprise Edition](https://github.com/STARIONGROUP/CDP4-WebServices-Community-Edition/wiki/CDP4-Web-Services-Enterprise-Edition) which comes with commercial support and more features. [Contact](https://www.stariongroup.eu/contact) us for more details.
 
 # Contributions
 
-Contributions to the code-base are welcome. However, before we can accept your contributions we ask any contributor to sign the Contributor License Agreement (CLA) and send this digitaly signed to s.gerene@rheagroup.com. You can find the CLA's in the CLA folder.
+Contributions to the code-base are welcome. However, before we can accept your contributions we ask any contributor to sign the Contributor License Agreement (CLA) and send this digitaly signed to s.gerene@stariongroup.eu. You can find the CLA's in the CLA folder.
