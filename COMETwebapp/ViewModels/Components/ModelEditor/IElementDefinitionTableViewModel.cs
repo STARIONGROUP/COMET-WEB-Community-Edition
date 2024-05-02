@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
@@ -70,6 +71,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Gets the <see cref="IElementDefinitionCreationViewModel" />
         /// </summary>
         IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IAddParameterViewModel" />
+        /// </summary>
+        IAddParameterViewModel AddParameterViewModel { get; set; }
+
+        /// <summary>
+        /// Value indicating the user is currently adding a new <see cref="Parameter" /> to a <see cref="ElementDefinition"/>
+        /// </summary>
+        bool IsOnAddingParameterMode { get; set; }
 
         /// <summary>
         /// Opens the <see cref="ElementDefinitionCreation" /> popup

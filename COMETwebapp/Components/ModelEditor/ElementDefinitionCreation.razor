@@ -22,34 +22,34 @@
 @using CDP4Common.SiteDirectoryData;
 
 <EditForm Context="EditFormContext" Model="@this.ViewModel.ElementDefinition" OnValidSubmit="@this.ViewModel.OnValidSubmit">
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutTabPages>
-                    <DxFormLayoutTabPage Caption="Basic">
-                        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.ShortName" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                            <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.Name" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
-                            <DxComboBox Data="@this.ViewModel.AvailableDomains"
-                                        TextFieldName="@nameof(DomainOfExpertise.Name)"
-                            @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Is Top Element:" ColSpanMd="6">
-                            <DxCheckBox @bind-Checked="@this.ViewModel.IsTopElement" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutTabPage>
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.ShortName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@this.ViewModel.ElementDefinition.Name" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+                    <DxComboBox Data="@this.ViewModel.AvailableDomains"
+                                TextFieldName="@nameof(DomainOfExpertise.Name)"
+                    @bind-Value="@this.ViewModel.ElementDefinition.Owner" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Top Element:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.IsTopElement" />
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
 
-                    <DxFormLayoutTabPage Caption="Category">
-                        <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
-                        @bind-Values="@this.ViewModel.SelectedCategories"
-                                   SelectionMode="ListBoxSelectionMode.Multiple"
-                                   TextFieldName="@nameof(Category.Name)"
-                                   ShowCheckboxes="true" />
-                    </DxFormLayoutTabPage>
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
+            <DxFormLayoutTabPage Caption="Category">
+                <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
+                @bind-Values="@this.ViewModel.SelectedCategories"
+                           SelectionMode="ListBoxSelectionMode.Multiple"
+                           TextFieldName="@nameof(Category.Name)"
+                           ShowCheckboxes="true" />
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
     <div class="modal-footer m-top-10px">
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Create" SubmitFormOnClick="true" />
     </div>

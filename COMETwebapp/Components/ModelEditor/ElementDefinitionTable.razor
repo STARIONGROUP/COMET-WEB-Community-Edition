@@ -70,13 +70,20 @@
                 </div>
                 <div style="padding-left: 20px;">
                     <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
+                    <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(() => this.ViewModel.IsOnAddingParameterMode = true)" />
                 </div>
             </div>
         </div>
     </div>
     <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode">
-		<Content>
-			<ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
-		</Content>
+        <Content>
+            <ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
+        </Content>
+    </DxPopup>
+    
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Add Parameter" @bind-Visible="@this.ViewModel.IsOnAddingParameterMode">
+        <Content>
+            <AddParameter ViewModel="@this.ViewModel.AddParameterViewModel"/>
+        </Content>
     </DxPopup>
 </LoadingComponent>
