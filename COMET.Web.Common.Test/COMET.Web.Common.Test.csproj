@@ -9,13 +9,14 @@
       <AssemblyVersion>2.0.0</AssemblyVersion>
       <FileVersion>2.0.0</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
-      <Company>RHEA System S.A.</Company>
-      <Copyright>Copyright 2023-2024 RHEA System S.A.</Copyright>
+      <Company>Starion Group S.A.</Company>
+      <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
       <PackageId>CDP4.WEB.Common.Test</PackageId>
       <AssemblyTitle>COMET.WEB.Common.Test</AssemblyTitle>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
       <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
       <RepositoryType>Git</RepositoryType>
+      <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <PackageIcon>cdp4-icon.png</PackageIcon>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
