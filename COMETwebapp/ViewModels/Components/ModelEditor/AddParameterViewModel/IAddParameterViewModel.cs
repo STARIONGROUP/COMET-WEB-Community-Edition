@@ -93,5 +93,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// </summary>
         /// <param name="selectedElementDefinition"></param>
         void SetSelectedElementDefinition(ElementDefinition selectedElementDefinition);
+
+        /// <summary>
+        /// Resets this view model properties values
+        /// </summary>
+        void ResetValues();
     }
 }

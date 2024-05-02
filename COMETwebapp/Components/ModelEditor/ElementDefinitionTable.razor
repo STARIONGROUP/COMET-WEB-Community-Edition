@@ -61,16 +61,20 @@
             </DxGrid>
         </div>
         <div style="width: 1300px; padding-left: 40px;">
-            <div>
-                <h4>Panel Editor</h4>
+            <div class="mb-2">
+                <h4 class="d-inline">Panel Editor</h4>
+                <div class="float-end">
+                    @if (this.ViewModel.SelectedElementDefinition is not null)
+                    {
+                        <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)" />
+                    }
+                        
+                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
+                </div>
             </div>
             <div style="display:flex; justify-content: space-between;">
                 <div style="flex: 1;">
                     <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
-                </div>
-                <div style="padding-left: 20px;">
-                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
-                    <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(() => this.ViewModel.IsOnAddingParameterMode = true)" />
                 </div>
             </div>
         </div>

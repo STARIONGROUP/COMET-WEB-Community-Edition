@@ -46,6 +46,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Gets or sets the current <see cref="Iteration"/>
+        /// </summary>
+        private Iteration CurrentIteration { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AddParameterViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
@@ -102,9 +107,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// <param name="selectedElementDefinition"></param>
         public void SetSelectedElementDefinition(ElementDefinition selectedElementDefinition)
         {
-            this.Parameter = new Parameter();
             this.SelectedElementDefinition = selectedElementDefinition;
             this.DomainsOfExpertise = selectedElementDefinition.GetContainerOfType<EngineeringModel>().EngineeringModelSetup.ActiveDomain;
+
+            var allParameterTypes = this.CurrentIteration.QueryUsedParameterTypes();
+            var elementDefinitionParameterTypes = this.SelectedElementDefinition.Parameter.Select(x => x.ParameterType);
+            var filteredParameterTypes = allParameterTypes.Where(x => !elementDefinitionParameterTypes.Contains(x)).Select(x => x.Iid);
+
+            this.ParameterTypeSelectorViewModel.FilterAvailableParameterTypes(filteredParameterTypes);
         }
 
         /// <summary>
@@ -113,6 +123,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// <param name="iteration">The <see cref="Iteration" /></param>
         public void InitializeViewModel(Iteration iteration)
         {
+            this.CurrentIteration = iteration;
             this.FiniteStateSelectorViewModel.CurrentIteration = iteration;
             this.ParameterTypeSelectorViewModel.CurrentIteration = iteration;
             this.Parameter.Owner ??= this.sessionService.Session.ActivePerson.DefaultDomain;
@@ -127,14 +138,25 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         {
             var elementDefinitionClone = this.SelectedElementDefinition.Clone(false);
             var selectedParameterType = this.ParameterTypeSelectorViewModel.SelectedParameterType;
+            var parameterClone = this.Parameter.Clone(false);
 
-            this.Parameter.ParameterType = selectedParameterType;
-            elementDefinitionClone.Parameter.Add(this.Parameter);
+            parameterClone.ParameterType = selectedParameterType;
+            elementDefinitionClone.Parameter.Add(parameterClone);
 
-            await this.sessionService.CreateOrUpdateThings(elementDefinitionClone, [elementDefinitionClone, this.Parameter]);
+            await this.sessionService.CreateOrUpdateThings(elementDefinitionClone, [elementDefinitionClone, parameterClone]);
             await this.sessionService.RefreshSession();
 
             await this.OnParameterAdded.InvokeAsync();
+        }
+
+        /// <summary>
+        /// Resets this view model properties values
+        /// </summary>
+        public void ResetValues()
+        {
+            this.Parameter = new Parameter();
+            this.ParameterTypeSelectorViewModel.SelectedParameterType = null;
+            this.FiniteStateSelectorViewModel.SelectedActualFiniteState = null;
         }
 
         /// <summary>

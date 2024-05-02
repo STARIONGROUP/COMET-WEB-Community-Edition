@@ -60,7 +60,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// Represents the selected ElementDefinitionRowViewModel
         /// </summary>
-        object SelectedElementDefinition { get; set; }
+        ElementDefinition SelectedElementDefinition { get; set; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -92,5 +92,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
         void SelectElement(GridRowClickEventArgs args);
+
+        /// <summary>
+        /// Opens the <see cref="AddParameter"/> popup
+        /// </summary>
+        void OpenAddParameterPopup();
     }
 }

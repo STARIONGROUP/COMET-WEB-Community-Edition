@@ -23,28 +23,29 @@
 @inherits DisposableComponent
 
 <EditForm Context="EditFormContext" Model="@this.ViewModel.Parameter" OnValidSubmit="@this.ViewModel.AddParameterToElementDefinition">
+    <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
             <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
                         TextFieldName="@nameof(DomainOfExpertise.Name)"
-                        @bind-Value="@this.ViewModel.Parameter.Owner" />
+                        @bind-Value="@this.ViewModel.Parameter.Owner"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="10">
-            <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel" 
+            <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
                                    DisplayText="@(string.Empty)"/>
         </DxFormLayoutItem>
-        
+
         @if (this.ViewModel.Parameter.ParameterType is QuantityKind)
         {
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="10">
                 <DxComboBox Data="@this.ViewModel.MeasurementScales"
                             TextFieldName="@nameof(MeasurementScale.Name)"
-                            @bind-Value="@this.ViewModel.Parameter.Scale" />
+                            @bind-Value="@this.ViewModel.Parameter.Scale"/>
             </DxFormLayoutItem>
         }
-        
+
         <DxFormLayoutItem Caption="State Dependence:" ColSpanMd="10">
-            <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelectorViewModel" 
+            <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelectorViewModel"
                                  DisplayText="@(string.Empty)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Group:" ColSpanMd="10">
@@ -63,7 +64,9 @@
             <DxCheckBox @bind-Checked="@this.ViewModel.Parameter.AllowDifferentOwnerOfOverride"/>
         </DxFormLayoutItem>
     </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary />
     <div class="modal-footer m-top-10px">
-        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Create" SubmitFormOnClick="true" />
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Create" SubmitFormOnClick="true"/>
     </div>
 </EditForm>

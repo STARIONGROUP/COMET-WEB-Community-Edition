@@ -144,7 +144,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// Represents the selected ElementDefinitionRowViewModel
         /// </summary>
-        public object SelectedElementDefinition { get; set; }
+        public ElementDefinition SelectedElementDefinition { get; set; }
 
         /// <summary>
         /// set the selected <see cref="ElementDefinitionRowViewModel" />
@@ -157,15 +157,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedNode.ElementBase;
 
-            var elementDefintion = selectedNode.ElementBase switch
+            this.SelectedElementDefinition = selectedNode.ElementBase switch
             {
                 ElementDefinition definition => definition,
                 ElementUsage usage => usage.ElementDefinition,
                 _ => null
             };
 
-            this.ElementDefinitionDetailsViewModel.Rows = elementDefintion?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList();
-            this.AddParameterViewModel.SetSelectedElementDefinition(elementDefintion);
+            this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList();
+            this.AddParameterViewModel.SetSelectedElementDefinition(this.SelectedElementDefinition);
         }
 
         /// <summary>
@@ -176,6 +176,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition();
             this.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category>();
             this.IsOnCreationMode = true;
+        }
+
+        /// <summary>
+        /// Opens the <see cref="AddParameter"/> popup
+        /// </summary>
+        public void OpenAddParameterPopup()
+        {
+            this.AddParameterViewModel.ResetValues();
+            this.IsOnAddingParameterMode = true;
         }
 
         /// <summary>
