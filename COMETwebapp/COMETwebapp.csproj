@@ -10,7 +10,7 @@
         <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
         <Authors>Justine, Sam, Alex, Alexander, Antoine, Jaime</Authors>
         <RepositoryType>Git</RepositoryType>
-        <RepositoryUrl>https://github.com/STARIONROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
         <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
