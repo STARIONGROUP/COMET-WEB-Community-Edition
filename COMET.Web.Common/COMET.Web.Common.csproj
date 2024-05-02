@@ -8,14 +8,14 @@
     <FileVersion>3.0.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
-    <Company>RHEA System S.A.</Company>
-    <Copyright>Copyright 2023-2024 RHEA System S.A.</Copyright>
+    <Company>Starion Group S.A.</Company>
+    <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
     <PackageId>CDP4.WEB.Common</PackageId>
     <AssemblyTitle>COMET.WEB.Common</AssemblyTitle>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
     <RepositoryType>Git</RepositoryType>
-    <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <PackageReadmeFile>README.md</PackageReadmeFile>

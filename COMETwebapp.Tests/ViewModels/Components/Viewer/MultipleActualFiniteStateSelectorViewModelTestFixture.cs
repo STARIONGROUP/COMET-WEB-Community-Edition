@@ -1,11 +1,11 @@
 ﻿// -------------------------------------------------------------------------------------------------------------------- 
-// <copyright file="MultipleActualFiniteStateSelectorViewModelTestFixture.cs" company="RHEA System S.A."> 
-//    Copyright (c) 2023-2024 RHEA System S.A. 
+// <copyright file="MultipleActualFiniteStateSelectorViewModelTestFixture.cs" company="Starion Group S.A."> 
+//    Copyright (c) 2023-2024 Starion Group S.A. 
 // 
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar 
 // 
 //    This file is part of CDP4-COMET WEB Community Edition 
-//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C. 
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C. 
 // 
 //    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or 
 //    modify it under the terms of the GNU Affero General Public 
@@ -42,7 +42,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
     public class MultipleActualFiniteStateSelectorViewModelTestFixture
     {
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
-        private readonly Uri uri = new("http://www.rheagroup.com");
+        private readonly Uri uri = new("https://www.stariongroup.eu/");
         private MultipleActualFiniteStateSelectorViewModel viewModel;
 
         [SetUp]

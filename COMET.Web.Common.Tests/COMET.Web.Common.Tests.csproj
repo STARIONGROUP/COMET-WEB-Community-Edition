@@ -4,9 +4,9 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Description>Unit tests for the COMET Web Common Library</Description>
-        <Company>RHEA System S.A.</Company>
-        <Copyright>Copyright 2023-2024 RHEA System S.A.</Copyright>
-        <RepositoryUrl>https://github.com/RHEAGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
+        <Company>Starion Group S.A.</Company>
+        <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
+        <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
