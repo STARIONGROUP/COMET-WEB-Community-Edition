@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BaseNodeViewModel.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="BaseNodeViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Shared
 {
+    using CDP4Common.CommonData;
+
     using COMET.Web.Common.Utilities.DisposableObject;
 
     using DynamicData;
@@ -60,9 +62,23 @@ namespace COMETwebapp.ViewModels.Components.Shared
         }
 
         /// <summary>
+        /// Creates a new instance of type <see cref="BaseNodeViewModel{T}" />
+        /// </summary>
+        /// <param name="thing">the current thing</param>
+        protected BaseNodeViewModel(Thing thing)
+        {
+            this.SetThing(thing);
+        }
+
+        /// <summary>
         /// Gets or sets the parent of this <see cref="BaseNodeViewModel{T}" />
         /// </summary>
         public T Parent { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current thing
+        /// </summary>
+        public Thing Thing { get; private set; }
 
         /// <summary>
         /// Field for containing the children of this <see cref="BaseNodeViewModel{T}" />
@@ -285,6 +301,16 @@ namespace COMETwebapp.ViewModels.Components.Shared
             }
 
             return this.GetFlatListOfDescendants().Contains(baseNodeViewModel);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="Thing" /> property value
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to be set</param>
+        public void SetThing(Thing thing)
+        {
+            this.Thing = thing;
+            this.Title = thing.UserFriendlyName;
         }
 
         /// <summary>

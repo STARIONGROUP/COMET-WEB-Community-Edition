@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SystemRepresentationBodyViewModel.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="SystemRepresentationBodyViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -29,12 +29,13 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+
+    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -57,7 +58,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
                 OnClick = new EventCallbackFactory().Create<SystemNodeViewModel>(this, this.SelectElement)
             };
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).SubscribeAsync(_ => this.ApplyFilters()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(_ => this.ApplyFilters()));
+            this.InitializeSubscriptions([typeof(ElementUsage)]);
         }
 
         /// <summary>
@@ -92,8 +94,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /></returns>
         public void SelectElement(SystemNodeViewModel selectedNode)
         {
-            // It is preferable to have a selection based on the Iid of the Thing
-            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.Find(e => e.Name.Equals(selectedNode.Title));
+            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.Find(e => e.Iid == selectedNode.Thing.Iid);
 
             this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
             {
@@ -106,18 +107,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Apply all the filters on the <see cref="SystemRepresentationTreeViewModel" />
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task ApplyFilters()
+        public void ApplyFilters()
         {
-            if (this.CurrentThing != null)
+            if (this.CurrentThing == null)
             {
-                this.IsLoading = true;
-                await Task.Delay(1);
-
-                this.OnOptionFilterChange(this.OptionSelector.SelectedOption);
-
-                this.IsLoading = false;
+                return;
             }
+
+            this.IsLoading = true;
+            this.OnOptionFilterChange(this.OptionSelector.SelectedOption);
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -154,11 +153,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnThingChanged()
         {
-            this.Elements.Clear();
             await base.OnThingChanged();
+
+            this.Elements.Clear();
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.InitializeElements();
-            await this.ApplyFilters();
+            this.ApplyFilters();
             this.IsLoading = false;
         }
 
@@ -173,10 +173,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             if (this.CurrentDomain != null)
             {
                 this.IsLoading = true;
-                await Task.Delay(1);
-
-                await this.ApplyFilters();
-
+                this.ApplyFilters();
                 this.IsLoading = false;
             }
         }
@@ -187,7 +184,30 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            return this.OnThingChanged();
+            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            this.IsLoading = true;
+
+            var addedElements = this.AddedThings.OfType<ElementUsage>().ToList();
+            var deletedElements = this.DeletedThings.OfType<ElementUsage>().ToList();
+            var updatedElements = this.UpdatedThings.OfType<ElementUsage>().ToList();
+
+            this.Elements.AddRange(addedElements);
+            this.Elements.RemoveMany(deletedElements);
+
+            this.ProductTreeViewModel.AddElementsToTree(addedElements, this.OptionSelector.SelectedOption, []);
+            this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
+            this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements);
+
+            this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
+
+            this.ClearRecordedChanges();
+            this.IsLoading = false;
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SystemNodeViewModel.cs" company="RHEA System S.A.">
-//     Copyright (c) 2023-2024 RHEA System S.A.
+//  <copyright file="SystemNodeViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,7 +24,10 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.ViewModels.Components.Shared;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -33,17 +36,17 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     public class SystemNodeViewModel : BaseNodeViewModel<SystemNodeViewModel>
     {
         /// <summary>
-        ///     The <see cref="EventCallback" /> to call on baseNode selection
+        /// Creates a new instance of type <see cref="SystemNodeViewModel" />
         /// </summary>
-        public EventCallback<SystemNodeViewModel> OnSelect { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of type <see cref="SystemNodeViewModel"/>
-        /// </summary>
-        /// <param name="title">the title of the view model</param>
-        public SystemNodeViewModel(string title) : base(title)
+        /// <param name="elementBase">the system node view model</param>
+        public SystemNodeViewModel(ElementBase elementBase) : base(elementBase)
         {
         }
+
+        /// <summary>
+        /// The <see cref="EventCallback" /> to call on baseNode selection
+        /// </summary>
+        public EventCallback<SystemNodeViewModel> OnSelect { get; set; }
 
         /// <summary>
         /// Callback method for when a node is selected
