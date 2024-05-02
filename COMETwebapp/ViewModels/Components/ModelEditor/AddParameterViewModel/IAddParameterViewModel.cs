@@ -57,11 +57,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; }
 
         /// <summary>
-        /// Gets the <see cref="IFiniteStateSelectorViewModel"/>
-        /// </summary>
-        IFiniteStateSelectorViewModel FiniteStateSelectorViewModel { get; }
-
-        /// <summary>
         /// The collection of <see cref="MeasurementScale" /> to list for selection, if the parameter type is quantity kind
         /// </summary>
         IEnumerable<MeasurementScale> MeasurementScales { get; set; }
@@ -75,6 +70,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// The callback executed when the method <see cref="AddParameterToElementDefinition"/> was executed
         /// </summary>
         EventCallback OnParameterAdded { get; set; }
+
+        /// <summary>
+        /// The collection of <see cref="ActualFiniteStateList" /> to list for selection
+        /// </summary>
+        IEnumerable<ActualFiniteStateList> PossibleFiniteStates { get; }
 
         /// <summary>
         /// Adds a parameter of type selected from <see cref="AddParameterViewModel.ParameterTypeSelectorViewModel"/> to the <see cref="AddParameterViewModel.SelectedElementDefinition"/>

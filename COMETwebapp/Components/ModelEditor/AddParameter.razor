@@ -43,10 +43,11 @@
                             @bind-Value="@this.ViewModel.Parameter.Scale"/>
             </DxFormLayoutItem>
         }
-
         <DxFormLayoutItem Caption="State Dependence:" ColSpanMd="10">
-            <FiniteStateSelector ViewModel="this.ViewModel.FiniteStateSelectorViewModel"
-                                 DisplayText="@(string.Empty)"/>
+            <DxComboBox Data="@this.ViewModel.PossibleFiniteStates"
+                        TextFieldName="@nameof(ActualFiniteStateList.Name)"
+                        @bind-Value="@this.ViewModel.Parameter.StateDependence"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Group:" ColSpanMd="10">
             <DxComboBox Data="@this.ViewModel.ParameterGroups"

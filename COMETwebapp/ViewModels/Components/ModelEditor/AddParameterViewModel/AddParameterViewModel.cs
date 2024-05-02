@@ -72,11 +72,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         public IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; private set; } = new ParameterTypeSelectorViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
-        /// </summary>
-        public IFiniteStateSelectorViewModel FiniteStateSelectorViewModel { get; private set; } = new FiniteStateSelectorViewModel();
-
-        /// <summary>
         /// The <see cref="ElementDefinition" /> to create or edit
         /// </summary>
         public Parameter Parameter { get; set; } = new();
@@ -90,6 +85,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// The collection of <see cref="DomainOfExpertise" /> to list for selection
         /// </summary>
         public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; set; }
+
+        /// <summary>
+        /// The collection of <see cref="ActualFiniteStateList" /> to list for selection
+        /// </summary>
+        public IEnumerable<ActualFiniteStateList> PossibleFiniteStates { get; private set; }
 
         /// <summary>
         /// The collection of <see cref="ParameterGroup" /> to list for selection
@@ -124,7 +124,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         public void InitializeViewModel(Iteration iteration)
         {
             this.CurrentIteration = iteration;
-            this.FiniteStateSelectorViewModel.CurrentIteration = iteration;
+            this.PossibleFiniteStates = iteration.ActualFiniteStateList;
             this.ParameterTypeSelectorViewModel.CurrentIteration = iteration;
             this.Parameter.Owner ??= this.sessionService.Session.ActivePerson.DefaultDomain;
         }
@@ -156,7 +156,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         {
             this.Parameter = new Parameter();
             this.ParameterTypeSelectorViewModel.SelectedParameterType = null;
-            this.FiniteStateSelectorViewModel.SelectedActualFiniteState = null;
         }
 
         /// <summary>

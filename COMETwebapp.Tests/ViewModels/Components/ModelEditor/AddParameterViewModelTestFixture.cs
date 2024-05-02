@@ -129,7 +129,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Assert.That(this.viewModel.DomainsOfExpertise, Is.Null);
                 Assert.That(this.viewModel.ParameterGroups, Is.Empty);
                 Assert.That(this.viewModel.ParameterTypeSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
-                Assert.That(this.viewModel.FiniteStateSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
                 Assert.That(this.viewModel.Parameter.Owner, Is.EqualTo(this.domain));
             });
 
