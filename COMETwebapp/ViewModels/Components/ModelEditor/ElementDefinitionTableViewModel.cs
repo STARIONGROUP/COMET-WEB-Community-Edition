@@ -36,12 +36,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using DevExpress.Blazor;
 
     using DynamicData;
 
@@ -149,11 +146,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// set the selected <see cref="ElementDefinitionRowViewModel" />
         /// </summary>
-        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
-        public void SelectElement(GridRowClickEventArgs args)
+        /// <param name="selectedNode">The selected <see cref="ElementDefinitionRowViewModel" /></param>
+        public void SelectElement(ElementDefinitionRowViewModel selectedNode)
         {
-            var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
-
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedNode.ElementBase;
 
@@ -179,7 +174,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         }
 
         /// <summary>
-        /// Opens the <see cref="AddParameter"/> popup
+        /// Opens the <see cref="AddParameter" /> popup
         /// </summary>
         public void OpenAddParameterPopup()
         {

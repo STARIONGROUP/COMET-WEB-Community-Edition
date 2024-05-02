@@ -88,10 +88,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         void OpenCreateElementDefinitionCreationPopup();
 
         /// <summary>
-        /// set the selected <see cref="ElementDefinitionRowViewModel" /> 
+        /// set the selected <see cref="ElementDefinitionRowViewModel" />
         /// </summary>
-        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
-        void SelectElement(GridRowClickEventArgs args);
+        /// <param name="selectedNode">The selected <see cref="ElementDefinitionRowViewModel"/></param>
+        void SelectElement(ElementDefinitionRowViewModel selectedNode);
 
         /// <summary>
         /// Opens the <see cref="AddParameter"/> popup

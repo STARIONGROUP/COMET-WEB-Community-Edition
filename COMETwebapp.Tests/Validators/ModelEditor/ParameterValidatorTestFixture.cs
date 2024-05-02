@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterValidator.cs" company="Starion Group S.A.">
+//  <copyright file="ParameterValidatorTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,33 +22,42 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.ModelEditor
+namespace COMETwebapp.Tests.Validators.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
 
-    using COMET.Web.Common.Extensions;
+    using COMETwebapp.Validators.ModelEditor;
 
-    using FluentValidation;
+    using NUnit.Framework;
 
-    /// <summary>
-    /// A class to validate the <see cref="Parameter" />
-    /// </summary>
-    public class ParameterValidator : AbstractValidator<Parameter>
+    [TestFixture]
+    public class ParameterValidatorTestFixture
     {
-        /// <summary>
-        /// Instantiates a new <see cref="ParameterValidator" />
-        /// </summary>
-        public ParameterValidator(IValidationService validationService)
+        private ParameterValidator validator;
+
+        [SetUp]
+        public void SetUp()
         {
-            this.RuleFor(x => x.Owner).NotEmpty().Validate(validationService, nameof(Parameter.Owner));
-            this.RuleFor(x => x.ParameterType).NotEmpty().Validate(validationService, nameof(Parameter.ParameterType));
-            this.RuleFor(x => x.Scale).Validate(validationService, nameof(Parameter.Scale));
-            this.RuleFor(x => x.StateDependence).Validate(validationService, nameof(Parameter.StateDependence));
-            this.RuleFor(x => x.Group).Validate(validationService, nameof(Parameter.Group));
-            this.RuleFor(x => x.IsOptionDependent).Validate(validationService, nameof(Parameter.IsOptionDependent));
-            this.RuleFor(x => x.ExpectsOverride).Validate(validationService, nameof(Parameter.ExpectsOverride));
-            this.RuleFor(x => x.AllowDifferentOwnerOfOverride).Validate(validationService, nameof(Parameter.AllowDifferentOwnerOfOverride));
+            var validationService = new ValidationService();
+            this.validator = new ParameterValidator(validationService);
+        }
+
+        [Test]
+        public void VerifyValidationScenarios()
+        {
+            var parameter = new Parameter();
+            Assert.That(this.validator.Validate(parameter).IsValid, Is.EqualTo(false));
+
+            parameter = new Parameter
+            {
+                Owner = new DomainOfExpertise()
+            };
+
+            Assert.That(this.validator.Validate(parameter).IsValid, Is.EqualTo(false));
+            parameter.ParameterType = new TextParameterType();
+            Assert.That(this.validator.Validate(parameter).IsValid, Is.EqualTo(true));
         }
     }
 }
