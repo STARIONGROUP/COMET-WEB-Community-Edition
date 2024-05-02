@@ -1,11 +1,11 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BabylonJsInteroperabilityTestFixture.cs" company="RHEA System S.A.">
-//    Copyright (c) 2023-2024 RHEA System S.A.
+// <copyright file="BabylonJsInteroperabilityTestFixture.cs" company="Starion Group S.A.">
+//    Copyright (c) 2023-2024 Starion Group S.A.
 //
 //    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 //
 //    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 //
 //    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU Affero General Public
