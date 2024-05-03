@@ -161,5 +161,45 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
             Assert.That(renderer.FindComponents<ScalarParameter>(), Has.Count.EqualTo(8));
         }
+
+        [Test]
+        public void VerifyWithSfpt()
+        {
+            var dependentType = new SimpleQuantityKind();
+            var independentType = new SimpleQuantityKind();
+            var sfpt = new SampledFunctionParameterType();
+
+            sfpt.DependentParameterType.Add(new DependentParameterTypeAssignment()
+            {
+                ParameterType = dependentType
+            });
+
+            sfpt.IndependentParameterType.Add(new IndependentParameterTypeAssignment()
+            {
+                ParameterType = independentType
+            });
+
+            var valueArray = new ValueArray<string>(new[] { "1", "10", "2", "20" });
+
+            var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
+            {
+                parameters.Add(p => p.ParameterType, sfpt);
+                parameters.Add(p => p.Value, valueArray);
+            });
+
+            var sftpComponent = renderer.FindComponent<SampledFunctionParameterComponent>();
+            Assert.That(sftpComponent.Instance.ParameterTypeAssignments, Has.Count.EqualTo(2));
+
+            var columns = sftpComponent.FindAll("th");
+
+            //table rows are the sum of all sfpt rows + header row
+            var tableRows = sftpComponent.FindAll("tr");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(columns, Has.Count.EqualTo(2));
+                Assert.That(tableRows, Has.Count.EqualTo(3));
+            });
+        }
     }
 }

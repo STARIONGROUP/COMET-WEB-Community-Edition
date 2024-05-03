@@ -23,12 +23,14 @@
 
 <table class="table table-striped lh-1">
     <thead>
-        @foreach (var parameterTypeAssignement in this.ParameterTypeAssignments)
-        {
-            <th scope="col">
-                @($"{parameterTypeAssignement.ParameterType.ShortName} [{parameterTypeAssignement.MeasurementScale.ShortName}]")
-            </th>
-        }
+        <tr>
+            @foreach (var parameterTypeAssignement in this.ParameterTypeAssignments)
+            {
+                <th scope="col">
+                    @($"{parameterTypeAssignement.ParameterType.ShortName} [{parameterTypeAssignement.MeasurementScale?.ShortName}]")
+                </th>
+            }
+        </tr>
     </thead>
     <tbody>
         @for (var rowIndex = 0; rowIndex < this.SampledFunctionParameterType.QueryRowsCount(this.Values); rowIndex++)
@@ -37,7 +39,7 @@
                 @for (var columnIndex = 0; columnIndex < this.ParameterTypeAssignments.Count(); columnIndex++)
                 {
                     <td>
-                        @this.Values[rowIndex * this.ParameterTypeAssignments.Count() + columnIndex]
+                        @this.Values.ElementAtOrDefault(rowIndex * this.ParameterTypeAssignments.Count() + columnIndex)
                     </td>
                 }
             </tr>
