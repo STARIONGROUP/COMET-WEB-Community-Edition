@@ -189,7 +189,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
             });
 
             var sftpComponent = renderer.FindComponent<SampledFunctionParameterComponent>();
-            Assert.That(sftpComponent.Instance.ParameterTypeAssignments, Has.Count.EqualTo(2));
+            Assert.That(sftpComponent.Instance.ParameterTypeAssignments.Count(), Is.EqualTo(2));
 
             var columns = sftpComponent.FindAll("th");
 
