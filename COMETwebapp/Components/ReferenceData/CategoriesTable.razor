@@ -56,11 +56,11 @@ Copyright (c) 2023-2024 Starion Group S.A.
                     var row = (CategoryRowViewModel)context.DataItem;
                     if (row.IsDeprecated)
                     {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((CategoryRowViewModel)context.DataItem)" Enabled=row.IsAllowedToWrite />
+                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)" Enabled=row.IsAllowedToWrite />
                     }
                     else
                     {
-                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick((CategoryRowViewModel)context.DataItem)" Enabled=row.IsAllowedToWrite />
+                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)" Enabled=row.IsAllowedToWrite />
                     }
                 }
             </CellDisplayTemplate>

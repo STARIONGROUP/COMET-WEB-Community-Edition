@@ -126,11 +126,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
             await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<DomainOfExpertiseRowViewModel>()), Times.Once);
+            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<DomainOfExpertise>()), Times.Once);
 
             var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
             await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<DomainOfExpertiseRowViewModel>()), Times.Exactly(2));
+            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<DomainOfExpertise>()), Times.Exactly(2));
         }
 
         [Test]

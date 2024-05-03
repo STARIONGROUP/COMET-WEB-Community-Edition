@@ -263,7 +263,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(false));
             });
 
-            this.viewModel.OnDeprecateUnDeprecateButtonClick(measurementScaleRow);
+            this.viewModel.OnDeprecateUnDeprecateButtonClick(measurementScaleRow.Thing);
 
             Assert.Multiple(() =>
             {

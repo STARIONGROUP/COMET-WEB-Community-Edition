@@ -1,6 +1,8 @@
 ﻿.data-item-details-section {
-    width: 50%;
     padding: 30px;
+    border: 1px dashed;
+    border-radius: 10px;
+    height: 100%;
 }
 
 .data-item-details-image {

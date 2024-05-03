@@ -52,7 +52,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
                             <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
                                       Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
-                                      Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
+                                      Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)"
                                       Enabled="@(row.IsAllowedToWrite)"/>
                         }
                     </CellDisplayTemplate>

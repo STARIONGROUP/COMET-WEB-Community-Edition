@@ -99,11 +99,11 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        /// <param name="thingRow"> The row to deprecate or undeprecate </param>
-        public void OnDeprecateUnDeprecateButtonClick(TRow thingRow)
+        /// <param name="thing"> The thing to deprecate or undeprecate </param>
+        public void OnDeprecateUnDeprecateButtonClick(T thing)
         {
-            this.Thing = thingRow.Thing;
-            this.PopupDialog = this.Thing.IsDeprecated ? $"You are about to un-deprecate the {typeof(T).Name}: {thingRow.Name}" : $"You are about to deprecate the {typeof(T).Name}: {thingRow.Name}";
+            this.Thing = thing;
+            this.PopupDialog = this.Thing.IsDeprecated ? $"You are about to un-deprecate the {typeof(T).Name}: {thing.Name}" : $"You are about to deprecate the {typeof(T).Name}: {thing.Name}";
             this.IsOnDeprecationMode = true;
         }
 
@@ -113,12 +113,15 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeprecateOrUnDeprecateThing()
         {
+            this.IsLoading = true;
+
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
             var clonedThing = this.Thing.Clone(false);
 
             if (clonedThing is IDeprecatableThing deprecatableThing)
             {
                 deprecatableThing.IsDeprecated = !deprecatableThing.IsDeprecated;
+                this.Thing.IsDeprecated = deprecatableThing.IsDeprecated;
             }
 
             try
@@ -130,6 +133,8 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
             {
                 this.Logger.LogError(exception, "An error has occurred while trying to deprecating or un-deprecating the {thingType} {thingName}", typeof(T), ((IShortNamedThing)clonedThing).ShortName);
             }
+
+            this.IsLoading = false;
         }
     }
 }

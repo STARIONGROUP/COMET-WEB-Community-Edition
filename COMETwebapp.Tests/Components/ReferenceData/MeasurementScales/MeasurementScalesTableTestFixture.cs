@@ -119,7 +119,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             var renderer = this.context.RenderComponent<MeasurementScalesTable>();
 
-            var addMeasurementScaleButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addMeasurementScaleButton");
+            var addMeasurementScaleButton = renderer.FindComponent<DxToolbarItem>();
             await renderer.InvokeAsync(addMeasurementScaleButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
@@ -151,14 +151,16 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         public async Task VerifyDeprecatingAndUndeprecatingMeasurementScale()
         {
             var renderer = this.context.RenderComponent<MeasurementScalesTable>();
+            var measurementScalesGrid = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(() => measurementScalesGrid.Instance.SelectedDataItemChanged.InvokeAsync(new MeasurementScaleRowViewModel(this.measurementScale1)));
 
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
+            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateOrUndeprecateButton");
             await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScaleRowViewModel>()), Times.Once);
+            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScale>()), Times.Once);
 
-            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
+            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateOrUndeprecateButton");
             await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScaleRowViewModel>()), Times.Exactly(2));
+            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScale>()), Times.Exactly(2));
         }
 
         [Test]
