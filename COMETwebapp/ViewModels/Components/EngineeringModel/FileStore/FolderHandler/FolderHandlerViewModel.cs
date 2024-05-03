@@ -32,6 +32,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// View model used to manage the folders in Filestores
@@ -50,12 +53,16 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         public FolderHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
+            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            {
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, (selectedOwner) => { this.Folder.Owner = selectedOwner; })
+            };
         }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel"/>
         /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
+        public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
         /// Gets a collection of the available <see cref="Folder"/>s
@@ -71,10 +78,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// Initializes the current <see cref="FolderHandlerViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        public void InitializeViewModel(FileStore fileStore)
+        /// <param name="iteration">The current <see cref="Iteration"/></param>
+        public void InitializeViewModel(FileStore fileStore, Iteration iteration)
         {
             this.CurrentFileStore = fileStore;
-            this.DomainsOfExpertise = this.SessionService.GetSiteDirectory().Domain;
+            this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
 
             var folders = this.CurrentFileStore.Folder.ToList();
             folders.Add(null);

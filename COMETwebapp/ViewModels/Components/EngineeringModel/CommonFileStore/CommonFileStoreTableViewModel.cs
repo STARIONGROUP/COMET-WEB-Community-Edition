@@ -98,7 +98,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         /// </summary>
         public void LoadFileStructure()
         {
-            this.FolderFileStructureViewModel.InitializeViewModel(this.Thing);
+            this.FolderFileStructureViewModel.InitializeViewModel(this.Thing, this.CurrentIteration);
         }
 
         /// <summary>

@@ -24,10 +24,9 @@ Copyright (c) 2023-2024 Starion Group S.A.
             <DxTextBox @bind-Text="@this.ViewModel.Folder.Name" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
-            <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
-                        TextFieldName="@nameof(DomainOfExpertise.Name)"
-                        @bind-Value="@this.ViewModel.Folder.Owner"
-                        CssClass="cw-480"/>
+            <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
+                                       DisplayText="@(string.Empty)"
+                                       CssClass="cw-480"/>
         </DxFormLayoutItem>
         
         @if (this.ShouldCreate)

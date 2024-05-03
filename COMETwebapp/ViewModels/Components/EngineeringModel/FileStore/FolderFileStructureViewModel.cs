@@ -79,11 +79,12 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         /// Initializes the current <see cref="FolderFileStructureViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        public void InitializeViewModel(FileStore fileStore)
+        /// <param name="iteration">The current <see cref="Iteration"/></param>
+        public void InitializeViewModel(FileStore fileStore, Iteration iteration)
         {
             this.CurrentFileStore = fileStore;
             this.FileHandlerViewModel.InitializeViewModel(this.CurrentFileStore);
-            this.FolderHandlerViewModel.InitializeViewModel(this.CurrentFileStore);
+            this.FolderHandlerViewModel.InitializeViewModel(this.CurrentFileStore, iteration);
             this.CreateStructureTree();
         }
 

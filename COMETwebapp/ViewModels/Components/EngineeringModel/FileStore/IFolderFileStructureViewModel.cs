@@ -40,7 +40,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         /// Initializes the current <see cref="FolderFileStructureViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        void InitializeViewModel(FileStore fileStore);
+        /// <param name="iteration">The current <see cref="Iteration"/></param>
+        void InitializeViewModel(FileStore fileStore, Iteration iteration);
 
         /// <summary>
         /// The folder-file hierarchically structured
