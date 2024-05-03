@@ -55,7 +55,8 @@ else
             </div>
             break;
         }
-        case SampledFunctionParameterType:
-            <div>Component under development</div>
+        case SampledFunctionParameterType sampledFunctionParameterType:
+            <SampledFunctionParameterComponent SampledFunctionParameterType="sampledFunctionParameterType"
+                                               Values="@this.Value"/>
             break;
     }
