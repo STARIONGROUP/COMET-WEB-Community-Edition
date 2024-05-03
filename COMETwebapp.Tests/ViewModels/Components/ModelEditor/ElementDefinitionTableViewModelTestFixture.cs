@@ -36,6 +36,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+
+    using DevExpress.Blazor;
 
     using DynamicData;
 
@@ -65,6 +68,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 				Iid = Guid.NewGuid(),
 				ShortName = "SYS"
 			};
+
+            session.Setup(x => x.ActivePerson).Returns(new Person()
+            {
+                DefaultDomain = this.domain
+            });
 
 			session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Domain = { this.domain } });
 
@@ -111,7 +119,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         {
             this.messageBus.ClearSubscriptions();
             this.viewModel.Dispose();
-            this.messageBus.ClearSubscriptions();
         }
 
         [Test]
@@ -183,5 +190,48 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
 			Assert.That(this.viewModel.IsOnCreationMode, Is.False);
 		}
+
+        [Test]
+        public void VerifySelectElement()
+        {
+            var elementDefinition = new ElementDefinition
+            {
+                ShortName = "A",
+                Name = "B",
+                Owner = this.domain,
+                Container = new EngineeringModel()
+                {
+                    EngineeringModelSetup = new EngineeringModelSetup()
+                    {
+                        ActiveDomain = { this.domain }
+                    }
+                },
+                Parameter =
+                {
+                    new Parameter()
+                    {
+                        ParameterType = new TextParameterType(),
+                        Owner = this.domain
+                    },
+                }
+            };
+
+            var row = new ElementDefinitionRowViewModel(elementDefinition);
+            this.viewModel.SelectElement(row);
+            Assert.That(this.viewModel.SelectedElementDefinition, Is.EqualTo(elementDefinition));
+
+            var usage = new ElementUsage()
+            {
+                ElementDefinition = elementDefinition,
+                Container = elementDefinition
+            };
+
+            row = new ElementDefinitionRowViewModel(usage);
+            this.viewModel.SelectElement(row);
+            Assert.That(this.viewModel.SelectedElementDefinition, Is.EqualTo(usage.ElementDefinition));
+
+            this.viewModel.OpenAddParameterPopup();
+            Assert.That(this.viewModel.IsOnAddingParameterMode, Is.EqualTo(true));
+        }
 	}
 }

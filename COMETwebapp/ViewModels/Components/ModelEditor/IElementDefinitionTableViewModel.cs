@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
@@ -59,7 +60,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// Represents the selected ElementDefinitionRowViewModel
         /// </summary>
-        object SelectedElementDefinition { get; set; }
+        ElementDefinition SelectedElementDefinition { get; set; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -72,14 +73,29 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="IAddParameterViewModel" />
+        /// </summary>
+        IAddParameterViewModel AddParameterViewModel { get; set; }
+
+        /// <summary>
+        /// Value indicating the user is currently adding a new <see cref="Parameter" /> to a <see cref="ElementDefinition"/>
+        /// </summary>
+        bool IsOnAddingParameterMode { get; set; }
+
+        /// <summary>
         /// Opens the <see cref="ElementDefinitionCreation" /> popup
         /// </summary>
         void OpenCreateElementDefinitionCreationPopup();
 
         /// <summary>
-        /// set the selected <see cref="ElementDefinitionRowViewModel" /> 
+        /// set the selected <see cref="ElementDefinitionRowViewModel" />
         /// </summary>
-        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
-        void SelectElement(GridRowClickEventArgs args);
+        /// <param name="selectedNode">The selected <see cref="ElementDefinitionRowViewModel"/></param>
+        void SelectElement(ElementDefinitionRowViewModel selectedNode);
+
+        /// <summary>
+        /// Opens the <see cref="AddParameter"/> popup
+        /// </summary>
+        void OpenAddParameterPopup();
     }
 }

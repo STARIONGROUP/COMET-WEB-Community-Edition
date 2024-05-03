@@ -19,14 +19,12 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.EngineeringModelData
-@using CDP4Common.SiteDirectoryData
-@using COMETwebapp.ViewModels.Components.ParameterEditor
+
 @using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
+@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <ValidationMessageComponent ValidationMessage="@(this.errorMessage)" />
+    <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
     <div style="display: flex">
         <div style="width: 500px">
             <h4>Target Model</h4>
@@ -35,7 +33,7 @@
                     ShowAllRows="true"
                     CssClass="first-grid"
                     AllowSort="false"
-                    RowClick="this.ViewModel.SelectElement"
+                    RowClick="this.OnElementSelected"
                     AllowSelectRowByClick="true"
                     VerticalScrollBarMode="ScrollBarMode.Visible">
                 <Columns>
@@ -51,7 +49,7 @@
                     ShowAllRows="true"
                     CssClass="second-grid"
                     AllowSort="false"
-                    RowClick="this.ViewModel.SelectElement"
+                    RowClick="this.OnElementSelected"
                     AllowSelectRowByClick="true"
                     VerticalScrollBarMode="ScrollBarMode.Visible">
                 <Columns>
@@ -61,22 +59,33 @@
             </DxGrid>
         </div>
         <div style="width: 1300px; padding-left: 40px;">
-            <div>
-                <h4>Panel Editor</h4>
+            <div class="mb-2">
+                <h4 class="d-inline">Panel Editor</h4>
+                <div class="float-end">
+                    @if (this.ViewModel.SelectedElementDefinition is not null)
+                    {
+                        <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)" />
+                    }
+                        
+                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
+                </div>
             </div>
             <div style="display:flex; justify-content: space-between;">
                 <div style="flex: 1;">
                     <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
                 </div>
-                <div style="padding-left: 20px;">
-                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
-                </div>
             </div>
         </div>
     </div>
     <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode">
-		<Content>
-			<ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
-		</Content>
+        <Content>
+            <ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
+        </Content>
+    </DxPopup>
+    
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Add Parameter" @bind-Visible="@this.ViewModel.IsOnAddingParameterMode">
+        <Content>
+            <AddParameter ViewModel="@this.ViewModel.AddParameterViewModel"/>
+        </Content>
     </DxPopup>
 </LoadingComponent>

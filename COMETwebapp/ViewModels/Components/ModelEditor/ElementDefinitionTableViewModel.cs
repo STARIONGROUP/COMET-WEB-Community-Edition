@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ElementDefinitionTableViewModel.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -36,10 +36,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using DevExpress.Blazor;
 
     using DynamicData;
 
@@ -58,6 +57,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Backing field for <see cref="IsOnAddingParameterMode" />
+        /// </summary>
+        private bool isOnAddingParameterMode;
+
+        /// <summary>
         /// Backing field for <see cref="IsOnCreationMode" />
         /// </summary>
         private bool isOnCreationMode;
@@ -70,10 +74,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public ElementDefinitionTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
+            var eventCallbackFactory = new EventCallbackFactory();
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService)
             {
-                OnValidSubmit = new EventCallbackFactory().Create(this, this.AddingElementDefinition)
+                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinition)
+            };
+
+            this.AddParameterViewModel = new AddParameterViewModel.AddParameterViewModel(sessionService)
+            {
+                OnParameterAdded = eventCallbackFactory.Create(this, () => this.IsOnAddingParameterMode = false)
             };
 
             this.InitializeSubscriptions(new List<Type> { typeof(ElementBase) });
@@ -96,14 +106,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="IAddParameterViewModel" />
+        /// </summary>
+        public IAddParameterViewModel AddParameterViewModel { get; set; }
+
+        /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" /> for target model
         /// </summary>
-        public ObservableCollection<ElementDefinitionRowViewModel> RowsTarget { get; } = new();
+        public ObservableCollection<ElementDefinitionRowViewModel> RowsTarget { get; } = [];
 
         /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" /> for source model
         /// </summary>
-        public ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; } = new();
+        public ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; } = [];
 
         /// <summary>
         /// Value indicating the user is currently creating a new <see cref="ElementDefinition" />
@@ -115,27 +130,37 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         }
 
         /// <summary>
-        /// Represents the selected ElementDefinitionRowViewModel
+        /// Value indicating the user is currently adding a new <see cref="Parameter" /> to a <see cref="ElementDefinition" />
         /// </summary>
-        public object SelectedElementDefinition { get; set; }
+        public bool IsOnAddingParameterMode
+        {
+            get => this.isOnAddingParameterMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnAddingParameterMode, value);
+        }
 
         /// <summary>
-        /// set the selected <see cref="ElementDefinitionRowViewModel" /> 
+        /// Represents the selected ElementDefinitionRowViewModel
         /// </summary>
-        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
-        public void SelectElement(GridRowClickEventArgs args)
-        {
-            var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
+        public ElementDefinition SelectedElementDefinition { get; set; }
 
+        /// <summary>
+        /// set the selected <see cref="ElementDefinitionRowViewModel" />
+        /// </summary>
+        /// <param name="selectedNode">The selected <see cref="ElementDefinitionRowViewModel" /></param>
+        public void SelectElement(ElementDefinitionRowViewModel selectedNode)
+        {
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedNode.ElementBase;
 
-            this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
+            this.SelectedElementDefinition = selectedNode.ElementBase switch
             {
-                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
+                ElementDefinition definition => definition,
+                ElementUsage usage => usage.ElementDefinition,
                 _ => null
             };
+
+            this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList();
+            this.AddParameterViewModel.SetSelectedElementDefinition(this.SelectedElementDefinition);
         }
 
         /// <summary>
@@ -146,6 +171,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition();
             this.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category>();
             this.IsOnCreationMode = true;
+        }
+
+        /// <summary>
+        /// Opens the <see cref="AddParameter" /> popup
+        /// </summary>
+        public void OpenAddParameterPopup()
+        {
+            this.AddParameterViewModel.ResetValues();
+            this.IsOnAddingParameterMode = true;
         }
 
         /// <summary>
@@ -223,6 +257,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             }
 
             clonedIteration.Element.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
+            thingsToCreate.Add(clonedIteration);
 
             try
             {
@@ -276,6 +311,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
             this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
             this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
+            this.AddParameterViewModel.InitializeViewModel(this.CurrentThing);
 
             this.IsLoading = false;
         }

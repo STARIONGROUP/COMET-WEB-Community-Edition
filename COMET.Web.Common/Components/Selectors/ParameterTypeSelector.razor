@@ -26,7 +26,10 @@
 
 @if (this.ViewModel.CurrentIteration != null)
 {
-	<h6>@(this.DisplayText)</h6>
+    if (!string.IsNullOrWhiteSpace(this.DisplayText))
+    {
+        <h6>@(this.DisplayText)</h6>
+    }
 	<DxComboBox Data="@this.ViewModel.AvailableParameterTypes"
 			AllowUserInput="true"
 			@bind-Value="@this.ViewModel.SelectedParameterType"

@@ -1,0 +1,73 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2024 Starion Group S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.SiteDirectoryData;
+@inherits DisposableComponent
+
+<EditForm Context="EditFormContext" Model="@this.ViewModel.Parameter" OnValidSubmit="@this.ViewModel.AddParameterToElementDefinition">
+    <FluentValidationValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+            <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
+                        TextFieldName="@nameof(DomainOfExpertise.Name)"
+                        @bind-Value="@this.ViewModel.Parameter.Owner"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="10">
+            <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
+                                   DisplayText="@(string.Empty)"/>
+        </DxFormLayoutItem>
+
+        @if (this.ViewModel.Parameter.ParameterType is QuantityKind)
+        {
+            <DxFormLayoutItem Caption="Scale:" ColSpanMd="10">
+                <DxComboBox Data="@this.ViewModel.MeasurementScales"
+                            TextFieldName="@nameof(MeasurementScale.Name)"
+                            @bind-Value="@this.ViewModel.Parameter.Scale"/>
+            </DxFormLayoutItem>
+        }
+        <DxFormLayoutItem Caption="State Dependence:" ColSpanMd="10">
+            <DxComboBox Data="@this.ViewModel.PossibleFiniteStates"
+                        TextFieldName="@nameof(ActualFiniteStateList.Name)"
+                        @bind-Value="@this.ViewModel.Parameter.StateDependence"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Group:" ColSpanMd="10">
+            <DxComboBox Data="@this.ViewModel.ParameterGroups"
+                        TextFieldName="@nameof(ParameterGroup.Name)"
+                        @bind-Value="@this.ViewModel.Parameter.Group"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Option Dependent:" ColSpanMd="10">
+            <DxCheckBox @bind-Checked="@this.ViewModel.Parameter.IsOptionDependent"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Expects Override:" ColSpanMd="10">
+            <DxCheckBox @bind-Checked="@this.ViewModel.Parameter.ExpectsOverride"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Different Owner on Override:" ColSpanMd="10">
+            <DxCheckBox @bind-Checked="@this.ViewModel.Parameter.AllowDifferentOwnerOfOverride"/>
+        </DxFormLayoutItem>
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary />
+    <div class="modal-footer m-top-10px">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Create" SubmitFormOnClick="true"/>
+    </div>
+</EditForm>

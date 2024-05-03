@@ -91,10 +91,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
             {
                 this.ActualValue = "{" + this.ActualValue + "}";
             }
+
             if (parameter.ValueSet.FirstOrDefault()?.Published.Count > 1)
             {
                 this.PublishedValue = "{" + this.PublishedValue + "}";
             }
+
             if (parameter.Scale != null)
             {
                 this.ActualValue += " [" + parameter.Scale.ShortName + "]";

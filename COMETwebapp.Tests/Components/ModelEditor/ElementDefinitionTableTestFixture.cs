@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ElementDefinitionTableTestFixture.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,18 +24,20 @@
 
 namespace COMETwebapp.Tests.Components.ModelEditor
 {
-    using System.Collections.ObjectModel;
-
     using Bunit;
+
+    using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
@@ -56,6 +58,8 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         private IRenderedComponent<ElementDefinitionTable> renderedComponent;
         private ElementDefinitionTable table;
         private ElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel;
+        private Mock<IElementDefinitionTableViewModel> elementDefinitionTableViewModel;
+        private Mock<IAddParameterViewModel> addParameterViewModel;
 
         [SetUp]
         public void SetUp()
@@ -70,12 +74,17 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             this.elementDefinitionDetailsViewModel = new ElementDefinitionDetailsViewModel();
 
-            var elementDefinitionTableViewModel = new Mock<IElementDefinitionTableViewModel>();
-            elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns(new ObservableCollection<ElementDefinitionRowViewModel> { new() { ElementDefinitionName = "Test" } });
-            elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns(new ObservableCollection<ElementDefinitionRowViewModel> { new() { ElementDefinitionName = "Test1" } });
-            elementDefinitionTableViewModel.Setup(x => x.ElementDefinitionDetailsViewModel).Returns(this.elementDefinitionDetailsViewModel);
+            this.addParameterViewModel = new Mock<IAddParameterViewModel>();
+            this.addParameterViewModel.Setup(x => x.ParameterTypeSelectorViewModel).Returns(new ParameterTypeSelectorViewModel());
 
-            this.context.Services.AddSingleton(elementDefinitionTableViewModel.Object);
+            this.elementDefinitionTableViewModel = new Mock<IElementDefinitionTableViewModel>();
+            this.elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns([new ElementDefinitionRowViewModel { ElementDefinitionName = "Test" }]);
+            this.elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns([new ElementDefinitionRowViewModel { ElementDefinitionName = "Test1" }]);
+            this.elementDefinitionTableViewModel.Setup(x => x.ElementDefinitionDetailsViewModel).Returns(this.elementDefinitionDetailsViewModel);
+            this.elementDefinitionTableViewModel.Setup(x => x.AddParameterViewModel).Returns(this.addParameterViewModel.Object);
+            this.elementDefinitionTableViewModel.Setup(x => x.SelectedElementDefinition).Returns(new ElementDefinition());
+
+            this.context.Services.AddSingleton(this.elementDefinitionTableViewModel.Object);
 
             this.renderedComponent = this.context.RenderComponent<ElementDefinitionTable>();
 
@@ -92,10 +101,23 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         public async Task VerifyAddingElementDefinition()
         {
             var addButton = this.renderedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "addElementDefinition");
+            Assert.That(addButton.Instance, Is.Not.Null);
+            await this.renderedComponent.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+        }
 
+        [Test]
+        public async Task VerifyAddParameter()
+        {
+            this.elementDefinitionTableViewModel.Setup(x => x.IsOnAddingParameterMode).Returns(true);
+
+            var addButton = this.renderedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "addParameter");
             Assert.That(addButton.Instance, Is.Not.Null);
 
             await this.renderedComponent.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+            this.elementDefinitionTableViewModel.Verify(x => x.OpenAddParameterPopup(), Times.Once);
+
+            var addParameterComponent = this.renderedComponent.FindComponent<AddParameter>();
+            Assert.That(addParameterComponent.Instance, Is.Not.Null);
         }
 
         [Test]
