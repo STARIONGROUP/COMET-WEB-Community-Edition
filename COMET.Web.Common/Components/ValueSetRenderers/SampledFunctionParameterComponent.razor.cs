@@ -50,7 +50,18 @@ namespace COMET.Web.Common.Components.ValueSetRenderers
         /// <summary>
         /// Gets the collection of <see cref="IParameterTypeAssignment"/>s
         /// </summary>
-        public IEnumerable<IParameterTypeAssignment> ParameterTypeAssignments => this.SampledFunctionParameterType.IndependentParameterType
-            .Union(this.SampledFunctionParameterType.DependentParameterType.OfType<IParameterTypeAssignment>()).ToList();
+        public IEnumerable<IParameterTypeAssignment> ParameterTypeAssignments => this.GetParameterTypeAssignments();
+
+        /// <summary>
+        /// Gets the collection of <see cref="IParameterTypeAssignment"/>s
+        /// </summary>
+        /// <returns>The collection of parameter type assignments</returns>
+        private IEnumerable<IParameterTypeAssignment> GetParameterTypeAssignments()
+        {
+            var independentParameterTypes = this.SampledFunctionParameterType.IndependentParameterType;
+            var dependentParameterTypes = this.SampledFunctionParameterType.DependentParameterType.OfType<IParameterTypeAssignment>();
+
+            return independentParameterTypes.Union(dependentParameterTypes);
+        }
     }
 }

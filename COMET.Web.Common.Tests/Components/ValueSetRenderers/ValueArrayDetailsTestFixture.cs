@@ -40,6 +40,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
     public class ValueArrayDetailsTestFixture
     {
         private TestContext context;
+        private static readonly string[] SfptValuesArray = ["1", "10", "2", "20"];
 
         [SetUp]
         public void Setup()
@@ -179,7 +180,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
                 ParameterType = independentType
             });
 
-            var valueArray = new ValueArray<string>(new[] { "1", "10", "2", "20" });
+            var valueArray = new ValueArray<string>(SfptValuesArray);
 
             var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
             {
