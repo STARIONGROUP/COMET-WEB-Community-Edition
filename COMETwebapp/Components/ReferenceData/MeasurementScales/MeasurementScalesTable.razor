@@ -25,56 +25,52 @@ Copyright (c) 2024 Starion Group S.A.
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div class="d-flex justify-content-between">
 
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            ShowAllRows="true"
-            SearchBoxNullText="Search for a measurement scale ..."
-            AllowSelectRowByClick="true"
-            SelectionMode="GridSelectionMode.Single"
-            SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Measurement Scale"
-            EditFormButtonsVisible="false"
-            CustomizeElement="DisableDeprecatedThing"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(() => this.OnEditThingSaving())"
-            CustomizeEditModel="this.CustomizeEditThing"
-            CssClass="height-fit-content">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false"/>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" Caption="Number Set" MinWidth="80" SearchEnabled="false"/>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" Caption="Unit" MinWidth="80" SearchEnabled="false"/>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
-            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                <HeaderTemplate>
-                    <DxButton Id="addMeasurementScaleButton" Text="Add Measurement Scale" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
-                </HeaderTemplate>
-                <CellDisplayTemplate>
-                    @{
-                        var row = (MeasurementScaleRowViewModel)context.DataItem;
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                ShowAllRows="true"
+                SearchBoxNullText="Search for a measurement scale ..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
+                PopupEditFormCssClass="pw-800"
+                PopupEditFormHeaderText="Measurement Scale"
+                EditFormButtonsVisible="false"
+                CustomizeElement="DisableDeprecatedThing"
+                EditMode="GridEditMode.PopupEditForm"
+                EditModelSaving="@(() => this.OnEditThingSaving())"
+                CustomizeEditModel="this.CustomizeEditThing"
+                CssClass="height-fit-content">
 
-                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
-                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
-                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row)"
-                                  Enabled="@(row.IsAllowedToWrite)"/>
-                    }
-                </CellDisplayTemplate>
-            </DxGridCommandColumn>
-        </Columns>
+            <ToolbarTemplate>
+                <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+                    <DxToolbarItem Text="Add Measurement Scale"
+                                   IconCssClass="oi oi-plus"
+                                   Click="() => this.Grid.StartEditNewRowAsync()"
+                                   RenderStyle="ButtonRenderStyle.Primary"
+                                   Enabled="true"/>
+                </DxToolbar>
+            </ToolbarTemplate>
 
-        <EditFormTemplate Context="EditFormContext">
-            <MeasurementScalesForm ViewModel="@this.ViewModel"
-                                   IsVisible="true"
-                                   ShouldCreate="true"
-                                   OnSaved="@(() => this.Grid.CancelEditAsync())"
-                                   OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
-        </EditFormTemplate>
-    </DxGrid>
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" Caption="Number Set" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" Caption="Unit" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+            </Columns>
+
+            <EditFormTemplate Context="EditFormContext">
+                <MeasurementScalesForm ViewModel="@this.ViewModel"
+                                       IsVisible="true"
+                                       ShouldCreate="true"
+                                       OnSaved="@(() => this.Grid.CancelEditAsync())"
+                                       OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
+            </EditFormTemplate>
+        </DxGrid>
 
     <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
         <MeasurementScalesForm ViewModel="@this.ViewModel"

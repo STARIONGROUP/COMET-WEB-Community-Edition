@@ -61,8 +61,8 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
         /// <summary>
         /// Action invoked when the deprecate or undeprecate button is clicked
         /// </summary>
-        /// <param name="thingRow"> The thing to deprecate or undeprecate </param>
-        void OnDeprecateUnDeprecateButtonClick(TRow thingRow);
+        /// <param name="thing"> The thing to deprecate or undeprecate </param>
+        void OnDeprecateUnDeprecateButtonClick(T thing);
 
         /// <summary>
         /// Tries to deprecate or undeprecate the <see cref="DeprecatableDataItemTableViewModel{T,TRow}"/>

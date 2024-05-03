@@ -17,15 +17,18 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
 @namespace COMETwebapp.Components.Common
 
-<div class="data-item-details-section">
-    @if (this.IsSelected)
-    {
-        @this.ChildContent
-    }
-    else
-    {
-        <h5>Select an item to view or edit</h5>
-        <img src="images/comet-logo-black.png" class="data-item-details-image" alt="Comet Web"/>
-    }
+<div class="ps-3" style="width: 50%;">
+    <div class="data-item-details-section">
+        @if (this.IsSelected)
+        {
+            @this.ChildContent
+        }
+        else
+        {
+            <div class="text-center opacity-75">
+                <h5>Select an item to view or edit</h5>
+                <img src="images/comet-logo-black.png" class="data-item-details-image" alt="Comet Web"/>
+            </div>
+        }
+    </div>
 </div>
-
