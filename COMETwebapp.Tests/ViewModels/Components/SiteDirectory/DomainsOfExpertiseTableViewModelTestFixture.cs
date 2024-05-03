@@ -184,7 +184,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
                  Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(false));
              });
 
-             this.viewModel.OnDeprecateUnDeprecateButtonClick(domainRow);
+             this.viewModel.OnDeprecateUnDeprecateButtonClick(domainRow.Thing);
 
              Assert.Multiple(() =>
              {
