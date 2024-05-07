@@ -27,7 +27,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 	using CDP4Common.EngineeringModelData;
 	using CDP4Common.SiteDirectoryData;
 
-	using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
+    using Microsoft.AspNetCore.Components;
 
 	/// <summary>
 	///     Interface definition for <see cref="ElementDefinitionCreationViewModel" />
@@ -38,11 +40,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 		/// A collection of available <see cref="Category" />s
 		/// </summary>
 		IEnumerable<Category> AvailableCategories { get; set; }
-
-		/// <summary>
-		/// A collection of available <see cref="DomainOfExpertise" />s
-		/// </summary>
-		IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
 
 		/// <summary>
 		///     An <see cref="EventCallback" /> to invoke on form submit
@@ -64,12 +61,23 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 		/// </summary>
 		IEnumerable<Category> SelectedCategories { get; set; }
 
-		/// <summary>
+        /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
+
+        /// <summary>
 		/// Method invoked when the component is ready to start, having received its
 		/// initial parameters from its parent in the render tree.
 		/// Override this method if you will perform an asynchronous operation and
 		/// want the component to refresh when that operation is completed.
 		/// </summary>
 		void OnInitialized();
-	}
+
+        /// <summary>
+        /// Initializes the current view model
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        void InitializeViewModel(Iteration iteration);
+    }
 }

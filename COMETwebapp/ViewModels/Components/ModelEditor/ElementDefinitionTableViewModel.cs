@@ -76,17 +76,17 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.sessionService = sessionService;
             var eventCallbackFactory = new EventCallbackFactory();
 
-            this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService)
+            this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService, messageBus)
             {
                 OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinition)
             };
 
-            this.AddParameterViewModel = new AddParameterViewModel.AddParameterViewModel(sessionService)
+            this.AddParameterViewModel = new AddParameterViewModel.AddParameterViewModel(sessionService, messageBus)
             {
                 OnParameterAdded = eventCallbackFactory.Create(this, () => this.IsOnAddingParameterMode = false)
             };
 
-            this.InitializeSubscriptions(new List<Type> { typeof(ElementBase) });
+            this.InitializeSubscriptions([typeof(ElementBase)]);
             this.RegisterViewModelWithReusableRows(this);
         }
 
@@ -262,6 +262,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             try
             {
                 await this.sessionService.CreateOrUpdateThings(clonedIteration, thingsToCreate);
+                await this.sessionService.RefreshSession();
                 this.IsOnCreationMode = false;
             }
             catch (Exception exception)
@@ -312,6 +313,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
             this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
             this.AddParameterViewModel.InitializeViewModel(this.CurrentThing);
+            this.ElementDefinitionCreationViewModel.InitializeViewModel(this.CurrentThing);
 
             this.IsLoading = false;
         }

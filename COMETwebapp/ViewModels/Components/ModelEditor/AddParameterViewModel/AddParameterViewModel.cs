@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -54,11 +56,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// Initializes a new instance of the <see cref="AddParameterViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
-        public AddParameterViewModel(ISessionService sessionService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public AddParameterViewModel(ISessionService sessionService, ICDPMessageBus messageBus)
         {
             this.sessionService = sessionService;
-
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterTypeSelectorViewModel.SelectedParameterType).Subscribe(this.OnParameterTypeChange));
+
+            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            {
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
+                {
+                    this.Parameter.Owner = selectedOwner;
+                })
+            };
         }
 
         /// <summary>
@@ -82,9 +92,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         public ElementDefinition SelectedElementDefinition { get; private set; } = new();
 
         /// <summary>
-        /// The collection of <see cref="DomainOfExpertise" /> to list for selection
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; set; }
+        public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
         /// The collection of <see cref="ActualFiniteStateList" /> to list for selection
@@ -108,13 +118,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         public void SetSelectedElementDefinition(ElementDefinition selectedElementDefinition)
         {
             this.SelectedElementDefinition = selectedElementDefinition;
-            this.DomainsOfExpertise = selectedElementDefinition.GetContainerOfType<EngineeringModel>().EngineeringModelSetup.ActiveDomain;
 
             var allParameterTypes = this.CurrentIteration.QueryUsedParameterTypes();
             var elementDefinitionParameterTypes = this.SelectedElementDefinition.Parameter.Select(x => x.ParameterType);
             var filteredParameterTypes = allParameterTypes.Where(x => !elementDefinitionParameterTypes.Contains(x)).Select(x => x.Iid);
-
             this.ParameterTypeSelectorViewModel.FilterAvailableParameterTypes(filteredParameterTypes);
+
+            this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = selectedElementDefinition.GetContainerOfType<EngineeringModel>().EngineeringModelSetup.ActiveDomain;
+            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(true);
         }
 
         /// <summary>
@@ -126,7 +137,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
             this.CurrentIteration = iteration;
             this.PossibleFiniteStates = iteration.ActualFiniteStateList;
             this.ParameterTypeSelectorViewModel.CurrentIteration = iteration;
-            this.Parameter.Owner ??= this.sessionService.Session.ActivePerson.DefaultDomain;
+            this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
         }
 
         /// <summary>
@@ -156,6 +167,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         {
             this.Parameter = new Parameter();
             this.ParameterTypeSelectorViewModel.SelectedParameterType = null;
+            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(true);
         }
 
         /// <summary>
