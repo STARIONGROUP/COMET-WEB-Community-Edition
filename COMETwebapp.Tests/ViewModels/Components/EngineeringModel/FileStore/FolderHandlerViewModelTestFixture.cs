@@ -143,6 +143,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         public async Task VerifyCreateOrEditFolder()
         {
             this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
+
+            var domain = new DomainOfExpertise();
+            this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = domain;
+            Assert.That(this.viewModel.Folder.Owner, Is.EqualTo(domain));
+
             this.viewModel.SelectFolder(this.commonFileStore.Folder[0]);
             await this.viewModel.CreateOrEditFolder(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => !c.OfType<FileStore>().Any())), Times.Once);

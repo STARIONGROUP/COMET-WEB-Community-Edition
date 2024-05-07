@@ -127,7 +127,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// <param name="domainChangedEvent">The <see cref="DomainChangedEvent"/> data</param>
         private void OnDomainChanged(DomainChangedEvent domainChangedEvent)
         {
-            if (domainChangedEvent.Iteration.Iid == this.CurrentIteration.Iid)
+            if (domainChangedEvent.Iteration.Iid == this.CurrentIteration?.Iid)
             {
                 this.CurrentIterationDomain = domainChangedEvent.SelectedDomain;
             }
