@@ -46,13 +46,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         private Iteration iteration;
         private DomainOfExpertise domain;
         private ElementDefinition elementDefinition;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
+            this.messageBus = new CDPMessageBus();
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(new SiteDirectory()
+            {
+                Domain = { new DomainOfExpertise() }
+            });
 
             this.domain = new DomainOfExpertise
             {
@@ -95,7 +102,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 }
             };
 
-            this.viewModel = new AddParameterViewModel(this.sessionService.Object);
+            this.viewModel = new AddParameterViewModel(this.sessionService.Object, this.messageBus);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.messageBus.Dispose();
         }
 
         [Test]
@@ -126,17 +139,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DomainsOfExpertise, Is.Null);
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise, Is.Null);
                 Assert.That(this.viewModel.ParameterGroups, Is.Empty);
                 Assert.That(this.viewModel.ParameterTypeSelectorViewModel.CurrentIteration, Is.EqualTo(this.iteration));
-                Assert.That(this.viewModel.Parameter.Owner, Is.EqualTo(this.domain));
+                Assert.That(this.viewModel.Parameter.Owner, Is.Null);
             });
 
             this.viewModel.SetSelectedElementDefinition(this.elementDefinition);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DomainsOfExpertise, Is.Not.Null);
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterGroups, Is.Not.Null);
                 Assert.That(this.viewModel.SelectedElementDefinition, Is.EqualTo(this.elementDefinition));
             });

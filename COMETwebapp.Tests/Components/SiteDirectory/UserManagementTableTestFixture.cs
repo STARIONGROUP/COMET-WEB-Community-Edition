@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="UserManagementTableTestFixture.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="UserManagementTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.SiteDirectory
 {
@@ -40,7 +40,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -108,7 +107,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
-            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
@@ -250,6 +248,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
 
+            this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
+
             this.context.Services.AddSingleton<IUserManagementTableViewModel>(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService);
             this.context.Services.AddSingleton(configuration.Object);
@@ -262,6 +262,68 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.context.CleanContext();
             this.messageBus.ClearSubscriptions();
             this.viewModel.Dispose();
+        }
+
+        [Test]
+        public async Task VerifyActivatingPerson()
+        {
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
+                .First(x => x.Instance.Id == "activatePerson");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            await renderer.InvokeAsync(() => checkBox.Instance.CheckedChanged.InvokeAsync(false));
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyAddingOrEditingPerson()
+        {
+            var renderer = this.context.RenderComponent<UserManagementTable>();
+            this.viewModel.IsDefaultEmail = true;
+            this.viewModel.IsDefaultTelephoneNumber = true;
+            this.viewModel.EmailAddress = new EmailAddress { Value = "email@email.com" };
+            this.viewModel.TelephoneNumber = new TelephoneNumber { Value = "+351000000000" };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
+            });
+
+            this.viewModel.Thing = new Person
+            {
+                GivenName = "Test",
+                Surname = "Test",
+                ShortName = "TT",
+                IsActive = true,
+                IsDeprecated = false,
+                EmailAddress = { new EmailAddress() },
+                TelephoneNumber = { new TelephoneNumber() }
+            };
+
+            await this.viewModel.CreateOrEditPerson(true);
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
+                Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
+            });
         }
 
         [Test]
@@ -302,68 +364,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
-        }
-
-        [Test]
-        public async Task VerifyActivatingPerson()
-        {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
-
-            var checkBox = renderer.FindComponents<DxCheckBox<bool>>()
-                .First(x => x.Instance.Id == "activatePerson");
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
-
-            await renderer.InvokeAsync(() => checkBox.Instance.CheckedChanged.InvokeAsync(false));
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-        }
-
-        [Test]
-        public async Task VerifyAddingOrEditingPerson()
-        {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
-            this.viewModel.IsDefaultEmail = true;
-            this.viewModel.IsDefaultTelephoneNumber = true;
-            this.viewModel.EmailAddress = new EmailAddress { Value = "email@email.com" };
-            this.viewModel.TelephoneNumber = new TelephoneNumber() { Value = "+351000000000" };
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
-
-            this.viewModel.Thing = new Person
-            {
-                GivenName = "Test",
-                Surname = "Test",
-                ShortName = "TT",
-                IsActive = true,
-                IsDeprecated = false,
-                EmailAddress = { new EmailAddress() },
-                TelephoneNumber = { new TelephoneNumber() }
-            };
-
-            await this.viewModel.CreateOrEditPerson(true);
-            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
-                Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
-            });
         }
 
         [Test]
@@ -412,6 +412,32 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         }
 
         [Test]
+        public void VerifyRecordChange()
+        {
+            this.context.RenderComponent<UserManagementTable>();
+
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
+
+            var personTest = new Person
+            {
+                Iid = Guid.NewGuid(),
+                Container = this.siteDirectory
+            };
+
+            this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
+        }
+
+        [Test]
         public async Task VerifyUnDeprecatingPerson()
         {
             var renderer = this.context.RenderComponent<UserManagementTable>();
@@ -441,32 +467,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             await this.viewModel.OnConfirmPopupButtonClick();
 
             Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-        }
-
-        [Test]
-        public void VerifyRecordChange()
-        {
-            this.context.RenderComponent<UserManagementTable>();
-
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
-
-            var personTest = new Person()
-            {
-                Iid = Guid.NewGuid(),
-                Container = this.siteDirectory
-            };
-
-            this.messageBus.SendObjectChangeEvent(personTest, EventKind.Added);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
         }
     }
 }

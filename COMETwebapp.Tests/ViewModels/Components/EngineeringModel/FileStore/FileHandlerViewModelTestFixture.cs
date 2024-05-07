@@ -50,6 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         private Mock<ILogger<FileHandlerViewModel>> logger;
         private Mock<IFileRevisionHandlerViewModel> fileRevisionHandlerViewModel;
         private CommonFileStore commonFileStore;
+        private Iteration iteration;
 
         [SetUp]
         public void Setup()
@@ -59,6 +60,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.logger = new Mock<ILogger<FileHandlerViewModel>>();
             this.fileRevisionHandlerViewModel = new Mock<IFileRevisionHandlerViewModel>();
 
+            this.iteration = new Iteration();
             var person = new Person();
 
             var siteDirectory = new SiteDirectory()
@@ -122,20 +124,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         [Test]
         public void VerifyInitializeViewModel()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Folders, Has.Count.EqualTo(this.commonFileStore.Folder.Count + 1));
                 Assert.That(this.viewModel.Folders, Contains.Item(null));
-                Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
             });
         }
 
         [Test]
         public async Task VerifyMoveAndDeleteFile()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
             await this.viewModel.MoveFile(this.commonFileStore.File[0], this.commonFileStore.Folder[0]);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
@@ -147,7 +149,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         [Test]
         public async Task VerifyCreateOrEditFolder()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
             this.viewModel.SelectFile(this.commonFileStore.File[0]);
 
             await this.viewModel.CreateOrEditFile(false);

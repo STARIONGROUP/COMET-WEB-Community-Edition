@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ElementDefinitionTableViewModelTestFixture.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -32,13 +32,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using DevExpress.Blazor;
 
     using DynamicData;
 
@@ -50,8 +47,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     public class ElementDefinitionTableViewModelTestFixture
     {
         private ElementDefinitionTableViewModel viewModel;
-		private DomainOfExpertise domain;
-		private Mock<ISessionService> sessionService;
+        private DomainOfExpertise domain;
+        private Mock<ISessionService> sessionService;
         private Iteration iteration;
         private CDPMessageBus messageBus;
 
@@ -63,32 +60,34 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             var session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
-			this.domain = new DomainOfExpertise()
-			{
-				Iid = Guid.NewGuid(),
-				ShortName = "SYS"
-			};
+            this.domain = new DomainOfExpertise
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "SYS"
+            };
 
-            session.Setup(x => x.ActivePerson).Returns(new Person()
+            session.Setup(x => x.ActivePerson).Returns(new Person
             {
                 DefaultDomain = this.domain
             });
 
-			session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory() { Domain = { this.domain } });
+            var siteDirectory = new SiteDirectory { Domain = { this.domain } };
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
-			var topElement = new ElementDefinition()
+            var topElement = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
-                Name = "Container",
+                Name = "Container"
             };
 
-            var elementDefinition = new ElementDefinition()
+            var elementDefinition = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
-                Name = "Box",
+                Name = "Box"
             };
 
-            var usage1 = new ElementUsage()
+            var usage1 = new ElementUsage
             {
                 Name = "Box1",
                 Iid = Guid.NewGuid(),
@@ -97,7 +96,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
             topElement.ContainedElement.Add(usage1);
 
-            this.iteration = new Iteration()
+            this.iteration = new Iteration
             {
                 Iid = Guid.NewGuid(),
                 Element = { topElement, elementDefinition }
@@ -107,7 +106,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             iterations.Add(this.iteration);
 
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
-         
+
             this.viewModel = new ElementDefinitionTableViewModel(this.sessionService.Object, this.messageBus)
             {
                 CurrentThing = this.iteration
@@ -119,6 +118,36 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         {
             this.messageBus.ClearSubscriptions();
             this.viewModel.Dispose();
+        }
+
+        [Test]
+        public async Task VerifyAddingElementDefinition()
+        {
+            this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition
+            {
+                ShortName = "A",
+                Name = "B",
+                Owner = this.domain
+            };
+
+            this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category> { new() { Name = "C" } };
+            this.viewModel.ElementDefinitionCreationViewModel.IsTopElement = true;
+
+            this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
+
+            await this.viewModel.ElementDefinitionCreationViewModel.OnValidSubmit.InvokeAsync();
+
+            Assert.That(this.viewModel.IsOnCreationMode, Is.False);
+        }
+
+        [Test]
+        public void VerifyElementCreationPopup()
+        {
+            Assert.That(this.viewModel.IsOnCreationMode, Is.False);
+
+            this.viewModel.OpenCreateElementDefinitionCreationPopup();
+
+            Assert.That(this.viewModel.IsOnCreationMode, Is.True);
         }
 
         [Test]
@@ -143,7 +172,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
 
-            var elementDefinition = new ElementDefinition()
+            var elementDefinition = new ElementDefinition
             {
                 Iid = Guid.NewGuid()
             };
@@ -161,36 +190,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
         }
 
-		[Test]
-		public void VerifyElementCreationPopup()
-		{
-			Assert.That(this.viewModel.IsOnCreationMode, Is.False);
-
-            this.viewModel.OpenCreateElementDefinitionCreationPopup();
-
-            Assert.That(this.viewModel.IsOnCreationMode, Is.True);
-		}
-
-		[Test]
-		public async Task VerifyAddingElementDefinition()
-		{
-			this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition
-			{
-				ShortName = "A",
-				Name = "B",
-				Owner = this.domain
-			};
-
-			this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category> { new() { Name = "C" } };
-			this.viewModel.ElementDefinitionCreationViewModel.IsTopElement = true;
-
-			this.viewModel.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.viewModel.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
-
-			await this.viewModel.ElementDefinitionCreationViewModel.OnValidSubmit.InvokeAsync();
-
-			Assert.That(this.viewModel.IsOnCreationMode, Is.False);
-		}
-
         [Test]
         public void VerifySelectElement()
         {
@@ -199,20 +198,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 ShortName = "A",
                 Name = "B",
                 Owner = this.domain,
-                Container = new EngineeringModel()
+                Container = new EngineeringModel
                 {
-                    EngineeringModelSetup = new EngineeringModelSetup()
+                    EngineeringModelSetup = new EngineeringModelSetup
                     {
                         ActiveDomain = { this.domain }
                     }
                 },
                 Parameter =
                 {
-                    new Parameter()
+                    new Parameter
                     {
                         ParameterType = new TextParameterType(),
                         Owner = this.domain
-                    },
+                    }
                 }
             };
 
@@ -220,7 +219,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.viewModel.SelectElement(row);
             Assert.That(this.viewModel.SelectedElementDefinition, Is.EqualTo(elementDefinition));
 
-            var usage = new ElementUsage()
+            var usage = new ElementUsage
             {
                 ElementDefinition = elementDefinition,
                 Container = elementDefinition
@@ -233,5 +232,5 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.viewModel.OpenAddParameterPopup();
             Assert.That(this.viewModel.IsOnAddingParameterMode, Is.EqualTo(true));
         }
-	}
+    }
 }

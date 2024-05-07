@@ -52,6 +52,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         private Mock<IFileHandlerViewModel> fileHandlerViewModel;
         private Mock<IFolderHandlerViewModel> folderHandlerViewModel;
         private CommonFileStore commonFileStore;
+        private Iteration iteration;
 
         [SetUp]
         public void Setup()
@@ -60,6 +61,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.sessionService = new Mock<ISessionService>();
             this.fileHandlerViewModel = new Mock<IFileHandlerViewModel>();
             this.folderHandlerViewModel = new Mock<IFolderHandlerViewModel>();
+            this.iteration = new Iteration();
 
             var siteDirectory = new SiteDirectory()
             {
@@ -109,7 +111,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         [Test]
         public void VerifyInitializeViewModel()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
 
             /*
              * Here the folder-file structure is:
@@ -122,15 +124,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             {
                 Assert.That(this.viewModel.Structure, Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.Structure.First().Content, Has.Count.EqualTo(2));
-                this.fileHandlerViewModel.Verify(x => x.InitializeViewModel(this.commonFileStore));
-                this.folderHandlerViewModel.Verify(x => x.InitializeViewModel(this.commonFileStore));
+                this.fileHandlerViewModel.Verify(x => x.InitializeViewModel(this.commonFileStore, this.iteration));
+                this.folderHandlerViewModel.Verify(x => x.InitializeViewModel(this.commonFileStore, this.iteration));
             });
         }
 
         [Test]
         public void VerifySessionRefresh()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
             var rootNodeContent = this.viewModel.Structure.First().Content;
             Assert.That(rootNodeContent, Has.Count.EqualTo(2));
 
