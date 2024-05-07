@@ -30,12 +30,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using DevExpress.Blazor;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// View model used to manage <see cref="Person" />
@@ -53,6 +55,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
             ILogger<UserManagementTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
             this.Thing = new Person();
+
+            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            {
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
+                {
+                    this.Thing.DefaultDomain = selectedOwner;
+                })
+            };
         }
 
         /// <summary>
@@ -76,9 +86,9 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         public IEnumerable<PersonRole> AvailablePersonRoles { get; set; }
 
         /// <summary>
-        /// Available <see cref="DomainOfExpertise" />s
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
-        public IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
+        public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
         /// Available <see cref="VcardEmailAddressKind" />s
@@ -111,9 +121,18 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
             var siteDirectory = this.SessionService.Session.RetrieveSiteDirectory();
             this.AvailableOrganizations = siteDirectory.Organization;
             this.AvailablePersonRoles = siteDirectory.PersonRole;
-            this.AvailableDomains = siteDirectory.Domain;
 
             base.InitializeViewModel();
+        }
+
+        /// <summary>
+        /// Selects the current <see cref="Person" />
+        /// </summary>
+        /// <param name="person">The person to be set</param>
+        public void SelectPerson(Person person)
+        {
+            this.Thing = person.Clone(true);
+            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(person.Iid == Guid.Empty, person.DefaultDomain);
         }
 
         /// <summary>

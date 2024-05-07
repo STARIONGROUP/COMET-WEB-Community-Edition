@@ -83,7 +83,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         public void InitializeViewModel(FileStore fileStore, Iteration iteration)
         {
             this.CurrentFileStore = fileStore;
-            this.FileHandlerViewModel.InitializeViewModel(this.CurrentFileStore);
+            this.FileHandlerViewModel.InitializeViewModel(this.CurrentFileStore, iteration);
             this.FolderHandlerViewModel.InitializeViewModel(this.CurrentFileStore, iteration);
             this.CreateStructureTree();
         }

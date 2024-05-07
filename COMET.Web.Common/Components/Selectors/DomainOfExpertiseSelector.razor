@@ -21,14 +21,14 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components.Selectors
 
-@if (this.ViewModel.SessionService != null && this.ViewModel.CurrentIteration != null)
+@if (this.ViewModel.SessionService != null)
 {
     if (!string.IsNullOrWhiteSpace(this.DisplayText))
     {
         <h6>@(this.DisplayText)</h6>
     }
 
-    <DxComboBox Data="@(this.ViewModel.AvailableDomainsOfExpertise.OrderBy(x => x.Name))"
+    <DxComboBox Data="@(this.ViewModel.AvailableDomainsOfExpertise)"
                 @bind-Value="@(this.ViewModel.SelectedDomainOfExpertise)"
                 FilteringMode="DataGridFilteringMode.Contains"
                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"

@@ -51,12 +51,13 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// Creates a new instance of <see cref="DomainOfExpertiseSelectorViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         public DomainOfExpertiseSelectorViewModel(ISessionService sessionService, ICDPMessageBus messageBus)
         {
             this.SessionService = sessionService;
-            this.AvailableDomainsOfExpertise = sessionService.GetSiteDirectory().Domain;
+            this.AvailableDomainsOfExpertise = sessionService.GetSiteDirectory().Domain.OrderBy(x => x.Name);
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedDomainOfExpertise).SubscribeAsync(this.OnSelectedDomainOfExpertiseChange.InvokeAsync));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedDomainOfExpertise).SubscribeAsync(async domain => await this.OnSelectedDomainOfExpertiseChange.InvokeAsync(domain)));
             this.Disposables.Add(messageBus.Listen<DomainChangedEvent>().Subscribe(this.OnDomainChanged));
         }
 
@@ -87,6 +88,28 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         {
             get => this.selectedDomainOfExpertise;
             set => this.RaiseAndSetIfChanged(ref this.selectedDomainOfExpertise, value);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="SelectedDomainOfExpertise"/> property or resets its value
+        /// </summary>
+        /// <param name="reset">The condition to check if the value should be reset</param>
+        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise"/> to be set</param>
+        /// <returns>A <see cref="Task"/></returns>
+        public async Task SetSelectedDomainOfExpertiseOrReset(bool reset, DomainOfExpertise domainOfExpertise = null)
+        {
+            switch (reset)
+            {
+                case true when this.SelectedDomainOfExpertise == this.CurrentIterationDomain:
+                    await this.OnSelectedDomainOfExpertiseChange.InvokeAsync(this.CurrentIterationDomain);
+                    break;
+                case true:
+                    this.SelectedDomainOfExpertise = this.CurrentIterationDomain;
+                    break;
+                default:
+                    this.SelectedDomainOfExpertise = domainOfExpertise;
+                    break;
+            }
         }
 
         /// <summary>

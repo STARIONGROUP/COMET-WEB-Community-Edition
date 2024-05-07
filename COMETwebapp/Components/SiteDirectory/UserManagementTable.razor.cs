@@ -97,7 +97,7 @@ namespace COMETwebapp.Components.SiteDirectory
         {
             var dataItem = (PersonRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.Thing = dataItem == null ? new Person { IsActive = true } : dataItem.Thing.Clone(true);
+            this.ViewModel.SelectPerson(dataItem == null ? new Person { IsActive = true } : dataItem.Thing);
             e.EditModel = this.ViewModel.Thing;
         }
 

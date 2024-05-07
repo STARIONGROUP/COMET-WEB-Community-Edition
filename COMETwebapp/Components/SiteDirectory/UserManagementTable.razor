@@ -102,10 +102,9 @@
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Default Domain:" ColSpanMd="10">
-                            <DxComboBox Data="@this.ViewModel.AvailableDomains"
-                                        TextFieldName="@nameof(DomainOfExpertise.Name)"
-                                        @bind-Value="@this.ViewModel.Thing.DefaultDomain"
-                                        CssClass="cw-480" />
+                            <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
+                                                       DisplayText="@(string.Empty)"
+                                                       CssClass="cw-480" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
                             <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsActive" />

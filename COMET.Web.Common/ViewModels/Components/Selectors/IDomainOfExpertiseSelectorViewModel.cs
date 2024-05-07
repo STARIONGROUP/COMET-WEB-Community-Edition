@@ -24,6 +24,7 @@
 
 namespace COMET.Web.Common.ViewModels.Components.Selectors
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -59,5 +60,13 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// Gets or sets the callback that is executed when the <see cref="SelectedDomainOfExpertise"/> property has changed
         /// </summary>
         EventCallback<DomainOfExpertise> OnSelectedDomainOfExpertiseChange { get; set; }
+
+        /// <summary>
+        /// Sets the <see cref="SelectedDomainOfExpertise"/> property or resets its value
+        /// </summary>
+        /// <param name="reset">The condition to check if the value should be reset</param>
+        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise"/> to be set</param>
+        /// <returns>A <see cref="Task"/></returns>
+        Task SetSelectedDomainOfExpertiseOrReset(bool reset, DomainOfExpertise domainOfExpertise = null);
     }
 }
