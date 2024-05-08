@@ -23,9 +23,9 @@
 @inherits DisposableComponent
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
-	<DataAnnotationsValidator/>
+    <DataAnnotationsValidator/>
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-        @if (string.IsNullOrEmpty(this.ViewModel.serverConnectionService.ServerConfiguration.ServerAddress))
+        @if (string.IsNullOrEmpty(this.ViewModel.ServerConnectionService.ServerConfiguration.ServerAddress))
         {
             <DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
                 <Template>
@@ -35,7 +35,7 @@
                                BindValueMode="BindValueMode.OnInput"
                                @onfocus="@(() => this.HandleFieldFocus("SourceAddress"))"
                                @onblur="@(() => this.HandleFieldBlur("SourceAddress"))"
-                               Enabled="@string.IsNullOrEmpty(this.RequestedServer)" />
+                               Enabled="@string.IsNullOrEmpty(this.RequestedServer)"/>
                 </Template>
             </DxFormLayoutItem>
         }
@@ -46,7 +46,7 @@
                            NullText="Enter your username"
                            BindValueMode="BindValueMode.OnInput"
                            @onfocus="@(() => this.HandleFieldFocus("UserName"))"
-                           @onblur="@(() => this.HandleFieldBlur("UserName"))" />
+                           @onblur="@(() => this.HandleFieldBlur("UserName"))"/>
             </Template>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="@(this.PasswordLabel)" BeginRow="true" ColSpanLg="12">
@@ -60,6 +60,17 @@
                            Password="true"/>
             </Template>
         </DxFormLayoutItem>
+
+        @if (this.FullTrustCheckboxVisible)
+        {
+            <DxFormLayoutItem Caption="@(this.FullTrustLabel)" BeginRow="true" ColSpanLg="12" CaptionPosition="CaptionPosition.Horizontal">
+                <Template>
+                    <DxCheckBox Id="fulltrust"
+                                @bind-Checked="@(this.ViewModel.AuthenticationDto.FullTrust)"
+                                Attributes="@(new Dictionary<string, object> {  ["title"] = "Checking this option will allow connecting to servers with self signed certificates" })" />
+                </Template>
+            </DxFormLayoutItem>
+        }
     </DxFormLayout>
 
     <ul class="validation-errors">
@@ -72,23 +83,29 @@
 
             @if (fieldFocusedStatus.Key == "SourceAddress" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.SourceAddress).FirstOrDefault()))
             {
-                <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.SourceAddress" /></li>
+                <li class="validation-message">
+                    <ValidationMessage For="() => this.ViewModel.AuthenticationDto.SourceAddress"/>
+                </li>
             }
 
             @if (fieldFocusedStatus.Key == "UserName" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.UserName).FirstOrDefault()))
             {
-                <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.UserName" /></li>
+                <li class="validation-message">
+                    <ValidationMessage For="() => this.ViewModel.AuthenticationDto.UserName"/>
+                </li>
             }
 
             @if (fieldFocusedStatus.Key == "Password" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.Password).FirstOrDefault()))
             {
-                <li class="validation-message"><ValidationMessage For="() => this.ViewModel.AuthenticationDto.Password" /></li>
+                <li class="validation-message">
+                    <ValidationMessage For="() => this.ViewModel.AuthenticationDto.Password"/>
+                </li>
             }
         }
     </ul>
 
-	@if (this.ErrorMessages.Any())
-	{
+    @if (this.ErrorMessages.Any())
+    {
         <div class="form-group row m-top-10px text-danger">
             <ul>
                 @foreach (var errrorMessage in this.ErrorMessages)
@@ -97,11 +114,11 @@
                 }
             </ul>
         </div>
-	}
+    }
 
-	<div class="modal-footer">
-			<DxButton Id="connectbtn" Text="@(this.LoginButtonDisplayText)" CssClass="btn btn-connect"
-			          Enabled="@this.LoginEnabled"
-			          SubmitFormOnClick="true"/>
-	</div>
+    <div class="modal-footer">
+        <DxButton Id="connectbtn" Text="@(this.LoginButtonDisplayText)" CssClass="btn btn-connect"
+                  Enabled="@(this.LoginEnabled)"
+                  SubmitFormOnClick="true"/>
+    </div>
 </EditForm>

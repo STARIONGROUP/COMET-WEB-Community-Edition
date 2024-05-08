@@ -77,6 +77,8 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         public async Task VerifyValidLogin()
         {
             this.sessionService.Setup(x => x.OpenSession(It.IsAny<Credentials>())).ReturnsAsync(Result.Ok);
+
+            this.authenticationDto.FullTrust = true;
             var loginResult = await this.authenticationService.Login(this.authenticationDto);
 
             Assert.That(loginResult.IsSuccess, Is.EqualTo(true));
