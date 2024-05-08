@@ -53,6 +53,25 @@ Copyright (c) 2024 Starion Group S.A.
                                 Enabled="@(this.ShouldCreate)"
                                 CssClass="cw-480" />
                 </DxFormLayoutItem>
+                
+                @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameterType)
+                {
+                    <DxFormLayoutItem Caption="Multi select:" ColSpanMd="10">
+                        <DxCheckBox @bind-Checked="@enumerationParameterType.AllowMultiSelect" />
+                    </DxFormLayoutItem>
+                }
+                
+                @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
+                {
+                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="10">
+                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="10">
+                        <DxCheckBox @bind-Checked="@arrayParameterType.IsFinalized" />
+                    </DxFormLayoutItem>
+                }
+
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
                     <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
                 </DxFormLayoutItem>

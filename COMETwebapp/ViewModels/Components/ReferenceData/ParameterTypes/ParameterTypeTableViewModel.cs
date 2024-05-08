@@ -30,7 +30,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
@@ -45,14 +44,22 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     public class ParameterTypeTableViewModel : DeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>, IParameterTypeTableViewModel
     {
         /// <summary>
-        /// The backing field for <see cref="SelectedParameterType"/>
+        /// Gets the available <see cref="ClassKind" />s
         /// </summary>
-        private ClassKindWrapper selectedParameterType;
+        private static readonly IEnumerable<ClassKind> AvailableParameterTypes =
+        [
+            ClassKind.BooleanParameterType, 
+            ClassKind.DateParameterType, 
+            ClassKind.DateTimeParameterType,
+            ClassKind.EnumerationParameterType,
+            ClassKind.TextParameterType,
+            ClassKind.TimeOfDayParameterType
+        ];
 
         /// <summary>
-        /// Gets the available <see cref="ClassKind"/>s
+        /// The backing field for <see cref="SelectedParameterType" />
         /// </summary>
-        private static readonly IEnumerable<ClassKind> AvailableParameterTypes = [ClassKind.TextParameterType, ClassKind.BooleanParameterType];
+        private ClassKindWrapper selectedParameterType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
@@ -106,12 +113,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
+        /// Initializes the current view model
         /// </summary>
-        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        /// <returns>A <see cref="Task"/></returns>
         public override void InitializeViewModel()
         {
             base.InitializeViewModel();
@@ -125,6 +129,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditParameterType(bool shouldCreate)
         {
+            this.IsLoading = true;
+
             var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
             var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
             var thingsToCreate = new List<Thing>();
@@ -139,18 +145,24 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
             await this.SessionService.RefreshSession();
+
+            this.IsLoading = false;
         }
 
         /// <summary>
-        /// Selects a new parameter type for the attribute <see cref="SelectedParameterType"/>
+        /// Selects a new parameter type for the attribute <see cref="SelectedParameterType" />
         /// </summary>
-        /// <param name="newKind">The new kind to which the <see cref="SelectedParameterType"/> will be set</param>
+        /// <param name="newKind">The new kind to which the <see cref="SelectedParameterType" /> will be set</param>
         private void SelectParameterType(ClassKindWrapper newKind)
         {
             this.Thing = newKind.ClassKind switch
             {
-                ClassKind.TextParameterType => new TextParameterType(),
                 ClassKind.BooleanParameterType => new BooleanParameterType(),
+                ClassKind.DateParameterType => new DateParameterType(),
+                ClassKind.DateTimeParameterType => new DateTimeParameterType(),
+                ClassKind.EnumerationParameterType => new EnumerationParameterType(),
+                ClassKind.TextParameterType => new TextParameterType(),
+                ClassKind.TimeOfDayParameterType => new TimeOfDayParameterType(),
                 _ => this.Thing
             };
         }
