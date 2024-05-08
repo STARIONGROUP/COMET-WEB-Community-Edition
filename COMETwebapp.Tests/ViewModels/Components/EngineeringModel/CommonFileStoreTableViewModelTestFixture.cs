@@ -121,7 +121,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.DomainsOfExpertise.Count(), Is.EqualTo(1));
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
                 Assert.That(this.viewModel.IsPrivate, Is.EqualTo(false));
                 Assert.That(firstRow.Thing, Is.EqualTo(this.commonFileStore));
                 Assert.That(firstRow.CreatedOn, Is.EqualTo(this.commonFileStore.CreatedOn.ToString("dd/MM/yyyy HH:mm:ss")));

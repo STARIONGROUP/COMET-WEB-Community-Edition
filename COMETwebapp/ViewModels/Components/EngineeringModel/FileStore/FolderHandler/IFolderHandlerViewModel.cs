@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     /// <summary>
     /// View model used to manage the folders in Filestores
@@ -38,12 +39,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// Initializes the current <see cref="FolderHandlerViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        void InitializeViewModel(FileStore fileStore);
-
-        /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
-        /// </summary>
-        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
+        /// <param name="iteration">The current <see cref="Iteration"/></param>
+        void InitializeViewModel(FileStore fileStore, Iteration iteration);
 
         /// <summary>
         /// Gets or sets the folder to be created/edited
@@ -54,6 +51,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// Gets a collection of the available <see cref="Folder"/>s
         /// </summary>
         IEnumerable<Folder> Folders { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel"/>
+        /// </summary>
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
         /// Selects the current <see cref="Folder"/>

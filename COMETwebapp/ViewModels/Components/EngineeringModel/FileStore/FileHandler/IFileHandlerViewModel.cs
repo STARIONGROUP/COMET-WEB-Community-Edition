@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
@@ -40,17 +41,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Initializes the current <see cref="FileHandlerViewModel"/>
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        void InitializeViewModel(FileStore fileStore);
+        /// <param name="iteration">The <see cref="Iteration"/> to load data from</param>
+        void InitializeViewModel(FileStore fileStore, Iteration iteration);
 
         /// <summary>
         /// Gets or sets the file to be created/edited
         /// </summary>
         File File { get; set; }
-
-        /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
-        /// </summary>
-        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
 
         /// <summary>
         /// Gets or sets the condition to check if the file or folder to be created is locked
@@ -81,6 +78,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Gets the <see cref="IFileRevisionHandlerViewModel"/>
         /// </summary>
         IFileRevisionHandlerViewModel FileRevisionHandlerViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
         /// Moves a file to a target folder

@@ -47,11 +47,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         Parameter Parameter { get; set; }
 
         /// <summary>
-        /// The <see cref="DomainOfExpertise" /> to list for selection
-        /// </summary>
-        IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; set; }
-
-        /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel"/>
         /// </summary>
         IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; }
@@ -75,6 +70,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// The collection of <see cref="ActualFiniteStateList" /> to list for selection
         /// </summary>
         IEnumerable<ActualFiniteStateList> PossibleFiniteStates { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
         /// Adds a parameter of type selected from <see cref="AddParameterViewModel.ParameterTypeSelectorViewModel"/> to the <see cref="AddParameterViewModel.SelectedElementDefinition"/>

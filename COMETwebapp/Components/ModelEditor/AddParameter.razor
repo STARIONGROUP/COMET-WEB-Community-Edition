@@ -26,9 +26,8 @@
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
-            <DxComboBox Data="@this.ViewModel.DomainsOfExpertise"
-                        TextFieldName="@nameof(DomainOfExpertise.Name)"
-                        @bind-Value="@this.ViewModel.Parameter.Owner"/>
+            <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
+                                       DisplayText="@(string.Empty)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="10">
             <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"

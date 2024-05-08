@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FolderHandlerViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="FolderHandlerViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler
 {
@@ -32,6 +32,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// View model used to manage the folders in Filestores
@@ -39,26 +42,33 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
     public class FolderHandlerViewModel : ApplicationBaseViewModel, IFolderHandlerViewModel
     {
         /// <summary>
-        /// Gets or sets the current <see cref="FileStore"/>
+        /// Initializes a new instance of the <see cref="FolderHandlerViewModel" /> class.
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        public FolderHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        {
+            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            {
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
+                {
+                    this.Folder.Owner = selectedOwner;
+                })
+            };
+        }
+
+        /// <summary>
+        /// Gets or sets the current <see cref="FileStore" />
         /// </summary>
         private FileStore CurrentFileStore { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FolderHandlerViewModel" /> class.
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
-        /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        public FolderHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
-        {
-        }
+        public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
-        /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
-
-        /// <summary>
-        /// Gets a collection of the available <see cref="Folder"/>s
+        /// Gets a collection of the available <see cref="Folder" />s
         /// </summary>
         public IEnumerable<Folder> Folders { get; private set; }
 
@@ -68,13 +78,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         public Folder Folder { get; set; } = new();
 
         /// <summary>
-        /// Initializes the current <see cref="FolderHandlerViewModel"/>
+        /// Initializes the current <see cref="FolderHandlerViewModel" />
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        public void InitializeViewModel(FileStore fileStore)
+        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
+        /// <param name="iteration">The current <see cref="Iteration" /></param>
+        public void InitializeViewModel(FileStore fileStore, Iteration iteration)
         {
             this.CurrentFileStore = fileStore;
-            this.DomainsOfExpertise = this.SessionService.GetSiteDirectory().Domain;
+            this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
 
             var folders = this.CurrentFileStore.Folder.ToList();
             folders.Add(null);
@@ -82,12 +93,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         }
 
         /// <summary>
-        /// Selects the current <see cref="Folder"/>
+        /// Selects the current <see cref="Folder" />
         /// </summary>
         /// <param name="folder">The folder to be set</param>
         public void SelectFolder(Folder folder)
         {
             this.Folder = folder.Clone(true);
+            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(folder.Iid == Guid.Empty, folder.Owner);
         }
 
         /// <summary>
@@ -95,7 +107,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// </summary>
         /// <param name="folder">The folder to be moved</param>
         /// <param name="targetFolder">the target folders</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task MoveFolder(Folder folder, Folder targetFolder)
         {
             this.IsLoading = true;
@@ -112,8 +124,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <summary>
         /// Creates or edits a folder
         /// </summary>
-        /// <param name="shouldCreate">the value to check if the <see cref="Folder"/> should be created or edited</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="shouldCreate">the value to check if the <see cref="Folder" /> should be created or edited</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditFolder(bool shouldCreate)
         {
             this.IsLoading = true;
@@ -141,7 +153,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <summary>
         /// Deletes the current folder
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteFolder()
         {
             var clonedContainer = this.Folder.Container.Clone(false);

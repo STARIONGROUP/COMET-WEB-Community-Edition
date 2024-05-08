@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.ModelEditor
 {
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
@@ -31,6 +33,8 @@ namespace COMETwebapp.Components.ModelEditor
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="ElementDefinitionTable" /> component
@@ -144,6 +148,18 @@ namespace COMETwebapp.Components.ModelEditor
         /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnCreationMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnAddingParameterMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -58,11 +60,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         IEnumerable<PersonRole> AvailablePersonRoles { get; set; }
 
         /// <summary>
-        /// Available <see cref="DomainOfExpertise" />s
-        /// </summary>
-        IEnumerable<DomainOfExpertise> AvailableDomains { get; set; }
-
-        /// <summary>
         /// Available <see cref="VcardEmailAddressKind" />s
         /// </summary>
         IEnumerable<VcardEmailAddressKind> EmailAddressKinds { get; set; }
@@ -83,6 +80,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         bool IsDefaultTelephoneNumber { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
+
+        /// <summary>
         /// Tries to activate or disactivate a <see cref="Thing" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -94,5 +96,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <param name="shouldCreate">Value to check if the current Person should be created</param>
         /// <returns>A <see cref="Task" /></returns>
         Task CreateOrEditPerson(bool shouldCreate);
+
+        /// <summary>
+        /// Selects the current <see cref="Person" />
+        /// </summary>
+        /// <param name="person">The person to be set</param>
+        void SelectPerson(Person person);
     }
 }

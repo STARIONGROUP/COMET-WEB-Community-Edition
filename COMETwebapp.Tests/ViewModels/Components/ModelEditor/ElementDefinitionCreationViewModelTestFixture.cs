@@ -46,12 +46,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         private Mock<ISessionService> sessionService;
         private Iteration iteration;
         private DomainOfExpertise domain;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
+            this.messageBus = new CDPMessageBus();
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
             this.domain = new DomainOfExpertise
@@ -60,7 +62,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 ShortName = "SYS"
             };
 
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory { Domain = { this.domain } });
+            var siteDirectory = new SiteDirectory { Domain = { this.domain } };
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
             var topElement = new ElementDefinition
             {
@@ -93,7 +97,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             iterations.Add(this.iteration);
 
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
-            this.viewModel = new ElementDefinitionCreationViewModel(this.sessionService.Object);
+            this.viewModel = new ElementDefinitionCreationViewModel(this.sessionService.Object, this.messageBus);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.messageBus.Dispose();
         }
 
         [Test]

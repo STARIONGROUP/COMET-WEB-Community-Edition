@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FileHandlerViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="FileHandlerViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler
 {
@@ -32,8 +32,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// View model used to manage the files in Filestores
@@ -41,12 +44,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
     public class FileHandlerViewModel : ApplicationBaseViewModel, IFileHandlerViewModel
     {
         /// <summary>
-        /// Gets or sets the current <see cref="FileStore"/>
-        /// </summary>
-        private FileStore CurrentFileStore { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="ILogger{TCategoryName}"/>
+        /// Gets the <see cref="ILogger{TCategoryName}" />
         /// </summary>
         private readonly ILogger<FileHandlerViewModel> logger;
 
@@ -54,33 +52,46 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Initializes a new instance of the <see cref="FileHandlerViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        /// <param name="fileRevisionHandlerViewModel">The <see cref="IFileRevisionHandlerViewModel"/></param>
-        public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IFileRevisionHandlerViewModel fileRevisionHandlerViewModel) 
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        /// <param name="fileRevisionHandlerViewModel">The <see cref="IFileRevisionHandlerViewModel" /></param>
+        public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IFileRevisionHandlerViewModel fileRevisionHandlerViewModel)
             : base(sessionService, messageBus)
         {
             this.logger = logger;
             this.FileRevisionHandlerViewModel = fileRevisionHandlerViewModel;
+
+            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            {
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
+                {
+                    this.File.Owner = selectedOwner;
+                })
+            };
         }
 
         /// <summary>
-        /// Gets the <see cref="IFileRevisionHandlerViewModel"/>
+        /// Gets or sets the current <see cref="FileStore" />
+        /// </summary>
+        private FileStore CurrentFileStore { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IFileRevisionHandlerViewModel" />
         /// </summary>
         public IFileRevisionHandlerViewModel FileRevisionHandlerViewModel { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="DomainOfExpertise"/>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
+        public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="FileType"/>
+        /// Gets a collection of the available <see cref="FileType" />
         /// </summary>
         public IEnumerable<FileType> FileTypes { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="Folder"/>s
+        /// Gets a collection of the available <see cref="Folder" />s
         /// </summary>
         public IEnumerable<Folder> Folders { get; private set; }
 
@@ -105,13 +116,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         public bool IsLocked { get; set; }
 
         /// <summary>
-        /// Initializes the current <see cref="FileHandlerViewModel"/>
+        /// Initializes the current <see cref="FileHandlerViewModel" />
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        public void InitializeViewModel(FileStore fileStore)
+        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
+        /// <param name="iteration">The <see cref="Iteration" /> to load data from</param>
+        public void InitializeViewModel(FileStore fileStore, Iteration iteration)
         {
             this.CurrentFileStore = fileStore;
-            this.DomainsOfExpertise = this.SessionService.GetSiteDirectory().Domain;
+            this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
             this.FileTypes = this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.FileType);
 
             var folders = this.CurrentFileStore.Folder.ToList();
@@ -120,7 +132,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         }
 
         /// <summary>
-        /// Selects the current <see cref="File"/>
+        /// Selects the current <see cref="File" />
         /// </summary>
         /// <param name="file">The file to be set</param>
         public void SelectFile(File file)
@@ -130,6 +142,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             this.SelectedFileRevisions = this.File.FileRevision;
             this.FileRevisionHandlerViewModel.InitializeViewModel(this.File, this.CurrentFileStore);
             this.SelectedFolder = null;
+            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(file.Iid == Guid.Empty, file.Owner);
         }
 
         /// <summary>
@@ -137,7 +150,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// </summary>
         /// <param name="file">The file to be moved</param>
         /// <param name="targetFolder">The target folder</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task MoveFile(File file, Folder targetFolder)
         {
             this.IsLoading = true;
@@ -161,7 +174,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Creates or edits a file
         /// </summary>
         /// <param name="shouldCreate">The condition to check if the file should be created</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditFile(bool shouldCreate)
         {
             this.IsLoading = true;
@@ -172,9 +185,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             this.File.LockedBy = this.IsLocked switch
             {
-               true when this.File.LockedBy == null => this.SessionService.Session.ActivePerson,
-               false when this.File.LockedBy != null => null,
-               _ => this.File.LockedBy
+                true when this.File.LockedBy == null => this.SessionService.Session.ActivePerson,
+                false when this.File.LockedBy != null => null,
+                _ => this.File.LockedBy
             };
 
             var newFileRevisions = this.SelectedFileRevisions.Where(x => !this.File.FileRevision.Contains(x)).ToList();
@@ -216,7 +229,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <summary>
         /// Deletes the current file
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteFile()
         {
             var clonedContainer = this.File.Container.Clone(false);

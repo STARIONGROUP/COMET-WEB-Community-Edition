@@ -45,6 +45,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         private CDPMessageBus messageBus;
         private Mock<ISessionService> sessionService;
         private CommonFileStore commonFileStore;
+        private Iteration iteration;
 
         [SetUp]
         public void Setup()
@@ -53,6 +54,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.sessionService = new Mock<ISessionService>();
 
             var person = new Person();
+            this.iteration = new Iteration();
 
             var siteDirectory = new SiteDirectory()
             {
@@ -115,20 +117,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         [Test]
         public void VerifyInitializeViewModel()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Folders, Has.Count.EqualTo(this.commonFileStore.Folder.Count + 1));
                 Assert.That(this.viewModel.Folders, Contains.Item(null));
-                Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
             });
         }
 
         [Test]
         public async Task VerifyMoveAndDeleteFolder()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
             await this.viewModel.MoveFolder(this.commonFileStore.Folder[0], this.commonFileStore.Folder[1]);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
@@ -140,7 +142,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         [Test]
         public async Task VerifyCreateOrEditFolder()
         {
-            this.viewModel.InitializeViewModel(this.commonFileStore);
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
+
+            var domain = new DomainOfExpertise();
+            this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = domain;
+            Assert.That(this.viewModel.Folder.Owner, Is.EqualTo(domain));
+
             this.viewModel.SelectFolder(this.commonFileStore.Folder[0]);
             await this.viewModel.CreateOrEditFolder(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => !c.OfType<FileStore>().Any())), Times.Once);
