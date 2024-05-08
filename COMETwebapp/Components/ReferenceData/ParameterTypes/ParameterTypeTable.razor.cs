@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
 
