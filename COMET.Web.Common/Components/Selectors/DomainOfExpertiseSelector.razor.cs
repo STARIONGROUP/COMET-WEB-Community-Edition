@@ -35,16 +35,16 @@ namespace COMET.Web.Common.Components.Selectors
     /// </summary>
     public partial class DomainOfExpertiseSelector
     {
-		/// <summary>
-		/// Gets or sets the <see cref="IDomainOfExpertiseSelectorViewModel"/>
-		/// </summary>
-		[Parameter]
+        /// <summary>
+        /// Gets or sets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        [Parameter]
         public IDomainOfExpertiseSelectorViewModel ViewModel { get; set; }
 
-		/// <summary>
-		/// Text to be displayed when the selector is shown
-		/// </summary>
-		[Parameter]
+        /// <summary>
+        /// Text to be displayed when the selector is shown
+        /// </summary>
+        [Parameter]
         public string DisplayText { get; set; } = "Select a Domain:";
 
         /// <summary>
@@ -53,6 +53,11 @@ namespace COMET.Web.Common.Components.Selectors
         [Parameter]
         public string CssClass { get; set; }
 
+        /// <summary>
+        /// Gets the domain and shortname to display, in the following format: name [shortname]
+        /// </summary>
+        /// <param name="domainOfExpertise">The domain of expertise to get the name and shortname</param>
+        /// <returns>A string that contains name and shortname</returns>
         private static string GetDomainNameAndShortnameToDisplay(DomainOfExpertise domainOfExpertise)
         {
             return $"{domainOfExpertise.Name} [{domainOfExpertise.ShortName}]";

@@ -75,6 +75,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Selectors
         public void Teardown()
         {
             this.viewModel.Dispose();
+            this.messageBus.Dispose();
         }
 
         [Test]
