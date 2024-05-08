@@ -1,38 +1,43 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterTypeTableViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="ParameterTypeTableViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
+
+    using ReactiveUI;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
@@ -40,21 +45,65 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     public class ParameterTypeTableViewModel : DeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>, IParameterTypeTableViewModel
     {
         /// <summary>
+        /// The backing field for <see cref="SelectedParameterType"/>
+        /// </summary>
+        private ClassKindWrapper selectedParameterType;
+
+        /// <summary>
+        /// Gets the available <see cref="ClassKind"/>s
+        /// </summary>
+        private static readonly IEnumerable<ClassKind> AvailableParameterTypes = [ClassKind.TextParameterType, ClassKind.BooleanParameterType];
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
+            this.Thing = new TextParameterType();
         }
 
         /// <summary>
-        /// Available <see cref="ReferenceDataLibrary" />s
+        /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+
+        /// <summary>
+        /// Gets the available parameter types <see cref="ClassKindWrapper" />s
+        /// </summary>
+        public IEnumerable<ClassKindWrapper> ParameterTypes { get; private set; } = AvailableParameterTypes.Select(x => new ClassKindWrapper(x));
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="ReferenceDataLibrary" />
+        /// </summary>
+        public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected parameter type
+        /// </summary>
+        public ClassKindWrapper SelectedParameterType
+        {
+            get => this.selectedParameterType;
+            set
+            {
+                this.SelectParameterType(value);
+                this.RaiseAndSetIfChanged(ref this.selectedParameterType, value);
+            }
+        }
+
+        /// <summary>
+        /// Selects the current <see cref="ParameterType" />
+        /// </summary>
+        /// <param name="parameterType">The parameter type to be set</param>
+        public void SelectParameterType(ParameterType parameterType)
+        {
+            this.Thing = parameterType;
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)parameterType.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -67,6 +116,43 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             base.InitializeViewModel();
             this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
+        }
+
+        /// <summary>
+        /// Creates or edits a <see cref="ParameterType" />
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="ParameterType" /> should be created</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task CreateOrEditParameterType(bool shouldCreate)
+        {
+            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+            var thingsToCreate = new List<Thing>();
+
+            if (shouldCreate || hasRdlChanged)
+            {
+                rdlClone.ParameterType.Add(this.Thing);
+                thingsToCreate.Add(rdlClone);
+            }
+
+            thingsToCreate.Add(this.Thing);
+
+            await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
+            await this.SessionService.RefreshSession();
+        }
+
+        /// <summary>
+        /// Selects a new parameter type for the attribute <see cref="SelectedParameterType"/>
+        /// </summary>
+        /// <param name="newKind">The new kind to which the <see cref="SelectedParameterType"/> will be set</param>
+        private void SelectParameterType(ClassKindWrapper newKind)
+        {
+            this.Thing = newKind.ClassKind switch
+            {
+                ClassKind.TextParameterType => new TextParameterType(),
+                ClassKind.BooleanParameterType => new BooleanParameterType(),
+                _ => this.Thing
+            };
         }
     }
 }

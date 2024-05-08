@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="MeasurementScalesForm.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ParameterTypeForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -26,10 +26,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using System.ComponentModel.DataAnnotations;
 
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
 
     using Microsoft.AspNetCore.Components;

@@ -24,11 +24,14 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+
+    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -51,6 +54,44 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
+        }
+
+        /// <summary>
+        /// Method that is invoked when the edit/add thing form is being saved
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEditThingSaving()
+        {
+            await this.ViewModel.CreateOrEditParameterType(this.ShouldCreateThing);
+        }
+
+        /// <summary>
+        /// Method invoked when creating a new thing
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
+        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        {
+            var dataItem = (ParameterTypeRowViewModel)e.DataItem;
+            this.ShouldCreateThing = e.IsNew;
+            this.IsOnEditMode = !this.ShouldCreateThing;
+
+            if (this.ShouldCreateThing)
+            {
+                this.ViewModel.SelectedParameterType = this.ViewModel.ParameterTypes.First(x => x.ClassKind == ClassKind.TextParameterType);
+            }
+
+            this.ViewModel.SelectParameterType(dataItem == null ? new TextParameterType() : dataItem.Thing.Clone(true));
+            e.EditModel = this.ViewModel.Thing;
+        }
+
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        protected override void OnSelectedDataItemChanged(ParameterTypeRowViewModel row)
+        {
+            base.OnSelectedDataItemChanged(row);
+            this.ViewModel.SelectParameterType(row.Thing.Clone(true));
         }
     }
 }

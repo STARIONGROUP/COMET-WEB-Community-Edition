@@ -24,15 +24,51 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMETwebapp.Wrappers;
 
     /// <summary>
     /// View model used to manage <see cref="ParameterType" />
     /// </summary>
     public interface IParameterTypeTableViewModel : IDeprecatableDataItemTableViewModel<ParameterType, ParameterTypeRowViewModel>
     {
+        /// <summary>
+        /// Creates or edits a <see cref="ParameterType" />
+        /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="ParameterType" /> should be created</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task CreateOrEditParameterType(bool shouldCreate);
+
+        /// <summary>
+        /// Gets the available <see cref="ReferenceDataLibrary" />s
+        /// </summary>
+        IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; }
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="ReferenceDataLibrary"/>
+        /// </summary>
+        ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
+
+        /// <summary>
+        /// Gets the available parameter types <see cref="ClassKindWrapper" />s
+        /// </summary>
+        IEnumerable<ClassKindWrapper> ParameterTypes { get; }
+
+        /// <summary>
+        /// Gets or sets the selected parameter type
+        /// </summary>
+        ClassKindWrapper SelectedParameterType { get; set; }
+
+        /// <summary>
+        /// Selects the current <see cref="ParameterType" />
+        /// </summary>
+        /// <param name="parameterType">The parameter type to be set</param>
+        void SelectParameterType(ParameterType parameterType);
     }
 }
