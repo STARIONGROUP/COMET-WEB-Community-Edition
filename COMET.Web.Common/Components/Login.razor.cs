@@ -61,6 +61,18 @@ namespace COMET.Web.Common.Components
         public string PasswordLabel { get; set; } = "Password:";
 
         /// <summary>
+        /// The label for the full trust checkbox field
+        /// </summary>
+        [Parameter]
+        public string FullTrustLabel { get; set; } = "FullTrust:";
+
+        /// <summary>
+        /// The condition to check if the full trust checkbox should be visible or not
+        /// </summary>
+        [Parameter]
+        public bool FullTrustCheckboxVisible { get; set; } = false;
+
+        /// <summary>
         /// The text of the login button
         /// </summary>
         public string LoginButtonDisplayText { get; private set; }

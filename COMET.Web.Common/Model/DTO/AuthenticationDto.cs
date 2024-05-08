@@ -49,5 +49,10 @@ namespace COMET.Web.Common.Model.DTO
         /// </summary>
         [Required]
         public string Password { get; set; }
+
+        /// <summary>
+        /// Gets or sets the condition to check if full trust is active. This option allows connecting to servers with self signed certificates
+        /// </summary>
+        public bool FullTrust { get; set; } = false;
     }
 }

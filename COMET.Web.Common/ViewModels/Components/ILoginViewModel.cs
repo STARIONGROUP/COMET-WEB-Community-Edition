@@ -38,7 +38,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// Gets the <see cref="IConfigurationService" />
         /// </summary>
-        IConfigurationService serverConnectionService { get; }
+        IConfigurationService ServerConnectionService { get; }
 
         /// <summary>
         /// Gets or sets the loading state

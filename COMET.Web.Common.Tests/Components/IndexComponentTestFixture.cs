@@ -220,7 +220,10 @@ namespace COMET.Web.Common.Tests.Components
             var url = QueryHelpers.AddQueryString("ModelDashboard", QueryKeys.ServerKey, targetServer);
 
             var renderer = this.context.RenderComponent<IndexComponent>(parameters =>
-                parameters.Add(p => p.Redirect, url));
+            {
+                parameters.Add(p => p.Redirect, url);
+                parameters.Add(p => p.FullTrustCheckboxVisible, true);
+            });
 
             var login = renderer.FindComponent<Login>();
             Assert.That(login.Instance.ViewModel.AuthenticationDto.SourceAddress, Is.EqualTo(targetServer));
