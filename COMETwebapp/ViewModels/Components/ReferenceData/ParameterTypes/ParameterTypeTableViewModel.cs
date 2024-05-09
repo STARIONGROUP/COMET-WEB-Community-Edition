@@ -85,6 +85,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public IEnumerable<ClassKindWrapper> ParameterTypes { get; private set; } = AvailableParameterTypes.Select(x => new ClassKindWrapper(x));
 
         /// <summary>
+        /// Gets or sets a collection of the selected <see cref="EnumerationValueDefinition" />
+        /// </summary>
+        public IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; } = Enumerable.Empty<EnumerationValueDefinition>();
+
+        /// <summary>
         /// Gets or sets the selected <see cref="ReferenceDataLibrary" />
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -110,6 +115,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             this.Thing = parameterType;
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)parameterType.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+
+            if (parameterType is EnumerationParameterType enumerationParameterType)
+            {
+                this.SelectedEnumerationValueDefinitions = enumerationParameterType.ValueDefinition;
+            }
         }
 
         /// <summary>
@@ -120,6 +130,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             base.InitializeViewModel();
             this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
+
+            var siteDirectory = this.SessionService.GetSiteDirectory();
+
+            this.ReferenceDataLibraries = siteDirectory.AvailableReferenceDataLibraries().Where(x => x.Unit.Count > 0);
+            this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
+
+            // this.SelectedParameterType = this.ParameterTypes.First();
         }
 
         /// <summary>
@@ -139,6 +156,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             {
                 rdlClone.ParameterType.Add(this.Thing);
                 thingsToCreate.Add(rdlClone);
+            }
+
+            if (this.Thing is EnumerationParameterType enumerationParameterType)
+            {
+                thingsToCreate.AddRange(enumerationParameterType.ValueDefinition.ToList());
             }
 
             thingsToCreate.Add(this.Thing);

@@ -76,6 +76,14 @@ Copyright (c) 2024 Starion Group S.A.
                     <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
+            
+            @if (this.ViewModel.Thing is EnumerationParameterType)
+            {
+                <DxFormLayoutTabPage Caption="Values">
+                    <EnumerationValueDefinitionsTable EnumerationValueDefinitions="@(this.ViewModel.SelectedEnumerationValueDefinitions)"
+                                                      EnumerationValueDefinitionsChanged="@(this.OnEnumerationValueDefinitionsChanged)"/>
+                </DxFormLayoutTabPage>
+            }
 
             <DxFormLayoutTabPage Caption="Category">
                 UNDER DEV
@@ -95,12 +103,12 @@ Copyright (c) 2024 Starion Group S.A.
             </DxButton>
         }
 
-        <DxButton Id="saveParticipantRoleButton"
+        <DxButton Id="saveParameterTypeButton"
                   SubmitFormOnClick="true">
             Save
         </DxButton>
 
-        <DxButton Id="cancelOptionsButton"
+        <DxButton Id="cancelParameterTypeButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
             Cancel

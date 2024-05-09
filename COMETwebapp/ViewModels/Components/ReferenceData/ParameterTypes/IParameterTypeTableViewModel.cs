@@ -66,6 +66,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         ClassKindWrapper SelectedParameterType { get; set; }
 
         /// <summary>
+        /// Gets or sets a collection of the selected <see cref="EnumerationValueDefinition" />
+        /// </summary>
+        IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; }
+
+        /// <summary>
         /// Selects the current <see cref="ParameterType" />
         /// </summary>
         /// <param name="parameterType">The parameter type to be set</param>
