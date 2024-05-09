@@ -27,6 +27,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using System.ComponentModel.DataAnnotations;
 
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
@@ -58,7 +59,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Method executed when the selected enumeration value definitions changed
         /// </summary>
-        /// <param name="enumerationValueDefinitions"></param>
+        /// <param name="enumerationValueDefinitions">A collection of enumeration value definitions</param>
         private void OnEnumerationValueDefinitionsChanged(IEnumerable<EnumerationValueDefinition> enumerationValueDefinitions)
         {
             if (this.ViewModel.Thing is not EnumerationParameterType enumerationParameterType)
@@ -75,6 +76,29 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             valueDefinitionsToRemove.ForEach(x => enumerationParameterType.ValueDefinition.Remove(x));
 
             this.ViewModel.SelectedEnumerationValueDefinitions = enumerationValueDefinitionsList;
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method executed when the selected parameter type components changed
+        /// </summary>
+        /// <param name="parameterTypeComponents">A collection of parameter type components</param>
+        private void OnParameterTypeComponentsChanged(SortedList<long, ParameterTypeComponent> parameterTypeComponents)
+        {
+            if (this.ViewModel.Thing is not ArrayParameterType arrayParameterType)
+            {
+                return;
+            }
+
+            var enumerationValueDefinitionsList = parameterTypeComponents;
+
+            var valueDefinitionsToCreate = enumerationValueDefinitionsList.Where(x => !arrayParameterType.Component.Contains(x.Value)).ToList();
+            var valueDefinitionsToRemove = arrayParameterType.Component.Where(x => !enumerationValueDefinitionsList.Select(x => x.Value).Contains(x)).ToList();
+
+            arrayParameterType.Component.AddRange(valueDefinitionsToCreate.Select(x => x.Value));
+            valueDefinitionsToRemove.ForEach(x => arrayParameterType.Component.Remove(x));
+
+            this.ViewModel.SelectedParameterTypeComponents = enumerationValueDefinitionsList;
             this.InvokeAsync(this.StateHasChanged);
         }
     }

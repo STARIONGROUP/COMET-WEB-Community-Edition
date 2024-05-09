@@ -23,60 +23,66 @@ Copyright (c) 2024 Starion Group S.A.
 @inherits SelectedDataItemForm
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
-    <FluentValidationValidator />
+    <FluentValidationValidator/>
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages>
             <DxFormLayoutTabPage Caption="Basic">
                 @if (this.ShouldCreate)
                 {
-                    <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="10">
+                    <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="12">
                         <DxComboBox Data="@(this.ViewModel.ParameterTypes)"
                                     TextFieldName="@(nameof(ClassKindWrapper.ClassKindName))"
                                     @bind-Value="@(this.ViewModel.SelectedParameterType)"
-                                    CssClass="cw-480" />
+                                    CssClass="cw-480"/>
                     </DxFormLayoutItem>
                 }
 
-                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName" />
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Name" />
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Symbol:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@this.ViewModel.Thing.Symbol" />
+                <DxFormLayoutItem Caption="Symbol:" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Symbol)"/>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.ReferenceDataLibraries"
+                <DxFormLayoutItem Caption="Library:" ColSpanMd="12">
+                    <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
                                 TextFieldName="@nameof(ReferenceDataLibrary.ShortName)"
-                                @bind-Value="@this.ViewModel.SelectedReferenceDataLibrary"
+                                @bind-Value="@(this.ViewModel.SelectedReferenceDataLibrary)"
                                 Enabled="@(this.ShouldCreate)"
-                                CssClass="cw-480" />
+                                CssClass="cw-480"/>
                 </DxFormLayoutItem>
-                
+
                 @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameterType)
                 {
-                    <DxFormLayoutItem Caption="Multi select:" ColSpanMd="10">
-                        <DxCheckBox @bind-Checked="@enumerationParameterType.AllowMultiSelect" />
+                    <DxFormLayoutItem Caption="Multi select:" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="@enumerationParameterType.AllowMultiSelect"/>
                     </DxFormLayoutItem>
                 }
-                
+
                 @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
                 {
-                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="10">
-                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor" />
+                    <DxFormLayoutItem Caption="Components:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <ArrayComponentsTable ParameterTypeComponents="@(this.ViewModel.SelectedParameterTypeComponents)"
+                                              ParameterTypeComponentsChanged="@(this.OnParameterTypeComponentsChanged)"
+                                              @bind-Dimensions="@(this.ViewModel.SelectedDimensions)"/>
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="10">
-                        <DxCheckBox @bind-Checked="@arrayParameterType.IsFinalized" />
+                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor"/>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Is Finalized:" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="@arrayParameterType.IsFinalized"/>
                     </DxFormLayoutItem>
                 }
 
-                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated" />
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="12">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
-            
+
             @if (this.ViewModel.Thing is EnumerationParameterType)
             {
                 <DxFormLayoutTabPage Caption="Values">
@@ -92,9 +98,9 @@ Copyright (c) 2024 Starion Group S.A.
     </DxFormLayout>
 
     <div class="pt-3"></div>
-    <ValidationSummary />
+    <ValidationSummary/>
     <div class="dxbl-grid-edit-form-buttons">
-        
+
         @if (!this.ShouldCreate)
         {
             <DxButton Id="deprecateOrUndeprecateButton"

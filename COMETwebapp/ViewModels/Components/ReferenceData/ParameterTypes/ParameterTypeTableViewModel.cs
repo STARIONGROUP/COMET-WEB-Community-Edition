@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
 
@@ -48,6 +49,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// </summary>
         private static readonly IEnumerable<ClassKind> AvailableParameterTypes =
         [
+            ClassKind.ArrayParameterType, 
             ClassKind.BooleanParameterType, 
             ClassKind.DateParameterType, 
             ClassKind.DateTimeParameterType,
@@ -90,6 +92,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; } = Enumerable.Empty<EnumerationValueDefinition>();
 
         /// <summary>
+        /// Gets or sets a collection of the selected <see cref="ParameterTypeComponent" />
+        /// </summary>
+        public SortedList<long, ParameterTypeComponent> SelectedParameterTypeComponents { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets a collection of the selected dimensions
+        /// </summary>
+        public SortedList<long, int> SelectedDimensions { get; set; } = [];
+
+        /// <summary>
         /// Gets or sets the selected <see cref="ReferenceDataLibrary" />
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -119,6 +131,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             if (parameterType is EnumerationParameterType enumerationParameterType)
             {
                 this.SelectedEnumerationValueDefinitions = enumerationParameterType.ValueDefinition;
+            }
+
+            if (parameterType is ArrayParameterType arrayParameterType)
+            {
+                this.SelectedParameterTypeComponents = arrayParameterType.Component.SortedItems;
+                this.SelectedDimensions = arrayParameterType.Dimension.SortedItems;
             }
         }
 
@@ -162,7 +180,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             {
                 thingsToCreate.AddRange(enumerationParameterType.ValueDefinition.ToList());
             }
-
+            
             thingsToCreate.Add(this.Thing);
 
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
@@ -179,6 +197,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             this.Thing = newKind.ClassKind switch
             {
+                ClassKind.ArrayParameterType => new ArrayParameterType(),
                 ClassKind.BooleanParameterType => new BooleanParameterType(),
                 ClassKind.DateParameterType => new DateParameterType(),
                 ClassKind.DateTimeParameterType => new DateTimeParameterType(),

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="enumerationValueDefinitionsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="EnumerationValueDefinitionsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -108,7 +108,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.ShouldCreate = e.IsNew;
 
             this.EnumerationValueDefinition = dataItem == null
-                ? new EnumerationValueDefinition() { Iid = Guid.NewGuid() }
+                ? new EnumerationValueDefinition { Iid = Guid.NewGuid() }
                 : dataItem.Thing.Clone(true);
 
             e.EditModel = this.EnumerationValueDefinition;
