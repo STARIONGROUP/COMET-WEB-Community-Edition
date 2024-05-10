@@ -25,7 +25,6 @@
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -39,16 +38,16 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     public partial class ComponentsTable
     {
         /// <summary>
-        /// A collection of parameter type component to display for selection
+        /// The compound parameter type
         /// </summary>
         [Parameter]
-        public OrderedItemList<ParameterTypeComponent> ParameterTypeComponents { get; set; }
+        public CompoundParameterType CompoundParameterType { get; set; }
 
         /// <summary>
-        /// The method that is executed when the parameter type components change
+        /// The callback for when the parameter type has changed
         /// </summary>
         [Parameter]
-        public EventCallback<OrderedItemList<ParameterTypeComponent>> ParameterTypeComponentsChanged { get; set; }
+        public EventCallback<CompoundParameterType> CompoundParameterTypeChanged { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of <see cref="ParameterType" />s
@@ -87,15 +86,39 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             if (this.ShouldCreate)
             {
-                this.ParameterTypeComponents.Add(this.ParameterTypeComponent);
+                this.CompoundParameterType.Component.Add(this.ParameterTypeComponent);
             }
             else
             {
-                var valueToUpdate = this.ParameterTypeComponents.SortedItems.First(x => x.Value.Iid == this.ParameterTypeComponent.Iid);
-                this.ParameterTypeComponents.SortedItems[valueToUpdate.Key] = this.ParameterTypeComponent;
+                var indexToUpdate = this.CompoundParameterType.Component.FindIndex(x => x.Iid == this.ParameterTypeComponent.Iid);
+                this.CompoundParameterType.Component[indexToUpdate] = this.ParameterTypeComponent;
             }
 
-            this.ParameterTypeComponentsChanged.InvokeAsync(this.ParameterTypeComponents);
+            this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
+        }
+
+        /// <summary>
+        /// Moves the selected row up
+        /// </summary>
+        /// <param name="row">The row to be moved</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task MoveUp(ParameterTypeComponentRowViewModel row)
+        {
+            var currentIndex = this.CompoundParameterType.Component.IndexOf(row.Thing);
+            this.CompoundParameterType.Component.Move(currentIndex, currentIndex - 1);
+            await this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
+        }
+
+        /// <summary>
+        /// Moves the selected row down
+        /// </summary>
+        /// <param name="row">The row to be moved</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task MoveDown(ParameterTypeComponentRowViewModel row)
+        {
+            var currentIndex = this.CompoundParameterType.Component.IndexOf(row.Thing);
+            this.CompoundParameterType.Component.Move(currentIndex, currentIndex + 1);
+            await this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
         }
 
         /// <summary>
@@ -103,8 +126,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// </summary>
         private void RemoveEnumerationValueDefinition(ParameterTypeComponentRowViewModel row)
         {
-            this.ParameterTypeComponents.Remove(row.Thing);
-            this.ParameterTypeComponentsChanged.InvokeAsync(this.ParameterTypeComponents);
+            this.CompoundParameterType.Component.Remove(row.Thing);
+            this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
         }
 
         /// <summary>
@@ -124,12 +147,12 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="ParameterTypeComponents" />
+        /// Method used to retrieve the available rows, given the <see cref="CompoundParameterType" />
         /// </summary>
         /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
         private List<ParameterTypeComponentRowViewModel> GetRows()
         {
-            return this.ParameterTypeComponents?
+            return this.CompoundParameterType.Component?
                 .Select(x => new ParameterTypeComponentRowViewModel(x))
                 .OrderBy(x => x.Name)
                 .ToList();

@@ -78,28 +78,5 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.ViewModel.SelectedEnumerationValueDefinitions = enumerationValueDefinitionsList;
             this.InvokeAsync(this.StateHasChanged);
         }
-
-        /// <summary>
-        /// Method executed when the selected parameter type components changed
-        /// </summary>
-        /// <param name="parameterTypeComponents">A collection of parameter type components</param>
-        private void OnParameterTypeComponentsChanged(OrderedItemList<ParameterTypeComponent> parameterTypeComponents)
-        {
-            if (this.ViewModel.Thing is not CompoundParameterType compoundParameterType)
-            {
-                return;
-            }
-
-            var enumerationValueDefinitionsList = parameterTypeComponents;
-
-            var valueDefinitionsToCreate = enumerationValueDefinitionsList.Where(x => !compoundParameterType.Component.Contains(x)).ToList();
-            var valueDefinitionsToRemove = compoundParameterType.Component.Where(x => !enumerationValueDefinitionsList.Select(y => y).Contains(x)).ToList();
-
-            compoundParameterType.Component.AddRange(valueDefinitionsToCreate.Select(x => x));
-            valueDefinitionsToRemove.ForEach(x => compoundParameterType.Component.Remove(x));
-
-            this.ViewModel.SelectedParameterTypeComponents = enumerationValueDefinitionsList;
-            this.InvokeAsync(this.StateHasChanged);
-        }
     }
 }

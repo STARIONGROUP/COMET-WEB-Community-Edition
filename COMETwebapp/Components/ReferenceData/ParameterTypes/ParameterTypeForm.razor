@@ -64,8 +64,7 @@ Copyright (c) 2024 Starion Group S.A.
                 @if (this.ViewModel.Thing is CompoundParameterType compoundParameterType)
                 {
                     <DxFormLayoutItem Caption="Components:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <ComponentsTable ParameterTypeComponents="@(this.ViewModel.SelectedParameterTypeComponents)"
-                                         ParameterTypeComponentsChanged="@(this.OnParameterTypeComponentsChanged)"
+                        <ComponentsTable @bind-CompoundParameterType="compoundParameterType"
                                          ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"/>
                     </DxFormLayoutItem>
 

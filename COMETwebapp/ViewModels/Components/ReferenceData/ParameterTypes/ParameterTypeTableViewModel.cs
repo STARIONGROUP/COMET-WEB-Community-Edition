@@ -26,11 +26,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -52,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         [
             ClassKind.BooleanParameterType,
             ClassKind.CompoundParameterType,
-            ClassKind.DateParameterType, 
+            ClassKind.DateParameterType,
             ClassKind.DateTimeParameterType,
             ClassKind.EnumerationParameterType,
             ClassKind.TextParameterType,
@@ -98,11 +96,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; } = Enumerable.Empty<EnumerationValueDefinition>();
 
         /// <summary>
-        /// Gets or sets a collection of the selected <see cref="ParameterTypeComponent" />
-        /// </summary>
-        public OrderedItemList<ParameterTypeComponent> SelectedParameterTypeComponents { get; set; }
-
-        /// <summary>
         /// Gets or sets the selected <see cref="ReferenceDataLibrary" />
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -133,17 +126,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             {
                 this.SelectedEnumerationValueDefinitions = enumerationParameterType.ValueDefinition;
             }
-
-            if (parameterType is CompoundParameterType compoundParameterType)
-            {
-                this.SelectedParameterTypeComponents = compoundParameterType.Component;
-            }
         }
 
         /// <summary>
         /// Initializes the current view model
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         public override void InitializeViewModel()
         {
             base.InitializeViewModel();
@@ -154,8 +142,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             this.ReferenceDataLibraries = siteDirectory.AvailableReferenceDataLibraries().Where(x => x.Unit.Count > 0);
             this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
             this.ExistingParameterTypes = this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.ParameterType).Distinct();
-
-            // this.SelectedParameterType = this.ParameterTypes.First();
         }
 
         /// <summary>

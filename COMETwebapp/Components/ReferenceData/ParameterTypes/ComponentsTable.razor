@@ -48,6 +48,26 @@ Copyright (c) 2024 Starion Group S.A.
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
+        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+            <HeaderTemplate>
+                Order
+            </HeaderTemplate>
+            <CellDisplayTemplate>
+                @{
+                    var row = (ParameterTypeComponentRowViewModel)context.DataItem;
+
+                    <DxButton Id="moveUpButton"
+                              IconCssClass="oi oi-arrow-top"
+                              Click="() => this.MoveUp(row)"
+                              Enabled="@(this.CompoundParameterType.Component.IndexOf(row.Thing) > 0)"/>
+
+                    <DxButton Id="moveDownButton"
+                              IconCssClass="oi oi-arrow-bottom"
+                              Click="() => this.MoveDown(row)"
+                              Enabled="@(this.CompoundParameterType.Component.LastOrDefault() != row.Thing)"/>
+                }
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
     </Columns>
 
     <EditFormTemplate Context="EditFormContext">
@@ -59,6 +79,8 @@ Copyright (c) 2024 Starion Group S.A.
             <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
                             TextFieldName="@(nameof(ParameterType.Name))"
+                            NullText="Select a parameter type"
+                            TextChanged="@(() => this.ParameterTypeComponent.Scale = null)"
                             @bind-Value="@(this.ParameterTypeComponent.ParameterType)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">

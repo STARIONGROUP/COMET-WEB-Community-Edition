@@ -26,7 +26,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -70,11 +69,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// Gets or sets a collection of the selected <see cref="EnumerationValueDefinition" />
         /// </summary>
         IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; }
-
-        /// <summary>
-        /// Gets or sets a collection of the selected <see cref="ParameterTypeComponent" />
-        /// </summary>
-        OrderedItemList<ParameterTypeComponent> SelectedParameterTypeComponents { get; set; }
 
         /// <summary>
         /// Gets the existing parameter types
