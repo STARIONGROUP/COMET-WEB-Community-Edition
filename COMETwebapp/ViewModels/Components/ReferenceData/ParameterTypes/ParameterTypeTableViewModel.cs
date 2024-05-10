@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -49,8 +50,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// </summary>
         private static readonly IEnumerable<ClassKind> AvailableParameterTypes =
         [
-            ClassKind.ArrayParameterType, 
-            ClassKind.BooleanParameterType, 
+            ClassKind.BooleanParameterType,
+            ClassKind.CompoundParameterType,
             ClassKind.DateParameterType, 
             ClassKind.DateTimeParameterType,
             ClassKind.EnumerationParameterType,
@@ -87,6 +88,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public IEnumerable<ClassKindWrapper> ParameterTypes { get; private set; } = AvailableParameterTypes.Select(x => new ClassKindWrapper(x));
 
         /// <summary>
+        /// Gets the existing parameter types
+        /// </summary>
+        public IEnumerable<ParameterType> ExistingParameterTypes { get; private set; }
+
+        /// <summary>
         /// Gets or sets a collection of the selected <see cref="EnumerationValueDefinition" />
         /// </summary>
         public IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; } = Enumerable.Empty<EnumerationValueDefinition>();
@@ -94,12 +100,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Gets or sets a collection of the selected <see cref="ParameterTypeComponent" />
         /// </summary>
-        public SortedList<long, ParameterTypeComponent> SelectedParameterTypeComponents { get; set; } = [];
-
-        /// <summary>
-        /// Gets or sets a collection of the selected dimensions
-        /// </summary>
-        public SortedList<long, int> SelectedDimensions { get; set; } = [];
+        public OrderedItemList<ParameterTypeComponent> SelectedParameterTypeComponents { get; set; }
 
         /// <summary>
         /// Gets or sets the selected <see cref="ReferenceDataLibrary" />
@@ -133,10 +134,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 this.SelectedEnumerationValueDefinitions = enumerationParameterType.ValueDefinition;
             }
 
-            if (parameterType is ArrayParameterType arrayParameterType)
+            if (parameterType is CompoundParameterType compoundParameterType)
             {
-                this.SelectedParameterTypeComponents = arrayParameterType.Component.SortedItems;
-                this.SelectedDimensions = arrayParameterType.Dimension.SortedItems;
+                this.SelectedParameterTypeComponents = compoundParameterType.Component;
             }
         }
 
@@ -153,6 +153,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 
             this.ReferenceDataLibraries = siteDirectory.AvailableReferenceDataLibraries().Where(x => x.Unit.Count > 0);
             this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
+            this.ExistingParameterTypes = this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.ParameterType).Distinct();
 
             // this.SelectedParameterType = this.ParameterTypes.First();
         }
@@ -180,7 +181,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             {
                 thingsToCreate.AddRange(enumerationParameterType.ValueDefinition.ToList());
             }
-            
+
+            if (this.Thing is CompoundParameterType compoundParameterType)
+            {
+                thingsToCreate.AddRange(compoundParameterType.Component);
+            }
+
             thingsToCreate.Add(this.Thing);
 
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
@@ -197,8 +203,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             this.Thing = newKind.ClassKind switch
             {
-                ClassKind.ArrayParameterType => new ArrayParameterType(),
                 ClassKind.BooleanParameterType => new BooleanParameterType(),
+                ClassKind.CompoundParameterType => new CompoundParameterType(),
                 ClassKind.DateParameterType => new DateParameterType(),
                 ClassKind.DateTimeParameterType => new DateTimeParameterType(),
                 ClassKind.EnumerationParameterType => new EnumerationParameterType(),

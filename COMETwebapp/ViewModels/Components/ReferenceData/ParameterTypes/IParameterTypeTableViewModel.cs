@@ -74,12 +74,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Gets or sets a collection of the selected <see cref="ParameterTypeComponent" />
         /// </summary>
-        SortedList<long, ParameterTypeComponent> SelectedParameterTypeComponents { get; set; }
+        OrderedItemList<ParameterTypeComponent> SelectedParameterTypeComponents { get; set; }
 
         /// <summary>
-        /// Gets or sets a collection of the selected dimensions
+        /// Gets the existing parameter types
         /// </summary>
-        SortedList<long, int> SelectedDimensions { get; set; }
+        IEnumerable<ParameterType> ExistingParameterTypes { get; }
 
         /// <summary>
         /// Selects the current <see cref="ParameterType" />

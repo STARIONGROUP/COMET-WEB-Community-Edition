@@ -83,20 +83,20 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// Method executed when the selected parameter type components changed
         /// </summary>
         /// <param name="parameterTypeComponents">A collection of parameter type components</param>
-        private void OnParameterTypeComponentsChanged(SortedList<long, ParameterTypeComponent> parameterTypeComponents)
+        private void OnParameterTypeComponentsChanged(OrderedItemList<ParameterTypeComponent> parameterTypeComponents)
         {
-            if (this.ViewModel.Thing is not ArrayParameterType arrayParameterType)
+            if (this.ViewModel.Thing is not CompoundParameterType compoundParameterType)
             {
                 return;
             }
 
             var enumerationValueDefinitionsList = parameterTypeComponents;
 
-            var valueDefinitionsToCreate = enumerationValueDefinitionsList.Where(x => !arrayParameterType.Component.Contains(x.Value)).ToList();
-            var valueDefinitionsToRemove = arrayParameterType.Component.Where(x => !enumerationValueDefinitionsList.Select(x => x.Value).Contains(x)).ToList();
+            var valueDefinitionsToCreate = enumerationValueDefinitionsList.Where(x => !compoundParameterType.Component.Contains(x)).ToList();
+            var valueDefinitionsToRemove = compoundParameterType.Component.Where(x => !enumerationValueDefinitionsList.Select(y => y).Contains(x)).ToList();
 
-            arrayParameterType.Component.AddRange(valueDefinitionsToCreate.Select(x => x.Value));
-            valueDefinitionsToRemove.ForEach(x => arrayParameterType.Component.Remove(x));
+            compoundParameterType.Component.AddRange(valueDefinitionsToCreate.Select(x => x));
+            valueDefinitionsToRemove.ForEach(x => compoundParameterType.Component.Remove(x));
 
             this.ViewModel.SelectedParameterTypeComponents = enumerationValueDefinitionsList;
             this.InvokeAsync(this.StateHasChanged);

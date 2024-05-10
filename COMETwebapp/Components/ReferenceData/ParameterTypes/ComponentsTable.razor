@@ -20,18 +20,13 @@ Copyright (c) 2024 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-<DxTextBox Text="@this.Dimension" 
-           TextChanged="@this.OnDimensionChanged"
-           TextExpression="@(() => this.Dimension)" />
-
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Scale Value Definition"
+        PopupEditFormHeaderText="Component"
         EditModelSaving="@(() => this.OnEditEnumerationValueDefinitionSaving())"
         CustomizeEditModel="this.CustomizeEditEnumerationValueDefinition">
     <Columns>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Coordinates)" MinWidth="80" SearchEnabled="false" />
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ParameterType)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Scale)" MinWidth="80"/>
@@ -58,8 +53,18 @@ Copyright (c) 2024 Starion Group S.A.
     <EditFormTemplate Context="EditFormContext">
         <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
                 <DxTextBox @bind-Text="@(this.ParameterTypeComponent.ShortName)"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
+                <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
+                            TextFieldName="@(nameof(ParameterType.Name))"
+                            @bind-Value="@(this.ParameterTypeComponent.ParameterType)"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
+                <DxComboBox Data="@(this.GetAvailableScales())"
+                            TextFieldName="@(nameof(MeasurementScale.Name))"
+                            @bind-Value="@(this.ParameterTypeComponent.Scale)" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

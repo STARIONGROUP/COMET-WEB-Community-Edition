@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ArrayComponentsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ComponentsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -25,6 +25,7 @@
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -33,33 +34,27 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ArrayComponentsTable" />
+    /// Support class for the <see cref="ComponentsTable" />
     /// </summary>
-    public partial class ArrayComponentsTable
+    public partial class ComponentsTable
     {
         /// <summary>
         /// A collection of parameter type component to display for selection
         /// </summary>
         [Parameter]
-        public SortedList<long, ParameterTypeComponent> ParameterTypeComponents { get; set; }
+        public OrderedItemList<ParameterTypeComponent> ParameterTypeComponents { get; set; }
 
         /// <summary>
         /// The method that is executed when the parameter type components change
         /// </summary>
         [Parameter]
-        public EventCallback<SortedList<long, ParameterTypeComponent>> ParameterTypeComponentsChanged { get; set; }
+        public EventCallback<OrderedItemList<ParameterTypeComponent>> ParameterTypeComponentsChanged { get; set; }
 
         /// <summary>
-        /// A collection of dimensions to display for selection
+        /// Gets or sets the collection of <see cref="ParameterType" />s
         /// </summary>
         [Parameter]
-        public SortedList<long, int> Dimensions { get; set; }
-
-        /// <summary>
-        /// The method that is executed when the dimensions change
-        /// </summary>
-        [Parameter]
-        public EventCallback<SortedList<long, int>> DimensionsChanged { get; set; }
+        public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if a parameter type component should be created
@@ -72,35 +67,34 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public ParameterTypeComponent ParameterTypeComponent { get; private set; } = new();
 
         /// <summary>
-        /// The dimension value to be read and set the actual <see cref="Dimensions" />
-        /// </summary>
-        public string Dimension { get; private set; }
-
-        /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
+
+        /// <summary>
+        /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="ParameterTypeComponent" />
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<MeasurementScale> GetAvailableScales()
+        {
+            return this.ParameterTypeComponent.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
+        }
 
         /// <summary>
         /// Method that is invoked when the edit/add parameter type component form is being saved
         /// </summary>
         private void OnEditEnumerationValueDefinitionSaving()
         {
-            var valueDefinitionsList = this.ParameterTypeComponents;
-
             if (this.ShouldCreate)
             {
-                var index = valueDefinitionsList.Count;
-                valueDefinitionsList.Add(index + 1, this.ParameterTypeComponent);
-                this.ParameterTypeComponents = valueDefinitionsList;
+                this.ParameterTypeComponents.Add(this.ParameterTypeComponent);
             }
             else
             {
-                var valueToUpdate = valueDefinitionsList.First(x => x.Value.Iid == this.ParameterTypeComponent.Iid);
-                valueDefinitionsList[valueToUpdate.Key] = this.ParameterTypeComponent;
+                var valueToUpdate = this.ParameterTypeComponents.SortedItems.First(x => x.Value.Iid == this.ParameterTypeComponent.Iid);
+                this.ParameterTypeComponents.SortedItems[valueToUpdate.Key] = this.ParameterTypeComponent;
             }
 
-            this.ParameterTypeComponents = valueDefinitionsList;
             this.ParameterTypeComponentsChanged.InvokeAsync(this.ParameterTypeComponents);
         }
 
@@ -109,10 +103,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// </summary>
         private void RemoveEnumerationValueDefinition(ParameterTypeComponentRowViewModel row)
         {
-            var valueDefinitionsList = this.ParameterTypeComponents;
-            valueDefinitionsList.RemoveAt(row.Thing.Index);
-
-            this.ParameterTypeComponents = valueDefinitionsList;
+            this.ParameterTypeComponents.Remove(row.Thing);
             this.ParameterTypeComponentsChanged.InvokeAsync(this.ParameterTypeComponents);
         }
 
@@ -138,35 +129,10 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
         private List<ParameterTypeComponentRowViewModel> GetRows()
         {
-            return this.ParameterTypeComponents?.Select(x => new ParameterTypeComponentRowViewModel(x.Value)).ToList();
-        }
-
-        /// <summary>
-        /// Method invoked everytime the dimension has changed
-        /// </summary>
-        /// <param name="newChangedDimension">The new changed dimension</param>
-        private void OnDimensionChanged(string newChangedDimension)
-        {
-            var newDimension = newChangedDimension[1..^1];
-            this.Dimension = newChangedDimension;
-            var dimensions = newDimension.Split(";");
-            var i = 0;
-
-            if (this.Dimensions.Count < dimensions.Length)
-            {
-                for (var j = this.Dimension.Length - 1; j < dimensions.Length; j++)
-                {
-                    this.Dimensions.Add(j, int.Parse(dimensions[j]));
-                }
-            }
-
-            foreach (var dimension in this.Dimensions.ToList().TakeWhile(_ => dimensions.Length + 1 != i))
-            {
-                this.Dimensions[dimension.Key] = int.Parse(dimensions[i]);
-                i++;
-            }
-
-            this.InvokeAsync(this.StateHasChanged);
+            return this.ParameterTypeComponents?
+                .Select(x => new ParameterTypeComponentRowViewModel(x))
+                .OrderBy(x => x.Name)
+                .ToList();
         }
     }
 }

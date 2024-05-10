@@ -61,20 +61,23 @@ Copyright (c) 2024 Starion Group S.A.
                     </DxFormLayoutItem>
                 }
 
-                @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
+                @if (this.ViewModel.Thing is CompoundParameterType compoundParameterType)
                 {
                     <DxFormLayoutItem Caption="Components:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <ArrayComponentsTable ParameterTypeComponents="@(this.ViewModel.SelectedParameterTypeComponents)"
-                                              ParameterTypeComponentsChanged="@(this.OnParameterTypeComponentsChanged)"
-                                              @bind-Dimensions="@(this.ViewModel.SelectedDimensions)"/>
-                    </DxFormLayoutItem>
-
-                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12">
-                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor"/>
+                        <ComponentsTable ParameterTypeComponents="@(this.ViewModel.SelectedParameterTypeComponents)"
+                                         ParameterTypeComponentsChanged="@(this.OnParameterTypeComponentsChanged)"
+                                         ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"/>
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Is Finalized:" ColSpanMd="12">
-                        <DxCheckBox @bind-Checked="@arrayParameterType.IsFinalized"/>
+                        <DxCheckBox @bind-Checked="@compoundParameterType.IsFinalized"/>
+                    </DxFormLayoutItem>
+                }
+                
+                @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
+                {
+                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor" />
                     </DxFormLayoutItem>
                 }
 
