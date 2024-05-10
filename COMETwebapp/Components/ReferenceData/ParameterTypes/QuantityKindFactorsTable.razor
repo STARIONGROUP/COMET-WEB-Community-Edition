@@ -24,27 +24,26 @@ Copyright (c) 2024 Starion Group S.A.
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditParameterTypeComponentSaving())"
-        CustomizeEditModel="this.CustomizeEditParameterTypeComponent">
+        EditModelSaving="@(() => this.OnEditQuantityKindFactorSaving())"
+        CustomizeEditModel="this.CustomizeEditQuantityKindFactor">
     <Columns>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ParameterType)" MinWidth="80"/>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Scale)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.Exponent)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.QuantityKind)" />
         <DxGridCommandColumn Width="100px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addScaleValueDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addQuantityKindFactorButton" Text="Add" IconCssClass="oi oi-plus" Click="@(() => this.Grid.StartEditNewRowAsync())"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
-                    var row = (ParameterTypeComponentRowViewModel)context.DataItem;
+                    var row = (QuantityKindFactorRowViewModel)context.DataItem;
 
-                    <DxButton Id="editScaleValueDefinitionButton"
+                    <DxButton Id="editQuantityKindFactorButton"
                               IconCssClass="oi oi-pencil"
                               Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
-                    <DxButton Id="removeScaleValueDefinitionButton"
+                    <DxButton Id="removeQuantityKindFactorButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveParameterTypeComponent(row)"/>
+                              Click="@(() => this.RemoveQuantityKindFactor(row))"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -54,17 +53,17 @@ Copyright (c) 2024 Starion Group S.A.
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
-                    var row = (ParameterTypeComponentRowViewModel)context.DataItem;
+                    var row = (QuantityKindFactorRowViewModel)context.DataItem;
 
                     <DxButton Id="moveUpButton"
                               IconCssClass="oi oi-arrow-top"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.CompoundParameterType.Component.IndexOf(row.Thing) > 0)"/>
+                              Enabled="@(this.DerivedQuantityKindParameterType.QuantityKindFactor.IndexOf(row.Thing) > 0)"/>
 
                     <DxButton Id="moveDownButton"
                               IconCssClass="oi oi-arrow-bottom"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.CompoundParameterType.Component.LastOrDefault() != row.Thing)"/>
+                              Enabled="@(this.DerivedQuantityKindParameterType.QuantityKindFactor.LastOrDefault() != row.Thing)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -73,20 +72,13 @@ Copyright (c) 2024 Starion Group S.A.
     <EditFormTemplate Context="EditFormContext">
         <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
-                <DxTextBox @bind-Text="@(this.ParameterTypeComponent.ShortName)"/>
+            <DxFormLayoutItem Caption="Exponent:" ColSpanMd="12">
+                <DxTextBox @bind-Text="this.QuantityKindFactore.Exponent" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
-                <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(ParameterType.Name))"
-                            NullText="Select a parameter type"
-                            TextChanged="@(() => this.ParameterTypeComponent.Scale = null)"
-                            @bind-Value="@(this.ParameterTypeComponent.ParameterType)"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
-                <DxComboBox Data="@(this.GetAvailableScales())"
-                            TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.ParameterTypeComponent.Scale)" />
+            <DxFormLayoutItem Caption="Quantity Kind:" ColSpanMd="12">
+                <DxComboBox Data="@(this.QuantityKindParameterTypes)"
+                            TextFieldName="@(nameof(QuantityKind.Name))"
+                            @bind-Value="this.QuantityKindFactore.QuantityKind" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

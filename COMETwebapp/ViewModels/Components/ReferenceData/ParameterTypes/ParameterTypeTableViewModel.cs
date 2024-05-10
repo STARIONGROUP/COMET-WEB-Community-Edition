@@ -52,8 +52,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             ClassKind.CompoundParameterType,
             ClassKind.DateParameterType,
             ClassKind.DateTimeParameterType,
+            ClassKind.DerivedQuantityKind,
             ClassKind.EnumerationParameterType,
             ClassKind.SimpleQuantityKind,
+            ClassKind.SpecializedQuantityKind,
             ClassKind.TextParameterType,
             ClassKind.TimeOfDayParameterType
         ];
@@ -177,10 +179,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             switch (this.Thing)
             {
                 case EnumerationParameterType enumerationParameterType:
-                    thingsToCreate.AddRange(enumerationParameterType.ValueDefinition.ToList());
+                    thingsToCreate.AddRange(enumerationParameterType.ValueDefinition);
                     break;
                 case CompoundParameterType compoundParameterType:
                     thingsToCreate.AddRange(compoundParameterType.Component);
+                    break;
+                case DerivedQuantityKind derivedQuantityKindParameterType:
+                    thingsToCreate.AddRange(derivedQuantityKindParameterType.QuantityKindFactor);
                     break;
             }
 
@@ -204,8 +209,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 ClassKind.CompoundParameterType => new CompoundParameterType(),
                 ClassKind.DateParameterType => new DateParameterType(),
                 ClassKind.DateTimeParameterType => new DateTimeParameterType(),
+                ClassKind.DerivedQuantityKind => new DerivedQuantityKind(),
                 ClassKind.EnumerationParameterType => new EnumerationParameterType(),
                 ClassKind.SimpleQuantityKind => new SimpleQuantityKind(),
+                ClassKind.SpecializedQuantityKind => new SpecializedQuantityKind(),
                 ClassKind.TextParameterType => new TextParameterType(),
                 ClassKind.TimeOfDayParameterType => new TimeOfDayParameterType(),
                 _ => this.Thing

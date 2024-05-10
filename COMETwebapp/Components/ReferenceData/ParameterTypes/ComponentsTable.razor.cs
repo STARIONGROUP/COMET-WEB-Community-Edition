@@ -82,7 +82,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Method that is invoked when the edit/add parameter type component form is being saved
         /// </summary>
-        private void OnEditEnumerationValueDefinitionSaving()
+        private void OnEditParameterTypeComponentSaving()
         {
             if (this.ShouldCreate)
             {
@@ -124,7 +124,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Method that is invoked when a parameter type component row is being removed
         /// </summary>
-        private void RemoveEnumerationValueDefinition(ParameterTypeComponentRowViewModel row)
+        private void RemoveParameterTypeComponent(ParameterTypeComponentRowViewModel row)
         {
             this.CompoundParameterType.Component.Remove(row.Thing);
             this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
@@ -134,7 +134,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// Method invoked when creating a new parameter type component
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditEnumerationValueDefinition(GridCustomizeEditModelEventArgs e)
+        private void CustomizeEditParameterTypeComponent(GridCustomizeEditModelEventArgs e)
         {
             var dataItem = (ParameterTypeComponentRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;

@@ -89,8 +89,9 @@ Copyright (c) 2024 Starion Group S.A.
                                     CssClass="cw-480"/>
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <DxGrid Data="specializedQuantityKindParameterType.General.AllPossibleScale.Select(x => new MeasurementScaleRowViewModel(x))">
+                    <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">                        
+                        <DxGrid Data="@(specializedQuantityKindParameterType.General.AllPossibleScale.Select(x => new MeasurementScaleRowViewModel(x)))"
+                                ShowAllRows="true">
                             <Columns>
                                 <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="80"/>
                                 <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)"/>
@@ -146,6 +147,14 @@ Copyright (c) 2024 Starion Group S.A.
                 <DxFormLayoutTabPage Caption="Values">
                     <EnumerationValueDefinitionsTable EnumerationValueDefinitions="@(this.ViewModel.SelectedEnumerationValueDefinitions)"
                                                       EnumerationValueDefinitionsChanged="@(this.OnEnumerationValueDefinitionsChanged)"/>
+                </DxFormLayoutTabPage>
+            }
+            
+            @if (this.ViewModel.Thing is DerivedQuantityKind derivedQuantityKindParameterType)
+            {
+                <DxFormLayoutTabPage Caption="Factors">
+                    <QuantityKindFactorsTable @bind-DerivedQuantityKindParameterType="@(derivedQuantityKindParameterType)"
+                                              QuantityKindParameterTypes="@(this.ViewModel.ExistingParameterTypes.OfType<QuantityKind>())" />
                 </DxFormLayoutTabPage>
             }
 
