@@ -53,6 +53,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             ClassKind.DateParameterType,
             ClassKind.DateTimeParameterType,
             ClassKind.EnumerationParameterType,
+            ClassKind.SimpleQuantityKind,
             ClassKind.TextParameterType,
             ClassKind.TimeOfDayParameterType
         ];
@@ -79,6 +80,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+
+        /// <summary>
+        /// Gets the available <see cref="MeasurementScale" />s
+        /// </summary>
+        public IEnumerable<MeasurementScaleRowViewModel> MeasurementScales => this.SelectedReferenceDataLibrary?.QueryMeasurementScalesFromChainOfRdls()
+            .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
+            .Select(x => new MeasurementScaleRowViewModel(x)) ?? Enumerable.Empty<MeasurementScaleRowViewModel>();
 
         /// <summary>
         /// Gets the available parameter types <see cref="ClassKindWrapper" />s
@@ -194,6 +202,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 ClassKind.DateParameterType => new DateParameterType(),
                 ClassKind.DateTimeParameterType => new DateTimeParameterType(),
                 ClassKind.EnumerationParameterType => new EnumerationParameterType(),
+                ClassKind.SimpleQuantityKind => new SimpleQuantityKind(),
                 ClassKind.TextParameterType => new TextParameterType(),
                 ClassKind.TimeOfDayParameterType => new TimeOfDayParameterType(),
                 _ => this.Thing

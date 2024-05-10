@@ -76,6 +76,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         IEnumerable<ParameterType> ExistingParameterTypes { get; }
 
         /// <summary>
+        /// Gets the available <see cref="MeasurementScale" />s
+        /// </summary>
+        IEnumerable<MeasurementScaleRowViewModel> MeasurementScales { get; }
+
+        /// <summary>
         /// Selects the current <see cref="ParameterType" />
         /// </summary>
         /// <param name="parameterType">The parameter type to be set</param>

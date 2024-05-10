@@ -79,6 +79,41 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor" />
                     </DxFormLayoutItem>
                 }
+                
+                @if (this.ViewModel.Thing is QuantityKind quantityKindParameterType)
+                {
+                    <DxFormLayoutItem Caption="Default Scale:" ColSpanMd="12">
+                        <DxComboBox Data="@(quantityKindParameterType.AllPossibleScale)"
+                                    TextFieldName="@nameof(MeasurementScale.Name)"
+                                    @bind-Value="@(quantityKindParameterType.DefaultScale)"
+                                    CssClass="cw-480"/>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Dimension Symbol:" ColSpanMd="12">
+                        <DxTextBox @bind-Text="@(quantityKindParameterType.QuantityDimensionSymbol)"/>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Possible Scales:" ColSpanMd="12">
+                        <DxListBox TValue="MeasurementScale"
+                                   TData="MeasurementScaleRowViewModel"
+                                   Data="@this.ViewModel.MeasurementScales"
+                                   TextFieldName="@nameof(MeasurementScale.Name)"
+                                   ValueFieldName="@nameof(MeasurementScaleRowViewModel.Thing)"
+                                   SelectionMode="ListBoxSelectionMode.Multiple"
+                                   ShowCheckboxes="true"
+                                   Values="@quantityKindParameterType.PossibleScale"
+                                   ValuesChanged="@((selectedPossibleScales) => quantityKindParameterType.PossibleScale = selectedPossibleScales.ToList())"
+                                   ValuesExpression="@(() => quantityKindParameterType.PossibleScale)"
+                                   CssClass="cw-480"
+                                   style="height: 200px;">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" />
+                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" />
+                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" />
+                            </Columns>
+                        </DxListBox>
+                    </DxFormLayoutItem>
+                }
 
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="12">
                     <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
