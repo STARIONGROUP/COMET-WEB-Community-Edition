@@ -72,14 +72,35 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxCheckBox @bind-Checked="@compoundParameterType.IsFinalized"/>
                     </DxFormLayoutItem>
                 }
-                
+
                 @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
                 {
                     <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12">
-                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor" />
+                        <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor"/>
                     </DxFormLayoutItem>
                 }
-                
+
+                @if (this.ViewModel.Thing is SpecializedQuantityKind specializedQuantityKindParameterType)
+                {
+                    <DxFormLayoutItem Caption="General:" ColSpanMd="12">
+                        <DxComboBox Data="@(this.ViewModel.ExistingParameterTypes.OfType<QuantityKind>())"
+                                    TextFieldName="@nameof(QuantityKind.Name)"
+                                    @bind-Value="@(specializedQuantityKindParameterType.General)"
+                                    CssClass="cw-480"/>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <DxGrid Data="specializedQuantityKindParameterType.General.AllPossibleScale.Select(x => new MeasurementScaleRowViewModel(x))">
+                            <Columns>
+                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="80"/>
+                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)"/>
+                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)"/>
+                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="RDL"/>
+                            </Columns>
+                        </DxGrid>
+                    </DxFormLayoutItem>
+                }
+
                 @if (this.ViewModel.Thing is QuantityKind quantityKindParameterType)
                 {
                     <DxFormLayoutItem Caption="Default Scale:" ColSpanMd="12">
@@ -93,23 +114,23 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxTextBox @bind-Text="@(quantityKindParameterType.QuantityDimensionSymbol)"/>
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Possible Scales:" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Possible Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
                         <DxListBox TValue="MeasurementScale"
                                    TData="MeasurementScaleRowViewModel"
-                                   Data="@this.ViewModel.MeasurementScales"
+                                   Data="@(this.ViewModel.MeasurementScales)"
                                    TextFieldName="@nameof(MeasurementScale.Name)"
                                    ValueFieldName="@nameof(MeasurementScaleRowViewModel.Thing)"
                                    SelectionMode="ListBoxSelectionMode.Multiple"
                                    ShowCheckboxes="true"
                                    Values="@quantityKindParameterType.PossibleScale"
-                                   ValuesChanged="@((selectedPossibleScales) => quantityKindParameterType.PossibleScale = selectedPossibleScales.ToList())"
+                                   ValuesChanged="@(selectedPossibleScales => quantityKindParameterType.PossibleScale = selectedPossibleScales.ToList())"
                                    ValuesExpression="@(() => quantityKindParameterType.PossibleScale)"
                                    CssClass="cw-480"
                                    style="height: 200px;">
                             <Columns>
-                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" />
-                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" />
-                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" />
+                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)"/>
+                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)"/>
+                                <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)"/>
                             </Columns>
                         </DxListBox>
                     </DxFormLayoutItem>

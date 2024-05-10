@@ -82,11 +82,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
 
         /// <summary>
-        /// Gets the available <see cref="MeasurementScale" />s
+        /// Gets the possible available <see cref="MeasurementScale" />s
         /// </summary>
-        public IEnumerable<MeasurementScaleRowViewModel> MeasurementScales => this.SelectedReferenceDataLibrary?.QueryMeasurementScalesFromChainOfRdls()
-            .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
-            .Select(x => new MeasurementScaleRowViewModel(x)) ?? Enumerable.Empty<MeasurementScaleRowViewModel>();
+        public IEnumerable<MeasurementScaleRowViewModel> MeasurementScales => this.GetPossibleMeasurementScales();
 
         /// <summary>
         /// Gets the available parameter types <see cref="ClassKindWrapper" />s
@@ -143,13 +141,18 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public override void InitializeViewModel()
         {
             base.InitializeViewModel();
-            this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
-
             var siteDirectory = this.SessionService.GetSiteDirectory();
 
-            this.ReferenceDataLibraries = siteDirectory.AvailableReferenceDataLibraries().Where(x => x.Unit.Count > 0);
+            this.ReferenceDataLibraries = siteDirectory.AvailableReferenceDataLibraries()
+                .Where(x => x.Unit.Count > 0)
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
             this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
-            this.ExistingParameterTypes = this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.ParameterType).Distinct();
+
+            this.ExistingParameterTypes = this.SessionService.Session.OpenReferenceDataLibraries
+                .SelectMany(x => x.ParameterType)
+                .Distinct()
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -171,14 +174,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 thingsToCreate.Add(rdlClone);
             }
 
-            if (this.Thing is EnumerationParameterType enumerationParameterType)
+            switch (this.Thing)
             {
-                thingsToCreate.AddRange(enumerationParameterType.ValueDefinition.ToList());
-            }
-
-            if (this.Thing is CompoundParameterType compoundParameterType)
-            {
-                thingsToCreate.AddRange(compoundParameterType.Component);
+                case EnumerationParameterType enumerationParameterType:
+                    thingsToCreate.AddRange(enumerationParameterType.ValueDefinition.ToList());
+                    break;
+                case CompoundParameterType compoundParameterType:
+                    thingsToCreate.AddRange(compoundParameterType.Component);
+                    break;
             }
 
             thingsToCreate.Add(this.Thing);
@@ -207,6 +210,25 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 ClassKind.TimeOfDayParameterType => new TimeOfDayParameterType(),
                 _ => this.Thing
             };
+        }
+
+        /// <summary>
+        /// Gets the possible available <see cref="MeasurementScale" />s
+        /// </summary>
+        /// <returns>A collection of <see cref="MeasurementScaleRowViewModel"/>s</returns>
+        private IEnumerable<MeasurementScaleRowViewModel> GetPossibleMeasurementScales()
+        {
+            var allMeasurementScales = this.SelectedReferenceDataLibrary?.QueryMeasurementScalesFromChainOfRdls()
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
+                .Select(x => new MeasurementScaleRowViewModel(x)) ?? Enumerable.Empty<MeasurementScaleRowViewModel>();
+
+            if (this.Thing is not SpecializedQuantityKind specializedQuantity)
+            {
+                return allMeasurementScales;
+            }
+
+            var filteredMeasurementScales = allMeasurementScales.Where(x => !specializedQuantity.General.AllPossibleScale.Contains(x.Thing));
+            return filteredMeasurementScales;
         }
     }
 }

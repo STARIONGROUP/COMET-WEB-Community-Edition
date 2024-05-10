@@ -27,7 +27,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using System.ComponentModel.DataAnnotations;
 
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
