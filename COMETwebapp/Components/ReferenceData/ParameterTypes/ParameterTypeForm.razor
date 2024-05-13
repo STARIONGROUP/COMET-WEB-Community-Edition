@@ -89,27 +89,33 @@ Copyright (c) 2024 Starion Group S.A.
                                     CssClass="cw-480"/>
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">                        
-                        <DxGrid Data="@(specializedQuantityKindParameterType.General.AllPossibleScale.Select(x => new MeasurementScaleRowViewModel(x)))"
-                                ShowAllRows="true">
-                            <Columns>
-                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="80"/>
-                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)"/>
-                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)"/>
-                                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="RDL"/>
-                            </Columns>
-                        </DxGrid>
-                    </DxFormLayoutItem>
+                    @if (specializedQuantityKindParameterType.General is not null)
+                    {
+                        <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">                        
+                            <DxGrid Data="@(specializedQuantityKindParameterType.General.AllPossibleScale.Select(x => new MeasurementScaleRowViewModel(x)))"
+                                    ShowAllRows="true">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="80"/>
+                                    <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)"/>
+                                    <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)"/>
+                                    <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="RDL"/>
+                                </Columns>
+                            </DxGrid>
+                        </DxFormLayoutItem>
+                    }
                 }
 
                 @if (this.ViewModel.Thing is QuantityKind quantityKindParameterType)
                 {
-                    <DxFormLayoutItem Caption="Default Scale:" ColSpanMd="12">
-                        <DxComboBox Data="@(quantityKindParameterType.AllPossibleScale)"
-                                    TextFieldName="@nameof(MeasurementScale.Name)"
-                                    @bind-Value="@(quantityKindParameterType.DefaultScale)"
-                                    CssClass="cw-480"/>
-                    </DxFormLayoutItem>
+                    @if (quantityKindParameterType is SpecializedQuantityKind { General: not null } or not SpecializedQuantityKind)
+                    {
+                        <DxFormLayoutItem Caption="Default Scale:" ColSpanMd="12">
+                            <DxComboBox Data="@(quantityKindParameterType.AllPossibleScale)"
+                                        TextFieldName="@nameof(MeasurementScale.Name)"
+                                        @bind-Value="@(quantityKindParameterType.DefaultScale)"
+                                        CssClass="cw-480"/>
+                        </DxFormLayoutItem>
+                    }
 
                     <DxFormLayoutItem Caption="Dimension Symbol:" ColSpanMd="12">
                         <DxTextBox @bind-Text="@(quantityKindParameterType.QuantityDimensionSymbol)"/>
@@ -134,6 +140,23 @@ Copyright (c) 2024 Starion Group S.A.
                                 <DxListEditorColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)"/>
                             </Columns>
                         </DxListBox>
+                    </DxFormLayoutItem>
+                }
+                
+                @if (this.ViewModel.Thing is SampledFunctionParameterType sampledFunctionParameterType)
+                {
+                    <DxFormLayoutItem Caption="Degree of Interpolation:" ColSpanMd="12">
+                        <DxSpinEdit @bind-Value="@(sampledFunctionParameterType.DegreeOfInterpolation)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Independent Parameter Types:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <IndependentParameterTypeTable @bind-SampledFunctionParameterType="@(sampledFunctionParameterType)"
+                                                       ParameterTypes="@(this.ViewModel.ExistingParameterTypes)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Dependent Parameter Types:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <DependentParameterTypeTable @bind-SampledFunctionParameterType="@(sampledFunctionParameterType)"
+                                                     ParameterTypes="@(this.ViewModel.ExistingParameterTypes)" />
                     </DxFormLayoutItem>
                 }
 

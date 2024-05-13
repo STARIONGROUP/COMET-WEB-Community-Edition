@@ -54,6 +54,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             ClassKind.DateTimeParameterType,
             ClassKind.DerivedQuantityKind,
             ClassKind.EnumerationParameterType,
+            ClassKind.SampledFunctionParameterType,
             ClassKind.SimpleQuantityKind,
             ClassKind.SpecializedQuantityKind,
             ClassKind.TextParameterType,
@@ -187,12 +188,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 case DerivedQuantityKind derivedQuantityKindParameterType:
                     thingsToCreate.AddRange(derivedQuantityKindParameterType.QuantityKindFactor);
                     break;
+                case SampledFunctionParameterType sampledFunctionParameterType:
+                    thingsToCreate.AddRange(sampledFunctionParameterType.IndependentParameterType);
+                    thingsToCreate.AddRange(sampledFunctionParameterType.DependentParameterType);
+                    break;
             }
 
             thingsToCreate.Add(this.Thing);
 
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
             await this.SessionService.RefreshSession();
+
+            if (this.Thing.Original is not null)
+            {
+                this.Thing = (ParameterType)this.Thing.Original.Clone(true);
+            }
 
             this.IsLoading = false;
         }
@@ -211,12 +221,18 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 ClassKind.DateTimeParameterType => new DateTimeParameterType(),
                 ClassKind.DerivedQuantityKind => new DerivedQuantityKind(),
                 ClassKind.EnumerationParameterType => new EnumerationParameterType(),
+                ClassKind.SampledFunctionParameterType => new SampledFunctionParameterType(),
                 ClassKind.SimpleQuantityKind => new SimpleQuantityKind(),
                 ClassKind.SpecializedQuantityKind => new SpecializedQuantityKind(),
                 ClassKind.TextParameterType => new TextParameterType(),
                 ClassKind.TimeOfDayParameterType => new TimeOfDayParameterType(),
                 _ => this.Thing
             };
+
+            if (this.Thing is SpecializedQuantityKind specializedQuantityKindParameterType)
+            {
+                specializedQuantityKindParameterType.General = this.ExistingParameterTypes.OfType<QuantityKind>().FirstOrDefault();
+            }
         }
 
         /// <summary>
@@ -229,7 +245,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
                 .Select(x => new MeasurementScaleRowViewModel(x)) ?? Enumerable.Empty<MeasurementScaleRowViewModel>();
 
-            if (this.Thing is not SpecializedQuantityKind specializedQuantity)
+            if (this.Thing is not SpecializedQuantityKind specializedQuantity || specializedQuantity.General is null)
             {
                 return allMeasurementScales;
             }

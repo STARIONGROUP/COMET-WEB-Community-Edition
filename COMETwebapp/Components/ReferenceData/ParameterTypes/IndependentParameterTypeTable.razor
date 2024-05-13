@@ -24,27 +24,27 @@ Copyright (c) 2024 Starion Group S.A.
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditParameterTypeComponentSaving())"
-        CustomizeEditModel="this.CustomizeEditParameterTypeComponent">
+        EditModelSaving="@(() => this.OnEditIndependentParameterTypeSaving())"
+        CustomizeEditModel="this.CustomizeEditIndependentParameterType">
     <Columns>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ParameterType)" MinWidth="80"/>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Scale)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(IndependentParameterTypeRowViewModel.ParameterType)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(IndependentParameterTypeRowViewModel.Scale)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(IndependentParameterTypeRowViewModel.InterpolationPeriod)" MinWidth="80"/>
         <DxGridCommandColumn Width="100px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addIndependentParameterTypeButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
-                    var row = (ParameterTypeComponentRowViewModel)context.DataItem;
+                    var row = (IndependentParameterTypeRowViewModel)context.DataItem;
 
-                    <DxButton Id="editParameterTypeComponentButton"
+                    <DxButton Id="editIndependentParameterTypeButton"
                               IconCssClass="oi oi-pencil"
                               Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
-                    <DxButton Id="removeParameterTypeComponentButton"
+                    <DxButton Id="removeIndependentParameterTypeButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveParameterTypeComponent(row)"/>
+                              Click="(() => this.RemoveIndependentParameterType(row))"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -54,17 +54,17 @@ Copyright (c) 2024 Starion Group S.A.
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
-                    var row = (ParameterTypeComponentRowViewModel)context.DataItem;
+                    var row = (IndependentParameterTypeRowViewModel)context.DataItem;
 
                     <DxButton Id="moveUpButton"
                               IconCssClass="oi oi-arrow-top"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.CompoundParameterType.Component.IndexOf(row.Thing) > 0)"/>
+                              Enabled="@(this.SampledFunctionParameterType.IndependentParameterType.IndexOf(row.Thing) > 0)"/>
 
                     <DxButton Id="moveDownButton"
                               IconCssClass="oi oi-arrow-bottom"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.CompoundParameterType.Component.LastOrDefault() != row.Thing)"/>
+                              Enabled="@(this.SampledFunctionParameterType.IndependentParameterType.LastOrDefault() != row.Thing)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -73,20 +73,20 @@ Copyright (c) 2024 Starion Group S.A.
     <EditFormTemplate Context="EditFormContext">
         <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
-                <DxTextBox @bind-Text="@(this.ParameterTypeComponent.ShortName)"/>
-            </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
                             TextFieldName="@(nameof(ParameterType.Name))"
                             NullText="Select a parameter type"
-                            TextChanged="@(() => this.ParameterTypeComponent.Scale = null)"
-                            @bind-Value="@(this.ParameterTypeComponent.ParameterType)"/>
+                            TextChanged="@(() => this.IndependentParameterType.Thing.MeasurementScale = null)"
+                            @bind-Value="@(this.IndependentParameterType.Thing.ParameterType)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
                 <DxComboBox Data="@(this.GetAvailableScales())"
                             TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.ParameterTypeComponent.Scale)" />
+                            @bind-Value="@(this.IndependentParameterType.Thing.MeasurementScale)"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Interpolation Period:" ColSpanMd="12">
+                <DxTextBox @bind-Text="@(this.IndependentParameterType.InterpolationPeriod)" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>
