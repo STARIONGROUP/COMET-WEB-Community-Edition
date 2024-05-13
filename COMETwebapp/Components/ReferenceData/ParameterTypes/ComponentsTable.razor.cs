@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
+    using System.Text;
+
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
@@ -56,6 +58,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
         /// <summary>
+        /// Gets the component dimension for the <see cref="ArrayParameterType"/>
+        /// </summary>
+        public string Dimension { get; private set; }
+
+        /// <summary>
         /// Gets or sets the condition to check if a parameter type component should be created
         /// </summary>
         public bool ShouldCreate { get; private set; }
@@ -71,9 +78,23 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         private IGrid Grid { get; set; }
 
         /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            if (this.CompoundParameterType is ArrayParameterType arrayParameterType)
+            {
+                this.Dimension = string.Join(",", arrayParameterType.Dimension.Select(x => x.ToString()));
+            }
+        }
+
+        /// <summary>
         /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="ParameterTypeComponent" />
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A collection of the available scales</returns>
         private IEnumerable<MeasurementScale> GetAvailableScales()
         {
             return this.ParameterTypeComponent.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
@@ -144,6 +165,68 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
                 : dataItem.Thing.Clone(true);
 
             e.EditModel = this.ParameterTypeComponent;
+        }
+
+        /// <summary>
+        /// Method executed every time the dimension field text has changed
+        /// </summary>
+        /// <param name="text">The new text</param>
+        private void OnTextChanged(string text)
+        {
+            this.Dimension = text;
+            var dimensions = text.Split(",").Select(int.Parse).ToList();
+            var i = 0;
+
+            var arrayParameterType = (ArrayParameterType)this.CompoundParameterType;
+
+            if (arrayParameterType.Dimension.Count > dimensions.Count)
+            {
+                var j = 0;
+
+                foreach (var dimension in arrayParameterType.Dimension.ToList())
+                {
+                    if (j >= dimensions.Count)
+                    {
+                        arrayParameterType.Dimension.Remove(dimension);
+                    }
+
+                    j++;
+                }
+            }
+
+            if (arrayParameterType.Dimension.Count < dimensions.Count)
+            {
+                var k = 0;
+
+                foreach (var dimension in dimensions)
+                {
+                    if (k >= arrayParameterType.Dimension.Count)
+                    {
+                        arrayParameterType.Dimension.Add(dimension);
+                    }
+
+                    k++;
+                }
+            }
+
+            var l = 0;
+
+            foreach (var dimension in dimensions)
+            {
+                arrayParameterType.Dimension[l] = dimensions[l];
+
+                for (var m = 1; m <= dimension; m++)
+                {
+                   var element = this.CompoundParameterType.Component.ElementAtOrDefault(m * dimension - 1);
+
+                   if (element is null)
+                   {
+                       this.CompoundParameterType.Component.Add(new ParameterTypeComponent());
+                   }
+                }
+
+                l++;
+            }
         }
 
         /// <summary>

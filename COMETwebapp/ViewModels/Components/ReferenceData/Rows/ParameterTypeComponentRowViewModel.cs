@@ -57,7 +57,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         public ParameterTypeComponentRowViewModel(ParameterTypeComponent parameterTypeComponent) : base(parameterTypeComponent)
         {
             this.Scale = parameterTypeComponent.Scale?.ShortName;
-            this.ParameterType = parameterTypeComponent.ParameterType.Name;
+            this.ParameterType = parameterTypeComponent.ParameterType?.Name;
             this.Coordinates = parameterTypeComponent.Index.ToString();
         }
 

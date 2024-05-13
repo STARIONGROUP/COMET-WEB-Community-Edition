@@ -20,6 +20,13 @@ Copyright (c) 2024 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
+@if (this.CompoundParameterType is ArrayParameterType arrayParameterType)
+{
+    <DxTextBox Text="@(this.Dimension)"
+               TextChanged="@(this.OnTextChanged)"
+               TextExpression="@(() => this.Dimension)"/>
+}
+
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
