@@ -26,8 +26,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using System.ComponentModel.DataAnnotations;
 
-    using CDP4Common.SiteDirectoryData;
-
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
 
@@ -53,29 +51,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             await this.ViewModel.CreateOrEditParameterType(this.ShouldCreate);
             await base.OnValidSubmit();
-        }
-
-        /// <summary>
-        /// Method executed when the selected enumeration value definitions changed
-        /// </summary>
-        /// <param name="enumerationValueDefinitions">A collection of enumeration value definitions</param>
-        private void OnEnumerationValueDefinitionsChanged(IEnumerable<EnumerationValueDefinition> enumerationValueDefinitions)
-        {
-            if (this.ViewModel.Thing is not EnumerationParameterType enumerationParameterType)
-            {
-                return;
-            }
-
-            var enumerationValueDefinitionsList = enumerationValueDefinitions.ToList();
-
-            var valueDefinitionsToCreate = enumerationValueDefinitionsList.Where(x => !enumerationParameterType.ValueDefinition.Contains(x)).ToList();
-            var valueDefinitionsToRemove = enumerationParameterType.ValueDefinition.Where(x => !enumerationValueDefinitionsList.Contains(x)).ToList();
-
-            enumerationParameterType.ValueDefinition.AddRange(valueDefinitionsToCreate);
-            valueDefinitionsToRemove.ForEach(x => enumerationParameterType.ValueDefinition.Remove(x));
-
-            this.ViewModel.SelectedEnumerationValueDefinitions = enumerationValueDefinitionsList;
-            this.InvokeAsync(this.StateHasChanged);
         }
     }
 }

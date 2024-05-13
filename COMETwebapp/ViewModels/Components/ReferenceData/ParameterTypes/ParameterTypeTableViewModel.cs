@@ -100,11 +100,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public IEnumerable<ParameterType> ExistingParameterTypes { get; private set; }
 
         /// <summary>
-        /// Gets or sets a collection of the selected <see cref="EnumerationValueDefinition" />
-        /// </summary>
-        public IEnumerable<EnumerationValueDefinition> SelectedEnumerationValueDefinitions { get; set; } = Enumerable.Empty<EnumerationValueDefinition>();
-
-        /// <summary>
         /// Gets or sets the selected <see cref="ReferenceDataLibrary" />
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -130,11 +125,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             this.Thing = parameterType;
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)parameterType.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-
-            if (parameterType is EnumerationParameterType enumerationParameterType)
-            {
-                this.SelectedEnumerationValueDefinitions = enumerationParameterType.ValueDefinition;
-            }
         }
 
         /// <summary>

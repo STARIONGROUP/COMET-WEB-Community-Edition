@@ -167,11 +167,10 @@ Copyright (c) 2024 Starion Group S.A.
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
 
-            @if (this.ViewModel.Thing is EnumerationParameterType)
+            @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameterType)
             {
                 <DxFormLayoutTabPage Caption="Values">
-                    <EnumerationValueDefinitionsTable EnumerationValueDefinitions="@(this.ViewModel.SelectedEnumerationValueDefinitions)"
-                                                      EnumerationValueDefinitionsChanged="@(this.OnEnumerationValueDefinitionsChanged)"/>
+                    <EnumerationValueDefinitionsTable @bind-EnumerationParameterType="enumerationParameterType" />
                 </DxFormLayoutTabPage>
             }
 

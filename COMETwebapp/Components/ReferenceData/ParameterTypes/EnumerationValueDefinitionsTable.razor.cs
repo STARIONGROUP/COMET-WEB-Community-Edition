@@ -38,16 +38,16 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     public partial class EnumerationValueDefinitionsTable
     {
         /// <summary>
-        /// A collection of value definitions to display for selection
+        /// The enumeration parameter type
         /// </summary>
         [Parameter]
-        public IEnumerable<EnumerationValueDefinition> EnumerationValueDefinitions { get; set; }
+        public EnumerationParameterType EnumerationParameterType { get; set; }
 
         /// <summary>
-        /// The method that is executed when the enumeration value definitions change
+        /// The callback for when the parameter type has changed
         /// </summary>
         [Parameter]
-        public EventCallback<IEnumerable<EnumerationValueDefinition>> EnumerationValueDefinitionsChanged { get; set; }
+        public EventCallback<EnumerationParameterType> EnumerationParameterTypeChanged { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if a enumeration value definition should be created
@@ -69,21 +69,17 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// </summary>
         private void OnEditEnumerationValueDefinitionSaving()
         {
-            var valueDefinitionsList = this.EnumerationValueDefinitions.ToList();
-
             if (this.ShouldCreate)
             {
-                valueDefinitionsList.Add(this.EnumerationValueDefinition);
-                this.EnumerationValueDefinitions = valueDefinitionsList;
+                this.EnumerationParameterType.ValueDefinition.Add(this.EnumerationValueDefinition);
             }
             else
             {
-                var indexToUpdate = valueDefinitionsList.FindIndex(x => x.Iid == this.EnumerationValueDefinition.Iid);
-                valueDefinitionsList[indexToUpdate] = this.EnumerationValueDefinition;
+                var indexToUpdate = this.EnumerationParameterType.ValueDefinition.FindIndex(x => x.Iid == this.EnumerationValueDefinition.Iid);
+                this.EnumerationParameterType.ValueDefinition[indexToUpdate] = this.EnumerationValueDefinition;
             }
 
-            this.EnumerationValueDefinitions = valueDefinitionsList;
-            this.EnumerationValueDefinitionsChanged.InvokeAsync(this.EnumerationValueDefinitions);
+            this.EnumerationParameterTypeChanged.InvokeAsync(this.EnumerationParameterType);
         }
 
         /// <summary>
@@ -91,11 +87,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// </summary>
         private void RemoveEnumerationValueDefinition(EnumerationValueDefinitionRowViewModel row)
         {
-            var valueDefinitionsList = this.EnumerationValueDefinitions.ToList();
-            valueDefinitionsList.Remove(row.Thing);
-
-            this.EnumerationValueDefinitions = valueDefinitionsList;
-            this.EnumerationValueDefinitionsChanged.InvokeAsync(this.EnumerationValueDefinitions);
+            this.EnumerationParameterType.ValueDefinition.Remove(row.Thing);
+            this.EnumerationParameterTypeChanged.InvokeAsync(this.EnumerationParameterType);
         }
 
         /// <summary>
@@ -115,12 +108,12 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="EnumerationValueDefinitions" />
+        /// Method used to retrieve the available rows, given the <see cref="EnumerationParameterType" />
         /// </summary>
         /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
         private List<EnumerationValueDefinitionRowViewModel> GetRows()
         {
-            return this.EnumerationValueDefinitions?.Select(x => new EnumerationValueDefinitionRowViewModel(x)).ToList();
+            return this.EnumerationParameterType.ValueDefinition?.Select(x => new EnumerationValueDefinitionRowViewModel(x)).ToList();
         }
     }
 }
