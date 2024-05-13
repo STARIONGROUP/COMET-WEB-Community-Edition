@@ -29,44 +29,49 @@ Copyright (c) 2024 Starion Group S.A.
     <Columns>
         <DxGridDataColumn FieldName="@nameof(DependentParameterTypeRowViewModel.ParameterType)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(DependentParameterTypeRowViewModel.Scale)" MinWidth="80"/>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
-            <HeaderTemplate>
-                <DxButton Id="addDependentParameterTypeButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
-            </HeaderTemplate>
-            <CellDisplayTemplate>
-                @{
-                    var row = (DependentParameterTypeRowViewModel)context.DataItem;
+        
+        @if (this.Enabled)
+        {
+            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addDependentParameterTypeButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (DependentParameterTypeRowViewModel)context.DataItem;
 
-                    <DxButton Id="editDependentParameterTypeButton"
-                              IconCssClass="oi oi-pencil"
-                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                        <DxButton Id="editDependentParameterTypeButton"
+                                  IconCssClass="oi oi-pencil"
+                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
-                    <DxButton Id="removeDependentParameterTypeButton"
-                              IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveDependentParameterType(row)"/>
-                }
-            </CellDisplayTemplate>
-        </DxGridCommandColumn>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
-            <HeaderTemplate>
-                Order
-            </HeaderTemplate>
-            <CellDisplayTemplate>
-                @{
-                    var row = (DependentParameterTypeRowViewModel)context.DataItem;
+                        <DxButton Id="removeDependentParameterTypeButton"
+                                  IconCssClass="oi oi-trash"
+                                  Click="() => this.RemoveDependentParameterType(row)"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    Order
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (DependentParameterTypeRowViewModel)context.DataItem;
 
-                    <DxButton Id="moveUpButton"
-                              IconCssClass="oi oi-arrow-top"
-                              Click="() => this.MoveUp(row)"
-                              Enabled="@(this.SampledFunctionParameterType.DependentParameterType.IndexOf(row.Thing) > 0)"/>
+                        <DxButton Id="moveUpButton"
+                                  IconCssClass="oi oi-arrow-top"
+                                  Click="() => this.MoveUp(row)"
+                                  Enabled="@(this.SampledFunctionParameterType.DependentParameterType.IndexOf(row.Thing) > 0)"/>
 
-                    <DxButton Id="moveDownButton"
-                              IconCssClass="oi oi-arrow-bottom"
-                              Click="() => this.MoveDown(row)"
-                              Enabled="@(this.SampledFunctionParameterType.DependentParameterType.LastOrDefault() != row.Thing)"/>
-                }
-            </CellDisplayTemplate>
-        </DxGridCommandColumn>
+                        <DxButton Id="moveDownButton"
+                                  IconCssClass="oi oi-arrow-bottom"
+                                  Click="() => this.MoveDown(row)"
+                                  Enabled="@(this.SampledFunctionParameterType.DependentParameterType.LastOrDefault() != row.Thing)"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        }
+       
     </Columns>
 
     <EditFormTemplate Context="EditFormContext">

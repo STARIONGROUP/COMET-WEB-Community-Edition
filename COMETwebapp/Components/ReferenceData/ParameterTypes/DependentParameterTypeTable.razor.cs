@@ -56,6 +56,12 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
         /// <summary>
+        /// Gets or sets the condition to check if the edit/creation of this component is enabled
+        /// </summary>
+        [Parameter]
+        public bool Enabled { get; set; }
+
+        /// <summary>
         /// Gets or sets the condition to check if a dependent parameter type should be created
         /// </summary>
         public bool ShouldCreate { get; private set; }
