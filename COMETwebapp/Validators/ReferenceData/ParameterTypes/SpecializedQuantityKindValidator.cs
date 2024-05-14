@@ -29,6 +29,8 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
 
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.Validators.ReferenceData.ParameterTypes.GenericValidators;
+
     using FluentValidation;
 
     /// <summary>
@@ -41,7 +43,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
         /// </summary>
         public SpecializedQuantityKindValidator(IValidationService validationService)
         {
-            this.Include(new QuantityKindValidator(validationService));
+            this.Include(new ParameterQuantityKindValidator(validationService));
             this.RuleFor(x => x.General).NotEmpty().Validate(validationService, nameof(SpecializedQuantityKind.General));
         }
     }

@@ -29,6 +29,8 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
 
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.Validators.ReferenceData.ParameterTypes.GenericValidators;
+
     using FluentValidation;
 
     /// <summary>

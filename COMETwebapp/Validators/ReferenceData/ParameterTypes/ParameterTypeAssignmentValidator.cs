@@ -41,7 +41,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
         /// </summary>
         public ParameterTypeAssignmentValidator(IValidationService validationService)
         {
-            this.RuleFor(x => x.ParameterType).Validate(validationService, nameof(IParameterTypeAssignment.ParameterType));
+            this.RuleFor(x => x.ParameterType).NotEmpty().Validate(validationService, nameof(IParameterTypeAssignment.ParameterType));
             this.RuleFor(x => x.MeasurementScale).Validate(validationService, nameof(IParameterTypeAssignment.MeasurementScale));
         }
     }

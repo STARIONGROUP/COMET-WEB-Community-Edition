@@ -150,7 +150,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.ShouldCreate = e.IsNew;
             this.IndependentParameterType = dataItem ?? new IndependentParameterTypeRowViewModel(new IndependentParameterTypeAssignment { Iid = Guid.NewGuid() }, string.Empty);
 
-            e.EditModel = this.IndependentParameterType;
+            e.EditModel = this.IndependentParameterType.Thing;
         }
 
         /// <summary>

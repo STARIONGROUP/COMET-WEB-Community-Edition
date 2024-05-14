@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindValidator.cs" company="Starion Group S.A.">
+//  <copyright file="ParameterTypeValidator.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
+namespace COMETwebapp.Validators.ReferenceData.ParameterTypes.GenericValidators
 {
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Validation;
@@ -32,19 +32,18 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="QuantityKind" />
+    /// A class to validate the <see cref="ParameterType" />
     /// </summary>
-    public class QuantityKindValidator : AbstractValidator<QuantityKind>
+    public class ParameterTypeValidator : AbstractValidator<ParameterType>
     {
         /// <summary>
-        /// Instantiates a new <see cref="QuantityKindValidator" />
+        /// Instantiates a new <see cref="ParameterTypeValidator" />
         /// </summary>
-        public QuantityKindValidator(IValidationService validationService)
+        public ParameterTypeValidator(IValidationService validationService)
         {
-            this.Include(new ParameterTypeValidator(validationService));
-            this.RuleFor(x => x.DefaultScale).NotEmpty().Validate(validationService, nameof(QuantityKind.DefaultScale));
-            this.RuleFor(x => x.QuantityDimensionSymbol).NotEmpty().Validate(validationService, nameof(QuantityKind.QuantityDimensionSymbol));
-            this.RuleFor(x => x.PossibleScale).NotEmpty().Validate(validationService, nameof(QuantityKind.PossibleScale));
+            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(ParameterType.ShortName));
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(ParameterType.Name));
+            this.RuleFor(x => x.Symbol).Validate(validationService, nameof(ParameterType.Symbol));
         }
     }
 }
