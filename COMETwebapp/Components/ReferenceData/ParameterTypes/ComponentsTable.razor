@@ -25,7 +25,8 @@ Copyright (c) 2024 Starion Group S.A.
 {
     <DxTextBox Text="@(this.Dimension)"
                TextChanged="@(this.OnTextChanged)"
-               TextExpression="@(() => this.Dimension)"/>
+               TextExpression="@(() => this.Dimension)"
+               Id="dimensionTextBox" />
 }
 
 <DxGrid @ref="this.Grid"

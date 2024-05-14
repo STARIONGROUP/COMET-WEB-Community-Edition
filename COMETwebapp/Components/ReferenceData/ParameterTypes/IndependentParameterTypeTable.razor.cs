@@ -70,7 +70,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// The independent parameter type that will be handled for both edit and add forms
         /// </summary>
-        public IndependentParameterTypeRowViewModel IndependentParameterType { get; private set; }
+        public IndependentParameterTypeRowViewModel Item { get; private set; }
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
@@ -78,12 +78,12 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         private IGrid Grid { get; set; }
 
         /// <summary>
-        /// Gets the available scales based on the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> from <see cref="IndependentParameterType" />
+        /// Gets the available scales based on the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> from <see cref="Item" />
         /// </summary>
         /// <returns></returns>
         private IEnumerable<MeasurementScale> GetAvailableScales()
         {
-            return this.IndependentParameterType.Thing.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
+            return this.Item.Thing.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
         }
 
         /// <summary>
@@ -93,13 +93,13 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             if (this.ShouldCreate)
             {
-                this.ParameterType.IndependentParameterType.Add(this.IndependentParameterType.Thing);
-                this.ParameterType.InterpolationPeriod = new ValueArray<string>(this.ParameterType.InterpolationPeriod.Append(this.IndependentParameterType.InterpolationPeriod));
+                this.ParameterType.IndependentParameterType.Add(this.Item.Thing);
+                this.ParameterType.InterpolationPeriod = new ValueArray<string>(this.ParameterType.InterpolationPeriod.Append(this.Item.InterpolationPeriod));
             }
             else
             {
-                var indexToUpdate = this.ParameterType.IndependentParameterType.FindIndex(x => x.Iid == this.IndependentParameterType.Thing.Iid);
-                this.ParameterType.InterpolationPeriod[indexToUpdate] = this.IndependentParameterType.InterpolationPeriod;
+                var indexToUpdate = this.ParameterType.IndependentParameterType.FindIndex(x => x.Iid == this.Item.Thing.Iid);
+                this.ParameterType.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
             }
 
             this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
@@ -148,9 +148,9 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             var dataItem = (IndependentParameterTypeRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;
-            this.IndependentParameterType = dataItem ?? new IndependentParameterTypeRowViewModel(new IndependentParameterTypeAssignment { Iid = Guid.NewGuid() }, string.Empty);
+            this.Item = dataItem ?? new IndependentParameterTypeRowViewModel(new IndependentParameterTypeAssignment { Iid = Guid.NewGuid() }, string.Empty);
 
-            e.EditModel = this.IndependentParameterType.Thing;
+            e.EditModel = this.Item.Thing;
         }
 
         /// <summary>

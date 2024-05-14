@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
-    using System.Text;
-
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -48,12 +46,13 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
+        /// Gets or sets the ordered list of items from the current
+        /// <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
         /// </summary>
         public override OrderedItemList<ParameterTypeComponent> OrderedItemsList => this.ParameterType.Component;
 
         /// <summary>
-        /// Gets the component dimension for the <see cref="ArrayParameterType"/>
+        /// Gets the component dimension for the <see cref="ArrayParameterType" />
         /// </summary>
         public string Dimension { get; private set; }
 

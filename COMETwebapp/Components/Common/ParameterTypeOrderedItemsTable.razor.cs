@@ -78,7 +78,7 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         /// <param name="row">The row to be moved</param>
         /// <returns>A <see cref="Task" /></returns>
-        public virtual async Task MoveUp(TItemRow row)
+        protected virtual async Task MoveUp(TItemRow row)
         {
             var currentIndex = this.OrderedItemsList.IndexOf(row.Thing);
             this.OrderedItemsList.Move(currentIndex, currentIndex - 1);
@@ -90,7 +90,7 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         /// <param name="row">The row to be moved</param>
         /// <returns>A <see cref="Task" /></returns>
-        public virtual async Task MoveDown(TItemRow row)
+        protected virtual async Task MoveDown(TItemRow row)
         {
             var currentIndex = this.OrderedItemsList.IndexOf(row.Thing);
             this.OrderedItemsList.Move(currentIndex, currentIndex + 1);
@@ -101,7 +101,7 @@ namespace COMETwebapp.Components.Common
         /// Method that is invoked when an item row is being removed
         /// </summary>
         /// <param name="row">The row to be removed</param>
-        public async Task RemoveItem(TItemRow row)
+        protected async Task RemoveItem(TItemRow row)
         {
             this.OrderedItemsList.Remove(row.Thing);
             await this.ParameterTypeChanged.InvokeAsync(this.ParameterType);

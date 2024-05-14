@@ -82,16 +82,16 @@ Copyright (c) 2024 Starion Group S.A.
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
                             TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
                             NullText="Select a parameter type"
-                            TextChanged="@(() => this.IndependentParameterType.Thing.MeasurementScale = null)"
-                            @bind-Value="@(this.IndependentParameterType.Thing.ParameterType)"/>
+                            TextChanged="@(() => this.Item.Thing.MeasurementScale = null)"
+                            @bind-Value="@(this.Item.Thing.ParameterType)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
                 <DxComboBox Data="@(this.GetAvailableScales())"
                             TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.IndependentParameterType.Thing.MeasurementScale)"/>
+                            @bind-Value="@(this.Item.Thing.MeasurementScale)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Interpolation Period:" ColSpanMd="12">
-                <DxTextBox @bind-Text="@(this.IndependentParameterType.InterpolationPeriod)" />
+                <DxTextBox @bind-Text="@(this.Item.InterpolationPeriod)" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>
