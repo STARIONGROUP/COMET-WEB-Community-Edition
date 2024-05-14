@@ -27,7 +27,9 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using System.Text;
 
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
@@ -37,20 +39,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     /// <summary>
     /// Support class for the <see cref="ComponentsTable" />
     /// </summary>
-    public partial class ComponentsTable
+    public partial class ComponentsTable : ParameterTypeOrderedItemsTable<CompoundParameterType, ParameterTypeComponent, ParameterTypeComponentRowViewModel>
     {
-        /// <summary>
-        /// The compound parameter type
-        /// </summary>
-        [Parameter]
-        public CompoundParameterType CompoundParameterType { get; set; }
-
-        /// <summary>
-        /// The callback for when the parameter type has changed
-        /// </summary>
-        [Parameter]
-        public EventCallback<CompoundParameterType> CompoundParameterTypeChanged { get; set; }
-
         /// <summary>
         /// Gets or sets the collection of <see cref="ParameterType" />s
         /// </summary>
@@ -58,24 +48,14 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
         /// <summary>
+        /// Gets or sets the ordered list of items from the current <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
+        /// </summary>
+        public override OrderedItemList<ParameterTypeComponent> OrderedItemsList => this.ParameterType.Component;
+
+        /// <summary>
         /// Gets the component dimension for the <see cref="ArrayParameterType"/>
         /// </summary>
         public string Dimension { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the condition to check if a parameter type component should be created
-        /// </summary>
-        public bool ShouldCreate { get; private set; }
-
-        /// <summary>
-        /// The parameter type component that will be handled for both edit and add forms
-        /// </summary>
-        public ParameterTypeComponent ParameterTypeComponent { get; private set; } = new();
-
-        /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        private IGrid Grid { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -85,7 +65,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             base.OnInitialized();
 
-            if (this.CompoundParameterType is ArrayParameterType arrayParameterType)
+            if (this.ParameterType is ArrayParameterType arrayParameterType)
             {
                 this.Dimension = string.Join(",", arrayParameterType.Dimension.Select(x => x.ToString()));
             }
@@ -97,58 +77,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <returns>A collection of the available scales</returns>
         private IEnumerable<MeasurementScale> GetAvailableScales()
         {
-            return this.ParameterTypeComponent.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
-        }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add parameter type component form is being saved
-        /// </summary>
-        private void OnEditParameterTypeComponentSaving()
-        {
-            if (this.ShouldCreate)
-            {
-                this.CompoundParameterType.Component.Add(this.ParameterTypeComponent);
-            }
-            else
-            {
-                var indexToUpdate = this.CompoundParameterType.Component.FindIndex(x => x.Iid == this.ParameterTypeComponent.Iid);
-                this.CompoundParameterType.Component[indexToUpdate] = this.ParameterTypeComponent;
-            }
-
-            this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
-        }
-
-        /// <summary>
-        /// Moves the selected row up
-        /// </summary>
-        /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveUp(ParameterTypeComponentRowViewModel row)
-        {
-            var currentIndex = this.CompoundParameterType.Component.IndexOf(row.Thing);
-            this.CompoundParameterType.Component.Move(currentIndex, currentIndex - 1);
-            await this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
-        }
-
-        /// <summary>
-        /// Moves the selected row down
-        /// </summary>
-        /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveDown(ParameterTypeComponentRowViewModel row)
-        {
-            var currentIndex = this.CompoundParameterType.Component.IndexOf(row.Thing);
-            this.CompoundParameterType.Component.Move(currentIndex, currentIndex + 1);
-            await this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
-        }
-
-        /// <summary>
-        /// Method that is invoked when a parameter type component row is being removed
-        /// </summary>
-        private void RemoveParameterTypeComponent(ParameterTypeComponentRowViewModel row)
-        {
-            this.CompoundParameterType.Component.Remove(row.Thing);
-            this.CompoundParameterTypeChanged.InvokeAsync(this.CompoundParameterType);
+            return this.Item.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
         }
 
         /// <summary>
@@ -160,11 +89,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             var dataItem = (ParameterTypeComponentRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;
 
-            this.ParameterTypeComponent = dataItem == null
+            this.Item = dataItem == null
                 ? new ParameterTypeComponent { Iid = Guid.NewGuid() }
                 : dataItem.Thing.Clone(true);
 
-            e.EditModel = this.ParameterTypeComponent;
+            e.EditModel = this.Item;
         }
 
         /// <summary>
@@ -176,7 +105,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.Dimension = text;
             var dimensions = text.Split(",").Select(int.Parse).ToList();
 
-            var arrayParameterType = (ArrayParameterType)this.CompoundParameterType;
+            var arrayParameterType = (ArrayParameterType)this.ParameterType;
 
             if (arrayParameterType.Dimension.Count > dimensions.Count)
             {
@@ -210,19 +139,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
                 k++;
             }
 
-            //TODO: update the contained component according with the updated dimensions
-        }
-
-        /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="CompoundParameterType" />
-        /// </summary>
-        /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
-        private List<ParameterTypeComponentRowViewModel> GetRows()
-        {
-            return this.CompoundParameterType.Component?
-                .Select(x => new ParameterTypeComponentRowViewModel(x))
-                .OrderBy(x => x.Name)
-                .ToList();
+            //update the contained component according with the updated dimensions
         }
     }
 }

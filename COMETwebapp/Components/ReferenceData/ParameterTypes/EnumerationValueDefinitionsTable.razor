@@ -19,19 +19,20 @@ Copyright (c) 2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
+@inherits ParameterTypeOrderedItemsTable<EnumerationParameterType, EnumerationValueDefinition, EnumerationValueDefinitionRowViewModel>
 
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Scale Value Definition"
-        EditModelSaving="@(() => this.OnEditEnumerationValueDefinitionSaving())"
+        EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditEnumerationValueDefinition">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(EnumerationValueDefinitionRowViewModel.Name)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(EnumerationValueDefinitionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
         <DxGridCommandColumn Width="100px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addScaleValueDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addEnumerationValueDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -43,7 +44,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                     <DxButton Id="removeScaleValueDefinitionButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveEnumerationValueDefinition(row)"/>
+                              Click="() => this.RemoveItem(row)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -53,10 +54,10 @@ Copyright (c) 2024 Starion Group S.A.
         <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@(this.EnumerationValueDefinition.ShortName)"/>
+                <DxTextBox @bind-Text="@(this.Item.ShortName)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@(this.EnumerationValueDefinition.Name)"/>
+                <DxTextBox @bind-Text="@(this.Item.Name)"/>
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

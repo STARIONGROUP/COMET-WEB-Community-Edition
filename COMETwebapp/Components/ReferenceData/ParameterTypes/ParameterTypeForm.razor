@@ -56,7 +56,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                 @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameterType)
                 {
-                    <DxFormLayoutItem Caption="Multi select:" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Multi select:" ColSpanMd="12" Id="multiSelect">
                         <DxCheckBox @bind-Checked="@enumerationParameterType.AllowMultiSelect"/>
                     </DxFormLayoutItem>
                 }
@@ -64,7 +64,7 @@ Copyright (c) 2024 Starion Group S.A.
                 @if (this.ViewModel.Thing is CompoundParameterType compoundParameterType)
                 {
                     <DxFormLayoutItem Caption="Components:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <ComponentsTable @bind-CompoundParameterType="compoundParameterType"
+                        <ComponentsTable @bind-ParameterType="compoundParameterType"
                                          ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"/>
                     </DxFormLayoutItem>
 
@@ -75,7 +75,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                 @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
                 {
-                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12" Id="isTensor">
                         <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor"/>
                     </DxFormLayoutItem>
                 }
@@ -91,7 +91,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                     @if (specializedQuantityKindParameterType.General is not null)
                     {
-                        <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <DxFormLayoutItem Caption="Generalization Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical" Id="generalizationScales">
                             <DxGrid Data="@(specializedQuantityKindParameterType.General.AllPossibleScale.Select(x => new MeasurementScaleRowViewModel(x)))"
                                     ShowAllRows="true">
                                 <Columns>
@@ -121,7 +121,7 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxTextBox @bind-Text="@(quantityKindParameterType.QuantityDimensionSymbol)"/>
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Possible Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                    <DxFormLayoutItem Caption="Possible Scales:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical" Id="possibleScales">
                         <DxListBox TValue="MeasurementScale"
                                    TData="MeasurementScaleRowViewModel"
                                    Data="@(this.ViewModel.MeasurementScales)"
@@ -150,13 +150,13 @@ Copyright (c) 2024 Starion Group S.A.
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Independent Parameter Types:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <IndependentParameterTypeTable @bind-SampledFunctionParameterType="@(sampledFunctionParameterType)"
+                        <IndependentParameterTypeTable @bind-ParameterType="@(sampledFunctionParameterType)"
                                                        ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"
                                                        Enabled="@(this.ShouldCreate)"/>
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Dependent Parameter Types:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <DependentParameterTypeTable @bind-SampledFunctionParameterType="@(sampledFunctionParameterType)"
+                        <DependentParameterTypeTable @bind-ParameterType="@(sampledFunctionParameterType)"
                                                      ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"
                                                      Enabled="@(this.ShouldCreate)"/>
                     </DxFormLayoutItem>
@@ -170,14 +170,14 @@ Copyright (c) 2024 Starion Group S.A.
             @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameter)
             {
                 <DxFormLayoutTabPage Caption="Values">
-                    <EnumerationValueDefinitionsTable @bind-EnumerationParameterType="enumerationParameter" />
+                    <EnumerationValueDefinitionsTable @bind-ParameterType="enumerationParameter" />
                 </DxFormLayoutTabPage>
             }
 
             @if (this.ViewModel.Thing is DerivedQuantityKind derivedQuantityKindParameterType)
             {
                 <DxFormLayoutTabPage Caption="Factors">
-                    <QuantityKindFactorsTable @bind-DerivedQuantityKindParameterType="@(derivedQuantityKindParameterType)"
+                    <QuantityKindFactorsTable @bind-ParameterType="@(derivedQuantityKindParameterType)"
                                               QuantityKindParameterTypes="@(this.ViewModel.ExistingParameterTypes.OfType<QuantityKind>())"/>
                 </DxFormLayoutTabPage>
             }

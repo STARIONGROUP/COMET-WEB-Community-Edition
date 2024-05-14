@@ -19,8 +19,9 @@ Copyright (c) 2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
+@inherits ParameterTypeOrderedItemsTable<CompoundParameterType, ParameterTypeComponent, ParameterTypeComponentRowViewModel>
 
-@if (this.CompoundParameterType is ArrayParameterType arrayParameterType)
+@if (this.ParameterType is ArrayParameterType)
 {
     <DxTextBox Text="@(this.Dimension)"
                TextChanged="@(this.OnTextChanged)"
@@ -31,7 +32,7 @@ Copyright (c) 2024 Starion Group S.A.
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditParameterTypeComponentSaving())"
+        EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditParameterTypeComponent">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
@@ -51,7 +52,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                     <DxButton Id="removeParameterTypeComponentButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveParameterTypeComponent(row)"/>
+                              Click="() => this.RemoveItem(row)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -66,12 +67,12 @@ Copyright (c) 2024 Starion Group S.A.
                     <DxButton Id="moveUpButton"
                               IconCssClass="oi oi-arrow-top"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.CompoundParameterType.Component.IndexOf(row.Thing) > 0)"/>
+                              Enabled="@(this.ParameterType.Component.IndexOf(row.Thing) > 0)"/>
 
                     <DxButton Id="moveDownButton"
                               IconCssClass="oi oi-arrow-bottom"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.CompoundParameterType.Component.LastOrDefault() != row.Thing)"/>
+                              Enabled="@(this.ParameterType.Component.LastOrDefault() != row.Thing)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -81,19 +82,19 @@ Copyright (c) 2024 Starion Group S.A.
         <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
-                <DxTextBox @bind-Text="@(this.ParameterTypeComponent.ShortName)"/>
+                <DxTextBox @bind-Text="@(this.Item.ShortName)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(ParameterType.Name))"
+                            TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
                             NullText="Select a parameter type"
-                            TextChanged="@(() => this.ParameterTypeComponent.Scale = null)"
-                            @bind-Value="@(this.ParameterTypeComponent.ParameterType)"/>
+                            TextChanged="@(() => this.Item.Scale = null)"
+                            @bind-Value="@(this.Item.ParameterType)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
                 <DxComboBox Data="@(this.GetAvailableScales())"
                             TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.ParameterTypeComponent.Scale)" />
+                            @bind-Value="@(this.Item.Scale)" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

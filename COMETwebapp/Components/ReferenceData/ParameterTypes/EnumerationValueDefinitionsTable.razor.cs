@@ -25,71 +25,23 @@
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
 
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
     /// Support class for the <see cref="EnumerationValueDefinitionsTable" />
     /// </summary>
-    public partial class EnumerationValueDefinitionsTable
+    public partial class EnumerationValueDefinitionsTable : ParameterTypeOrderedItemsTable<EnumerationParameterType, EnumerationValueDefinition, EnumerationValueDefinitionRowViewModel>
     {
         /// <summary>
-        /// The enumeration parameter type
+        /// Gets or sets the ordered list of items from the current
+        /// <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
         /// </summary>
-        [Parameter]
-        public EnumerationParameterType EnumerationParameterType { get; set; }
-
-        /// <summary>
-        /// The callback for when the parameter type has changed
-        /// </summary>
-        [Parameter]
-        public EventCallback<EnumerationParameterType> EnumerationParameterTypeChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets the condition to check if a enumeration value definition should be created
-        /// </summary>
-        public bool ShouldCreate { get; private set; }
-
-        /// <summary>
-        /// The enumeration value definition that will be handled for both edit and add forms
-        /// </summary>
-        public EnumerationValueDefinition EnumerationValueDefinition { get; private set; } = new();
-
-        /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        private IGrid Grid { get; set; }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add enumeration value definition form is being saved
-        /// </summary>
-        private void OnEditEnumerationValueDefinitionSaving()
-        {
-            if (this.ShouldCreate)
-            {
-                this.EnumerationParameterType.ValueDefinition.Add(this.EnumerationValueDefinition);
-            }
-            else
-            {
-                var indexToUpdate = this.EnumerationParameterType.ValueDefinition.FindIndex(x => x.Iid == this.EnumerationValueDefinition.Iid);
-                this.EnumerationParameterType.ValueDefinition[indexToUpdate] = this.EnumerationValueDefinition;
-            }
-
-            this.EnumerationParameterTypeChanged.InvokeAsync(this.EnumerationParameterType);
-        }
-
-        /// <summary>
-        /// Method that is invoked when a enumeration value definition row is being removed
-        /// </summary>
-        private void RemoveEnumerationValueDefinition(EnumerationValueDefinitionRowViewModel row)
-        {
-            this.EnumerationParameterType.ValueDefinition.Remove(row.Thing);
-            this.EnumerationParameterTypeChanged.InvokeAsync(this.EnumerationParameterType);
-        }
+        public override OrderedItemList<EnumerationValueDefinition> OrderedItemsList => this.ParameterType.ValueDefinition;
 
         /// <summary>
         /// Method invoked when creating a new enumeration value definition
@@ -100,20 +52,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             var dataItem = (EnumerationValueDefinitionRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;
 
-            this.EnumerationValueDefinition = dataItem == null
+            this.Item = dataItem == null
                 ? new EnumerationValueDefinition { Iid = Guid.NewGuid() }
                 : dataItem.Thing.Clone(true);
 
-            e.EditModel = this.EnumerationValueDefinition;
-        }
-
-        /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="EnumerationParameterType" />
-        /// </summary>
-        /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
-        private List<EnumerationValueDefinitionRowViewModel> GetRows()
-        {
-            return this.EnumerationParameterType.ValueDefinition?.Select(x => new EnumerationValueDefinitionRowViewModel(x)).ToList();
+            e.EditModel = this.Item;
         }
     }
 }

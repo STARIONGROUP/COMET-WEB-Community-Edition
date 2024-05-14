@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.ReferenceData
+namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 {
     using Bunit;
 

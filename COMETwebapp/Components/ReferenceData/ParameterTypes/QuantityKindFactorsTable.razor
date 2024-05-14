@@ -19,16 +19,17 @@ Copyright (c) 2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
+@inherits ParameterTypeOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
 
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditQuantityKindFactorSaving())"
+        EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditQuantityKindFactor">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.Exponent)" MinWidth="80"/>
-        <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.QuantityKind)" />
+        <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.QuantityKind)"/>
         <DxGridCommandColumn Width="100px" EditButtonVisible="false">
             <HeaderTemplate>
                 <DxButton Id="addQuantityKindFactorButton" Text="Add" IconCssClass="oi oi-plus" Click="@(() => this.Grid.StartEditNewRowAsync())"/>
@@ -43,7 +44,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                     <DxButton Id="removeQuantityKindFactorButton"
                               IconCssClass="oi oi-trash"
-                              Click="@(() => this.RemoveQuantityKindFactor(row))"/>
+                              Click="@(() => this.RemoveItem(row))"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -58,12 +59,12 @@ Copyright (c) 2024 Starion Group S.A.
                     <DxButton Id="moveUpButton"
                               IconCssClass="oi oi-arrow-top"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.DerivedQuantityKindParameterType.QuantityKindFactor.IndexOf(row.Thing) > 0)"/>
+                              Enabled="@(this.ParameterType.QuantityKindFactor.IndexOf(row.Thing) > 0)"/>
 
                     <DxButton Id="moveDownButton"
                               IconCssClass="oi oi-arrow-bottom"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.DerivedQuantityKindParameterType.QuantityKindFactor.LastOrDefault() != row.Thing)"/>
+                              Enabled="@(this.ParameterType.QuantityKindFactor.LastOrDefault() != row.Thing)" />
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -73,12 +74,12 @@ Copyright (c) 2024 Starion Group S.A.
         <FluentValidationValidator/>
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Exponent:" ColSpanMd="12">
-                <DxTextBox @bind-Text="this.QuantityKindFactore.Exponent" />
+                <DxTextBox @bind-Text="this.Item.Exponent" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Quantity Kind:" ColSpanMd="12">
                 <DxComboBox Data="@(this.QuantityKindParameterTypes)"
                             TextFieldName="@(nameof(QuantityKind.Name))"
-                            @bind-Value="this.QuantityKindFactore.QuantityKind" />
+                            @bind-Value="this.Item.QuantityKind" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

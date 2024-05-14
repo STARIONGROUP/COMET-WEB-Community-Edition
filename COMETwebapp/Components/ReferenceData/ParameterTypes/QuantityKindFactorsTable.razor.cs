@@ -25,7 +25,9 @@
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
@@ -35,20 +37,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     /// <summary>
     /// Support class for the <see cref="QuantityKindFactorsTable" />
     /// </summary>
-    public partial class QuantityKindFactorsTable
+    public partial class QuantityKindFactorsTable : ParameterTypeOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
     {
-        /// <summary>
-        /// The derived quantity kind parameter type
-        /// </summary>
-        [Parameter]
-        public DerivedQuantityKind DerivedQuantityKindParameterType { get; set; }
-
-        /// <summary>
-        /// The callback for when the parameter type has changed
-        /// </summary>
-        [Parameter]
-        public EventCallback<DerivedQuantityKind> DerivedQuantityKindParameterTypeChanged { get; set; }
-
         /// <summary>
         /// Gets or sets the collection of <see cref="ParameterType" />s of <see cref="QuantityKind" />
         /// </summary>
@@ -56,70 +46,9 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public IEnumerable<QuantityKind> QuantityKindParameterTypes { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if a quantity kind factor should be created
+        /// Gets or sets the ordered list of items from the current <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType"/>
         /// </summary>
-        public bool ShouldCreate { get; private set; }
-
-        /// <summary>
-        /// The quantity kind factor that will be handled for both edit and add forms
-        /// </summary>
-        public QuantityKindFactor QuantityKindFactore { get; private set; } = new();
-
-        /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        private IGrid Grid { get; set; }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add quantity kind factor form is being saved
-        /// </summary>
-        private void OnEditQuantityKindFactorSaving()
-        {
-            if (this.ShouldCreate)
-            {
-                this.DerivedQuantityKindParameterType.QuantityKindFactor.Add(this.QuantityKindFactore);
-            }
-            else
-            {
-                var indexToUpdate = this.DerivedQuantityKindParameterType.QuantityKindFactor.FindIndex(x => x.Iid == this.QuantityKindFactore.Iid);
-                this.DerivedQuantityKindParameterType.QuantityKindFactor[indexToUpdate] = this.QuantityKindFactore;
-            }
-
-            this.DerivedQuantityKindParameterTypeChanged.InvokeAsync(this.DerivedQuantityKindParameterType);
-        }
-
-        /// <summary>
-        /// Moves the selected row up
-        /// </summary>
-        /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveUp(QuantityKindFactorRowViewModel row)
-        {
-            var currentIndex = this.DerivedQuantityKindParameterType.QuantityKindFactor.IndexOf(row.Thing);
-            this.DerivedQuantityKindParameterType.QuantityKindFactor.Move(currentIndex, currentIndex - 1);
-            await this.DerivedQuantityKindParameterTypeChanged.InvokeAsync(this.DerivedQuantityKindParameterType);
-        }
-
-        /// <summary>
-        /// Moves the selected row down
-        /// </summary>
-        /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveDown(QuantityKindFactorRowViewModel row)
-        {
-            var currentIndex = this.DerivedQuantityKindParameterType.QuantityKindFactor.IndexOf(row.Thing);
-            this.DerivedQuantityKindParameterType.QuantityKindFactor.Move(currentIndex, currentIndex + 1);
-            await this.DerivedQuantityKindParameterTypeChanged.InvokeAsync(this.DerivedQuantityKindParameterType);
-        }
-
-        /// <summary>
-        /// Method that is invoked when a quantity kind factor row is being removed
-        /// </summary>
-        private void RemoveQuantityKindFactor(QuantityKindFactorRowViewModel row)
-        {
-            this.DerivedQuantityKindParameterType.QuantityKindFactor.Remove(row.Thing);
-            this.DerivedQuantityKindParameterTypeChanged.InvokeAsync(this.DerivedQuantityKindParameterType);
-        }
+        public override OrderedItemList<QuantityKindFactor> OrderedItemsList => this.ParameterType.QuantityKindFactor;
 
         /// <summary>
         /// Method invoked when creating a new quantity kind factor
@@ -130,23 +59,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             var dataItem = (QuantityKindFactorRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;
 
-            this.QuantityKindFactore = dataItem == null
+            this.Item = dataItem == null
                 ? new QuantityKindFactor { Iid = Guid.NewGuid() }
                 : dataItem.Thing.Clone(true);
 
-            e.EditModel = this.QuantityKindFactore;
-        }
-
-        /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="CompoundParameterType" />
-        /// </summary>
-        /// <returns>A collection of <see cref="QuantityKindFactorRowViewModel" />s to display</returns>
-        private List<QuantityKindFactorRowViewModel> GetRows()
-        {
-            return this.DerivedQuantityKindParameterType.QuantityKindFactor?
-                .Select(x => new QuantityKindFactorRowViewModel(x))
-                .OrderBy(x => x.Name)
-                .ToList();
+            e.EditModel = this.Item;
         }
     }
 }

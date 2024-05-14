@@ -25,7 +25,9 @@
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
@@ -35,20 +37,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     /// <summary>
     /// Support class for the <see cref="DependentParameterTypeTable" />
     /// </summary>
-    public partial class DependentParameterTypeTable
+    public partial class DependentParameterTypeTable : ParameterTypeOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
     {
-        /// <summary>
-        /// The compound parameter type
-        /// </summary>
-        [Parameter]
-        public SampledFunctionParameterType SampledFunctionParameterType { get; set; }
-
-        /// <summary>
-        /// The callback for when the parameter type has changed
-        /// </summary>
-        [Parameter]
-        public EventCallback<SampledFunctionParameterType> SampledFunctionParameterTypeChanged { get; set; }
-
         /// <summary>
         /// Gets or sets the collection of <see cref="ParameterType" />s
         /// </summary>
@@ -62,78 +52,17 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if a dependent parameter type should be created
+        /// Gets or sets the ordered list of items from the current <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
         /// </summary>
-        public bool ShouldCreate { get; private set; }
+        public override OrderedItemList<DependentParameterTypeAssignment> OrderedItemsList => this.ParameterType.DependentParameterType;
 
         /// <summary>
-        /// The dependent parameter type that will be handled for both edit and add forms
-        /// </summary>
-        public DependentParameterTypeAssignment DependentParameterType { get; private set; } = new();
-
-        /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        private IGrid Grid { get; set; }
-
-        /// <summary>
-        /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="DependentParameterType" />
+        /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="DependentParameterTypeAssignment" />
         /// </summary>
         /// <returns></returns>
         private IEnumerable<MeasurementScale> GetAvailableScales()
         {
-            return this.DependentParameterType.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
-        }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add dependent parameter type form is being saved
-        /// </summary>
-        private void OnEditDependentParameterTypeSaving()
-        {
-            if (this.ShouldCreate)
-            {
-                this.SampledFunctionParameterType.DependentParameterType.Add(this.DependentParameterType);
-            }
-            else
-            {
-                var indexToUpdate = this.SampledFunctionParameterType.DependentParameterType.FindIndex(x => x.Iid == this.DependentParameterType.Iid);
-                this.SampledFunctionParameterType.DependentParameterType[indexToUpdate] = this.DependentParameterType;
-            }
-
-            this.SampledFunctionParameterTypeChanged.InvokeAsync(this.SampledFunctionParameterType);
-        }
-
-        /// <summary>
-        /// Moves the selected row up
-        /// </summary>
-        /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveUp(DependentParameterTypeRowViewModel row)
-        {
-            var currentIndex = this.SampledFunctionParameterType.DependentParameterType.IndexOf(row.Thing);
-            this.SampledFunctionParameterType.DependentParameterType.Move(currentIndex, currentIndex - 1);
-            await this.SampledFunctionParameterTypeChanged.InvokeAsync(this.SampledFunctionParameterType);
-        }
-
-        /// <summary>
-        /// Moves the selected row down
-        /// </summary>
-        /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveDown(DependentParameterTypeRowViewModel row)
-        {
-            var currentIndex = this.SampledFunctionParameterType.DependentParameterType.IndexOf(row.Thing);
-            this.SampledFunctionParameterType.DependentParameterType.Move(currentIndex, currentIndex + 1);
-            await this.SampledFunctionParameterTypeChanged.InvokeAsync(this.SampledFunctionParameterType);
-        }
-
-        /// <summary>
-        /// Method that is invoked when a dependent parameter type row is being removed
-        /// </summary>
-        private void RemoveDependentParameterType(DependentParameterTypeRowViewModel row)
-        {
-            this.SampledFunctionParameterType.DependentParameterType.Remove(row.Thing);
-            this.SampledFunctionParameterTypeChanged.InvokeAsync(this.SampledFunctionParameterType);
+            return this.Item.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
         }
 
         /// <summary>
@@ -145,23 +74,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             var dataItem = (DependentParameterTypeRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;
 
-            this.DependentParameterType = dataItem == null
+            this.Item = dataItem == null
                 ? new DependentParameterTypeAssignment { Iid = Guid.NewGuid() }
                 : dataItem.Thing.Clone(true);
 
-            e.EditModel = this.DependentParameterType;
-        }
-
-        /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="CompoundParameterType" />
-        /// </summary>
-        /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
-        private List<DependentParameterTypeRowViewModel> GetRows()
-        {
-            return this.SampledFunctionParameterType.DependentParameterType?
-                .Select(x => new DependentParameterTypeRowViewModel(x))
-                .OrderBy(x => x.Name)
-                .ToList();
+            e.EditModel = this.Item;
         }
     }
 }

@@ -62,12 +62,12 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxButton Id="moveUpButton"
                                   IconCssClass="oi oi-arrow-top"
                                   Click="() => this.MoveUp(row)"
-                                  Enabled="@(this.SampledFunctionParameterType.IndependentParameterType.IndexOf(row.Thing) > 0)"/>
+                                  Enabled="@(this.ParameterType.IndependentParameterType.IndexOf(row.Thing) > 0)"/>
 
                         <DxButton Id="moveDownButton"
                                   IconCssClass="oi oi-arrow-bottom"
                                   Click="() => this.MoveDown(row)"
-                                  Enabled="@(this.SampledFunctionParameterType.IndependentParameterType.LastOrDefault() != row.Thing)"/>
+                                  Enabled="@(this.ParameterType.IndependentParameterType.LastOrDefault() != row.Thing)"/>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -80,7 +80,7 @@ Copyright (c) 2024 Starion Group S.A.
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(ParameterType.Name))"
+                            TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
                             NullText="Select a parameter type"
                             TextChanged="@(() => this.IndependentParameterType.Thing.MeasurementScale = null)"
                             @bind-Value="@(this.IndependentParameterType.Thing.ParameterType)"/>

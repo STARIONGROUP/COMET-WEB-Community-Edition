@@ -20,11 +20,13 @@ Copyright (c) 2024 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
+@inherits ParameterTypeOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
+
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditDependentParameterTypeSaving())"
+        EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditDependentParameterType">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(DependentParameterTypeRowViewModel.ParameterType)" MinWidth="80"/>
@@ -46,7 +48,7 @@ Copyright (c) 2024 Starion Group S.A.
 
                         <DxButton Id="removeDependentParameterTypeButton"
                                   IconCssClass="oi oi-trash"
-                                  Click="() => this.RemoveDependentParameterType(row)"/>
+                                  Click="() => this.RemoveItem(row)"/>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -61,12 +63,12 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxButton Id="moveUpButton"
                                   IconCssClass="oi oi-arrow-top"
                                   Click="() => this.MoveUp(row)"
-                                  Enabled="@(this.SampledFunctionParameterType.DependentParameterType.IndexOf(row.Thing) > 0)"/>
+                                  Enabled="@(this.ParameterType.DependentParameterType.IndexOf(row.Thing) > 0)"/>
 
                         <DxButton Id="moveDownButton"
                                   IconCssClass="oi oi-arrow-bottom"
                                   Click="() => this.MoveDown(row)"
-                                  Enabled="@(this.SampledFunctionParameterType.DependentParameterType.LastOrDefault() != row.Thing)"/>
+                                  Enabled="@(this.ParameterType.DependentParameterType.LastOrDefault() != row.Thing)" />
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -79,15 +81,15 @@ Copyright (c) 2024 Starion Group S.A.
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(ParameterType.Name))"
+                            TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
                             NullText="Select a parameter type"
-                            TextChanged="@(() => this.DependentParameterType.MeasurementScale = null)"
-                            @bind-Value="@(this.DependentParameterType.ParameterType)"/>
+                            TextChanged="@(() => this.Item.MeasurementScale = null)"
+                            @bind-Value="@(this.Item.ParameterType)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
                 <DxComboBox Data="@(this.GetAvailableScales())"
                             TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.DependentParameterType.MeasurementScale)"/>
+                            @bind-Value="@(this.Item.MeasurementScale)" />
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>
