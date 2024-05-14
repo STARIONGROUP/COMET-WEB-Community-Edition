@@ -29,7 +29,7 @@ Copyright (c) 2024 Starion Group S.A.
             <DxFormLayoutTabPage Caption="Basic">
                 @if (this.ShouldCreate)
                 {
-                    <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Parameter type:" ColSpanMd="12">
                         <DxComboBox Data="@(this.ViewModel.ParameterTypes)"
                                     TextFieldName="@(nameof(ClassKindWrapper.ClassKindName))"
                                     @bind-Value="@(this.ViewModel.SelectedParameterType)"

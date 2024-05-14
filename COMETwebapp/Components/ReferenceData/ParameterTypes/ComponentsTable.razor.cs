@@ -175,7 +175,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             this.Dimension = text;
             var dimensions = text.Split(",").Select(int.Parse).ToList();
-            var i = 0;
 
             var arrayParameterType = (ArrayParameterType)this.CompoundParameterType;
 
@@ -194,39 +193,24 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
                 }
             }
 
-            if (arrayParameterType.Dimension.Count < dimensions.Count)
+            if (arrayParameterType.Dimension.Count >= dimensions.Count)
             {
-                var k = 0;
-
-                foreach (var dimension in dimensions)
-                {
-                    if (k >= arrayParameterType.Dimension.Count)
-                    {
-                        arrayParameterType.Dimension.Add(dimension);
-                    }
-
-                    k++;
-                }
+                return;
             }
 
-            var l = 0;
+            var k = 0;
 
             foreach (var dimension in dimensions)
             {
-                arrayParameterType.Dimension[l] = dimensions[l];
-
-                for (var m = 1; m <= dimension; m++)
+                if (k >= arrayParameterType.Dimension.Count)
                 {
-                   var element = this.CompoundParameterType.Component.ElementAtOrDefault(m * dimension - 1);
-
-                   if (element is null)
-                   {
-                       this.CompoundParameterType.Component.Add(new ParameterTypeComponent());
-                   }
+                    arrayParameterType.Dimension.Add(dimension);
                 }
 
-                l++;
+                k++;
             }
+
+            //TODO: update the contained component according with the updated dimensions
         }
 
         /// <summary>

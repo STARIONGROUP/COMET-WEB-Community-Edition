@@ -77,10 +77,10 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 
             if (this.ShouldCreateThing)
             {
-                this.ViewModel.SelectedParameterType = this.ViewModel.ParameterTypes.First(x => x.ClassKind == ClassKind.TextParameterType);
+                this.ViewModel.SelectedParameterType = this.ViewModel.ParameterTypes.First(x => x.ClassKind == ClassKind.BooleanParameterType);
             }
 
-            this.ViewModel.SelectParameterType(dataItem == null ? new TextParameterType() : dataItem.Thing.Clone(true));
+            this.ViewModel.SelectParameterType(dataItem == null ? new BooleanParameterType() : dataItem.Thing.Clone(true));
             e.EditModel = this.ViewModel.Thing;
         }
 

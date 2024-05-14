@@ -48,7 +48,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// </summary>
         private static readonly IEnumerable<ClassKind> AvailableParameterTypes =
         [
-            ClassKind.ArrayParameterType,
             ClassKind.BooleanParameterType,
             ClassKind.CompoundParameterType,
             ClassKind.DateParameterType,
@@ -77,7 +76,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new TextParameterType();
+            this.Thing = new BooleanParameterType();
         }
 
         /// <summary>
@@ -206,7 +205,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         {
             this.Thing = newKind.ClassKind switch
             {
-                ClassKind.ArrayParameterType => new ArrayParameterType(),
                 ClassKind.BooleanParameterType => new BooleanParameterType(),
                 ClassKind.CompoundParameterType => new CompoundParameterType(),
                 ClassKind.DateParameterType => new DateParameterType(),

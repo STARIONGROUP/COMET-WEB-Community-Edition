@@ -51,7 +51,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// <param name="quantityKindFactor">The associated <see cref="QuantityKindFactor" /></param>
         public QuantityKindFactorRowViewModel(QuantityKindFactor quantityKindFactor) : base(quantityKindFactor)
         {
-            this.QuantityKind = quantityKindFactor.QuantityKind.Name;
+            this.QuantityKind = quantityKindFactor.QuantityKind?.Name;
             this.Exponent = quantityKindFactor.Exponent;
         }
 
