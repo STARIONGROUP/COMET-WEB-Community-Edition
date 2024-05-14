@@ -130,7 +130,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.ParameterTypes.Count(), Is.EqualTo(2));
                 Assert.That(this.renderer.Instance.ParameterType, Is.Not.Null);
-                Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.DependentParameterType.First().ParameterType.Name));
+                Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.IndependentParameterType.First().ParameterType.Name));
             });
         }
     }
