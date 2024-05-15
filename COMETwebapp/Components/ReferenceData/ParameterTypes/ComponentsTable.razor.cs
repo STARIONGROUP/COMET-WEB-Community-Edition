@@ -136,7 +136,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
                 dimensionIndex++;
             }
 
-            //update the contained component according with the updated dimensions
+            // TODO: #602 (https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/issues/602)
         }
     }
 }
