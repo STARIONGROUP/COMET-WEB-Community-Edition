@@ -26,6 +26,7 @@ namespace COMETwebapp.Pages.ReferenceData
 {
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.Components.ReferenceData.ParameterTypes;
 
     using DevExpress.Blazor;
 

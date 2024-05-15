@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.SiteDirectory.EngineeringModel
     public class EngineeringModelValidator : AbstractValidator<EngineeringModelSetup>
     {
         /// <summary>
-        /// Instantiates a new <see cref="EngineeringModelValidator"/>
+        /// Instantiates a new <see cref="EngineeringModelValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public EngineeringModelValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(EngineeringModelSetup.Name));

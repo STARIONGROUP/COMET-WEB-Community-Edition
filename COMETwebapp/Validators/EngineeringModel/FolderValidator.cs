@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.EngineeringModel
     public class FolderValidator : AbstractValidator<Folder>
     {
         /// <summary>
-        /// Instantiates a new <see cref="FolderValidator"/>
+        /// Instantiates a new <see cref="FolderValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public FolderValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(Folder.Name));

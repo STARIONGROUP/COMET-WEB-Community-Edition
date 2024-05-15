@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
         /// <summary>
         /// Instantiates a new <see cref="CyclicRatioScaleValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public CyclicRatioScaleValidator(IValidationService validationService)
         {
             this.Include(new MeasurementScaleValidator(validationService));

@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.EngineeringModel
     public class CommonFileStoreValidator : AbstractValidator<CommonFileStore>
     {
         /// <summary>
-        /// Instantiates a new <see cref="CommonFileStoreValidator"/>
+        /// Instantiates a new <see cref="CommonFileStoreValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public CommonFileStoreValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(CommonFileStore.Name));

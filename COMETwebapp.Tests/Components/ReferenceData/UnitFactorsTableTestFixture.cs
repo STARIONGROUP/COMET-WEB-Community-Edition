@@ -1,32 +1,29 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="UnitFactorsTableTestFixture.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="UnitFactorsTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.ReferenceData
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.SiteDirectoryData;
@@ -34,17 +31,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData;
-    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
-
-    using DynamicData;
-
-    using Microsoft.Extensions.DependencyInjection;
-
-    using Moq;
 
     using NUnit.Framework;
 
@@ -63,19 +51,19 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            this.derivedUnit = new DerivedUnit()
+            this.derivedUnit = new DerivedUnit
             {
                 UnitFactor =
                 {
-                    new UnitFactor()
+                    new UnitFactor
                     {
-                        Unit = new SimpleUnit(){ ShortName = "simple" },
+                        Unit = new SimpleUnit { ShortName = "simple" },
                         Exponent = "exp"
                     }
                 }
             };
 
-            var measurementUnits = new List<MeasurementUnit>()
+            var measurementUnits = new List<MeasurementUnit>
             {
                 new SimpleUnit()
             };
@@ -133,7 +121,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             var removeUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeUnitFactorButton");
             await this.renderer.InvokeAsync(removeUnitFactorButton.Instance.Click.InvokeAsync);
-            
+
             Assert.That(this.renderer.Instance.DerivedUnit.UnitFactor, Has.Count.EqualTo(1));
         }
     }

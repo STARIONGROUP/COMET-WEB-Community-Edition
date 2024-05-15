@@ -1,0 +1,87 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 Starion Group S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits SelectedDeprecatableDataItemBase<ParameterType, ParameterTypeRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <div class="d-flex justify-content-between">
+
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items.OrderBy(x => x.Name)"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for a parameter type..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((ParameterTypeRowViewModel)row))"
+                PopupEditFormCssClass="pw-800"
+                PopupEditFormHeaderText="Parameter Type"
+                EditFormButtonsVisible="false"
+                EditMode="GridEditMode.PopupEditForm"
+                CustomizeElement="DisableDeprecatedThing"
+                EditModelSaving="@(() => this.OnEditThingSaving())"
+                CustomizeEditModel="this.CustomizeEditThing"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                CssClass="height-fit-content">
+
+            <ToolbarTemplate>
+                <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+                    <DxToolbarItem Text="Add Parameter Type"
+                                   IconCssClass="oi oi-plus"
+                                   Click="() => this.Grid.StartEditNewRowAsync()"
+                                   RenderStyle="ButtonRenderStyle.Primary"
+                                   Enabled="true"/>
+                </DxToolbar>
+            </ToolbarTemplate>
+
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Symbol)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.DefaultScale)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+            </Columns>
+
+            <EditFormTemplate Context="editFormContext">
+                <ParameterTypeForm ViewModel="@(this.ViewModel)"
+                                   IsVisible="true"
+                                   ShouldCreate="true"
+                                   OnSaved="@(() => this.Grid.CancelEditAsync())"
+                                   OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
+            </EditFormTemplate>
+        </DxGrid>
+
+        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)">
+            <ParameterTypeForm ViewModel="@(this.ViewModel)"
+                               @bind-IsVisible="@(this.IsOnEditMode)"
+                               ShouldCreate="false"/>
+        </DataItemDetailsComponent>
+    </div>
+</LoadingComponent>
+
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
+    </div>
+</DxPopup>

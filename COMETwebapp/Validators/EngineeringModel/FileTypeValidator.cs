@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.EngineeringModel
     public class FileTypeValidator : AbstractValidator<FileType>
     {
         /// <summary>
-        /// Instantiates a new <see cref="FileTypeValidator"/>
+        /// Instantiates a new <see cref="FileTypeValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public FileTypeValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Extension).Validate(validationService, nameof(FileType.Extension));

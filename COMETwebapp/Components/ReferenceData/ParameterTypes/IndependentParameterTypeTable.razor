@@ -1,0 +1,100 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2024 Starion Group S.A.
+
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+<DxGrid @ref="this.Grid"
+        Data="this.GetRows()"
+        EditMode="GridEditMode.PopupEditForm"
+        PopupEditFormHeaderText="Component"
+        EditModelSaving="@(() => this.OnEditIndependentParameterTypeSaving())"
+        CustomizeEditModel="this.CustomizeEditIndependentParameterType">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(IndependentParameterTypeRowViewModel.ParameterType)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(IndependentParameterTypeRowViewModel.Scale)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(IndependentParameterTypeRowViewModel.InterpolationPeriod)" MinWidth="80"/>
+        
+        @if (this.Enabled)
+        {
+            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    <DxButton Id="addIndependentParameterTypeButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (IndependentParameterTypeRowViewModel)context.DataItem;
+
+                        <DxButton Id="editIndependentParameterTypeButton"
+                                  IconCssClass="oi oi-pencil"
+                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+
+                        <DxButton Id="removeIndependentParameterTypeButton"
+                                  IconCssClass="oi oi-trash"
+                                  Click="(() => this.RemoveIndependentParameterType(row))"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    Order
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (IndependentParameterTypeRowViewModel)context.DataItem;
+
+                        <DxButton Id="moveUpButton"
+                                  IconCssClass="oi oi-arrow-top"
+                                  Click="() => this.MoveUp(row)"
+                                  Enabled="@(this.ParameterType.IndependentParameterType.IndexOf(row.Thing) > 0)"/>
+
+                        <DxButton Id="moveDownButton"
+                                  IconCssClass="oi oi-arrow-bottom"
+                                  Click="() => this.MoveDown(row)"
+                                  Enabled="@(this.ParameterType.IndependentParameterType.LastOrDefault() != row.Thing)"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        }
+        
+    </Columns>
+
+    <EditFormTemplate Context="EditFormContext">
+        <FluentValidationValidator/>
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
+                <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
+                            TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
+                            NullText="Select a parameter type"
+                            TextChanged="@(() => this.Item.Thing.MeasurementScale = null)"
+                            @bind-Value="@(this.Item.Thing.ParameterType)"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
+                <DxComboBox Data="@(this.GetAvailableScales())"
+                            TextFieldName="@(nameof(MeasurementScale.Name))"
+                            @bind-Value="@(this.Item.Thing.MeasurementScale)"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Interpolation Period:" ColSpanMd="12">
+                <DxTextBox @bind-Text="@(this.Item.InterpolationPeriod)" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+        <div class="pt-3"></div>
+        <ValidationSummary/>
+    </EditFormTemplate>
+</DxGrid>
