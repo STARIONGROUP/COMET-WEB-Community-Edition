@@ -106,7 +106,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 
             var listOfThings = this.SessionService.Session.Assembler.Cache.Values.Where(x => x.IsValueCreated).Select(x => x.Value).OfType<T>().ToList();
             this.DataSource.AddRange(listOfThings);
-            this.Rows.AddRange(this.DataSource.Items.Select(CreateNewRow));
+            this.Rows.AddRange(this.DataSource.Items.Select(CreateNewRow).OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase));
             this.RefreshAccessRight();
 
             this.IsLoading = false;

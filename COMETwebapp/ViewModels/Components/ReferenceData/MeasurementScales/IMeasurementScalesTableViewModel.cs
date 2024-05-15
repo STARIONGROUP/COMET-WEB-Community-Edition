@@ -61,19 +61,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         ClassKindWrapper SelectedMeasurementScaleType { get; set; }
 
         /// <summary>
-        /// Gets the selected <see cref="ScaleValueDefinition" />s
-        /// </summary>
-        IEnumerable<ScaleValueDefinition> SelectedScaleValueDefinitions { get; set; }
-
-        /// <summary>
         /// Gets or sets the selected reference data library
         /// </summary>
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
-
-        /// <summary>
-        /// Gets the selected <see cref="MappingToReferenceScale" />s
-        /// </summary>
-        IEnumerable<MappingToReferenceScale> SelectedMappingToReferenceScale { get; set; }
 
         /// <summary>
         /// Gets the available <see cref="ScaleValueDefinition" />s for reference scale value selection

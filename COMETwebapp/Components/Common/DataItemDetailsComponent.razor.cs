@@ -42,5 +42,17 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public RenderFragment ChildContent { get; set; }
+
+        /// <summary>
+        /// Gets or sets the text to be displayed in the option button. If null or empty, the button will not be displayed
+        /// </summary>
+        [Parameter]
+        public string ButtonDisplayText { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the action to be executed when the option button is clicked
+        /// </summary>
+        [Parameter]
+        public Action OnButtonClick { get; set; }
     }
 }

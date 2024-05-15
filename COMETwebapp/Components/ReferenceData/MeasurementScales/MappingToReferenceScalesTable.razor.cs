@@ -38,16 +38,16 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     public partial class MappingToReferenceScalesTable
     {
         /// <summary>
-        /// A collection of mapping to reference scale to display for selection
+        /// The measurement scale that contains the mapping to reference scale to display for selection
         /// </summary>
         [Parameter]
-        public IEnumerable<MappingToReferenceScale> MappingToReferenceScales { get; set; }
+        public MeasurementScale MeasurementScale { get; set; }
 
         /// <summary>
         /// The method that is executed when the mapping to reference scales change
         /// </summary>
         [Parameter]
-        public EventCallback<IEnumerable<MappingToReferenceScale>> MappingToReferenceScalesChanged { get; set; }
+        public EventCallback<MeasurementScale> MeasurementScaleChanged { get; set; }
 
         /// <summary>
         /// A collection of dependent scale value definitions to display for selection
@@ -81,21 +81,17 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// </summary>
         private void OnEditMappingToReferenceScaleSaving()
         {
-            var mappingToReferenceScalesList = this.MappingToReferenceScales.ToList();
-
             if (this.ShouldCreate)
             {
-                mappingToReferenceScalesList.Add(this.MappingToReferenceScale);
-                this.MappingToReferenceScales = mappingToReferenceScalesList;
+                this.MeasurementScale.MappingToReferenceScale.Add(this.MappingToReferenceScale);
             }
             else
             {
-                var indexToUpdate = mappingToReferenceScalesList.FindIndex(x => x.Iid == this.MappingToReferenceScale.Iid);
-                mappingToReferenceScalesList[indexToUpdate] = this.MappingToReferenceScale;
+                var indexToUpdate = this.MeasurementScale.MappingToReferenceScale.FindIndex(x => x.Iid == this.MappingToReferenceScale.Iid);
+                this.MeasurementScale.MappingToReferenceScale[indexToUpdate] = this.MappingToReferenceScale;
             }
 
-            this.MappingToReferenceScales = mappingToReferenceScalesList;
-            this.MappingToReferenceScalesChanged.InvokeAsync(this.MappingToReferenceScales);
+            this.MeasurementScaleChanged.InvokeAsync(this.MeasurementScale);
         }
 
         /// <summary>
@@ -103,11 +99,8 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// </summary>
         private void RemoveMappingToReferenceScale(MappingToReferenceScaleRowViewModel row)
         {
-            var mappingToReferenceScalesList = this.MappingToReferenceScales.ToList();
-            mappingToReferenceScalesList.Remove(row.MappingToReferenceScale);
-
-            this.MappingToReferenceScales = mappingToReferenceScalesList;
-            this.MappingToReferenceScalesChanged.InvokeAsync(this.MappingToReferenceScales);
+            this.MeasurementScale.MappingToReferenceScale.Remove(row.MappingToReferenceScale);
+            this.MeasurementScaleChanged.InvokeAsync(this.MeasurementScale);
         }
 
         /// <summary>
@@ -127,12 +120,12 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="MappingToReferenceScales" />
+        /// Method used to retrieve the available rows, given the <see cref="MeasurementScale" />
         /// </summary>
         /// <returns>A collection of <see cref="MappingToReferenceScaleRowViewModel" />s to display</returns>
         private List<MappingToReferenceScaleRowViewModel> GetRows()
         {
-            return this.MappingToReferenceScales?.Select(x => new MappingToReferenceScaleRowViewModel(x)).ToList();
+            return this.MeasurementScale.MappingToReferenceScale?.Select(x => new MappingToReferenceScaleRowViewModel(x)).ToList();
         }
     }
 }

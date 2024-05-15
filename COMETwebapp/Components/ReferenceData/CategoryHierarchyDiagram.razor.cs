@@ -27,6 +27,8 @@ namespace COMETwebapp.Components.ReferenceData
     using Blazor.Diagrams.Core;
     using Blazor.Diagrams.Core.Models;
 
+    using COMETwebapp.Components.ReferenceData.ParameterTypes;
+
     using Microsoft.AspNetCore.Components;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;

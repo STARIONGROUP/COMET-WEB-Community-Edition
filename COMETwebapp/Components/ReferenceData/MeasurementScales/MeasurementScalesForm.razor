@@ -139,11 +139,11 @@ Copyright (c) 2024 Starion Group S.A.
             }
 
             <DxFormLayoutTabPage Caption="Value Definition">
-                <ScaleValueDefinitionsTable @bind-ScaleValueDefinitions="@this.ViewModel.SelectedScaleValueDefinitions" />
+                <ScaleValueDefinitionsTable @bind-MeasurementScale="@this.ViewModel.Thing" />
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Mappings">
-                <MappingToReferenceScalesTable @bind-MappingToReferenceScales="@this.ViewModel.SelectedMappingToReferenceScale"
-                                               DependentScaleValueDefinitions="@this.ViewModel.SelectedScaleValueDefinitions"
+                <MappingToReferenceScalesTable @bind-MeasurementScale="@this.ViewModel.Thing"
+                                               DependentScaleValueDefinitions="@this.ViewModel.Thing.ValueDefinition"
                                                ReferenceScaleValueDefinitions="@this.ViewModel.ReferenceScaleValueDefinitions" />
             </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
@@ -159,9 +159,10 @@ Copyright (c) 2024 Starion Group S.A.
                 @(this.ViewModel.Thing.IsDeprecated ? "Un-deprecate" : "Deprecate")
             </DxButton>
         }
-
+        
         <DxButton Id="saveParticipantRoleButton"
-                  SubmitFormOnClick="true">
+                  SubmitFormOnClick="true"
+                  Enabled="editFormContext.Validate() && (editFormContext.IsModified() || !this.ShouldCreate)">
             Save
         </DxButton>
 

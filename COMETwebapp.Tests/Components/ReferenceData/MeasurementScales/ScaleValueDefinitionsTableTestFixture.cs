@@ -50,7 +50,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<ScaleValueDefinitionsTable>(parameters => { parameters.Add(p => p.ScaleValueDefinitions, [new ScaleValueDefinition()]); });
+            var scale = new OrdinalScale()
+            {
+                ValueDefinition = { new ScaleValueDefinition() }
+            };
+
+            this.renderer = this.context.RenderComponent<ScaleValueDefinitionsTable>(parameters => { parameters.Add(p => p.MeasurementScale, scale); });
         }
 
         [TearDown]
@@ -75,7 +80,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             var timesScaleValueDefinitionsChanged = 0;
 
-            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.ScaleValueDefinitionsChanged, () => { timesScaleValueDefinitionsChanged++; }); });
+            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.MeasurementScaleChanged, () => { timesScaleValueDefinitionsChanged++; }); });
 
             var editScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editScaleValueDefinitionButton");
             await this.renderer.InvokeAsync(editScaleValueDefinitionButton.Instance.Click.InvokeAsync);
@@ -86,7 +91,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
-                Assert.That(this.renderer.Instance.ScaleValueDefinitions, Has.Count.EqualTo(1));
+                Assert.That(this.renderer.Instance.MeasurementScale.ValueDefinition, Has.Count.EqualTo(1));
                 Assert.That(timesScaleValueDefinitionsChanged, Is.EqualTo(1));
             });
 
@@ -97,7 +102,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
-                Assert.That(this.renderer.Instance.ScaleValueDefinitions, Has.Count.EqualTo(2));
+                Assert.That(this.renderer.Instance.MeasurementScale.ValueDefinition, Has.Count.EqualTo(2));
                 Assert.That(timesScaleValueDefinitionsChanged, Is.EqualTo(2));
             });
 
@@ -106,7 +111,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.ScaleValueDefinitions, Has.Count.EqualTo(1));
+                Assert.That(this.renderer.Instance.MeasurementScale.ValueDefinition, Has.Count.EqualTo(1));
                 Assert.That(timesScaleValueDefinitionsChanged, Is.EqualTo(3));
             });
         }
