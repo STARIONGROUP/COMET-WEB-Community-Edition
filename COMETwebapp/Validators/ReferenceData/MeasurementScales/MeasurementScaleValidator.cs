@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
         /// <summary>
         /// Instantiates a new <see cref="MeasurementScaleValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public MeasurementScaleValidator(IValidationService validationService)
         {
             this.RuleFor(x => x.ShortName).Validate(validationService, nameof(MeasurementScale.ShortName));

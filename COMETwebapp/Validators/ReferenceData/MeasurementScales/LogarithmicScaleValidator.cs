@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
         /// <summary>
         /// Instantiates a new <see cref="LogarithmicScaleValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public LogarithmicScaleValidator(IValidationService validationService)
         {
             this.Include(new MeasurementScaleValidator(validationService));

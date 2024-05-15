@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.EngineeringModel
     public class FileValidator : AbstractValidator<File>
     {
         /// <summary>
-        /// Instantiates a new <see cref="FileValidator"/>
+        /// Instantiates a new <see cref="FileValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public FileValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Owner).NotEmpty().Validate(validationService, nameof(File.Owner));

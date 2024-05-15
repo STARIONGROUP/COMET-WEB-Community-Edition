@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.SiteDirectory.Roles
     public class ParticipantRoleValidator : AbstractValidator<ParticipantRole>
     {
         /// <summary>
-        /// Instantiates a new <see cref="ParticipantRoleValidator"/>
+        /// Instantiates a new <see cref="ParticipantRoleValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public ParticipantRoleValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(ParticipantRole.Name));

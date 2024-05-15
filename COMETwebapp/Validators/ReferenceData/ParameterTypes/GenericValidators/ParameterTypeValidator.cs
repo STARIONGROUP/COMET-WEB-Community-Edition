@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes.GenericValidators
         /// <summary>
         /// Instantiates a new <see cref="ParameterTypeValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService"/></param>
         public ParameterTypeValidator(IValidationService validationService)
         {
             this.RuleFor(x => x.ShortName).Validate(validationService, nameof(ParameterType.ShortName));

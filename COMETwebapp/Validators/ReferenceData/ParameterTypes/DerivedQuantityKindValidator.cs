@@ -41,6 +41,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
         /// <summary>
         /// Instantiates a new <see cref="DerivedQuantityKindValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService"/></param>
         public DerivedQuantityKindValidator(IValidationService validationService)
         {
             this.Include(new ParameterQuantityKindValidator(validationService));

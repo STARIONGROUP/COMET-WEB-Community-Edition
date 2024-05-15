@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
         /// <summary>
         /// Instantiates a new <see cref="OrdinalScaleValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public OrdinalScaleValidator(IValidationService validationService)
         {
             this.Include(new MeasurementScaleValidator(validationService));

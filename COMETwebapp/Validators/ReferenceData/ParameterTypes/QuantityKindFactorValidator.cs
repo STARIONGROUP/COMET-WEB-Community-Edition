@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
         /// <summary>
         /// Instantiates a new <see cref="QuantityKindFactorValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public QuantityKindFactorValidator(IValidationService validationService)
         {
             this.RuleFor(x => x.Exponent).Validate(validationService, nameof(QuantityKindFactor.Exponent));

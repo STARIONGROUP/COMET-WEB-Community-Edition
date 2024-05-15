@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.EngineeringModel
     public class FileRevisionValidator : AbstractValidator<FileRevision>
     {
         /// <summary>
-        /// Instantiates a new <see cref="FileRevisionValidator"/>
+        /// Instantiates a new <see cref="FileRevisionValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public FileRevisionValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(FileRevision.Name));

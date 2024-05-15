@@ -41,6 +41,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
         /// <summary>
         /// Instantiates a new <see cref="CompoundParameterTypeValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService"/></param>
         public CompoundParameterTypeValidator(IValidationService validationService)
         {
             this.Include(new ParameterTypeValidator(validationService));

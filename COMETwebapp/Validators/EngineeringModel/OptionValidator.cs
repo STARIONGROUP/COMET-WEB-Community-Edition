@@ -37,8 +37,9 @@ namespace COMETwebapp.Validators.EngineeringModel
     public class OptionValidator : AbstractValidator<Option>
     {
         /// <summary>
-        /// Instantiates a new <see cref="OptionValidator"/>
+        /// Instantiates a new <see cref="OptionValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public OptionValidator(IValidationService validationService) : base()
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(Option.Name));

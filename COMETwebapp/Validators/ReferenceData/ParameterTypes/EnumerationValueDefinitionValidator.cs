@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes
         /// <summary>
         /// Instantiates a new <see cref="EnumerationValueDefinitionValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
         public EnumerationValueDefinitionValidator(IValidationService validationService)
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(EnumerationValueDefinition.Name));

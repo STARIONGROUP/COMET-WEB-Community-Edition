@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindValidator.cs" company="Starion Group S.A.">
+//  <copyright file="ParameterQuantityKindValidator.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -39,6 +39,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes.GenericValidators
         /// <summary>
         /// Instantiates a new <see cref="ParameterQuantityKindValidator" />
         /// </summary>
+        /// <param name="validationService">The <see cref="IValidationService"/></param>
         public ParameterQuantityKindValidator(IValidationService validationService)
         {
             this.Include(new ParameterTypeValidator(validationService));
