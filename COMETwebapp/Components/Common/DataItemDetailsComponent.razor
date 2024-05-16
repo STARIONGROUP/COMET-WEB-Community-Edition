@@ -17,7 +17,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
 @namespace COMETwebapp.Components.Common
 
-<div class="ps-3" style="width: 50%;">
+<div class="ps-3 data-items-panel-container">
     <div class="data-item-details-section">
         @if (this.IsSelected)
         {
@@ -25,9 +25,20 @@ Copyright (c) 2023-2024 Starion Group S.A.
         }
         else
         {
-            <div class="text-center opacity-75">
-                <h5>Select an item to view or edit</h5>
-                <img src="images/comet-logo-black.png" class="data-item-details-image" alt="Comet Web"/>
+            <div class="text-center py-5">
+                <div class="opacity-75 pb-3">
+                    <h5>Select an item to view or edit, or click add to create</h5>
+                    <img src="images/comet-logo-black.png" class="data-item-details-image" alt="Comet Web"/>
+                </div>
+                
+                @if (!string.IsNullOrWhiteSpace(this.ButtonDisplayText))
+                {
+                    <DxButton Text="@(this.ButtonDisplayText)"
+                              Click="@(() => this.OnButtonClick?.Invoke())"
+                              IconCssClass="oi oi-plus"
+                              RenderStyle="ButtonRenderStyle.Primary"
+                              style="width: 200px;"/>
+                }
             </div>
         }
     </div>

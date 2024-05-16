@@ -119,7 +119,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             var renderer = this.context.RenderComponent<MeasurementScalesTable>();
 
-            var addMeasurementScaleButton = renderer.FindComponent<DxToolbarItem>();
+            var addMeasurementScaleButton = renderer.FindComponent<DxButton>();
             await renderer.InvokeAsync(addMeasurementScaleButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
@@ -132,7 +132,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             await renderer.InvokeAsync(() => measurementScalesGrid.Instance.SelectedDataItemChanged.InvokeAsync(new MeasurementScaleRowViewModel(this.measurementScale1)));
             Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
 
-            var measurementScalesForm = renderer.FindComponents<MeasurementScalesForm>()[1];
+            var measurementScalesForm = renderer.FindComponent<MeasurementScalesForm>();
             var measurementScalesEditForm = measurementScalesForm.FindComponent<EditForm>();
             await measurementScalesForm.InvokeAsync(measurementScalesEditForm.Instance.OnValidSubmit.InvokeAsync);
 

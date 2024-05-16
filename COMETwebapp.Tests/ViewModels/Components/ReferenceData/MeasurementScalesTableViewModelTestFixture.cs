@@ -124,7 +124,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         public void VerifyInitializeViewModel()
         {
             this.viewModel.InitializeViewModel();
-            this.viewModel.SelectedScaleValueDefinitions = [new ScaleValueDefinition()];
+            this.viewModel.Thing.ValueDefinition.Add(new ScaleValueDefinition());
 
             Assert.Multiple(() =>
             {
@@ -162,8 +162,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.viewModel.Thing.MappingToReferenceScale.Add(mappingToReferenceScale);
             this.viewModel.SelectedReferenceQuantityValue.Value = "value";
             this.viewModel.SelectedReferenceQuantityValue.Scale = new OrdinalScale();
-            this.viewModel.SelectedScaleValueDefinitions = [new ScaleValueDefinition()];
-            this.viewModel.SelectedMappingToReferenceScale = [new MappingToReferenceScale()];
             Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(0));
 
             await this.viewModel.CreateOrEditMeasurementScale(true);
@@ -245,8 +243,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Thing, Is.EqualTo(measurementScaleToSet));
-                Assert.That(this.viewModel.SelectedScaleValueDefinitions, Is.EqualTo(measurementScaleToSet.ValueDefinition));
-                Assert.That(this.viewModel.SelectedMappingToReferenceScale, Is.EqualTo(measurementScaleToSet.MappingToReferenceScale));
+                Assert.That(this.viewModel.Thing.ValueDefinition, Is.EqualTo(measurementScaleToSet.ValueDefinition));
+                Assert.That(this.viewModel.Thing.MappingToReferenceScale, Is.EqualTo(measurementScaleToSet.MappingToReferenceScale));
             });
         }
 

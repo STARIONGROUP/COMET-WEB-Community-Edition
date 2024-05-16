@@ -22,37 +22,28 @@ Copyright (c) 2024 Starion Group S.A.
 
 @inherits SelectedDeprecatableDataItemBase<MeasurementScale, MeasurementScaleRowViewModel>
 
-<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <div class="d-flex justify-content-between">
 
         <DxGrid @ref="this.Grid"
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                 ShowSearchBox="true"
-                ShowAllRows="true"
                 SearchBoxNullText="Search for a measurement scale ..."
                 AllowSelectRowByClick="true"
                 SelectionMode="GridSelectionMode.Single"
-                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
+                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
                 PopupEditFormCssClass="pw-800"
                 PopupEditFormHeaderText="Measurement Scale"
                 EditFormButtonsVisible="false"
                 CustomizeElement="DisableDeprecatedThing"
-                EditMode="GridEditMode.PopupEditForm"
-                EditModelSaving="@(() => this.OnEditThingSaving())"
-                CustomizeEditModel="this.CustomizeEditThing"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 CssClass="height-fit-content">
-
-            <ToolbarTemplate>
-                <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
-                    <DxToolbarItem Text="Add Measurement Scale"
-                                   IconCssClass="oi oi-plus"
-                                   Click="() => this.Grid.StartEditNewRowAsync()"
-                                   RenderStyle="ButtonRenderStyle.Primary"
-                                   Enabled="true"/>
-                </DxToolbar>
-            </ToolbarTemplate>
-
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150"/>
                 <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
@@ -62,28 +53,24 @@ Copyright (c) 2024 Starion Group S.A.
                 <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
                 <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
             </Columns>
-
-            <EditFormTemplate Context="EditFormContext">
-                <MeasurementScalesForm ViewModel="@this.ViewModel"
-                                       IsVisible="true"
-                                       ShouldCreate="true"
-                                       OnSaved="@(() => this.Grid.CancelEditAsync())"
-                                       OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
-            </EditFormTemplate>
         </DxGrid>
 
-    <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
-        <MeasurementScalesForm ViewModel="@this.ViewModel"
-                               @bind-IsVisible="@this.IsOnEditMode"
-                               ShouldCreate="false"/>
-    </DataItemDetailsComponent>
+        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                                  OnButtonClick="@(this.OnAddThingClick)"
+                                  ButtonDisplayText="Add Item">
+
+            <MeasurementScalesForm ViewModel="@(this.ViewModel)"
+                                   @bind-IsVisible="@(this.IsOnEditMode)"
+                                   ShouldCreate="@(this.ShouldCreateThing)"
+                                   OnSaved="@(this.OnSaved)"/>
+        </DataItemDetailsComponent>
     </div>
 </LoadingComponent>
 
-<DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @this.ViewModel.PopupDialog
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
     </div>
 </DxPopup>

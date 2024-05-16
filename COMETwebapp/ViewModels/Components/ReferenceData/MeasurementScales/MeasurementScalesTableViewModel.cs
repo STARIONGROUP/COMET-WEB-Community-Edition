@@ -89,7 +89,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// </summary>
         public IEnumerable<ScaleValueDefinition> ReferenceScaleValueDefinitions => this.SelectedReferenceDataLibrary?.Scale
             .SelectMany(x => x.ValueDefinition)
-            .Where(x => this.SelectedScaleValueDefinitions.All(selected => selected.Iid != x.Iid));
+            .Where(x => this.Thing.ValueDefinition.All(selected => selected.Iid != x.Iid));
 
         /// <summary>
         /// Gets the available <see cref="MeasurementUnit" />s
@@ -127,16 +127,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public ScaleReferenceQuantityValue SelectedReferenceQuantityValue { get; set; }
 
         /// <summary>
-        /// Gets the selected <see cref="ScaleValueDefinition" />s
-        /// </summary>
-        public IEnumerable<ScaleValueDefinition> SelectedScaleValueDefinitions { get; set; } = Enumerable.Empty<ScaleValueDefinition>();
-
-        /// <summary>
-        /// Gets the selected <see cref="MappingToReferenceScale" />s
-        /// </summary>
-        public IEnumerable<MappingToReferenceScale> SelectedMappingToReferenceScale { get; set; } = Enumerable.Empty<MappingToReferenceScale>();
-
-        /// <summary>
         /// Gets or sets the selected measurement scale type
         /// </summary>
         public ClassKindWrapper SelectedMeasurementScaleType
@@ -156,9 +146,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public void SelectMeasurementScale(MeasurementScale measurementScale)
         {
             this.Thing = measurementScale;
-
-            this.SelectedScaleValueDefinitions = measurementScale.ValueDefinition;
-            this.SelectedMappingToReferenceScale = measurementScale.MappingToReferenceScale;
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)measurementScale.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
 
             if (measurementScale is LogarithmicScale logarithmicScale)
@@ -220,22 +207,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
                 }
             }
 
-            var scaleValueDefinitionsToCreate = this.SelectedScaleValueDefinitions.Where(x => !this.Thing.ValueDefinition.Contains(x)).ToList();
-            this.Thing.ValueDefinition.AddRange(scaleValueDefinitionsToCreate);
-            thingsToCreate.AddRange(scaleValueDefinitionsToCreate);
-
-            var scaleValueDefinitionsToRemove = this.Thing.ValueDefinition.Where(x => !this.SelectedScaleValueDefinitions.Contains(x)).ToList();
-            this.Thing.ValueDefinition.RemoveMany(scaleValueDefinitionsToRemove);
-            thingsToCreate.AddRange(scaleValueDefinitionsToRemove);
-
-            var mappingToReferenceScalesToCreate = this.SelectedMappingToReferenceScale.Where(x => !this.Thing.MappingToReferenceScale.Contains(x)).ToList();
-            this.Thing.MappingToReferenceScale.AddRange(mappingToReferenceScalesToCreate);
-            thingsToCreate.AddRange(mappingToReferenceScalesToCreate);
-
-            var mappingToReferenceScalesToRemove = this.Thing.MappingToReferenceScale.Where(x => !this.SelectedMappingToReferenceScale.Contains(x)).ToList();
-            this.Thing.MappingToReferenceScale.RemoveMany(mappingToReferenceScalesToRemove);
-            thingsToCreate.AddRange(mappingToReferenceScalesToRemove);
-
+            thingsToCreate.AddRange(this.Thing.ValueDefinition);
+            thingsToCreate.AddRange(this.Thing.MappingToReferenceScale);
             thingsToCreate.Add(this.Thing);
 
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);

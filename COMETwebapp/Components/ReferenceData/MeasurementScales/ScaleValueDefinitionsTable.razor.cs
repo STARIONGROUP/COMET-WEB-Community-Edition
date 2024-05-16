@@ -38,16 +38,16 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     public partial class ScaleValueDefinitionsTable
     {
         /// <summary>
-        /// A collection of scale value definitions to display for selection
+        /// The measurement scale that contains scale value definitions to display for selection
         /// </summary>
         [Parameter]
-        public IEnumerable<ScaleValueDefinition> ScaleValueDefinitions { get; set; }
+        public MeasurementScale MeasurementScale { get; set; }
 
         /// <summary>
         /// The method that is executed when the scale value definitions change
         /// </summary>
         [Parameter]
-        public EventCallback<IEnumerable<ScaleValueDefinition>> ScaleValueDefinitionsChanged { get; set; }
+        public EventCallback<MeasurementScale> MeasurementScaleChanged { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if a scale value definition should be created
@@ -69,21 +69,17 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// </summary>
         private void OnEditScaleValueDefinitionSaving()
         {
-            var valueDefinitionsList = this.ScaleValueDefinitions.ToList();
-
             if (this.ShouldCreate)
             {
-                valueDefinitionsList.Add(this.ScaleValueDefinition);
-                this.ScaleValueDefinitions = valueDefinitionsList;
+                this.MeasurementScale.ValueDefinition.Add(this.ScaleValueDefinition);
             }
             else
             {
-                var indexToUpdate = valueDefinitionsList.FindIndex(x => x.Iid == this.ScaleValueDefinition.Iid);
-                valueDefinitionsList[indexToUpdate] = this.ScaleValueDefinition;
+                var indexToUpdate = this.MeasurementScale.ValueDefinition.FindIndex(x => x.Iid == this.ScaleValueDefinition.Iid);
+                this.MeasurementScale.ValueDefinition[indexToUpdate] = this.ScaleValueDefinition;
             }
 
-            this.ScaleValueDefinitions = valueDefinitionsList;
-            this.ScaleValueDefinitionsChanged.InvokeAsync(this.ScaleValueDefinitions);
+            this.MeasurementScaleChanged.InvokeAsync(this.MeasurementScale);
         }
 
         /// <summary>
@@ -91,11 +87,8 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// </summary>
         private void RemoveScaleValueDefinition(ScaleValueDefinitionRowViewModel row)
         {
-            var valueDefinitionsList = this.ScaleValueDefinitions.ToList();
-            valueDefinitionsList.Remove(row.Thing);
-
-            this.ScaleValueDefinitions = valueDefinitionsList;
-            this.ScaleValueDefinitionsChanged.InvokeAsync(this.ScaleValueDefinitions);
+            this.MeasurementScale.ValueDefinition.Remove(row.Thing);
+            this.MeasurementScaleChanged.InvokeAsync(this.MeasurementScale);
         }
 
         /// <summary>
@@ -115,12 +108,12 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="ScaleValueDefinitions" />
+        /// Method used to retrieve the available rows, given the <see cref="MeasurementScale" />
         /// </summary>
         /// <returns>A collection of <see cref="ScaleValueDefinitionRowViewModel" />s to display</returns>
         private List<ScaleValueDefinitionRowViewModel> GetRows()
         {
-            return this.ScaleValueDefinitions?.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
+            return this.MeasurementScale.ValueDefinition?.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
         }
     }
 }

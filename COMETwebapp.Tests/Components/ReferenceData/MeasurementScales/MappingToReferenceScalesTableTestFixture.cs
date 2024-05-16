@@ -56,9 +56,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
                 DependentScaleValue = new ScaleValueDefinition()
             };
 
+            var scale = new OrdinalScale()
+            {
+                MappingToReferenceScale = { mappingToReferenceScale }
+            };
+
             this.renderer = this.context.RenderComponent<MappingToReferenceScalesTable>(parameters =>
             {
-                parameters.Add(p => p.MappingToReferenceScales, [mappingToReferenceScale]);
+                parameters.Add(p => p.MeasurementScale, scale);
                 parameters.Add(p => p.DependentScaleValueDefinitions, [new ScaleValueDefinition()]);
                 parameters.Add(p => p.ReferenceScaleValueDefinitions, [new ScaleValueDefinition()]);
             });
@@ -86,9 +91,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         [Test]
         public async Task VerifyUnitFactorsTable()
         {
-            var timesMappingToReferenceScalesChanged = 0;
+            var timesMeasurementScaleChanged = 0;
 
-            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.MappingToReferenceScalesChanged, () => { timesMappingToReferenceScalesChanged++; }); });
+            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.MeasurementScaleChanged, () => { timesMeasurementScaleChanged++; }); });
 
             var editMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editMappingToReferenceScaleButton");
             await this.renderer.InvokeAsync(editMappingToReferenceScaleButton.Instance.Click.InvokeAsync);
@@ -99,8 +104,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
-                Assert.That(this.renderer.Instance.MappingToReferenceScales, Has.Count.EqualTo(1));
-                Assert.That(timesMappingToReferenceScalesChanged, Is.EqualTo(1));
+                Assert.That(this.renderer.Instance.MeasurementScale.MappingToReferenceScale, Has.Count.EqualTo(1));
+                Assert.That(timesMeasurementScaleChanged, Is.EqualTo(1));
             });
 
             var addMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addMappingToReferenceScaleButton");
@@ -110,8 +115,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
-                Assert.That(this.renderer.Instance.MappingToReferenceScales, Has.Count.EqualTo(2));
-                Assert.That(timesMappingToReferenceScalesChanged, Is.EqualTo(2));
+                Assert.That(this.renderer.Instance.MeasurementScale.MappingToReferenceScale, Has.Count.EqualTo(2));
+                Assert.That(timesMeasurementScaleChanged, Is.EqualTo(2));
             });
 
             var removeMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeMappingToReferenceScaleButton");
@@ -119,8 +124,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.MappingToReferenceScales, Has.Count.EqualTo(1));
-                Assert.That(timesMappingToReferenceScalesChanged, Is.EqualTo(3));
+                Assert.That(this.renderer.Instance.MeasurementScale.MappingToReferenceScale, Has.Count.EqualTo(1));
+                Assert.That(timesMeasurementScaleChanged, Is.EqualTo(3));
             });
         }
     }
