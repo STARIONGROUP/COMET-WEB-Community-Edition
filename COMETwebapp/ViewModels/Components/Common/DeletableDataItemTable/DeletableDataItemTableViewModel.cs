@@ -114,7 +114,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
             }
             catch (Exception exception)
             {
-                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} {thingName}", typeof(T), ((IShortNamedThing)this.Thing).ShortName);
+                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.Thing.Iid);
             }
         }
     }
