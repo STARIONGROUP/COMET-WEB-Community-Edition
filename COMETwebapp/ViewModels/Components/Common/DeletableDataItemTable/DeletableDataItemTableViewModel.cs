@@ -109,12 +109,12 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 
             try
             {
-                await this.SessionService.DeleteThings(clonedContainer, [this.Thing]);
+                await this.SessionService.DeleteThings(clonedContainer, [this.Thing.Clone(false)]);
                 await this.SessionService.RefreshSession();
             }
             catch (Exception exception)
             {
-                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} {thingName}", typeof(T), ((IShortNamedThing)this.Thing).ShortName);
+                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.Thing.Iid);
             }
         }
     }
