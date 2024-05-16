@@ -24,9 +24,13 @@
 
 namespace COMETwebapp.Components.ModelEditor
 {
+    using CDP4JsonSerializer.JsonConverter;
+
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Services.Interoperability;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using DevExpress.Blazor;
@@ -184,6 +188,25 @@ namespace COMETwebapp.Components.ModelEditor
         {
             var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
             this.ViewModel.SelectElement(selectedNode);
+        }
+
+        /// <summary>
+        /// Method invoked to highlight the top element
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs" /> </param>
+        private static void HighlightTopElement(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType != GridElementType.GroupCell)
+            {
+                return;
+            }
+
+            var isTopElement = (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(ElementDefinitionRowViewModel.IsTopElement));
+
+            if (isTopElement)
+            {
+                e.CssClass = "font-weight-bold";
+            }
         }
     }
 }

@@ -37,6 +37,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 

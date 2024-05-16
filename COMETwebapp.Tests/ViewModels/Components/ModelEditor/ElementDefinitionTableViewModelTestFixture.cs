@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using DynamicData;
