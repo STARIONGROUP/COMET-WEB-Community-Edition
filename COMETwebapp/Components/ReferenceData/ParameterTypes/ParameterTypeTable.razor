@@ -20,37 +20,22 @@ Copyright (c) 2023-2024 Starion Group S.A.
     <div class="d-flex justify-content-between">
 
         <DxGrid @ref="this.Grid"
-                Data="this.ViewModel.Rows.Items.OrderBy(x => x.Name)"
+                Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                 ShowSearchBox="true"
                 SearchBoxNullText="Search for a parameter type..."
                 AllowSelectRowByClick="true"
                 SelectionMode="GridSelectionMode.Single"
                 SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((ParameterTypeRowViewModel)row))"
-                PopupEditFormCssClass="pw-800"
-                PopupEditFormHeaderText="Parameter Type"
                 EditFormButtonsVisible="false"
-                EditMode="GridEditMode.PopupEditForm"
                 CustomizeElement="DisableDeprecatedThing"
-                EditModelSaving="@(() => this.OnEditThingSaving())"
-                CustomizeEditModel="this.CustomizeEditThing"
                 PageSize="20"
                 PagerNavigationMode="PagerNavigationMode.Auto"
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
                 PageSizeSelectorAllRowsItemVisible="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 CssClass="height-fit-content">
-
-            <ToolbarTemplate>
-                <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
-                    <DxToolbarItem Text="Add Parameter Type"
-                                   IconCssClass="oi oi-plus"
-                                   Click="() => this.Grid.StartEditNewRowAsync()"
-                                   RenderStyle="ButtonRenderStyle.Primary"
-                                   Enabled="true"/>
-                </DxToolbar>
-            </ToolbarTemplate>
-
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.Name)" MinWidth="150"/>
                 <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
@@ -60,20 +45,15 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
                 <DxGridDataColumn FieldName="@nameof(ParameterTypeRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
             </Columns>
-
-            <EditFormTemplate Context="editFormContext">
-                <ParameterTypeForm ViewModel="@(this.ViewModel)"
-                                   IsVisible="true"
-                                   ShouldCreate="true"
-                                   OnSaved="@(() => this.Grid.CancelEditAsync())"
-                                   OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
-            </EditFormTemplate>
         </DxGrid>
 
-        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)">
+        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                                  OnButtonClick="@(this.OnAddThingClick)">
+
             <ParameterTypeForm ViewModel="@(this.ViewModel)"
                                @bind-IsVisible="@(this.IsOnEditMode)"
-                               ShouldCreate="false"/>
+                               ShouldCreate="@(this.ShouldCreateThing)"
+                               OnSaved="@(this.OnSaved)" />
         </DataItemDetailsComponent>
     </div>
 </LoadingComponent>
