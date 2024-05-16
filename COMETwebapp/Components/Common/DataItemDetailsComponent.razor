@@ -31,10 +31,10 @@ Copyright (c) 2023-2024 Starion Group S.A.
                     <img src="images/comet-logo-black.png" class="data-item-details-image" alt="Comet Web"/>
                 </div>
                 
-                @if (!string.IsNullOrWhiteSpace(this.ButtonDisplayText))
+                @if (this.OnButtonClick is not null)
                 {
                     <DxButton Text="@(this.ButtonDisplayText)"
-                              Click="@(() => this.OnButtonClick?.Invoke())"
+                              Click="@(() => this.OnButtonClick.Invoke())"
                               IconCssClass="oi oi-plus"
                               RenderStyle="ButtonRenderStyle.Primary"
                               style="width: 200px;"/>

@@ -160,13 +160,13 @@ Copyright (c) 2024 Starion Group S.A.
             </DxButton>
         }
         
-        <DxButton Id="saveParticipantRoleButton"
+        <DxButton Id="saveMeasurementScaleButton"
                   SubmitFormOnClick="true"
-                  Enabled="editFormContext.Validate() && (editFormContext.IsModified() || !this.ShouldCreate)">
+                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
             Save
         </DxButton>
 
-        <DxButton Id="cancelOptionsButton"
+        <DxButton Id="cancelMeasurementScaleButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
             Cancel

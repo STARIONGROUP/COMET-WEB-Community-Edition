@@ -27,6 +27,7 @@ namespace COMETwebapp.Components.Common
     using COMET.Web.Common.Components;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Forms;
 
     /// <summary>
     /// Support abstract class for the <see cref="SelectedDataItemForm"/>
@@ -81,6 +82,16 @@ namespace COMETwebapp.Components.Common
         protected virtual async Task OnValidSubmit()
         {
             await this.OnSaved.InvokeAsync();
+        }
+
+        /// <summary>
+        /// Returns the condition to check if the save button should be enabled
+        /// </summary>
+        /// <param name="editFormContext">The <see cref="EditForm"/> context</param>
+        /// <returns>The enabled value</returns>
+        protected bool IsSaveButtonEnabled(EditContext editFormContext)
+        {
+            return editFormContext.Validate() && (editFormContext.IsModified() || !this.ShouldCreate);
         }
     }
 }

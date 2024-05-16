@@ -31,8 +31,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -57,41 +55,41 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
-        {
-            await this.ViewModel.CreateOrEditParameterType(this.ShouldCreateThing);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            var dataItem = (ParameterTypeRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.IsOnEditMode = !this.ShouldCreateThing;
-
-            if (this.ShouldCreateThing)
-            {
-                this.ViewModel.SelectedParameterType = this.ViewModel.ParameterTypes.First(x => x.ClassKind == ClassKind.BooleanParameterType);
-            }
-
-            this.ViewModel.SelectParameterType(dataItem == null ? new BooleanParameterType() : dataItem.Thing.Clone(true));
-            e.EditModel = this.ViewModel.Thing;
-        }
-
-        /// <summary>
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
         protected override void OnSelectedDataItemChanged(ParameterTypeRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
             this.ViewModel.SelectParameterType(row.Thing.Clone(true));
+        }
+
+        /// <summary>
+        /// Method invoked before creating a new thing
+        /// </summary>
+        private void OnAddThingClick()
+        {
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+            this.ViewModel.SelectedParameterType = this.ViewModel.ParameterTypes.First(x => x.ClassKind == ClassKind.BooleanParameterType);
+            this.ViewModel.SelectParameterType(new BooleanParameterType());
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method invoked whenever a form is saved
+        /// </summary>
+        private void OnSaved()
+        {
+            if (!this.ShouldCreateThing)
+            {
+                return;
+            }
+
+            this.ShouldCreateThing = false;
+            var createdRow = this.ViewModel.Rows.Items.First(x => x.Thing.Iid == this.ViewModel.Thing.Iid);
+            this.OnSelectedDataItemChanged(createdRow);
         }
     }
 }

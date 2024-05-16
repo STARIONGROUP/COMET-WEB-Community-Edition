@@ -33,8 +33,6 @@ Copyright (c) 2024 Starion Group S.A.
                 AllowSelectRowByClick="true"
                 SelectionMode="GridSelectionMode.Single"
                 SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
-                PopupEditFormCssClass="pw-800"
-                PopupEditFormHeaderText="Measurement Scale"
                 EditFormButtonsVisible="false"
                 CustomizeElement="DisableDeprecatedThing"
                 PageSize="20"
@@ -56,8 +54,7 @@ Copyright (c) 2024 Starion Group S.A.
         </DxGrid>
 
         <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
-                                  OnButtonClick="@(this.OnAddThingClick)"
-                                  ButtonDisplayText="Add Item">
+                                  OnButtonClick="@(this.OnAddThingClick)">
 
             <MeasurementScalesForm ViewModel="@(this.ViewModel)"
                                    @bind-IsVisible="@(this.IsOnEditMode)"
