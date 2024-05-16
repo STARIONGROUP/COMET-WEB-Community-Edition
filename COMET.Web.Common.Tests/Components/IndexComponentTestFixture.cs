@@ -25,7 +25,9 @@
 
 namespace COMET.Web.Common.Tests.Components
 {
+    using System.Drawing;
     using System.Reflection;
+    using System.Text.Json;
 
     using Bunit;
     using Bunit.TestDoubles;
@@ -38,8 +40,6 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -51,6 +51,7 @@ namespace COMET.Web.Common.Tests.Components
     using DynamicData;
 
     using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -68,13 +69,10 @@ namespace COMET.Web.Common.Tests.Components
             this.context = new TestContext();
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
-            this.serverConnectionService = new Mock<IConfigurationService>();
-            this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new ConfigurationBuilder().AddJsonFile("Data/server_configuration_tests.json").Build() as IConfiguration;
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
-
             this.authenticationService = new Mock<IAuthenticationService>();
-
             this.viewModel = new IndexViewModel(this.versionService.Object, this.sessionService.Object, this.authenticationService.Object);
             this.registrationService = new Mock<IRegistrationService>();
             this.registrationService.Setup(x => x.RegisteredAssemblies).Returns(new List<Assembly>());
@@ -83,7 +81,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.versionService.Object);
-            this.context.Services.AddSingleton(this.serverConnectionService.Object);
+            this.context.Services.AddSingleton(configuration);
             this.context.Services.AddSingleton<ILoginViewModel, LoginViewModel>();
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(this.registrationService.Object);
@@ -105,7 +103,6 @@ namespace COMET.Web.Common.Tests.Components
         private TestContext context;
         private Mock<IVersionService> versionService;
         private Mock<ISessionService> sessionService;
-        private Mock<IConfigurationService> serverConnectionService;
         private Mock<IAuthenticationService> authenticationService;
         private TestAuthorizationContext authorization;
         private SourceList<Iteration> sourceList;

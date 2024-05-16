@@ -40,14 +40,15 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -92,8 +93,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddAntDesign();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
 
             this.assembler = new Assembler(this.uri, this.messageBus);

@@ -26,8 +26,9 @@
 namespace COMET.Web.Common.Tests.Extensions
 {
     using COMET.Web.Common.Extensions;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.StringTableService;
+
+    using Microsoft.Extensions.Configuration;
 
     using Moq;
 
@@ -41,12 +42,12 @@ namespace COMET.Web.Common.Tests.Extensions
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.Setup(x => x.GetService(typeof(IStringTableService))).Returns(null);
-            serviceProvider.Setup(x => x.GetService(typeof(IConfigurationService))).Returns(null);
+            serviceProvider.Setup(x => x.GetService(typeof(IConfiguration))).Returns(null);
 
             Assert.That( () => serviceProvider.Object.InitializeCdp4CometCommonServices(), Throws.Exception);
 
             serviceProvider.Setup(x => x.GetService(typeof(IStringTableService))).Returns(new Mock<IStringTableService>().Object);
-            serviceProvider.Setup(x => x.GetService(typeof(IConfigurationService))).Returns(new Mock<IConfigurationService>().Object);
+            serviceProvider.Setup(x => x.GetService(typeof(IConfiguration))).Returns(new Mock<IConfiguration>().Object);
 
             Assert.That( () => serviceProvider.Object.InitializeCdp4CometCommonServices(), Throws.Nothing);
         }

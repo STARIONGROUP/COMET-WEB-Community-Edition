@@ -41,9 +41,9 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
     using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -51,6 +51,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using DevExpress.Blazor;
 
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -101,8 +102,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             this.showHideDeprecatedThingsService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.messageBus = new CDPMessageBus();
 
             this.assembler = new Assembler(this.uri, this.messageBus);

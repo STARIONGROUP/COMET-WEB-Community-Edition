@@ -28,18 +28,18 @@ namespace COMET.Web.Common.Tests.Components
     using Bunit;
 
     using COMET.Web.Common.Components;
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
     using FluentResults;
 
     using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -54,16 +54,14 @@ namespace COMET.Web.Common.Tests.Components
         private ILoginViewModel viewModel;
         private TestContext context;
         private Mock<IAuthenticationService> authenticationService;
-        private Mock<IConfigurationService> serverConnectionService;
 
         [SetUp]
         public void Setup()
         {
             this.authenticationService = new Mock<IAuthenticationService>();
-            this.serverConnectionService = new Mock<IConfigurationService>();
-            this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration { ServerAddress = "http://localhost.com" });
+            var configuration = new ConfigurationBuilder().AddJsonFile("Data/server_configuration_tests.json").Build() as IConfiguration;
             this.context = new TestContext();
-            this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnectionService.Object);
+            this.viewModel = new LoginViewModel(this.authenticationService.Object, configuration);
             this.context.Services.AddSingleton(this.viewModel);
             this.context.ConfigureDevExpressBlazor();
         }

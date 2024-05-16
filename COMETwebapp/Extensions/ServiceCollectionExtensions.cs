@@ -2,17 +2,17 @@
 //  <copyright file="ServiceCollectionExtensions.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,7 +24,10 @@
 
 namespace COMETwebapp.Extensions
 {
+    using System.Reflection;
+
     using COMETwebapp.Model.Viewer;
+    using COMETwebapp.Resources;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
@@ -32,30 +35,32 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.BookEditor;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
-    using COMETwebapp.ViewModels.Components.ModelDashboard;
-    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
-    using COMETwebapp.ViewModels.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
-    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
-    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
-    using COMETwebapp.ViewModels.Components.Viewer;
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
+    using COMETwebapp.ViewModels.Components.ModelDashboard;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
+    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
+    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.Viewer;
+    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
+
+    using Microsoft.Extensions.Localization;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
@@ -68,6 +73,14 @@ namespace COMETwebapp.Extensions
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /></param>
         public static void RegisterServices(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            serviceCollection.AddSingleton(provider =>
+            {
+                var factory = provider.GetRequiredService<IStringLocalizerFactory>();
+                return factory.Create(nameof(Configuration), Assembly.GetExecutingAssembly().GetName().Name!);
+            });
+
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionService>();
             serviceCollection.AddScoped<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             serviceCollection.AddScoped<ISceneSettings, SceneSettings>();

@@ -20,12 +20,15 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
+@using COMET.Web.Common.Model.Configuration
+@using COMET.Web.Common.Utilities
+@using Microsoft.Extensions.Configuration
 @inherits DisposableComponent
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
     <DataAnnotationsValidator/>
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-        @if (string.IsNullOrEmpty(this.ViewModel.ServerConnectionService.ServerConfiguration.ServerAddress))
+        @if (string.IsNullOrEmpty(this.ViewModel.ServerConfiguration.ServerAddress))
         {
             <DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
                 <Template>

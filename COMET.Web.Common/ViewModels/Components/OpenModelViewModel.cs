@@ -1,59 +1,58 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OpenModelViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
-//    Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//    Licensed under the Apache License, Version 2.0 (the "License");
-//    you may not use this file except in compliance with the License.
-//    You may obtain a copy of the License at
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
 // 
-//        http://www.apache.org/licenses/LICENSE-2.0
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
 // 
-//    Unless required by applicable law or agreed to in writing, software
-//    distributed under the License is distributed on an "AS IS" BASIS,
-//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//    See the License for the specific language governing permissions and
-//    limitations under the License.
-// 
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMET.Web.Common.ViewModels.Components
 {
-    using System.Linq;
-    using System.Collections.Generic;
-
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
-    using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.Utilities.DisposableObject;
 
     using DynamicData.Binding;
-    
+
+    using Microsoft.Extensions.Configuration;
+
     using ReactiveUI;
-    
+
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
     public class OpenModelViewModel : DisposableObject, IOpenModelViewModel
     {
         /// <summary>
+        /// Gets the <see cref="IConfiguration" />
+        /// </summary>
+        private readonly IConfiguration configuration;
+
+        /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
-
-        /// <summary>
-        /// Gets the <see cref="IConfigurationService" />
-        /// </summary>
-        private readonly IConfigurationService configurationService;
 
         /// <summary>
         /// Backing field for <see cref="IsOpeningSession" />
@@ -78,11 +77,11 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="OpenModelViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="configurationService">The <see cref="IConfigurationService"/></param>
-        public OpenModelViewModel(ISessionService sessionService, IConfigurationService configurationService)
+        /// <param name="configuration">The <see cref="IConfiguration" /></param>
+        public OpenModelViewModel(ISessionService sessionService, IConfiguration configuration)
         {
             this.sessionService = sessionService;
-            this.configurationService = configurationService;
+            this.configuration = configuration;
 
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.SelectedEngineeringModel))
                 .Subscribe(_ => this.ComputeAvailableCollections()));
@@ -153,7 +152,7 @@ namespace COMET.Web.Common.ViewModels.Components
                 .Where(x => x.IterationSetup.Exists(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
                 .OrderBy(x => x.Name).ToList();
 
-            var rdlFilter = this.configurationService.ServerConfiguration?.RdlFilter;
+            var rdlFilter = this.configuration.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>().RdlFilter;
 
             if (rdlFilter != null)
             {
@@ -235,7 +234,7 @@ namespace COMET.Web.Common.ViewModels.Components
             else
             {
                 this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
-                
+
                 this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
                 this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup

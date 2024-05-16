@@ -12,7 +12,7 @@
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>true</InvariantGlobalization>
+	    <InvariantGlobalization>true</InvariantGlobalization>
         <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
@@ -32,9 +32,24 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Resources\Configuration.Designer.cs">
+        <DependentUpon>Configuration.resx</DependentUpon>
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
       <Content Update="wwwroot\DefaultTextConfiguration.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\Configuration.resx">
+        <LastGenOutput>Configuration.Designer.cs</LastGenOutput>
+        <Generator>ResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
     </ItemGroup>
 
 </Project>

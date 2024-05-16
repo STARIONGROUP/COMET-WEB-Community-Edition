@@ -29,11 +29,13 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
     using DynamicData;
+
+    using Microsoft.Extensions.Configuration;
 
     using Moq;
 
@@ -43,7 +45,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
     public class OpenModelViewModelTestFixture
     {
         private OpenModelViewModel viewModel;
-        private Mock<IConfigurationService> configurationService;
+        private Mock<IConfiguration> configurationService;
         private Mock<ISessionService> sessionService;
         private const string RdlShortName = "filterRdl";
         private List<EngineeringModelSetup> models;
@@ -51,7 +53,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         [SetUp]
         public void Setup()
         {
-            this.configurationService = new Mock<IConfigurationService>();
+            this.configurationService = new Mock<IConfiguration>();
             this.sessionService = new Mock<ISessionService>();
             var iterations = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
@@ -70,7 +72,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             
             //Initialize with server configuration without rdl filter
             var serverConfiguration = new ServerConfiguration();
-            this.configurationService.Setup(x => x.ServerConfiguration).Returns(serverConfiguration);
+            this.configurationService.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(serverConfiguration);
             this.viewModel.InitializesProperties();
             Assert.That(this.viewModel.AvailableEngineeringModelSetups.Count(), Is.EqualTo(5));
 

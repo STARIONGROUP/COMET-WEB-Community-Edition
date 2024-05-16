@@ -76,7 +76,7 @@ namespace COMETwebapp.Tests.Pages
             configuration.Setup(x => x.GetSection(Constants.FullTrustSelectionEnabledKey).Value).Returns(this.fullTrustValue.ToString());
 
             var loginViewModel = new Mock<ILoginViewModel>();
-            loginViewModel.Setup(x => x.ServerConnectionService.ServerConfiguration).Returns(new ServerConfiguration());
+            loginViewModel.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             loginViewModel.Setup(x => x.AuthenticationResult).Returns(new Result());
             loginViewModel.Setup(x => x.AuthenticationDto).Returns(new AuthenticationDto());
 

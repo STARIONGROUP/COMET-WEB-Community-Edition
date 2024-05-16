@@ -29,9 +29,9 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ModelEditor;
@@ -43,6 +43,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
     using DevExpress.Blazor;
 
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -68,8 +69,8 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton<ISessionService, SessionService>();
             this.context.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
 
             this.elementDefinitionDetailsViewModel = new ElementDefinitionDetailsViewModel();

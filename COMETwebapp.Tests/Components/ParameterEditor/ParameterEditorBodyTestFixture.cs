@@ -35,9 +35,9 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ParameterEditor;
@@ -49,6 +49,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using DynamicData;
 
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -91,8 +92,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object, this.messageBus));
 
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(parameterEditorViewModel.Object);
 

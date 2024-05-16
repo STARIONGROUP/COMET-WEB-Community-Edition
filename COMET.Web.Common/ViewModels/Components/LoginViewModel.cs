@@ -24,11 +24,14 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
 
     using FluentResults;
+
+    using Microsoft.Extensions.Configuration;
 
     using ReactiveUI;
 
@@ -56,17 +59,22 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
         /// </summary>
         /// <param name="authenticationService">The <see cref="IAuthenticationService" /></param>
-        /// <param name="serverConnectionService">The <see cref="IConfigurationService" /></param>
-        public LoginViewModel(IAuthenticationService authenticationService, IConfigurationService serverConnectionService)
+        /// <param name="configuration">The <see cref="IConfiguration" /></param>
+        public LoginViewModel(IAuthenticationService authenticationService, IConfiguration configuration)
         {
-            this.ServerConnectionService = serverConnectionService;
+            this.Configuration = configuration;
             this.authenticationService = authenticationService;
         }
 
         /// <summary>
-        /// Gets the <see cref="IConfigurationService" />
+        /// Gets the <see cref="IConfiguration" />
         /// </summary>
-        public IConfigurationService ServerConnectionService { get; }
+        public IConfiguration Configuration { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ServerConfiguration"/> value from application settings
+        /// </summary>
+        public ServerConfiguration ServerConfiguration => this.Configuration.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>();
 
         /// <summary>
         /// Gets or sets the loading state
@@ -99,9 +107,9 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.IsLoading = true;
 
-            if (!string.IsNullOrEmpty(this.ServerConnectionService.ServerConfiguration.ServerAddress))
+            if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress))
             {
-                this.AuthenticationDto.SourceAddress = this.ServerConnectionService.ServerConfiguration.ServerAddress;
+                this.AuthenticationDto.SourceAddress = this.ServerConfiguration.ServerAddress;
             }
 
             this.AuthenticationResult = await this.authenticationService.Login(this.AuthenticationDto);

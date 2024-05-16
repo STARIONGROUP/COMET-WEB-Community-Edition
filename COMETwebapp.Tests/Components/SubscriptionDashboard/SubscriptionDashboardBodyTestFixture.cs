@@ -31,7 +31,6 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
@@ -42,6 +41,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -72,8 +72,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel, this.messageBus);
             
             this.context.ConfigureDevExpressBlazor();
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(this.viewModel);
         }

@@ -35,11 +35,11 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -55,6 +55,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -119,8 +120,8 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
                 }
             };
 
-            var mockConfigurationService = new Mock<IConfigurationService>();
-            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var mockConfigurationService = new Mock<IConfiguration>();
+            mockConfigurationService.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.messageBus = new CDPMessageBus();
 
             this.context.ConfigureDevExpressBlazor();

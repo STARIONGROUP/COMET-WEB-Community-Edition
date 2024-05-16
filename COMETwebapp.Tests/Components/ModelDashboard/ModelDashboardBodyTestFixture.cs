@@ -40,7 +40,6 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.Utilities;
@@ -55,6 +54,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -82,8 +82,8 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();
             this.context.Services.AddSingleton<IParameterDashboardViewModel, ParameterDashboardViewModel>();
             this.context.Services.AddSingleton(this.sessionService.Object);
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(this.messageBus);
             this.viewModel = this.context.Services.GetService<IModelDashboardBodyViewModel>() as ModelDashboardBodyViewModel;

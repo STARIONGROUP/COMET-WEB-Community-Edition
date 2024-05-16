@@ -25,7 +25,6 @@
 
 namespace COMET.Web.Common.Extensions
 {
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.StringTableService;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -47,13 +46,6 @@ namespace COMET.Web.Common.Extensions
             if (stringTableService != null)
             {
                 await stringTableService.InitializeService();
-            }
-
-            var configurationService = serviceProvider.GetRequiredService<IConfigurationService>();
-
-            if (configurationService != null)
-            {
-                await configurationService.InitializeService();
             }
         }
     }

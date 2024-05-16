@@ -1,0 +1,13 @@
+{
+  "AllowedHosts": "*",
+  "StringTablePath": "wwwroot/DefaultTextConfiguration.json",
+  "MaxUploadFileSizeInMb": 500,
+  "FullTrustSelectionEnabled": true,
+  "ServerConfiguration": {
+    "ServerAddress": "",
+    "BookInputConfiguration": {
+      "ShowName": true,
+      "ShowShortName": true
+    }
+  }
+}

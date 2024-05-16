@@ -37,10 +37,10 @@ namespace COMET.Web.Common.Tests.Components.Applications
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -48,6 +48,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -77,8 +78,8 @@ namespace COMET.Web.Common.Tests.Components.Applications
             session.Setup(x => x.DataSourceUri).Returns("http://localhost:5000");
             sessionService.Setup(x => x.Session).Returns(session.Object);
             this.viewModel.Setup(x => x.SessionService).Returns(sessionService.Object);
-            var mockConfigurationService = new Mock<IConfigurationService>();
-            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var mockConfigurationService = new Mock<IConfiguration>();
+            mockConfigurationService.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(mockConfigurationService.Object);

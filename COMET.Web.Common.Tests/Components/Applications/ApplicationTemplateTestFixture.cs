@@ -25,16 +25,18 @@
 
 namespace COMET.Web.Common.Tests.Components.Applications
 {
+    using System.Drawing;
+
     using CDP4Dal;
 
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -49,8 +51,8 @@ namespace COMET.Web.Common.Tests.Components.Applications
         private TestContext context;
         private Mock<IApplicationTemplateViewModel> viewModel;
         private Mock<ISessionService> sessionService;
-        private Mock<IConfigurationService> configurationService;
-        private ServerConfiguration configuration;
+        private ServerConfiguration serverConfiguration;
+        private IConfiguration configuration;
 
         [SetUp]
         public void Setup()
@@ -58,14 +60,15 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.context = new TestContext();
             this.viewModel = new Mock<IApplicationTemplateViewModel>();
             this.sessionService = new Mock<ISessionService>();
-            this.configurationService = new Mock<IConfigurationService>();
-            this.configuration = new ServerConfiguration();
-            this.configurationService.Setup(x => x.ServerConfiguration).Returns(this.configuration);
+            this.serverConfiguration = new ServerConfiguration();
+            this.configuration = new ConfigurationBuilder().AddJsonFile("Data/server_configuration_tests.json").Build();
+            this.serverConfiguration.ServerAddress = "abc";
+            this.configuration[ConfigurationKeys.ServerConfigurationKey] = this.serverConfiguration.ServerAddress;
             this.viewModel.Setup(x => x.SessionService).Returns(this.sessionService.Object);
             var session = new Mock<ISession>();
             session.Setup(x => x.DataSourceUri).Returns("abc");
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.context.Services.AddSingleton(this.configurationService.Object);
+            this.context.Services.AddSingleton(this.configuration);
             this.context.Services.AddSingleton(this.viewModel.Object);
         }
 
@@ -80,7 +83,8 @@ namespace COMET.Web.Common.Tests.Components.Applications
         [Test]
         public void VerifyApplicationTemplateWithDefinedAddress()
         {
-            this.configuration.ServerAddress = "abc";
+            this.serverConfiguration.ServerAddress = "abc";
+            this.configuration[ConfigurationKeys.ServerConfigurationKey] = this.serverConfiguration.ServerAddress;
             this.context.RenderComponent<ApplicationTemplate>();
             var navigationManager = this.context.Services.GetService<NavigationManager>();
             Assert.That(navigationManager.Uri, Does.Not.Contain($"{QueryKeys.ServerKey}=abc"));

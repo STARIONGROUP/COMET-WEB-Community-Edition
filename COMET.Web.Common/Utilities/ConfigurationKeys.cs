@@ -1,8 +1,8 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BaseConfigurationService.cs" company="Starion Group S.A.">
+//  <copyright file="ConstantValues.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2024 Starion Group S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
 // 
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
@@ -23,29 +23,16 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Services.ConfigurationService
+namespace COMET.Web.Common.Utilities
 {
-    using COMET.Web.Common.Model.Configuration;
-
     /// <summary>
-    /// Base Service that holds the configuration for the application
+    /// Constant values used accross in the configuration file
     /// </summary>
-    public abstract class BaseConfigurationService: IConfigurationService
+    public static class ConfigurationKeys
     {
         /// <summary>
-        /// Value to assert that the service has been initialized
+        /// The server configuration key string
         /// </summary>
-        protected bool IsInitialized { get; set; }
-
-        /// <summary>
-        /// Holds all of the configuration related values
-        /// </summary>
-        public ServerConfiguration ServerConfiguration { get; set; }
-
-        /// <summary>
-        /// Initializes the <see cref="IConfigurationService"/>
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        public abstract Task InitializeService();
+        public const string ServerConfigurationKey = "ServerConfiguration";
     }
 }

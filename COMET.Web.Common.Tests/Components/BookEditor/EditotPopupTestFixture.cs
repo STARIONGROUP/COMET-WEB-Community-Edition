@@ -32,9 +32,9 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.BookEditor;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DevExpress.Blazor;
@@ -42,6 +42,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -61,7 +62,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         private bool onCancelCalled;
         private bool onAcceptCalled;
         private Mock<ISessionService> sessionService;
-        private Mock<IConfigurationService> configurationService;
+        private Mock<IConfiguration> configurationService;
 
         [SetUp]
         public void Setup()
@@ -69,8 +70,8 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
-            this.configurationService = new Mock<IConfigurationService>();
-            this.configurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            this.configurationService = new Mock<IConfiguration>();
+            this.configurationService.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.Services.AddSingleton<IValidationService, ValidationService>();

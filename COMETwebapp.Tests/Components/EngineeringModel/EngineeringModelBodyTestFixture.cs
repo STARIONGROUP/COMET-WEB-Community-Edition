@@ -31,8 +31,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
@@ -43,6 +43,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using DynamicData;
 
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -74,8 +75,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             this.optionsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<OptionRowViewModel>());
             this.viewModel.Setup(x => x.OptionsTableViewModel).Returns(this.optionsTableViewModel.Object);
 
-            var configuration = new Mock<IConfigurationService>();
-            configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var configuration = new Mock<IConfiguration>();
+            configuration.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
 
             this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(this.viewModel.Object);

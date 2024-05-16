@@ -35,13 +35,14 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
-    using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using COMETwebapp.Pages.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
@@ -52,6 +53,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -115,8 +117,8 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
                 }
             };
 
-            var mockConfigurationService = new Mock<IConfigurationService>();
-            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+            var mockConfigurationService = new Mock<IConfiguration>();
+            mockConfigurationService.Setup(x => x.GetSection(ConfigurationKeys.ServerConfigurationKey).Get<ServerConfiguration>()).Returns(new ServerConfiguration());
             this.messageBus = new CDPMessageBus();
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
