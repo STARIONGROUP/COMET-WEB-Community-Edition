@@ -40,6 +40,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -100,16 +101,32 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         public async Task VerifyParameterTypeGridActions()
         {
             var renderer = this.context.RenderComponent<ParameterTypeTable>();
-            var grid = renderer.FindComponent<DxGrid>();
 
-            await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            this.viewModel.Verify(x => x.CreateOrEditParameterType(false), Times.Once);
+            var addParameterTypeButton = renderer.FindComponent<DxButton>();
+            await renderer.InvokeAsync(addParameterTypeButton.Instance.Click.InvokeAsync);
 
-            await renderer.InvokeAsync(() => grid.Instance.StartEditNewRowAsync());
-            this.viewModel.Verify(x => x.SelectParameterType(It.IsAny<ParameterType>()), Times.Once);
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(ParameterType)));
+            });
 
-            await renderer.InvokeAsync(() => grid.Instance.SelectedDataItemChanged.InvokeAsync(this.viewModel.Object.Rows.Items.First()));
-            this.viewModel.Verify(x => x.SelectParameterType(It.IsAny<ParameterType>()), Times.Exactly(2));
+            var parameterTypesForm = renderer.FindComponent<ParameterTypeForm>();
+            var parameterTypesEditForm = parameterTypesForm.FindComponent<EditForm>();
+            await parameterTypesForm.InvokeAsync(parameterTypesEditForm.Instance.OnValidSubmit.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditParameterType(true), Times.Once);
+
+            var parameterTypesGrid = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(() => parameterTypesGrid.Instance.SelectedDataItemChanged.InvokeAsync(new ParameterTypeRowViewModel(this.parameterType)));
+            Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
+
+            await parameterTypesForm.InvokeAsync(parameterTypesEditForm.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.CreateOrEditParameterType(false), Times.Once);
+                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(BooleanParameterType)));
+            });
         }
     }
 }
