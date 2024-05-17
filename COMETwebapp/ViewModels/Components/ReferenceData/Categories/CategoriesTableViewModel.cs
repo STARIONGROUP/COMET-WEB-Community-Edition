@@ -168,7 +168,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 
             this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory;
             this.CategoryHierarchyDiagramViewModel.Rows = selectedCategory.SuperCategory;
-            this.CategoryHierarchyDiagramViewModel.SubCategories = selectedCategory.AllDerivedCategories();
+            this.CategoryHierarchyDiagramViewModel.SubCategories = ((Category)selectedCategory.Original).AllDerivedCategories();
             this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
 

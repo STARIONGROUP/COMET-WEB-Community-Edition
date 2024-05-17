@@ -26,10 +26,14 @@ namespace COMETwebapp.Components.ReferenceData
 {
     using System.ComponentModel.DataAnnotations;
 
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="CategoriesForm" />
