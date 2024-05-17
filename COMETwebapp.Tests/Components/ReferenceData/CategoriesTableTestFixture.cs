@@ -427,7 +427,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
             this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new (ClassKind.ElementDefinition) };
 
-            await this.viewModel.CreateCategory();
+            await this.viewModel.CreateCategory(TODO);
             this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
         }

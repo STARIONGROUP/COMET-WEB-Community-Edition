@@ -19,105 +19,55 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
-@using COMETwebapp.Wrappers
-@using CDP4Common.SiteDirectoryData
-@inherits COMETwebapp.Components.Common.SelectedDeprecatableDataItemBase<Category, CategoryRowViewModel>
+@inherits SelectedDeprecatableDataItemBase<Category, CategoryRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-<div style="display: flex; justify-content: space-between; background-color: rgb(176,176,176)" >
-<DxGrid @ref="this.Grid"
-        Data="this.ViewModel.Rows.Items"
-        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-        ShowSearchBox="true"
-        ShowAllRows="true"
-        SearchBoxNullText="Search for a category..."
-        CustomizeEditModel="this.CustomizeEditThing"
-        PopupEditFormCssClass="pw-800"
-        PopupEditFormHeaderText="Create Category"
-        EditMode="GridEditMode.PopupEditForm"
-        EditModelSaving="this.ViewModel.CreateCategory"
-        RowClick="((e) =>this.ViewModel.SelectCategory((CategoryRowViewModel)e.Grid.GetDataItem(e.VisibleIndex)))"
-        AllowSelectRowByClick="true"
-        SelectionMode="GridSelectionMode.Single"
-        CustomizeElement="DisableDeprecatedThing">
-    <Columns>
-        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.Name)" MinWidth="150" />
-        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.SuperCategories)" Caption="Super Categories" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false" />
-        <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-            <HeaderTemplate>
-                <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
-            </HeaderTemplate>
-            <CellDisplayTemplate>
-                @{
-                    var row = (CategoryRowViewModel)context.DataItem;
-                    if (row.IsDeprecated)
-                    {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)" Enabled=row.IsAllowedToWrite />
-                    }
-                    else
-                    {
-                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)" Enabled=row.IsAllowedToWrite />
-                    }
-                }
-            </CellDisplayTemplate>
-        </DxGridCommandColumn>
-    </Columns>
-    <EditFormTemplate Context="EditFormContext">
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutTabPages>
-                <DxFormLayoutTabPage Caption="Basic">
-                    <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                        <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                        <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Abstract:" ColSpanMd="6">
-                        <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsAbstract)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                        <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
-                        <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
-                                    TextFieldName="@nameof(ReferenceDataLibrary.Name)"
-                                    @bind-Value="@(this.ViewModel.SelectedReferenceDataLibrary)" />
-                    </DxFormLayoutItem>
-                </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Permissible Classes">
-                    <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
-                               @bind-Values="@(this.ViewModel.SelectedPermissibleClasses)"
-                               SelectionMode="ListBoxSelectionMode.Multiple"
-                               TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
-                               ShowCheckboxes="true"/>
-                </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Super Categories">
-                    <DxListBox Data="@(this.ViewModel.DataSource.Items)"
-                               @bind-Values="@(this.ViewModel.SelectedSuperCategories)"
-                               SelectionMode="ListBoxSelectionMode.Multiple"
-                               TextFieldName="@nameof(Category.Name)"
-                               ShowCheckboxes="true" />
-                </DxFormLayoutTabPage>
-            </DxFormLayoutTabPages>
-        </DxFormLayout>
-    </EditFormTemplate>
-</DxGrid>
-        
+    <div class="d-flex justify-content-between">
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for a category..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((CategoryRowViewModel)row))"
+                EditFormButtonsVisible="false"
+                CustomizeElement="DisableDeprecatedThing"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                CssClass="height-fit-content">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.SuperCategories)" Caption="Super Categories" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+            </Columns>
+        </DxGrid>
+
+        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                                  OnButtonClick="@(this.OnAddThingClick)">
+
+            <CategoriesForm ViewModel="@(this.ViewModel)"
+                                   @bind-IsVisible="@(this.IsOnEditMode)"
+                                   ShouldCreate="@(this.ShouldCreateThing)"
+                                   OnSaved="@(this.OnSaved)"/>
+        </DataItemDetailsComponent>
     </div>
     <div style="width:100%; height:100%;">
         <h4>Categories Hierarchy</h4>
-        <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel" />
+        <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel"/>
     </div>
 
-<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @(this.ViewModel.PopupDialog)
-    <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)" />
-    </div>
-</DxPopup>
+    <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+        @(this.ViewModel.PopupDialog)
+        <div class="dxbl-grid-confirm-dialog-buttons">
+            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
+        </div>
+    </DxPopup>
 </LoadingComponent>
