@@ -17,7 +17,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
 @namespace COMETwebapp.Components.Common
 
-<div class="ps-3 data-items-panel-container">
+<div class="ps-3 data-items-panel-container" style="width: @this.Width;">
     <div class="data-item-details-section">
         @if (this.IsSelected)
         {
@@ -27,7 +27,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
         {
             <div class="text-center py-5">
                 <div class="opacity-75 pb-3">
-                    <h5>Select an item to view or edit, or click add to create</h5>
+                    <h5>@this.NotSelectedText</h5>
                     <img src="images/comet-logo-black.png" class="data-item-details-image" alt="Comet Web"/>
                 </div>
                 

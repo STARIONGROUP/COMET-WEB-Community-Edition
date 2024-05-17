@@ -145,15 +145,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public ElementDefinition SelectedElementDefinition { get; set; }
 
         /// <summary>
-        /// set the selected <see cref="ElementDefinitionRowViewModel" />
+        /// Set the selected <see cref="ElementDefinition" />
         /// </summary>
-        /// <param name="selectedNode">The selected <see cref="ElementDefinitionRowViewModel" /></param>
-        public void SelectElement(ElementDefinitionRowViewModel selectedNode)
+        /// <param name="selectedElementBase">The selected <see cref="ElementBase" /></param>
+        public void SelectElement(ElementBase selectedElementBase)
         {
             // It is preferable to have a selection based on the Iid of the Thing
-            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedNode.ElementBase;
+            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedElementBase;
 
-            this.SelectedElementDefinition = selectedNode.ElementBase switch
+            this.SelectedElementDefinition = selectedElementBase switch
             {
                 ElementDefinition definition => definition,
                 ElementUsage usage => usage.ElementDefinition,
@@ -203,11 +203,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             foreach (var element in updatedThings.OfType<ElementBase>())
             {
                 var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-
                 row?.UpdateProperties(new ElementDefinitionRowViewModel(element));
 
                 row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
                 row?.UpdateProperties(new ElementDefinitionRowViewModel(element));
+
+                if (element.Iid == this.SelectedElementDefinition.Iid)
+                {
+                    this.SelectElement(element);
+                }
             }
         }
 

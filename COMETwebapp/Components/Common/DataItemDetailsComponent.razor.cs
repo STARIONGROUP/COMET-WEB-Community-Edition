@@ -54,5 +54,17 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public Action OnButtonClick { get; set; }
+
+        /// <summary>
+        /// Gets or sets the text to be displayed when the property <see cref="IsSelected"/> is set to false
+        /// </summary>
+        [Parameter]
+        public string NotSelectedText { get; set; } = "Select an item to view or edit, or click add to create";
+
+        /// <summary>
+        /// Gets or sets the width of the panel container
+        /// </summary>
+        [Parameter]
+        public string Width { get; set; } = "50%";
     }
 }
