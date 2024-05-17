@@ -58,10 +58,6 @@ Copyright (c) 2023-2024 Starion Group S.A.
                                    OnSaved="@(this.OnSaved)"/>
         </DataItemDetailsComponent>
     </div>
-    <div style="width:100%; height:100%;">
-        <h4>Categories Hierarchy</h4>
-        <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel"/>
-    </div>
 
     <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
         @(this.ViewModel.PopupDialog)

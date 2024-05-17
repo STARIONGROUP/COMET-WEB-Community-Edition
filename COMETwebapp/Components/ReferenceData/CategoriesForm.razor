@@ -36,7 +36,7 @@ Copyright (c) 2024 Starion Group S.A.
                 <DxFormLayoutItem Caption="Abstract:" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsAbstract)"/>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
                     <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
@@ -47,19 +47,34 @@ Copyright (c) 2024 Starion Group S.A.
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Permissible Classes">
-                <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
-                           @bind-Values="@(this.ViewModel.SelectedPermissibleClasses)"
-                           SelectionMode="ListBoxSelectionMode.Multiple"
-                           TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
-                           ShowCheckboxes="true"/>
+                <DxFormLayoutItem Caption="Permissible Classes:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                    <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
+                               @bind-Values="@(this.ViewModel.SelectedPermissibleClasses)"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
+                               ShowCheckboxes="true"/>
+                </DxFormLayoutItem>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Super Categories">
-                <DxListBox Data="@(this.ViewModel.DataSource.Items)"
-                           @bind-Values="@(this.ViewModel.SelectedSuperCategories)"
-                           SelectionMode="ListBoxSelectionMode.Multiple"
-                           TextFieldName="@nameof(Category.Name)"
-                           ShowCheckboxes="true"/>
+                <DxFormLayoutItem Caption="Super Categories:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                    <DxListBox Data="@(this.ViewModel.DataSource.Items)"
+                               @bind-Values="@(this.ViewModel.SelectedSuperCategories)"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               TextFieldName="@nameof(Category.Name)"
+                               ShowCheckboxes="true"/>
+                </DxFormLayoutItem>
             </DxFormLayoutTabPage>
+            
+            @if (!this.ShouldCreate)
+            {
+                <DxFormLayoutTabPage Caption="Hierarchy">
+                    <DxFormLayoutItem Caption="Categories Hierarchy:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <div style="width:100%; height:60vh;">
+                            <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel"/>
+                        </div>
+                    </DxFormLayoutItem>
+                </DxFormLayoutTabPage>
+            }
         </DxFormLayoutTabPages>
     </DxFormLayout>
     <div class="pt-3"></div>

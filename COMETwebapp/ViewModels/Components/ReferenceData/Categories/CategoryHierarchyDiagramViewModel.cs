@@ -50,6 +50,33 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         private Category selectedCategory;
 
         /// <summary>
+        /// Creates a new instance of the class <see cref="CategoryHierarchyDiagramViewModel"/>
+        /// </summary>
+        public CategoryHierarchyDiagramViewModel()
+        {
+            var options = new DiagramOptions
+            {
+                DefaultNodeComponent = null,
+                AllowMultiSelection = false,
+                Links = new DiagramLinkOptions
+                {
+                    Factory = (_, sourcePort) => new LinkModel(sourcePort)
+                    {
+                        Router = Routers.Orthogonal,
+                        PathGenerator = PathGenerators.Straight
+                    }
+                },
+                Zoom = new DiagramZoomOptions
+                {
+                    Enabled = false,
+                }
+            };
+
+            this.Diagram = new Diagram(options);
+            this.Diagram.RegisterModelComponent<CategoryNode, CategoryNodeComponent>();
+        }
+
+        /// <summary>
         /// The selected <see cref="Category" />
         /// </summary>
         public Category SelectedCategory
@@ -79,6 +106,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public void SetupDiagram()
         {
             this.Diagram.Nodes.Clear();
+            this.Diagram.SetZoom(0.7);
             var position = new Point(50, 50);
             var node12 = new CategoryNode(this.SelectedCategory, position);
             node12.AddPort();

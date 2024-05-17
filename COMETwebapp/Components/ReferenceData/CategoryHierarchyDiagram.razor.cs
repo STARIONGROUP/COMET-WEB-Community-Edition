@@ -43,38 +43,5 @@ namespace COMETwebapp.Components.ReferenceData
         /// </summary>
         [Parameter]
         public ICategoryHierarchyDiagramViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            var options = new DiagramOptions
-            {
-                DefaultNodeComponent = null, // Default component for nodes
-                AllowMultiSelection = false,
-                Links = new DiagramLinkOptions
-                {
-                    Factory = (diagram, sourcePort) =>
-                    {
-                        return new LinkModel(sourcePort, null)
-                        {
-                            Router = Routers.Orthogonal,
-                            PathGenerator = PathGenerators.Straight,
-                        };
-                    }
-                },
-                Zoom = new DiagramZoomOptions
-                {
-                    Enabled = false,
-                },
-            };
-
-            this.ViewModel.Diagram = new Diagram(options);
-            this.ViewModel.Diagram.RegisterModelComponent<CategoryNode, CategoryNodeComponent>();
-        }
     }
 }
