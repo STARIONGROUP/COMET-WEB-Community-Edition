@@ -117,13 +117,18 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// <param name="selectedElementDefinition"></param>
         public void SetSelectedElementDefinition(ElementDefinition selectedElementDefinition)
         {
+            if (selectedElementDefinition is null)
+            {
+                return;
+            }
+
             this.SelectedElementDefinition = selectedElementDefinition;
 
             var allParameterTypes = this.CurrentIteration.QueryUsedParameterTypes();
             var elementDefinitionParameterTypes = this.SelectedElementDefinition.Parameter.Select(x => x.ParameterType);
             var filteredParameterTypes = allParameterTypes.Where(x => !elementDefinitionParameterTypes.Contains(x)).Select(x => x.Iid);
             this.ParameterTypeSelectorViewModel.FilterAvailableParameterTypes(filteredParameterTypes);
-
+            
             this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = selectedElementDefinition.GetContainerOfType<EngineeringModel>().EngineeringModelSetup.ActiveDomain;
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(true);
         }

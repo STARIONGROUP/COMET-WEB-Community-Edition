@@ -27,7 +27,7 @@ namespace COMETwebapp.Components.ModelEditor
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Services.Interoperability;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
     using DevExpress.Blazor;
 
@@ -183,7 +183,61 @@ namespace COMETwebapp.Components.ModelEditor
         private void OnElementSelected(GridRowClickEventArgs args)
         {
             var selectedNode = (ElementDefinitionRowViewModel)args.Grid.GetDataItem(args.VisibleIndex);
-            this.ViewModel.SelectElement(selectedNode);
+            SetGridSelectedDataItem(args.Grid, selectedNode);
+
+            if (args.Grid == this.FirstGrid)
+            {
+                SetGridSelectedDataItem(this.SecondGrid, null);
+            }
+
+            if (args.Grid == this.SecondGrid)
+            {
+                SetGridSelectedDataItem(this.FirstGrid, null);
+            }
+
+            this.ViewModel.SelectElement(selectedNode.ElementBase);
+        }
+
+        /// <summary>
+        /// Method invoked to highlight the top element and the selected groups
+        /// </summary>
+        /// <param name="e">A <see cref="GridCustomizeElementEventArgs" /> </param>
+        private static void OnCustomizeElement(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType != GridElementType.GroupCell)
+            {
+                return;
+            }
+
+            var isTopElement = (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(ElementDefinitionRowViewModel.IsTopElement));
+
+            if (isTopElement)
+            {
+                e.CssClass = "font-weight-bold";
+            }
+
+            var elementDefinitionName = (string)e.Grid.GetRowValue(e.VisibleIndex, nameof(ElementDefinitionRowViewModel.ElementDefinitionName));
+            var selectedElementDefinitionName = (ElementDefinitionRowViewModel)e.Grid.SelectedDataItem;
+
+            var isSubItemSelected = ((IEnumerable<ElementDefinitionRowViewModel>)e.Grid.Data)
+                .Any(x => x.ElementDefinitionName == elementDefinitionName && x.ElementDefinitionName == selectedElementDefinitionName?.ElementDefinitionName);
+
+            if (isSubItemSelected)
+            {
+                e.CssClass += " highlighted-item";
+            }
+        }
+
+        /// <summary>
+        /// Sets the selected data item from the given grid
+        /// </summary>
+        /// <param name="grid">The grid to be updated</param>
+        /// <param name="dataItem">The new data item</param>
+        private static void SetGridSelectedDataItem(IGrid grid, object dataItem)
+        {
+            grid.BeginUpdate();
+            grid.SelectedDataItem = dataItem;
+            grid.EndUpdate();
         }
     }
 }

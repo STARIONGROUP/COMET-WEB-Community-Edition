@@ -7,7 +7,6 @@
 }
 
 .data-items-panel-container {
-    width: 50%;
     max-height: 85vh;
     position: sticky;
     top: 0px;

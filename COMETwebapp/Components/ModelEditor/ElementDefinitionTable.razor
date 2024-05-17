@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -21,60 +21,73 @@
 ------------------------------------------------------------------------------->
 
 @using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+@using COMETwebapp.ViewModels.Components.ModelEditor.Rows
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IElementDefinitionTableViewModel>;
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
     <div style="display: flex">
-        <div style="width: 500px">
-            <h4>Target Model</h4>
-            <DxGrid @ref="this.FirstGrid"
-                    Data="this.ViewModel.RowsTarget"
-                    ShowAllRows="true"
-                    CssClass="first-grid"
-                    AllowSort="false"
-                    RowClick="this.OnElementSelected"
-                    AllowSelectRowByClick="true"
-                    VerticalScrollBarMode="ScrollBarMode.Visible">
-                <Columns>
-                    <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
-                    <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
-                </Columns>
-            </DxGrid>
-        </div>
-        <div style="width: 500px; padding-left: 10px">
+        <div>
             <h4>Source Model</h4>
-            <DxGrid @ref="this.SecondGrid"
-                    Data="this.ViewModel.RowsSource"
-                    ShowAllRows="true"
-                    CssClass="second-grid"
-                    AllowSort="false"
-                    RowClick="this.OnElementSelected"
-                    AllowSelectRowByClick="true"
-                    VerticalScrollBarMode="ScrollBarMode.Visible">
-                <Columns>
-                    <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
-                    <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
-                </Columns>
-            </DxGrid>
+            <div class="model-elements-column sticky-scrollable-column">
+                <DxGrid @ref="this.SecondGrid"
+                        Data="this.ViewModel.RowsSource"
+                        ShowAllRows="true"
+                        CssClass="second-grid"
+                        AllowSort="false"
+                        RowClick="this.OnElementSelected"
+                        AllowSelectRowByClick="true"
+                        SelectionMode="GridSelectionMode.Single"
+                        VerticalScrollBarMode="ScrollBarMode.Visible"
+                        CustomizeElement="@(OnCustomizeElement)">
+                    <Columns>
+                        <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" />
+                        <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)" />
+                        <DxGridDataColumn FieldName="@nameof(ElementDefinitionRowViewModel.IsTopElement)" Visible="false"/>
+                    </Columns>
+                </DxGrid>
+            </div>
         </div>
-        <div style="width: 1300px; padding-left: 40px;">
-            <div class="mb-2">
-                <h4 class="d-inline">Panel Editor</h4>
-                <div class="float-end">
-                    @if (this.ViewModel.SelectedElementDefinition is not null)
-                    {
-                        <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)" />
-                    }
-                        
-                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup" />
-                </div>
+        <div style="padding-left: 10px">
+            <h4>Target Model</h4>
+            <div class="model-elements-column sticky-scrollable-column">
+                <DxGrid @ref="this.FirstGrid"
+                        Data="this.ViewModel.RowsTarget"
+                        ShowAllRows="true"
+                        CssClass="first-grid"
+                        AllowSort="false"
+                        RowClick="this.OnElementSelected"
+                        AllowSelectRowByClick="true"
+                        SelectionMode="GridSelectionMode.Single"
+                        VerticalScrollBarMode="ScrollBarMode.Visible"
+                        CustomizeElement="@(OnCustomizeElement)">
+                    <Columns>
+                        <DxGridDataColumn Caption="Element Definition" FieldName="@nameof(ElementDefinitionRowViewModel.ElementDefinitionName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value"/>
+                        <DxGridDataColumn Caption="Element Usage" FieldName="@nameof(ElementDefinitionRowViewModel.ElementUsageName)"/>
+                    </Columns>
+                </DxGrid>
             </div>
-            <div style="display:flex; justify-content: space-between;">
-                <div style="flex: 1;">
-                    <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel" />
+        </div>
+
+        <div style="width: 1300px;">
+            <DataItemDetailsComponent IsSelected="@(this.ViewModel.SelectedElementDefinition is not null)"
+                                      NotSelectedText="Select an item to view or edit"
+                                      Width="100%">
+                <div class="mb-2">
+                    <h4 class="d-inline">Panel Editor</h4>
+                    <div class="float-end">
+                        @if (this.ViewModel.SelectedElementDefinition is not null)
+                        {
+                            <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
+                        }
+
+                        <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+                    </div>
                 </div>
-            </div>
+                <div style="height: 73vh!important;" class="sticky-scrollable-column d-flex justify-content-between">
+                        <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
+                </div>
+            </DataItemDetailsComponent>
         </div>
     </div>
     <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode">

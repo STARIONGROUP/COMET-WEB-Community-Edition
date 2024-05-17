@@ -35,7 +35,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using DynamicData;
 
@@ -99,7 +98,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.iteration = new Iteration
             {
                 Iid = Guid.NewGuid(),
-                Element = { topElement, elementDefinition }
+                Element = { topElement, elementDefinition },
+                Container = new EngineeringModel
+                {
+                    EngineeringModelSetup = new EngineeringModelSetup()
+                }
             };
 
             var iterations = new SourceList<Iteration>();
@@ -169,12 +172,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         [Test]
         public void VerifyRecordChange()
         {
+            this.viewModel.SelectElement(this.iteration.Element[0]);
+
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
 
             var elementDefinition = new ElementDefinition
             {
-                Iid = Guid.NewGuid()
+                Iid = Guid.NewGuid(),
+                Name = "new element"
             };
 
             this.iteration.Element.Add(elementDefinition);
@@ -188,6 +194,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.RowsSource, Has.Count.EqualTo(3));
+
+            elementDefinition.Iid = this.viewModel.SelectedElementDefinition.Iid;
+            this.messageBus.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Updated);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows, Is.Not.Null);
         }
 
         [Test]
@@ -215,8 +226,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 }
             };
 
-            var row = new ElementDefinitionRowViewModel(elementDefinition);
-            this.viewModel.SelectElement(row);
+            this.viewModel.SelectElement(elementDefinition);
             Assert.That(this.viewModel.SelectedElementDefinition, Is.EqualTo(elementDefinition));
 
             var usage = new ElementUsage
@@ -225,8 +235,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Container = elementDefinition
             };
 
-            row = new ElementDefinitionRowViewModel(usage);
-            this.viewModel.SelectElement(row);
+            this.viewModel.SelectElement(usage);
             Assert.That(this.viewModel.SelectedElementDefinition, Is.EqualTo(usage.ElementDefinition));
 
             this.viewModel.OpenAddParameterPopup();

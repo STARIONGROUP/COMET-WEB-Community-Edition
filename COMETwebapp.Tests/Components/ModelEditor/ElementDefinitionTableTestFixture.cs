@@ -38,8 +38,8 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using DevExpress.Blazor;
 
@@ -66,28 +66,36 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
-            this.context.Services.AddSingleton<ISessionService, SessionService>();
-            this.context.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
+
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
-            this.context.Services.AddSingleton(configuration.Object);
+            var elementDefinition = new ElementDefinition();
+
+            var row = new ElementDefinitionRowViewModel
+            {
+                ElementDefinitionName = "Test1", 
+                ElementBase = elementDefinition, 
+                IsTopElement = true
+            };
 
             this.elementDefinitionDetailsViewModel = new ElementDefinitionDetailsViewModel();
-
             this.addParameterViewModel = new Mock<IAddParameterViewModel>();
             this.addParameterViewModel.Setup(x => x.ParameterTypeSelectorViewModel).Returns(new ParameterTypeSelectorViewModel());
 
             this.elementDefinitionTableViewModel = new Mock<IElementDefinitionTableViewModel>();
-            this.elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns([new ElementDefinitionRowViewModel { ElementDefinitionName = "Test" }]);
-            this.elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns([new ElementDefinitionRowViewModel { ElementDefinitionName = "Test1" }]);
+            this.elementDefinitionTableViewModel.Setup(x => x.RowsTarget).Returns([row]);
+            this.elementDefinitionTableViewModel.Setup(x => x.RowsSource).Returns([row]);
             this.elementDefinitionTableViewModel.Setup(x => x.ElementDefinitionDetailsViewModel).Returns(this.elementDefinitionDetailsViewModel);
             this.elementDefinitionTableViewModel.Setup(x => x.AddParameterViewModel).Returns(this.addParameterViewModel.Object);
             this.elementDefinitionTableViewModel.Setup(x => x.SelectedElementDefinition).Returns(new ElementDefinition());
+            this.elementDefinitionTableViewModel.Setup(x => x.IsLoading).Returns(false);
 
+            this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(this.elementDefinitionTableViewModel.Object);
+            this.context.Services.AddSingleton<ISessionService, SessionService>();
+            this.context.Services.AddSingleton<IDraggableElementService, DraggableElementService>();
 
             this.renderedComponent = this.context.RenderComponent<ElementDefinitionTable>();
-
             this.table = this.renderedComponent.Instance;
         }
 
@@ -128,6 +136,48 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(this.renderedComponent, Is.Not.Null);
                 Assert.That(this.table, Is.Not.Null);
                 Assert.That(this.table.ViewModel, Is.Not.Null);
+            });
+        }
+
+        [Test]
+        public void VerifyElementSelection()
+        {
+            var sourceGrid = this.renderedComponent.FindComponent<DxGrid>();
+            var targetGrid = this.renderedComponent.FindComponents<DxGrid>()[1];
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(sourceGrid.Instance.SelectedDataItem, Is.Null);
+                Assert.That(targetGrid.Instance.SelectedDataItem, Is.Null);
+            });
+
+            var firstSourceRow = sourceGrid.Find(".dxbl-grid-group-row").Children[1];
+            firstSourceRow.Click();
+
+            Assert.Multiple(() =>
+            {
+                this.elementDefinitionTableViewModel.Verify(x => x.SelectElement(It.IsAny<ElementBase>()), Times.Once);
+                Assert.That(sourceGrid.Instance.SelectedDataItem, Is.Not.Null);
+                Assert.That(targetGrid.Instance.SelectedDataItem, Is.Null);
+            });
+
+            var firstTargetRow = targetGrid.Find(".dxbl-grid-group-row").Children[1];
+            firstTargetRow.Click();
+
+            Assert.Multiple(() =>
+            {
+                this.elementDefinitionTableViewModel.Verify(x => x.SelectElement(It.IsAny<ElementBase>()), Times.Exactly(2));
+                Assert.That(sourceGrid.Instance.SelectedDataItem, Is.Null);
+                Assert.That(targetGrid.Instance.SelectedDataItem, Is.Not.Null);
+            });
+
+            firstSourceRow.Click();
+
+            Assert.Multiple(() =>
+            {
+                this.elementDefinitionTableViewModel.Verify(x => x.SelectElement(It.IsAny<ElementBase>()), Times.Exactly(3));
+                Assert.That(sourceGrid.Instance.SelectedDataItem, Is.Not.Null);
+                Assert.That(targetGrid.Instance.SelectedDataItem, Is.Null);
             });
         }
 
