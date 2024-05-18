@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -120,30 +121,16 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         }
 
         [Test]
-        public async Task VerifyDeprecatingAndUndeprecatingDomainOfExpertise()
-        {
-            var renderer = this.context.RenderComponent<DomainsOfExpertiseTable>();
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<DomainOfExpertise>()), Times.Once);
-
-            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<DomainOfExpertise>()), Times.Exactly(2));
-        }
-
-        [Test]
         public async Task VerifyAddingOrEditingDomainOfExpertise()
         {
             var renderer = this.context.RenderComponent<DomainsOfExpertiseTable>();
 
-            var addDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDomainOfExpertiseButton");
+            var addDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await renderer.InvokeAsync(addDomainOfExpertiseButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(false));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
 
@@ -151,7 +138,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             await renderer.InvokeAsync(() => domainsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new DomainOfExpertiseRowViewModel(this.domainOfExpertise1)));
             Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
 
-            var domainsForm = renderer.FindComponents<DomainsOfExpertiseForm>()[1];
+            var domainsForm = renderer.FindComponent<DomainsOfExpertiseForm>();
             var domainsEditForm = domainsForm.FindComponent<EditForm>();
             await domainsForm.InvokeAsync(domainsEditForm.Instance.OnValidSubmit.InvokeAsync);
 

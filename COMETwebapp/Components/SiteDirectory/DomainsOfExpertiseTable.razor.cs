@@ -30,8 +30,6 @@ namespace COMETwebapp.Components.SiteDirectory
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -56,36 +54,40 @@ namespace COMETwebapp.Components.SiteDirectory
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
-        {
-            await this.ViewModel.CreateOrEditDomainOfExpertise(this.ShouldCreateThing);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (DomainOfExpertiseRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.Thing = dataItem == null ? new DomainOfExpertise() : dataItem.Thing.Clone(true);
-            e.EditModel = this.ViewModel.Thing;
-        }
-
-        /// <summary>
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
         protected override void OnSelectedDataItemChanged(DomainOfExpertiseRowViewModel row)
         {
+            base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
             this.ViewModel.Thing = row.Thing.Clone(true);
+        }
+
+        /// <summary>
+        /// Method invoked before creating a new thing
+        /// </summary>
+        private void OnAddThingClick()
+        {
+            this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
+            this.ViewModel.Thing = new DomainOfExpertise();
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method invoked whenever a form is saved
+        /// </summary>
+        private void OnSaved()
+        {
+            if (!this.ShouldCreateThing)
+            {
+                return;
+            }
+
+            this.ShouldCreateThing = false;
+            var createdRow = this.ViewModel.Rows.Items.First(x => x.Thing.Iid == this.ViewModel.Thing.Iid);
+            this.OnSelectedDataItemChanged(createdRow);
         }
     }
 }

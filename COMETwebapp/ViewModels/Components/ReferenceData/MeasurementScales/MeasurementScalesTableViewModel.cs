@@ -36,8 +36,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
 
-    using DynamicData;
-
     using ReactiveUI;
 
     using MeasurementScale = CDP4Common.SiteDirectoryData.MeasurementScale;

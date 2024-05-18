@@ -36,6 +36,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>
@@ -61,18 +63,31 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreateOrEditDomainOfExpertise(bool shouldCreate)
         {
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            if (shouldCreate)
+            try
             {
-                siteDirectoryClone.Domain.Add(this.Thing);
-                thingsToCreate.Add(siteDirectoryClone);
-            }
+                this.IsLoading = true;
 
-            thingsToCreate.Add(this.Thing);
-            await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
+                var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+                var thingsToUpdateOrCreate = new List<Thing>();
+
+                if (shouldCreate)
+                {
+                    siteDirectoryClone.Domain.Add(this.Thing);
+                    thingsToUpdateOrCreate.Add(siteDirectoryClone);
+                }
+
+                thingsToUpdateOrCreate.Add(this.Thing);
+                await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToUpdateOrCreate);
+                await this.SessionService.RefreshSession();
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Create or Update DomainOfExpertise failed");
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
     }
 }

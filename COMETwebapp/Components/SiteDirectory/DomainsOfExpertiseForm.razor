@@ -14,6 +14,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+
 @inherits SelectedDataItemForm
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
@@ -32,12 +33,12 @@ Copyright (c) 2023-2024 Starion Group S.A.
     <div class="pt-3"></div>
     <ValidationSummary />
     <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="saveCommonFileStoreButton"
+        <DxButton Id="saveDomainsOfExpertiseButton"
                   SubmitFormOnClick="true">
             Save
         </DxButton>
         
-        <DxButton Id="cancelCommonFileStoreButton"
+        <DxButton Id="cancelDomainsOfExpertiseButton"
                   Click="@(() => this.OnCancel())"
                   RenderStyle="ButtonRenderStyle.Secondary">
             Cancel
