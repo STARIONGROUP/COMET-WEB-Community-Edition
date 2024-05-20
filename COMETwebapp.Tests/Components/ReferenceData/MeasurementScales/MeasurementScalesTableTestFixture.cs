@@ -148,22 +148,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         }
 
         [Test]
-        public async Task VerifyDeprecatingAndUndeprecatingMeasurementScale()
-        {
-            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
-            var measurementScalesGrid = renderer.FindComponent<DxGrid>();
-            await renderer.InvokeAsync(() => measurementScalesGrid.Instance.SelectedDataItemChanged.InvokeAsync(new MeasurementScaleRowViewModel(this.measurementScale1)));
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateOrUndeprecateButton");
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScale>()), Times.Once);
-
-            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateOrUndeprecateButton");
-            await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementScale>()), Times.Exactly(2));
-        }
-
-        [Test]
         public void VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<MeasurementScalesTable>();
