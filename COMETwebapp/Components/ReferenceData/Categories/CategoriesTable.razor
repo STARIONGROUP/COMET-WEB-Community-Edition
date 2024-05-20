@@ -1,0 +1,61 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 Starion Group S.A.
+
+    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
+
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits SelectedDeprecatableDataItemBase<Category, CategoryRowViewModel>
+
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <div class="d-flex justify-content-between">
+        <DxGrid @ref="this.Grid"
+                Data="this.ViewModel.Rows.Items"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                ShowSearchBox="true"
+                SearchBoxNullText="Search for a category..."
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((CategoryRowViewModel)row))"
+                EditFormButtonsVisible="false"
+                CustomizeElement="DisableDeprecatedThing"
+                PageSize="20"
+                PagerNavigationMode="PagerNavigationMode.Auto"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                CssClass="height-fit-content">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.Name)" MinWidth="150"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.SuperCategories)" Caption="Super Categories" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(CategoryRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+            </Columns>
+        </DxGrid>
+
+        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                                  OnButtonClick="@(this.OnAddThingClick)">
+
+            <CategoriesForm ViewModel="@(this.ViewModel)"
+                            @bind-IsVisible="@(this.IsOnEditMode)"
+                            ShouldCreate="@(this.ShouldCreateThing)"
+                            OnSaved="@(this.OnSaved)"/>
+        </DataItemDetailsComponent>
+    </div>
+</LoadingComponent>

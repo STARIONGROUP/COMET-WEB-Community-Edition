@@ -47,16 +47,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; }
 
         /// <summary>
-        /// Selected <see cref="ClassKind" />s
-        /// </summary>
-        IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; }
-
-        /// <summary>
-        /// Selected super <see cref="Category" />
-        /// </summary>
-        IEnumerable<Category> SelectedSuperCategories { get; set; }
-
-        /// <summary>
         /// selected container
         /// </summary>
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -69,13 +59,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <summary>
         /// Tries to create a new <see cref="Category" />
         /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="Category" /> should be created</param>
         /// <returns>A <see cref="Task" /></returns>
-        Task CreateCategory();
+        Task CreateCategory(bool shouldCreate);
 
         /// <summary>
         /// set the selected <see cref="CategoryRowViewModel" />
         /// </summary>
         /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-        void SelectCategory(CategoryRowViewModel selectedCategory);
+        void SelectCategory(Category selectedCategory);
     }
 }

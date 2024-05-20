@@ -1,0 +1,105 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2024 Starion Group S.A.
+
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+@using COMETwebapp.Wrappers
+@using CDP4Common.CommonData
+@inherits SelectedDataItemForm
+
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+    <FluentValidationValidator/>
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Abstract:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsAbstract)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+                    <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
+                                TextFieldName="@nameof(ReferenceDataLibrary.Name)"
+                                @bind-Value="@(this.ViewModel.SelectedReferenceDataLibrary)"
+                                Enabled="@(this.ShouldCreate)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Permissible Classes">
+                <DxFormLayoutItem Caption="Permissible Classes:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                    <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
+                               TData="ClassKindWrapper"
+                               TValue="ClassKind"
+                               Values="@(this.ViewModel.Thing.PermissibleClass)"
+                               ValuesChanged="@(permissibleClasses => this.ViewModel.Thing.PermissibleClass = permissibleClasses.ToList())"
+                               ValuesExpression="@(() => this.ViewModel.Thing.PermissibleClass)"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
+                               ValueFieldName="@nameof(ClassKindWrapper.ClassKind)"
+                               ShowCheckboxes="true"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Super Categories">
+                <DxFormLayoutItem Caption="Super Categories:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                    <DxListBox TData="Category"
+                               TValue="Category" 
+                               Data="@(this.ViewModel.DataSource.Items)"
+                               Values="@(this.ViewModel.Thing.SuperCategory)"
+                               ValuesChanged="@(superCategories => this.ViewModel.Thing.SuperCategory = superCategories.ToList())"
+                               ValuesExpression="@(() => this.ViewModel.Thing.SuperCategory)"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               TextFieldName="@nameof(Category.Name)"
+                               ShowCheckboxes="true"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            
+            @if (!this.ShouldCreate)
+            {
+                <DxFormLayoutTabPage Caption="Hierarchy">
+                    <DxFormLayoutItem Caption="Categories Hierarchy:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
+                        <div style="width:100%; height:60vh;">
+                            <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel"/>
+                        </div>
+                    </DxFormLayoutItem>
+                </DxFormLayoutTabPage>
+            }
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary/>
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="saveMeasurementScaleButton"
+                  SubmitFormOnClick="true"
+                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
+            Save
+        </DxButton>
+
+        <DxButton Id="cancelMeasurementScaleButton"
+                  Click="@(() => this.OnCancel())"
+                  RenderStyle="ButtonRenderStyle.Secondary">
+            Cancel
+        </DxButton>
+    </div>
+</EditForm>

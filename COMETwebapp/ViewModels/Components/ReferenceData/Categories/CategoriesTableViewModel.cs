@@ -69,16 +69,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; } = Enum.GetValues<ClassKind>().Select(x => new ClassKindWrapper(x));
 
         /// <summary>
-        /// Selected <see cref="ClassKind" />s
-        /// </summary>
-        public IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; } = new List<ClassKindWrapper>();
-
-        /// <summary>
-        /// Selected super <see cref="Category" />
-        /// </summary>
-        public IEnumerable<Category> SelectedSuperCategories { get; set; } = new List<Category>();
-
-        /// <summary>
         /// selected container
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -99,35 +89,40 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <summary>
         /// Tries to create a new <see cref="Category" />
         /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="Category" /> should be created</param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task CreateCategory()
+        public async Task CreateCategory(bool shouldCreate)
         {
-            var thingsToCreate = new List<Thing>();
-
-            if (this.SelectedSuperCategories.Any())
-            {
-                this.Thing.SuperCategory = this.SelectedSuperCategories.ToList();
-            }
-
-            if (this.SelectedPermissibleClasses.Any())
-            {
-                this.Thing.PermissibleClass = this.SelectedPermissibleClasses.Select(x => x.ClassKind).ToList();
-            }
-
-            this.Thing.Container = this.SelectedReferenceDataLibrary;
-            thingsToCreate.Add(this.Thing);
-            var clonedRDL = this.SelectedReferenceDataLibrary.Clone(false);
-            clonedRDL.DefinedCategory.Add(this.Thing);
-
             try
             {
-                await this.SessionService.CreateOrUpdateThings(clonedRDL, thingsToCreate);
+                this.IsLoading = true;
+
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                if (shouldCreate || hasRdlChanged)
+                {
+                    rdlClone.DefinedCategory.Add(this.Thing);
+                    thingsToCreate.Add(rdlClone);
+                }
+
+                thingsToCreate.Add(this.Thing);
+                await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
                 await this.SessionService.RefreshSession();
+                
+                if (this.Thing.Original is not null)
+                {
+                    this.Thing = (Category)this.Thing.Original.Clone(true);
+                }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                this.Logger.LogError(exception, "An error has ocurred while adding a new category");
-                throw;
+                this.Logger.LogError(ex, "Create or Update Category failed");
+            }
+            finally
+            {
+                this.IsLoading = false;
             }
         }
 
@@ -135,13 +130,19 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// set the selected <see cref="CategoryRowViewModel" />
         /// </summary>
         /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-        public void SelectCategory(CategoryRowViewModel selectedCategory)
+        public void SelectCategory(Category selectedCategory)
         {
-            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory.Thing;
+            this.Thing = selectedCategory;
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
 
-            this.CategoryHierarchyDiagramViewModel.Rows = this.CategoryHierarchyDiagramViewModel.SelectedCategory.SuperCategory;
-            this.CategoryHierarchyDiagramViewModel.SubCategories = this.CategoryHierarchyDiagramViewModel.SelectedCategory.AllDerivedCategories();
+            if (selectedCategory.Iid == Guid.Empty)
+            {
+                return;
+            }
 
+            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory;
+            this.CategoryHierarchyDiagramViewModel.Rows = selectedCategory.SuperCategory;
+            this.CategoryHierarchyDiagramViewModel.SubCategories = ((Category)selectedCategory.Original).AllDerivedCategories();
             this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
 

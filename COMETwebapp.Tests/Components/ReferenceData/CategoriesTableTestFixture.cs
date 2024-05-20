@@ -1,34 +1,30 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CategoriesTableTestFixture.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="CategoriesTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.ReferenceData
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     using Bunit;
 
@@ -42,17 +38,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.ReferenceData.Categories;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -170,7 +167,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.elementDefinitionCategory2 = new Category(Guid.NewGuid(), this.assembler.Cache, this.uri) { Name = "Reaction Wheels", ShortName = "RW", IsDeprecated = true };
             this.elementDefinitionCategory2.PermissibleClass.Add(ClassKind.ElementDefinition);
 
-            this.elementDefinitionCategory1.SuperCategory.Add(this.elementDefinitionCategory2);
             this.elementDefinitionCategory2.SuperCategory.Add(this.elementDefinitionCategory1);
 
             this.siteReferenceDataLibrary.DefinedCategory.Add(this.elementDefinitionCategory1);
@@ -318,6 +314,68 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
+        public async Task VerifyAddOrEditCategory()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
+            });
+
+            this.viewModel.Thing = new Category
+            {
+                Name = "Cat1",
+                ShortName = "TT",
+                IsAbstract = true,
+                IsDeprecated = false
+            };
+
+            this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
+            this.viewModel.Thing.PermissibleClass = [ClassKind.ElementDefinition];
+
+            await this.viewModel.CreateCategory(true);
+            Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
+
+            this.viewModel.Thing = this.viewModel.Thing.Clone(false);
+            await this.viewModel.CreateCategory(false);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
+                this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
+            });
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            await this.viewModel.CreateCategory(false);
+            this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
+
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Thing, EventKind.Updated);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+        }
+
+        [Test]
+        public async Task VerifyDisplayCategoryDiagram()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(this.elementDefinitionCategory3));
+
+            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
+            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;
+            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory3.SuperCategory;
+
+            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
         public async Task VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
@@ -333,125 +391,33 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyDeprecatingCategory()
+        public async Task VerifyGridActions()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
+            var grid = renderer.FindComponent<DxGrid>();
+            var firstRow = this.viewModel.Rows.Items.First();
 
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
-            });
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            var currentCategory = this.viewModel.Thing;
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
+            var addCategoryButton = renderer.FindComponent<DxButton>();
+            await renderer.InvokeAsync(addCategoryButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentCategory));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Category)));
             });
 
-            this.viewModel.Thing = this.elementDefinitionCategory1;
-
-            await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-        }
-
-        [Test]
-        public async Task VerifyUnDeprecatingCategory()
-        {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
-
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            renderer.Render();
+            await renderer.InvokeAsync(() => grid.Instance.SelectedDataItemChanged.InvokeAsync(firstRow));
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                Assert.That(this.viewModel.Thing.Original, Is.EqualTo(firstRow.Thing));
             });
 
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            var currentCategory = this.viewModel.Thing;
+            var editForm = renderer.FindComponent<EditForm>();
+            await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentCategory));
-            });
-
-            this.viewModel.Thing = this.elementDefinitionCategory2;
-
-            await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-        }
-
-        [Test]
-        public async Task VerifyAddingCategory()
-        {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
-
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
-            });
-
-            this.viewModel.Thing = new Category
-            {
-                Name = "Cat1",
-                ShortName = "TT",
-                IsAbstract = true,
-                IsDeprecated = false,
-            };
-
-            this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
-            this.viewModel.SelectedPermissibleClasses = new List<ClassKindWrapper>() { new (ClassKind.ElementDefinition) };
-
-            await this.viewModel.CreateCategory();
-            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
-            Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
-        }
-
-        [Test]
-        public async Task VerifyDisplayCategoryDiagram()
-        {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
-
-            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(new CategoryRowViewModel(this.elementDefinitionCategory3)));
-
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
-            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;
-            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory3.SuperCategory;
-
-            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(1));
-            });
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
     }
 }

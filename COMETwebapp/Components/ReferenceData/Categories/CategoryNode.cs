@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CategoryNodeComponent.razor.cs" company="Starion Group S.A.">
+// <copyright file="CategoryNode.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2024 Starion Group S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -21,19 +21,32 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace COMETwebapp.Components.ReferenceData
-{
-    using Microsoft.AspNetCore.Components;
+using Blazor.Diagrams.Core.Geometry;
+using Blazor.Diagrams.Core.Models;
 
+using CDP4Common.SiteDirectoryData;
+
+
+namespace COMETwebapp.Components.ReferenceData.Categories
+{
     /// <summary>
-    ///     Support class for the <see cref="CategoryNodeComponent"/>
+    ///     represent the Category diagram node
     /// </summary>
-    public partial class CategoryNodeComponent
+    public class CategoryNode : NodeModel
     {
         /// <summary>
-        ///     The <see cref="CategoryNode" /> for the component
+        /// Initializes a new instance of the <see cref="CategoryNode" /> class.
         /// </summary>
-        [Parameter]
-        public CategoryNode Node { get; set; }
+        /// <param name="category">The <see cref="Category" /></param>
+        /// <param name="position">The <see cref="Point" /></param>
+        public CategoryNode(Category category, Point position = null) : base(position, RenderLayer.HTML)
+        {
+            this.Category = category;
+        }
+
+        /// <summary>
+        /// Get or set the <see cref="Category" />
+        /// </summary>
+        public Category Category { get; set; }
     }
 }
