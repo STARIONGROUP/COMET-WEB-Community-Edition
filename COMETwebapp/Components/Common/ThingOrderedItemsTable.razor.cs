@@ -25,7 +25,6 @@
 namespace COMETwebapp.Components.Common
 {
     using CDP4Common.CommonData;
-    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using COMET.Web.Common.Components;
@@ -37,21 +36,21 @@ namespace COMETwebapp.Components.Common
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}" />
+    /// Support class for the <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}" />
     /// </summary>
-    public abstract class ParameterTypeOrderedItemsTable<T, TItem, TItemRow> : DisposableComponent where T : ParameterType where TItem : Thing where TItemRow : BaseDataItemRowViewModel<TItem>
+    public abstract class ThingOrderedItemsTable<T, TItem, TItemRow> : DisposableComponent where T : Thing where TItem : Thing where TItemRow : BaseDataItemRowViewModel<TItem>
     {
         /// <summary>
         /// Gets or sets the parameter type
         /// </summary>
         [Parameter]
-        public T ParameterType { get; set; }
+        public T Thing { get; set; }
 
         /// <summary>
         /// The callback for when the parameter type has changed
         /// </summary>
         [Parameter]
-        public EventCallback<T> ParameterTypeChanged { get; set; }
+        public EventCallback<T> ThingChanged { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if an item should be created
@@ -69,7 +68,7 @@ namespace COMETwebapp.Components.Common
         public IGrid Grid { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="ParameterType" />
+        /// Gets or sets the ordered list of items from the current <see cref="Thing" />
         /// </summary>
         public abstract OrderedItemList<TItem> OrderedItemsList { get; }
 
@@ -82,7 +81,7 @@ namespace COMETwebapp.Components.Common
         {
             var currentIndex = this.OrderedItemsList.IndexOf(row.Thing);
             this.OrderedItemsList.Move(currentIndex, currentIndex - 1);
-            await this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            await this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace COMETwebapp.Components.Common
         {
             var currentIndex = this.OrderedItemsList.IndexOf(row.Thing);
             this.OrderedItemsList.Move(currentIndex, currentIndex + 1);
-            await this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            await this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -104,7 +103,7 @@ namespace COMETwebapp.Components.Common
         protected async Task RemoveItem(TItemRow row)
         {
             this.OrderedItemsList.Remove(row.Thing);
-            await this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            await this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -122,11 +121,11 @@ namespace COMETwebapp.Components.Common
                 this.OrderedItemsList[indexToUpdate] = this.Item;
             }
 
-            this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="ParameterType" />
+        /// Method used to retrieve the available rows, given the <see cref="Thing" />
         /// </summary>
         /// <returns>A collection of rows to display</returns>
         protected List<TItemRow> GetRows()

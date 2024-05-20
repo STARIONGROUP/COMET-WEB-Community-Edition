@@ -42,13 +42,13 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// The compound parameter type
         /// </summary>
         [Parameter]
-        public SampledFunctionParameterType ParameterType { get; set; }
+        public SampledFunctionParameterType Thing { get; set; }
 
         /// <summary>
         /// The callback for when the parameter type has changed
         /// </summary>
         [Parameter]
-        public EventCallback<SampledFunctionParameterType> ParameterTypeChanged { get; set; }
+        public EventCallback<SampledFunctionParameterType> ThingChanged { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of <see cref="CDP4Common.SiteDirectoryData.ParameterType" />s
@@ -93,16 +93,16 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             if (this.ShouldCreate)
             {
-                this.ParameterType.IndependentParameterType.Add(this.Item.Thing);
-                this.ParameterType.InterpolationPeriod = new ValueArray<string>(this.ParameterType.InterpolationPeriod.Append(this.Item.InterpolationPeriod));
+                this.Thing.IndependentParameterType.Add(this.Item.Thing);
+                this.Thing.InterpolationPeriod = new ValueArray<string>(this.Thing.InterpolationPeriod.Append(this.Item.InterpolationPeriod));
             }
             else
             {
-                var indexToUpdate = this.ParameterType.IndependentParameterType.FindIndex(x => x.Iid == this.Item.Thing.Iid);
-                this.ParameterType.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
+                var indexToUpdate = this.Thing.IndependentParameterType.FindIndex(x => x.Iid == this.Item.Thing.Iid);
+                this.Thing.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
             }
 
-            this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -112,10 +112,10 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <returns>A <see cref="Task" /></returns>    
         private async Task MoveUp(IndependentParameterTypeRowViewModel row)
         {
-            var currentIndex = this.ParameterType.IndependentParameterType.IndexOf(row.Thing);
-            this.ParameterType.IndependentParameterType.Move(currentIndex, currentIndex - 1);
-            (this.ParameterType.InterpolationPeriod[currentIndex], this.ParameterType.InterpolationPeriod[currentIndex - 1]) = (this.ParameterType.InterpolationPeriod[currentIndex - 1], this.ParameterType.InterpolationPeriod[currentIndex]);
-            await this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            var currentIndex = this.Thing.IndependentParameterType.IndexOf(row.Thing);
+            this.Thing.IndependentParameterType.Move(currentIndex, currentIndex - 1);
+            (this.Thing.InterpolationPeriod[currentIndex], this.Thing.InterpolationPeriod[currentIndex - 1]) = (this.Thing.InterpolationPeriod[currentIndex - 1], this.Thing.InterpolationPeriod[currentIndex]);
+            await this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -125,10 +125,10 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <returns>A <see cref="Task" /></returns>
         private async Task MoveDown(IndependentParameterTypeRowViewModel row)
         {
-            var currentIndex = this.ParameterType.IndependentParameterType.IndexOf(row.Thing);
-            this.ParameterType.IndependentParameterType.Move(currentIndex, currentIndex + 1);
-            (this.ParameterType.InterpolationPeriod[currentIndex], this.ParameterType.InterpolationPeriod[currentIndex + 1]) = (this.ParameterType.InterpolationPeriod[currentIndex + 1], this.ParameterType.InterpolationPeriod[currentIndex]);
-            await this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            var currentIndex = this.Thing.IndependentParameterType.IndexOf(row.Thing);
+            this.Thing.IndependentParameterType.Move(currentIndex, currentIndex + 1);
+            (this.Thing.InterpolationPeriod[currentIndex], this.Thing.InterpolationPeriod[currentIndex + 1]) = (this.Thing.InterpolationPeriod[currentIndex + 1], this.Thing.InterpolationPeriod[currentIndex]);
+            await this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -136,8 +136,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// </summary>
         private void RemoveIndependentParameterType(IndependentParameterTypeRowViewModel row)
         {
-            this.ParameterType.IndependentParameterType.Remove(row.Thing);
-            this.ParameterTypeChanged.InvokeAsync(this.ParameterType);
+            this.Thing.IndependentParameterType.Remove(row.Thing);
+            this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>
@@ -159,11 +159,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
         private List<IndependentParameterTypeRowViewModel> GetRows()
         {
-            var degreesOfInterpolation = this.ParameterType.InterpolationPeriod;
+            var degreesOfInterpolation = this.Thing.InterpolationPeriod;
             var rows = new List<IndependentParameterTypeRowViewModel>();
             var i = 0;
 
-            foreach (var independentParameterType in this.ParameterType.IndependentParameterType.ToList())
+            foreach (var independentParameterType in this.Thing.IndependentParameterType.ToList())
             {
                 var degreeOfInterpolation = degreesOfInterpolation.ElementAtOrDefault(i) ?? string.Empty;
                 rows.Add(new IndependentParameterTypeRowViewModel(independentParameterType, degreeOfInterpolation));

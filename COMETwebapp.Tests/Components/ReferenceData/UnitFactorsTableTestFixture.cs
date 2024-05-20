@@ -30,7 +30,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.ReferenceData.MeasurementUnits;
 
     using DevExpress.Blazor;
 
@@ -70,7 +70,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.renderer = this.context.RenderComponent<UnitFactorsTable>(p =>
             {
-                p.Add(x => x.DerivedUnit, this.derivedUnit);
+                p.Add(x => x.Thing, this.derivedUnit);
                 p.Add(x => x.MeasurementUnits, measurementUnits);
             });
         }
@@ -88,8 +88,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
-                Assert.That(this.renderer.Instance.ShouldCreateUnitFactor, Is.EqualTo(false));
-                Assert.That(this.renderer.Instance.DerivedUnit, Is.Not.Null);
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
+                Assert.That(this.renderer.Instance.Thing, Is.Not.Null);
                 Assert.That(this.renderer.Instance.MeasurementUnits, Is.Not.Null);
             });
         }
@@ -105,8 +105,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.ShouldCreateUnitFactor, Is.EqualTo(false));
-                Assert.That(this.renderer.Instance.DerivedUnit.UnitFactor, Has.Count.EqualTo(1));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
+                Assert.That(this.renderer.Instance.Thing.UnitFactor, Has.Count.EqualTo(1));
             });
 
             var addUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addUnitFactorButton");
@@ -115,14 +115,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.ShouldCreateUnitFactor, Is.EqualTo(true));
-                Assert.That(this.renderer.Instance.DerivedUnit.UnitFactor, Has.Count.EqualTo(2));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
+                Assert.That(this.renderer.Instance.Thing.UnitFactor, Has.Count.EqualTo(2));
             });
 
             var removeUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeUnitFactorButton");
             await this.renderer.InvokeAsync(removeUnitFactorButton.Instance.Click.InvokeAsync);
 
-            Assert.That(this.renderer.Instance.DerivedUnit.UnitFactor, Has.Count.EqualTo(1));
+            Assert.That(this.renderer.Instance.Thing.UnitFactor, Has.Count.EqualTo(1));
         }
     }
 }

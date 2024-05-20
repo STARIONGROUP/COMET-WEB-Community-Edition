@@ -64,7 +64,7 @@ Copyright (c) 2024 Starion Group S.A.
                 @if (this.ViewModel.Thing is CompoundParameterType compoundParameterType)
                 {
                     <DxFormLayoutItem Caption="Components:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <ComponentsTable @bind-ParameterType="compoundParameterType"
+                        <ComponentsTable @bind-Thing="compoundParameterType"
                                          ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"/>
                     </DxFormLayoutItem>
 
@@ -150,13 +150,13 @@ Copyright (c) 2024 Starion Group S.A.
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Independent Parameter Types:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <IndependentParameterTypeTable @bind-ParameterType="@(sampledFunctionParameterType)"
+                        <IndependentParameterTypeTable @bind-Thing="@(sampledFunctionParameterType)"
                                                        ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"
                                                        Enabled="@(this.ShouldCreate)"/>
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Dependent Parameter Types:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                        <DependentParameterTypeTable @bind-ParameterType="@(sampledFunctionParameterType)"
+                        <DependentParameterTypeTable @bind-Thing="@(sampledFunctionParameterType)"
                                                      ParameterTypes="@(this.ViewModel.ExistingParameterTypes)"
                                                      Enabled="@(this.ShouldCreate)"/>
                     </DxFormLayoutItem>
@@ -170,14 +170,14 @@ Copyright (c) 2024 Starion Group S.A.
             @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameter)
             {
                 <DxFormLayoutTabPage Caption="Values">
-                    <EnumerationValueDefinitionsTable @bind-ParameterType="enumerationParameter" />
+                    <EnumerationValueDefinitionsTable @bind-Thing="enumerationParameter" />
                 </DxFormLayoutTabPage>
             }
 
             @if (this.ViewModel.Thing is DerivedQuantityKind derivedQuantityKindParameterType)
             {
                 <DxFormLayoutTabPage Caption="Factors">
-                    <QuantityKindFactorsTable @bind-ParameterType="@(derivedQuantityKindParameterType)"
+                    <QuantityKindFactorsTable @bind-Thing="@(derivedQuantityKindParameterType)"
                                               QuantityKindParameterTypes="@(this.ViewModel.ExistingParameterTypes.OfType<QuantityKind>())"/>
                 </DxFormLayoutTabPage>
             }

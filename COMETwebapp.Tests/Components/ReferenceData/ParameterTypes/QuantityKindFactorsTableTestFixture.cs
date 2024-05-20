@@ -63,7 +63,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             this.renderer = this.context.RenderComponent<QuantityKindFactorsTable>(parameters =>
             {
                 parameters.Add(p => p.QuantityKindParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
-                parameters.Add(p => p.ParameterType, this.parameterType);
+                parameters.Add(p => p.Thing, this.parameterType);
             });
         }
 
@@ -122,7 +122,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.QuantityKindParameterTypes.Count(), Is.EqualTo(2));
-                Assert.That(this.renderer.Instance.ParameterType, Is.Not.Null);
+                Assert.That(this.renderer.Instance.Thing, Is.Not.Null);
                 Assert.That(this.renderer.Instance.OrderedItemsList, Is.EqualTo(this.parameterType.QuantityKindFactor));
                 Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.QuantityKindFactor.First().Exponent));
             });
