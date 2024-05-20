@@ -341,10 +341,16 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.Thing = this.viewModel.Thing.Clone(false);
             await this.viewModel.CreateCategory(false);
-            Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
 
-            this.sessionService.Setup(x => x.RefreshSession()).Throws(new Exception());
-            Assert.That(async () => await this.viewModel.CreateCategory(false), Throws.Exception);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
+                this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
+            });
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            await this.viewModel.CreateCategory(false);
+            this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Thing, EventKind.Updated);
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
