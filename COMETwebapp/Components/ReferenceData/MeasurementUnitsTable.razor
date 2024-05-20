@@ -46,12 +46,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 <CellDisplayTemplate>
                     @{
                         var row = (MeasurementUnitRowViewModel)context.DataItem;
-
                         <DxButton Id="editUnitButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" Enabled="@(row.IsAllowedToWrite)" />
-                        <DxButton Id="@(row.IsDeprecated ? "undeprecateButton" : "deprecateButton")"
-                                  Text="@(row.IsDeprecated ? "Un-deprecate" : "Deprecate")"
-                                  Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)"
-                                  Enabled="@(row.IsAllowedToWrite)" />
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -144,12 +139,4 @@ Copyright (c) 2023-2024 Starion Group S.A.
         </EditFormTemplate>
 
     </DxGrid>
-    
-    <DxPopup @bind-Visible="@this.ViewModel.IsOnDeprecationMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-        @this.ViewModel.PopupDialog
-        <div class="dxbl-grid-confirm-dialog-buttons">
-            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
-        </div>
-    </DxPopup>
 </LoadingComponent>

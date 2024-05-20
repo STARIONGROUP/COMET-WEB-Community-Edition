@@ -172,38 +172,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
         }
         
         [Test]
-         public async Task VerifyRowOperations()
-         {
-             this.viewModel.InitializeViewModel();
-             var domainRow = this.viewModel.Rows.Items.First();
-             domainRow.IsDeprecated = false;
-
-             Assert.Multiple(() =>
-             {
-                 Assert.That(domainRow, Is.Not.Null);
-                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(false));
-             });
-
-             this.viewModel.OnDeprecateUnDeprecateButtonClick(domainRow.Thing);
-
-             Assert.Multiple(() =>
-             {
-                 Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                 Assert.That(this.viewModel.Thing, Is.EqualTo(domainRow.Thing));
-             });
-             
-             this.viewModel.OnCancelPopupButtonClick();
-             Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(false));
-
-             await this.viewModel.OnConfirmPopupButtonClick();
-             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<IReadOnlyCollection<Thing>>(c => ((IDeprecatableThing)c.First()).IsDeprecated == true)));
-
-             this.viewModel.Thing.IsDeprecated = true;
-             await this.viewModel.OnConfirmPopupButtonClick();
-             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<IReadOnlyCollection<Thing>>(c => ((IDeprecatableThing)c.First()).IsDeprecated == false)));
-        }
-
-        [Test]
         public async Task VerifyDomainCreateOrEdit()
         {
             this.viewModel.InitializeViewModel();
