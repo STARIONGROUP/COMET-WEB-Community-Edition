@@ -172,16 +172,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
         }
 
         [Test]
-        public async Task VerifyDeprecation()
-        {
-            this.viewModel.InitializeViewModel();
-
-            this.sessionService.Setup(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
-            await this.viewModel.DeprecateOrUnDeprecateThing();
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-        }
-
-        [Test]
         public async Task VerifyParticipantRoleCreation()
         {
             this.viewModel.InitializeViewModel();

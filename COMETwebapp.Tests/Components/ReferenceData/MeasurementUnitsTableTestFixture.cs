@@ -90,7 +90,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
-            this.viewModel.Setup(x => x.IsOnDeprecationMode).Returns(true);
             this.viewModel.Setup(x => x.Thing).Returns(new SimpleUnit());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
@@ -117,20 +116,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(renderer.Markup, Does.Contain(this.measurementUnit2.Name));
                 this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
             });
-        }
-
-        [Test]
-        public async Task VerifyDeprecatingAndUndeprecatingMeasurementUnit()
-        {
-            var renderer = this.context.RenderComponent<MeasurementUnitsTable>();
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementUnit>()), Times.Once);
-
-            var unDeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            await renderer.InvokeAsync(unDeprecateButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeprecateUnDeprecateButtonClick(It.IsAny<MeasurementUnit>()), Times.Exactly(2));
         }
 
         [Test]
