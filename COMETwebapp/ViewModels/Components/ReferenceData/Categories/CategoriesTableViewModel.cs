@@ -127,7 +127,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         }
 
         /// <summary>
-        /// set the selected <see cref="CategoryRowViewModel" />
+        /// Sets the selected <see cref="Category" />
         /// </summary>
         /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
         public void SelectCategory(Category selectedCategory)

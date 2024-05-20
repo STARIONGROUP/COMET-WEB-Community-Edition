@@ -20,7 +20,7 @@ Copyright (c) 2024 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-@inherits ParameterTypeOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
+@inherits ThingOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
 
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
@@ -63,12 +63,12 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxButton Id="moveUpButton"
                                   IconCssClass="oi oi-arrow-top"
                                   Click="() => this.MoveUp(row)"
-                                  Enabled="@(this.ParameterType.DependentParameterType.IndexOf(row.Thing) > 0)"/>
+                                  Enabled="@(this.Thing.DependentParameterType.IndexOf(row.Thing) > 0)"/>
 
                         <DxButton Id="moveDownButton"
                                   IconCssClass="oi oi-arrow-bottom"
                                   Click="() => this.MoveDown(row)"
-                                  Enabled="@(this.ParameterType.DependentParameterType.LastOrDefault() != row.Thing)" />
+                                  Enabled="@(this.Thing.DependentParameterType.LastOrDefault() != row.Thing)" />
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindFactorsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="MeasurementUnitsForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,48 +22,42 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData.ParameterTypes
+namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
 {
+    using System.ComponentModel.DataAnnotations;
+
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using DevExpress.Blazor;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="QuantityKindFactorsTable" />
+    /// Support class for the <see cref="MeasurementUnitsForm" />
     /// </summary>
-    public partial class QuantityKindFactorsTable : ThingOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
+    public partial class MeasurementUnitsForm : SelectedDataItemForm
     {
         /// <summary>
-        /// Gets or sets the collection of <see cref="ParameterType" />s of <see cref="QuantityKind" />
+        /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component
         /// </summary>
         [Parameter]
-        public IEnumerable<QuantityKind> QuantityKindParameterTypes { get; set; }
+        [Required]
+        public IMeasurementUnitsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing"/>
+        /// Condition to check if the shortname and name fields should be readonly
         /// </summary>
-        public override OrderedItemList<QuantityKindFactor> OrderedItemsList => this.Thing.QuantityKindFactor;
+        private bool ShouldNameAndShortNameBeReadOnly => this.ViewModel.Thing is PrefixedUnit;
 
         /// <summary>
-        /// Method invoked when creating a new quantity kind factor
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditQuantityKindFactor(GridCustomizeEditModelEventArgs e)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnValidSubmit()
         {
-            var dataItem = (QuantityKindFactorRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
-
-            this.Item = dataItem == null
-                ? new QuantityKindFactor { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
-
-            e.EditModel = this.Item;
+            await this.ViewModel.CreateOrEditMeasurementUnit(this.ShouldCreate);
+            await base.OnValidSubmit();
         }
     }
 }

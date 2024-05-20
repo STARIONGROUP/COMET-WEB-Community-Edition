@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CategoriesTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="MeasurementUnitsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,26 +22,27 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData.Categories
+namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="CategoriesTable" />
+    /// Support class for the <see cref="MeasurementUnitsTable" />
     /// </summary>
-    public partial class CategoriesTable : SelectedDeprecatableDataItemBase<Category, CategoryRowViewModel>
+    public partial class MeasurementUnitsTable : SelectedDeprecatableDataItemBase<MeasurementUnit, MeasurementUnitRowViewModel>
     {
         /// <summary>
-        /// The <see cref="ICategoriesTableViewModel" /> for this component
+        /// The <see cref="IMeasurementUnitsTableViewModel" /> for this component
         /// </summary>
         [Inject]
-        public ICategoriesTableViewModel ViewModel { get; set; }
+        public IMeasurementUnitsTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -57,11 +58,11 @@ namespace COMETwebapp.Components.ReferenceData.Categories
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
-        protected override void OnSelectedDataItemChanged(CategoryRowViewModel row)
+        protected override void OnSelectedDataItemChanged(MeasurementUnitRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
-            this.ViewModel.SelectCategory(row.Thing.Clone(true));
+            this.ViewModel.SelectMeasurementUnit(row.Thing.Clone(true));
         }
 
         /// <summary>
@@ -71,7 +72,8 @@ namespace COMETwebapp.Components.ReferenceData.Categories
         {
             this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
-            this.ViewModel.SelectCategory(new Category());
+            this.ViewModel.SelectedMeasurementUnitType = this.ViewModel.MeasurementUnitTypes.First(x => x.ClassKind == ClassKind.SimpleUnit);
+            this.ViewModel.SelectMeasurementUnit(new SimpleUnit());
             this.InvokeAsync(this.StateHasChanged);
         }
     }

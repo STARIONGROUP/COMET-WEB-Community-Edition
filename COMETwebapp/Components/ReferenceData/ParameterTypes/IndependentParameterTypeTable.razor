@@ -62,12 +62,12 @@ Copyright (c) 2024 Starion Group S.A.
                         <DxButton Id="moveUpButton"
                                   IconCssClass="oi oi-arrow-top"
                                   Click="() => this.MoveUp(row)"
-                                  Enabled="@(this.ParameterType.IndependentParameterType.IndexOf(row.Thing) > 0)"/>
+                                  Enabled="@(this.Thing.IndependentParameterType.IndexOf(row.Thing) > 0)"/>
 
                         <DxButton Id="moveDownButton"
                                   IconCssClass="oi oi-arrow-bottom"
                                   Click="() => this.MoveDown(row)"
-                                  Enabled="@(this.ParameterType.IndependentParameterType.LastOrDefault() != row.Thing)"/>
+                                  Enabled="@(this.Thing.IndependentParameterType.LastOrDefault() != row.Thing)"/>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>

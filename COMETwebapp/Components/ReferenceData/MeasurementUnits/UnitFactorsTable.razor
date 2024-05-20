@@ -16,12 +16,13 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @using CDP4Common.SiteDirectoryData
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
+@inherits ThingOrderedItemsTable<DerivedUnit, UnitFactor, UnitFactorRowViewModel>
 
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
         EditMode="GridEditMode.PopupEditForm"
         PopupEditFormHeaderText="Unit Factor"
-        EditModelSaving="@(() => this.OnEditUnitFactorSaving())"
+        EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditUnitFactor">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(UnitFactorRowViewModel.MeasurementUnit)" MinWidth="150" />
@@ -37,7 +38,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
                     <DxButton Id="editUnitFactorButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" />
                     <DxButton Id="removeUnitFactorButton"
                               Text="Remove"
-                              Click="() => this.RemoveUnitFactor(row)"/>
+                              Click="() => this.RemoveItem(row)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -49,11 +50,11 @@ Copyright (c) 2023-2024 Starion Group S.A.
             <DxFormLayoutItem Caption="Measurement Unit:" ColSpanMd="10">
                 <DxComboBox Data="@this.MeasurementUnits"
                             TextFieldName="@nameof(ReferenceDataLibrary.Name)"
-                            @bind-Value="@this.UnitFactor.Unit"
+                            @bind-Value="@this.Item.Unit"
                             CssClass="cw-480"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Exponent:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@this.UnitFactor.Exponent"/>
+                <DxTextBox @bind-Text="@this.Item.Exponent"/>
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

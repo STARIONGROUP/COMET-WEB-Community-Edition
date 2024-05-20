@@ -72,5 +72,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit"/> should be created</param>
         /// <returns>A <see cref="Task"/></returns>
         Task CreateOrEditMeasurementUnit(bool shouldCreate);
+
+        /// <summary>
+        /// Sets the current <see cref="MeasurementUnit"/>
+        /// </summary>
+        /// <param name="measurementUnit">The <see cref="MeasurementUnit"/> to be set</param>
+        void SelectMeasurementUnit(MeasurementUnit measurementUnit);
     }
 }

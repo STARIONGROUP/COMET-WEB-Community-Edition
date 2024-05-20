@@ -107,5 +107,20 @@ namespace COMETwebapp.Components.Common
                 e.CssClass = "highlighted-item";
             }
         }
+
+        /// <summary>
+        /// Method invoked whenever a form is saved
+        /// </summary>
+        protected void OnSaved()
+        {
+            if (!this.ShouldCreateThing)
+            {
+                return;
+            }
+
+            this.ShouldCreateThing = false;
+            var createdRow = this.ViewModel.Rows.Items.First(x => x.Thing.Iid == this.ViewModel.Thing.Iid);
+            this.OnSelectedDataItemChanged(createdRow);
+        }
     }
 }

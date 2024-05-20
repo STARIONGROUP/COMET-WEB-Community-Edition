@@ -28,7 +28,7 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
     using CDP4Common.Validation;
 
     using COMETwebapp.Validators.ReferenceData.MeasurementUnits;
-
+    using FluentValidation;
     using NUnit.Framework;
 
     [TestFixture]
@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
         private LinearConversionUnitValidator linearConversionUnitValidator;
         private PrefixedUnitValidator prefixedUnitValidator;
         private UnitFactorValidator unitFactorValidator;
+        private DerivedUnitValidator derivedUnitValidator;
 
         [SetUp]
         public void SetUp()
@@ -47,6 +48,7 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
             this.linearConversionUnitValidator = new LinearConversionUnitValidator(validationService);
             this.prefixedUnitValidator = new PrefixedUnitValidator(validationService);
             this.unitFactorValidator = new UnitFactorValidator(validationService);
+            this.derivedUnitValidator = new DerivedUnitValidator(validationService);
         }
 
         [Test]
@@ -125,6 +127,26 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
             };
 
             Assert.That(this.unitFactorValidator.Validate(unitFactor).IsValid, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void VerifyDerivedUnitValidation()
+        {
+            var derivedUnit = new DerivedUnit();
+
+            Assert.That(this.derivedUnitValidator.Validate(derivedUnit).IsValid, Is.EqualTo(false));
+
+            derivedUnit = new DerivedUnit()
+            {
+                Name = "derived",
+                ShortName = "der ived"
+            };
+
+            Assert.That(this.derivedUnitValidator.Validate(derivedUnit).IsValid, Is.EqualTo(false));
+
+            derivedUnit.ShortName = "derived";
+            derivedUnit.UnitFactor.Add(new UnitFactor());
+            Assert.That(this.derivedUnitValidator.Validate(derivedUnit).IsValid, Is.EqualTo(true));
         }
     }
 }

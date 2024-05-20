@@ -26,12 +26,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.Rows;
+
     using ReactiveUI;
 
     /// <summary>
     /// Row View Model for <see cref="UnitFactor" />s
     /// </summary>
-    public class UnitFactorRowViewModel : ReactiveObject
+    public class UnitFactorRowViewModel : BaseDataItemRowViewModel<UnitFactor>
     {
         /// <summary>
         /// Backing field for <see cref="MeasurementUnit" />
@@ -47,7 +49,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// Initializes a new instance of the <see cref="UnitFactorRowViewModel" /> class.
         /// </summary>
         /// <param name="unitFactor">The associated <see cref="UnitFactor" /></param>
-        public UnitFactorRowViewModel(UnitFactor unitFactor)
+        public UnitFactorRowViewModel(UnitFactor unitFactor) : base(unitFactor)
         {
             this.MeasurementUnit = unitFactor.Unit.ShortName;
             this.Exponent = unitFactor.Exponent;

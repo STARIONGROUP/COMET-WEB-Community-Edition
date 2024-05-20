@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     /// <summary>
     /// Support class for the <see cref="DependentParameterTypeTable" />
     /// </summary>
-    public partial class DependentParameterTypeTable : ParameterTypeOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
+    public partial class DependentParameterTypeTable : ThingOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
     {
         /// <summary>
         /// Gets or sets the collection of <see cref="ParameterType" />s
@@ -52,9 +52,9 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
+        /// Gets or sets the ordered list of items from the current <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing" />
         /// </summary>
-        public override OrderedItemList<DependentParameterTypeAssignment> OrderedItemsList => this.ParameterType.DependentParameterType;
+        public override OrderedItemList<DependentParameterTypeAssignment> OrderedItemsList => this.Thing.DependentParameterType;
 
         /// <summary>
         /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="DependentParameterTypeAssignment" />

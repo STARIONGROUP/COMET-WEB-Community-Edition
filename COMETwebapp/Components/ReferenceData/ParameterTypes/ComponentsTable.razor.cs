@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     /// <summary>
     /// Support class for the <see cref="ComponentsTable" />
     /// </summary>
-    public partial class ComponentsTable : ParameterTypeOrderedItemsTable<CompoundParameterType, ParameterTypeComponent, ParameterTypeComponentRowViewModel>
+    public partial class ComponentsTable : ThingOrderedItemsTable<CompoundParameterType, ParameterTypeComponent, ParameterTypeComponentRowViewModel>
     {
         /// <summary>
         /// Gets or sets the collection of <see cref="ParameterType" />s
@@ -47,9 +47,9 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 
         /// <summary>
         /// Gets or sets the ordered list of items from the current
-        /// <see cref="ParameterTypeOrderedItemsTable{T,TItem,TItemRow}.ParameterType" />
+        /// <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing" />
         /// </summary>
-        public override OrderedItemList<ParameterTypeComponent> OrderedItemsList => this.ParameterType.Component;
+        public override OrderedItemList<ParameterTypeComponent> OrderedItemsList => this.Thing.Component;
 
         /// <summary>
         /// Gets the component dimension for the <see cref="ArrayParameterType" />
@@ -64,7 +64,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             base.OnInitialized();
 
-            if (this.ParameterType is ArrayParameterType arrayParameterType)
+            if (this.Thing is ArrayParameterType arrayParameterType)
             {
                 this.Dimension = string.Join(",", arrayParameterType.Dimension.Select(x => x.ToString()));
             }
@@ -103,7 +103,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             this.Dimension = text;
             var dimensions = text.Split(",").Select(int.Parse).ToList();
-            var arrayParameterType = (ArrayParameterType)this.ParameterType;
+            var arrayParameterType = (ArrayParameterType)this.Thing;
             var dimensionIndex = 0;
 
             if (arrayParameterType.Dimension.Count > dimensions.Count)

@@ -72,7 +72,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             this.renderer = this.context.RenderComponent<DependentParameterTypeTable>(parameters =>
             {
                 parameters.Add(p => p.ParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
-                parameters.Add(p => p.ParameterType, this.parameterType);
+                parameters.Add(p => p.Thing, this.parameterType);
                 parameters.Add(p => p.Enabled, true);
             });
         }
@@ -104,7 +104,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.ParameterTypes.Count(), Is.EqualTo(2));
-                Assert.That(this.renderer.Instance.ParameterType, Is.Not.Null);
+                Assert.That(this.renderer.Instance.Thing, Is.Not.Null);
                 Assert.That(this.renderer.Instance.OrderedItemsList, Is.EqualTo(this.parameterType.DependentParameterType));
                 Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.DependentParameterType.First().ParameterType.Name));
             });

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="EnumerationValueDefinitionsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="UnitFactorValidator.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,41 +22,28 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData.ParameterTypes
+namespace COMETwebapp.Validators.ReferenceData.MeasurementUnits
 {
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
+    using CDP4Common.Validation;
 
-    using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMET.Web.Common.Extensions;
 
-    using DevExpress.Blazor;
+    using FluentValidation;
 
     /// <summary>
-    /// Support class for the <see cref="EnumerationValueDefinitionsTable" />
+    /// A class to validate the <see cref="DerivedUnit" />
     /// </summary>
-    public partial class EnumerationValueDefinitionsTable : ThingOrderedItemsTable<EnumerationParameterType, EnumerationValueDefinition, EnumerationValueDefinitionRowViewModel>
+    public class DerivedUnitValidator : AbstractValidator<DerivedUnit>
     {
         /// <summary>
-        /// Gets or sets the ordered list of items from the current
-        /// <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing" />
+        /// Instantiates a new <see cref="DerivedUnitValidator" />
         /// </summary>
-        public override OrderedItemList<EnumerationValueDefinition> OrderedItemsList => this.Thing.ValueDefinition;
-
-        /// <summary>
-        /// Method invoked when creating a new enumeration value definition
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditEnumerationValueDefinition(GridCustomizeEditModelEventArgs e)
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
+        public DerivedUnitValidator(IValidationService validationService)
         {
-            var dataItem = (EnumerationValueDefinitionRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
-
-            this.Item = dataItem == null
-                ? new EnumerationValueDefinition { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
-
-            e.EditModel = this.Item;
+            this.Include(new MeasurementUnitValidator(validationService));
+            this.RuleFor(x => x.UnitFactor).Must(x => x.Count > 0).WithMessage("At least one unit factor must be selected").Validate(validationService, nameof(DerivedUnit.UnitFactor));
         }
     }
 }
