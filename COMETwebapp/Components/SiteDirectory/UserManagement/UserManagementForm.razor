@@ -90,7 +90,8 @@ Copyright (c) 2023-2024 Starion Group S.A.
     <ValidationSummary />
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="savePersonButton"
-                  SubmitFormOnClick="true">
+                  SubmitFormOnClick="true"
+                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
             Save
         </DxButton>
 

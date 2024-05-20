@@ -43,8 +43,8 @@ namespace COMETwebapp.Validators.SiteDirectory
         public PersonValidator(IValidationService validationService)
         {
             this.RuleFor(x => x.ShortName).Validate(validationService, nameof(Person.ShortName));
-            this.RuleFor(x => x.GivenName).Validate(validationService, nameof(Person.GivenName));
-            this.RuleFor(x => x.Surname).Validate(validationService, nameof(Person.Surname));
+            this.RuleFor(x => x.GivenName).NotEmpty().Validate(validationService, nameof(Person.GivenName));
+            this.RuleFor(x => x.Surname).NotEmpty().Validate(validationService, nameof(Person.Surname));
             this.RuleFor(x => x.OrganizationalUnit).Validate(validationService, nameof(Person.OrganizationalUnit));
             this.RuleFor(x => x.Organization).Validate(validationService, nameof(Person.Organization));
             this.RuleFor(x => x.Role).Validate(validationService, nameof(Person.Role));
