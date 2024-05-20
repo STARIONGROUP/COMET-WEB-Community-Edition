@@ -20,6 +20,7 @@ Copyright (c) 2024 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Wrappers
+@using CDP4Common.CommonData
 @inherits SelectedDataItemForm
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
@@ -49,16 +50,25 @@ Copyright (c) 2024 Starion Group S.A.
             <DxFormLayoutTabPage Caption="Permissible Classes">
                 <DxFormLayoutItem Caption="Permissible Classes:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
                     <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
-                               @bind-Values="@(this.ViewModel.SelectedPermissibleClasses)"
+                               TData="ClassKindWrapper"
+                               TValue="ClassKind"
+                               Values="@(this.ViewModel.Thing.PermissibleClass)"
+                               ValuesChanged="@(permissibleClasses => this.ViewModel.Thing.PermissibleClass = permissibleClasses.ToList())"
+                               ValuesExpression="@(() => this.ViewModel.Thing.PermissibleClass)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
+                               ValueFieldName="@nameof(ClassKindWrapper.ClassKind)"
                                ShowCheckboxes="true"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Super Categories">
                 <DxFormLayoutItem Caption="Super Categories:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
-                    <DxListBox Data="@(this.ViewModel.DataSource.Items)"
-                               @bind-Values="@(this.ViewModel.SelectedSuperCategories)"
+                    <DxListBox TData="Category"
+                               TValue="Category" 
+                               Data="@(this.ViewModel.DataSource.Items)"
+                               Values="@(this.ViewModel.Thing.SuperCategory)"
+                               ValuesChanged="@(superCategories => this.ViewModel.Thing.SuperCategory = superCategories.ToList())"
+                               ValuesExpression="@(() => this.ViewModel.Thing.SuperCategory)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                TextFieldName="@nameof(Category.Name)"
                                ShowCheckboxes="true"/>

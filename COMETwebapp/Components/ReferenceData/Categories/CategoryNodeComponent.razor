@@ -21,23 +21,23 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @using Blazor.Diagrams.Components.Renderers;
 
-<div class="card @(Node.Category.IsDeprecated ? "dotted" : "")" style="width: auto; text-align:center;">
+<div class="card @(this.Node.Category.IsDeprecated ? "dotted" : "")" style="width: auto; text-align:center;">
     <div class="card-body">
-        @if (Node.Category.IsAbstract)
+        @if (this.Node.Category.IsAbstract)
         {
             <h5 class="card-title">
-                <i>@Node.Category.Name</i>
+                <i>@(this.Node.Category.Name)</i>
             </h5>
         }
         else
         {
             <h5 class="card-title">
-                <b>@Node.Category.Name</b>
+                <b>@(this.Node.Category.Name)</b>
             </h5>
         }
     </div>
 
-    @foreach (var port in Node.Ports)
+    @foreach (var port in this.Node.Ports)
     {
         <PortRenderer Port="port" />
     }

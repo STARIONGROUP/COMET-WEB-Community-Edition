@@ -70,16 +70,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; } = Enum.GetValues<ClassKind>().Select(x => new ClassKindWrapper(x));
 
         /// <summary>
-        /// Selected <see cref="ClassKind" />s
-        /// </summary>
-        public IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; } = new List<ClassKindWrapper>();
-
-        /// <summary>
-        /// Selected super <see cref="Category" />
-        /// </summary>
-        public IEnumerable<Category> SelectedSuperCategories { get; set; } = new List<Category>();
-
-        /// <summary>
         /// selected container
         /// </summary>
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
@@ -109,16 +99,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
             var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
             var thingsToCreate = new List<Thing>();
-
-            if (this.SelectedSuperCategories.Any())
-            {
-                this.Thing.SuperCategory = this.SelectedSuperCategories.ToList();
-            }
-
-            if (this.SelectedPermissibleClasses.Any())
-            {
-                this.Thing.PermissibleClass = this.SelectedPermissibleClasses.Select(x => x.ClassKind).ToList();
-            }
 
             if (shouldCreate || hasRdlChanged)
             {
@@ -154,17 +134,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public void SelectCategory(Category selectedCategory)
         {
             this.Thing = selectedCategory;
-
-            if (selectedCategory.Iid == Guid.Empty)
-            {
-                this.SelectedPermissibleClasses = new List<ClassKindWrapper>();
-                this.SelectedSuperCategories = new List<Category>();
-                return;
-            }
-
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container;
-            this.SelectedPermissibleClasses = selectedCategory.PermissibleClass.Select(x => new ClassKindWrapper(x));
-            this.SelectedSuperCategories = selectedCategory.SuperCategory;
 
             this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory;
             this.CategoryHierarchyDiagramViewModel.Rows = selectedCategory.SuperCategory;

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CategoryHierarchyDiagram.razor.cs" company="Starion Group S.A.">
+// <copyright file="CategoryNode.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2024 Starion Group S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
@@ -21,27 +21,32 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+using Blazor.Diagrams.Core.Geometry;
+using Blazor.Diagrams.Core.Models;
 
-namespace COMETwebapp.Components.ReferenceData
+using CDP4Common.SiteDirectoryData;
+
+
+namespace COMETwebapp.Components.ReferenceData.Categories
 {
-    using Blazor.Diagrams.Core;
-    using Blazor.Diagrams.Core.Models;
-
-    using COMETwebapp.Components.ReferenceData.ParameterTypes;
-
-    using Microsoft.AspNetCore.Components;
-
-    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
-
     /// <summary>
-    ///     Support class for the <see cref="ParameterTypeTable"/>
+    ///     represent the Category diagram node
     /// </summary>
-    public partial class CategoryHierarchyDiagram
+    public class CategoryNode : NodeModel
     {
         /// <summary>
-        ///     The <see cref="ICategoryHierarchyDiagramViewModel" /> for the component
+        /// Initializes a new instance of the <see cref="CategoryNode" /> class.
         /// </summary>
-        [Parameter]
-        public ICategoryHierarchyDiagramViewModel ViewModel { get; set; }
+        /// <param name="category">The <see cref="Category" /></param>
+        /// <param name="position">The <see cref="Point" /></param>
+        public CategoryNode(Category category, Point position = null) : base(position, RenderLayer.HTML)
+        {
+            this.Category = category;
+        }
+
+        /// <summary>
+        /// Get or set the <see cref="Category" />
+        /// </summary>
+        public Category Category { get; set; }
     }
 }

@@ -30,7 +30,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.ReferenceData.Categories;
 
     using ReactiveUI;
 
@@ -120,11 +120,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             {
                 var currentIndex = this.Rows.ToList().IndexOf(row);
                 var xOffset = (currentIndex - (numberOfNodes - 1) / 2) * distanceBetweenNodes;
-
                 position = new Point(node12.Position.X - xOffset, -200);
 
-                var node = new CategoryNode(row, position);
-                node.Title = row.Name;
+                var node = new CategoryNode(row, position)
+                {
+                    Title = row.Name
+                };
+
                 node.AddPort(PortAlignment.Top);
                 this.Diagram.Nodes.Add(node);
 
@@ -143,11 +145,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             {
                 var currentIndex = this.SubCategories.ToList().IndexOf(subCategory);
                 var xOffset = (currentIndex - (numberOfSubNodes - 1) / 2) * distanceBetweenNodes;
-
                 var position2 = new Point(node12.Position.X + xOffset, 300);
 
-                var node2 = new CategoryNode(subCategory, position2);
-                node2.Title = subCategory.Name;
+                var node2 = new CategoryNode(subCategory, position2)
+                {
+                    Title = subCategory.Name
+                };
+
                 node2.AddPort();
                 this.Diagram.Nodes.Add(node2);
 

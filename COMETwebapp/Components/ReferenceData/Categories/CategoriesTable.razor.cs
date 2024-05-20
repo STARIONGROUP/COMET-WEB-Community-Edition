@@ -22,14 +22,13 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.Components.ReferenceData.Categories
 {
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    using COMETwebapp.Wrappers;
 
     using Microsoft.AspNetCore.Components;
 

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CategoriesForm.razor.cs" company="Starion Group S.A.">
+//  <copyright file="CategoryNodeComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,39 +22,19 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData
+namespace COMETwebapp.Components.ReferenceData.Categories
 {
-    using System.ComponentModel.DataAnnotations;
-
-    using COMET.Web.Common.Extensions;
-
-    using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
-
     using Microsoft.AspNetCore.Components;
 
-    using ReactiveUI;
-
     /// <summary>
-    /// Support class for the <see cref="CategoriesForm" />
+    /// Support class for the <see cref="CategoryNodeComponent" />
     /// </summary>
-    public partial class CategoriesForm : SelectedDataItemForm
+    public partial class CategoryNodeComponent
     {
         /// <summary>
-        /// The <see cref="ICategoriesTableViewModel" /> for this component
+        /// The <see cref="CategoryNode" /> for the component
         /// </summary>
         [Parameter]
-        [Required]
-        public ICategoriesTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Method that is executed when there is a valid submit
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnValidSubmit()
-        {
-            await this.ViewModel.CreateCategory(this.ShouldCreate);
-            await base.OnValidSubmit();
-        }
+        public CategoryNode Node { get; set; }
     }
 }
