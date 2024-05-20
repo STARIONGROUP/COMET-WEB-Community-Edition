@@ -1,32 +1,29 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DomainsOfExpertiseTableTestFixture.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="DomainsOfExpertiseTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.SiteDirectory
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.SiteDirectoryData;
@@ -35,7 +32,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -70,18 +66,18 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
             this.showHideService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
-            this.domainOfExpertise1 = new DomainOfExpertise()
+            this.domainOfExpertise1 = new DomainOfExpertise
             {
                 Name = "A name",
                 ShortName = "AName",
-                Container = new SiteDirectory(){ ShortName = "siteDir" },
+                Container = new SiteDirectory { ShortName = "siteDir" }
             };
 
-            this.domainOfExpertise2 = new DomainOfExpertise()
+            this.domainOfExpertise2 = new DomainOfExpertise
             {
                 Name = "B name",
                 ShortName = "BName",
-                Container = new SiteDirectory() { ShortName = "siteDir" },
+                Container = new SiteDirectory { ShortName = "siteDir" },
                 IsDeprecated = true
             };
 
@@ -102,21 +98,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         {
             this.context.CleanContext();
             this.context.Dispose();
-        }
-
-        [Test]
-        public void VerifyOnInitialized()
-        {
-            var renderer = this.context.RenderComponent<DomainsOfExpertiseTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(renderer.Instance.ViewModel, Is.Not.Null);
-                Assert.That(renderer.Markup, Does.Contain(this.domainOfExpertise1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.domainOfExpertise2.Name));
-                this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
-            });
         }
 
         [Test]
@@ -150,6 +131,21 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             var form = renderer.FindComponent<DxGrid>();
             await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditDomainOfExpertise(false), Times.Once);
+        }
+
+        [Test]
+        public void VerifyOnInitialized()
+        {
+            var renderer = this.context.RenderComponent<DomainsOfExpertiseTable>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                Assert.That(renderer.Instance.ViewModel, Is.Not.Null);
+                Assert.That(renderer.Markup, Does.Contain(this.domainOfExpertise1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.domainOfExpertise2.Name));
+                this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
+            });
         }
     }
 }

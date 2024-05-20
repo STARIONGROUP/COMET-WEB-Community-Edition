@@ -132,7 +132,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <param name="person">The person to be set</param>
         public void SelectPerson(Person person)
         {
-            this.Thing = person.Clone(true);
+            this.Thing = person;
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(person.Iid == Guid.Empty, person.DefaultDomain);
         }
 
@@ -143,42 +143,55 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditPerson(bool shouldCreate)
         {
-            var thingsToCreate = new List<Thing>();
-
-            if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
+            try
             {
-                this.Thing.EmailAddress.Add(this.EmailAddress);
-                thingsToCreate.Add(this.EmailAddress);
-            }
+                this.IsLoading = true;
 
-            if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
+                var thingsToCreate = new List<Thing>();
+
+                if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
+                {
+                    this.Thing.EmailAddress.Add(this.EmailAddress);
+                    thingsToCreate.Add(this.EmailAddress);
+                }
+
+                if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
+                {
+                    this.Thing.TelephoneNumber.Add(this.TelephoneNumber);
+                    thingsToCreate.Add(this.TelephoneNumber);
+                }
+
+                if (this.IsDefaultEmail)
+                {
+                    this.Thing.DefaultEmailAddress = this.EmailAddress;
+                }
+
+                if (this.IsDefaultTelephoneNumber)
+                {
+                    this.Thing.DefaultTelephoneNumber = this.TelephoneNumber;
+                }
+
+                var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+
+                if (shouldCreate)
+                {
+                    siteDirectoryClone.Person.Add(this.Thing);
+                    thingsToCreate.Add(siteDirectoryClone);
+                }
+
+                thingsToCreate.Add(this.Thing);
+                await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToCreate);
+                await this.SessionService.RefreshSession();
+                this.ResetFields();
+            }
+            catch (Exception ex)
             {
-                this.Thing.TelephoneNumber.Add(this.TelephoneNumber);
-                thingsToCreate.Add(this.TelephoneNumber);
+                this.Logger.LogError(ex, "Create or Update Person failed");
             }
-
-            if (this.IsDefaultEmail)
+            finally
             {
-                this.Thing.DefaultEmailAddress = this.EmailAddress;
+                this.IsLoading = false;
             }
-
-            if (this.IsDefaultTelephoneNumber)
-            {
-                this.Thing.DefaultTelephoneNumber = this.TelephoneNumber;
-            }
-
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-
-            if (shouldCreate)
-            {
-                siteDirectoryClone.Person.Add(this.Thing);
-                thingsToCreate.Add(siteDirectoryClone);
-            }
-
-            thingsToCreate.Add(this.Thing);
-            await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
-            this.ResetFields();
         }
 
         /// <summary>

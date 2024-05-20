@@ -27,6 +27,7 @@ namespace COMETwebapp.Pages.SiteDirectory
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
     using COMETwebapp.Components.SiteDirectory.Roles;
+    using COMETwebapp.Components.SiteDirectory.UserManagement;
 
     using DevExpress.Blazor;
 
