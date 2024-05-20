@@ -47,16 +47,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         IEnumerable<ClassKindWrapper> PermissibleClasses { get; set; }
 
         /// <summary>
-        /// Selected <see cref="ClassKind" />s
-        /// </summary>
-        IEnumerable<ClassKindWrapper> SelectedPermissibleClasses { get; set; }
-
-        /// <summary>
-        /// Selected super <see cref="Category" />
-        /// </summary>
-        IEnumerable<Category> SelectedSuperCategories { get; set; }
-
-        /// <summary>
         /// selected container
         /// </summary>
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
