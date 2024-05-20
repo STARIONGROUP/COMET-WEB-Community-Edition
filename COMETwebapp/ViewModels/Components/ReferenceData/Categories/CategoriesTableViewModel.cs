@@ -133,7 +133,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public void SelectCategory(Category selectedCategory)
         {
             this.Thing = selectedCategory;
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container;
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
 
             if (selectedCategory.Iid == Guid.Empty)
             {
