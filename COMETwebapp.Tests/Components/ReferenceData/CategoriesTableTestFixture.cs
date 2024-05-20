@@ -38,6 +38,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -47,6 +49,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using DevExpress.Blazor;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -164,7 +167,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.elementDefinitionCategory2 = new Category(Guid.NewGuid(), this.assembler.Cache, this.uri) { Name = "Reaction Wheels", ShortName = "RW", IsDeprecated = true };
             this.elementDefinitionCategory2.PermissibleClass.Add(ClassKind.ElementDefinition);
 
-            this.elementDefinitionCategory1.SuperCategory.Add(this.elementDefinitionCategory2);
             this.elementDefinitionCategory2.SuperCategory.Add(this.elementDefinitionCategory1);
 
             this.siteReferenceDataLibrary.DefinedCategory.Add(this.elementDefinitionCategory1);
@@ -312,11 +314,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyAddingCategory()
+        public async Task VerifyAddOrEditCategory()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
-
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>
             {
@@ -337,42 +337,17 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.viewModel.Thing.PermissibleClass = [ClassKind.ElementDefinition];
 
             await this.viewModel.CreateCategory(true);
-            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
-        }
 
-        [Test]
-        public async Task VerifyDeprecatingCategory()
-        {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
+            this.viewModel.Thing = this.viewModel.Thing.Clone(false);
+            await this.viewModel.CreateCategory(false);
+            Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
 
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            this.sessionService.Setup(x => x.RefreshSession()).Throws(new Exception());
+            Assert.That(async () => await this.viewModel.CreateCategory(false), Throws.Exception);
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
-            });
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            var currentCategory = this.viewModel.Thing;
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentCategory));
-            });
-
-            this.viewModel.Thing = this.elementDefinitionCategory1;
-
-            await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.Thing, EventKind.Updated);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
         }
 
         [Test]
@@ -410,39 +385,33 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyUnDeprecatingCategory()
+        public async Task VerifyGridActions()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
+            var grid = renderer.FindComponent<DxGrid>();
+            var firstRow = this.viewModel.Rows.Items.First();
 
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            renderer.Render();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
-            });
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            var currentCategory = this.viewModel.Thing;
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
+            var addCategoryButton = renderer.FindComponent<DxButton>();
+            await renderer.InvokeAsync(addCategoryButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentCategory));
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Category)));
             });
 
-            this.viewModel.Thing = this.elementDefinitionCategory2;
+            await renderer.InvokeAsync(() => grid.Instance.SelectedDataItemChanged.InvokeAsync(firstRow));
 
-            await this.viewModel.OnConfirmPopupButtonClick();
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                Assert.That(this.viewModel.Thing.Original, Is.EqualTo(firstRow.Thing));
+            });
 
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
+            var editForm = renderer.FindComponent<EditForm>();
+            await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
     }
 }

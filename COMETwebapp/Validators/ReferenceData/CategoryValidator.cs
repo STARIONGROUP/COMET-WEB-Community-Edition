@@ -44,6 +44,7 @@ namespace COMETwebapp.Validators.ReferenceData
         {
             this.RuleFor(x => x.Name).Validate(validationService, nameof(Category.Name));
             this.RuleFor(x => x.ShortName).Validate(validationService, nameof(Category.ShortName));
+            this.RuleFor(x => x.SuperCategory).Validate(validationService, nameof(Category.SuperCategory));
             this.RuleFor(x => x.PermissibleClass).Must(x => x.Count > 0).WithMessage("At least one permissible class must be selected").Validate(validationService, nameof(Category.PermissibleClass));
         }
     }

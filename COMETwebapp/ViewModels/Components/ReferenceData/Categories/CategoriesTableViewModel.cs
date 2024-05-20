@@ -35,7 +35,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
     using COMETwebapp.Wrappers;
-    using DynamicData;
 
     /// <summary>
     /// View model used to manage <see cref="Category" />
@@ -135,6 +134,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         {
             this.Thing = selectedCategory;
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container;
+
+            if (selectedCategory.Iid == Guid.Empty)
+            {
+                return;
+            }
 
             this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory;
             this.CategoryHierarchyDiagramViewModel.Rows = selectedCategory.SuperCategory;
