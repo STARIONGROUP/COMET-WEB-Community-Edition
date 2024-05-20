@@ -53,17 +53,9 @@ Copyright (c) 2023-2024 Starion Group S.A.
                                   OnButtonClick="@(this.OnAddThingClick)">
 
             <CategoriesForm ViewModel="@(this.ViewModel)"
-                                   @bind-IsVisible="@(this.IsOnEditMode)"
-                                   ShouldCreate="@(this.ShouldCreateThing)"
-                                   OnSaved="@(this.OnSaved)"/>
+                            @bind-IsVisible="@(this.IsOnEditMode)"
+                            ShouldCreate="@(this.ShouldCreateThing)"
+                            OnSaved="@(this.OnSaved)"/>
         </DataItemDetailsComponent>
     </div>
-
-    <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-        @(this.ViewModel.PopupDialog)
-        <div class="dxbl-grid-confirm-dialog-buttons">
-            <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
-            <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
-        </div>
-    </DxPopup>
 </LoadingComponent>

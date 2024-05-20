@@ -90,15 +90,6 @@ Copyright (c) 2024 Starion Group S.A.
     <div class="pt-3"></div>
     <ValidationSummary/>
     <div class="dxbl-grid-edit-form-buttons">
-
-        @if (!this.ShouldCreate)
-        {
-            <DxButton Id="deprecateOrUndeprecateButton"
-                      Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(this.ViewModel.Thing)">
-                @(this.ViewModel.Thing.IsDeprecated ? "Un-deprecate" : "Deprecate")
-            </DxButton>
-        }
-
         <DxButton Id="saveMeasurementScaleButton"
                   SubmitFormOnClick="true"
                   Enabled="@(this.IsSaveButtonEnabled(editFormContext))">

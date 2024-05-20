@@ -93,37 +93,37 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateCategory(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
-            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            if (shouldCreate || hasRdlChanged)
-            {
-                rdlClone.DefinedCategory.Add(this.Thing);
-                thingsToCreate.Add(rdlClone);
-            }
-
-            thingsToCreate.Add(this.Thing);
-
             try
             {
+                this.IsLoading = true;
+
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                if (shouldCreate || hasRdlChanged)
+                {
+                    rdlClone.DefinedCategory.Add(this.Thing);
+                    thingsToCreate.Add(rdlClone);
+                }
+
+                thingsToCreate.Add(this.Thing);
                 await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
                 await this.SessionService.RefreshSession();
+                
+                if (this.Thing.Original is not null)
+                {
+                    this.Thing = (Category)this.Thing.Original.Clone(true);
+                }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                this.Logger.LogError(exception, "An error has ocurred while adding a new category");
-                throw;
+                this.Logger.LogError(ex, "Create or Update Category failed");
             }
-
-            if (this.Thing.Original is not null)
+            finally
             {
-                this.Thing = (Category)this.Thing.Original.Clone(true);
+                this.IsLoading = false;
             }
-
-            this.IsLoading = false;
         }
 
         /// <summary>
