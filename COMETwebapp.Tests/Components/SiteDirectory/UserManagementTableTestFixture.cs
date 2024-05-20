@@ -367,38 +367,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         }
 
         [Test]
-        public async Task VerifyDeprecatingPerson()
-        {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
-
-            var deprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deprecateButton");
-            var currentPerson = this.viewModel.Thing;
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-
-            await renderer.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentPerson));
-            });
-
-            this.viewModel.Thing = this.person;
-
-            await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-        }
-
-        [Test]
         public void VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<UserManagementTable>();
@@ -435,38 +403,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
-        }
-
-        [Test]
-        public async Task VerifyUnDeprecatingPerson()
-        {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
-
-            var undeprecateButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "undeprecateButton");
-            var currentPerson = this.viewModel.Thing;
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
-
-            await renderer.InvokeAsync(undeprecateButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.True);
-                Assert.That(this.viewModel.Thing, Is.Not.EqualTo(currentPerson));
-            });
-
-            this.viewModel.Thing = this.person1;
-
-            await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.False);
         }
     }
 }

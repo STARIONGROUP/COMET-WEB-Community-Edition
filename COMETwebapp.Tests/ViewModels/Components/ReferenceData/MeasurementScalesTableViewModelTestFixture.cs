@@ -249,38 +249,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyRowOperations()
-        {
-            this.viewModel.InitializeViewModel();
-            var measurementScaleRow = this.viewModel.Rows.Items.First();
-            measurementScaleRow.IsDeprecated = false;
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(measurementScaleRow, Is.Not.Null);
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(false));
-            });
-
-            this.viewModel.OnDeprecateUnDeprecateButtonClick(measurementScaleRow.Thing);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(true));
-                Assert.That(this.viewModel.Thing, Is.EqualTo(measurementScaleRow.Thing));
-            });
-
-            this.viewModel.OnCancelPopupButtonClick();
-            Assert.That(this.viewModel.IsOnDeprecationMode, Is.EqualTo(false));
-
-            await this.viewModel.OnConfirmPopupButtonClick();
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<IReadOnlyCollection<Thing>>(c => ((IDeprecatableThing)c.First()).IsDeprecated == true)));
-
-            this.viewModel.Thing.IsDeprecated = true;
-            await this.viewModel.OnConfirmPopupButtonClick();
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<IReadOnlyCollection<Thing>>(c => ((IDeprecatableThing)c.First()).IsDeprecated == false)));
-        }
-
-        [Test]
         public void VerifySessionRefresh()
         {
             this.viewModel.InitializeViewModel();

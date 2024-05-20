@@ -52,17 +52,6 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 <DxButton Id="addCategoryButton" Text="Add Category" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
             </HeaderTemplate>
             <CellDisplayTemplate>
-                @{
-                    var row = (CategoryRowViewModel)context.DataItem;
-                    if (row.IsDeprecated)
-                    {
-                        <DxButton Id="undeprecateButton" Text="Un-deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)" Enabled=row.IsAllowedToWrite />
-                    }
-                    else
-                    {
-                        <DxButton Id="deprecateButton" Text="Deprecate" Click="() => this.ViewModel.OnDeprecateUnDeprecateButtonClick(row.Thing)" Enabled=row.IsAllowedToWrite />
-                    }
-                }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
@@ -112,12 +101,4 @@ Copyright (c) 2023-2024 Starion Group S.A.
         <h4>Categories Hierarchy</h4>
         <CategoryHierarchyDiagram ViewModel="this.ViewModel.CategoryHierarchyDiagramViewModel" />
     </div>
-
-<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeprecationMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @(this.ViewModel.PopupDialog)
-    <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)" />
-    </div>
-</DxPopup>
 </LoadingComponent>

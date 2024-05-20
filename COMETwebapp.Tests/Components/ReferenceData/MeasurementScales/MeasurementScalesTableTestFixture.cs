@@ -99,7 +99,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             this.viewModel.Setup(x => x.NumberSetKinds).Returns([]);
             this.viewModel.Setup(x => x.ReferenceDataLibraries).Returns([]);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
-            this.viewModel.Setup(x => x.IsOnDeprecationMode).Returns(true);
             this.viewModel.Setup(x => x.MeasurementScaleTypes).Returns(availableMeasurementScaleTypes.Select(x => new ClassKindWrapper(x)));
             this.viewModel.Setup(x => x.Thing).Returns(new LogarithmicScale());
 

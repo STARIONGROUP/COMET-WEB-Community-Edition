@@ -91,7 +91,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
-            this.viewModel.Setup(x => x.IsOnDeprecationMode).Returns(true);
             this.viewModel.Setup(x => x.Thing).Returns(new DomainOfExpertise());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
