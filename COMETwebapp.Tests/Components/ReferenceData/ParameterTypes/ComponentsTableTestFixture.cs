@@ -71,7 +71,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             this.renderer = this.context.RenderComponent<ComponentsTable>(parameters =>
             {
                 parameters.Add(p => p.ParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
-                parameters.Add(p => p.ParameterType, this.parameterType);
+                parameters.Add(p => p.Thing, this.parameterType);
             });
         }
 
@@ -98,7 +98,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         [Test]
         public async Task VerifyDimensionUpdate()
         {
-            this.renderer.SetParametersAndRender(p => p.Add(x => x.ParameterType, new ArrayParameterType()));
+            this.renderer.SetParametersAndRender(p => p.Add(x => x.Thing, new ArrayParameterType()));
 
             var dimensionTextBox = this.renderer.FindComponents<DxTextBox>().First(x => x.Instance.Id == "dimensionTextBox");
             await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("1,2,3"));
@@ -107,15 +107,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             var arrayParameterTypeWithDimensions = new ArrayParameterType();
             arrayParameterTypeWithDimensions.Dimension.AddRange([1, 2, 3, 4, 5]);
 
-            this.renderer.SetParametersAndRender(p => { p.Add(x => x.ParameterType, arrayParameterTypeWithDimensions); });
+            this.renderer.SetParametersAndRender(p => { p.Add(x => x.Thing, arrayParameterTypeWithDimensions); });
 
-            Assert.That(((ArrayParameterType)this.renderer.Instance.ParameterType).Dimension, Has.Count.EqualTo(5));
+            Assert.That(((ArrayParameterType)this.renderer.Instance.Thing).Dimension, Has.Count.EqualTo(5));
             await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("1,2,3"));
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.Dimension, Is.EqualTo("1,2,3"));
-                Assert.That(((ArrayParameterType)this.renderer.Instance.ParameterType).Dimension, Has.Count.EqualTo(3));
+                Assert.That(((ArrayParameterType)this.renderer.Instance.Thing).Dimension, Has.Count.EqualTo(3));
             });
         }
 
@@ -126,7 +126,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.ParameterTypes.Count(), Is.EqualTo(2));
-                Assert.That(this.renderer.Instance.ParameterType, Is.Not.Null);
+                Assert.That(this.renderer.Instance.Thing, Is.Not.Null);
                 Assert.That(this.renderer.Instance.OrderedItemsList, Is.EqualTo(this.parameterType.Component));
                 Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.Component.First().ShortName));
             });

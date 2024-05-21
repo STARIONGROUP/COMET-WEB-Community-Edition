@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindFactorsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="UnitFactorsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,8 +22,9 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.ReferenceData.ParameterTypes
+namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -35,32 +36,32 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="QuantityKindFactorsTable" />
+    /// Support class for the <see cref="UnitFactorsTable" />
     /// </summary>
-    public partial class QuantityKindFactorsTable : ThingOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
+    public partial class UnitFactorsTable : ThingOrderedItemsTable<DerivedUnit, UnitFactor, UnitFactorRowViewModel>
     {
         /// <summary>
-        /// Gets or sets the collection of <see cref="ParameterType" />s of <see cref="QuantityKind" />
+        /// A collection of measurement units to display for selection
         /// </summary>
         [Parameter]
-        public IEnumerable<QuantityKind> QuantityKindParameterTypes { get; set; }
+        public IEnumerable<MeasurementUnit> MeasurementUnits { get; set; }
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing"/>
+        /// Gets or sets the ordered list of items from the current <see cref="Thing" />
         /// </summary>
-        public override OrderedItemList<QuantityKindFactor> OrderedItemsList => this.Thing.QuantityKindFactor;
+        public override OrderedItemList<UnitFactor> OrderedItemsList => this.Thing.UnitFactor;
 
         /// <summary>
         /// Method invoked when creating a new quantity kind factor
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditQuantityKindFactor(GridCustomizeEditModelEventArgs e)
+        private void CustomizeEditUnitFactor(GridCustomizeEditModelEventArgs e)
         {
-            var dataItem = (QuantityKindFactorRowViewModel)e.DataItem;
+            var dataItem = (UnitFactorRowViewModel)e.DataItem;
             this.ShouldCreate = e.IsNew;
 
             this.Item = dataItem == null
-                ? new QuantityKindFactor { Iid = Guid.NewGuid() }
+                ? new UnitFactor { Iid = Guid.NewGuid() }
                 : dataItem.Thing.Clone(true);
 
             e.EditModel = this.Item;

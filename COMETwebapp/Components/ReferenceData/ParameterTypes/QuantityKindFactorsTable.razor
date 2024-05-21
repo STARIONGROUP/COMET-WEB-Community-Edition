@@ -19,7 +19,7 @@ Copyright (c) 2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
-@inherits ParameterTypeOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
+@inherits ThingOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
 
 <DxGrid @ref="this.Grid"
         Data="this.GetRows()"
@@ -59,12 +59,12 @@ Copyright (c) 2024 Starion Group S.A.
                     <DxButton Id="moveUpButton"
                               IconCssClass="oi oi-arrow-top"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.ParameterType.QuantityKindFactor.IndexOf(row.Thing) > 0)"/>
+                              Enabled="@(this.Thing.QuantityKindFactor.IndexOf(row.Thing) > 0)"/>
 
                     <DxButton Id="moveDownButton"
                               IconCssClass="oi oi-arrow-bottom"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.ParameterType.QuantityKindFactor.LastOrDefault() != row.Thing)" />
+                              Enabled="@(this.Thing.QuantityKindFactor.LastOrDefault() != row.Thing)" />
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>

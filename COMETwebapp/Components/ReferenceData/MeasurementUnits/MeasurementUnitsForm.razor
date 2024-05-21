@@ -1,0 +1,112 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2024 Starion Group S.A.
+
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+@using COMETwebapp.Wrappers
+@inherits SelectedDataItemForm
+
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+    <FluentValidationValidator/>
+
+    <DxFormLayout CssClass="w-100">
+
+        @if (this.ShouldCreate)
+        {
+            <DxFormLayoutItem Caption="Measurement type:" ColSpanMd="10">
+                <DxComboBox Data="@(this.ViewModel.MeasurementUnitTypes)"
+                            TextFieldName="@(nameof(ClassKindWrapper.ClassKindName))"
+                            @bind-Value="@(this.ViewModel.SelectedMeasurementUnitType)"
+                            CssClass="cw-480"/>
+            </DxFormLayoutItem>
+        }
+
+        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+            <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"
+                       ReadOnly="@(this.ShouldNameAndShortNameBeReadOnly)"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+            <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"
+                       ReadOnly="@(this.ShouldNameAndShortNameBeReadOnly)"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
+            <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
+                        TextFieldName="@nameof(ReferenceDataLibrary.Name)"
+                        @bind-Value="@(this.ViewModel.SelectedReferenceDataLibrary)"
+                        CssClass="cw-480"/>
+        </DxFormLayoutItem>
+
+
+        @if (this.ViewModel.Thing is ConversionBasedUnit conversionBasedUnit)
+        {
+            <DxFormLayoutItem Caption="Reference Unit:" ColSpanMd="10">
+                <DxComboBox Data="@(this.ViewModel.ReferenceUnits)"
+                            TextFieldName="@nameof(MeasurementUnit.Name)"
+                            @bind-Value="@(conversionBasedUnit.ReferenceUnit)"
+                            CssClass="cw-480"/>
+            </DxFormLayoutItem>
+        }
+
+        @if (this.ViewModel.Thing is LinearConversionUnit linearConvertionUnit)
+        {
+            <DxFormLayoutItem Caption="Conversion Factor:" ColSpanMd="10">
+                <DxTextBox @bind-Text="@(linearConvertionUnit.ConversionFactor)"/>
+            </DxFormLayoutItem>
+        }
+
+        @if (this.ViewModel.Thing is PrefixedUnit prefixedUnit)
+        {
+            <DxFormLayoutItem Caption="Prefix:" ColSpanMd="10">
+                <DxComboBox Data="@(this.ViewModel.Prefixes)"
+                            TextFieldName="@nameof(UnitPrefix.ShortName)"
+                            @bind-Value="@(prefixedUnit.Prefix)"
+                            CssClass="cw-480"/>
+            </DxFormLayoutItem>
+        }
+
+        <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+        </DxFormLayoutItem>
+
+        @if (this.ViewModel.Thing is DerivedUnit derivedUnit)
+        {
+            <DxFormLayoutItem Caption="Unit Factors:"
+                              ColSpanMd="12"
+                              CaptionPosition="CaptionPosition.Vertical">
+                <UnitFactorsTable @bind-Thing="@(derivedUnit)"
+                                  MeasurementUnits="@(this.ViewModel.ReferenceUnits)"/>
+            </DxFormLayoutItem>
+        }
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary/>
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="saveMeasurementScaleButton"
+                  SubmitFormOnClick="true"
+                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
+            Save
+        </DxButton>
+
+        <DxButton Id="cancelMeasurementScaleButton"
+                  Click="@(() => this.OnCancel())"
+                  RenderStyle="ButtonRenderStyle.Secondary">
+            Cancel
+        </DxButton>
+    </div>
+</EditForm>

@@ -76,20 +76,5 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.ViewModel.SelectParameterType(new BooleanParameterType());
             this.InvokeAsync(this.StateHasChanged);
         }
-
-        /// <summary>
-        /// Method invoked whenever a form is saved
-        /// </summary>
-        private void OnSaved()
-        {
-            if (!this.ShouldCreateThing)
-            {
-                return;
-            }
-
-            this.ShouldCreateThing = false;
-            var createdRow = this.ViewModel.Rows.Items.First(x => x.Thing.Iid == this.ViewModel.Thing.Iid);
-            this.OnSelectedDataItemChanged(createdRow);
-        }
     }
 }

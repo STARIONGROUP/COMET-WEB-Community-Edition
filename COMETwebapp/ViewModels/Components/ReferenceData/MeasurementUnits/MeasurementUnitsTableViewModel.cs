@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MeasurementUnitsTableViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="MeasurementUnitsTableViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
 {
@@ -46,22 +46,22 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     public class MeasurementUnitsTableViewModel : DeprecatableDataItemTableViewModel<MeasurementUnit, MeasurementUnitRowViewModel>, IMeasurementUnitsTableViewModel
     {
         /// <summary>
-        /// The backing field for <see cref="SelectedMeasurementUnitType"/>
-        /// </summary>
-        private ClassKindWrapper selectedMeasurementUnitType;
-
-        /// <summary>
-        /// Gets the available <see cref="ClassKind"/>s
+        /// Gets the available <see cref="ClassKind" />s
         /// </summary>
         private static readonly IEnumerable<ClassKind> AvailableMeasurementUnitTypes = [ClassKind.SimpleUnit, ClassKind.DerivedUnit, ClassKind.LinearConversionUnit, ClassKind.PrefixedUnit];
+
+        /// <summary>
+        /// The backing field for <see cref="SelectedMeasurementUnitType" />
+        /// </summary>
+        private ClassKindWrapper selectedMeasurementUnitType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MeasurementUnitsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public MeasurementUnitsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
             ILogger<MeasurementUnitsTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
@@ -73,12 +73,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
 
         /// <summary>
-        /// Gets the available <see cref="MeasurementUnit" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary"/>
+        /// Gets the available <see cref="MeasurementUnit" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary" />
         /// </summary>
         public IEnumerable<MeasurementUnit> ReferenceUnits => this.SelectedReferenceDataLibrary?.QueryMeasurementUnitsFromChainOfRdls();
 
         /// <summary>
-        /// Gets the available <see cref="Prefixes" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary"/>
+        /// Gets the available <see cref="Prefixes" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary" />
         /// </summary>
         public IEnumerable<UnitPrefix> Prefixes => this.SelectedReferenceDataLibrary?.QueryUnitPrefixesFromChainOfRdls();
 
@@ -106,7 +106,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         }
 
         /// <summary>
-        /// Initializes the <see cref="MeasurementUnitsTableViewModel"/>
+        /// Sets the current <see cref="MeasurementUnit" />
+        /// </summary>
+        /// <param name="measurementUnit">The <see cref="MeasurementUnit" /> to be set</param>
+        public void SelectMeasurementUnit(MeasurementUnit measurementUnit)
+        {
+            this.Thing = measurementUnit;
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)measurementUnit.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Initializes the <see cref="MeasurementUnitsTableViewModel" />
         /// </summary>
         public override void InitializeViewModel()
         {
@@ -122,37 +132,50 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         }
 
         /// <summary>
-        /// Creates or edits a <see cref="MeasurementUnit"/>
+        /// Creates or edits a <see cref="MeasurementUnit" />
         /// </summary>
-        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit"/> should be created</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit" /> should be created</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditMeasurementUnit(bool shouldCreate)
         {
-            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
-            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            if (shouldCreate || hasRdlChanged)
+            try
             {
-                rdlClone.Unit.Add(this.Thing);
-                thingsToCreate.Add(rdlClone);
+                this.IsLoading = true;
+
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                if (shouldCreate || hasRdlChanged)
+                {
+                    rdlClone.Unit.Add(this.Thing);
+                    thingsToCreate.Add(rdlClone);
+                }
+
+                thingsToCreate.Add(this.Thing);
+
+                if (this.Thing is DerivedUnit derivedUnit)
+                {
+                    thingsToCreate.AddRange(derivedUnit.UnitFactor);
+                }
+
+                await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
+                await this.SessionService.RefreshSession();
             }
-
-            thingsToCreate.Add(this.Thing);
-
-            if (this.Thing is DerivedUnit derivedUnit)
+            catch (Exception ex)
             {
-                thingsToCreate.AddRange(derivedUnit.UnitFactor);
+                this.Logger.LogError(ex, "Create or Update MeasurementUnit failed");
             }
-
-            await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
-        /// Selects a new measurement unit type for the attribute <see cref="SelectedMeasurementUnitType"/>
+        /// Selects a new measurement unit type for the attribute <see cref="SelectedMeasurementUnitType" />
         /// </summary>
-        /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementUnitType"/> will be set</param>
+        /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementUnitType" /> will be set</param>
         private void SelectMeasurementUnitType(ClassKindWrapper newKind)
         {
             this.Thing = newKind.ClassKind switch
