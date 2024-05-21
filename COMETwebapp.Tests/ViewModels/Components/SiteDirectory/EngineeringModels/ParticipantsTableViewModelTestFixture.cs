@@ -206,12 +206,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(false));
 
             await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.DeleteThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-            });
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]
@@ -243,19 +238,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.SelectedDomains = [this.participant.Domain.First(), this.participant.Domain.First().Clone(true)];
             await this.viewModel.CreateOrEditParticipant(false);
 
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1)), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-            });
-
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1)), Times.Once);
             await this.viewModel.CreateOrEditParticipant(true);
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2)), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
-            });
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2)), Times.Once);
         }
     }
 }

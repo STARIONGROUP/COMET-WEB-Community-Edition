@@ -158,9 +158,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
 
             parameterClone.ParameterType = selectedParameterType;
             elementDefinitionClone.Parameter.Add(parameterClone);
-
             await this.sessionService.CreateOrUpdateThings(elementDefinitionClone, [elementDefinitionClone, parameterClone]);
-            await this.sessionService.RefreshSession();
 
             await this.OnParameterAdded.InvokeAsync();
         }

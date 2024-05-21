@@ -194,7 +194,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             thingsToCreate.Add(this.Thing);
 
             await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
         }

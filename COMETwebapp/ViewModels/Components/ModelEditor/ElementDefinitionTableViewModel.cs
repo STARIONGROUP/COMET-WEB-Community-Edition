@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -267,7 +268,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             try
             {
                 await this.sessionService.CreateOrUpdateThings(clonedIteration, thingsToCreate);
-                await this.sessionService.RefreshSession();
                 this.IsOnCreationMode = false;
             }
             catch (Exception exception)
@@ -275,6 +275,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 Console.WriteLine(exception.Message);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
         }
 
         /// <summary>

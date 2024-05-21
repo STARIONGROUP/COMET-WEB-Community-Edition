@@ -160,7 +160,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
                 }
 
                 await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-                await this.SessionService.RefreshSession();
             }
             catch (Exception ex)
             {

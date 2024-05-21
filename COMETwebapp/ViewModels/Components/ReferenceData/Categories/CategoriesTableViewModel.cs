@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -109,7 +110,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 
                 thingsToCreate.Add(this.Thing);
                 await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-                await this.SessionService.RefreshSession();
                 
                 if (this.Thing.Original is not null)
                 {
@@ -144,6 +144,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             this.CategoryHierarchyDiagramViewModel.Rows = selectedCategory.SuperCategory;
             this.CategoryHierarchyDiagramViewModel.SubCategories = ((Category)selectedCategory.Original).AllDerivedCategories();
             this.CategoryHierarchyDiagramViewModel.SetupDiagram();
+        }
+
+        /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
         }
 
         /// <summary>

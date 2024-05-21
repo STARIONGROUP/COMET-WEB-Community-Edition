@@ -122,7 +122,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
             try
             {
                 await this.SessionService.CreateOrUpdateThings(this.CurrentIteration.Container.Clone(true), thingsToCreate);
-                await this.SessionService.RefreshSession();
             }
             catch (Exception ex)
             {
@@ -130,6 +129,15 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
             }
             
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
         }
 
         /// <summary>

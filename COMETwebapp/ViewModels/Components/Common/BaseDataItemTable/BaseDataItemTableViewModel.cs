@@ -174,6 +174,15 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         }
 
         /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>

@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
@@ -195,6 +196,15 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         }
 
         /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnEndUpdate()
+        {
+            return this.OnThingChanged();
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -318,8 +328,6 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
             }
 
             await this.SessionService.CreateOrUpdateThings(thingContainer, [thingContainer, this.ThingToCreate]);
-            await this.SessionService.RefreshSession();
-
             this.ThingToCreate = null;
             this.EditorPopupViewModel.IsVisible = false;
         }
@@ -374,9 +382,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             var thingContainer = this.ThingToEdit.Container;
             var thingContainerClone = thingContainer.Clone(false);
-
             await this.SessionService.CreateOrUpdateThings(thingContainerClone, [this.ThingToEdit.Clone(false)]);
-            await this.SessionService.RefreshSession();
 
             this.ThingToEdit = null;
             this.EditorPopupViewModel.IsVisible = false;
@@ -410,10 +416,7 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             var thingContainer = this.ThingToDelete.Container;
             var thingContainerClone = thingContainer.Clone(false);
-
             await this.SessionService.DeleteThings(thingContainerClone, [this.ThingToDelete.Clone(false)]);
-            await this.SessionService.RefreshSession();
-
             this.ThingToDelete = null;
         }
     }

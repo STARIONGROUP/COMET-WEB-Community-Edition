@@ -46,6 +46,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
     using NUnit.Framework;
     using System.Collections.Generic;
 
+    using COMET.Web.Common.Test.Helpers;
+
     [TestFixture]
     public class EngineeringModelsTableViewModelTestFixture
     {
@@ -194,16 +196,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(false));
 
             await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.DeleteThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-            });
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             this.sessionService.Setup(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             await this.viewModel.DeleteThing();
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
 
         [Test]

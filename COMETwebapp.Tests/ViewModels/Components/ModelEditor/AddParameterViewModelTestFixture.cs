@@ -120,7 +120,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ElementDefinition>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 2)), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
                 Assert.That(this.viewModel.MeasurementScales, Is.Empty);
             });
 
