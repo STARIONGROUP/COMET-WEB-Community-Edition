@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 {
+    using AntDesign;
+
     using CDP4Common.CommonData;
 
     using CDP4Dal;
@@ -51,8 +53,9 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <param name="sessionService">The <see cref="ISessionService"/></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        protected DeletableDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<DeletableDataItemTableViewModel<T, TRow>> logger) 
-            : base(sessionService, messageBus, logger)
+        /// <param name="notificationService">The <see cref="INotificationService"/></param>
+        protected DeletableDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<DeletableDataItemTableViewModel<T, TRow>> logger, INotificationService notificationService = null) 
+            : base(sessionService, messageBus, logger, notificationService)
         {
         }
 

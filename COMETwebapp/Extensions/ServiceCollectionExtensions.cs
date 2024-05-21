@@ -77,7 +77,6 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<IDomDataService, DomDataService>();
             serviceCollection.AddScoped<IJsUtilitiesService, JsUtilitiesService>();
             serviceCollection.AddHttpClient();
-            serviceCollection.AddAntDesign();
         }
 
         /// <summary>
