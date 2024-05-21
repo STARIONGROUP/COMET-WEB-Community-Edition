@@ -124,7 +124,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         }
 
         [Test]
-        public void VerifySessionRefresh()
+        public void VerifySessionRefreshAndEndUpdate()
         {
             this.viewModel.InitializeViewModel();
             this.viewModel.SetCurrentIteration(this.iteration);
@@ -138,6 +138,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.iteration.DefaultOption = this.option;
             this.messageBus.SendObjectChangeEvent(this.iteration, EventKind.Updated);
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
             Assert.That(this.viewModel.Rows.Items.First().IsDefault, Is.EqualTo(true));
         }

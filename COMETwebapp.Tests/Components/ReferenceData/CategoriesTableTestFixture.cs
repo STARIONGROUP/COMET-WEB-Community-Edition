@@ -358,7 +358,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             });
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
         }
 
         [Test]

@@ -282,7 +282,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.messageBus.SendObjectChangeEvent(siteReferenceDataLibrary, EventKind.Updated);
             this.messageBus.SendObjectChangeEvent(new PersonRole(), EventKind.Updated);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
 
             Assert.Multiple(() =>
             {
