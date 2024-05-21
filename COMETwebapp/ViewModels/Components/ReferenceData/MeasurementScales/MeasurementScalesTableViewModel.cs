@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 {
+    using AntDesign;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -65,8 +67,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        /// <param name="notificationService">The <see cref="INotificationService"/></param>
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
-            ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+            ILogger<MeasurementScalesTableViewModel> logger, INotificationService notificationService) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, notificationService)
         {
             this.Thing = new OrdinalScale();
             this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();
@@ -175,42 +178,53 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditMeasurementScale(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
-            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            if (shouldCreate || hasRdlChanged)
+            try
             {
-                rdlClone.Scale.Add(this.Thing);
-                thingsToCreate.Add(rdlClone);
-            }
+                this.IsLoading = true;
 
-            if (this.Thing is LogarithmicScale logarithmicScale)
-            {
-                switch (logarithmicScale.ReferenceQuantityValue.Count)
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                if (shouldCreate || hasRdlChanged)
                 {
-                    case 0 when !string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
-                        logarithmicScale.ReferenceQuantityValue.Add(this.SelectedReferenceQuantityValue);
-                        thingsToCreate.Add(this.SelectedReferenceQuantityValue);
-                        break;
-                    case > 0 when string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
-                        logarithmicScale.ReferenceQuantityValue.Clear();
-                        break;
-                    case > 0 when !string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
-                        logarithmicScale.ReferenceQuantityValue[0] = this.SelectedReferenceQuantityValue;
-                        thingsToCreate.Add(this.SelectedReferenceQuantityValue);
-                        break;
+                    rdlClone.Scale.Add(this.Thing);
+                    thingsToCreate.Add(rdlClone);
                 }
+
+                if (this.Thing is LogarithmicScale logarithmicScale)
+                {
+                    switch (logarithmicScale.ReferenceQuantityValue.Count)
+                    {
+                        case 0 when !string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
+                            logarithmicScale.ReferenceQuantityValue.Add(this.SelectedReferenceQuantityValue);
+                            thingsToCreate.Add(this.SelectedReferenceQuantityValue);
+                            break;
+                        case > 0 when string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
+                            logarithmicScale.ReferenceQuantityValue.Clear();
+                            break;
+                        case > 0 when !string.IsNullOrWhiteSpace(this.SelectedReferenceQuantityValue.Value):
+                            logarithmicScale.ReferenceQuantityValue[0] = this.SelectedReferenceQuantityValue;
+                            thingsToCreate.Add(this.SelectedReferenceQuantityValue);
+                            break;
+                    }
+                }
+
+                thingsToCreate.AddRange(this.Thing.ValueDefinition);
+                thingsToCreate.AddRange(this.Thing.MappingToReferenceScale);
+                thingsToCreate.Add(this.Thing);
+
+                var createOrUpdateResult = await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
+                this.DisplayToastNotificationFromResult(createOrUpdateResult);
             }
-
-            thingsToCreate.AddRange(this.Thing.ValueDefinition);
-            thingsToCreate.AddRange(this.Thing.MappingToReferenceScale);
-            thingsToCreate.Add(this.Thing);
-            await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-
-            this.IsLoading = false;
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Create or Update MeasurementScale failed");
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>

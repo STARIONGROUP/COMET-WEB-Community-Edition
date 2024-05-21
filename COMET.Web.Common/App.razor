@@ -20,6 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common
+@using AntDesign
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="@this.RegistrationService.RegisteredAssemblies" PreferExactMatches="@true"
@@ -43,6 +44,5 @@
             </LayoutView>
         </NotFound>
     </Router>
+    <AntContainer />
 </CascadingAuthenticationState>
-
-            

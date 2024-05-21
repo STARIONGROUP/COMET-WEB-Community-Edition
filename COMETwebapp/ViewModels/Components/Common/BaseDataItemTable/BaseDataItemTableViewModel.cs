@@ -24,6 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 {
+    using System.Data;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+
+    using AntDesign;
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -31,12 +37,20 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
+
+    using FluentResults;
+
+    using Microsoft.AspNetCore.Components;
+
+    using Result = FluentResults.Result;
 
     /// <summary>
     /// View model that provides the basic functionalities for a base data item
@@ -64,16 +78,23 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         protected readonly ILogger<BaseDataItemTableViewModel<T, TRow>> Logger;
 
         /// <summary>
+        /// Gets the <see cref="INotificationService"/>
+        /// </summary>
+        protected readonly INotificationService NotificationService;
+
+        /// <summary>
         /// Creates a new instance of the <see cref="BaseDataItemTableViewModel{T,TRow}"/>
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService"/></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger) 
+        /// <param name="notificationService">The <see cref="INotificationService"/></param>
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger, INotificationService notificationService = null) 
             : base(sessionService, messageBus)
         {
             this.PermissionService = sessionService.Session.PermissionService;
             this.Logger = logger;
+            this.NotificationService = notificationService;
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
             this.RegisterViewModelWithReusableRows(this);
@@ -215,6 +236,41 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
             }
 
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Displays a toast notification in the screen from a given result
+        /// </summary>
+        /// <param name="result">The result of an operation</param>
+        /// <exception cref="ArgumentNullException">Throws a <see cref="ArgumentNullException"/> if the <see cref="NotificationService"/> property is null</exception>
+        /// <returns>A <see cref="Task"/></returns>
+        protected void DisplayToastNotificationFromResult(Result result)
+        {
+            if (this.NotificationService is null)
+            {
+                throw new NoNullAllowedException($"The {nameof(this.NotificationService)} property cannot be null");
+            }
+
+            var key = $"open{DateTime.Now}";
+
+            var notificationConfig = new NotificationConfig { Key = key };
+
+            if (result.IsSuccess)
+            {
+                notificationConfig.Message = "Success!";
+                notificationConfig.Description = "The operation was successful!";
+                notificationConfig.NotificationType = NotificationType.Success;
+                notificationConfig.Duration = 4.5;
+            }
+            else
+            {
+                notificationConfig.Message = "Operation Failed";
+                notificationConfig.Description = result.GetHtmlErrorsDescription();
+                notificationConfig.NotificationType = NotificationType.Error;
+                notificationConfig.Duration = 12.5;
+            }
+
+            this.NotificationService.Open(notificationConfig);
         }
 
         /// <summary>

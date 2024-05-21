@@ -119,7 +119,13 @@ namespace COMETwebapp.Components.Common
             }
 
             this.ShouldCreateThing = false;
-            var createdRow = this.ViewModel.Rows.Items.First(x => x.Thing.Iid == this.ViewModel.Thing.Iid);
+            var createdRow = this.ViewModel.Rows.Items.FirstOrDefault(x => x.Thing.Iid == this.ViewModel.Thing.Iid);
+
+            if (createdRow is null)
+            {
+                return;
+            }
+
             this.OnSelectedDataItemChanged(createdRow);
         }
     }
