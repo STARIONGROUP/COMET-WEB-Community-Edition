@@ -345,15 +345,20 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(2));
             });
 
             this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             await this.viewModel.CreateCategory(false);
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Exactly(2));
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Exactly(3));
+                this.logger.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
+            });
 
             this.messageBus.SendObjectChangeEvent(this.viewModel.Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
         }
 
         [Test]

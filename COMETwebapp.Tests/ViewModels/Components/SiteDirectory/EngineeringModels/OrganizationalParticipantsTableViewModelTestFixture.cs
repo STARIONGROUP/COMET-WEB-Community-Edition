@@ -193,12 +193,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(false));
 
             await this.viewModel.OnConfirmPopupButtonClick();
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.DeleteThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-            });
+            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]

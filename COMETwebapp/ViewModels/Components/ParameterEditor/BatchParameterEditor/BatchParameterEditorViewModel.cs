@@ -212,7 +212,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             }
 
             await this.SessionService.CreateOrUpdateThings(this.CurrentIteration.Clone(false), thingsToUpdate);
-            await this.SessionService.RefreshSession();
             this.SelectedValueSetsRowsToUpdate = [];
             this.IsLoading = false;
         }

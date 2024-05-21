@@ -208,9 +208,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             thingsToCreate.AddRange(this.Thing.ValueDefinition);
             thingsToCreate.AddRange(this.Thing.MappingToReferenceScale);
             thingsToCreate.Add(this.Thing);
-
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
 
             this.IsLoading = false;
         }

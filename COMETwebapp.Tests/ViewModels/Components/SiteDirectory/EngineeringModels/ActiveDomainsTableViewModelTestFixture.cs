@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
 
@@ -195,12 +196,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
             });
 
             this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             await this.viewModel.EditActiveDomains();
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
     }
 }

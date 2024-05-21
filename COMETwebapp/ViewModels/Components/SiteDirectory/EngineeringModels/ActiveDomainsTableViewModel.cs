@@ -118,9 +118,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             {
                 var modelClone = this.CurrentModel.Clone(false);
                 modelClone.ActiveDomain = this.SelectedDomainsOfExpertise.ToList();
-
                 await this.SessionService.CreateOrUpdateThings(modelClone.Container.Clone(false), [modelClone]);
-                await this.SessionService.RefreshSession();
             }
             catch (Exception ex)
             {

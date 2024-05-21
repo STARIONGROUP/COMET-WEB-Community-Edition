@@ -187,7 +187,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             thingsToCreate.Add(this.Thing);
 
             await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-            await this.SessionService.RefreshSession();
 
             if (this.Thing.Original is not null)
             {

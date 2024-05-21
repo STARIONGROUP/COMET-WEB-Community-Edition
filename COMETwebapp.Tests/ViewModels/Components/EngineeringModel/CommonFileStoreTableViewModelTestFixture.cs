@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
@@ -136,18 +137,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.viewModel.Thing = this.commonFileStore;
 
             await this.viewModel.CreateOrEditCommonFileStore(true);
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
-            });
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
             this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             this.viewModel.Thing = new CommonFileStore();
-
             await this.viewModel.CreateOrEditCommonFileStore(false);
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
     }
 }

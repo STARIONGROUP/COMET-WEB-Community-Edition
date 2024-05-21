@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.ViewModels.Components.Common.Rows;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
@@ -152,7 +153,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.viewModel.InitializeViewModel();
             this.viewModel.SetCurrentIteration(this.iteration);
             await this.viewModel.CreatePublication();
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             this.viewModel.SelectedParameterRowsToPublish = listOfSelectedRowsToPublish;
             await this.viewModel.CreatePublication();
@@ -160,14 +161,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-                this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
                 Assert.That(this.viewModel.SelectedParameterRowsToPublish, Is.Empty);
             });
 
             this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             this.viewModel.SelectedParameterRowsToPublish = listOfSelectedRowsToPublish;
             await this.viewModel.CreatePublication();
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
 
         [Test]

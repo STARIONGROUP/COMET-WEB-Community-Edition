@@ -121,7 +121,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
             try
             {
                 await this.SessionService.CreateOrUpdateThings(iterationClone, thingsToCreate);
-                await this.SessionService.RefreshSession();
                 this.SelectedParameterRowsToPublish = [];
             }
             catch (Exception ex)

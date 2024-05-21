@@ -110,7 +110,6 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
             try
             {
                 await this.SessionService.DeleteThings(clonedContainer, [this.Thing.Clone(false)]);
-                await this.SessionService.RefreshSession();
             }
             catch (Exception exception)
             {

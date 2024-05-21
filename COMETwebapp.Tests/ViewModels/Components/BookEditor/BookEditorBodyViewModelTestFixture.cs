@@ -42,6 +42,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using System.Collections.Generic;
 
     using CDP4Web.Enumerations;
+    using CDP4Dal.Events;
 
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
@@ -344,6 +345,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
             };
 
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            Assert.That(this.viewModel.CurrentThing, Is.Not.Null);
+
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
             Assert.That(this.viewModel.CurrentThing, Is.Not.Null);
         }
     }

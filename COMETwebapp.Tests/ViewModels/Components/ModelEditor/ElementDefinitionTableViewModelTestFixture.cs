@@ -197,7 +197,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
             elementDefinition.Iid = this.viewModel.SelectedElementDefinition.Iid;
             this.messageBus.SendObjectChangeEvent(this.viewModel.RowsSource[0].ElementBase, EventKind.Updated);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
             Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows, Is.Not.Null);
         }
 
