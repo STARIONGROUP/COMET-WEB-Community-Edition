@@ -45,12 +45,14 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.SiteDirectory;
+    using COMETwebapp.Components.SiteDirectory.UserManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
     using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
 
     using DevExpress.Blazor;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -327,43 +329,36 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         }
 
         [Test]
-        public async Task VerifyComponent()
+        public async Task VerifyAddingOrEditingPersonInteractions()
         {
             var renderer = this.context.RenderComponent<UserManagementTable>();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
-                Assert.That(renderer.Markup, Does.Contain(this.person.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
-            });
-
-            var grid = renderer.FindComponent<DxGrid>();
-            var buttons = grid.FindComponents<DxButton>();
-            var addNewPersonButton = buttons[0];
-            var editPersonButton = buttons[1];
-
-            await grid.InvokeAsync(addNewPersonButton.Instance.Click.InvokeAsync);
+            var addDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
+            await renderer.InvokeAsync(addDomainOfExpertiseButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing.Name?.Trim(), Is.Empty);
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Person)));
             });
 
-            await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Contains(this.viewModel.Thing))), Times.Once);
+            var domainsGrid = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(() => domainsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new PersonRowViewModel(this.person)));
+            Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
 
-            await grid.InvokeAsync(editPersonButton.Instance.Click.InvokeAsync);
+            var domainsForm = renderer.FindComponent<UserManagementForm>();
+            var domainsEditForm = domainsForm.FindComponent<EditForm>();
+            await domainsForm.InvokeAsync(domainsEditForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing.Name, Is.EqualTo(this.viewModel.Rows.Items.First().Name));
-                Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Person)));
             });
 
-            await renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+            var form = renderer.FindComponent<DxGrid>();
+            await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]

@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.SiteDirectory
+namespace COMETwebapp.Components.SiteDirectory.UserManagement
 {
     using CDP4Common.SiteDirectoryData;
 
@@ -81,24 +81,26 @@ namespace COMETwebapp.Components.SiteDirectory
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add person model form is being saved
+        /// Method invoked every time a row is selected
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        protected override async Task OnEditThingSaving()
+        /// <param name="row">The selected row</param>
+        protected override void OnSelectedDataItemChanged(PersonRowViewModel row)
         {
-            await this.ViewModel.CreateOrEditPerson(this.ShouldCreateThing);
+            base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
+            this.ViewModel.SelectPerson(row.Thing.Clone(true));
+            this.ViewModel.Thing = row.Thing.Clone(true);
         }
 
         /// <summary>
-        /// Method invoked when creating a new person
+        /// Method invoked before creating a new thing
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        private void OnAddThingClick()
         {
-            var dataItem = (PersonRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.SelectPerson(dataItem == null ? new Person { IsActive = true } : dataItem.Thing);
-            e.EditModel = this.ViewModel.Thing;
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+            this.ViewModel.SelectPerson(new Person() { IsActive = true });
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>

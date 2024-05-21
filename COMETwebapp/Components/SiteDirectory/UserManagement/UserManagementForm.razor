@@ -1,0 +1,104 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 Starion Group S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@inherits SelectedDataItemForm
+
+<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+    <FluentValidationValidator/>
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Given Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.GivenName)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Surname:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Surname)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Organizational Unit:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.OrganizationalUnit)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Organization:" ColSpanMd="10">
+                    <DxComboBox Data="@(this.ViewModel.AvailableOrganizations)"
+                                TextFieldName="@nameof(Organization.Name)"
+                                @bind-Value="@(this.ViewModel.Thing.Organization)"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Person Role:" ColSpanMd="10">
+                    <DxComboBox Data="@(this.ViewModel.AvailablePersonRoles)"
+                                TextFieldName="@nameof(PersonRole.Name)"
+                                @bind-Value="@(this.ViewModel.Thing.Role)"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Default Domain:" ColSpanMd="10">
+                    <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
+                                               DisplayText="@(string.Empty)"
+                                               CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsActive)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="E-Mail">
+                <DxFormLayoutItem ColSpanMd="4">
+                    <DxComboBox Data="@(this.ViewModel.EmailAddressKinds)"
+                                @bind-Value="@(this.ViewModel.EmailAddress.VcardType)"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Email:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@(this.ViewModel.EmailAddress.Value)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is default:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.IsDefaultEmail)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Telephone Number">
+                <DxFormLayoutItem ColSpanMd="4">
+                    <DxComboBox Data="@(this.ViewModel.TelephoneNumberKinds)"
+                                @bind-Value="@(this.ViewModel.TelephoneNumber.VcardType)"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Number:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@(this.ViewModel.TelephoneNumber.Value)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is default:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.IsDefaultTelephoneNumber)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+    <div class="pt-3"></div>
+    <ValidationSummary />
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="savePersonButton"
+                  SubmitFormOnClick="true"
+                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
+            Save
+        </DxButton>
+
+        <DxButton Id="cancelPersonButton"
+                  Click="@(() => this.OnCancel())"
+                  RenderStyle="ButtonRenderStyle.Secondary">
+            Cancel
+        </DxButton>
+    </div>
+</EditForm>
