@@ -153,7 +153,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.viewModel.InitializeViewModel();
             this.viewModel.SetCurrentIteration(this.iteration);
             await this.viewModel.CreatePublication();
-            this.sessionService.Verify(x => x.RefreshSession(), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             this.viewModel.SelectedParameterRowsToPublish = listOfSelectedRowsToPublish;
             await this.viewModel.CreatePublication();
