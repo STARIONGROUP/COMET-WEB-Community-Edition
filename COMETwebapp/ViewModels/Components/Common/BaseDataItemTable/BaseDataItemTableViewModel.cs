@@ -233,8 +233,8 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// Displays a toast notification in the screen from a given result
         /// </summary>
         /// <param name="result">The result of an operation</param>
-        /// <exception cref="ArgumentNullException">
-        /// Throws a <see cref="ArgumentNullException" /> if the
+        /// <exception cref="InvalidDataException">
+        /// Throws an <see cref="InvalidDataException" /> if the
         /// <see cref="NotificationService" /> property is null
         /// </exception>
         /// <returns>A <see cref="Task" /></returns>
