@@ -36,12 +36,9 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
-
-    using Result = FluentResults.Result;
 
     /// <summary>
     /// View model that provides the basic functionalities for a base data item
@@ -227,44 +224,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
             }
 
             this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// Displays a toast notification in the screen from a given result
-        /// </summary>
-        /// <param name="result">The result of an operation</param>
-        /// <exception cref="InvalidDataException">
-        /// Throws an <see cref="InvalidDataException" /> if the
-        /// <see cref="NotificationService" /> property is null
-        /// </exception>
-        /// <returns>A <see cref="Task" /></returns>
-        protected void DisplayToastNotificationFromResult(Result result)
-        {
-            if (this.NotificationService is null)
-            {
-                throw new InvalidDataException($"The {nameof(this.NotificationService)} property cannot be null");
-            }
-
-            var key = $"open{DateTime.Now}";
-
-            var notificationConfig = new NotificationConfig { Key = key };
-
-            if (result.IsSuccess)
-            {
-                notificationConfig.Message = "Success!";
-                notificationConfig.Description = "The operation was successful!";
-                notificationConfig.NotificationType = NotificationType.Success;
-                notificationConfig.Duration = 4.5;
-            }
-            else
-            {
-                notificationConfig.Message = "Operation Failed";
-                notificationConfig.Description = result.GetHtmlErrorsDescription();
-                notificationConfig.NotificationType = NotificationType.Error;
-                notificationConfig.Duration = 12.5;
-            }
-
-            this.NotificationService.Open(notificationConfig);
         }
 
         /// <summary>

@@ -32,6 +32,8 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Dal;
     using CDP4Dal.Operations;
 
+    using COMET.Web.Common.Services.NotificationService;
+
     using DynamicData;
 
     using FluentResults;
@@ -117,5 +119,23 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
         Task<Result> WriteTransaction(OperationContainer operationContainer, IReadOnlyCollection<string> files);
+
+        /// <summary>
+        /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate);
+
+        /// <summary>
+        /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files);
     }
 }

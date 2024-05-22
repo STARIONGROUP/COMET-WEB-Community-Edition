@@ -40,6 +40,8 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Web.Enumerations;
     using CDP4Web.Extensions;
 
+    using COMET.Web.Common.Services.NotificationService;
+
     using DynamicData;
 
     using FluentResults;
@@ -60,13 +62,20 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ILogger<SessionService> logger;
 
         /// <summary>
+        /// The <see cref="INotificationService"/>
+        /// </summary>
+        private readonly INotificationService notificationService;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="SessionService" />
         /// </summary>
         /// <param name="logger">the <see cref="ILogger{TCategoryName}" /></param>
         /// <param name="messageBus">The <see cref="IMessageBus" /></param>
-        public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus) : base(logger, messageBus)
+        /// <param name="notificationService">The <see cref="INotificationService"/></param>
+        public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus, INotificationService notificationService) : base(logger, messageBus)
         {
             this.logger = logger;
+            this.notificationService = notificationService;
         }
 
         /// <summary>
@@ -152,6 +161,34 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             var operationContainer = transaction.FinalizeTransaction();
             return this.WriteTransaction(operationContainer, files);
+        }
+
+        /// <summary>
+        /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        public async Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate)
+        {
+            var result = await this.CreateOrUpdateThings(topContainer, toUpdateOrCreate);
+            this.notificationService.Results.Add(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        public async Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files)
+        {
+            var result = await this.CreateOrUpdateThings(topContainer, toUpdateOrCreate, files);
+            this.notificationService.Results.Add(result);
+            return result;
         }
 
         /// <summary>

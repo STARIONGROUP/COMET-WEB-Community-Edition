@@ -25,6 +25,10 @@
 
 namespace COMET.Web.Common.Services.NotificationService
 {
+    using DynamicData;
+
+    using FluentResults;
+
     /// <summary>
     /// The <see cref="INotificationService"/> provides notification information
     /// </summary>
@@ -34,6 +38,11 @@ namespace COMET.Web.Common.Services.NotificationService
         /// Gets the number of notification(s)
         /// </summary>
         int NotificationCount { get; }
+
+        /// <summary>
+        /// A sourcelist with <see cref="Result"/>s
+        /// </summary>
+        SourceList<Result> Results { get; }
 
         /// <summary>
         /// Increases the <see cref="NotificationService.NotificationCount"/>

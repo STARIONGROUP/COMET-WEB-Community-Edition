@@ -191,8 +191,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 
                 thingsToCreate.Add(this.Thing);
 
-                var createOrUpdateResult = await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-                this.DisplayToastNotificationFromResult(createOrUpdateResult);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate);
 
                 if (this.Thing.Original is not null)
                 {

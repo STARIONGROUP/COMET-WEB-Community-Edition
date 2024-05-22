@@ -24,13 +24,38 @@
 
 namespace COMETwebapp.Shared.TopMenuEntry
 {
+    using AntDesign;
+
+    using COMET.Web.Common.Shared.TopMenuEntry;
+
     using COMETwebapp.Components.Shared;
+    using COMETwebapp.Extensions;
+
+    using DynamicData;
+
+    using Microsoft.AspNetCore.Components;
+
+    using IAntDesignNotificationService = AntDesign.INotificationService;
+    using INotificationService = COMET.Web.Common.Services.NotificationService.INotificationService;
+    using Result = FluentResults.Result;
 
     /// <summary>
     /// Menu entry to access to the <see cref="About" /> content
     /// </summary>
-    public partial class AboutMenu
+    public partial class AboutMenu : MenuEntryBase
     {
+        /// <summary>
+        /// Gets or sets the <see cref="INotificationService"/>
+        /// </summary>
+        [Inject]
+        public INotificationService NotificationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IAntDesignNotificationService"/>
+        /// </summary>
+        [Inject]
+        public IAntDesignNotificationService AntNotificationService { get; set; }
+
         /// <summary>
         /// Value asserting that the popup is visible or not
         /// </summary>
@@ -43,6 +68,58 @@ namespace COMETwebapp.Shared.TopMenuEntry
         private void SetVisibility(bool visibility)
         {
             this.isVisible = visibility;
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.NotificationService.Results.Connect().WhereReasonsAre(ListChangeReason.Add, ListChangeReason.AddRange).Subscribe(_ =>
+            {
+                foreach (var result in this.NotificationService.Results.Items)
+                {
+                    this.DisplayToastNotificationFromResult(result);
+                }
+
+                this.NotificationService.Results.Clear();
+            }));
+        }
+
+        /// <summary>
+        /// Displays a toast notification in the screen from a given result
+        /// </summary>
+        /// <param name="result">The result of an operation</param>
+        /// <exception cref="InvalidDataException">
+        /// Throws an <see cref="InvalidDataException" /> if the
+        /// <see cref="NotificationService" /> property is null
+        /// </exception>
+        /// <returns>A <see cref="Task" /></returns>
+        protected void DisplayToastNotificationFromResult(Result result)
+        {
+            var key = $"open{DateTime.Now}";
+
+            var notificationConfig = new NotificationConfig { Key = key };
+
+            if (result.IsSuccess)
+            {
+                notificationConfig.Message = "Success!";
+                notificationConfig.Description = "The operation was successful!";
+                notificationConfig.NotificationType = NotificationType.Success;
+                notificationConfig.Duration = 4.5;
+            }
+            else
+            {
+                notificationConfig.Message = "Operation Failed";
+                notificationConfig.Description = result.GetHtmlErrorsDescription();
+                notificationConfig.NotificationType = NotificationType.Error;
+                notificationConfig.Duration = 12.5;
+            }
+
+            this.AntNotificationService.Open(notificationConfig);
         }
     }
 }

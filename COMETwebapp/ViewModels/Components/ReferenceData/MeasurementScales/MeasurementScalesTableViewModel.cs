@@ -214,8 +214,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
                 thingsToCreate.AddRange(this.Thing.MappingToReferenceScale);
                 thingsToCreate.Add(this.Thing);
 
-                var createOrUpdateResult = await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-                this.DisplayToastNotificationFromResult(createOrUpdateResult);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate);
             }
             catch (Exception ex)
             {
