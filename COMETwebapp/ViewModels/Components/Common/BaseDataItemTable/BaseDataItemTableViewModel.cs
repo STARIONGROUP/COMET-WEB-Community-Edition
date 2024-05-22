@@ -242,7 +242,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         {
             if (this.NotificationService is null)
             {
-                throw new NullReferenceException($"The {nameof(this.NotificationService)} property cannot be null");
+                throw new InvalidDataException($"The {nameof(this.NotificationService)} property cannot be null");
             }
 
             var key = $"open{DateTime.Now}";
