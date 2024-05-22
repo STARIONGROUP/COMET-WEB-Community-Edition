@@ -61,6 +61,7 @@ namespace COMETwebapp
 
             builder.Services.RegisterServices();
             builder.Services.RegisterViewModels();
+            builder.Services.AddAntDesign();
 
             builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
             {

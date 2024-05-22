@@ -87,7 +87,6 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<INotificationService, NotificationService>();
             serviceProvider.AddScoped<ICDPMessageBus, CDPMessageBus>();
             serviceProvider.AddSingleton<IValidationService, ValidationService>();
-            serviceProvider.AddAntDesign();
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();
