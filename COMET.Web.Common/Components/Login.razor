@@ -20,12 +20,13 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
+@using COMET.Web.Common.Enumerations
 @inherits DisposableComponent
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
     <DataAnnotationsValidator/>
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-        @if (string.IsNullOrEmpty(this.ViewModel.ServerConnectionService.ServerConfiguration.ServerAddress))
+        @if (string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress))
         {
             <DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
                 <Template>
@@ -61,12 +62,13 @@
             </Template>
         </DxFormLayoutItem>
 
-        @if (this.FullTrustCheckboxVisible)
+        @if (this.ServerConfiguration.FullTrustConfiguration.IsVisible || this.ServerConfiguration.FullTrustConfiguration.IsTrusted == FullTrustTrustedKind.UserDefined)
         {
             <DxFormLayoutItem Caption="@(this.FullTrustLabel)" BeginRow="true" ColSpanLg="12" CaptionPosition="CaptionPosition.Horizontal">
                 <Template>
                     <DxCheckBox Id="fulltrust"
                                 @bind-Checked="@(this.ViewModel.AuthenticationDto.FullTrust)"
+                                Enabled="@(this.ServerConfiguration.FullTrustConfiguration.IsTrusted == FullTrustTrustedKind.UserDefined)"
                                 Attributes="@(new Dictionary<string, object> {  ["title"] = "Checking this option will allow connecting to servers with self signed certificates" })" />
                 </Template>
             </DxFormLayoutItem>

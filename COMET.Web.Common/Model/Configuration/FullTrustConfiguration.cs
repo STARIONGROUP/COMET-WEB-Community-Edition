@@ -1,5 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="Constants.cs" company="Starion Group S.A.">
+// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="FullTrustConfiguration.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,16 +22,23 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Utilities
+namespace COMET.Web.Common.Model.Configuration
 {
+    using COMET.Web.Common.Enumerations;
+
     /// <summary>
-    /// Contains constant values that can be shared across the application
+    /// Holds all of the configuration related to the FullTrust feature
     /// </summary>
-    public static class Constants
+    public class FullTrustConfiguration
     {
         /// <summary>
-        /// The name of the configuration key used to retrieve the max upload file size, in megabytes
+        /// Verifies if the full trust option should be visible
         /// </summary>
-        public const string MaxUploadFileSizeInMbConfigurationKey = "MaxUploadFileSizeInMb";
+        public bool IsVisible { get; set; } = false;
+
+        /// <summary>
+        /// Verifies the kind of trust the full trust feature has
+        /// </summary>
+        public FullTrustTrustedKind IsTrusted { get; set; } = FullTrustTrustedKind.UserDefined;
     }
 }

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="Constants.cs" company="Starion Group S.A.">
+//  <copyright file="FullTrustTrustedKind.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,16 +22,26 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Utilities
+namespace COMET.Web.Common.Enumerations
 {
     /// <summary>
-    /// Contains constant values that can be shared across the application
+    /// An enumeration that defines possible values for the full trust trusted configuration
     /// </summary>
-    public static class Constants
+    public enum FullTrustTrustedKind
     {
         /// <summary>
-        /// The name of the configuration key used to retrieve the max upload file size, in megabytes
+        /// The kind selected for when the configuration should be full trust
         /// </summary>
-        public const string MaxUploadFileSizeInMbConfigurationKey = "MaxUploadFileSizeInMb";
+        FullTrust,
+
+        /// <summary>
+        /// The kind selected for when the configuration should be no trust
+        /// </summary>
+        NoTrust,
+
+        /// <summary>
+        /// The kind selected for when the configuration should be user defined
+        /// </summary>
+        UserDefined
     }
 }

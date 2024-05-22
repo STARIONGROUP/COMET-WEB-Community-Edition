@@ -71,12 +71,6 @@ namespace COMET.Web.Common.Components
         public string Redirect { get; set; }
 
         /// <summary>
-        /// The condition to check if the full trust checkbox should be visible or not
-        /// </summary>
-        [Parameter]
-        public bool FullTrustCheckboxVisible { get; set; }
-
-        /// <summary>
         /// The <see cref="NavigationManager" />
         /// </summary>
         [Inject]

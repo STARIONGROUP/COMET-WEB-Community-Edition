@@ -24,6 +24,7 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -61,6 +62,7 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.ServerConnectionService = serverConnectionService;
             this.authenticationService = authenticationService;
+            this.ResetAuthenticationDto();
         }
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// The <see cref="AuthenticationDto" /> used for perfoming a login
         /// </summary>
-        public AuthenticationDto AuthenticationDto { get; private set; } = new();
+        public AuthenticationDto AuthenticationDto { get; private set; }
 
         /// <summary>
         /// Attempt to login to a COMET Server
@@ -108,10 +110,21 @@ namespace COMET.Web.Common.ViewModels.Components
 
             if (this.AuthenticationResult.IsSuccess)
             {
-                this.AuthenticationDto = new AuthenticationDto();
+                this.ResetAuthenticationDto();
             }
 
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Resets the <see cref="AuthenticationDto"/> property to a new object with the default parameters
+        /// </summary>
+        private void ResetAuthenticationDto()
+        {
+            this.AuthenticationDto = new AuthenticationDto()
+            {
+                FullTrust = this.ServerConnectionService.ServerConfiguration?.FullTrustConfiguration.IsTrusted == FullTrustTrustedKind.FullTrust
+            };
         }
     }
 }
