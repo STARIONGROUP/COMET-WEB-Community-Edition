@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
+    using AntDesign;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
@@ -32,6 +34,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
@@ -43,6 +46,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using NUnit.Framework;
 
+    using Result = FluentResults.Result;
+
     [TestFixture]
     public class ParameterTypesTableViewModelTestFixture
     {
@@ -53,6 +58,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private Mock<ILogger<ParameterTypeTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
+        private Mock<INotificationService> notificationService;
         private ParameterType parameterType;
         private SiteDirectory siteDirectory;
 
@@ -62,6 +68,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.notificationService = new Mock<INotificationService>();
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<ParameterTypeTableViewModel>>();
 
@@ -104,8 +111,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Returns(Task.FromResult(new Result()));
 
-            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
+            this.viewModel = new ParameterTypeTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object, this.notificationService.Object);
         }
 
         [TearDown]
@@ -151,6 +159,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(2));
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.CompoundParameterType);
+            this.viewModel.Thing = this.viewModel.Thing.Clone(false);
             await this.viewModel.CreateOrEditParameterType(true);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
 
@@ -158,6 +167,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.viewModel.Thing = this.viewModel.Thing.Clone(true);
             await this.viewModel.CreateOrEditParameterType(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(4));
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>())).Throws(new Exception("Error"));
+            await this.viewModel.CreateOrEditParameterType(false);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
 
         [Test]
