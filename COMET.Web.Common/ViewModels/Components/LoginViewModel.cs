@@ -123,7 +123,7 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.AuthenticationDto = new AuthenticationDto()
             {
-                FullTrust = this.ServerConnectionService.ServerConfiguration?.FullTrustConfiguration.IsTrusted == FullTrustTrustedKind.FullTrust
+                FullTrust = this.ServerConnectionService.ServerConfiguration?.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.FullTrust
             };
         }
     }

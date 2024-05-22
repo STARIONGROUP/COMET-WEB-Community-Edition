@@ -62,13 +62,13 @@
             </Template>
         </DxFormLayoutItem>
 
-        @if (this.ServerConfiguration.FullTrustConfiguration.IsVisible || this.ServerConfiguration.FullTrustConfiguration.IsTrusted == FullTrustTrustedKind.UserDefined)
+        @if (this.ServerConfiguration.FullTrustConfiguration?.IsVisible == true || this.ServerConfiguration.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.UserDefined)
         {
             <DxFormLayoutItem Caption="@(this.FullTrustLabel)" BeginRow="true" ColSpanLg="12" CaptionPosition="CaptionPosition.Horizontal">
                 <Template>
                     <DxCheckBox Id="fulltrust"
                                 @bind-Checked="@(this.ViewModel.AuthenticationDto.FullTrust)"
-                                Enabled="@(this.ServerConfiguration.FullTrustConfiguration.IsTrusted == FullTrustTrustedKind.UserDefined)"
+                                Enabled="@(this.ServerConfiguration.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.UserDefined)"
                                 Attributes="@(new Dictionary<string, object> {  ["title"] = "Checking this option will allow connecting to servers with self signed certificates" })" />
                 </Template>
             </DxFormLayoutItem>
